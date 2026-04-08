@@ -27,6 +27,26 @@ namespace {
 constexpr size_t kFramePixels = 240U * 160U;
 constexpr size_t kMaxRomBytes = 32U * 1024U * 1024U;
 
+
+std::filesystem::path NormalizeToRelativePath(const std::filesystem::path& input) {
+  auto path = input;
+
+  if (path.empty()) {
+    return {};
+  }
+
+  std::error_code ec;
+  if (path.is_absolute()) {
+    auto rel = std::filesystem::relative(path, std::filesystem::current_path(ec), ec);
+    if (!ec && !rel.empty()) {
+      path = rel;
+    }
+  }
+
+  path = path.lexically_normal();
+  return path;
+}
+
 class CopyVideoDevice final : public nba::VideoDevice {
 public:
   void Draw(nba::u32* buffer) override {
@@ -111,7 +131,8 @@ bool GBA_LoadROMFromPath(GBACoreHandle* handle, const char* rom_path) {
   impl.last_error.clear();
 
   std::vector<nba::u8> rom_data;
-  if (!ReadROMFile(std::filesystem::path(rom_path), rom_data)) {
+  const auto rom_path_obj = NormalizeToRelativePath(std::filesystem::path(rom_path));
+  if (!ReadROMFile(rom_path_obj, rom_data)) {
     impl.last_error = "failed to read ROM file";
     return false;
   }
