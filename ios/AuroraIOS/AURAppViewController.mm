@@ -5,7 +5,7 @@
 #import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 
 extern "C" {
-#include "../../core/gba_core_c_api.h"
+#include "../../src/core/gba_core_c_api.h"
 }
 
 // GBA 画面解像度定数
