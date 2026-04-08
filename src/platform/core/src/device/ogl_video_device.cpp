@@ -7,7 +7,6 @@
 
 #include <array>
 #include <filesystem>
-#include <fmt/format.h>
 #include <fstream>
 #include <nba/log.hpp>
 #include <platform/device/ogl_video_device.hpp>

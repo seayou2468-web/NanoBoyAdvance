@@ -29,7 +29,7 @@ constexpr size_t kMaxRomBytes = 32U * 1024U * 1024U;
 
 class CopyVideoDevice final : public nba::VideoDevice {
 public:
-  void Draw(nba::u32* buffer) override {
+  void Draw(u32* buffer) override {
     if (buffer == nullptr) {
       return;
     }
@@ -61,7 +61,7 @@ struct GBACoreHandleImpl {
   }
 };
 
-bool ReadROMFile(const std::filesystem::path& path, std::vector<nba::u8>& out) {
+bool ReadROMFile(const std::filesystem::path& path, std::vector<u8>& out) {
   if (!std::filesystem::exists(path) || std::filesystem::is_directory(path)) {
     return false;
   }
@@ -110,7 +110,7 @@ bool GBA_LoadROMFromPath(GBACoreHandle* handle, const char* rom_path) {
   auto& impl = handle->impl;
   impl.last_error.clear();
 
-  std::vector<nba::u8> rom_data;
+  std::vector<u8> rom_data;
   if (!ReadROMFile(std::filesystem::path(rom_path), rom_data)) {
     impl.last_error = "failed to read ROM file";
     return false;
