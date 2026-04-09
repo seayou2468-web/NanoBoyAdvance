@@ -1,9 +1,10 @@
-#ifndef DATA_READER_H
-#define DATA_READER_H
+#ifndef FEX_DATA_READER_H
+#define FEX_DATA_READER_H
 
+#include <stdio.h>
 #include <cstring>
 
-#include "blargg_common.h"
+#include "../blargg_common.h"
 
 class Data_Reader {
 public:
@@ -48,6 +49,55 @@ public:
 
 private:
   long remain_;
+};
+
+class Std_File_Reader : public Data_Reader {
+public:
+  Std_File_Reader() : file_(nullptr) {}
+  ~Std_File_Reader() override { close(); }
+
+  error_t open(const char* path) {
+    close();
+    file_ = fopen(path, "rb");
+    if (!file_) {
+      return "Couldn't open file";
+    }
+    if (fseek(file_, 0, SEEK_END) != 0) {
+      close();
+      return "Couldn't seek in file";
+    }
+    const long size = ftell(file_);
+    if (size < 0 || fseek(file_, 0, SEEK_SET) != 0) {
+      close();
+      return "Couldn't seek in file";
+    }
+    set_remain(size);
+    return 0;
+  }
+
+  error_t read_avail(void* out, long n, long* out_read) override {
+    if (!file_) {
+      return "File is not open";
+    }
+    const long count = (long)fread(out, 1, (size_t)n, file_);
+    *out_read = count;
+    set_remain(remain() - count);
+    if (ferror(file_)) {
+      return "Couldn't read from file";
+    }
+    return 0;
+  }
+
+  void close() {
+    if (file_) {
+      fclose(file_);
+      file_ = nullptr;
+    }
+    set_remain(0);
+  }
+
+private:
+  FILE* file_;
 };
 
 class Mem_File_Reader : public Data_Reader {

@@ -15,61 +15,56 @@ more details. You should have received a copy of the GNU Lesser General
 Public License along with this module; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA */
 
-#include "blargg_source.h"
+#include BLARGG_SOURCE_BEGIN
 
 template<int mode>
 struct apu_reflection
 {
-	template<typename A, typename B>
-	static inline void reflect_value( A& apu, B& state )
-	{
-		if ( mode ) apu = state;
-		else state = apu;
-	}
+	#define REFLECT( apu, state ) (mode ? void (apu = state) : void (state = apu))
 
 	static void reflect_env( apu_snapshot_t::env_t& state, Nes_Envelope& osc )
 	{
-		reflect_value( state [0],             osc.env_delay );
-		reflect_value( state [1],             osc.envelope );
-		reflect_value( state [2],             osc.reg_written [3] );
+		REFLECT( state [0],             osc.env_delay );
+		REFLECT( state [1],             osc.envelope );
+		REFLECT( state [2],             osc.reg_written [3] );
 	}
 	
 	static void reflect_square( apu_snapshot_t::square_t& state, Nes_Square& osc )
 	{
 		reflect_env( state.env, osc );
-		reflect_value( state.delay,           osc.delay );
-		reflect_value( state.length,          osc.length_counter );
-		reflect_value( state.phase,           osc.phase );
-		reflect_value( state.swp_delay,       osc.sweep_delay );
-		reflect_value( state.swp_reset,       osc.reg_written [1] );
+		REFLECT( state.delay,           osc.delay );
+		REFLECT( state.length,          osc.length_counter );
+		REFLECT( state.phase,           osc.phase );
+		REFLECT( state.swp_delay,       osc.sweep_delay );
+		REFLECT( state.swp_reset,       osc.reg_written [1] );
 	}
 	
 	static void reflect_triangle( apu_snapshot_t::triangle_t& state, Nes_Triangle& osc )
 	{
-		reflect_value( state.delay,           osc.delay );
-		reflect_value( state.length,          osc.length_counter );
-		reflect_value( state.linear_counter,  osc.linear_counter );
-		reflect_value( state.linear_mode,     osc.reg_written [3] );
+		REFLECT( state.delay,           osc.delay );
+		REFLECT( state.length,          osc.length_counter );
+		REFLECT( state.linear_counter,  osc.linear_counter );
+		REFLECT( state.linear_mode,     osc.reg_written [3] );
 	}
 	
 	static void reflect_noise( apu_snapshot_t::noise_t& state, Nes_Noise& osc )
 	{
 		reflect_env( state.env, osc );
-		reflect_value( state.delay,           osc.delay );
-		reflect_value( state.length,          osc.length_counter );
-		reflect_value( state.shift_reg,       osc.noise );
+		REFLECT( state.delay,           osc.delay );
+		REFLECT( state.length,          osc.length_counter );
+		REFLECT( state.shift_reg,       osc.noise );
 	}
 	
 	static void reflect_dmc( apu_snapshot_t::dmc_t& state, Nes_Dmc& osc )
 	{
-		reflect_value( state.delay,           osc.delay );
-		reflect_value( state.remain,          osc.length_counter );
-		reflect_value( state.buf,             osc.buf );
-		reflect_value( state.bits_remain,     osc.bits_remain );
-		reflect_value( state.bits,            osc.bits );
-		reflect_value( state.buf_empty,       osc.buf_empty );
-		reflect_value( state.silence,         osc.silence );
-		reflect_value( state.irq_flag,        osc.irq_flag );
+		REFLECT( state.delay,           osc.delay );
+		REFLECT( state.remain,          osc.length_counter );
+		REFLECT( state.buf,             osc.buf );
+		REFLECT( state.bits_remain,     osc.bits_remain );
+		REFLECT( state.bits,            osc.bits );
+		REFLECT( state.buf_empty,       osc.buf_empty );
+		REFLECT( state.silence,         osc.silence );
+		REFLECT( state.irq_flag,        osc.irq_flag );
 		if ( mode )
 			state.addr = osc.address | 0x8000;
 		else

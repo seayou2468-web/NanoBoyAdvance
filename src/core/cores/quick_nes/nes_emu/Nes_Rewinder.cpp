@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA */
 
 // to do: fade out at transitions between forward and reverse
 
-#include "blargg_source.h"
+#include BLARGG_SOURCE_BEGIN
 
 // If true, always keep recent frame images in graphics buffer. Reduces overall
 // performance by about 33% on my machine, due to the frame buffer not staying in the cache.
