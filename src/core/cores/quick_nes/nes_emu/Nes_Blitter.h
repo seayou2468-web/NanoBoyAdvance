@@ -4,8 +4,8 @@
 #ifndef NES_BLITTER_H
 #define NES_BLITTER_H
 
-#include "nes_emu/Nes_Emu.h"
-#include "nes_emu/nes_ntsc.h"
+#include "Nes_Emu.h"
+#include "nes_ntsc.h"
 	
 class Nes_Blitter {
 public:
