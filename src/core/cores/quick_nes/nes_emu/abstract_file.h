@@ -48,7 +48,7 @@ protected:
 	void reset( FILE* f ) { file_ = f; }
 private:
 	FILE* file_;
-	error_t open( const char* path, int ignored ) { return open( path ); }
+	error_t open( const char* path, int /*ignored*/ ) { return open( path ); }
 	friend class Auto_File_Writer;
 };
 

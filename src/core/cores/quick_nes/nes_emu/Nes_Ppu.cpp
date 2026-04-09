@@ -663,7 +663,7 @@ void Nes_Ppu::poke_open_bus( nes_time_t time, int data, int mask )
 	if ( mask & 0xE0 ) decay_high = time + scanline_len * 100 / ppu_overclock;
 }
 
-const nes_time_t Nes_Ppu::earliest_open_bus_decay() const
+nes_time_t Nes_Ppu::earliest_open_bus_decay() const
 {
 	return ( decay_low < decay_high ) ? decay_low : decay_high;
 }

@@ -131,7 +131,7 @@ public:
 	void bass_freq( int ) { }
 	void clear() { }
 	channel_t channel( int ) { return chan; }
-	void end_frame( blip_time_t, bool unused = true ) { }
+	void end_frame( blip_time_t, bool /*unused*/ = true ) { }
 	long samples_avail() const { return 0; }
 	long read_samples( blip_sample_t*, long ) { return 0; }
 };

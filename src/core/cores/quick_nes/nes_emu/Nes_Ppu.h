@@ -92,7 +92,7 @@ private:
 	// open bus decay
 	void update_open_bus( nes_time_t );
 	void poke_open_bus( nes_time_t, int, int mask );
-	const nes_time_t earliest_open_bus_decay() const;
+	nes_time_t earliest_open_bus_decay() const;
 
 	// sprite max
 	nes_time_t next_sprite_max_run; // doesn't need to run until this time
