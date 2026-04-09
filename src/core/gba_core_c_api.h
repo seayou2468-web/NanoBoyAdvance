@@ -18,12 +18,26 @@ extern "C" {
 
 typedef struct GBACoreHandle GBACoreHandle;
 
+typedef enum GBAKey {
+  GBA_KEY_A = 0,
+  GBA_KEY_B = 1,
+  GBA_KEY_SELECT = 2,
+  GBA_KEY_START = 3,
+  GBA_KEY_RIGHT = 4,
+  GBA_KEY_LEFT = 5,
+  GBA_KEY_UP = 6,
+  GBA_KEY_DOWN = 7,
+  GBA_KEY_R = 8,
+  GBA_KEY_L = 9,
+} GBAKey;
+
 GBACoreHandle* GBA_Create(void);
 void GBA_Destroy(GBACoreHandle* handle);
 
 bool GBA_LoadBIOSFromPath(GBACoreHandle* handle, const char* bios_path);
 bool GBA_LoadROMFromPath(GBACoreHandle* handle, const char* rom_path);
 void GBA_StepFrame(GBACoreHandle* handle);
+void GBA_SetKeyStatus(GBACoreHandle* handle, GBAKey key, bool pressed);
 
 const uint32_t* GBA_GetFrameBufferRGBA(GBACoreHandle* handle, size_t* pixel_count);
 const char* GBA_GetLastError(GBACoreHandle* handle);

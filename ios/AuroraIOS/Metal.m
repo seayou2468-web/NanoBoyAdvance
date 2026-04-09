@@ -8,13 +8,15 @@
 #import "Metal.h"
 #import <Metal/Metal.h>
 #import <QuartzCore/CAMetalLayer.h>
+#include <string.h>
 
 @interface AURMetalView ()
 @property (nonatomic, strong) id<MTLDevice> device;
 @property (nonatomic, strong) id<MTLCommandQueue> commandQueue;
-@property (nonatomic, strong) id<MTLTexture> frameTexture;
+@property (nonatomic, strong) id<MTLBuffer> frameBuffer;
 @property (nonatomic, assign) NSUInteger frameWidth;
 @property (nonatomic, assign) NSUInteger frameHeight;
+@property (nonatomic, assign) NSUInteger frameBytesPerRow;
 @end
 
 @implementation AURMetalView
@@ -52,24 +54,23 @@
     }
 }
 
-- (void)ensureFrameTextureWithWidth:(NSUInteger)width height:(NSUInteger)height {
-    if (self.frameTexture && self.frameWidth == width && self.frameHeight == height) {
+- (void)ensureFrameBufferWithWidth:(NSUInteger)width height:(NSUInteger)height {
+    if (self.frameBuffer && self.frameWidth == width && self.frameHeight == height) {
         return;
     }
 
     self.frameWidth = width;
     self.frameHeight = height;
 
-    MTLTextureDescriptor* desc =
-        [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatBGRA8Unorm
-                                                           width:width
-                                                          height:height
-                                                       mipmapped:NO];
-
-    // 修正: iOS では BlitSource は未定義なので RenderTarget を使う
-    desc.usage = MTLTextureUsageShaderRead | MTLTextureUsageRenderTarget;
-    desc.storageMode = MTLStorageModeShared;
-    self.frameTexture = [self.device newTextureWithDescriptor:desc];
+    const NSUInteger bytesPerPixel = sizeof(uint32_t);
+    const NSUInteger tightBytesPerRow = width * bytesPerPixel;
+    // Metal の buffer->texture blit は sourceBytesPerRow に厳しいアライメント制約がある。
+    // 240 * 4 = 960 bytes は 256-byte 境界を満たさないため、パディング行を使う。
+    const NSUInteger alignment = 256;
+    const NSUInteger bytesPerRow = (tightBytesPerRow + alignment - 1) & ~(alignment - 1);
+    const NSUInteger length = bytesPerRow * height;
+    self.frameBuffer = [self.device newBufferWithLength:length options:MTLResourceStorageModeShared];
+    self.frameBytesPerRow = bytesPerRow;
 
     CAMetalLayer* layer = (CAMetalLayer*)self.layer;
     layer.drawableSize = CGSizeMake(width, height);
@@ -79,30 +80,35 @@
                    width:(NSUInteger)width
                   height:(NSUInteger)height {
     if (!pixels || width == 0 || height == 0 || !self.device || !self.commandQueue) { return; }
-    [self ensureFrameTextureWithWidth:width height:height];
-    if (!self.frameTexture) { return; }
-
-    MTLRegion region = MTLRegionMake2D(0, 0, width, height);
-    [self.frameTexture replaceRegion:region
-                         mipmapLevel:0
-                           withBytes:pixels
-                         bytesPerRow:width * sizeof(uint32_t)];
+    [self ensureFrameBufferWithWidth:width height:height];
+    if (!self.frameBuffer) { return; }
 
     CAMetalLayer* layer = (CAMetalLayer*)self.layer;
     id<CAMetalDrawable> drawable = [layer nextDrawable];
     if (!drawable) { return; }
 
+    const NSUInteger bytesPerPixel = sizeof(uint32_t);
+    const NSUInteger tightBytesPerRow = width * bytesPerPixel;
+    const NSUInteger bytesPerRow = self.frameBytesPerRow;
+    const NSUInteger bytesPerImage = bytesPerRow * height;
+    uint8_t* dst = (uint8_t*)self.frameBuffer.contents;
+    const uint8_t* src = (const uint8_t*)pixels;
+    memset(dst, 0, bytesPerImage);
+    for (NSUInteger y = 0; y < height; ++y) {
+        memcpy(dst + y * bytesPerRow, src + y * tightBytesPerRow, tightBytesPerRow);
+    }
+
     id<MTLCommandBuffer> cb = [self.commandQueue commandBuffer];
     id<MTLBlitCommandEncoder> blit = [cb blitCommandEncoder];
-    [blit copyFromTexture:self.frameTexture
-              sourceSlice:0
-              sourceLevel:0
-             sourceOrigin:MTLOriginMake(0, 0, 0)
-               sourceSize:MTLSizeMake(width, height, 1)
-                toTexture:drawable.texture
-         destinationSlice:0
-         destinationLevel:0
-        destinationOrigin:MTLOriginMake(0, 0, 0)];
+    [blit copyFromBuffer:self.frameBuffer
+            sourceOffset:0
+       sourceBytesPerRow:bytesPerRow
+     sourceBytesPerImage:bytesPerImage
+              sourceSize:MTLSizeMake(width, height, 1)
+               toTexture:drawable.texture
+        destinationSlice:0
+        destinationLevel:0
+       destinationOrigin:MTLOriginMake(0, 0, 0)];
     [blit endEncoding];
     [cb presentDrawable:drawable];
     [cb commit];

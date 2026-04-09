@@ -32,6 +32,7 @@ class CopyVideoDevice final : public nba::VideoDevice {
 public:
   void Draw(u32* buffer) override {
     if (buffer == nullptr) {
+      std::fill(frame_.begin(), frame_.end(), 0u);
       return;
     }
     std::copy_n(buffer, kFramePixels, frame_.begin());
@@ -168,6 +169,18 @@ void GBA_StepFrame(GBACoreHandle* handle) {
   } catch (...) {
     handle->impl.last_error = "unknown exception while stepping frame";
   }
+}
+
+void GBA_SetKeyStatus(GBACoreHandle* handle, GBAKey key, bool pressed) {
+  if (handle == nullptr || !handle->impl.core) {
+    return;
+  }
+
+  if (key < GBA_KEY_A || key > GBA_KEY_L) {
+    return;
+  }
+
+  handle->impl.core->SetKeyStatus(static_cast<nba::Key>(key), pressed);
 }
 
 const uint32_t* GBA_GetFrameBufferRGBA(GBACoreHandle* handle, size_t* pixel_count) {
