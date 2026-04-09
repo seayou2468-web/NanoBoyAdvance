@@ -1,4 +1,0 @@
-Source: https://github.com/quietust/nintendulator/tree/master/src
-Fetched: 2026-04-09 (UTC)
-Files copied for porting reference only.
-These files are NOT compiled directly in this repository.

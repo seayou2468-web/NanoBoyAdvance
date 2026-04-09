@@ -9,7 +9,7 @@
 ## Current cores
 
 - `cores/gba`: existing GBA runtime.
-- `cores/nes_nintendulator`: new NES core slot seeded from Nintendulator upstream source snapshots and a dependency-trimmed runtime scaffold.
+- `cores/nes_nintendulator`: dependency-trimmed NES runtime scaffold with only core-facing functionality.
 
 ## How to add a new core
 
