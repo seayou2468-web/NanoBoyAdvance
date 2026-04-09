@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "../../../../nba/include/nba/config.hpp"
+#include "../../../../core/cores/gba/nba/include/nba/config.hpp"
 #include <map>
 
 namespace nba {

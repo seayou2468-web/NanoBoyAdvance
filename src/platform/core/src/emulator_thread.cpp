@@ -5,7 +5,7 @@
  * Refer to the included LICENSE file.
  */
 
-#include "../../../nba/include/nba/log.hpp"
+#include "../../../core/cores/gba/nba/include/nba/log.hpp"
 #include "../include/platform/emulator_thread.hpp"
 
 namespace nba {
