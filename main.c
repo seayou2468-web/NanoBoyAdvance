@@ -21,7 +21,7 @@ int main(int argc, char** argv) {
   EmulatorCoreType core_type = EMULATOR_CORE_TYPE_GBA;
   const char* ext = strrchr(argv[1], '.');
   if (ext != NULL && strcmp(ext, ".nes") == 0) {
-    core_type = EMULATOR_CORE_TYPE_NES_NINTENDULATOR;
+    core_type = EMULATOR_CORE_TYPE_NES;
   }
 
   EmulatorCoreHandle* core = EmulatorCore_Create(core_type);

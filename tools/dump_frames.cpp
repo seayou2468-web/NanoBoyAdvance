@@ -113,7 +113,7 @@ bool write_rgba_png(const std::filesystem::path& path, uint32_t width, uint32_t 
 
 EmulatorCoreType detect_core_type(const std::string& rom_path) {
   if (rom_path.size() >= 4 && rom_path.substr(rom_path.size() - 4) == ".nes") {
-    return EMULATOR_CORE_TYPE_NES_NINTENDULATOR;
+    return EMULATOR_CORE_TYPE_NES;
   }
   return EMULATOR_CORE_TYPE_GBA;
 }

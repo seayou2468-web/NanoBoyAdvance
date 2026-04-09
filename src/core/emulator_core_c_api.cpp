@@ -4,12 +4,12 @@
 #include <string>
 
 #include "cores/gba/runtime.hpp"
-#include "cores/nes_nintendulator/runtime.hpp"
+#include "cores/quick_nes/runtime.hpp"
 
 struct EmulatorCoreHandle {
   EmulatorCoreType core_type;
   std::unique_ptr<core::gba::Runtime> gba;
-  std::unique_ptr<core::nes_nintendulator::Runtime> nes_nintendulator;
+  std::unique_ptr<core::quick_nes::Runtime> quick_nes;
   std::string last_error;
 };
 
@@ -19,8 +19,8 @@ const char* EmulatorCoreTypeName(EmulatorCoreType core_type) {
   switch (core_type) {
     case EMULATOR_CORE_TYPE_GBA:
       return "gba";
-    case EMULATOR_CORE_TYPE_NES_NINTENDULATOR:
-      return "nes_nintendulator";
+    case EMULATOR_CORE_TYPE_NES:
+      return "quick_nes";
     default:
       return nullptr;
   }
@@ -35,8 +35,8 @@ EmulatorCoreHandle* EmulatorCore_Create(EmulatorCoreType core_type) {
       case EMULATOR_CORE_TYPE_GBA:
         handle->gba = core::gba::CreateRuntime();
         return handle;
-      case EMULATOR_CORE_TYPE_NES_NINTENDULATOR:
-        handle->nes_nintendulator = core::nes_nintendulator::CreateRuntime();
+      case EMULATOR_CORE_TYPE_NES:
+        handle->quick_nes = core::quick_nes::CreateRuntime();
         return handle;
       default:
         delete handle;
@@ -65,7 +65,7 @@ bool EmulatorCore_LoadBIOSFromPath(EmulatorCoreHandle* handle, const char* bios_
         return false;
       }
       return core::gba::LoadBIOSFromPath(*handle->gba, bios_path, handle->last_error);
-    case EMULATOR_CORE_TYPE_NES_NINTENDULATOR:
+    case EMULATOR_CORE_TYPE_NES:
       handle->last_error = "NES core does not use external BIOS";
       return false;
     default:
@@ -88,12 +88,12 @@ bool EmulatorCore_LoadROMFromPath(EmulatorCoreHandle* handle, const char* rom_pa
         return false;
       }
       return core::gba::LoadROMFromPath(*handle->gba, rom_path, handle->last_error);
-    case EMULATOR_CORE_TYPE_NES_NINTENDULATOR:
-      if (!handle->nes_nintendulator) {
+    case EMULATOR_CORE_TYPE_NES:
+      if (!handle->quick_nes) {
         handle->last_error = "core runtime is not initialized";
         return false;
       }
-      return core::nes_nintendulator::LoadROMFromPath(*handle->nes_nintendulator, rom_path, handle->last_error);
+      return core::quick_nes::LoadROMFromPath(*handle->quick_nes, rom_path, handle->last_error);
     default:
       handle->last_error = "unknown core type";
       return false;
@@ -111,9 +111,9 @@ void EmulatorCore_StepFrame(EmulatorCoreHandle* handle) {
         core::gba::StepFrame(*handle->gba, handle->last_error);
       }
       break;
-    case EMULATOR_CORE_TYPE_NES_NINTENDULATOR:
-      if (handle->nes_nintendulator) {
-        core::nes_nintendulator::StepFrame(*handle->nes_nintendulator, handle->last_error);
+    case EMULATOR_CORE_TYPE_NES:
+      if (handle->quick_nes) {
+        core::quick_nes::StepFrame(*handle->quick_nes, handle->last_error);
       }
       break;
     default:
@@ -136,9 +136,9 @@ void EmulatorCore_SetKeyStatus(EmulatorCoreHandle* handle, EmulatorKey key, bool
         core::gba::SetKeyStatus(*handle->gba, static_cast<int>(key), pressed);
       }
       break;
-    case EMULATOR_CORE_TYPE_NES_NINTENDULATOR:
-      if (handle->nes_nintendulator) {
-        core::nes_nintendulator::SetKeyStatus(*handle->nes_nintendulator, static_cast<int>(key), pressed);
+    case EMULATOR_CORE_TYPE_NES:
+      if (handle->quick_nes) {
+        core::quick_nes::SetKeyStatus(*handle->quick_nes, static_cast<int>(key), pressed);
       }
       break;
     default:
@@ -156,7 +156,7 @@ bool EmulatorCore_GetVideoSpec(const EmulatorCoreHandle* handle, EmulatorVideoSp
       out_spec->width = 240;
       out_spec->height = 160;
       return true;
-    case EMULATOR_CORE_TYPE_NES_NINTENDULATOR:
+    case EMULATOR_CORE_TYPE_NES:
       out_spec->width = 256;
       out_spec->height = 240;
       return true;
@@ -179,11 +179,11 @@ const uint32_t* EmulatorCore_GetFrameBufferRGBA(EmulatorCoreHandle* handle, size
         break;
       }
       return core::gba::GetFrameBufferRGBA(*handle->gba, pixel_count);
-    case EMULATOR_CORE_TYPE_NES_NINTENDULATOR:
-      if (!handle->nes_nintendulator) {
+    case EMULATOR_CORE_TYPE_NES:
+      if (!handle->quick_nes) {
         break;
       }
-      return core::nes_nintendulator::GetFrameBufferRGBA(*handle->nes_nintendulator, pixel_count);
+      return core::quick_nes::GetFrameBufferRGBA(*handle->quick_nes, pixel_count);
     default:
       break;
   }

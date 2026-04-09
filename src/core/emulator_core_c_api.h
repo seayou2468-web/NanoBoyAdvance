@@ -20,7 +20,7 @@ typedef struct EmulatorCoreHandle EmulatorCoreHandle;
 
 typedef enum EmulatorCoreType {
   EMULATOR_CORE_TYPE_GBA = 0,
-  EMULATOR_CORE_TYPE_NES_NINTENDULATOR = 1,
+  EMULATOR_CORE_TYPE_NES = 1,
 } EmulatorCoreType;
 
 typedef enum EmulatorKey {

@@ -411,7 +411,7 @@ static const NSUInteger kDefaultHeight = 160;
     [self.imageView clearFrame];
 
     NSString* ext = url.pathExtension.lowercaseString ?: @"";
-    _coreType = [ext isEqualToString:@"nes"] ? EMULATOR_CORE_TYPE_NES_NINTENDULATOR : EMULATOR_CORE_TYPE_GBA;
+    _coreType = [ext isEqualToString:@"nes"] ? EMULATOR_CORE_TYPE_NES : EMULATOR_CORE_TYPE_GBA;
     _core = EmulatorCore_Create(_coreType);
     if (_core == NULL) {
         self.statusLabel.text = @"EmulatorCore_Create failed";
