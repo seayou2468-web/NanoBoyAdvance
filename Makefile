@@ -24,20 +24,27 @@ LIBNBA    := $(BUILD_DIR)/libnba.a
 
 NBA_SRCS  := $(shell find src/core/cores/gba/nba/src -name '*.cpp')
 NBA_OBJS  := $(patsubst %.cpp,$(BUILD_DIR)/%.o,$(NBA_SRCS))
+NES_SRCS  := $(filter-out src/core/cores/nes_nintendulator/runtime.cpp,$(shell find src/core/cores/nes_nintendulator -maxdepth 1 -name '*.cpp'))
+NES_OBJS  := $(patsubst %.cpp,$(BUILD_DIR)/%.o,$(NES_SRCS))
 CORE_OBJS := $(BUILD_DIR)/src/core/emulator_core_c_api.o $(BUILD_DIR)/src/core/cores/gba/runtime.o $(BUILD_DIR)/src/core/cores/gba/gba_core_c_api.o $(BUILD_DIR)/src/core/cores/nes_nintendulator/runtime.o
 MAIN_OBJ  := $(BUILD_DIR)/main.o
+LIBNES    := $(BUILD_DIR)/libnes_nintendulator.a
 
 .PHONY: all clean
 
 all: $(APP)
 
-$(APP): $(MAIN_OBJ) $(CORE_OBJS) $(LIBNBA)
+$(APP): $(MAIN_OBJ) $(CORE_OBJS) $(LIBNBA) $(LIBNES)
 	@mkdir -p $(dir $@)
-	$(CXX) -o $@ $(MAIN_OBJ) $(CORE_OBJS) $(LIBNBA) $(SDL_LIBS)
+	$(CXX) -o $@ $(MAIN_OBJ) $(CORE_OBJS) $(LIBNBA) $(LIBNES) $(SDL_LIBS)
 
 $(LIBNBA): $(NBA_OBJS)
 	@mkdir -p $(dir $@)
 	$(AR) rcs $@ $(NBA_OBJS)
+
+$(LIBNES): $(NES_OBJS)
+	@mkdir -p $(dir $@)
+	$(AR) rcs $@ $(NES_OBJS)
 
 $(BUILD_DIR)/main.o: main.c
 	@mkdir -p $(dir $@)

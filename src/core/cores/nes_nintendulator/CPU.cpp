@@ -1,3 +1,4 @@
+#ifdef NBA_ENABLE_NINTENDULATOR_FULL
 /* Nintendulator - Win32 NES emulator written in C++
  * Copyright (C) QMT Productions
  */
@@ -1195,3 +1196,7 @@ OP(E3, INX, IV_ISB) OP(F3,INYW, IV_ISB) OP(EB, IMM, IV_SBC) OP(FB,ABYW, IV_ISB) 
 	}
 }
 } // namespace CPU
+
+#else
+extern "C" int cpu_stub_symbol = 0;
+#endif

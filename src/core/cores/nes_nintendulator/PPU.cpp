@@ -1,3 +1,4 @@
+#ifdef NBA_ENABLE_NINTENDULATOR_FULL
 /* Nintendulator - Win32 NES emulator written in C++
  * Copyright (C) QMT Productions
  */
@@ -1371,3 +1372,7 @@ void	MAPINT	IntWriteVs (int Bank, int Addr, int Val)
 	funcs[Addr & 7](Val);
 }
 } // namespace PPU
+
+#else
+extern "C" int ppu_stub_symbol = 0;
+#endif

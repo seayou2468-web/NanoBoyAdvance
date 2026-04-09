@@ -1,3 +1,4 @@
+#ifdef NBA_ENABLE_NINTENDULATOR_FULL
 /* Nintendulator - Win32 NES emulator written in C++
  * Copyright (C) QMT Productions
  */
@@ -1560,3 +1561,7 @@ void	Run (void)
 }
 
 } // namespace APU
+
+#else
+extern "C" int apu_stub_symbol = 0;
+#endif
