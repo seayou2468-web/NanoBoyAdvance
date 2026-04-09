@@ -16,7 +16,6 @@ struct Runtime {
   std::array<uint32_t, 256U * 240U> frame_rgba{};
   std::array<bool, 10> key_state{};
   uint64_t frame_counter = 0;
-  std::string upstream_origin;
 };
 
 std::unique_ptr<Runtime> CreateRuntime();
