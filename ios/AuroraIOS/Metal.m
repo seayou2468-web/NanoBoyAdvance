@@ -44,10 +44,12 @@ typedef struct {
 @property (nonatomic, strong) id<MTLTexture>             sourceTexture;
 @property (nonatomic, strong) id<MTLTexture>             colorLUT3D;
 @property (nonatomic, strong) id<MTLRenderPipelineState> pipelineState;
+@property (nonatomic, strong) id<MTLRenderPipelineState> fastPipelineState;
 @property (nonatomic, strong) id<MTLSamplerState>        samplerState;
 @property (nonatomic, assign) NSUInteger                 frameWidth;
 @property (nonatomic, assign) NSUInteger                 frameHeight;
 @property (nonatomic, assign) NSUInteger                 frameBytesPerRow;
+@property (nonatomic, assign) dispatch_semaphore_t       inFlightSemaphore;
 @end
 
 @implementation AURMetalView
@@ -60,6 +62,7 @@ typedef struct {
 
     _device       = MTLCreateSystemDefaultDevice();
     _commandQueue = [_device newCommandQueue];
+    _inFlightSemaphore = dispatch_semaphore_create(3);
     self.backgroundColor = UIColor.blackColor;
     self.opaque          = YES;
 
@@ -170,6 +173,23 @@ typedef struct {
     "  c = mix(c, lutColor, clamp(p.lut_mix, 0.0, 1.0));\n"
     "\n"
     "  return float4(c, 1.0);\n"
+    "}\n"
+    "\n"
+    // ── 負荷軽減用の高速パス (低電力/高熱時に自動使用) ───────────────────
+    "fragment float4 f_main_fast(\n"
+    "    VSOut            in    [[stage_in]],\n"
+    "    texture2d<float> tex   [[texture(0)]],\n"
+    "    texture3d<float> lut3d [[texture(1)]],\n"
+    "    sampler          s     [[sampler(0)]],\n"
+    "    constant Params& p     [[buffer(0)]]) {\n"
+    "  float3 c = tex.sample(s, in.uv).rgb;\n"
+    "  float luma = dot(c, float3(0.2126, 0.7152, 0.0722));\n"
+    "  float boost = p.vibrance * 0.45;\n"
+    "  c = clamp(mix(float3(luma), c, p.saturation + boost), 0.0, 1.0);\n"
+    "  c = clamp((c - 0.5) * p.contrast + 0.5, 0.0, 1.0);\n"
+    "  float3 lutColor = lut3d.sample(s, c).rgb;\n"
+    "  c = mix(c, lutColor, p.lut_mix * 0.3);\n"
+    "  return float4(c, 1.0);\n"
     "}\n";
 
     NSError *err = nil;
@@ -182,6 +202,9 @@ typedef struct {
         pd.colorAttachments[0].pixelFormat = layer.pixelFormat;
         _pipelineState = [_device newRenderPipelineStateWithDescriptor:pd error:&err];
         NSAssert(_pipelineState, @"[AURMetalView] パイプライン生成失敗: %@", err);
+        pd.fragmentFunction = [lib newFunctionWithName:@"f_main_fast"];
+        _fastPipelineState = [_device newRenderPipelineStateWithDescriptor:pd error:&err];
+        NSAssert(_fastPipelineState, @"[AURMetalView] 高速パイプライン生成失敗: %@", err);
     }
 
     // バイリニアサンプラー (bicubic tap は clampToEdge が境界保護に必須)
@@ -294,22 +317,34 @@ typedef struct {
                   height:(NSUInteger)height {
     if (!pixels || width == 0 || height == 0 || !_device || !_commandQueue) return;
     [self ensureResourcesWithWidth:width height:height];
-    if (!_frameBuffer || !_sourceTexture || !_pipelineState || !_samplerState || !_colorLUT3D) return;
+    if (!_frameBuffer || !_sourceTexture || !_pipelineState || !_fastPipelineState || !_samplerState || !_colorLUT3D) return;
 
     CAMetalLayer        *layer    = (CAMetalLayer *)self.layer;
     id<CAMetalDrawable>  drawable = [layer nextDrawable];
     if (!drawable) return;
+
+    // GPU が詰まっている場合は新規フレームをスキップして入力遅延と発熱を抑える。
+    if (dispatch_semaphore_wait(_inFlightSemaphore, DISPATCH_TIME_NOW) != 0) {
+        return;
+    }
 
     // CPU → Shared Buffer (パディング行対応ライン毎コピー)
     const NSUInteger tightBpr = width * sizeof(uint32_t);
     const NSUInteger bpr      = _frameBytesPerRow;
     uint8_t       *dst = (uint8_t *)_frameBuffer.contents;
     const uint8_t *src = (const uint8_t *)pixels;
-    for (NSUInteger y = 0; y < height; ++y) {
-        memcpy(dst + y * bpr, src + y * tightBpr, tightBpr);
+    if (bpr == tightBpr) {
+        memcpy(dst, src, tightBpr * height);
+    } else {
+        for (NSUInteger y = 0; y < height; ++y) {
+            memcpy(dst + y * bpr, src + y * tightBpr, tightBpr);
+        }
     }
 
     id<MTLCommandBuffer> cb = [_commandQueue commandBuffer];
+    [cb addCompletedHandler:^(__unused id<MTLCommandBuffer> _Nonnull buffer) {
+        dispatch_semaphore_signal(self->_inFlightSemaphore);
+    }];
 
     // Blit: Shared Buffer → Private Texture
     id<MTLBlitCommandEncoder> blit = [cb blitCommandEncoder];
@@ -327,24 +362,34 @@ typedef struct {
     // Render Pass: Bicubic アップスケール + 色補正 → Drawable (実画面解像度)
     MTLRenderPassDescriptor *rpd = [MTLRenderPassDescriptor renderPassDescriptor];
     rpd.colorAttachments[0].texture     = drawable.texture;
-    rpd.colorAttachments[0].loadAction  = MTLLoadActionClear;
+    rpd.colorAttachments[0].loadAction  = MTLLoadActionDontCare;
     rpd.colorAttachments[0].storeAction = MTLStoreActionStore;
-    rpd.colorAttachments[0].clearColor  = MTLClearColorMake(0.0, 0.0, 0.0, 1.0);
 
     CGSize drawableSize = layer.drawableSize;
+    const float drawablePixels = (float)(drawableSize.width * drawableSize.height);
+    NSProcessInfo *pi = NSProcessInfo.processInfo;
+    BOOL shouldUseFastPath = pi.isLowPowerModeEnabled;
+    if (@available(iOS 11.0, *)) {
+        NSProcessInfoThermalState thermal = pi.thermalState;
+        shouldUseFastPath = shouldUseFastPath || (thermal >= NSProcessInfoThermalStateSerious);
+    }
+    // iPhone 12 mini 以降の高dpi端末でも過負荷を避けるため、
+    // 描画ピクセルが大きい場合は高速パスへ自動切り替え。
+    shouldUseFastPath = shouldUseFastPath || (drawablePixels > 2.7e6f);
+
     AURPostProcessParams params = {
         .sourceSize = { (float)width,              (float)height              },
         .outputSize = { (float)drawableSize.width,  (float)drawableSize.height },
-        .saturation = 1.08f,   // 全体彩度 (1.0=原色、1.08で適度に鮮やか)
-        .vibrance   = 0.30f,   // くすんだ色のみ選択的ブースト (自然な鮮やかさ)
-        .contrast   = 1.06f,   // 軽いコントラスト
-        .sharpen    = 0.18f,   // Laplacian 係数 (bicubic 後なので軽め)
-        .lutMix     = 0.15f,   // S字 LUT 適用率 (自然なメリハリ)
+        .saturation = shouldUseFastPath ? 1.03f : 1.08f,
+        .vibrance   = shouldUseFastPath ? 0.18f : 0.30f,
+        .contrast   = shouldUseFastPath ? 1.03f : 1.06f,
+        .sharpen    = shouldUseFastPath ? 0.0f : 0.18f,
+        .lutMix     = shouldUseFastPath ? 0.06f : 0.15f,
         ._pad       = 0.0f,
     };
 
     id<MTLRenderCommandEncoder> re = [cb renderCommandEncoderWithDescriptor:rpd];
-    [re setRenderPipelineState:_pipelineState];
+    [re setRenderPipelineState:(shouldUseFastPath ? _fastPipelineState : _pipelineState)];
     [re setFragmentTexture:_sourceTexture atIndex:0];
     [re setFragmentTexture:_colorLUT3D    atIndex:1];
     [re setFragmentSamplerState:_samplerState atIndex:0];

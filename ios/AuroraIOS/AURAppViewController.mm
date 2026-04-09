@@ -22,6 +22,8 @@ static const NSUInteger kGBAPixels = kGBAWidth * kGBAHeight;
 @property (nonatomic, strong) UITextView*    logTextView;
 @property (nonatomic, strong) UIView*        controlsContainer;
 @property (nonatomic, strong) CADisplayLink* displayLink;
+@property (nonatomic, strong) NSLayoutConstraint* controlsHeightConstraint;
+@property (nonatomic, strong) NSLayoutConstraint* logMinHeightConstraint;
 - (void)appendLog:(NSString*)message;
 @end
 
@@ -213,6 +215,10 @@ static const NSUInteger kGBAPixels = kGBAWidth * kGBAHeight;
     controlsMainStack.translatesAutoresizingMaskIntoConstraints = NO;
     [self.controlsContainer addSubview:controlsMainStack];
 
+    self.controlsHeightConstraint = [self.controlsContainer.heightAnchor constraintEqualToConstant:176];
+    self.logMinHeightConstraint = [self.logTextView.heightAnchor constraintGreaterThanOrEqualToConstant:72];
+    self.logMinHeightConstraint.priority = UILayoutPriorityDefaultHigh;
+
     [NSLayoutConstraint activateConstraints:@[
         [self.titleLabel.topAnchor
             constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor
@@ -226,9 +232,11 @@ static const NSUInteger kGBAPixels = kGBAWidth * kGBAHeight;
 
         // ImageView
         [self.imageView.leadingAnchor
-            constraintEqualToAnchor:self.view.safeAreaLayoutGuide.leadingAnchor],
+            constraintEqualToAnchor:self.view.safeAreaLayoutGuide.leadingAnchor
+            constant:6],
         [self.imageView.trailingAnchor
-            constraintEqualToAnchor:self.view.safeAreaLayoutGuide.trailingAnchor],
+            constraintEqualToAnchor:self.view.safeAreaLayoutGuide.trailingAnchor
+            constant:-6],
         [self.imageView.topAnchor
             constraintEqualToAnchor:self.titleLabel.bottomAnchor
             constant:8],
@@ -266,7 +274,7 @@ static const NSUInteger kGBAPixels = kGBAWidth * kGBAHeight;
         [self.controlsContainer.topAnchor
             constraintEqualToAnchor:fileButtonStack.bottomAnchor
             constant:12],
-        [self.controlsContainer.heightAnchor constraintEqualToConstant:176],
+        self.controlsHeightConstraint,
 
         // Log view: ボタン下〜画面下
         [self.logTextView.leadingAnchor
@@ -281,6 +289,7 @@ static const NSUInteger kGBAPixels = kGBAWidth * kGBAHeight;
         [self.logTextView.bottomAnchor
             constraintEqualToAnchor:self.view.safeAreaLayoutGuide.bottomAnchor
             constant:-8],
+        self.logMinHeightConstraint,
     ]];
 
     [NSLayoutConstraint activateConstraints:@[
@@ -291,6 +300,7 @@ static const NSUInteger kGBAPixels = kGBAWidth * kGBAHeight;
     ]];
 
     [self appendLog:@"ROM は毎回選択モードです（bookmark 復元なし）"];
+    [self updateAdaptiveLayoutForBounds:self.view.bounds.size];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -303,9 +313,28 @@ static const NSUInteger kGBAPixels = kGBAWidth * kGBAHeight;
     [self stopDisplayLink];
 }
 
+- (void)viewWillLayoutSubviews {
+    [super viewWillLayoutSubviews];
+    [self updateAdaptiveLayoutForBounds:self.view.bounds.size];
+}
+
 - (void)dealloc {
     [self stopDisplayLink];
     [self teardownCore];
+}
+
+- (void)updateAdaptiveLayoutForBounds:(CGSize)size {
+    if (size.width <= 0.0 || size.height <= 0.0) { return; }
+    BOOL isLandscape = size.width > size.height;
+    CGFloat shortEdge = MIN(size.width, size.height);
+    CGFloat controlsHeight = shortEdge <= 390.0 ? 150.0 : 176.0;
+    if (isLandscape) {
+        controlsHeight = MAX(128.0, shortEdge * 0.34);
+    }
+    self.controlsHeightConstraint.constant = MIN(220.0, controlsHeight);
+
+    CGFloat minLogHeight = isLandscape ? 56.0 : (shortEdge <= 390.0 ? 64.0 : 84.0);
+    self.logMinHeightConstraint.constant = minLogHeight;
 }
 
 // MARK: - ROM Picker
@@ -443,9 +472,9 @@ static const NSUInteger kGBAPixels = kGBAWidth * kGBAHeight;
         [CADisplayLink displayLinkWithTarget:self
                                     selector:@selector(stepFrameAndRender)];
     if (@available(iOS 15.0, *)) {
-        dl.preferredFrameRateRange = CAFrameRateRangeMake(30.0f, 30.0f, 30.0f);
+        dl.preferredFrameRateRange = CAFrameRateRangeMake(59.0f, 120.0f, 60.0f);
     } else {
-        dl.preferredFramesPerSecond = 30;
+        dl.preferredFramesPerSecond = 60;
     }
     [dl addToRunLoop:NSRunLoop.mainRunLoop forMode:NSRunLoopCommonModes];
     self.displayLink = dl;
