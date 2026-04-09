@@ -5,8 +5,8 @@
  * Refer to the included LICENSE file.
  */
 
-#include "hw/apu/channel/noise_channel.hpp"
-#include "hw/apu/registers.hpp"
+#include "noise_channel.hpp"
+#include "../registers.hpp"
 
 namespace nba::core {
 

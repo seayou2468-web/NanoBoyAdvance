@@ -7,20 +7,20 @@
 
 #pragma once
 
-#include <nba/common/dsp/resampler.hpp>
-#include <nba/common/dsp/ring_buffer.hpp>
-#include <nba/config.hpp>
-#include <nba/save_state.hpp>
-#include <nba/scheduler.hpp>
+#include "../../../include/nba/common/dsp/resampler.hpp"
+#include "../../../include/nba/common/dsp/ring_buffer.hpp"
+#include "../../../include/nba/config.hpp"
+#include "../../../include/nba/save_state.hpp"
+#include "../../../include/nba/scheduler.hpp"
 #include <mutex>
 
-#include "hw/apu/channel/quad_channel.hpp"
-#include "hw/apu/channel/wave_channel.hpp"
-#include "hw/apu/channel/noise_channel.hpp"
-#include "hw/apu/channel/fifo.hpp"
-#include "hw/apu/hle/mp2k.hpp"
-#include "hw/apu/registers.hpp"
-#include "hw/dma/dma.hpp"
+#include "channel/quad_channel.hpp"
+#include "channel/wave_channel.hpp"
+#include "channel/noise_channel.hpp"
+#include "channel/fifo.hpp"
+#include "hle/mp2k.hpp"
+#include "registers.hpp"
+#include "../dma/dma.hpp"
 
 namespace nba::core {
 

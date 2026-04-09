@@ -7,10 +7,10 @@
 
 #pragma once
 
-#include <nba/integer.hpp>
-#include <nba/scheduler.hpp>
+#include "../../../../include/nba/integer.hpp"
+#include "../../../../include/nba/scheduler.hpp"
 
-#include "hw/apu/channel/base_channel.hpp"
+#include "base_channel.hpp"
 
 namespace nba::core {
 

@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include <nba/integer.hpp>
+#include "../integer.hpp"
 
 namespace nba {
   

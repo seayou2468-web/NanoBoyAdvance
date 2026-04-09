@@ -5,7 +5,7 @@
  * Refer to the included LICENSE file.
  */
 
-#include <nba/integer.hpp>
+#include "../integer.hpp"
 
 namespace nba {
 

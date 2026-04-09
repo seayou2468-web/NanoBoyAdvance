@@ -8,9 +8,9 @@
 #pragma once
 
 #include <cassert>
-#include <nba/rom/gpio/device.hpp>
-#include <nba/integer.hpp>
-#include <nba/save_state.hpp>
+#include "device.hpp"
+#include "../../integer.hpp"
+#include "../../save_state.hpp"
 #include <memory>
 #include <typeindex>
 #include <unordered_map>

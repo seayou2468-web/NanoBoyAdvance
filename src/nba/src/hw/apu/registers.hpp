@@ -7,12 +7,12 @@
 
 #pragma once
 
-#include <nba/integer.hpp>
+#include "../../../include/nba/integer.hpp"
 
-#include "hw/apu/channel/quad_channel.hpp"
-#include "hw/apu/channel/wave_channel.hpp"
-#include "hw/apu/channel/noise_channel.hpp"
-#include "hw/apu/channel/fifo.hpp"
+#include "channel/quad_channel.hpp"
+#include "channel/wave_channel.hpp"
+#include "channel/noise_channel.hpp"
+#include "channel/fifo.hpp"
 
 namespace nba::core {
 

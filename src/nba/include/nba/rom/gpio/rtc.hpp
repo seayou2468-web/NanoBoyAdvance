@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include <nba/rom/gpio/device.hpp>
+#include "device.hpp"
 
 namespace nba {
 

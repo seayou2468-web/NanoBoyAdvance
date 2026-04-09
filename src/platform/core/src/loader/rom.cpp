@@ -7,16 +7,15 @@
 
 #include <filesystem>
 #include <fstream>
-#include <platform/loader/rom.hpp>
-#include <nba/rom/backup/eeprom.hpp>
-#include <nba/rom/backup/flash.hpp>
-#include <nba/rom/backup/sram.hpp>
-#include <nba/rom/header.hpp>
-#include <nba/rom/rom.hpp>
-#include <nba/log.hpp>
+#include "../../include/platform/loader/rom.hpp"
+#include "../../../../nba/include/nba/rom/backup/eeprom.hpp"
+#include "../../../../nba/include/nba/rom/backup/flash.hpp"
+#include "../../../../nba/include/nba/rom/backup/sram.hpp"
+#include "../../../../nba/include/nba/rom/header.hpp"
+#include "../../../../nba/include/nba/rom/rom.hpp"
+#include "../../../../nba/include/nba/log.hpp"
 #include <string_view>
 #include <utility>
-#include <unarr.h>
 
 namespace nba {
 
@@ -110,16 +109,6 @@ auto ROMLoader::ReadFile(fs::path const& path, std::vector<u8>& file_data) -> Re
     return Result::CannotOpenFile;
   }
 
-  auto archive_result = ReadFileFromArchive(path, file_data);
-
-  /* Forward result form ReadFileFromArchive() if the archive could be loaded,
-   * and the GBA file was found and loaded or there was no GBA file.
-   */
-  if(archive_result == Result::BadImage ||
-      archive_result == Result::Success) {
-    return archive_result;
-  }
-
   auto file_stream = std::ifstream{path, std::ios::binary};
 
   if(!file_stream.good()) {
@@ -131,44 +120,6 @@ auto ROMLoader::ReadFile(fs::path const& path, std::vector<u8>& file_data) -> Re
   file_data.resize(file_size);
   file_stream.read((char*)file_data.data(), file_size);
   return Result::Success;
-}
-
-auto ROMLoader::ReadFileFromArchive(fs::path const& path, std::vector<u8>& file_data) -> Result {
-  auto stream = ar_open_file(path.u8string().c_str());
-
-  if(!stream) {
-    return Result::CannotOpenFile;
-  }
-
-  ar_archive* archive = ar_open_zip_archive(stream, false);
-
-  if(!archive) archive = ar_open_rar_archive(stream);
-  if(!archive) archive = ar_open_7z_archive(stream);
-  if(!archive) archive = ar_open_tar_archive(stream);
-
-  if(!archive) {
-    ar_close(stream);
-    return Result::CannotOpenFile;
-  }
-
-  auto result = Result::BadImage;
-
-  while(ar_parse_entry(archive)) {
-    auto filename = ar_entry_get_name(archive);
-    auto extension = fs::path{filename}.extension();
-
-    if(extension == ".gba" || extension == ".GBA") {
-      auto size = ar_entry_get_size(archive);
-      file_data.resize(size);
-      ar_entry_uncompress(archive, file_data.data(), size);
-      result = Result::Success;
-      break;
-    }
-  }
-
-  ar_close_archive(archive);
-  ar_close(stream);
-  return result;
 }
 
 auto ROMLoader::GetGameInfo(

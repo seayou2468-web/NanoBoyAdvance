@@ -8,7 +8,7 @@
 #pragma once
 
 #include <memory>
-#include <nba/common/dsp/stream.hpp>
+#include "stream.hpp"
 #include <stdexcept>
 
 namespace nba {

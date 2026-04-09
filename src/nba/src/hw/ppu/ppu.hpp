@@ -8,17 +8,17 @@
 #pragma once
 
 #include <functional>
-#include <nba/common/compiler.hpp>
-#include <nba/common/punning.hpp>
-#include <nba/config.hpp>
-#include <nba/integer.hpp>
-#include <nba/save_state.hpp>
-#include <nba/scheduler.hpp>
+#include "../../../include/nba/common/compiler.hpp"
+#include "../../../include/nba/common/punning.hpp"
+#include "../../../include/nba/config.hpp"
+#include "../../../include/nba/integer.hpp"
+#include "../../../include/nba/save_state.hpp"
+#include "../../../include/nba/scheduler.hpp"
 #include <type_traits>
 
-#include "hw/ppu/registers.hpp"
-#include "hw/dma/dma.hpp"
-#include "hw/irq/irq.hpp"
+#include "registers.hpp"
+#include "../dma/dma.hpp"
+#include "../irq/irq.hpp"
 
 namespace nba::core {
 

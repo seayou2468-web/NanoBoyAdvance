@@ -6,11 +6,11 @@
  */
 
 #include <cstring>
-#include <nba/rom/gpio/gpio.hpp>
-#include <nba/rom/gpio/rtc.hpp>
-#include <nba/rom/gpio/solar_sensor.hpp>
+#include "../../../../include/nba/rom/gpio/gpio.hpp"
+#include "../../../../include/nba/rom/gpio/rtc.hpp"
+#include "../../../../include/nba/rom/gpio/solar_sensor.hpp"
 
-#include <nba/log.hpp>
+#include "../../../../include/nba/log.hpp"
 
 namespace nba {
 

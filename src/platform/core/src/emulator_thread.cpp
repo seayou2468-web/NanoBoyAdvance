@@ -5,8 +5,8 @@
  * Refer to the included LICENSE file.
  */
 
-#include <nba/log.hpp>
-#include <platform/emulator_thread.hpp>
+#include "../../../nba/include/nba/log.hpp"
+#include "../include/platform/emulator_thread.hpp"
 
 namespace nba {
 

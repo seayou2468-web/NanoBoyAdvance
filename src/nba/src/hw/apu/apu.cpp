@@ -7,10 +7,10 @@
 
 #include <algorithm>
 #include <cmath>
-#include <nba/common/dsp/resampler/cosine.hpp>
-#include <nba/common/dsp/resampler/cubic.hpp>
-#include <nba/common/dsp/resampler/nearest.hpp>
-#include <nba/common/dsp/resampler/sinc.hpp>
+#include "../../../include/nba/common/dsp/resampler/cosine.hpp"
+#include "../../../include/nba/common/dsp/resampler/cubic.hpp"
+#include "../../../include/nba/common/dsp/resampler/nearest.hpp"
+#include "../../../include/nba/common/dsp/resampler/sinc.hpp"
 
 #include "apu.hpp"
 

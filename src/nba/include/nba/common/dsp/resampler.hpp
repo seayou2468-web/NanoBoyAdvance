@@ -9,8 +9,8 @@
 
 #include <cmath>
 #include <memory>
-#include <nba/common/dsp/stereo.hpp>
-#include <nba/common/dsp/stream.hpp>
+#include "stereo.hpp"
+#include "stream.hpp"
 
 #ifndef M_PI
 #define M_PI (3.141592653589793238463)

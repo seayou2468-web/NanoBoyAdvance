@@ -7,11 +7,11 @@
 
 #pragma once
 
-#include <nba/save_state.hpp>
+#include "../../../../include/nba/save_state.hpp"
 
-#include "hw/apu/channel/length_counter.hpp"
-#include "hw/apu/channel/envelope.hpp"
-#include "hw/apu/channel/sweep.hpp"
+#include "length_counter.hpp"
+#include "envelope.hpp"
+#include "sweep.hpp"
 
 namespace nba::core {
 

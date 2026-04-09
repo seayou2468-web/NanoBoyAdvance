@@ -7,7 +7,7 @@
 
 #include <filesystem>
 #include <fstream>
-#include <platform/loader/bios.hpp>
+#include "../../include/platform/loader/bios.hpp"
 #include <vector>
 
 namespace nba {

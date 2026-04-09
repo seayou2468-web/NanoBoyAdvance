@@ -5,10 +5,10 @@
  * Refer to the included LICENSE file.
  */
 
-#include <nba/log.hpp>
+#include "../../../../include/nba/log.hpp"
 
-#include "bus/bus.hpp"
-#include "hw/apu/hle/mp2k.hpp"
+#include "../../../bus/bus.hpp"
+#include "mp2k.hpp"
 
 namespace nba::core {
 

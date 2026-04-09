@@ -7,9 +7,9 @@
 
 #include <cstring>
 #include <exception>
-#include <nba/rom/backup/eeprom.hpp>
+#include "../../../../include/nba/rom/backup/eeprom.hpp"
 
-#include <nba/log.hpp>
+#include "../../../../include/nba/log.hpp"
 
 using namespace nba::core;
 

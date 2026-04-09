@@ -5,7 +5,7 @@
  * Refer to the included LICENSE file.
  */
 
-#include "hw/apu/registers.hpp"
+#include "registers.hpp"
 
 namespace nba::core {
 

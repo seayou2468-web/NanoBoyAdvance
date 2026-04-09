@@ -6,12 +6,12 @@
  */
 
 #include <algorithm>
-#include <nba/common/punning.hpp>
-#include <nba/common/scope_exit.hpp>
+#include "../../include/nba/common/punning.hpp"
+#include "../../include/nba/common/scope_exit.hpp"
 #include <stdexcept>
 
-#include "arm/arm7tdmi.hpp"
-#include "bus/bus.hpp"
+#include "../arm/arm7tdmi.hpp"
+#include "bus.hpp"
 
 #include "io.hpp"
 

@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include <nba/integer.hpp>
+#include "../../include/nba/integer.hpp"
 
 constexpr u32 DISPCNT = 0x04000000;
 constexpr u32 GREENSWAP = 0x04000002;

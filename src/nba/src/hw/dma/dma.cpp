@@ -5,11 +5,11 @@
  * Refer to the included LICENSE file.
  */
 
-#include <nba/common/compiler.hpp>
+#include "../../../include/nba/common/compiler.hpp"
 
-#include "bus/bus.hpp"
-#include "bus/io.hpp"
-#include "hw/dma/dma.hpp"
+#include "../../bus/bus.hpp"
+#include "../../bus/io.hpp"
+#include "dma.hpp"
 
 namespace nba::core {
 

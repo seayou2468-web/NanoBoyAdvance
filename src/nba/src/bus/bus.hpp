@@ -8,17 +8,17 @@
 #pragma once
 
 #include <array>
-#include <nba/rom/rom.hpp>
-#include <nba/integer.hpp>
-#include <nba/save_state.hpp>
+#include "../../include/nba/rom/rom.hpp"
+#include "../../include/nba/integer.hpp"
+#include "../../include/nba/save_state.hpp"
 #include <vector>
 
-#include "hw/apu/apu.hpp"
-#include "hw/ppu/ppu.hpp"
-#include "hw/dma/dma.hpp"
-#include "hw/irq/irq.hpp"
-#include "hw/keypad/keypad.hpp"
-#include "hw/timer/timer.hpp"
+#include "../hw/apu/apu.hpp"
+#include "../hw/ppu/ppu.hpp"
+#include "../hw/dma/dma.hpp"
+#include "../hw/irq/irq.hpp"
+#include "../hw/keypad/keypad.hpp"
+#include "../hw/timer/timer.hpp"
 
 namespace nba::core {
 

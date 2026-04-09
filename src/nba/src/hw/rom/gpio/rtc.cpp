@@ -5,11 +5,11 @@
  * Refer to the included LICENSE file.
  */
 
-#include <nba/rom/gpio/rtc.hpp>
-#include <nba/log.hpp>
+#include "../../../../include/nba/rom/gpio/rtc.hpp"
+#include "../../../../include/nba/log.hpp"
 #include <ctime>
 
-#include "hw/irq/irq.hpp"
+#include "../../irq/irq.hpp"
 
 namespace nba {
 

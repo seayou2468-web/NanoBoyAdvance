@@ -7,8 +7,8 @@
 
 #pragma once
 
-#include <nba/integer.hpp>
-#include <nba/save_state.hpp>
+#include "../../integer.hpp"
+#include "../../save_state.hpp"
 
 namespace nba {
 

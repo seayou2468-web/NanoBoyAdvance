@@ -7,8 +7,8 @@
 
 #pragma once
 
-#include <nba/rom/backup/backup.hpp>
-#include <nba/rom/backup/backup_file.hpp>
+#include "backup.hpp"
+#include "backup_file.hpp"
 #include <string>
 
 namespace nba {

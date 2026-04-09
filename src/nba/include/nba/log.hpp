@@ -8,8 +8,8 @@
 #pragma once
 
 #include <array>
-#include <fmt/color.h>
-#include <fmt/format.h>
+#include <cstdlib>
+#include <iostream>
 #include <string_view>
 #include <utility>
 
@@ -34,40 +34,52 @@ namespace detail {
   static constexpr int kLogMask = All;
 #endif
 
+template<typename... Args>
+inline void PrintArgs(Args&&... args) {
+  ((std::cout << ' ' << std::forward<Args>(args)), ...);
+}
+
 } // namespace nba::detail
 
 template<Level level, typename... Args>
 inline void Log(std::string_view format, Args&&... args) {
   if constexpr((detail::kLogMask & level) != 0) {
-    fmt::text_style style = {};
-    char const* prefix = "[?]";
+    const char* prefix = "[?]";
+    const char* color_begin = "";
+    const char* color_end = "";
 
     if constexpr(level == Trace) {
-      style = fmt::fg(fmt::terminal_color::cyan);
       prefix = "[T]";
+      color_begin = "\033[36m";
+      color_end = "\033[0m";
     }
     if constexpr(level == Debug) {
-      style = fmt::fg(fmt::terminal_color::blue);
       prefix = "[D]";
+      color_begin = "\033[34m";
+      color_end = "\033[0m";
     }
-    if constexpr(level ==  Info) {
+    if constexpr(level == Info) {
       prefix = "[I]";
     }
-    if constexpr(level ==  Warn) {
-      style = fmt::fg(fmt::terminal_color::yellow);
+    if constexpr(level == Warn) {
       prefix = "[W]";
+      color_begin = "\033[33m";
+      color_end = "\033[0m";
     }
     if constexpr(level == Error) {
-      style = fmt::fg(fmt::terminal_color::magenta);
       prefix = "[E]";
+      color_begin = "\033[35m";
+      color_end = "\033[0m";
     }
     if constexpr(level == Fatal) {
-      style = fmt::fg(fmt::terminal_color::red);
       prefix = "[F]";
+      color_begin = "\033[31m";
+      color_end = "\033[0m";
     }
 
-    const auto& style_ref = style;
-    fmt::print(style_ref, "{} {}\n", prefix, fmt::format(format, std::forward<Args>(args)...));
+    std::cout << color_begin << prefix << ' ' << format;
+    detail::PrintArgs(std::forward<Args>(args)...);
+    std::cout << color_end << '\n';
   }
 }
 

@@ -8,11 +8,11 @@
 #pragma once
 
 #include <bitset>
-#include <nba/integer.hpp>
-#include <nba/save_state.hpp>
-#include <nba/scheduler.hpp>
+#include "../../../include/nba/integer.hpp"
+#include "../../../include/nba/save_state.hpp"
+#include "../../../include/nba/scheduler.hpp"
 
-#include "hw/irq/irq.hpp"
+#include "../irq/irq.hpp"
 
 namespace nba::core {
 

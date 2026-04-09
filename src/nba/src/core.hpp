@@ -5,8 +5,8 @@
  * Refer to the included LICENSE file.
  */
 
-#include <nba/core.hpp>
-#include <nba/scheduler.hpp>
+#include "../include/nba/core.hpp"
+#include "../include/nba/scheduler.hpp"
 
 #include "arm/arm7tdmi.hpp"
 #include "bus/bus.hpp"

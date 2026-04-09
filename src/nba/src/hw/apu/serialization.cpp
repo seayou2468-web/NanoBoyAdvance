@@ -7,7 +7,7 @@
 
 #include <cstring>
 
-#include "hw/apu/apu.hpp"
+#include "apu.hpp"
 
 namespace nba::core {
 

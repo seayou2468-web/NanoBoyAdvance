@@ -7,12 +7,12 @@
 
 #pragma once
 
-#include <nba/core.hpp>
-#include <nba/save_state.hpp>
-#include <nba/scheduler.hpp>
+#include "../../../include/nba/core.hpp"
+#include "../../../include/nba/save_state.hpp"
+#include "../../../include/nba/scheduler.hpp"
 #include <memory>
 
-#include "hw/irq/irq.hpp"
+#include "../irq/irq.hpp"
 
 namespace nba::core {
 

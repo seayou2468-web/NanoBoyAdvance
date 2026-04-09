@@ -5,9 +5,9 @@
  * Refer to the included LICENSE file.
  */
 
-#include <nba/common/meta.hpp>
+#include <utility>
 
-#include "arm/arm7tdmi.hpp"
+#include "../arm7tdmi.hpp"
 
 namespace nba::core::arm {
 
@@ -32,24 +32,22 @@ struct TableGen {
   #pragma clang diagnostic pop
   #endif
 
-  static constexpr auto GenerateTableThumb() -> std::array<Handler16, 1024> {
-    std::array<Handler16, 1024> lut{};
+  template<std::size_t... I>
+  static constexpr auto GenerateTableThumbImpl(std::index_sequence<I...>) -> std::array<Handler16, 1024> {
+    return { GenerateHandlerThumb<(I << 6)>()... };
+  }
 
-    static_for<std::size_t, 0, 1024>([&](auto i) {
-      lut[i] = GenerateHandlerThumb<i << 6>();
-    });
-    return lut;
+  static constexpr auto GenerateTableThumb() -> std::array<Handler16, 1024> {
+    return GenerateTableThumbImpl(std::make_index_sequence<1024>{});
+  }
+
+  template<std::size_t... I>
+  static constexpr auto GenerateTableARMImpl(std::index_sequence<I...>) -> std::array<Handler32, 4096> {
+    return { GenerateHandlerARM<(((I & 0xFF0) << 16) | ((I & 0xF) << 4))>()... };
   }
 
   static constexpr auto GenerateTableARM() -> std::array<Handler32, 4096> {
-    std::array<Handler32, 4096> lut{};
-
-    static_for<std::size_t, 0, 4096>([&](auto i) {
-      lut[i] = GenerateHandlerARM<
-        ((i & 0xFF0) << 16) |
-        ((i & 0xF) << 4)>();
-    });
-    return lut;
+    return GenerateTableARMImpl(std::make_index_sequence<4096>{});
   }
 
   static constexpr auto GenerateConditionTable() -> std::array<bool, 256> {

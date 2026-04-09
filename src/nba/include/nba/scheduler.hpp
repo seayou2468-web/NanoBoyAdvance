@@ -7,10 +7,10 @@
 
 #pragma once
 
-#include <nba/log.hpp>
-#include <nba/common/compiler.hpp>
-#include <nba/integer.hpp>
-#include <nba/save_state.hpp>
+#include "log.hpp"
+#include "common/compiler.hpp"
+#include "integer.hpp"
+#include "save_state.hpp"
 #include <functional>
 #include <limits>
 

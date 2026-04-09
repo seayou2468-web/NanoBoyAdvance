@@ -9,13 +9,13 @@
 
 #include <array>
 #include <algorithm>
-#include <nba/common/compiler.hpp>
-#include <nba/log.hpp>
-#include <nba/save_state.hpp>
-#include <nba/scheduler.hpp>
+#include "../../include/nba/common/compiler.hpp"
+#include "../../include/nba/log.hpp"
+#include "../../include/nba/save_state.hpp"
+#include "../../include/nba/scheduler.hpp"
 
-#include "bus/bus.hpp"
-#include "arm/state.hpp"
+#include "../bus/bus.hpp"
+#include "state.hpp"
 
 /**
  * Some TODOs:

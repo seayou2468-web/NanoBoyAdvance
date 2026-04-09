@@ -8,12 +8,12 @@
 #pragma once
 
 #include <algorithm>
-#include <nba/integer.hpp>
-#include <nba/save_state.hpp>
-#include <nba/scheduler.hpp>
+#include "../../../include/nba/integer.hpp"
+#include "../../../include/nba/save_state.hpp"
+#include "../../../include/nba/scheduler.hpp"
 
-#include "hw/apu/apu.hpp"
-#include "hw/irq/irq.hpp"
+#include "../apu/apu.hpp"
+#include "../irq/irq.hpp"
 
 namespace nba::core {
 

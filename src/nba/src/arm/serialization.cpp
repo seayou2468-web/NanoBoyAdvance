@@ -5,7 +5,7 @@
  * Refer to the included LICENSE file.
  */
 
-#include "arm/arm7tdmi.hpp"
+#include "arm7tdmi.hpp"
 
 namespace nba::core::arm {
 

@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include <nba/common/dsp/resampler.hpp>
+#include "../resampler.hpp"
 
 namespace nba {
 

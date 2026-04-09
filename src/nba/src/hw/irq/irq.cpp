@@ -5,9 +5,9 @@
  * Refer to the included LICENSE file.
  */
 
-#include <arm/arm7tdmi.hpp>
+#include "../../arm/arm7tdmi.hpp"
 
-#include "hw/irq/irq.hpp"
+#include "irq.hpp"
 
 namespace nba::core {
 

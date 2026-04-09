@@ -5,7 +5,7 @@
  * Refer to the included LICENSE file.
  */
 
-#include "hw/dma/dma.hpp"
+#include "dma.hpp"
 
 namespace nba::core {
 

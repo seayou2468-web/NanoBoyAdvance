@@ -7,9 +7,9 @@
 
 #pragma once
 
-#include <nba/core.hpp>
-#include <nba/rom/backup/backup.hpp>
-#include <platform/game_db.hpp>
+#include "../../../../../nba/include/nba/core.hpp"
+#include "../../../../../nba/include/nba/rom/backup/backup.hpp"
+#include "../game_db.hpp"
 #include <string>
 
 namespace fs = std::filesystem;
@@ -41,7 +41,6 @@ struct ROMLoader {
 
 private:
   static auto ReadFile(fs::path const& path, std::vector<u8>& file_data) -> Result;
-  static auto ReadFileFromArchive(fs::path const& path, std::vector<u8>& file_data) -> Result;
 
   static auto GetGameInfo(
     std::vector<u8>& file_data

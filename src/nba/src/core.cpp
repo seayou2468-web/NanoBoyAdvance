@@ -5,9 +5,9 @@
  * Refer to the included LICENSE file.
  */
 
-#include <nba/common/crc32.hpp>
-#include <nba/rom/gpio/rtc.hpp>
-#include <nba/rom/gpio/solar_sensor.hpp>
+#include "../include/nba/common/crc32.hpp"
+#include "../include/nba/rom/gpio/rtc.hpp"
+#include "../include/nba/rom/gpio/solar_sensor.hpp"
 
 #include "core.hpp"
 

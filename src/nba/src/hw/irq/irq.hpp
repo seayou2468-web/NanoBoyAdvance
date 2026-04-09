@@ -7,9 +7,9 @@
 
 #pragma once
 
-#include <nba/integer.hpp>
-#include <nba/save_state.hpp>
-#include <nba/scheduler.hpp>
+#include "../../../include/nba/integer.hpp"
+#include "../../../include/nba/save_state.hpp"
+#include "../../../include/nba/scheduler.hpp"
 
 namespace nba::core {
 

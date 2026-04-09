@@ -12,7 +12,7 @@
 #include <filesystem>
 #include <fstream>
 #include <memory>
-#include <nba/integer.hpp>
+#include "../../integer.hpp"
 #include <stdexcept>
 #include <string>
 #include <vector>

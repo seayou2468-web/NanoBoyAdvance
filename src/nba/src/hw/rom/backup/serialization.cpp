@@ -6,9 +6,9 @@
  */
 
 #include <cstring>
-#include <nba/rom/backup/eeprom.hpp>
-#include <nba/rom/backup/flash.hpp>
-#include <nba/rom/backup/sram.hpp>
+#include "../../../../include/nba/rom/backup/eeprom.hpp"
+#include "../../../../include/nba/rom/backup/flash.hpp"
+#include "../../../../include/nba/rom/backup/sram.hpp"
 
 namespace nba {
 
