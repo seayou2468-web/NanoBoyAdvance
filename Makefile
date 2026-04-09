@@ -24,16 +24,16 @@ LIBNBA    := $(BUILD_DIR)/libnba.a
 
 NBA_SRCS  := $(shell find src/nba/src -name '*.cpp')
 NBA_OBJS  := $(patsubst %.cpp,$(BUILD_DIR)/%.o,$(NBA_SRCS))
-CORE_OBJ  := $(BUILD_DIR)/src/core/gba_core_c_api.o
+CORE_OBJS := $(BUILD_DIR)/src/core/emulator_core_c_api.o $(BUILD_DIR)/src/core/cores/gba/runtime.o $(BUILD_DIR)/src/core/cores/gba/gba_core_c_api.o
 MAIN_OBJ  := $(BUILD_DIR)/main.o
 
 .PHONY: all clean
 
 all: $(APP)
 
-$(APP): $(MAIN_OBJ) $(CORE_OBJ) $(LIBNBA)
+$(APP): $(MAIN_OBJ) $(CORE_OBJS) $(LIBNBA)
 	@mkdir -p $(dir $@)
-	$(CXX) -o $@ $(MAIN_OBJ) $(CORE_OBJ) $(LIBNBA) $(SDL_LIBS)
+	$(CXX) -o $@ $(MAIN_OBJ) $(CORE_OBJS) $(LIBNBA) $(SDL_LIBS)
 
 $(LIBNBA): $(NBA_OBJS)
 	@mkdir -p $(dir $@)
@@ -43,7 +43,15 @@ $(BUILD_DIR)/main.o: main.c
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) $(SDL_CFLAGS) -c $< -o $@
 
-$(BUILD_DIR)/src/core/gba_core_c_api.o: src/core/gba_core_c_api.cpp src/core/gba_core_c_api.h
+$(BUILD_DIR)/src/core/emulator_core_c_api.o: src/core/emulator_core_c_api.cpp src/core/emulator_core_c_api.h
+	@mkdir -p $(dir $@)
+	$(CXX) $(CXXFLAGS) $(SDL_CFLAGS) -c $< -o $@
+
+$(BUILD_DIR)/src/core/cores/gba/runtime.o: src/core/cores/gba/runtime.cpp src/core/cores/gba/runtime.hpp
+	@mkdir -p $(dir $@)
+	$(CXX) $(CXXFLAGS) $(SDL_CFLAGS) -c $< -o $@
+
+$(BUILD_DIR)/src/core/cores/gba/gba_core_c_api.o: src/core/cores/gba/gba_core_c_api.cpp src/core/cores/gba/gba_core_c_api.h src/core/emulator_core_c_api.h
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) $(SDL_CFLAGS) -c $< -o $@
 
