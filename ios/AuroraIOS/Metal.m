@@ -17,7 +17,7 @@
 //  [7] clearFrame で MTLLoadActionClear による確実な黒クリア
 // ──────────────────────────────────────────────────────────────────────────
 
-#import "Metal.h"
+#import "./Metal.h"
 #import <Metal/Metal.h>
 #import <QuartzCore/CAMetalLayer.h>
 #include <string.h>

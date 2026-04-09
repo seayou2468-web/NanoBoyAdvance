@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-#include "nes_emu/Nes_Emu.h"
+#include "./nes_emu/Nes_Emu.h"
 
 namespace core::quick_nes {
 

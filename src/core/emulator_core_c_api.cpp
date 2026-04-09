@@ -1,10 +1,10 @@
-#include "emulator_core_c_api.h"
+#include "./emulator_core_c_api.h"
 
 #include <memory>
 #include <string>
 
-#include "cores/gba/runtime.hpp"
-#include "cores/quick_nes/runtime.hpp"
+#include "./cores/gba/runtime.hpp"
+#include "./cores/quick_nes/runtime.hpp"
 
 struct EmulatorCoreHandle {
   EmulatorCoreType core_type;
