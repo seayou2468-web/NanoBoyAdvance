@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include <windows.h>
 #include <stddef.h>
-#include <tchar.h>
+
+#include "portable_win32_compat.h"
 
 #ifdef UNICODE
 #define IN_VER (0x0F000000 | 0x100)

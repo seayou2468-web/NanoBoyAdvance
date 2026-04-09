@@ -17,24 +17,24 @@
 #pragma warning(disable:4201)	// "nonstandard extension used : nameless struct/union" - used everywhere in DirectX
 #pragma warning(disable:4244)	// "conversion from 'foo' to 'bar', possible loss of data" - I/O handlers all pass 'int' values and get crammed into bytes/shorts
 
-// Windows Header Files:
-#include <windows.h>
-#include <shlobj.h>
-#include <shlwapi.h>
+// Platform compatibility layer:
+#include "portable_win32_compat.h"
 
 // C RunTime Header Files
 #include <stdlib.h>
 #include <malloc.h>
 #include <memory.h>
-#include <tchar.h>
 
 // Local Header Files
 
 #include <stdio.h>
-#include <commdlg.h>
 #include <time.h>
+
+#if defined(_WIN32)
+#include <commdlg.h>
+#endif
 
 //{{AFX_INSERT_LOCATION}}
 // Microsoft Visual C++ will insert additional declarations immediately before the previous line.
 
-#endif /. !defined(AFX_STDAFX_H__A9DB83DB_A9FD_11D0_BFD1_444553540000__INCLUDED_)
+#endif // !defined(AFX_STDAFX_H__A9DB83DB_A9FD_11D0_BFD1_444553540000__INCLUDED_)

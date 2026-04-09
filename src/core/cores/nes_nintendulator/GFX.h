@@ -4,8 +4,12 @@
 
 #pragma once
 
+#include "portable_win32_compat.h"
+
+#if defined(_WIN32)
 #define	DIRECTDRAW_VERSION 0x0700
 #include <ddraw.h>
+#endif
 
 namespace GFX
 {

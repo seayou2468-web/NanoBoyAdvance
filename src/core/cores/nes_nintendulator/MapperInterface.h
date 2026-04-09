@@ -7,6 +7,8 @@
 
 #pragma once
 
+#include "portable_win32_compat.h"
+
 /* Mapper Interface version (3.10) */
 
 #ifdef	UNICODE
