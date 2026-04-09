@@ -6,6 +6,8 @@
 #ifndef NES_FILM_DATA_H
 #define NES_FILM_DATA_H
 
+#include <cstddef>
+
 #include "Nes_State.h"
 #include "Nes_Film_Packer.h"
 
@@ -71,7 +73,7 @@ private:
 	void invalidate_active();
 	void access( index_t ) const;
 	// must be multiple of 4 for packer
-	long active_size() const { return (offsetof (block_t,joypad0 [period_ * 2]) + 3) & ~3; }
+	long active_size() const { return (offsetof( block_t, joypad0 ) + period_ * 2 + 3) & ~3; }
 };
 
 inline Nes_Film_Data::block_t const& Nes_Film_Data::read( int i ) const
