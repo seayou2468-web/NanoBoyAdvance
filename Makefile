@@ -24,7 +24,7 @@ LIBNBA    := $(BUILD_DIR)/libnba.a
 
 NBA_SRCS  := $(shell find src/nba/src -name '*.cpp')
 NBA_OBJS  := $(patsubst %.cpp,$(BUILD_DIR)/%.o,$(NBA_SRCS))
-CORE_OBJS := $(BUILD_DIR)/src/core/emulator_core_c_api.o $(BUILD_DIR)/src/core/cores/gba/runtime.o $(BUILD_DIR)/src/core/cores/gba/gba_core_c_api.o
+CORE_OBJS := $(BUILD_DIR)/src/core/emulator_core_c_api.o $(BUILD_DIR)/src/core/cores/gba/runtime.o $(BUILD_DIR)/src/core/cores/gba/gba_core_c_api.o $(BUILD_DIR)/src/core/cores/nes_nintendulator/runtime.o
 MAIN_OBJ  := $(BUILD_DIR)/main.o
 
 .PHONY: all clean
@@ -52,6 +52,10 @@ $(BUILD_DIR)/src/core/cores/gba/runtime.o: src/core/cores/gba/runtime.cpp src/co
 	$(CXX) $(CXXFLAGS) $(SDL_CFLAGS) -c $< -o $@
 
 $(BUILD_DIR)/src/core/cores/gba/gba_core_c_api.o: src/core/cores/gba/gba_core_c_api.cpp src/core/cores/gba/gba_core_c_api.h src/core/emulator_core_c_api.h
+	@mkdir -p $(dir $@)
+	$(CXX) $(CXXFLAGS) $(SDL_CFLAGS) -c $< -o $@
+
+$(BUILD_DIR)/src/core/cores/nes_nintendulator/runtime.o: src/core/cores/nes_nintendulator/runtime.cpp src/core/cores/nes_nintendulator/runtime.hpp
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) $(SDL_CFLAGS) -c $< -o $@
 

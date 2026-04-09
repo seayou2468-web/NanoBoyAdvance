@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <SDL.h>
 
@@ -13,11 +14,17 @@ enum {
 
 int main(int argc, char** argv) {
   if (argc < 2) {
-    fprintf(stderr, "Usage: %s <rom.gba>\n", argv[0]);
+    fprintf(stderr, "Usage: %s <rom.(gba|nes)>\n", argv[0]);
     return 1;
   }
 
-  EmulatorCoreHandle* core = EmulatorCore_Create(EMULATOR_CORE_TYPE_GBA);
+  EmulatorCoreType core_type = EMULATOR_CORE_TYPE_GBA;
+  const char* ext = strrchr(argv[1], '.');
+  if (ext != NULL && strcmp(ext, ".nes") == 0) {
+    core_type = EMULATOR_CORE_TYPE_NES_NINTENDULATOR;
+  }
+
+  EmulatorCoreHandle* core = EmulatorCore_Create(core_type);
   if (!core) {
     fprintf(stderr, "EmulatorCore_Create failed\n");
     return 1;

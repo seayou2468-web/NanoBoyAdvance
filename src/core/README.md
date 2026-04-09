@@ -6,9 +6,10 @@
 - `cores/<core-name>/`: per-core implementation directory (runtime + optional compatibility wrapper).
 - `gba_core_c_api.h`: backward-compatible include path for existing GBA callers.
 
-## Why this structure
+## Current cores
 
-The generic API decouples frontend code from one concrete emulator implementation. Each core can own its runtime details in `cores/<core-name>/`, so adding a new emulator does not bloat shared entrypoints.
+- `cores/gba`: existing GBA runtime.
+- `cores/nes_nintendulator`: new NES core slot seeded from Nintendulator upstream source snapshots and a dependency-trimmed runtime scaffold.
 
 ## How to add a new core
 
@@ -16,6 +17,6 @@ The generic API decouples frontend code from one concrete emulator implementatio
 2. Add a new value to `EmulatorCoreType` in `emulator_core_c_api.h`.
 3. Extend `EmulatorCore_Create` and related dispatch in `emulator_core_c_api.cpp`.
 4. Extend video spec and framebuffer dispatch for the new type.
-5. Optional: add a compatibility wrapper API in the new core directory (like `cores/gba/gba_core_c_api.*`) and a legacy include shim if old include paths must remain valid.
+5. Optional: add a compatibility wrapper API in the new core directory and a legacy include shim if old include paths must remain valid.
 
 This keeps platform/frontend code stable while emulator cores evolve independently.
