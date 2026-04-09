@@ -4,8 +4,7 @@
 
 #pragma once
 
-#define DIRECTINPUT_VERSION 0x0800
-#include <dinput.h>
+#include "portable_win32_compat.h"
 
 #define	CONTROLLERS_MAXBUTTONS	32
 #define	MAX_CONTROLLERS	32	// this includes keyboard and mouse
