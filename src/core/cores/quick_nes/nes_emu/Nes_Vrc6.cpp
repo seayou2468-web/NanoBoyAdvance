@@ -14,7 +14,7 @@ more details. You should have received a copy of the GNU Lesser General
 Public License along with this module; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA */
 
-#include BLARGG_SOURCE_BEGIN
+#include "blargg_source.h"
 
 Nes_Vrc6::Nes_Vrc6()
 {
@@ -45,8 +45,8 @@ void Nes_Vrc6::reset()
 void Nes_Vrc6::volume( double v )
 {
 	double const factor = 0.0967 * 2;
-	saw_synth.volume_unit( factor / 31 * v );
-	square_synth.volume_unit( factor * 0.5 / 15 * v );
+	saw_synth.volume( factor / 31 * v );
+	square_synth.volume( factor * 0.5 / 15 * v );
 }
 
 void Nes_Vrc6::treble_eq( blip_eq_t const& eq )
