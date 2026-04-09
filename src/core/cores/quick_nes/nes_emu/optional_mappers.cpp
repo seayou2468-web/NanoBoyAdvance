@@ -166,14 +166,6 @@ public:
 };
 
 void register_misc_mappers();
-void register_misc_mappers()
-{
-	register_mapper<Mapper_Color_Dreams>( 11 );
-	register_mapper<Mapper_Nina1>( 34 );
-	register_mapper<Mapper_Gnrom>( 66 );
-	register_mapper<Mapper_Camerica>( 71 );
-	register_mapper<Mapper_Quattro>( 232 );
-}
 
 void Nes_Mapper::register_optional_mappers()
 {
@@ -185,8 +177,8 @@ void Nes_Mapper::register_optional_mappers()
 	extern void register_mmc5_mapper();
 	register_mmc5_mapper();
 	
-	extern void register_fme07_mapper();
-	register_fme07_mapper();
+	extern void register_fme7_mapper();
+	register_fme7_mapper();
 	
 	extern void register_namco106_mapper();
 	register_namco106_mapper();

@@ -31,7 +31,8 @@ void Nonlinear_Effects_Buffer::enable_nonlinearity( Nes_Apu& apu, bool b )
 {
 	if ( b )
 		clear();
-	nonlinearizer.enable( apu, b );
+	nonlinearizer.set_apu( &apu );
+	nonlinearizer.enable( b, channel( 2 ).center );
 }
 
 void Nonlinear_Effects_Buffer::config( const config_t& in )

@@ -6,7 +6,7 @@
 #ifndef NONLINEAR_EFFECTS_BUFFER_H
 #define NONLINEAR_EFFECTS_BUFFER_H
 
-#include "Nonlinear_Buffer.h"
+#include "Nes_Buffer.h"
 #include "Effects_Buffer.h"
 
 // Effects_Buffer uses several buffers and outputs stereo sample pairs.
