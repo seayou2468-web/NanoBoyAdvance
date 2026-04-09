@@ -30,6 +30,7 @@ NES_SRCS  := \
 	src/core/cores/quick_nes/nes_emu/Blip_Buffer.cpp \
 	src/core/cores/quick_nes/nes_emu/Multi_Buffer.cpp \
 	src/core/cores/quick_nes/nes_emu/Nes_Buffer.cpp \
+	src/core/cores/quick_nes/nes_emu/Nes_Blitter.cpp \
 	src/core/cores/quick_nes/nes_emu/Nes_Effects_Buffer.cpp \
 	src/core/cores/quick_nes/nes_emu/Effects_Buffer.cpp \
 	src/core/cores/quick_nes/nes_emu/Nes_Cart.cpp \
