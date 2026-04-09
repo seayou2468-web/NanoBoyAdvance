@@ -6,9 +6,9 @@
 #include <string>
 #include <vector>
 
-#include "../../../nba/include/nba/config.hpp"
-#include "../../../nba/include/nba/core.hpp"
-#include "../../../nba/include/nba/integer.hpp"
+#include "nba/include/nba/config.hpp"
+#include "nba/include/nba/core.hpp"
+#include "nba/include/nba/integer.hpp"
 
 namespace core::gba {
 

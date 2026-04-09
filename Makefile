@@ -22,7 +22,7 @@ BUILD_DIR := build
 APP       := $(BUILD_DIR)/nanoboyadvance-linux
 LIBNBA    := $(BUILD_DIR)/libnba.a
 
-NBA_SRCS  := $(shell find src/nba/src -name '*.cpp')
+NBA_SRCS  := $(shell find src/core/cores/gba/nba/src -name '*.cpp')
 NBA_OBJS  := $(patsubst %.cpp,$(BUILD_DIR)/%.o,$(NBA_SRCS))
 CORE_OBJS := $(BUILD_DIR)/src/core/emulator_core_c_api.o $(BUILD_DIR)/src/core/cores/gba/runtime.o $(BUILD_DIR)/src/core/cores/gba/gba_core_c_api.o $(BUILD_DIR)/src/core/cores/nes_nintendulator/runtime.o
 MAIN_OBJ  := $(BUILD_DIR)/main.o

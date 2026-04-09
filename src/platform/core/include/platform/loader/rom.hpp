@@ -7,8 +7,8 @@
 
 #pragma once
 
-#include "../../../../../nba/include/nba/core.hpp"
-#include "../../../../../nba/include/nba/rom/backup/backup.hpp"
+#include "../../../../../core/cores/gba/nba/include/nba/core.hpp"
+#include "../../../../../core/cores/gba/nba/include/nba/rom/backup/backup.hpp"
 #include "../game_db.hpp"
 #include <string>
 

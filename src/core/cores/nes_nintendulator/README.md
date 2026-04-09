@@ -6,7 +6,7 @@ This directory introduces a new emulator-core slot based on code/assets fetched 
 
 ## What was imported
 
-`upstream_src/` contains selected upstream source files for reference during porting.
+`NES/` contains selected upstream source files for reference during porting.
 They are intentionally not built directly because the original code targets Win32 APIs and project-specific glue.
 
 ## What is built now
