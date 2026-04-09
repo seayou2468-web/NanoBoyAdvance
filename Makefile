@@ -21,6 +21,7 @@ endif
 BUILD_DIR := build
 APP       := $(BUILD_DIR)/nanoboyadvance-linux
 LIBNBA    := $(BUILD_DIR)/libnba.a
+DUMP_TOOL := $(BUILD_DIR)/dump_frames
 
 NBA_SRCS  := $(shell find src/core/cores/gba/nba/src -name '*.cpp')
 NBA_OBJS  := $(patsubst %.cpp,$(BUILD_DIR)/%.o,$(NBA_SRCS))
@@ -30,13 +31,18 @@ CORE_OBJS := $(BUILD_DIR)/src/core/emulator_core_c_api.o $(BUILD_DIR)/src/core/c
 MAIN_OBJ  := $(BUILD_DIR)/main.o
 LIBNES    := $(BUILD_DIR)/libnes_nintendulator.a
 
-.PHONY: all clean
+.PHONY: all clean dump-frames
 
 all: $(APP)
+dump-frames: $(DUMP_TOOL)
 
 $(APP): $(MAIN_OBJ) $(CORE_OBJS) $(LIBNBA) $(LIBNES)
 	@mkdir -p $(dir $@)
 	$(CXX) -o $@ $(MAIN_OBJ) $(CORE_OBJS) $(LIBNBA) $(LIBNES) $(SDL_LIBS)
+
+$(DUMP_TOOL): tools/dump_frames.cpp $(CORE_OBJS) $(LIBNBA) $(LIBNES)
+	@mkdir -p $(dir $@)
+	$(CXX) $(CXXFLAGS) $(SDL_CFLAGS) -I. -o $@ tools/dump_frames.cpp $(CORE_OBJS) $(LIBNBA) $(LIBNES) $(SDL_LIBS)
 
 $(LIBNBA): $(NBA_OBJS)
 	@mkdir -p $(dir $@)
