@@ -29,9 +29,7 @@ extern FCPUWrite WriteHandler[0x10];
 extern unsigned char *PRGPointer[0x10];
 extern BOOL Readable[0x10], Writable[0x10];
 
-#ifndef	NSFPLAYER
 extern unsigned char WantNMI;
-#endif	/* !NSFPLAYER */
 extern unsigned char WantIRQ;
 extern unsigned char EnableDMA;
 extern unsigned char DMAPage;

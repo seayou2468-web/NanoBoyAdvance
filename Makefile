@@ -10,6 +10,7 @@ CXX      := c++
 AR       := ar
 CFLAGS   := -O2 -std=c11 -Wall -Wextra -Wpedantic
 CXXFLAGS := -O2 -std=c++20 -Wall -Wextra -Wpedantic
+NES_CXXFLAGS := $(CXXFLAGS) -DNBA_ENABLE_NINTENDULATOR_FULL -DNSFPLAYER
 
 SDL_CFLAGS := $(shell pkg-config --cflags sdl2 2>/dev/null)
 SDL_LIBS   := $(shell pkg-config --libs sdl2 2>/dev/null)
@@ -25,7 +26,7 @@ DUMP_TOOL := $(BUILD_DIR)/dump_frames
 
 NBA_SRCS  := $(shell find src/core/cores/gba/nba/src -name '*.cpp')
 NBA_OBJS  := $(patsubst %.cpp,$(BUILD_DIR)/%.o,$(NBA_SRCS))
-NES_SRCS  := $(filter-out src/core/cores/nes_nintendulator/runtime.cpp,$(shell find src/core/cores/nes_nintendulator -maxdepth 1 -name '*.cpp'))
+NES_SRCS  := src/core/cores/nes_nintendulator/CPU.cpp src/core/cores/nes_nintendulator/PPU.cpp src/core/cores/nes_nintendulator/APU.cpp src/core/cores/nes_nintendulator/MapperInterface.cpp
 NES_OBJS  := $(patsubst %.cpp,$(BUILD_DIR)/%.o,$(NES_SRCS))
 CORE_OBJS := $(BUILD_DIR)/src/core/emulator_core_c_api.o $(BUILD_DIR)/src/core/cores/gba/runtime.o $(BUILD_DIR)/src/core/cores/gba/gba_core_c_api.o $(BUILD_DIR)/src/core/cores/nes_nintendulator/runtime.o
 MAIN_OBJ  := $(BUILD_DIR)/main.o
@@ -71,6 +72,10 @@ $(BUILD_DIR)/src/core/cores/gba/gba_core_c_api.o: src/core/cores/gba/gba_core_c_
 $(BUILD_DIR)/src/core/cores/nes_nintendulator/runtime.o: src/core/cores/nes_nintendulator/runtime.cpp src/core/cores/nes_nintendulator/runtime.hpp
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) $(SDL_CFLAGS) -c $< -o $@
+
+$(BUILD_DIR)/src/core/cores/nes_nintendulator/%.o: src/core/cores/nes_nintendulator/%.cpp
+	@mkdir -p $(dir $@)
+	$(CXX) $(NES_CXXFLAGS) $(SDL_CFLAGS) -c $< -o $@
 
 $(BUILD_DIR)/%.o: %.cpp
 	@mkdir -p $(dir $@)

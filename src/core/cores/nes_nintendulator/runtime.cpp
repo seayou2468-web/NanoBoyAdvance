@@ -36,7 +36,6 @@ bool ReadWholeFile(const std::filesystem::path& path, std::vector<uint8_t>& out)
 bool HasConnectedCoreSources(std::string& missing_file) {
   const auto base = std::filesystem::path(__FILE__).parent_path();
   static constexpr const char* required[] = {
-    "NES.cpp",
     "CPU.cpp",
     "PPU.cpp",
     "APU.cpp",

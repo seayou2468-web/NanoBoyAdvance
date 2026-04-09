@@ -26,9 +26,7 @@ FCPUWrite	WriteHandler[0x10];
 unsigned char *	PRGPointer[0x10];
 BOOL	Readable[0x10], Writable[0x10];
 
-#ifndef	NSFPLAYER
 unsigned char WantNMI;
-#endif	/* !NSFPLAYER */
 unsigned char WantIRQ;
 unsigned char EnableDMA;
 unsigned char DMAPage;
