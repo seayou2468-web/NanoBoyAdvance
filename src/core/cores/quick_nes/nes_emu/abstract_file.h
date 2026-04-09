@@ -6,7 +6,7 @@
 
 #undef BLARGG_CONFIG_H
 
-#include <fex/Data_Reader.h>
+#include "Data_Reader.h"
 
 #include <stdio.h>
 
@@ -117,7 +117,7 @@ public:
 	Auto_File_Writer& operator = ( Auto_File_Writer const& );
 	~Auto_File_Writer();
 	const char* open();
-	const char* open_comp( int level = -1 ); // compress output if possible
+	const char* open_comp( int level = -1 ); // 圧縮は未対応。open() と同等動作。
 	
 	int operator ! () const { return !data; }
 	Data_Writer* operator -> () const { return  data; }
@@ -144,17 +144,6 @@ inline Auto_File_Writer& Auto_File_Writer::operator = ( Auto_File_Writer const& 
 	return *this;
 }
 inline Auto_File_Writer::Auto_File_Writer( Auto_File_Writer const& r ) { *this = r; }
-
-class Gzip_File_Writer : public Data_Writer {
-	void* file_;
-public:
-	Gzip_File_Writer();
-	~Gzip_File_Writer();
-	
-	error_t open( const char*, int compression = -1 );
-	error_t write( const void*, long );
-	void close();
-};
 
 #endif
 

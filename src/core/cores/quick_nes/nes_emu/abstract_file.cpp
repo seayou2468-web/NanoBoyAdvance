@@ -139,24 +139,8 @@ error_t Null_Writer::write( const void*, long )
 	#define STD_AUTO_FILE_WRITER Std_File_Writer
 #endif
 
-#ifdef HAVE_ZLIB_H
-	#ifndef STD_AUTO_FILE_READER
-		#define STD_AUTO_FILE_READER Gzip_File_Reader
-	#endif
-
-	#ifndef STD_AUTO_FILE_COMP_WRITER
-		#define STD_AUTO_FILE_COMP_WRITER Gzip_File_Writer
-	#endif
-
-#else
-	#ifndef STD_AUTO_FILE_READER
-		#define STD_AUTO_FILE_READER Std_File_Reader
-	#endif
-
-	#ifndef STD_AUTO_FILE_COMP_WRITER
-		#define STD_AUTO_FILE_COMP_WRITER Std_File_Writer
-	#endif
-
+#ifndef STD_AUTO_FILE_READER
+	#define STD_AUTO_FILE_READER Std_File_Reader
 #endif
 
 const char* Auto_File_Reader::open()
@@ -200,15 +184,17 @@ const char* Auto_File_Writer::open()
 const char* Auto_File_Writer::open_comp( int level )
 {
 	#ifdef DISABLE_AUTO_FILE
+		(void) level;
 		return 0;
 	#else
+		(void) level;
 		if ( data )
 			return 0;
-		STD_AUTO_FILE_COMP_WRITER* d = new STD_AUTO_FILE_COMP_WRITER;
+		STD_AUTO_FILE_WRITER* d = new STD_AUTO_FILE_WRITER;
 		if ( !d )
 			RAISE_ERROR( "Out of memory" );
 		data = d;
-		return d->open( path, level );
+		return d->open( path );
 	#endif
 }
 
@@ -219,88 +205,3 @@ Auto_File_Writer::~Auto_File_Writer()
 			delete data;
 	#endif
 }
-
-#ifdef HAVE_ZLIB_H
-
-#include "zlib.h"
-
-static const char* get_gzip_eof( FILE* file, long* eof )
-{
-	unsigned char buf [4];
-	if ( !fread( buf, 2, 1, file ) )
-		RAISE_ERROR( "Couldn't read from file" );
-	
-	if ( buf [0] == 0x1F && buf [1] == 0x8B )
-	{
-		if ( fseek( file, -4, SEEK_END ) )
-			RAISE_ERROR( "Couldn't seek in file" );
-		
-		if ( !fread( buf, 4, 1, file ) )
-			RAISE_ERROR( "Couldn't read from file" );
-		
-		*eof = buf [3] * 0x1000000L + buf [2] * 0x10000L + buf [1] * 0x100L + buf [0];
-	}
-	else
-	{
-		if ( fseek( file, 0, SEEK_END ) )
-			RAISE_ERROR( "Couldn't seek in file" );
-		
-		*eof = ftell( file );
-	}
-	
-	return 0;
-}
-
-const char* get_gzip_eof( const char* path, long* eof )
-{
-	FILE* file = fopen( path, "rb" );
-	if ( !file )
-		return "Couldn't open file";
-	const char* error = get_gzip_eof( file, eof );
-	fclose( file );
-	return error;
-}
-
-// Gzip_File_Writer
-
-Gzip_File_Writer::Gzip_File_Writer() : file_( 0 )
-{
-}
-
-Gzip_File_Writer::~Gzip_File_Writer()
-{
-	close();
-}
-
-Gzip_File_Writer::error_t Gzip_File_Writer::open( const char* path, int level )
-{
-	close();
-	
-	char mode [4] = { 'w', 'b', 0, 0 };
-	if ( level >= 0 )
-		mode [2] = level + '0';
-	file_ = gzopen( path, mode );
-	if ( !file_ )
-		return "Couldn't open file for writing";
-	
-	return 0;
-}
-
-Gzip_File_Writer::error_t Gzip_File_Writer::write( const void* p, long s )
-{
-    long result = (long) gzwrite( (gzFile) file_ , (void*) p, s );
-	if ( result != s )
-		return "Couldn't write to file";
-	return 0;
-}
-
-void Gzip_File_Writer::close()
-{
-	if ( file_ )
-	{
-        gzclose( (gzFile) file_ );
-		file_ = 0;
-	}
-}
-
-#endif

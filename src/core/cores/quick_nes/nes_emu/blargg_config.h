@@ -4,8 +4,8 @@
 #ifndef BLARGG_CONFIG_H
 #define BLARGG_CONFIG_H
 
-// Uncomment to transparently decompress files using zlib
-#define HAVE_ZLIB_H
+// 圧縮ROMサポートは無効化（zlib依存なし）
+// #define HAVE_ZLIB_H
 
 // Uncomment to enable platform-specific (and possibly non-portable) optimizations.
 #define BLARGG_NONPORTABLE 1

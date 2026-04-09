@@ -1,10 +1,10 @@
-#ifndef FEX_DATA_READER_H
-#define FEX_DATA_READER_H
+#ifndef DATA_READER_H
+#define DATA_READER_H
 
 #include <stdio.h>
 #include <cstring>
 
-#include "../blargg_common.h"
+#include "blargg_common.h"
 
 class Data_Reader {
 public:

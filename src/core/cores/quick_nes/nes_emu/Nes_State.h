@@ -87,9 +87,9 @@ public:
 	
 	Nes_State();
 	
-	Nes_State_::set_timestamp;
-	Nes_State_::timestamp;
-	Nes_State_::clear;
+	using Nes_State_::set_timestamp;
+	using Nes_State_::timestamp;
+	using Nes_State_::clear;
 	
 	// Write snapshot to file
 	blargg_err_t write( Auto_File_Writer ) const;

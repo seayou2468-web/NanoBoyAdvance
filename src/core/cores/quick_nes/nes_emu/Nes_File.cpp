@@ -112,6 +112,20 @@ blargg_err_t Nes_File_Reader::read_block_data( void* p, long s )
 	return 0;
 }
 
+blargg_err_t Nes_File_Reader::read_avail( void* out, long n, long* out_read )
+{
+	if ( n < 0 )
+		return "Invalid read size";
+	
+	long count = n;
+	if ( count > remain() )
+		count = remain();
+	
+	RETURN_ERR( read_v( out, (int) count ) );
+	*out_read = count;
+	return 0;
+}
+
 blargg_err_t Nes_File_Reader::begin( Auto_File_Reader dr )
 {
 	require( !in );

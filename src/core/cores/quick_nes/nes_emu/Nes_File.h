@@ -74,6 +74,9 @@ public:
 	// Read at most s bytes from block and skip any remaining bytes
 	blargg_err_t read_block_data( void*, long s );
 	
+	// Data_Reader interface
+	blargg_err_t read_avail( void* out, long n, long* out_read ) override;
+	
 	// Read at most 's' bytes from current block and return number of bytes actually read
 	virtual blargg_err_t read_v( void*, int n );
 	
