@@ -109,24 +109,22 @@ bool LoadROMFromPath(Runtime& runtime, const char* rom_path, std::string& last_e
     return false;
   }
 
-  return ParseINes(runtime, last_error);
+  if (!ParseINes(runtime, last_error)) {
+    return false;
+  }
+
+#if !defined(NBA_ENABLE_NINTENDULATOR_FULL)
+  last_error =
+      "NES core is not wired to full emulation in this build; placeholder output is disabled. "
+      "Rebuild with NBA_ENABLE_NINTENDULATOR_FULL and Win32 compatibility glue.";
+  return false;
+#else
+  return true;
+#endif
 }
 
 void StepFrame(Runtime& runtime, std::string&) {
   runtime.frame_counter++;
-
-  // Minimal headless-safe renderer placeholder (no SDL/GL dependency).
-  const uint8_t phase = static_cast<uint8_t>(runtime.frame_counter & 0xFFU);
-  const uint8_t a = 0xFFU;
-  const uint8_t r = phase;
-  const uint8_t g = static_cast<uint8_t>(runtime.prg_rom.empty() ? 0x10U : 0x90U);
-  const uint8_t b = static_cast<uint8_t>(runtime.chr_rom.empty() ? 0x10U : 0xE0U);
-  const uint32_t pixel = (static_cast<uint32_t>(a) << 24U) |
-                         (static_cast<uint32_t>(r) << 16U) |
-                         (static_cast<uint32_t>(g) << 8U) |
-                         static_cast<uint32_t>(b);
-
-  runtime.frame_rgba.fill(pixel);
 }
 
 void SetKeyStatus(Runtime& runtime, int key, bool pressed) {
