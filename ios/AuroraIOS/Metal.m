@@ -302,7 +302,7 @@ typedef struct {
     _frameBytesPerRow = bpr;
 
     MTLTextureDescriptor *td =
-        [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatBGRA8Unorm
+        [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatRGBA8Unorm
                                                            width:width
                                                           height:height
                                                        mipmapped:NO];

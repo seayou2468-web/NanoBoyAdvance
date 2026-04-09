@@ -33,6 +33,9 @@ uint32_t ToRGBA32(Nes_Emu::rgb_t c) {
 std::unique_ptr<Runtime> CreateRuntime() {
   auto runtime = std::make_unique<Runtime>();
   runtime->emu = std::make_unique<Nes_Emu>();
+  const auto indexed_height = static_cast<size_t>(runtime->emu->buffer_height());
+  runtime->indexed_frame_row_bytes = static_cast<size_t>(Nes_Emu::buffer_width);
+  runtime->indexed_frame.resize(runtime->indexed_frame_row_bytes * indexed_height, 0U);
   runtime->emu->set_pixels(runtime->indexed_frame.data(), Nes_Emu::buffer_width);
   return runtime;
 }
@@ -44,12 +47,13 @@ bool LoadROMFromPath(Runtime& runtime, const char* rom_path, std::string& last_e
       return false;
     }
 
+    runtime.emu = std::make_unique<Nes_Emu>();
+    const auto indexed_height = static_cast<size_t>(runtime.emu->buffer_height());
+    runtime.indexed_frame_row_bytes = static_cast<size_t>(Nes_Emu::buffer_width);
+    runtime.indexed_frame.assign(runtime.indexed_frame_row_bytes * indexed_height, 0U);
+    runtime.emu->set_pixels(runtime.indexed_frame.data(), Nes_Emu::buffer_width);
     runtime.key_state.fill(false);
     std::fill(runtime.frame_rgba.begin(), runtime.frame_rgba.end(), 0U);
-    std::fill(runtime.indexed_frame.begin(), runtime.indexed_frame.end(), 0U);
-
-    runtime.emu = std::make_unique<Nes_Emu>();
-    runtime.emu->set_pixels(runtime.indexed_frame.data(), Nes_Emu::buffer_width);
 
     Std_File_Reader rom_reader;
     if (const blargg_err_t open_err = rom_reader.open(rom_path)) {
