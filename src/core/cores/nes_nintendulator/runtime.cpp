@@ -32,6 +32,27 @@ bool ReadWholeFile(const std::filesystem::path& path, std::vector<uint8_t>& out)
 
 
 
+
+bool HasConnectedCoreSources(std::string& missing_file) {
+  const auto base = std::filesystem::path(__FILE__).parent_path();
+  static constexpr const char* required[] = {
+    "NES.cpp",
+    "CPU.cpp",
+    "PPU.cpp",
+    "APU.cpp",
+    "MapperInterface.cpp",
+  };
+
+  for (const char* filename : required) {
+    if (!std::filesystem::exists(base / filename)) {
+      missing_file = filename;
+      return false;
+    }
+  }
+
+  return true;
+}
+
 bool ParseINes(Runtime& runtime, std::string& last_error) {
   if (runtime.rom_image.size() < 16U) {
     last_error = "ROM is smaller than iNES header";
@@ -76,6 +97,13 @@ bool LoadROMFromPath(Runtime& runtime, const char* rom_path, std::string& last_e
   }
 
   runtime = Runtime{};
+
+  std::string missing_file;
+  if (!HasConnectedCoreSources(missing_file)) {
+    last_error = "missing required NES core source: " + missing_file;
+    return false;
+  }
+
   if (!ReadWholeFile(std::filesystem::path(rom_path), runtime.rom_image)) {
     last_error = "failed to read ROM file";
     return false;
