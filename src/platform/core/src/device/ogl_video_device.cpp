@@ -7,10 +7,9 @@
 
 #include <array>
 #include <filesystem>
-#include <fmt/format.h>
 #include <fstream>
-#include <nba/log.hpp>
-#include <platform/device/ogl_video_device.hpp>
+#include "../../../../nba/include/nba/log.hpp"
+#include "../../include/platform/device/ogl_video_device.hpp"
 #include <memory>
 
 #include "device/shader/color_higan.glsl.hpp"
