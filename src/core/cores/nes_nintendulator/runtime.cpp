@@ -30,6 +30,21 @@ bool ReadWholeFile(const std::filesystem::path& path, std::vector<uint8_t>& out)
   return file.good() || file.eof();
 }
 
+
+void LoadUpstreamOrigin(Runtime& runtime) {
+  runtime.upstream_origin.clear();
+  const auto origin_path = std::filesystem::path(__FILE__).parent_path() / "UPSTREAM_ORIGIN.txt";
+  std::ifstream origin(origin_path);
+  if (!origin.is_open()) {
+    return;
+  }
+  std::string line;
+  while (std::getline(origin, line)) {
+    runtime.upstream_origin += line;
+    runtime.upstream_origin.push_back('\n');
+  }
+}
+
 bool ParseINes(Runtime& runtime, std::string& last_error) {
   if (runtime.rom_image.size() < 16U) {
     last_error = "ROM is smaller than iNES header";
@@ -74,6 +89,8 @@ bool LoadROMFromPath(Runtime& runtime, const char* rom_path, std::string& last_e
   }
 
   runtime = Runtime{};
+  LoadUpstreamOrigin(runtime);
+
   if (!ReadWholeFile(std::filesystem::path(rom_path), runtime.rom_image)) {
     last_error = "failed to read ROM file";
     return false;
