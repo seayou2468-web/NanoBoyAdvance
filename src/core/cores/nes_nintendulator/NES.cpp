@@ -18,7 +18,6 @@
 #include "Movie.h"
 #include "Controllers.h"
 #include "Genie.h"
-#include <shellapi.h>
 
 #pragma comment(lib, "shlwapi.lib")
 

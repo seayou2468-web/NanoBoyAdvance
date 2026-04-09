@@ -6,14 +6,6 @@
 
 #include "portable_win32_compat.h"
 
-#ifndef	NSFPLAYER
-#if defined(_WIN32)
-#include <mmsystem.h>
-#define DIRECTSOUND_VERSION 0x0800
-#include <dsound.h>
-#endif
-#endif	/* !NSFPLAYER */
-
 namespace APU
 {
 extern short	*buffer;

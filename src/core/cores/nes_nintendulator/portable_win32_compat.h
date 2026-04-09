@@ -8,11 +8,6 @@
 #include <cwchar>
 #include <strings.h>
 
-#if defined(_WIN32)
-#include <windows.h>
-#include <tchar.h>
-#else
-
 #ifndef __cdecl
 #define __cdecl
 #endif
@@ -82,5 +77,3 @@ struct POINT {
 };
 
 using LPDIRECTDRAW7 = void*;
-
-#endif  // _WIN32

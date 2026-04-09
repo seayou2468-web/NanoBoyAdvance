@@ -6,11 +6,6 @@
 
 #include "portable_win32_compat.h"
 
-#if defined(_WIN32)
-#define	DIRECTDRAW_VERSION 0x0700
-#include <ddraw.h>
-#endif
-
 namespace GFX
 {
 enum PALETTE { PALETTE_NTSC, PALETTE_PAL, PALETTE_PC10, PALETTE_VS1, PALETTE_VS2, PALETTE_VS3, PALETTE_VS4, PALETTE_EXT, PALETTE_PC10_ALT, PALETTE_MAX };

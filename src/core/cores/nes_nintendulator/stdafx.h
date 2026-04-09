@@ -30,10 +30,6 @@
 #include <stdio.h>
 #include <time.h>
 
-#if defined(_WIN32)
-#include <commdlg.h>
-#endif
-
 //{{AFX_INSERT_LOCATION}}
 // Microsoft Visual C++ will insert additional declarations immediately before the previous line.
 
