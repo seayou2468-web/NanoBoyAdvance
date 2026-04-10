@@ -315,27 +315,28 @@ static const NSUInteger kDefaultHeight = 160;
         return button;
     };
 
-    UIView* dpadSpacer1 = [[UIView alloc] initWithFrame:CGRectZero];
-    UIView* dpadSpacer2 = [[UIView alloc] initWithFrame:CGRectZero];
-    UIView* dpadSpacer3 = [[UIView alloc] initWithFrame:CGRectZero];
-    UIView* dpadSpacer4 = [[UIView alloc] initWithFrame:CGRectZero];
     UIButton* upBtn = makeKeyButton(@"↑", EMULATOR_KEY_UP, 52);
     UIButton* downBtn = makeKeyButton(@"↓", EMULATOR_KEY_DOWN, 52);
     UIButton* leftBtn = makeKeyButton(@"←", EMULATOR_KEY_LEFT, 52);
     UIButton* rightBtn = makeKeyButton(@"→", EMULATOR_KEY_RIGHT, 52);
-
-    UIStackView* dpadRow1 = [[UIStackView alloc] initWithArrangedSubviews:@[dpadSpacer1, upBtn, dpadSpacer2]];
-    UIStackView* dpadRow2 = [[UIStackView alloc] initWithArrangedSubviews:@[leftBtn, [[UIView alloc] initWithFrame:CGRectZero], rightBtn]];
-    UIStackView* dpadRow3 = [[UIStackView alloc] initWithArrangedSubviews:@[dpadSpacer3, downBtn, dpadSpacer4]];
-    for (UIStackView* row in @[dpadRow1, dpadRow2, dpadRow3]) {
-        row.axis = UILayoutConstraintAxisHorizontal;
-        row.spacing = 8.0;
-        row.distribution = UIStackViewDistributionFillEqually;
-    }
-    UIStackView* dpadStack = [[UIStackView alloc] initWithArrangedSubviews:@[dpadRow1, dpadRow2, dpadRow3]];
-    dpadStack.axis = UILayoutConstraintAxisVertical;
-    dpadStack.spacing = 8.0;
-    dpadStack.translatesAutoresizingMaskIntoConstraints = NO;
+    UIView* dpadView = [[UIView alloc] initWithFrame:CGRectZero];
+    dpadView.translatesAutoresizingMaskIntoConstraints = NO;
+    [dpadView addSubview:upBtn];
+    [dpadView addSubview:downBtn];
+    [dpadView addSubview:leftBtn];
+    [dpadView addSubview:rightBtn];
+    [dpadView.widthAnchor constraintEqualToConstant:156].active = YES;
+    [dpadView.heightAnchor constraintEqualToConstant:156].active = YES;
+    [NSLayoutConstraint activateConstraints:@[
+        [upBtn.centerXAnchor constraintEqualToAnchor:dpadView.centerXAnchor],
+        [upBtn.topAnchor constraintEqualToAnchor:dpadView.topAnchor],
+        [downBtn.centerXAnchor constraintEqualToAnchor:dpadView.centerXAnchor],
+        [downBtn.bottomAnchor constraintEqualToAnchor:dpadView.bottomAnchor],
+        [leftBtn.centerYAnchor constraintEqualToAnchor:dpadView.centerYAnchor],
+        [leftBtn.leadingAnchor constraintEqualToAnchor:dpadView.leadingAnchor],
+        [rightBtn.centerYAnchor constraintEqualToAnchor:dpadView.centerYAnchor],
+        [rightBtn.trailingAnchor constraintEqualToAnchor:dpadView.trailingAnchor],
+    ]];
 
     UIButton* selectBtn = makeKeyButton(@"Select", EMULATOR_KEY_SELECT, 40);
     UIButton* startBtn = makeKeyButton(@"Start", EMULATOR_KEY_START, 40);
@@ -344,8 +345,9 @@ static const NSUInteger kDefaultHeight = 160;
     selectBtn.titleLabel.font = [UIFont systemFontOfSize:13 weight:UIFontWeightSemibold];
     startBtn.titleLabel.font = [UIFont systemFontOfSize:13 weight:UIFontWeightSemibold];
     UIStackView* centerStack = [[UIStackView alloc] initWithArrangedSubviews:@[selectBtn, startBtn]];
-    centerStack.axis = UILayoutConstraintAxisVertical;
-    centerStack.spacing = 10.0;
+    centerStack.axis = UILayoutConstraintAxisHorizontal;
+    centerStack.spacing = 14.0;
+    centerStack.distribution = UIStackViewDistributionFillEqually;
     centerStack.translatesAutoresizingMaskIntoConstraints = NO;
 
     UIButton* lBtn = makeKeyButton(@"L", EMULATOR_KEY_L, 40);
@@ -374,26 +376,26 @@ static const NSUInteger kDefaultHeight = 160;
     for (NSLayoutConstraint* c in selectBtn.constraints) {
         if (c.firstAttribute == NSLayoutAttributeWidth) { _selectButtonSize = c; }
     }
-    UIStackView* shoulderRow = [[UIStackView alloc] initWithArrangedSubviews:@[lBtn, rBtn]];
-    shoulderRow.axis = UILayoutConstraintAxisHorizontal;
-    shoulderRow.spacing = 10.0;
-    UIStackView* actionRow = [[UIStackView alloc] initWithArrangedSubviews:@[bBtn, aBtn]];
-    actionRow.axis = UILayoutConstraintAxisHorizontal;
-    actionRow.spacing = 12.0;
-    UIStackView* actionStack = [[UIStackView alloc] initWithArrangedSubviews:@[shoulderRow, actionRow]];
-    actionStack.axis = UILayoutConstraintAxisVertical;
-    actionStack.spacing = 12.0;
-    actionStack.translatesAutoresizingMaskIntoConstraints = NO;
+    UIView* actionCluster = [[UIView alloc] initWithFrame:CGRectZero];
+    actionCluster.translatesAutoresizingMaskIntoConstraints = NO;
+    [actionCluster addSubview:aBtn];
+    [actionCluster addSubview:bBtn];
+    [actionCluster.widthAnchor constraintEqualToConstant:152].active = YES;
+    [actionCluster.heightAnchor constraintEqualToConstant:98].active = YES;
+    [NSLayoutConstraint activateConstraints:@[
+        [aBtn.trailingAnchor constraintEqualToAnchor:actionCluster.trailingAnchor],
+        [aBtn.topAnchor constraintEqualToAnchor:actionCluster.topAnchor],
+        [bBtn.leadingAnchor constraintEqualToAnchor:actionCluster.leadingAnchor],
+        [bBtn.bottomAnchor constraintEqualToAnchor:actionCluster.bottomAnchor],
+    ]];
 
-    UIStackView* controlsMainStack = [[UIStackView alloc] initWithArrangedSubviews:@[dpadStack, centerStack, actionStack]];
-    controlsMainStack.axis = UILayoutConstraintAxisHorizontal;
-    controlsMainStack.alignment = UIStackViewAlignmentCenter;
-    controlsMainStack.distribution = UIStackViewDistributionEqualSpacing;
-    controlsMainStack.spacing = 14.0;
-    controlsMainStack.translatesAutoresizingMaskIntoConstraints = NO;
-    [self.controlsContainer addSubview:controlsMainStack];
+    [self.controlsContainer addSubview:dpadView];
+    [self.controlsContainer addSubview:centerStack];
+    [self.controlsContainer addSubview:actionCluster];
+    [self.controlsContainer addSubview:lBtn];
+    [self.controlsContainer addSubview:rBtn];
 
-    self.controlsHeightConstraint = [self.controlsContainer.heightAnchor constraintEqualToConstant:176];
+    self.controlsHeightConstraint = [self.controlsContainer.heightAnchor constraintEqualToConstant:196];
     self.logMinHeightConstraint = [self.logTextView.heightAnchor constraintGreaterThanOrEqualToConstant:72];
     self.logMinHeightConstraint.priority = UILayoutPriorityDefaultHigh;
     self.logHeightConstraint = [self.logTextView.heightAnchor constraintEqualToConstant:0.0];
@@ -495,10 +497,19 @@ static const NSUInteger kDefaultHeight = 160;
     ]];
 
     [NSLayoutConstraint activateConstraints:@[
-        [controlsMainStack.leadingAnchor constraintEqualToAnchor:self.controlsContainer.leadingAnchor constant:12],
-        [controlsMainStack.trailingAnchor constraintEqualToAnchor:self.controlsContainer.trailingAnchor constant:-12],
-        [controlsMainStack.topAnchor constraintEqualToAnchor:self.controlsContainer.topAnchor constant:10],
-        [controlsMainStack.bottomAnchor constraintEqualToAnchor:self.controlsContainer.bottomAnchor constant:-10],
+        [lBtn.topAnchor constraintEqualToAnchor:self.controlsContainer.topAnchor constant:8],
+        [lBtn.leadingAnchor constraintEqualToAnchor:self.controlsContainer.leadingAnchor constant:14],
+        [rBtn.topAnchor constraintEqualToAnchor:self.controlsContainer.topAnchor constant:8],
+        [rBtn.trailingAnchor constraintEqualToAnchor:self.controlsContainer.trailingAnchor constant:-14],
+
+        [dpadView.leadingAnchor constraintEqualToAnchor:self.controlsContainer.leadingAnchor constant:12],
+        [dpadView.bottomAnchor constraintEqualToAnchor:self.controlsContainer.bottomAnchor constant:-8],
+
+        [actionCluster.trailingAnchor constraintEqualToAnchor:self.controlsContainer.trailingAnchor constant:-12],
+        [actionCluster.bottomAnchor constraintEqualToAnchor:self.controlsContainer.bottomAnchor constant:-14],
+
+        [centerStack.centerXAnchor constraintEqualToAnchor:self.controlsContainer.centerXAnchor],
+        [centerStack.bottomAnchor constraintEqualToAnchor:self.controlsContainer.bottomAnchor constant:-14],
     ]];
 
     self.menuOverlayView = [[UIView alloc] initWithFrame:CGRectZero];
@@ -587,11 +598,11 @@ static const NSUInteger kDefaultHeight = 160;
     if (size.width <= 0.0 || size.height <= 0.0) { return; }
     BOOL isLandscape = size.width > size.height;
     CGFloat shortEdge = MIN(size.width, size.height);
-    CGFloat controlsHeight = shortEdge <= 390.0 ? 150.0 : 176.0;
+    CGFloat controlsHeight = shortEdge <= 390.0 ? 168.0 : 196.0;
     if (isLandscape) {
-        controlsHeight = MAX(128.0, shortEdge * 0.34);
+        controlsHeight = MAX(150.0, shortEdge * 0.40);
     }
-    self.controlsHeightConstraint.constant = MIN(220.0, controlsHeight);
+    self.controlsHeightConstraint.constant = MIN(244.0, controlsHeight);
 
     CGFloat minLogHeight = isLandscape ? 56.0 : (shortEdge <= 390.0 ? 64.0 : 84.0);
     self.logMinHeightConstraint.constant = minLogHeight;
