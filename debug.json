@@ -1,0 +1,3100 @@
+{
+  "debugObjects" : {
+    "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/nanoboyadvance\/nba\/src\/hw\/irq\/irq.cpp" : {
+      "debugItems" : [
+        {
+          "severity" : 1,
+          "column" : 17,
+          "line" : 40,
+          "message" : "expression with side effects will be evaluated despite being used as an operand to 'typeid'"
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/nanoboyadvance\/nba\/src\/hw\/irq\/irq.cpp"
+    },
+    "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/nanoboyadvance\/nba\/src\/arm\/tablegen\/tablegen.cpp" : {
+      "debugItems" : [
+        {
+          "column" : 17,
+          "message" : "expression with side effects will be evaluated despite being used as an operand to 'typeid'",
+          "line" : 40,
+          "severity" : 1
+        }
+      ],
+      "title" : "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/nanoboyadvance\/nba\/src\/arm\/tablegen\/tablegen.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/nanoboyadvance\/platform\/src\/emulator_thread.cpp" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/nanoboyadvance\/platform\/src\/emulator_thread.cpp",
+      "debugItems" : [
+        {
+          "column" : 17,
+          "line" : 40,
+          "message" : "expression with side effects will be evaluated despite being used as an operand to 'typeid'",
+          "severity" : 1
+        }
+      ]
+    },
+    "Internal" : {
+      "type" : {
+        "DebugMessage" : {
+
+        }
+      },
+      "title" : "Internal",
+      "debugItems" : [
+        {
+          "line" : 0,
+          "message" : "Failed to compile source code",
+          "severity" : 2,
+          "column" : 0
+        }
+      ]
+    },
+    "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/sameboy\/sm83_disassembler.c" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/sameboy\/sm83_disassembler.c",
+      "debugItems" : [
+        {
+          "message" : "call to undeclared function 'GB_debugger_find_symbol'; ISO C99 and later do not support implicit function declarations",
+          "line" : 761,
+          "column" : 47,
+          "severity" : 2
+        },
+        {
+          "message" : "did you mean 'GB_debugger_clear_symbols'?",
+          "line" : 761,
+          "column" : 47,
+          "severity" : 0
+        },
+        {
+          "message" : "'GB_debugger_clear_symbols' declared here",
+          "line" : 25,
+          "column" : 6,
+          "severity" : 0
+        },
+        {
+          "message" : "incompatible integer to pointer conversion initializing 'const GB_bank_symbol_t *' with an expression of type 'int'",
+          "line" : 761,
+          "column" : 29,
+          "severity" : 2
+        },
+        {
+          "message" : "incompatible integer to pointer conversion assigning to 'const GB_bank_symbol_t *' from 'int'",
+          "line" : 774,
+          "column" : 25,
+          "severity" : 2
+        },
+        {
+          "message" : "no member named 'pc' in 'struct GB_gameboy_s'",
+          "line" : 782,
+          "column" : 54,
+          "severity" : 2
+        },
+        {
+          "message" : "no member named 'pc' in 'struct GB_gameboy_s'",
+          "line" : 785,
+          "column" : 46,
+          "severity" : 2
+        }
+      ]
+    },
+    "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/nanoboyadvance\/nba\/src\/hw\/ppu\/merge.cpp" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/nanoboyadvance\/nba\/src\/hw\/ppu\/merge.cpp",
+      "debugItems" : [
+        {
+          "severity" : 1,
+          "message" : "enumeration value 'SFX_NONE' not handled in switch",
+          "line" : 205,
+          "column" : 18
+        }
+      ]
+    },
+    "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/sameboy\/timing.c" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/sameboy\/timing.c",
+      "debugItems" : [
+        {
+          "message" : "call to undeclared function 'unlikely'; ISO C99 and later do not support implicit function declarations",
+          "severity" : 2,
+          "line" : 46,
+          "column" : 9
+        },
+        {
+          "message" : "no member named 'backstep_instructions' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "line" : 46,
+          "column" : 22
+        },
+        {
+          "message" : "no member named 'turbo_dont_skip' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "line" : 48,
+          "column" : 14
+        },
+        {
+          "message" : "no member named 'last_render' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "line" : 50,
+          "column" : 32
+        },
+        {
+          "message" : "no member named 'last_render' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "line" : 53,
+          "column" : 13
+        },
+        {
+          "message" : "call to undeclared function 'unlikely'; ISO C99 and later do not support implicit function declarations",
+          "severity" : 2,
+          "line" : 61,
+          "column" : 9
+        },
+        {
+          "message" : "no member named 'backstep_instructions' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "line" : 61,
+          "column" : 22
+        },
+        {
+          "message" : "no member named 'cycles_since_last_sync' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "line" : 64,
+          "column" : 13
+        },
+        {
+          "message" : "use of undeclared identifier 'LCDC_PERIOD'",
+          "severity" : 2,
+          "line" : 64,
+          "column" : 38
+        },
+        {
+          "message" : "no member named 'turbo' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "line" : 67,
+          "column" : 13
+        },
+        {
+          "message" : "no member named 'turbo_cap_multiplier' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "line" : 68,
+          "column" : 17
+        },
+        {
+          "message" : "no member named 'turbo_cap_multiplier' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "line" : 69,
+          "column" : 61
+        },
+        {
+          "message" : "no member named 'cycles_since_last_sync' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "line" : 72,
+          "column" : 17
+        },
+        {
+          "message" : "no member named 'update_input_hint_callback' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "line" : 73,
+          "column" : 21
+        },
+        {
+          "message" : "no member named 'update_input_hint_callback' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "line" : 74,
+          "column" : 21
+        },
+        {
+          "message" : "no member named 'cycles_since_last_sync' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "line" : 83,
+          "column" : 39
+        },
+        {
+          "message" : "no member named 'last_sync' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "line" : 85,
+          "column" : 54
+        },
+        {
+          "message" : "use of undeclared identifier 'LCDC_PERIOD'",
+          "severity" : 2,
+          "line" : 86,
+          "column" : 46
+        },
+        {
+          "message" : "no member named 'last_sync' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "line" : 88,
+          "column" : 13
+        }
+      ]
+    },
+    "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/sameboy\/rewind.c" : {
+      "debugItems" : [
+        {
+          "severity" : 2,
+          "column" : 30,
+          "line" : 113,
+          "message" : "call to undeclared function 'GB_get_save_state_size_no_bess'; ISO C99 and later do not support implicit function declarations"
+        },
+        {
+          "severity" : 0,
+          "column" : 30,
+          "line" : 113,
+          "message" : "did you mean 'GB_get_save_state_size'?"
+        },
+        {
+          "severity" : 0,
+          "column" : 8,
+          "line" : 36,
+          "message" : "'GB_get_save_state_size' declared here"
+        },
+        {
+          "severity" : 2,
+          "column" : 13,
+          "line" : 114,
+          "message" : "no member named 'rewind_state_size' in 'struct GB_gameboy_s'"
+        },
+        {
+          "severity" : 2,
+          "column" : 13,
+          "line" : 116,
+          "message" : "no member named 'rewind_state_size' in 'struct GB_gameboy_s'"
+        },
+        {
+          "severity" : 2,
+          "column" : 14,
+          "line" : 118,
+          "message" : "no member named 'rewind_sequences' in 'struct GB_gameboy_s'"
+        },
+        {
+          "severity" : 2,
+          "column" : 17,
+          "line" : 119,
+          "message" : "no member named 'rewind_buffer_length' in 'struct GB_gameboy_s'"
+        },
+        {
+          "severity" : 2,
+          "column" : 17,
+          "line" : 120,
+          "message" : "no member named 'rewind_sequences' in 'struct GB_gameboy_s'"
+        },
+        {
+          "severity" : 2,
+          "column" : 55,
+          "line" : 120,
+          "message" : "no member named 'rewind_sequences' in 'struct GB_gameboy_s'"
+        },
+        {
+          "severity" : 2,
+          "column" : 79,
+          "line" : 120,
+          "message" : "no member named 'rewind_buffer_length' in 'struct GB_gameboy_s'"
+        },
+        {
+          "severity" : 2,
+          "column" : 24,
+          "line" : 121,
+          "message" : "no member named 'rewind_sequences' in 'struct GB_gameboy_s'"
+        },
+        {
+          "severity" : 0,
+          "column" : 40,
+          "line" : 244,
+          "message" : "expanded from macro 'memset'"
+        },
+        {
+          "severity" : 0,
+          "column" : 27,
+          "line" : 137,
+          "message" : "expanded from macro '__memset_chk_func'"
+        },
+        {
+          "severity" : 2,
+          "column" : 57,
+          "line" : 121,
+          "message" : "no member named 'rewind_sequences' in 'struct GB_gameboy_s'"
+        },
+        {
+          "severity" : 0,
+          "column" : 40,
+          "line" : 244,
+          "message" : "expanded from macro 'memset'"
+        },
+        {
+          "severity" : 0,
+          "column" : 33,
+          "line" : 137,
+          "message" : "expanded from macro '__memset_chk_func'"
+        },
+        {
+          "severity" : 2,
+          "column" : 81,
+          "line" : 121,
+          "message" : "no member named 'rewind_buffer_length' in 'struct GB_gameboy_s'"
+        },
+        {
+          "severity" : 0,
+          "column" : 40,
+          "line" : 244,
+          "message" : "expanded from macro 'memset'"
+        },
+        {
+          "severity" : 0,
+          "column" : 33,
+          "line" : 137,
+          "message" : "expanded from macro '__memset_chk_func'"
+        },
+        {
+          "severity" : 2,
+          "column" : 24,
+          "line" : 121,
+          "message" : "no member named 'rewind_sequences' in 'struct GB_gameboy_s'"
+        },
+        {
+          "message" : "expanded from macro 'memset'",
+          "line" : 244,
+          "severity" : 0,
+          "column" : 40
+        },
+        {
+          "message" : "expanded from macro '__memset_chk_func'",
+          "line" : 137,
+          "severity" : 0,
+          "column" : 62
+        },
+        {
+          "message" : "expanded from macro '__darwin_obsz0'",
+          "line" : 40,
+          "severity" : 0,
+          "column" : 55
+        },
+        {
+          "message" : "no member named 'rewind_pos' in 'struct GB_gameboy_s'",
+          "line" : 122,
+          "severity" : 2,
+          "column" : 17
+        },
+        {
+          "message" : "no member named 'rewind_sequences' in 'struct GB_gameboy_s'",
+          "line" : 129,
+          "severity" : 2,
+          "column" : 13
+        },
+        {
+          "message" : "no member named 'rewind_pos' in 'struct GB_gameboy_s'",
+          "line" : 129,
+          "severity" : 2,
+          "column" : 34
+        },
+        {
+          "message" : "no member named 'rewind_pos' in 'struct GB_gameboy_s'",
+          "line" : 130,
+          "severity" : 2,
+          "column" : 13
+        },
+        {
+          "message" : "no member named 'rewind_pos' in 'struct GB_gameboy_s'",
+          "line" : 131,
+          "severity" : 2,
+          "column" : 17
+        },
+        {
+          "message" : "no member named 'rewind_buffer_length' in 'struct GB_gameboy_s'",
+          "line" : 131,
+          "severity" : 2,
+          "column" : 35
+        },
+        {
+          "message" : "no member named 'rewind_pos' in 'struct GB_gameboy_s'",
+          "line" : 132,
+          "severity" : 2,
+          "column" : 17
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/sameboy\/rewind.c"
+    },
+    "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/sameboy\/cheat_search.c" : {
+      "title" : "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/sameboy\/cheat_search.c",
+      "debugItems" : [
+        {
+          "line" : 5,
+          "column" : 13,
+          "message" : "no member named 'cheat_search_data' in 'struct GB_gameboy_s'",
+          "severity" : 2
+        },
+        {
+          "line" : 6,
+          "column" : 18,
+          "message" : "no member named 'cheat_search_data' in 'struct GB_gameboy_s'",
+          "severity" : 2
+        },
+        {
+          "line" : 7,
+          "column" : 13,
+          "message" : "no member named 'cheat_search_data' in 'struct GB_gameboy_s'",
+          "severity" : 2
+        },
+        {
+          "line" : 9,
+          "column" : 13,
+          "message" : "no member named 'cheat_search_bitmap' in 'struct GB_gameboy_s'",
+          "severity" : 2
+        },
+        {
+          "line" : 10,
+          "column" : 18,
+          "message" : "no member named 'cheat_search_bitmap' in 'struct GB_gameboy_s'",
+          "severity" : 2
+        },
+        {
+          "line" : 11,
+          "column" : 13,
+          "message" : "no member named 'cheat_search_bitmap' in 'struct GB_gameboy_s'",
+          "severity" : 2
+        },
+        {
+          "line" : 13,
+          "column" : 9,
+          "message" : "no member named 'cheat_search_count' in 'struct GB_gameboy_s'",
+          "severity" : 2
+        },
+        {
+          "line" : 18,
+          "column" : 5,
+          "message" : "call to undeclared function 'GB_ASSERT_NOT_RUNNING'; ISO C99 and later do not support implicit function declarations",
+          "severity" : 2
+        },
+        {
+          "line" : 18,
+          "column" : 30,
+          "message" : "expected ';' after expression",
+          "severity" : 2
+        },
+        {
+          "line" : 21,
+          "column" : 9,
+          "message" : "call to undeclared function 'GB_debugger_evaluate_cheat_filter'; ISO C99 and later do not support implicit function declarations",
+          "severity" : 2
+        },
+        {
+          "line" : 24,
+          "column" : 9,
+          "message" : "no member named 'cheat_search_data_type' in 'struct GB_gameboy_s'",
+          "severity" : 2
+        },
+        {
+          "line" : 26,
+          "column" : 13,
+          "message" : "no member named 'cheat_search_count' in 'struct GB_gameboy_s'",
+          "severity" : 2
+        },
+        {
+          "line" : 28,
+          "column" : 13,
+          "message" : "no member named 'cheat_search_count' in 'struct GB_gameboy_s'",
+          "severity" : 2
+        },
+        {
+          "line" : 28,
+          "column" : 38,
+          "message" : "no member named 'ram_size' in 'struct GB_gameboy_s'",
+          "severity" : 2
+        },
+        {
+          "line" : 28,
+          "column" : 53,
+          "message" : "no member named 'mbc_ram_size' in 'struct GB_gameboy_s'",
+          "severity" : 2
+        },
+        {
+          "line" : 28,
+          "column" : 79,
+          "message" : "no member named 'hram' in 'struct GB_gameboy_s'",
+          "severity" : 2
+        },
+        {
+          "line" : 29,
+          "column" : 13,
+          "message" : "no member named 'cheat_search_data' in 'struct GB_gameboy_s'",
+          "severity" : 2
+        },
+        {
+          "line" : 29,
+          "column" : 44,
+          "message" : "no member named 'cheat_search_count' in 'struct GB_gameboy_s'",
+          "severity" : 2
+        },
+        {
+          "line" : 30,
+          "column" : 13,
+          "message" : "no member named 'cheat_search_bitmap' in 'struct GB_gameboy_s'",
+          "severity" : 2
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/nanoboyadvance\/nba\/src\/hw\/timer\/timer.cpp" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/nanoboyadvance\/nba\/src\/hw\/timer\/timer.cpp",
+      "debugItems" : [
+        {
+          "message" : "non-void function does not return a value in all control paths",
+          "severity" : 1,
+          "column" : 1,
+          "line" : 65
+        }
+      ]
+    },
+    "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/nanoboyadvance\/platform\/src\/loader\/save_state.cpp" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "line" : 40,
+          "column" : 17,
+          "message" : "expression with side effects will be evaluated despite being used as an operand to 'typeid'",
+          "severity" : 1
+        }
+      ],
+      "title" : "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/nanoboyadvance\/platform\/src\/loader\/save_state.cpp"
+    },
+    "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/nanoboyadvance\/nba\/src\/hw\/keypad\/keypad.cpp" : {
+      "title" : "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/nanoboyadvance\/nba\/src\/hw\/keypad\/keypad.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "column" : 17,
+          "message" : "expression with side effects will be evaluated despite being used as an operand to 'typeid'",
+          "line" : 40,
+          "severity" : 1
+        }
+      ]
+    },
+    "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/sameboy\/joypad.c" : {
+      "title" : "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/sameboy\/joypad.c",
+      "debugItems" : [
+        {
+          "line" : 8,
+          "message" : "no member named 'no_bouncing_emulation' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "column" : 36
+        },
+        {
+          "line" : 8,
+          "message" : "no member named 'model' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "column" : 67
+        },
+        {
+          "line" : 13,
+          "message" : "no member named 'model' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "column" : 13
+        },
+        {
+          "line" : 25,
+          "message" : "no member named 'use_faux_analog' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "column" : 13
+        },
+        {
+          "line" : 26,
+          "message" : "no member named 'keys' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "column" : 17
+        },
+        {
+          "line" : 32,
+          "message" : "no member named 'faux_analog_inputs' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "column" : 25
+        },
+        {
+          "line" : 33,
+          "message" : "no member named 'faux_analog_inputs' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "column" : 31
+        },
+        {
+          "line" : 34,
+          "message" : "no member named 'faux_analog_ticks' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "column" : 40
+        },
+        {
+          "line" : 37,
+          "message" : "no member named 'faux_analog_inputs' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "column" : 25
+        },
+        {
+          "line" : 38,
+          "message" : "no member named 'faux_analog_inputs' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "column" : 32
+        },
+        {
+          "line" : 39,
+          "message" : "no member named 'faux_analog_ticks' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "column" : 40
+        },
+        {
+          "line" : 42,
+          "message" : "no member named 'faux_analog_inputs' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "column" : 25
+        },
+        {
+          "line" : 43,
+          "message" : "no member named 'faux_analog_inputs' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "column" : 32
+        },
+        {
+          "line" : 44,
+          "message" : "no member named 'faux_analog_ticks' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "column" : 40
+        },
+        {
+          "line" : 47,
+          "message" : "no member named 'faux_analog_inputs' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "column" : 25
+        },
+        {
+          "line" : 48,
+          "message" : "no member named 'faux_analog_inputs' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "column" : 31
+        },
+        {
+          "line" : 49,
+          "message" : "no member named 'faux_analog_ticks' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "column" : 40
+        },
+        {
+          "line" : 51,
+          "message" : "use of undeclared identifier 'nodefault'; did you mean 'default'?",
+          "severity" : 2,
+          "column" : 13
+        },
+        {
+          "line" : 51,
+          "message" : "expected ':' after 'default'",
+          "severity" : 2,
+          "column" : 22
+        },
+        {
+          "line" : 52,
+          "message" : "label at end of compound statement is a C23 extension",
+          "severity" : 1,
+          "column" : 9
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/nanoboyadvance\/platform\/src\/writer\/save_state.cpp" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/nanoboyadvance\/platform\/src\/writer\/save_state.cpp",
+      "debugItems" : [
+        {
+          "severity" : 1,
+          "line" : 40,
+          "column" : 17,
+          "message" : "expression with side effects will be evaluated despite being used as an operand to 'typeid'"
+        }
+      ]
+    },
+    "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/nanoboyadvance\/nba\/src\/hw\/keypad\/serialization.cpp" : {
+      "title" : "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/nanoboyadvance\/nba\/src\/hw\/keypad\/serialization.cpp",
+      "debugItems" : [
+        {
+          "line" : 40,
+          "severity" : 1,
+          "column" : 17,
+          "message" : "expression with side effects will be evaluated despite being used as an operand to 'typeid'"
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/sameboy\/sm83_cpu.c" : {
+      "title" : "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/sameboy\/sm83_cpu.c",
+      "debugItems" : [
+        {
+          "severity" : 2,
+          "message" : "no member named 'pending_cycles' in 'struct GB_gameboy_s'",
+          "line" : 87,
+          "column" : 13
+        },
+        {
+          "severity" : 2,
+          "message" : "call to undeclared function 'GB_advance_cycles'; ISO C99 and later do not support implicit function declarations",
+          "line" : 88,
+          "column" : 9
+        },
+        {
+          "severity" : 2,
+          "message" : "no member named 'pending_cycles' in 'struct GB_gameboy_s'",
+          "line" : 88,
+          "column" : 35
+        },
+        {
+          "severity" : 2,
+          "message" : "no member named 'address_bus' in 'struct GB_gameboy_s'",
+          "line" : 90,
+          "column" : 9
+        },
+        {
+          "severity" : 2,
+          "message" : "no member named 'pending_cycles' in 'struct GB_gameboy_s'",
+          "line" : 92,
+          "column" : 9
+        },
+        {
+          "severity" : 2,
+          "message" : "no member named 'pending_cycles' in 'struct GB_gameboy_s'",
+          "line" : 104,
+          "column" : 16
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro 'assert'",
+          "line" : 72,
+          "column" : 25
+        },
+        {
+          "severity" : 2,
+          "message" : "call to undeclared function 'GB_advance_cycles'; ISO C99 and later do not support implicit function declarations",
+          "line" : 105,
+          "column" : 5
+        },
+        {
+          "severity" : 2,
+          "message" : "no member named 'pending_cycles' in 'struct GB_gameboy_s'",
+          "line" : 105,
+          "column" : 31
+        },
+        {
+          "severity" : 2,
+          "message" : "no member named 'address_bus' in 'struct GB_gameboy_s'",
+          "line" : 106,
+          "column" : 9
+        },
+        {
+          "severity" : 2,
+          "message" : "no member named 'io_registers' in 'struct GB_gameboy_s'",
+          "line" : 107,
+          "column" : 24
+        },
+        {
+          "severity" : 2,
+          "message" : "no member named 'pending_cycles' in 'struct GB_gameboy_s'",
+          "line" : 109,
+          "column" : 9
+        },
+        {
+          "severity" : 2,
+          "line" : 115,
+          "column" : 16,
+          "message" : "no member named 'pending_cycles' in 'struct GB_gameboy_s'"
+        },
+        {
+          "severity" : 0,
+          "line" : 72,
+          "column" : 25,
+          "message" : "expanded from macro 'assert'"
+        },
+        {
+          "severity" : 2,
+          "line" : 120,
+          "column" : 23,
+          "message" : "no member named 'cgb_double_speed' in 'struct GB_gameboy_s'"
+        },
+        {
+          "severity" : 2,
+          "line" : 132,
+          "column" : 13,
+          "message" : "call to undeclared function 'GB_advance_cycles'; ISO C99 and later do not support implicit function declarations"
+        },
+        {
+          "severity" : 2,
+          "line" : 132,
+          "column" : 39,
+          "message" : "no member named 'pending_cycles' in 'struct GB_gameboy_s'"
+        },
+        {
+          "severity" : 2,
+          "line" : 134,
+          "column" : 17,
+          "message" : "no member named 'pending_cycles' in 'struct GB_gameboy_s'"
+        },
+        {
+          "severity" : 2,
+          "line" : 138,
+          "column" : 39,
+          "message" : "no member named 'pending_cycles' in 'struct GB_gameboy_s'"
+        },
+        {
+          "severity" : 2,
+          "line" : 140,
+          "column" : 17,
+          "message" : "no member named 'pending_cycles' in 'struct GB_gameboy_s'"
+        },
+        {
+          "severity" : 2,
+          "line" : 144,
+          "column" : 39,
+          "message" : "no member named 'pending_cycles' in 'struct GB_gameboy_s'"
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/sameboy\/gb.c" : {
+      "title" : "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/sameboy\/gb.c",
+      "debugItems" : [
+        {
+          "line" : 22,
+          "column" : 17,
+          "severity" : 2,
+          "message" : "no member named 'log_callback' in 'struct GB_gameboy_s'"
+        },
+        {
+          "line" : 23,
+          "column" : 17,
+          "severity" : 2,
+          "message" : "no member named 'log_callback' in 'struct GB_gameboy_s'"
+        },
+        {
+          "line" : 55,
+          "column" : 13,
+          "severity" : 2,
+          "message" : "no member named 'debug_stopped' in 'struct GB_gameboy_s'"
+        },
+        {
+          "line" : 110,
+          "column" : 13,
+          "severity" : 2,
+          "message" : "no member named 'has_sgb_border' in 'struct GB_gameboy_s'"
+        },
+        {
+          "line" : 127,
+          "column" : 13,
+          "severity" : 2,
+          "message" : "no member named 'model' in 'struct GB_gameboy_s'"
+        },
+        {
+          "line" : 129,
+          "column" : 9,
+          "severity" : 2,
+          "message" : "no member named 'borrowed_border' in 'struct GB_gameboy_s'"
+        },
+        {
+          "line" : 113,
+          "column" : 20,
+          "severity" : 0,
+          "message" : "expanded from macro 'LOAD_BORDER'"
+        },
+        {
+          "line" : 234,
+          "column" : 40,
+          "severity" : 0,
+          "message" : "expanded from macro 'memcpy'"
+        },
+        {
+          "line" : 127,
+          "column" : 27,
+          "severity" : 0,
+          "message" : "expanded from macro '__memcpy_chk_func'"
+        },
+        {
+          "line" : 129,
+          "column" : 9,
+          "severity" : 2,
+          "message" : "no member named 'borrowed_border' in 'struct GB_gameboy_s'"
+        },
+        {
+          "line" : 113,
+          "column" : 20,
+          "severity" : 0,
+          "message" : "expanded from macro 'LOAD_BORDER'"
+        },
+        {
+          "line" : 234,
+          "column" : 40,
+          "severity" : 0,
+          "message" : "expanded from macro 'memcpy'"
+        },
+        {
+          "line" : 127,
+          "column" : 62,
+          "severity" : 0,
+          "message" : "expanded from macro '__memcpy_chk_func'"
+        },
+        {
+          "line" : 40,
+          "column" : 55,
+          "severity" : 0,
+          "message" : "expanded from macro '__darwin_obsz0'"
+        },
+        {
+          "line" : 129,
+          "column" : 9,
+          "severity" : 2,
+          "message" : "no member named 'borrowed_border' in 'struct GB_gameboy_s'"
+        },
+        {
+          "line" : 114,
+          "column" : 20,
+          "severity" : 0,
+          "message" : "expanded from macro 'LOAD_BORDER'"
+        },
+        {
+          "line" : 234,
+          "column" : 40,
+          "severity" : 0,
+          "message" : "expanded from macro 'memcpy'"
+        },
+        {
+          "line" : 127,
+          "column" : 27,
+          "severity" : 0,
+          "message" : "expanded from macro '__memcpy_chk_func'"
+        },
+        {
+          "line" : 129,
+          "column" : 9,
+          "severity" : 2,
+          "message" : "no member named 'borrowed_border' in 'struct GB_gameboy_s'"
+        },
+        {
+          "line" : 114,
+          "column" : 20,
+          "severity" : 0,
+          "message" : "expanded from macro 'LOAD_BORDER'"
+        },
+        {
+          "line" : 234,
+          "column" : 40,
+          "severity" : 0,
+          "message" : "expanded from macro 'memcpy'"
+        },
+        {
+          "line" : 127,
+          "column" : 62,
+          "severity" : 0,
+          "message" : "expanded from macro '__memcpy_chk_func'"
+        },
+        {
+          "line" : 40,
+          "column" : 55,
+          "severity" : 0,
+          "message" : "expanded from macro '__darwin_obsz0'"
+        },
+        {
+          "line" : 129,
+          "column" : 9,
+          "severity" : 2,
+          "message" : "no member named 'borrowed_border' in 'struct GB_gameboy_s'"
+        },
+        {
+          "line" : 115,
+          "column" : 20,
+          "severity" : 0,
+          "message" : "expanded from macro 'LOAD_BORDER'"
+        },
+        {
+          "line" : 234,
+          "column" : 40,
+          "severity" : 0,
+          "message" : "expanded from macro 'memcpy'"
+        },
+        {
+          "line" : 127,
+          "column" : 27,
+          "severity" : 0,
+          "message" : "expanded from macro '__memcpy_chk_func'"
+        },
+        {
+          "line" : 129,
+          "column" : 9,
+          "severity" : 2,
+          "message" : "no member named 'borrowed_border' in 'struct GB_gameboy_s'"
+        },
+        {
+          "line" : 115,
+          "column" : 20,
+          "severity" : 0,
+          "message" : "expanded from macro 'LOAD_BORDER'"
+        },
+        {
+          "line" : 234,
+          "column" : 40,
+          "severity" : 0,
+          "message" : "expanded from macro 'memcpy'"
+        },
+        {
+          "column" : 62,
+          "line" : 127,
+          "message" : "expanded from macro '__memcpy_chk_func'",
+          "severity" : 0
+        },
+        {
+          "column" : 55,
+          "line" : 40,
+          "message" : "expanded from macro '__darwin_obsz0'",
+          "severity" : 0
+        },
+        {
+          "column" : 18,
+          "line" : 131,
+          "message" : "no member named 'model' in 'struct GB_gameboy_s'",
+          "severity" : 2
+        },
+        {
+          "column" : 9,
+          "line" : 133,
+          "message" : "no member named 'borrowed_border' in 'struct GB_gameboy_s'",
+          "severity" : 2
+        },
+        {
+          "column" : 20,
+          "line" : 113,
+          "message" : "expanded from macro 'LOAD_BORDER'",
+          "severity" : 0
+        },
+        {
+          "column" : 40,
+          "line" : 234,
+          "message" : "expanded from macro 'memcpy'",
+          "severity" : 0
+        },
+        {
+          "column" : 27,
+          "line" : 127,
+          "message" : "expanded from macro '__memcpy_chk_func'",
+          "severity" : 0
+        },
+        {
+          "column" : 9,
+          "line" : 133,
+          "message" : "no member named 'borrowed_border' in 'struct GB_gameboy_s'",
+          "severity" : 2
+        },
+        {
+          "column" : 20,
+          "line" : 113,
+          "message" : "expanded from macro 'LOAD_BORDER'",
+          "severity" : 0
+        },
+        {
+          "column" : 40,
+          "line" : 234,
+          "message" : "expanded from macro 'memcpy'",
+          "severity" : 0
+        },
+        {
+          "column" : 62,
+          "line" : 127,
+          "message" : "expanded from macro '__memcpy_chk_func'",
+          "severity" : 0
+        },
+        {
+          "column" : 55,
+          "line" : 40,
+          "message" : "expanded from macro '__darwin_obsz0'",
+          "severity" : 0
+        },
+        {
+          "column" : 9,
+          "line" : 133,
+          "message" : "no member named 'borrowed_border' in 'struct GB_gameboy_s'",
+          "severity" : 2
+        },
+        {
+          "column" : 20,
+          "line" : 114,
+          "message" : "expanded from macro 'LOAD_BORDER'",
+          "severity" : 0
+        },
+        {
+          "column" : 40,
+          "line" : 234,
+          "message" : "expanded from macro 'memcpy'",
+          "severity" : 0
+        },
+        {
+          "column" : 27,
+          "line" : 127,
+          "message" : "expanded from macro '__memcpy_chk_func'",
+          "severity" : 0
+        },
+        {
+          "column" : 9,
+          "line" : 133,
+          "message" : "no member named 'borrowed_border' in 'struct GB_gameboy_s'",
+          "severity" : 2
+        },
+        {
+          "column" : 20,
+          "line" : 114,
+          "message" : "expanded from macro 'LOAD_BORDER'",
+          "severity" : 0
+        },
+        {
+          "column" : 40,
+          "line" : 234,
+          "message" : "expanded from macro 'memcpy'",
+          "severity" : 0
+        },
+        {
+          "column" : 62,
+          "line" : 127,
+          "message" : "expanded from macro '__memcpy_chk_func'",
+          "severity" : 0
+        },
+        {
+          "column" : 55,
+          "line" : 40,
+          "message" : "expanded from macro '__darwin_obsz0'",
+          "severity" : 0
+        },
+        {
+          "column" : 9,
+          "line" : 133,
+          "message" : "no member named 'borrowed_border' in 'struct GB_gameboy_s'",
+          "severity" : 2
+        },
+        {
+          "column" : 20,
+          "line" : 115,
+          "message" : "expanded from macro 'LOAD_BORDER'",
+          "severity" : 0
+        },
+        {
+          "column" : 40,
+          "line" : 234,
+          "message" : "expanded from macro 'memcpy'",
+          "severity" : 0
+        },
+        {
+          "column" : 27,
+          "line" : 127,
+          "message" : "expanded from macro '__memcpy_chk_func'",
+          "severity" : 0
+        },
+        {
+          "column" : 9,
+          "line" : 133,
+          "message" : "no member named 'borrowed_border' in 'struct GB_gameboy_s'",
+          "severity" : 2
+        },
+        {
+          "column" : 20,
+          "line" : 115,
+          "message" : "expanded from macro 'LOAD_BORDER'",
+          "severity" : 0
+        },
+        {
+          "column" : 40,
+          "line" : 234,
+          "message" : "expanded from macro 'memcpy'",
+          "severity" : 0
+        },
+        {
+          "column" : 62,
+          "line" : 127,
+          "message" : "expanded from macro '__memcpy_chk_func'",
+          "severity" : 0
+        },
+        {
+          "column" : 55,
+          "line" : 40,
+          "message" : "expanded from macro '__darwin_obsz0'",
+          "severity" : 0
+        },
+        {
+          "column" : 17,
+          "line" : 134,
+          "message" : "no member named 'dmg_palette' in 'struct GB_gameboy_s'",
+          "severity" : 2
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/sameboy\/cheats.c" : {
+      "debugItems" : [
+        {
+          "line" : 17,
+          "column" : 20,
+          "message" : "no member named 'mbc_rom0_bank' in 'struct GB_gameboy_s'",
+          "severity" : 2
+        },
+        {
+          "line" : 21,
+          "column" : 20,
+          "message" : "no member named 'mbc_rom_bank' in 'struct GB_gameboy_s'",
+          "severity" : 2
+        },
+        {
+          "line" : 29,
+          "column" : 20,
+          "message" : "no member named 'cgb_ram_bank' in 'struct GB_gameboy_s'",
+          "severity" : 2
+        },
+        {
+          "line" : 35,
+          "column" : 8,
+          "message" : "unknown type name 'noinline'; did you mean 'inline'?",
+          "severity" : 2
+        },
+        {
+          "line" : 37,
+          "column" : 9,
+          "message" : "call to undeclared function 'unlikely'; ISO C99 and later do not support implicit function declarations",
+          "severity" : 2
+        },
+        {
+          "line" : 37,
+          "column" : 23,
+          "message" : "no member named 'boot_rom_finished' in 'struct GB_gameboy_s'",
+          "severity" : 2
+        },
+        {
+          "line" : 38,
+          "column" : 39,
+          "message" : "no member named 'cheat_hash' in 'struct GB_gameboy_s'",
+          "severity" : 2
+        },
+        {
+          "line" : 39,
+          "column" : 9,
+          "message" : "call to undeclared function 'likely'; ISO C99 and later do not support implicit function declarations",
+          "severity" : 2
+        },
+        {
+          "line" : 54,
+          "column" : 9,
+          "message" : "call to undeclared function 'likely'; ISO C99 and later do not support implicit function declarations",
+          "severity" : 2
+        },
+        {
+          "line" : 54,
+          "column" : 21,
+          "message" : "no member named 'cheat_enabled' in 'struct GB_gameboy_s'",
+          "severity" : 2
+        },
+        {
+          "line" : 55,
+          "column" : 20,
+          "message" : "no member named 'cheat_count' in 'struct GB_gameboy_s'",
+          "severity" : 2
+        },
+        {
+          "line" : 61,
+          "column" : 16,
+          "message" : "no member named 'cheat_enabled' in 'struct GB_gameboy_s'",
+          "severity" : 2
+        },
+        {
+          "line" : 66,
+          "column" : 9,
+          "message" : "no member named 'cheat_enabled' in 'struct GB_gameboy_s'",
+          "severity" : 2
+        },
+        {
+          "line" : 71,
+          "column" : 5,
+          "message" : "call to undeclared function 'GB_ASSERT_NOT_RUNNING_OTHER_THREAD'; ISO C99 and later do not support implicit function declarations",
+          "severity" : 2
+        },
+        {
+          "line" : 71,
+          "column" : 43,
+          "message" : "expected ';' after expression",
+          "severity" : 2
+        },
+        {
+          "line" : 82,
+          "column" : 9,
+          "message" : "no member named 'cheats' in 'struct GB_gameboy_s'",
+          "severity" : 2
+        },
+        {
+          "line" : 82,
+          "column" : 30,
+          "message" : "no member named 'cheats' in 'struct GB_gameboy_s'",
+          "severity" : 2
+        },
+        {
+          "line" : 82,
+          "column" : 45,
+          "message" : "no member named 'cheat_count' in 'struct GB_gameboy_s'",
+          "severity" : 2
+        },
+        {
+          "line" : 82,
+          "column" : 71,
+          "message" : "no member named 'cheats' in 'struct GB_gameboy_s'",
+          "severity" : 2
+        }
+      ],
+      "title" : "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/sameboy\/cheats.c",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/nanoboyadvance\/platform\/src\/loader\/rom.cpp" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "column" : 17,
+          "severity" : 1,
+          "message" : "expression with side effects will be evaluated despite being used as an operand to 'typeid'",
+          "line" : 40
+        },
+        {
+          "column" : 10,
+          "severity" : 1,
+          "message" : "enumeration values 'Detect' and 'None' not handled in switch",
+          "line" : 171
+        }
+      ],
+      "title" : "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/nanoboyadvance\/platform\/src\/loader\/rom.cpp"
+    },
+    "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/nanoboyadvance\/nba\/src\/hw\/rom\/gpio\/rtc.cpp" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "message" : "enumeration value 'Complete' not handled in switch",
+          "severity" : 1,
+          "column" : 14,
+          "line" : 75
+        },
+        {
+          "column" : 10,
+          "severity" : 1,
+          "line" : 176,
+          "message" : "enumeration values 'ForceReset', 'ForceIRQ', and 'Free' not handled in switch"
+        }
+      ],
+      "title" : "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/nanoboyadvance\/nba\/src\/hw\/rom\/gpio\/rtc.cpp"
+    },
+    "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/sameboy\/mbc.c" : {
+      "debugItems" : [
+        {
+          "message" : "no member named 'cartridge_type' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "line" : 47,
+          "column" : 17
+        },
+        {
+          "message" : "no member named 'mbc1_wiring' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "line" : 50,
+          "column" : 25
+        },
+        {
+          "message" : "no member named 'mbc_rom_bank' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "line" : 52,
+          "column" : 25
+        },
+        {
+          "message" : "no member named 'mbc1' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "line" : 52,
+          "column" : 44
+        },
+        {
+          "message" : "no member named 'mbc1' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "line" : 52,
+          "column" : 65
+        },
+        {
+          "message" : "no member named 'mbc1' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "line" : 53,
+          "column" : 29
+        },
+        {
+          "severity" : 2,
+          "column" : 29,
+          "line" : 54,
+          "message" : "no member named 'mbc_ram_bank' in 'struct GB_gameboy_s'"
+        },
+        {
+          "severity" : 2,
+          "column" : 29,
+          "line" : 55,
+          "message" : "no member named 'mbc_rom0_bank' in 'struct GB_gameboy_s'"
+        },
+        {
+          "severity" : 2,
+          "line" : 58,
+          "column" : 29,
+          "message" : "no member named 'mbc_ram_bank' in 'struct GB_gameboy_s'"
+        },
+        {
+          "severity" : 2,
+          "line" : 58,
+          "column" : 48,
+          "message" : "no member named 'mbc1' in 'struct GB_gameboy_s'"
+        },
+        {
+          "severity" : 2,
+          "line" : 59,
+          "column" : 29,
+          "message" : "no member named 'mbc_rom0_bank' in 'struct GB_gameboy_s'"
+        },
+        {
+          "severity" : 2,
+          "line" : 59,
+          "column" : 49,
+          "message" : "no member named 'mbc1' in 'struct GB_gameboy_s'"
+        },
+        {
+          "severity" : 2,
+          "line" : 61,
+          "column" : 30,
+          "message" : "no member named 'mbc_rom_bank' in 'struct GB_gameboy_s'"
+        },
+        {
+          "severity" : 2,
+          "line" : 62,
+          "column" : 29,
+          "message" : "no member named 'mbc_rom_bank' in 'struct GB_gameboy_s'"
+        },
+        {
+          "severity" : 2,
+          "line" : 66,
+          "column" : 25,
+          "message" : "no member named 'mbc_rom_bank' in 'struct GB_gameboy_s'"
+        },
+        {
+          "severity" : 2,
+          "line" : 66,
+          "column" : 45,
+          "message" : "no member named 'mbc1' in 'struct GB_gameboy_s'"
+        },
+        {
+          "severity" : 2,
+          "line" : 66,
+          "column" : 73,
+          "message" : "no member named 'mbc1' in 'struct GB_gameboy_s'"
+        },
+        {
+          "severity" : 2,
+          "line" : 67,
+          "column" : 29,
+          "message" : "no member named 'mbc1' in 'struct GB_gameboy_s'"
+        },
+        {
+          "severity" : 2,
+          "line" : 68,
+          "column" : 29,
+          "message" : "no member named 'mbc_ram_bank' in 'struct GB_gameboy_s'"
+        }
+      ],
+      "title" : "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/sameboy\/mbc.c",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/nanoboyadvance\/nba\/src\/bus\/serialization.cpp" : {
+      "title" : "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/nanoboyadvance\/nba\/src\/bus\/serialization.cpp",
+      "debugItems" : [
+        {
+          "column" : 17,
+          "line" : 40,
+          "message" : "expression with side effects will be evaluated despite being used as an operand to 'typeid'",
+          "severity" : 1
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/nanoboyadvance\/platform\/src\/loader\/bios.cpp" : {
+      "title" : "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/nanoboyadvance\/platform\/src\/loader\/bios.cpp",
+      "debugItems" : [
+        {
+          "line" : 40,
+          "severity" : 1,
+          "message" : "expression with side effects will be evaluated despite being used as an operand to 'typeid'",
+          "column" : 17
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/quick_nes\/nes_emu\/Nes_State.cpp" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/quick_nes\/nes_emu\/Nes_State.cpp",
+      "debugItems" : [
+        {
+          "column" : 20,
+          "message" : "implicit conversion from 'const frame_count_t' (aka 'const long') to '::uint32_t' (aka 'unsigned int') changes value from 4611686018427387904 to 0",
+          "line" : 54,
+          "severity" : 1
+        }
+      ]
+    },
+    "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/ios\/AuroraIOS\/Metal.m" : {
+      "debugItems" : [
+        {
+          "line" : 71,
+          "message" : "assigning retained object to unsafe_unretained variable; object will be released after assignment",
+          "severity" : 1,
+          "column" : 24
+        },
+        {
+          "line" : 285,
+          "message" : "'mainScreen' is deprecated: first deprecated in iOS 26.0 - Use a UIScreen instance found through context instead (i.e, view.window.windowScene.screen), or for properties like UIScreen.scale with trait equivalents, use a traitCollection found through context.",
+          "severity" : 1,
+          "column" : 59
+        },
+        {
+          "line" : 57,
+          "message" : "property 'mainScreen' is declared deprecated here",
+          "severity" : 0,
+          "column" : 49
+        },
+        {
+          "line" : 57,
+          "message" : "'mainScreen' has been explicitly marked deprecated here",
+          "severity" : 0,
+          "column" : 49
+        }
+      ],
+      "title" : "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/ios\/AuroraIOS\/Metal.m",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/sameboy\/save_state.c" : {
+      "title" : "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/sameboy\/save_state.c",
+      "debugItems" : [
+        {
+          "message" : "call to undeclared function 'GB_SECTION_OFFSET'; ISO C99 and later do not support implicit function declarations",
+          "severity" : 2,
+          "line" : 19,
+          "column" : 17
+        },
+        {
+          "message" : "use of undeclared identifier 'core_state'; did you mean 'setstate'?",
+          "severity" : 2,
+          "line" : 19,
+          "column" : 35
+        },
+        {
+          "message" : "'setstate' declared here",
+          "severity" : 0,
+          "line" : 264,
+          "column" : 30
+        },
+        {
+          "message" : "static assertion expression is not an integral constant expression",
+          "severity" : 2,
+          "line" : 19,
+          "column" : 17
+        },
+        {
+          "severity" : 2,
+          "message" : "use of undeclared identifier 'dma'",
+          "line" : 20,
+          "column" : 35
+        },
+        {
+          "severity" : 2,
+          "message" : "use of undeclared identifier 'mbc'",
+          "line" : 21,
+          "column" : 35
+        },
+        {
+          "severity" : 2,
+          "message" : "use of undeclared identifier 'hram'",
+          "line" : 22,
+          "column" : 35
+        },
+        {
+          "column" : 35,
+          "line" : 23,
+          "message" : "use of undeclared identifier 'timing'",
+          "severity" : 2
+        },
+        {
+          "column" : 35,
+          "line" : 24,
+          "message" : "use of undeclared identifier 'apu'",
+          "severity" : 2
+        },
+        {
+          "column" : 35,
+          "line" : 25,
+          "message" : "use of undeclared identifier 'rtc'",
+          "severity" : 2
+        },
+        {
+          "column" : 35,
+          "line" : 26,
+          "message" : "use of undeclared identifier 'video'",
+          "severity" : 2
+        },
+        {
+          "column" : 35,
+          "line" : 27,
+          "message" : "use of undeclared identifier 'accessory'",
+          "severity" : 2
+        },
+        {
+          "column" : 12,
+          "line" : 282,
+          "message" : "call to undeclared function 'GB_SECTION_SIZE'; ISO C99 and later do not support implicit function declarations",
+          "severity" : 2
+        },
+        {
+          "column" : 39,
+          "line" : 292,
+          "message" : "no member named 'sgb' in 'struct GB_gameboy_s'",
+          "severity" : 2
+        },
+        {
+          "column" : 11,
+          "line" : 293,
+          "message" : "no member named 'mbc_ram_size' in 'struct GB_gameboy_s'",
+          "severity" : 2
+        },
+        {
+          "column" : 11,
+          "line" : 294,
+          "message" : "no member named 'ram_size' in 'struct GB_gameboy_s'",
+          "severity" : 2
+        },
+        {
+          "column" : 11,
+          "line" : 295,
+          "message" : "no member named 'vram_size' in 'struct GB_gameboy_s'",
+          "severity" : 2
+        },
+        {
+          "column" : 28,
+          "line" : 282,
+          "message" : "use of undeclared identifier 'header'",
+          "severity" : 2
+        },
+        {
+          "column" : 23,
+          "line" : 283,
+          "message" : "use of undeclared identifier 'core_state'",
+          "severity" : 2
+        },
+        {
+          "column" : 23,
+          "line" : 284,
+          "message" : "use of undeclared identifier 'dma'",
+          "severity" : 2
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/sameboy\/camera.c" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/sameboy\/camera.c",
+      "debugItems" : [
+        {
+          "severity" : 2,
+          "message" : "no member named 'camera_get_pixel_callback' in 'struct GB_gameboy_s'",
+          "column" : 22,
+          "line" : 42
+        },
+        {
+          "severity" : 2,
+          "message" : "no member named 'camera_get_pixel_callback' in 'struct GB_gameboy_s'",
+          "column" : 53,
+          "line" : 42
+        },
+        {
+          "severity" : 2,
+          "message" : "no member named 'camera_registers' in 'struct GB_gameboy_s'",
+          "column" : 30,
+          "line" : 54
+        },
+        {
+          "severity" : 2,
+          "message" : "use of undeclared identifier 'GB_CAMERA_GAIN_AND_EDGE_ENHACEMENT_FLAGS'",
+          "column" : 47,
+          "line" : 54
+        },
+        {
+          "severity" : 2,
+          "message" : "no member named 'camera_registers' in 'struct GB_gameboy_s'",
+          "column" : 27,
+          "line" : 58
+        },
+        {
+          "severity" : 2,
+          "message" : "use of undeclared identifier 'GB_CAMERA_EXPOSURE_HIGH'",
+          "column" : 44,
+          "line" : 58
+        },
+        {
+          "severity" : 2,
+          "message" : "no member named 'camera_registers' in 'struct GB_gameboy_s'",
+          "column" : 81,
+          "line" : 58
+        },
+        {
+          "severity" : 2,
+          "message" : "use of undeclared identifier 'GB_CAMERA_EXPOSURE_LOW'",
+          "column" : 98,
+          "line" : 58
+        },
+        {
+          "severity" : 2,
+          "message" : "no member named 'camera_registers' in 'struct GB_gameboy_s'",
+          "column" : 70,
+          "line" : 78
+        },
+        {
+          "severity" : 2,
+          "message" : "use of undeclared identifier 'GB_CAMERA_EDGE_ENHANCEMENT_INVERT_AND_VOLTAGE'",
+          "column" : 87,
+          "line" : 78
+        },
+        {
+          "severity" : 2,
+          "message" : "no member named 'camera_registers' in 'struct GB_gameboy_s'",
+          "column" : 18,
+          "line" : 79
+        },
+        {
+          "severity" : 2,
+          "message" : "use of undeclared identifier 'GB_CAMERA_GAIN_AND_EDGE_ENHACEMENT_FLAGS'",
+          "column" : 35,
+          "line" : 79
+        },
+        {
+          "severity" : 2,
+          "message" : "use of undeclared identifier 'GB_CAMERA_DITHERING_PATTERN_START'",
+          "column" : 62,
+          "line" : 89
+        },
+        {
+          "severity" : 2,
+          "message" : "no member named 'camera_registers' in 'struct GB_gameboy_s'",
+          "column" : 25,
+          "line" : 91
+        },
+        {
+          "severity" : 2,
+          "message" : "no member named 'camera_registers' in 'struct GB_gameboy_s'",
+          "column" : 30,
+          "line" : 94
+        },
+        {
+          "severity" : 2,
+          "message" : "no member named 'camera_registers' in 'struct GB_gameboy_s'",
+          "column" : 30,
+          "line" : 97
+        },
+        {
+          "severity" : 2,
+          "message" : "call to undeclared function 'GB_ASSERT_NOT_RUNNING_OTHER_THREAD'; ISO C99 and later do not support implicit function declarations",
+          "column" : 9,
+          "line" : 114
+        },
+        {
+          "severity" : 2,
+          "message" : "expected ';' after expression",
+          "column" : 47,
+          "line" : 114
+        },
+        {
+          "severity" : 2,
+          "message" : "no member named 'camera_get_pixel_callback' in 'struct GB_gameboy_s'",
+          "column" : 9,
+          "line" : 116
+        }
+      ]
+    },
+    "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/nanoboyadvance\/nba\/src\/serialization.cpp" : {
+      "title" : "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/nanoboyadvance\/nba\/src\/serialization.cpp",
+      "debugItems" : [
+        {
+          "message" : "expression with side effects will be evaluated despite being used as an operand to 'typeid'",
+          "line" : 40,
+          "column" : 17,
+          "severity" : 1
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/sameboy\/rumble.c" : {
+      "title" : "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/sameboy\/rumble.c",
+      "debugItems" : [
+        {
+          "line" : 6,
+          "column" : 9,
+          "severity" : 2,
+          "message" : "no member named 'rumble_mode' in 'struct GB_gameboy_s'"
+        },
+        {
+          "line" : 7,
+          "column" : 13,
+          "severity" : 2,
+          "message" : "no member named 'rumble_callback' in 'struct GB_gameboy_s'"
+        },
+        {
+          "line" : 8,
+          "column" : 13,
+          "severity" : 2,
+          "message" : "no member named 'rumble_callback' in 'struct GB_gameboy_s'"
+        },
+        {
+          "line" : 14,
+          "column" : 13,
+          "severity" : 2,
+          "message" : "no member named 'rumble_callback' in 'struct GB_gameboy_s'"
+        },
+        {
+          "line" : 15,
+          "column" : 17,
+          "severity" : 2,
+          "message" : "no member named 'rumble_mode' in 'struct GB_gameboy_s'"
+        },
+        {
+          "line" : 18,
+          "column" : 17,
+          "severity" : 2,
+          "message" : "no member named 'cartridge_type' in 'struct GB_gameboy_s'"
+        },
+        {
+          "line" : 19,
+          "column" : 18,
+          "severity" : 2,
+          "message" : "no member named 'cartridge_type' in 'struct GB_gameboy_s'"
+        },
+        {
+          "line" : 19,
+          "column" : 62,
+          "severity" : 2,
+          "message" : "no member named 'rom' in 'struct GB_gameboy_s'"
+        },
+        {
+          "line" : 20,
+          "column" : 21,
+          "severity" : 2,
+          "message" : "no member named 'rumble_on_cycles' in 'struct GB_gameboy_s'"
+        },
+        {
+          "line" : 20,
+          "column" : 44,
+          "severity" : 2,
+          "message" : "no member named 'rumble_off_cycles' in 'struct GB_gameboy_s'"
+        },
+        {
+          "line" : 21,
+          "column" : 21,
+          "severity" : 2,
+          "message" : "no member named 'rumble_callback' in 'struct GB_gameboy_s'"
+        },
+        {
+          "line" : 21,
+          "column" : 45,
+          "severity" : 2,
+          "message" : "no member named 'rumble_on_cycles' in 'struct GB_gameboy_s'"
+        },
+        {
+          "line" : 21,
+          "column" : 77,
+          "severity" : 2,
+          "message" : "no member named 'rumble_on_cycles' in 'struct GB_gameboy_s'"
+        },
+        {
+          "line" : 21,
+          "column" : 100,
+          "severity" : 2,
+          "message" : "no member named 'rumble_off_cycles' in 'struct GB_gameboy_s'"
+        },
+        {
+          "line" : 22,
+          "column" : 21,
+          "severity" : 2,
+          "message" : "no member named 'rumble_on_cycles' in 'struct GB_gameboy_s'"
+        },
+        {
+          "line" : 22,
+          "column" : 44,
+          "severity" : 2,
+          "message" : "no member named 'rumble_off_cycles' in 'struct GB_gameboy_s'"
+        },
+        {
+          "line" : 25,
+          "column" : 22,
+          "severity" : 2,
+          "message" : "no member named 'rumble_mode' in 'struct GB_gameboy_s'"
+        },
+        {
+          "line" : 26,
+          "column" : 36,
+          "severity" : 2,
+          "message" : "no member named 'io_registers' in 'struct GB_gameboy_s'"
+        },
+        {
+          "line" : 26,
+          "column" : 78,
+          "severity" : 2,
+          "message" : "no member named 'io_registers' in 'struct GB_gameboy_s'"
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/nanoboyadvance\/nba\/src\/bus\/bus.cpp" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "line" : 40,
+          "column" : 17,
+          "severity" : 1,
+          "message" : "expression with side effects will be evaluated despite being used as an operand to 'typeid'"
+        }
+      ],
+      "title" : "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/nanoboyadvance\/nba\/src\/bus\/bus.cpp"
+    },
+    "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/nanoboyadvance\/nba\/src\/hw\/rom\/backup\/flash.cpp" : {
+      "title" : "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/nanoboyadvance\/nba\/src\/hw\/rom\/backup\/flash.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "message" : "enumeration value 'ERASE_SECTOR' not handled in switch",
+          "severity" : 1,
+          "line" : 83,
+          "column" : 12
+        }
+      ]
+    },
+    "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/nanoboyadvance\/core_adapter.cpp" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/nanoboyadvance\/core_adapter.cpp",
+      "debugItems" : [
+        {
+          "column" : 17,
+          "severity" : 1,
+          "line" : 40,
+          "message" : "expression with side effects will be evaluated despite being used as an operand to 'typeid'"
+        }
+      ]
+    },
+    "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/nanoboyadvance\/nba\/src\/hw\/irq\/serialization.cpp" : {
+      "debugItems" : [
+        {
+          "severity" : 1,
+          "message" : "expression with side effects will be evaluated despite being used as an operand to 'typeid'",
+          "line" : 40,
+          "column" : 17
+        }
+      ],
+      "title" : "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/nanoboyadvance\/nba\/src\/hw\/irq\/serialization.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/nanoboyadvance\/nba\/src\/hw\/rom\/gpio\/gpio.cpp" : {
+      "title" : "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/nanoboyadvance\/nba\/src\/hw\/rom\/gpio\/gpio.cpp",
+      "debugItems" : [
+        {
+          "column" : 37,
+          "severity" : 1,
+          "message" : "expression with side effects will be evaluated despite being used as an operand to 'typeid'",
+          "line" : 26
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/nanoboyadvance\/nba\/src\/hw\/apu\/hle\/mp2k.cpp" : {
+      "debugItems" : [
+        {
+          "line" : 40,
+          "column" : 17,
+          "severity" : 1,
+          "message" : "expression with side effects will be evaluated despite being used as an operand to 'typeid'"
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/nanoboyadvance\/nba\/src\/hw\/apu\/hle\/mp2k.cpp"
+    },
+    "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/nanoboyadvance\/runtime.cpp" : {
+      "debugItems" : [
+        {
+          "line" : 40,
+          "column" : 17,
+          "severity" : 1,
+          "message" : "expression with side effects will be evaluated despite being used as an operand to 'typeid'"
+        }
+      ],
+      "title" : "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/nanoboyadvance\/runtime.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/sameboy\/memory.c" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "column" : 9,
+          "message" : "call to undeclared function 'GB_display_sync'; ISO C99 and later do not support implicit function declarations",
+          "line" : 98,
+          "severity" : 2
+        },
+        {
+          "column" : 17,
+          "message" : "no member named 'accessed_oam_row' in 'struct GB_gameboy_s'",
+          "line" : 99,
+          "severity" : 2
+        },
+        {
+          "column" : 49,
+          "message" : "no member named 'accessed_oam_row' in 'struct GB_gameboy_s'",
+          "line" : 99,
+          "severity" : 2
+        },
+        {
+          "column" : 47,
+          "message" : "no member named 'oam' in 'struct GB_gameboy_s'",
+          "line" : 100,
+          "severity" : 2
+        },
+        {
+          "column" : 57,
+          "message" : "no member named 'accessed_oam_row' in 'struct GB_gameboy_s'",
+          "line" : 100,
+          "severity" : 2
+        },
+        {
+          "column" : 21,
+          "message" : "no member named 'oam' in 'struct GB_gameboy_s'",
+          "line" : 105,
+          "severity" : 2
+        },
+        {
+          "column" : 29,
+          "message" : "no member named 'accessed_oam_row' in 'struct GB_gameboy_s'",
+          "line" : 105,
+          "severity" : 2
+        },
+        {
+          "column" : 57,
+          "message" : "no member named 'oam' in 'struct GB_gameboy_s'",
+          "line" : 105,
+          "severity" : 2
+        },
+        {
+          "column" : 65,
+          "message" : "no member named 'accessed_oam_row' in 'struct GB_gameboy_s'",
+          "line" : 105,
+          "severity" : 2
+        },
+        {
+          "column" : 13,
+          "message" : "no member named 'accessed_oam_row' in 'struct GB_gameboy_s'",
+          "line" : 113,
+          "severity" : 2
+        },
+        {
+          "column" : 43,
+          "message" : "no member named 'oam' in 'struct GB_gameboy_s'",
+          "line" : 114,
+          "severity" : 2
+        },
+        {
+          "column" : 53,
+          "message" : "no member named 'accessed_oam_row' in 'struct GB_gameboy_s'",
+          "line" : 114,
+          "severity" : 2
+        },
+        {
+          "column" : 17,
+          "message" : "no member named 'oam' in 'struct GB_gameboy_s'",
+          "line" : 120,
+          "severity" : 2
+        },
+        {
+          "column" : 25,
+          "message" : "no member named 'accessed_oam_row' in 'struct GB_gameboy_s'",
+          "line" : 120,
+          "severity" : 2
+        },
+        {
+          "column" : 60,
+          "message" : "no member named 'oam' in 'struct GB_gameboy_s'",
+          "line" : 120,
+          "severity" : 2
+        },
+        {
+          "severity" : 2,
+          "message" : "no member named 'accessed_oam_row' in 'struct GB_gameboy_s'",
+          "line" : 120,
+          "column" : 68
+        },
+        {
+          "severity" : 2,
+          "message" : "no member named 'accessed_oam_row' in 'struct GB_gameboy_s'",
+          "line" : 157,
+          "column" : 13
+        },
+        {
+          "severity" : 2,
+          "message" : "no member named 'oam' in 'struct GB_gameboy_s'",
+          "line" : 158,
+          "column" : 43
+        },
+        {
+          "severity" : 2,
+          "message" : "no member named 'accessed_oam_row' in 'struct GB_gameboy_s'",
+          "line" : 158,
+          "column" : 53
+        }
+      ],
+      "title" : "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/sameboy\/memory.c"
+    },
+    "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/sameboy\/apu.c" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/sameboy\/apu.c",
+      "debugItems" : [
+        {
+          "line" : 25,
+          "message" : "use of undeclared identifier 'nounroll'",
+          "column" : 5,
+          "severity" : 2
+        },
+        {
+          "line" : 64,
+          "message" : "no member named 'packed' in 'GB_sample_t'",
+          "column" : 16,
+          "severity" : 2
+        },
+        {
+          "line" : 64,
+          "message" : "no member named 'packed' in 'GB_sample_t'",
+          "column" : 46,
+          "severity" : 2
+        },
+        {
+          "line" : 74,
+          "message" : "no member named 'packed' in 'GB_sample_t'",
+          "column" : 25,
+          "severity" : 2
+        },
+        {
+          "line" : 74,
+          "message" : "no member named 'packed' in 'GB_sample_t'",
+          "column" : 41,
+          "severity" : 2
+        },
+        {
+          "line" : 85,
+          "message" : "no member named 'packed' in 'GB_sample_t'",
+          "column" : 16,
+          "severity" : 2
+        },
+        {
+          "line" : 85,
+          "message" : "no member named 'packed' in 'GB_sample_t'",
+          "column" : 46,
+          "severity" : 2
+        },
+        {
+          "line" : 93,
+          "message" : "no member named 'packed' in 'GB_sample_t'",
+          "column" : 25,
+          "severity" : 2
+        },
+        {
+          "line" : 93,
+          "message" : "no member named 'packed' in 'GB_sample_t'",
+          "column" : 41,
+          "severity" : 2
+        },
+        {
+          "line" : 96,
+          "message" : "use of undeclared identifier 'GB_BAND_LIMITED_ONE'",
+          "column" : 55,
+          "severity" : 2
+        },
+        {
+          "line" : 97,
+          "message" : "use of undeclared identifier 'GB_BAND_LIMITED_ONE'",
+          "column" : 57,
+          "severity" : 2
+        },
+        {
+          "line" : 108,
+          "message" : "use of undeclared identifier 'GB_BAND_LIMITED_ONE'",
+          "column" : 61,
+          "severity" : 2
+        },
+        {
+          "line" : 109,
+          "message" : "use of undeclared identifier 'GB_BAND_LIMITED_ONE'",
+          "column" : 63,
+          "severity" : 2
+        },
+        {
+          "line" : 117,
+          "message" : "no member named 'packed' in 'GB_sample_t'",
+          "column" : 35,
+          "severity" : 2
+        },
+        {
+          "line" : 117,
+          "message" : "no member named 'packed' in 'GB_sample_t'",
+          "column" : 52,
+          "severity" : 2
+        },
+        {
+          "line" : 124,
+          "message" : "no member named 'packed' in 'GB_sample_t'",
+          "column" : 35,
+          "severity" : 2
+        },
+        {
+          "line" : 124,
+          "message" : "no member named 'packed' in 'GB_sample_t'",
+          "column" : 52,
+          "severity" : 2
+        },
+        {
+          "line" : 129,
+          "message" : "no member named 'packed' in 'GB_sample_t'",
+          "column" : 17,
+          "severity" : 2
+        },
+        {
+          "line" : 129,
+          "message" : "no member named 'packed' in 'GB_sample_t'",
+          "column" : 52,
+          "severity" : 2
+        }
+      ]
+    },
+    "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/nanoboyadvance\/nba\/src\/bus\/io.cpp" : {
+      "title" : "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/nanoboyadvance\/nba\/src\/bus\/io.cpp",
+      "debugItems" : [
+        {
+          "severity" : 1,
+          "message" : "expression with side effects will be evaluated despite being used as an operand to 'typeid'",
+          "line" : 40,
+          "column" : 17
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/sameboy\/workboy.c" : {
+      "debugItems" : [
+        {
+          "message" : "no member named 'workboy' in 'struct GB_gameboy_s'",
+          "line" : 23,
+          "severity" : 2,
+          "column" : 9
+        },
+        {
+          "message" : "no member named 'workboy' in 'struct GB_gameboy_s'",
+          "line" : 24,
+          "severity" : 2,
+          "column" : 9
+        },
+        {
+          "message" : "no member named 'workboy' in 'struct GB_gameboy_s'",
+          "line" : 25,
+          "severity" : 2,
+          "column" : 9
+        },
+        {
+          "message" : "no member named 'workboy' in 'struct GB_gameboy_s'",
+          "line" : 26,
+          "severity" : 2,
+          "column" : 13
+        },
+        {
+          "message" : "no member named 'workboy' in 'struct GB_gameboy_s'",
+          "line" : 27,
+          "severity" : 2,
+          "column" : 13
+        },
+        {
+          "message" : "no member named 'workboy' in 'struct GB_gameboy_s'",
+          "line" : 28,
+          "severity" : 2,
+          "column" : 17
+        },
+        {
+          "message" : "no member named 'workboy' in 'struct GB_gameboy_s'",
+          "line" : 28,
+          "severity" : 2,
+          "column" : 44
+        },
+        {
+          "message" : "no member named 'workboy' in 'struct GB_gameboy_s'",
+          "line" : 29,
+          "severity" : 2,
+          "column" : 17
+        },
+        {
+          "message" : "no member named 'workboy' in 'struct GB_gameboy_s'",
+          "line" : 30,
+          "severity" : 2,
+          "column" : 17
+        },
+        {
+          "message" : "no member named 'workboy' in 'struct GB_gameboy_s'",
+          "line" : 31,
+          "severity" : 2,
+          "column" : 17
+        },
+        {
+          "message" : "no member named 'workboy' in 'struct GB_gameboy_s'",
+          "line" : 31,
+          "severity" : 2,
+          "column" : 36
+        },
+        {
+          "message" : "no member named 'workboy' in 'struct GB_gameboy_s'",
+          "line" : 32,
+          "severity" : 2,
+          "column" : 17
+        },
+        {
+          "message" : "no member named 'workboy_get_time_callback' in 'struct GB_gameboy_s'",
+          "line" : 34,
+          "severity" : 2,
+          "column" : 31
+        },
+        {
+          "message" : "no member named 'workboy' in 'struct GB_gameboy_s'",
+          "line" : 37,
+          "severity" : 2,
+          "column" : 24
+        },
+        {
+          "message" : "expanded from macro 'memset'",
+          "line" : 244,
+          "severity" : 0,
+          "column" : 40
+        },
+        {
+          "message" : "expanded from macro '__memset_chk_func'",
+          "line" : 137,
+          "severity" : 0,
+          "column" : 27
+        },
+        {
+          "message" : "no member named 'workboy' in 'struct GB_gameboy_s'",
+          "line" : 37,
+          "severity" : 2,
+          "column" : 54
+        },
+        {
+          "message" : "expanded from macro 'memset'",
+          "line" : 244,
+          "severity" : 0,
+          "column" : 40
+        },
+        {
+          "message" : "expanded from macro '__memset_chk_func'",
+          "line" : 137,
+          "severity" : 0,
+          "column" : 33
+        },
+        {
+          "message" : "no member named 'workboy' in 'struct GB_gameboy_s'",
+          "line" : 37,
+          "severity" : 2,
+          "column" : 24
+        },
+        {
+          "message" : "expanded from macro 'memset'",
+          "line" : 244,
+          "severity" : 0,
+          "column" : 40
+        },
+        {
+          "message" : "expanded from macro '__memset_chk_func'",
+          "line" : 137,
+          "severity" : 0,
+          "column" : 62
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro '__darwin_obsz0'",
+          "line" : 40,
+          "column" : 55
+        },
+        {
+          "severity" : 2,
+          "message" : "no member named 'workboy' in 'struct GB_gameboy_s'",
+          "line" : 39,
+          "column" : 17
+        },
+        {
+          "line" : 40,
+          "message" : "no member named 'workboy' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "column" : 17
+        },
+        {
+          "line" : 41,
+          "message" : "no member named 'workboy' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "column" : 17
+        }
+      ],
+      "title" : "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/sameboy\/workboy.c",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/nanoboyadvance\/nba\/src\/bus\/timing.cpp" : {
+      "title" : "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/nanoboyadvance\/nba\/src\/bus\/timing.cpp",
+      "debugItems" : [
+        {
+          "severity" : 1,
+          "line" : 40,
+          "message" : "expression with side effects will be evaluated despite being used as an operand to 'typeid'",
+          "column" : 17
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/nanoboyadvance\/nba\/src\/hw\/dma\/dma.cpp" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "line" : 40,
+          "severity" : 1,
+          "message" : "expression with side effects will be evaluated despite being used as an operand to 'typeid'",
+          "column" : 17
+        },
+        {
+          "line" : 430,
+          "severity" : 1,
+          "message" : "enumeration value 'Immediate' not handled in switch",
+          "column" : 10
+        }
+      ],
+      "title" : "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/nanoboyadvance\/nba\/src\/hw\/dma\/dma.cpp"
+    },
+    "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/sameboy\/display.c" : {
+      "debugItems" : [
+        {
+          "severity" : 2,
+          "line" : 15,
+          "column" : 39,
+          "message" : "no member named 'dmg_palette' in 'struct GB_gameboy_s'"
+        },
+        {
+          "severity" : 2,
+          "line" : 16,
+          "column" : 13,
+          "message" : "no member named 'rgb_encode_callback' in 'struct GB_gameboy_s'"
+        },
+        {
+          "severity" : 2,
+          "line" : 17,
+          "column" : 13,
+          "message" : "no member named 'object_palettes_rgb' in 'struct GB_gameboy_s'"
+        },
+        {
+          "severity" : 2,
+          "line" : 17,
+          "column" : 42,
+          "message" : "no member named 'object_palettes_rgb' in 'struct GB_gameboy_s'"
+        },
+        {
+          "line" : 17,
+          "column" : 71,
+          "message" : "no member named 'background_palettes_rgb' in 'struct GB_gameboy_s'",
+          "severity" : 2
+        },
+        {
+          "line" : 18,
+          "column" : 13,
+          "message" : "no member named 'rgb_encode_callback' in 'struct GB_gameboy_s'",
+          "severity" : 2
+        },
+        {
+          "line" : 19,
+          "column" : 13,
+          "message" : "no member named 'object_palettes_rgb' in 'struct GB_gameboy_s'",
+          "severity" : 2
+        },
+        {
+          "line" : 19,
+          "column" : 42,
+          "message" : "no member named 'object_palettes_rgb' in 'struct GB_gameboy_s'",
+          "severity" : 2
+        },
+        {
+          "line" : 19,
+          "column" : 71,
+          "message" : "no member named 'background_palettes_rgb' in 'struct GB_gameboy_s'",
+          "severity" : 2
+        },
+        {
+          "line" : 20,
+          "column" : 13,
+          "message" : "no member named 'rgb_encode_callback' in 'struct GB_gameboy_s'",
+          "severity" : 2
+        },
+        {
+          "line" : 21,
+          "column" : 13,
+          "message" : "no member named 'object_palettes_rgb' in 'struct GB_gameboy_s'",
+          "severity" : 2
+        },
+        {
+          "line" : 21,
+          "column" : 42,
+          "message" : "no member named 'object_palettes_rgb' in 'struct GB_gameboy_s'",
+          "severity" : 2
+        },
+        {
+          "line" : 21,
+          "column" : 71,
+          "message" : "no member named 'background_palettes_rgb' in 'struct GB_gameboy_s'",
+          "severity" : 2
+        },
+        {
+          "line" : 22,
+          "column" : 13,
+          "message" : "no member named 'rgb_encode_callback' in 'struct GB_gameboy_s'",
+          "severity" : 2
+        },
+        {
+          "line" : 23,
+          "column" : 13,
+          "message" : "no member named 'object_palettes_rgb' in 'struct GB_gameboy_s'",
+          "severity" : 2
+        },
+        {
+          "line" : 23,
+          "column" : 42,
+          "message" : "no member named 'object_palettes_rgb' in 'struct GB_gameboy_s'",
+          "severity" : 2
+        },
+        {
+          "line" : 23,
+          "column" : 71,
+          "message" : "no member named 'background_palettes_rgb' in 'struct GB_gameboy_s'",
+          "severity" : 2
+        },
+        {
+          "line" : 24,
+          "column" : 13,
+          "message" : "no member named 'rgb_encode_callback' in 'struct GB_gameboy_s'",
+          "severity" : 2
+        },
+        {
+          "line" : 27,
+          "column" : 13,
+          "message" : "no member named 'background_palettes_rgb' in 'struct GB_gameboy_s'",
+          "severity" : 2
+        }
+      ],
+      "title" : "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/sameboy\/display.c",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/quick_nes\/nes_emu\/Mapper_Namco106.cpp" : {
+      "title" : "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/quick_nes\/nes_emu\/Mapper_Namco106.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "message" : "logical not is only applied to the left hand side of this bitwise operator",
+          "line" : 77,
+          "column" : 8,
+          "severity" : 1
+        },
+        {
+          "message" : "add parentheses after the '!' to evaluate the bitwise operator first",
+          "line" : 77,
+          "column" : 8,
+          "severity" : 0
+        },
+        {
+          "message" : "add parentheses around left hand side expression to silence this warning",
+          "line" : 77,
+          "column" : 8,
+          "severity" : 0
+        }
+      ]
+    },
+    "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/sameboy\/printer.c" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/sameboy\/printer.c",
+      "debugItems" : [
+        {
+          "message" : "no member named 'printer' in 'struct GB_gameboy_s'",
+          "column" : 17,
+          "severity" : 2,
+          "line" : 15
+        },
+        {
+          "message" : "no member named 'printer' in 'struct GB_gameboy_s'",
+          "column" : 17,
+          "severity" : 2,
+          "line" : 17
+        },
+        {
+          "message" : "no member named 'printer' in 'struct GB_gameboy_s'",
+          "column" : 17,
+          "severity" : 2,
+          "line" : 18
+        },
+        {
+          "message" : "no member named 'printer' in 'struct GB_gameboy_s'",
+          "column" : 21,
+          "severity" : 2,
+          "line" : 22
+        },
+        {
+          "message" : "no member named 'printer' in 'struct GB_gameboy_s'",
+          "column" : 21,
+          "severity" : 2,
+          "line" : 23
+        },
+        {
+          "message" : "no member named 'printer' in 'struct GB_gameboy_s'",
+          "column" : 36,
+          "severity" : 2,
+          "line" : 24
+        },
+        {
+          "message" : "no member named 'printer' in 'struct GB_gameboy_s'",
+          "column" : 39,
+          "severity" : 2,
+          "line" : 25
+        },
+        {
+          "message" : "no member named 'rgb_encode_callback' in 'struct GB_gameboy_s'",
+          "column" : 43,
+          "severity" : 2,
+          "line" : 26
+        },
+        {
+          "severity" : 2,
+          "line" : 27,
+          "column" : 43,
+          "message" : "no member named 'rgb_encode_callback' in 'struct GB_gameboy_s'"
+        },
+        {
+          "severity" : 2,
+          "line" : 28,
+          "column" : 43,
+          "message" : "no member named 'rgb_encode_callback' in 'struct GB_gameboy_s'"
+        },
+        {
+          "severity" : 2,
+          "line" : 29,
+          "message" : "no member named 'rgb_encode_callback' in 'struct GB_gameboy_s'",
+          "column" : 43
+        },
+        {
+          "severity" : 2,
+          "line" : 30,
+          "message" : "no member named 'printer' in 'struct GB_gameboy_s'",
+          "column" : 46
+        },
+        {
+          "severity" : 2,
+          "line" : 31,
+          "message" : "no member named 'printer' in 'struct GB_gameboy_s'",
+          "column" : 56
+        },
+        {
+          "severity" : 2,
+          "line" : 35,
+          "message" : "no member named 'printer' in 'struct GB_gameboy_s'",
+          "column" : 21
+        },
+        {
+          "severity" : 2,
+          "line" : 35,
+          "message" : "no member named 'printer' in 'struct GB_gameboy_s'",
+          "column" : 50
+        },
+        {
+          "severity" : 2,
+          "line" : 37,
+          "message" : "no member named 'printer_callback' in 'struct GB_gameboy_s'",
+          "column" : 25
+        },
+        {
+          "severity" : 2,
+          "line" : 38,
+          "message" : "no member named 'printer_callback' in 'struct GB_gameboy_s'",
+          "column" : 25
+        },
+        {
+          "severity" : 2,
+          "line" : 38,
+          "message" : "no member named 'printer' in 'struct GB_gameboy_s'",
+          "column" : 57
+        },
+        {
+          "severity" : 2,
+          "line" : 39,
+          "message" : "no member named 'printer' in 'struct GB_gameboy_s'",
+          "column" : 46
+        }
+      ]
+    },
+    "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/nanoboyadvance\/nba\/src\/core.cpp" : {
+      "title" : "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/nanoboyadvance\/nba\/src\/core.cpp",
+      "debugItems" : [
+        {
+          "column" : 17,
+          "message" : "expression with side effects will be evaluated despite being used as an operand to 'typeid'",
+          "severity" : 1,
+          "line" : 40
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/nanoboyadvance\/nba\/src\/arm\/serialization.cpp" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/nanoboyadvance\/nba\/src\/arm\/serialization.cpp",
+      "debugItems" : [
+        {
+          "column" : 17,
+          "line" : 40,
+          "message" : "expression with side effects will be evaluated despite being used as an operand to 'typeid'",
+          "severity" : 1
+        }
+      ]
+    },
+    "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/sameboy\/sgb.c" : {
+      "title" : "Projects\/AC320CA1-3851-4035-B87C-F9DAAAF0AA72\/src\/core\/sameboy\/sgb.c",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "message" : "no member named 'sgb' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "column" : 9,
+          "line" : 49
+        },
+        {
+          "message" : "no member named 'sgb' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "column" : 42,
+          "line" : 49
+        },
+        {
+          "message" : "no member named 'sgb' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "column" : 13,
+          "line" : 50
+        },
+        {
+          "message" : "no member named 'sgb' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "column" : 46,
+          "line" : 50
+        },
+        {
+          "message" : "no member named 'sgb' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "column" : 27,
+          "line" : 51
+        },
+        {
+          "message" : "no member named 'sgb' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "column" : 13,
+          "line" : 54
+        },
+        {
+          "message" : "no member named 'sgb' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "column" : 76,
+          "line" : 54
+        },
+        {
+          "message" : "no member named 'sgb' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "line" : 58,
+          "column" : 13
+        },
+        {
+          "message" : "no member named 'sgb' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "line" : 58,
+          "column" : 77
+        },
+        {
+          "message" : "no member named 'sgb' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "line" : 65,
+          "column" : 27
+        },
+        {
+          "message" : "no member named 'sgb' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "line" : 67,
+          "column" : 28
+        },
+        {
+          "message" : "no member named 'sgb' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "line" : 152,
+          "column" : 14
+        },
+        {
+          "message" : "no member named 'boot_rom_finished' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "line" : 153,
+          "column" : 17
+        },
+        {
+          "message" : "no member named 'sgb' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "line" : 157,
+          "column" : 29
+        },
+        {
+          "message" : "no member named 'sgb' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "line" : 159,
+          "column" : 29
+        },
+        {
+          "message" : "no member named 'sgb' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "line" : 161,
+          "column" : 17
+        },
+        {
+          "message" : "no member named 'sgb' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "line" : 164,
+          "column" : 31
+        },
+        {
+          "message" : "no member named 'sgb' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "line" : 168,
+          "column" : 21
+        },
+        {
+          "message" : "expanded from macro 'memcpy'",
+          "severity" : 0,
+          "line" : 234,
+          "column" : 40
+        },
+        {
+          "message" : "expanded from macro '__memcpy_chk_func'",
+          "severity" : 0,
+          "line" : 127,
+          "column" : 27
+        },
+        {
+          "message" : "no member named 'sgb' in 'struct GB_gameboy_s'",
+          "severity" : 2,
+          "line" : 168,
+          "column" : 60
+        },
+        {
+          "message" : "expanded from macro 'memcpy'",
+          "severity" : 0,
+          "line" : 234,
+          "column" : 40
+        },
+        {
+          "message" : "expanded from macro '__memcpy_chk_func'",
+          "severity" : 0,
+          "line" : 127,
+          "column" : 33
+        }
+      ]
+    }
+  }
+}
