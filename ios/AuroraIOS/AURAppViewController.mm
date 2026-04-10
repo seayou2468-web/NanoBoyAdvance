@@ -37,10 +37,12 @@ static const NSUInteger kDefaultHeight = 160;
 @property (nonatomic, strong) UILabel*       menuTitleLabel;
 @property (nonatomic, strong) UIStackView*   menuStackView;
 @property (nonatomic, strong) UITextView*    logTextView;
+@property (nonatomic, strong) UIStackView*   quickActionStack;
 @property (nonatomic, strong) UIView*        controlsContainer;
 @property (nonatomic, strong) CADisplayLink* displayLink;
 @property (nonatomic, strong) NSLayoutConstraint* controlsHeightConstraint;
 @property (nonatomic, strong) NSLayoutConstraint* logMinHeightConstraint;
+@property (nonatomic, strong) NSLayoutConstraint* logHeightConstraint;
 @property (nonatomic, strong) NSLayoutConstraint* imageAspectConstraint;
 - (void)appendLog:(NSString*)message;
 - (void)presentEmulatorMenu;
@@ -54,6 +56,10 @@ static const NSUInteger kDefaultHeight = 160;
 - (void)setVirtualKey:(EmulatorKey)key pressed:(BOOL)pressed;
 - (void)releaseAllVirtualKeys;
 - (void)presentLogViewer;
+- (void)presentSettingsPage;
+- (void)performQuickSave;
+- (void)performQuickLoad;
+- (NSString*)quickStatePath;
 @end
 
 @implementation AURViewController {
@@ -92,6 +98,7 @@ static const NSUInteger kDefaultHeight = 160;
     BOOL            _isPaused;
     NSInteger       _screenScalePreset; // 0: fit, 1: medium, 2: compact
     NSMutableSet<NSNumber*>* _pressedKeys;
+    NSString*        _loadedROMName;
 #if DEBUG
     NSUInteger      _frameCounter;
     uint32_t        _lastFrameSample;
@@ -238,7 +245,38 @@ static const NSUInteger kDefaultHeight = 160;
     self.logTextView.backgroundColor = UIColor.secondarySystemBackgroundColor;
     self.logTextView.textColor = UIColor.labelColor;
     self.logTextView.text = @"[log] 起動\n";
+    self.logTextView.hidden = YES;
     [self.view addSubview:self.logTextView];
+
+    UIButton* (^makeQuickButton)(NSString*, SEL, NSString*) = ^UIButton* (NSString* title, SEL action, NSString* iconName) {
+        UIButton* button = [UIButton buttonWithType:UIButtonTypeSystem];
+        button.translatesAutoresizingMaskIntoConstraints = NO;
+        [button addTarget:self action:action forControlEvents:UIControlEventTouchUpInside];
+        if (@available(iOS 15.0, *)) {
+            UIButtonConfiguration* cfg = [UIButtonConfiguration tintedButtonConfiguration];
+            cfg.title = title;
+            cfg.image = [UIImage systemImageNamed:iconName];
+            cfg.imagePadding = 6;
+            cfg.cornerStyle = UIButtonConfigurationCornerStyleCapsule;
+            button.configuration = cfg;
+        } else {
+            [button setTitle:title forState:UIControlStateNormal];
+        }
+        button.titleLabel.adjustsFontSizeToFitWidth = YES;
+        button.titleLabel.minimumScaleFactor = 0.72;
+        [button.heightAnchor constraintEqualToConstant:36].active = YES;
+        return button;
+    };
+    UIButton* quickSaveBtn = makeQuickButton(@"クイック保存", @selector(performQuickSave), @"square.and.arrow.down");
+    UIButton* quickLoadBtn = makeQuickButton(@"クイック読込", @selector(performQuickLoad), @"arrow.clockwise.square");
+    UIButton* settingsBtn = makeQuickButton(@"設定", @selector(presentSettingsPage), @"slider.horizontal.3");
+    UIButton* logsBtn = makeQuickButton(@"ログ", @selector(presentLogViewer), @"doc.text.magnifyingglass");
+    self.quickActionStack = [[UIStackView alloc] initWithArrangedSubviews:@[quickSaveBtn, quickLoadBtn, settingsBtn, logsBtn]];
+    self.quickActionStack.translatesAutoresizingMaskIntoConstraints = NO;
+    self.quickActionStack.axis = UILayoutConstraintAxisHorizontal;
+    self.quickActionStack.distribution = UIStackViewDistributionFillEqually;
+    self.quickActionStack.spacing = 8.0;
+    [self.view addSubview:self.quickActionStack];
 
     // Virtual controller
     self.controlsContainer = [[UIView alloc] initWithFrame:CGRectZero];
@@ -258,6 +296,9 @@ static const NSUInteger kDefaultHeight = 160;
         button.layer.borderColor = [UIColor colorWithWhite:1.0 alpha:0.08].CGColor;
         button.layer.borderWidth = 1.0;
         button.titleLabel.font = [UIFont systemFontOfSize:(size > 50 ? 22 : 14) weight:UIFontWeightSemibold];
+        button.titleLabel.adjustsFontSizeToFitWidth = YES;
+        button.titleLabel.minimumScaleFactor = 0.60;
+        button.contentEdgeInsets = UIEdgeInsetsMake(4, 8, 4, 8);
         button.exclusiveTouch = NO;
         // タップ取りこぼしを減らすため、見た目より判定領域を広げる。
         button.expandedHitInsets = UIEdgeInsetsMake(-14.0, -14.0, -14.0, -14.0);
@@ -355,6 +396,7 @@ static const NSUInteger kDefaultHeight = 160;
     self.controlsHeightConstraint = [self.controlsContainer.heightAnchor constraintEqualToConstant:176];
     self.logMinHeightConstraint = [self.logTextView.heightAnchor constraintGreaterThanOrEqualToConstant:72];
     self.logMinHeightConstraint.priority = UILayoutPriorityDefaultHigh;
+    self.logHeightConstraint = [self.logTextView.heightAnchor constraintEqualToConstant:0.0];
 
     self.imageAspectConstraint =
         [self.imageView.heightAnchor constraintEqualToAnchor:self.imageView.widthAnchor
@@ -420,9 +462,19 @@ static const NSUInteger kDefaultHeight = 160;
         [self.controlsContainer.trailingAnchor
             constraintEqualToAnchor:self.view.safeAreaLayoutGuide.trailingAnchor
             constant:-12],
-        [self.controlsContainer.topAnchor
-            constraintEqualToAnchor:fileButtonStack.bottomAnchor
+        [self.quickActionStack.leadingAnchor
+            constraintEqualToAnchor:self.view.safeAreaLayoutGuide.leadingAnchor
             constant:12],
+        [self.quickActionStack.trailingAnchor
+            constraintEqualToAnchor:self.view.safeAreaLayoutGuide.trailingAnchor
+            constant:-12],
+        [self.quickActionStack.topAnchor
+            constraintEqualToAnchor:fileButtonStack.bottomAnchor
+            constant:10],
+
+        [self.controlsContainer.topAnchor
+            constraintEqualToAnchor:self.quickActionStack.bottomAnchor
+            constant:10],
         self.controlsHeightConstraint,
 
         // Log view: ボタン下〜画面下
@@ -434,11 +486,12 @@ static const NSUInteger kDefaultHeight = 160;
             constant:-12],
         [self.logTextView.topAnchor
             constraintEqualToAnchor:self.controlsContainer.bottomAnchor
-            constant:12],
+            constant:0],
         [self.logTextView.bottomAnchor
             constraintEqualToAnchor:self.view.safeAreaLayoutGuide.bottomAnchor
-            constant:-8],
+            constant:0],
         self.logMinHeightConstraint,
+        self.logHeightConstraint,
     ]];
 
     [NSLayoutConstraint activateConstraints:@[
@@ -462,6 +515,8 @@ static const NSUInteger kDefaultHeight = 160;
     self.menuCardView.backgroundColor = UIColor.secondarySystemBackgroundColor;
     self.menuCardView.layer.cornerRadius = 16.0;
     self.menuCardView.layer.masksToBounds = YES;
+    self.menuCardView.layer.borderWidth = 1.0;
+    self.menuCardView.layer.borderColor = [UIColor colorWithWhite:1.0 alpha:0.08].CGColor;
     self.menuCardView.userInteractionEnabled = YES;
     [self.menuOverlayView addSubview:self.menuCardView];
 
@@ -540,6 +595,7 @@ static const NSUInteger kDefaultHeight = 160;
 
     CGFloat minLogHeight = isLandscape ? 56.0 : (shortEdge <= 390.0 ? 64.0 : 84.0);
     self.logMinHeightConstraint.constant = minLogHeight;
+    self.logHeightConstraint.constant = 0.0;
 
     CGFloat baseRatio = isLandscape ? 0.56 : 0.40;
     if (_screenScalePreset == 1) {
@@ -701,6 +757,7 @@ static const NSUInteger kDefaultHeight = 160;
 #endif
     self.statusLabel.text =
         [NSString stringWithFormat:@"▶ %@", url.lastPathComponent];
+    _loadedROMName = url.lastPathComponent ?: @"unknown";
     [self appendLog:[NSString stringWithFormat:@"ROM 読み込み成功: %@", url.lastPathComponent]];
 
     [self stepFrameAndRender];
@@ -859,6 +916,8 @@ static const NSUInteger kDefaultHeight = 160;
         [_selectButton setTitle:@"SELECT" forState:UIControlStateNormal];
         _aButton.backgroundColor = [UIColor colorWithRed:0.58 green:0.16 blue:0.16 alpha:1.0];
         _bButton.backgroundColor = [UIColor colorWithRed:0.30 green:0.12 blue:0.52 alpha:1.0];
+        _startButton.backgroundColor = [UIColor colorWithWhite:0.24 alpha:1.0];
+        _selectButton.backgroundColor = [UIColor colorWithWhite:0.24 alpha:1.0];
     } else if (isGB) {
         [_aButton setTitle:@"A" forState:UIControlStateNormal];
         [_bButton setTitle:@"B" forState:UIControlStateNormal];
@@ -866,6 +925,8 @@ static const NSUInteger kDefaultHeight = 160;
         [_selectButton setTitle:@"SELECT" forState:UIControlStateNormal];
         _aButton.backgroundColor = [UIColor colorWithRed:0.26 green:0.44 blue:0.78 alpha:1.0];
         _bButton.backgroundColor = [UIColor colorWithRed:0.14 green:0.29 blue:0.56 alpha:1.0];
+        _startButton.backgroundColor = [UIColor colorWithRed:0.26 green:0.30 blue:0.38 alpha:1.0];
+        _selectButton.backgroundColor = [UIColor colorWithRed:0.26 green:0.30 blue:0.38 alpha:1.0];
     } else {
         [_aButton setTitle:@"A" forState:UIControlStateNormal];
         [_bButton setTitle:@"B" forState:UIControlStateNormal];
@@ -873,6 +934,14 @@ static const NSUInteger kDefaultHeight = 160;
         [_selectButton setTitle:@"SELECT" forState:UIControlStateNormal];
         _aButton.backgroundColor = [UIColor colorWithRed:0.18 green:0.20 blue:0.26 alpha:1.0];
         _bButton.backgroundColor = [UIColor colorWithRed:0.18 green:0.20 blue:0.26 alpha:1.0];
+        _startButton.backgroundColor = [UIColor colorWithRed:0.20 green:0.24 blue:0.31 alpha:1.0];
+        _selectButton.backgroundColor = [UIColor colorWithRed:0.20 green:0.24 blue:0.31 alpha:1.0];
+    }
+
+    for (UIButton* btn in @[_aButton, _bButton, _startButton, _selectButton, _lButton, _rButton]) {
+        CGFloat h = CGRectGetHeight(btn.bounds);
+        if (h < 1.0) { h = btn == _startButton || btn == _selectButton ? centerSize : actionSize; }
+        btn.layer.cornerRadius = (btn == _startButton || btn == _selectButton) ? 10.0 : MAX(10.0, h * 0.30);
     }
     NSString* controllerText = [NSString stringWithFormat:@"%@ %@",
                                 [self coreTypeLabel:_coreType], (compact ? @"簡易" : @"標準")];
@@ -995,17 +1064,20 @@ static const NSUInteger kDefaultHeight = 160;
             if (!strongSelf) { return; }
             [strongSelf presentVideoSettingsMenu];
         } copy]},
+        @{ @"title": @"設定ページを開く", @"handler": [^{
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            if (!strongSelf) { return; }
+            [strongSelf presentSettingsPage];
+        } copy]},
         @{ @"title": @"ステートセーブ", @"handler": [^{
             __strong typeof(weakSelf) strongSelf = weakSelf;
             if (!strongSelf) { return; }
-            strongSelf.statusLabel.text = @"選択: ステートセーブ";
-            [strongSelf appendLog:@"メニュー選択: ステートセーブ"];
+            [strongSelf performQuickSave];
         } copy]},
         @{ @"title": @"ステートロード", @"handler": [^{
             __strong typeof(weakSelf) strongSelf = weakSelf;
             if (!strongSelf) { return; }
-            strongSelf.statusLabel.text = @"選択: ステートロード";
-            [strongSelf appendLog:@"メニュー選択: ステートロード"];
+            [strongSelf performQuickLoad];
         } copy]},
         @{ @"title": @"チート管理", @"handler": [^{
             __strong typeof(weakSelf) strongSelf = weakSelf;
@@ -1146,11 +1218,11 @@ static const NSUInteger kDefaultHeight = 160;
         button.translatesAutoresizingMaskIntoConstraints = NO;
         [button setTitle:actionTitle forState:UIControlStateNormal];
         button.tag = idx++;
-        button.layer.cornerRadius = 10.0;
-        button.backgroundColor = [UIColor colorWithRed:0.20 green:0.23 blue:0.31 alpha:1.0];
+        button.layer.cornerRadius = 12.0;
+        button.backgroundColor = [UIColor colorWithRed:0.17 green:0.20 blue:0.27 alpha:1.0];
         button.tintColor = UIColor.whiteColor;
         button.titleLabel.font = [UIFont systemFontOfSize:16 weight:UIFontWeightSemibold];
-        [button.heightAnchor constraintEqualToConstant:44].active = YES;
+        [button.heightAnchor constraintEqualToConstant:48].active = YES;
         [button addTarget:self action:@selector(onCustomMenuActionTapped:) forControlEvents:UIControlEventTouchUpInside];
         [self.menuStackView addArrangedSubview:button];
         [_menuHandlers addObject:(handler ?: [NSNull null])];
@@ -1252,6 +1324,128 @@ static const NSUInteger kDefaultHeight = 160;
         [tv.bottomAnchor constraintEqualToAnchor:vc.view.safeAreaLayoutGuide.bottomAnchor constant:-12],
     ]];
 
+    [self presentViewController:vc animated:YES completion:nil];
+}
+
+- (NSString*)quickStatePath {
+    NSArray<NSURL*>* dirs = [[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory
+                                                                    inDomains:NSUserDomainMask];
+    NSURL* docURL = dirs.firstObject;
+    if (docURL == nil) { return nil; }
+    NSURL* saveDir = [docURL URLByAppendingPathComponent:@"SaveStates" isDirectory:YES];
+    [[NSFileManager defaultManager] createDirectoryAtURL:saveDir
+                             withIntermediateDirectories:YES
+                                              attributes:nil
+                                                   error:nil];
+    NSString* rom = _loadedROMName.length > 0 ? _loadedROMName.stringByDeletingPathExtension : @"quick";
+    NSString* fileName = [NSString stringWithFormat:@"%@_%@.state",
+                          [self coreTypeLabel:_coreType], rom];
+    return [[saveDir URLByAppendingPathComponent:fileName] path];
+}
+
+- (void)performQuickSave {
+    if (_core == NULL) {
+        [self appendLog:@"クイック保存失敗: ROM未起動"];
+        self.statusLabel.text = @"⚠ ROMを起動してから保存してください";
+        return;
+    }
+    size_t stateSize = 0;
+    if (!EmulatorCore_SaveStateToBuffer(_core, NULL, 0, &stateSize) || stateSize == 0) {
+        [self appendLog:@"クイック保存失敗: ステートサイズ取得失敗"];
+        return;
+    }
+    NSMutableData* buffer = [NSMutableData dataWithLength:stateSize];
+    if (!EmulatorCore_SaveStateToBuffer(_core, buffer.mutableBytes, buffer.length, &stateSize)) {
+        [self appendLog:@"クイック保存失敗: ステート書き出し失敗"];
+        return;
+    }
+    NSString* path = [self quickStatePath];
+    BOOL ok = [buffer writeToFile:path atomically:YES];
+    if (!ok) {
+        [self appendLog:@"クイック保存失敗: ファイル書き込み失敗"];
+        self.statusLabel.text = @"❌ クイック保存に失敗";
+        return;
+    }
+    self.statusLabel.text = @"💾 クイック保存完了";
+    [self appendLog:[NSString stringWithFormat:@"クイック保存: %@", path.lastPathComponent]];
+}
+
+- (void)performQuickLoad {
+    if (_core == NULL) {
+        [self appendLog:@"クイック読込失敗: ROM未起動"];
+        self.statusLabel.text = @"⚠ ROMを起動してから読み込んでください";
+        return;
+    }
+    NSString* path = [self quickStatePath];
+    NSData* stateData = [NSData dataWithContentsOfFile:path];
+    if (stateData.length == 0) {
+        [self appendLog:@"クイック読込失敗: セーブデータなし"];
+        self.statusLabel.text = @"⚠ クイックセーブがまだありません";
+        return;
+    }
+    if (!EmulatorCore_LoadStateFromBuffer(_core, stateData.bytes, stateData.length)) {
+        [self appendLog:@"クイック読込失敗: コア読み込みエラー"];
+        self.statusLabel.text = @"❌ クイック読込に失敗";
+        return;
+    }
+    self.statusLabel.text = @"⏪ クイック読込完了";
+    [self appendLog:[NSString stringWithFormat:@"クイック読込: %@", path.lastPathComponent]];
+}
+
+- (void)presentSettingsPage {
+    UIViewController* vc = [[UIViewController alloc] init];
+    vc.view.backgroundColor = UIColor.systemGroupedBackgroundColor;
+    vc.modalPresentationStyle = UIModalPresentationPageSheet;
+    vc.title = @"設定";
+
+    UILabel* header = [[UILabel alloc] initWithFrame:CGRectZero];
+    header.translatesAutoresizingMaskIntoConstraints = NO;
+    header.text = @"UI / 操作のクイック設定";
+    header.font = [UIFont systemFontOfSize:22 weight:UIFontWeightBold];
+
+    UIStackView* stack = [[UIStackView alloc] initWithFrame:CGRectZero];
+    stack.translatesAutoresizingMaskIntoConstraints = NO;
+    stack.axis = UILayoutConstraintAxisVertical;
+    stack.spacing = 10.0;
+
+    UIButton* (^makeRow)(NSString*, SEL) = ^UIButton* (NSString* title, SEL action) {
+        UIButton* b = [UIButton buttonWithType:UIButtonTypeSystem];
+        b.translatesAutoresizingMaskIntoConstraints = NO;
+        [b setTitle:title forState:UIControlStateNormal];
+        b.backgroundColor = UIColor.secondarySystemGroupedBackgroundColor;
+        b.layer.cornerRadius = 12.0;
+        b.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
+        b.contentEdgeInsets = UIEdgeInsetsMake(14, 14, 14, 14);
+        [b.heightAnchor constraintEqualToConstant:52].active = YES;
+        [b addTarget:self action:action forControlEvents:UIControlEventTouchUpInside];
+        return b;
+    };
+
+    [stack addArrangedSubview:makeRow(@"コントローラー設定を開く", @selector(presentControllerMenu))];
+    [stack addArrangedSubview:makeRow(@"映像設定を開く", @selector(presentVideoSettingsMenu))];
+    [stack addArrangedSubview:makeRow(@"エミュレーター選択を開く", @selector(presentEmulatorMenu))];
+    [stack addArrangedSubview:makeRow(@"ログ画面を開く", @selector(presentLogViewer))];
+
+    UIButton* close = [UIButton buttonWithType:UIButtonTypeSystem];
+    close.translatesAutoresizingMaskIntoConstraints = NO;
+    [close setTitle:@"閉じる" forState:UIControlStateNormal];
+    [close addAction:[UIAction actionWithHandler:^(__kindof UIAction* _Nonnull action) {
+        [vc dismissViewControllerAnimated:YES completion:nil];
+    }] forControlEvents:UIControlEventTouchUpInside];
+
+    [vc.view addSubview:header];
+    [vc.view addSubview:stack];
+    [vc.view addSubview:close];
+    [NSLayoutConstraint activateConstraints:@[
+        [header.topAnchor constraintEqualToAnchor:vc.view.safeAreaLayoutGuide.topAnchor constant:20],
+        [header.leadingAnchor constraintEqualToAnchor:vc.view.safeAreaLayoutGuide.leadingAnchor constant:16],
+        [header.trailingAnchor constraintEqualToAnchor:vc.view.safeAreaLayoutGuide.trailingAnchor constant:-16],
+        [stack.topAnchor constraintEqualToAnchor:header.bottomAnchor constant:18],
+        [stack.leadingAnchor constraintEqualToAnchor:vc.view.safeAreaLayoutGuide.leadingAnchor constant:16],
+        [stack.trailingAnchor constraintEqualToAnchor:vc.view.safeAreaLayoutGuide.trailingAnchor constant:-16],
+        [close.topAnchor constraintEqualToAnchor:stack.bottomAnchor constant:18],
+        [close.centerXAnchor constraintEqualToAnchor:vc.view.centerXAnchor],
+    ]];
     [self presentViewController:vc animated:YES completion:nil];
 }
 
