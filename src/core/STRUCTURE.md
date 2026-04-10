@@ -9,10 +9,10 @@ independent and plugged into a shared API boundary.
   - Public core API used by frontends (`emulator_core_c_api.*`, `gba_core_c_api.h` shim target).
 - `src/core/core_adapter.*`
   - Adapter contract + registry that maps `EmulatorCoreType` to concrete core implementations.
-- `src/core/cores/gba/`
+- `src/core/gba/`
   - GBA runtime and GBA-specific compatibility API.
   - `platform/` keeps GBA-only platform helpers colocated with the core.
-- `src/core/cores/quick_nes/`
+- `src/core/quick_nes/`
   - QuickNES runtime bridge and bundled emulator implementation.
 - `src/core/emulator_core_c_api.h`, `src/core/gba_core_c_api.h`
   - Backward-compatible include shims.
@@ -21,7 +21,7 @@ independent and plugged into a shared API boundary.
 
 - Per-core changes stay local.
 - Adding a new core is mostly:
-  1. add runtime under `cores/<new-core>/`
+  1. add runtime under `src/core/<new-core>/`
   2. implement a `<new-core>/core_adapter.cpp`
   3. register it in `core_adapter_registry.cpp`
 - Frontends continue using one stable API surface.

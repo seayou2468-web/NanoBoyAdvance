@@ -9,8 +9,8 @@
 
 #include <atomic>
 #include <functional>
-#include "../../../../core/cores/gba/nba/include/nba/core.hpp"
-#include "../../../../core/cores/gba/nba/include/nba/integer.hpp"
+#include "../../../../core/gba/nba/include/nba/core.hpp"
+#include "../../../../core/gba/nba/include/nba/integer.hpp"
 #include "frame_limiter.hpp"
 #include <thread>
 #include <queue>

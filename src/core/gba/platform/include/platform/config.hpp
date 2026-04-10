@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "../../../../core/cores/gba/nba/include/nba/config.hpp"
+#include "../../../../core/gba/nba/include/nba/config.hpp"
 #include <ostream>
 #include <string>
 

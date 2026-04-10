@@ -2,7 +2,7 @@
 
 This directory contains the platform-side support code for the GBA core.
 It was moved from `src/platform/core` to keep GBA-specific code colocated
-under `src/core/cores/gba/`.
+under `src/core/gba/`.
 
 ## Responsibility
 
