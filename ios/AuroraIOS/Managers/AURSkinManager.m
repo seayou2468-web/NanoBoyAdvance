@@ -19,32 +19,32 @@
     if (coreType == EMULATOR_CORE_TYPE_GBA) {
         skin.name = @"GBA Default";
         // D-PAD
-        rects[@(EMULATOR_KEY_UP).stringValue] = [NSValue valueWithCGRect:CGRectMake(40, 50, 45, 45)];
-        rects[@(EMULATOR_KEY_DOWN).stringValue] = [NSValue valueWithCGRect:CGRectMake(40, 130, 45, 45)];
-        rects[@(EMULATOR_KEY_LEFT).stringValue] = [NSValue valueWithCGRect:CGRectMake(0, 90, 45, 45)];
-        rects[@(EMULATOR_KEY_RIGHT).stringValue] = [NSValue valueWithCGRect:CGRectMake(80, 90, 45, 45)];
+        rects[@(EMULATOR_KEY_UP).stringValue] = [NSValue valueWithCGRect:CGRectMake(40, 70, 50, 50)];
+        rects[@(EMULATOR_KEY_DOWN).stringValue] = [NSValue valueWithCGRect:CGRectMake(40, 170, 50, 50)];
+        rects[@(EMULATOR_KEY_LEFT).stringValue] = [NSValue valueWithCGRect:CGRectMake(0, 120, 50, 50)];
+        rects[@(EMULATOR_KEY_RIGHT).stringValue] = [NSValue valueWithCGRect:CGRectMake(80, 120, 50, 50)];
         // Buttons
-        rects[@(EMULATOR_KEY_A).stringValue] = [NSValue valueWithCGRect:CGRectMake(290, 70, 70, 70)];
-        rects[@(EMULATOR_KEY_B).stringValue] = [NSValue valueWithCGRect:CGRectMake(220, 110, 70, 70)];
+        rects[@(EMULATOR_KEY_A).stringValue] = [NSValue valueWithCGRect:CGRectMake(285, 90, 80, 80)];
+        rects[@(EMULATOR_KEY_B).stringValue] = [NSValue valueWithCGRect:CGRectMake(200, 130, 80, 80)];
         // Shoulders
-        rects[@(EMULATOR_KEY_L).stringValue] = [NSValue valueWithCGRect:CGRectMake(0, 0, 100, 40)];
-        rects[@(EMULATOR_KEY_R).stringValue] = [NSValue valueWithCGRect:CGRectMake(275, 0, 100, 40)];
+        rects[@(EMULATOR_KEY_L).stringValue] = [NSValue valueWithCGRect:CGRectMake(0, 0, 120, 50)];
+        rects[@(EMULATOR_KEY_R).stringValue] = [NSValue valueWithCGRect:CGRectMake(255, 0, 120, 50)];
         // System
-        rects[@(EMULATOR_KEY_START).stringValue] = [NSValue valueWithCGRect:CGRectMake(200, 250, 60, 30)];
-        rects[@(EMULATOR_KEY_SELECT).stringValue] = [NSValue valueWithCGRect:CGRectMake(115, 250, 60, 30)];
+        rects[@(EMULATOR_KEY_START).stringValue] = [NSValue valueWithCGRect:CGRectMake(200, 350, 80, 35)];
+        rects[@(EMULATOR_KEY_SELECT).stringValue] = [NSValue valueWithCGRect:CGRectMake(95, 350, 80, 35)];
     } else {
         skin.name = @"NES Default";
         // D-PAD
-        rects[@(EMULATOR_KEY_UP).stringValue] = [NSValue valueWithCGRect:CGRectMake(60, 80, 40, 40)];
-        rects[@(EMULATOR_KEY_DOWN).stringValue] = [NSValue valueWithCGRect:CGRectMake(60, 160, 40, 40)];
-        rects[@(EMULATOR_KEY_LEFT).stringValue] = [NSValue valueWithCGRect:CGRectMake(20, 120, 40, 40)];
-        rects[@(EMULATOR_KEY_RIGHT).stringValue] = [NSValue valueWithCGRect:CGRectMake(100, 120, 40, 40)];
+        rects[@(EMULATOR_KEY_UP).stringValue] = [NSValue valueWithCGRect:CGRectMake(60, 100, 45, 45)];
+        rects[@(EMULATOR_KEY_DOWN).stringValue] = [NSValue valueWithCGRect:CGRectMake(60, 200, 45, 45)];
+        rects[@(EMULATOR_KEY_LEFT).stringValue] = [NSValue valueWithCGRect:CGRectMake(10, 150, 45, 45)];
+        rects[@(EMULATOR_KEY_RIGHT).stringValue] = [NSValue valueWithCGRect:CGRectMake(110, 150, 45, 45)];
         // Buttons
-        rects[@(EMULATOR_KEY_A).stringValue] = [NSValue valueWithCGRect:CGRectMake(300, 120, 55, 55)];
-        rects[@(EMULATOR_KEY_B).stringValue] = [NSValue valueWithCGRect:CGRectMake(235, 120, 55, 55)];
+        rects[@(EMULATOR_KEY_A).stringValue] = [NSValue valueWithCGRect:CGRectMake(300, 150, 65, 65)];
+        rects[@(EMULATOR_KEY_B).stringValue] = [NSValue valueWithCGRect:CGRectMake(220, 150, 65, 65)];
         // System
-        rects[@(EMULATOR_KEY_START).stringValue] = [NSValue valueWithCGRect:CGRectMake(210, 220, 50, 25)];
-        rects[@(EMULATOR_KEY_SELECT).stringValue] = [NSValue valueWithCGRect:CGRectMake(120, 220, 50, 25)];
+        rects[@(EMULATOR_KEY_START).stringValue] = [NSValue valueWithCGRect:CGRectMake(210, 300, 60, 25)];
+        rects[@(EMULATOR_KEY_SELECT).stringValue] = [NSValue valueWithCGRect:CGRectMake(105, 300, 60, 25)];
     }
 
     skin.buttonRects = rects;

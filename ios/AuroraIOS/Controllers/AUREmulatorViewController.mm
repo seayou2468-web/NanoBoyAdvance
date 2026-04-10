@@ -69,8 +69,10 @@
         [self.controllerView.topAnchor constraintEqualToAnchor:self.imageView.bottomAnchor],
         [self.controllerView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
         [self.controllerView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],
-        [self.controllerView.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor]
+        [self.controllerView.bottomAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.bottomAnchor]
     ]];
+
+    [self.view layoutIfNeeded]; // Ensure bounds are set before applying skin
 
     [self startEmulator];
     [self.controllerView applySkin:[[AURSkinManager sharedManager] skinForCoreType:_coreType isLandscape:NO]];
