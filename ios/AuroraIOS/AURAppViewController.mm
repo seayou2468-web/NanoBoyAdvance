@@ -31,6 +31,7 @@ static const NSUInteger kDefaultHeight = 160;
 - (void)presentEmulatorMenu;
 - (void)presentControllerMenu;
 - (void)presentAppMenu;
+- (void)presentVideoSettingsMenu;
 - (void)applyControllerPreset;
 - (NSString*)coreTypeLabel:(EmulatorCoreType)type;
 @end
@@ -52,6 +53,14 @@ static const NSUInteger kDefaultHeight = 160;
     UIButton*       _rButton;
     UIButton*       _aButton;
     UIButton*       _bButton;
+    UIButton*       _startButton;
+    UIButton*       _selectButton;
+    float           _videoSaturation;
+    float           _videoVibrance;
+    float           _videoContrast;
+    float           _videoSharpen;
+    float           _videoLutMix;
+    AURUpscaleMode  _upscaleMode;
 #if DEBUG
     NSUInteger      _frameCounter;
     uint32_t        _lastFrameSample;
@@ -71,6 +80,12 @@ static const NSUInteger kDefaultHeight = 160;
     _forcedCoreTypeValue = EMULATOR_CORE_TYPE_GBA;
     _gbaControllerPreset = 0;
     _nesControllerPreset = 1;
+    _videoSaturation = 1.08f;
+    _videoVibrance = 0.30f;
+    _videoContrast = 1.06f;
+    _videoSharpen = 0.18f;
+    _videoLutMix = 0.15f;
+    _upscaleMode = AURUpscaleModeAuto;
 
     // ImageView
     self.imageView = [[AURMetalView alloc] initWithFrame:CGRectZero];
@@ -240,6 +255,8 @@ static const NSUInteger kDefaultHeight = 160;
 
     UIButton* selectBtn = makeKeyButton(@"Select", EMULATOR_KEY_SELECT, 40);
     UIButton* startBtn = makeKeyButton(@"Start", EMULATOR_KEY_START, 40);
+    _selectButton = selectBtn;
+    _startButton = startBtn;
     selectBtn.titleLabel.font = [UIFont systemFontOfSize:13 weight:UIFontWeightSemibold];
     startBtn.titleLabel.font = [UIFont systemFontOfSize:13 weight:UIFontWeightSemibold];
     UIStackView* centerStack = [[UIStackView alloc] initWithArrangedSubviews:@[selectBtn, startBtn]];
@@ -372,6 +389,12 @@ static const NSUInteger kDefaultHeight = 160;
 
     [self appendLog:@"ROM は毎回選択モードです（bookmark 復元なし）"];
     [self appendLog:@"メニュー追加: エミュ選択 / コントローラー選択 / 設定・セーブ・チート"];
+    [self.imageView setUpscaleMode:_upscaleMode];
+    [self.imageView setPostProcessSaturation:_videoSaturation
+                                    vibrance:_videoVibrance
+                                    contrast:_videoContrast
+                                     sharpen:_videoSharpen
+                                      lutMix:_videoLutMix];
     [self applyControllerPreset];
     [self updateAdaptiveLayoutForBounds:self.view.bounds.size];
 }
@@ -681,9 +704,17 @@ static const NSUInteger kDefaultHeight = 160;
     if (isNES) {
         [_aButton setTitle:(compact ? @"A" : @"A (NES)") forState:UIControlStateNormal];
         [_bButton setTitle:(compact ? @"B" : @"B (NES)") forState:UIControlStateNormal];
+        [_startButton setTitle:@"Start (NES)" forState:UIControlStateNormal];
+        [_selectButton setTitle:@"Select (NES)" forState:UIControlStateNormal];
+        _aButton.backgroundColor = [UIColor colorWithRed:0.58 green:0.16 blue:0.16 alpha:1.0];
+        _bButton.backgroundColor = [UIColor colorWithRed:0.30 green:0.12 blue:0.52 alpha:1.0];
     } else {
         [_aButton setTitle:@"A" forState:UIControlStateNormal];
         [_bButton setTitle:@"B" forState:UIControlStateNormal];
+        [_startButton setTitle:@"Start" forState:UIControlStateNormal];
+        [_selectButton setTitle:@"Select" forState:UIControlStateNormal];
+        _aButton.backgroundColor = [UIColor colorWithRed:0.18 green:0.20 blue:0.26 alpha:1.0];
+        _bButton.backgroundColor = [UIColor colorWithRed:0.18 green:0.20 blue:0.26 alpha:1.0];
     }
     NSString* controllerText = compact ? @"簡易" : @"標準";
     [self.controllerModeButton setTitle:[NSString stringWithFormat:@"コントローラー: %@", controllerText]
@@ -775,21 +806,112 @@ static const NSUInteger kDefaultHeight = 160;
                                             message:@"設定・セーブ・チートなどの機能入口です。"
                                      preferredStyle:UIAlertControllerStyleActionSheet];
     __weak typeof(self) weakSelf = self;
-    NSArray<NSString*>* items = @[
-        @"設定 (映像/音声/操作)",
-        @"ステートセーブ",
-        @"ステートロード",
-        @"チート管理",
-        @"エミュ切替メニュー"
-    ];
-    for (NSString* item in items) {
-        [menu addAction:[UIAlertAction actionWithTitle:item
-                                                 style:UIAlertActionStyleDefault
-                                               handler:^(__unused UIAlertAction* action) {
-            weakSelf.statusLabel.text = [NSString stringWithFormat:@"選択: %@", item];
-            [weakSelf appendLog:[NSString stringWithFormat:@"メニュー選択: %@", item]];
-        }]];
-    }
+    [menu addAction:[UIAlertAction actionWithTitle:@"映像設定 (画質/シェーダー/彩度)"
+                                             style:UIAlertActionStyleDefault
+                                           handler:^(__unused UIAlertAction* action) {
+        [weakSelf presentVideoSettingsMenu];
+    }]];
+    [menu addAction:[UIAlertAction actionWithTitle:@"ステートセーブ"
+                                             style:UIAlertActionStyleDefault
+                                           handler:^(__unused UIAlertAction* action) {
+        weakSelf.statusLabel.text = @"選択: ステートセーブ";
+        [weakSelf appendLog:@"メニュー選択: ステートセーブ"];
+    }]];
+    [menu addAction:[UIAlertAction actionWithTitle:@"ステートロード"
+                                             style:UIAlertActionStyleDefault
+                                           handler:^(__unused UIAlertAction* action) {
+        weakSelf.statusLabel.text = @"選択: ステートロード";
+        [weakSelf appendLog:@"メニュー選択: ステートロード"];
+    }]];
+    [menu addAction:[UIAlertAction actionWithTitle:@"チート管理"
+                                             style:UIAlertActionStyleDefault
+                                           handler:^(__unused UIAlertAction* action) {
+        weakSelf.statusLabel.text = @"選択: チート管理";
+        [weakSelf appendLog:@"メニュー選択: チート管理"];
+    }]];
+    [menu addAction:[UIAlertAction actionWithTitle:@"エミュ切替メニュー"
+                                             style:UIAlertActionStyleDefault
+                                           handler:^(__unused UIAlertAction* action) {
+        [weakSelf presentEmulatorMenu];
+    }]];
+    [menu addAction:[UIAlertAction actionWithTitle:@"キャンセル"
+                                             style:UIAlertActionStyleCancel
+                                           handler:nil]];
+    [self presentViewController:menu animated:YES completion:nil];
+}
+
+- (void)presentVideoSettingsMenu {
+    UIAlertController* menu =
+        [UIAlertController alertControllerWithTitle:@"映像設定"
+                                            message:@"画質・シェーダー・彩度などを選択します。"
+                                     preferredStyle:UIAlertControllerStyleActionSheet];
+    __weak typeof(self) weakSelf = self;
+    [menu addAction:[UIAlertAction actionWithTitle:@"画質: 高画質 (Bicubic)"
+                                             style:UIAlertActionStyleDefault
+                                           handler:^(__unused UIAlertAction* action) {
+        weakSelf->_upscaleMode = AURUpscaleModeQuality;
+        [weakSelf.imageView setUpscaleMode:weakSelf->_upscaleMode];
+        [weakSelf appendLog:@"映像設定: 高画質アップスケール"];
+    }]];
+    [menu addAction:[UIAlertAction actionWithTitle:@"画質: バランス (自動)"
+                                             style:UIAlertActionStyleDefault
+                                           handler:^(__unused UIAlertAction* action) {
+        weakSelf->_upscaleMode = AURUpscaleModeAuto;
+        [weakSelf.imageView setUpscaleMode:weakSelf->_upscaleMode];
+        [weakSelf appendLog:@"映像設定: バランス（自動）"];
+    }]];
+    [menu addAction:[UIAlertAction actionWithTitle:@"画質: 省電力 (高速)"
+                                             style:UIAlertActionStyleDefault
+                                           handler:^(__unused UIAlertAction* action) {
+        weakSelf->_upscaleMode = AURUpscaleModePerformance;
+        [weakSelf.imageView setUpscaleMode:weakSelf->_upscaleMode];
+        [weakSelf appendLog:@"映像設定: 省電力アップスケール"];
+    }]];
+    [menu addAction:[UIAlertAction actionWithTitle:@"見え方: 鮮やか"
+                                             style:UIAlertActionStyleDefault
+                                           handler:^(__unused UIAlertAction* action) {
+        weakSelf->_videoSaturation = 1.16f;
+        weakSelf->_videoVibrance = 0.40f;
+        weakSelf->_videoContrast = 1.10f;
+        weakSelf->_videoSharpen = 0.22f;
+        weakSelf->_videoLutMix = 0.22f;
+        [weakSelf.imageView setPostProcessSaturation:weakSelf->_videoSaturation
+                                            vibrance:weakSelf->_videoVibrance
+                                            contrast:weakSelf->_videoContrast
+                                             sharpen:weakSelf->_videoSharpen
+                                              lutMix:weakSelf->_videoLutMix];
+        [weakSelf appendLog:@"見え方補正: 鮮やかプリセット"];
+    }]];
+    [menu addAction:[UIAlertAction actionWithTitle:@"見え方: 標準"
+                                             style:UIAlertActionStyleDefault
+                                           handler:^(__unused UIAlertAction* action) {
+        weakSelf->_videoSaturation = 1.08f;
+        weakSelf->_videoVibrance = 0.30f;
+        weakSelf->_videoContrast = 1.06f;
+        weakSelf->_videoSharpen = 0.18f;
+        weakSelf->_videoLutMix = 0.15f;
+        [weakSelf.imageView setPostProcessSaturation:weakSelf->_videoSaturation
+                                            vibrance:weakSelf->_videoVibrance
+                                            contrast:weakSelf->_videoContrast
+                                             sharpen:weakSelf->_videoSharpen
+                                              lutMix:weakSelf->_videoLutMix];
+        [weakSelf appendLog:@"見え方補正: 標準プリセット"];
+    }]];
+    [menu addAction:[UIAlertAction actionWithTitle:@"見え方: ナチュラル"
+                                             style:UIAlertActionStyleDefault
+                                           handler:^(__unused UIAlertAction* action) {
+        weakSelf->_videoSaturation = 1.00f;
+        weakSelf->_videoVibrance = 0.12f;
+        weakSelf->_videoContrast = 1.02f;
+        weakSelf->_videoSharpen = 0.08f;
+        weakSelf->_videoLutMix = 0.05f;
+        [weakSelf.imageView setPostProcessSaturation:weakSelf->_videoSaturation
+                                            vibrance:weakSelf->_videoVibrance
+                                            contrast:weakSelf->_videoContrast
+                                             sharpen:weakSelf->_videoSharpen
+                                              lutMix:weakSelf->_videoLutMix];
+        [weakSelf appendLog:@"見え方補正: ナチュラルプリセット"];
+    }]];
     [menu addAction:[UIAlertAction actionWithTitle:@"キャンセル"
                                              style:UIAlertActionStyleCancel
                                            handler:nil]];

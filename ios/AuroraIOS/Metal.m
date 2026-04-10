@@ -46,6 +46,12 @@ typedef struct {
 @property (nonatomic, strong) id<MTLRenderPipelineState> pipelineState;
 @property (nonatomic, strong) id<MTLRenderPipelineState> fastPipelineState;
 @property (nonatomic, strong) id<MTLSamplerState>        samplerState;
+@property (nonatomic, assign) AURUpscaleMode             upscaleMode;
+@property (nonatomic, assign) float                      userSaturation;
+@property (nonatomic, assign) float                      userVibrance;
+@property (nonatomic, assign) float                      userContrast;
+@property (nonatomic, assign) float                      userSharpen;
+@property (nonatomic, assign) float                      userLutMix;
 @property (nonatomic, assign) NSUInteger                 frameWidth;
 @property (nonatomic, assign) NSUInteger                 frameHeight;
 @property (nonatomic, assign) NSUInteger                 frameBytesPerRow;
@@ -63,6 +69,12 @@ typedef struct {
     _device       = MTLCreateSystemDefaultDevice();
     _commandQueue = [_device newCommandQueue];
     _inFlightSemaphore = dispatch_semaphore_create(3);
+    _upscaleMode = AURUpscaleModeAuto;
+    _userSaturation = 1.08f;
+    _userVibrance = 0.30f;
+    _userContrast = 1.06f;
+    _userSharpen = 0.18f;
+    _userLutMix = 0.15f;
     self.backgroundColor = UIColor.blackColor;
     self.opaque          = YES;
 
@@ -377,14 +389,33 @@ typedef struct {
     // 描画ピクセルが大きい場合は高速パスへ自動切り替え。
     shouldUseFastPath = shouldUseFastPath || (drawablePixels > 2.7e6f);
 
+    if (_upscaleMode == AURUpscaleModeQuality) {
+        shouldUseFastPath = NO;
+    } else if (_upscaleMode == AURUpscaleModePerformance) {
+        shouldUseFastPath = YES;
+    }
+
+    float sat = _userSaturation;
+    float vib = _userVibrance;
+    float ctr = _userContrast;
+    float shp = _userSharpen;
+    float lut = _userLutMix;
+    if (shouldUseFastPath) {
+        sat = sat * 0.95f;
+        vib = vib * 0.65f;
+        ctr = ctr * 0.97f;
+        shp = 0.0f;
+        lut = lut * 0.35f;
+    }
+
     AURPostProcessParams params = {
         .sourceSize = { (float)width,              (float)height              },
         .outputSize = { (float)drawableSize.width,  (float)drawableSize.height },
-        .saturation = shouldUseFastPath ? 1.03f : 1.08f,
-        .vibrance   = shouldUseFastPath ? 0.18f : 0.30f,
-        .contrast   = shouldUseFastPath ? 1.03f : 1.06f,
-        .sharpen    = shouldUseFastPath ? 0.0f : 0.18f,
-        .lutMix     = shouldUseFastPath ? 0.06f : 0.15f,
+        .saturation = sat,
+        .vibrance   = vib,
+        .contrast   = ctr,
+        .sharpen    = shp,
+        .lutMix     = lut,
         ._pad       = 0.0f,
     };
 
@@ -399,6 +430,22 @@ typedef struct {
 
     [cb presentDrawable:drawable];
     [cb commit];
+}
+
+- (void)setPostProcessSaturation:(float)saturation
+                        vibrance:(float)vibrance
+                        contrast:(float)contrast
+                         sharpen:(float)sharpen
+                          lutMix:(float)lutMix {
+    _userSaturation = saturation;
+    _userVibrance = vibrance;
+    _userContrast = contrast;
+    _userSharpen = sharpen;
+    _userLutMix = lutMix;
+}
+
+- (void)setUpscaleMode:(AURUpscaleMode)mode {
+    _upscaleMode = mode;
 }
 
 // ─── 画面クリア ───────────────────────────────────────────────────────────
