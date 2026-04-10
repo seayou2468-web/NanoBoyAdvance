@@ -33,6 +33,7 @@ void SBA_destroy(SBA_Gameboy* gb);
 
 int SBA_load_rom(SBA_Gameboy* gb, const char* path);
 void SBA_load_rom_from_buffer(SBA_Gameboy* gb, const uint8_t* buffer, size_t size);
+int SBA_load_boot_rom(SBA_Gameboy* gb, const char* path);
 uint64_t SBA_run_frame(SBA_Gameboy* gb);
 void SBA_set_key_state(SBA_Gameboy* gb, SBA_Key index, bool pressed);
 

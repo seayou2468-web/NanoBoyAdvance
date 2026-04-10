@@ -38,12 +38,40 @@ void ResetCore(Runtime& runtime) {
   }
 }
 
+bool ApplyConfiguredBootRom(Runtime& runtime, std::string& last_error) {
+  if (runtime.gb == nullptr || runtime.boot_rom_path.empty()) {
+    return true;
+  }
+  if (SBA_load_boot_rom(runtime.gb, runtime.boot_rom_path.c_str()) != 0) {
+    last_error = "failed to load GB BIOS from path";
+    return false;
+  }
+  return true;
+}
+
 }  // namespace
 
 std::unique_ptr<Runtime> CreateRuntime() {
   auto runtime = std::make_unique<Runtime>();
   ResetCore(*runtime);
   return runtime;
+}
+
+bool LoadBIOSFromPath(Runtime& runtime, const char* bios_path, std::string& last_error) {
+  try {
+    if (bios_path == nullptr || bios_path[0] == '\0') {
+      last_error = "BIOS path is empty";
+      return false;
+    }
+    runtime.boot_rom_path = bios_path;
+    return ApplyConfiguredBootRom(runtime, last_error);
+  } catch (const std::exception& e) {
+    last_error = std::string("SameBoy runtime exception: ") + e.what();
+    return false;
+  } catch (...) {
+    last_error = "SameBoy runtime exception: unknown";
+    return false;
+  }
 }
 
 bool LoadROMFromPath(Runtime& runtime, const char* rom_path, std::string& last_error) {
@@ -56,6 +84,9 @@ bool LoadROMFromPath(Runtime& runtime, const char* rom_path, std::string& last_e
     ResetCore(runtime);
     if (runtime.gb == nullptr) {
       last_error = "failed to allocate SameBoy runtime";
+      return false;
+    }
+    if (!ApplyConfiguredBootRom(runtime, last_error)) {
       return false;
     }
 
@@ -84,6 +115,9 @@ bool LoadROMFromMemory(Runtime& runtime, const void* rom_data, size_t rom_size, 
     ResetCore(runtime);
     if (runtime.gb == nullptr) {
       last_error = "failed to allocate SameBoy runtime";
+      return false;
+    }
+    if (!ApplyConfiguredBootRom(runtime, last_error)) {
       return false;
     }
 
