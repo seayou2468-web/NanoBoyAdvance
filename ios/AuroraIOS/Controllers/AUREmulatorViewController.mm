@@ -14,6 +14,7 @@
     BOOL                _running;
 }
 @property (nonatomic, strong) AURMetalView *imageView;
+@property (nonatomic, strong) AURMetalView *touchImageView;
 @property (nonatomic, strong) AURControllerView *controllerView;
 @property (nonatomic, strong) CADisplayLink *displayLink;
 @property (nonatomic, strong) NSURL *romURL;
@@ -34,9 +35,13 @@
     [super viewDidLoad];
     self.view.backgroundColor = [UIColor blackColor];
 
-    // Setup Metal View
+    // Setup Metal Views
     self.imageView = [[AURMetalView alloc] initWithFrame:CGRectZero];
     [self.view addSubview:self.imageView];
+    if (_coreType == EMULATOR_CORE_TYPE_NDS) {
+        self.touchImageView = [[AURMetalView alloc] initWithFrame:CGRectZero];
+        [self.view addSubview:self.touchImageView];
+    }
 
     // Menu Button (Delta-like)
     UIButton *menuButton = [UIButton buttonWithType:UIButtonTypeSystem];
@@ -61,17 +66,37 @@
     self.imageView.translatesAutoresizingMaskIntoConstraints = NO;
     self.controllerView.translatesAutoresizingMaskIntoConstraints = NO;
 
-    [NSLayoutConstraint activateConstraints:@[
-        [self.imageView.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor],
-        [self.imageView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
-        [self.imageView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],
-        [self.imageView.heightAnchor constraintEqualToAnchor:self.view.heightAnchor multiplier:0.4],
+    if (_coreType == EMULATOR_CORE_TYPE_NDS && self.touchImageView != nil) {
+        self.touchImageView.translatesAutoresizingMaskIntoConstraints = NO;
+        [NSLayoutConstraint activateConstraints:@[
+            [self.imageView.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor],
+            [self.imageView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
+            [self.imageView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],
+            [self.imageView.heightAnchor constraintEqualToAnchor:self.view.heightAnchor multiplier:0.24],
 
-        [self.controllerView.topAnchor constraintEqualToAnchor:self.imageView.bottomAnchor],
-        [self.controllerView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
-        [self.controllerView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],
-        [self.controllerView.bottomAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.bottomAnchor]
-    ]];
+            [self.touchImageView.topAnchor constraintEqualToAnchor:self.imageView.bottomAnchor constant:12.0],
+            [self.touchImageView.centerXAnchor constraintEqualToAnchor:self.view.centerXAnchor],
+            [self.touchImageView.widthAnchor constraintEqualToAnchor:self.view.widthAnchor multiplier:0.72],
+            [self.touchImageView.heightAnchor constraintEqualToAnchor:self.touchImageView.widthAnchor multiplier:(192.0/256.0)],
+
+            [self.controllerView.topAnchor constraintEqualToAnchor:self.touchImageView.bottomAnchor constant:12.0],
+            [self.controllerView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
+            [self.controllerView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],
+            [self.controllerView.bottomAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.bottomAnchor]
+        ]];
+    } else {
+        [NSLayoutConstraint activateConstraints:@[
+            [self.imageView.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor],
+            [self.imageView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
+            [self.imageView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],
+            [self.imageView.heightAnchor constraintEqualToAnchor:self.view.heightAnchor multiplier:0.4],
+
+            [self.controllerView.topAnchor constraintEqualToAnchor:self.imageView.bottomAnchor],
+            [self.controllerView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
+            [self.controllerView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],
+            [self.controllerView.bottomAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.bottomAnchor]
+        ]];
+    }
 
     [self.view layoutIfNeeded]; // Ensure bounds are set before applying skin
 
@@ -115,7 +140,13 @@
     size_t pixelCount = 0;
     const uint32_t* frameRGBA = EmulatorCore_GetFrameBufferRGBA(_core, &pixelCount);
     if (frameRGBA) {
-        [self.imageView displayFrameRGBA:frameRGBA width:_videoSpec.width height:_videoSpec.height];
+        if (_coreType == EMULATOR_CORE_TYPE_NDS && _videoSpec.width == 256 && _videoSpec.height == 384 && self.touchImageView != nil) {
+            const size_t singleScreenPixels = 256 * 192;
+            [self.imageView displayFrameRGBA:frameRGBA width:256 height:192];
+            [self.touchImageView displayFrameRGBA:(frameRGBA + singleScreenPixels) width:256 height:192];
+        } else {
+            [self.imageView displayFrameRGBA:frameRGBA width:_videoSpec.width height:_videoSpec.height];
+        }
     }
 }
 
