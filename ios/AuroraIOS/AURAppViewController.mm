@@ -60,6 +60,7 @@ static const NSUInteger kDefaultHeight = 160;
 - (void)performQuickSave;
 - (void)performQuickLoad;
 - (NSString*)quickStatePath;
+- (NSInteger)recommendedControllerPresetForCore:(EmulatorCoreType)type;
 @end
 
 @implementation AURViewController {
@@ -99,6 +100,7 @@ static const NSUInteger kDefaultHeight = 160;
     NSInteger       _screenScalePreset; // 0: fit, 1: medium, 2: compact
     NSMutableSet<NSNumber*>* _pressedKeys;
     NSString*        _loadedROMName;
+    BOOL             _autoControllerPresetSwitch;
 #if DEBUG
     NSUInteger      _frameCounter;
     uint32_t        _lastFrameSample;
@@ -129,6 +131,7 @@ static const NSUInteger kDefaultHeight = 160;
     _isPaused = NO;
     _screenScalePreset = 0;
     _pressedKeys = [NSMutableSet set];
+    _autoControllerPresetSwitch = YES;
 
     // ImageView
     self.imageView = [[AURMetalView alloc] initWithFrame:CGRectZero];
@@ -298,6 +301,7 @@ static const NSUInteger kDefaultHeight = 160;
         button.titleLabel.font = [UIFont systemFontOfSize:(size > 50 ? 22 : 14) weight:UIFontWeightSemibold];
         button.titleLabel.adjustsFontSizeToFitWidth = YES;
         button.titleLabel.minimumScaleFactor = 0.60;
+        button.titleLabel.lineBreakMode = NSLineBreakByClipping;
         button.contentEdgeInsets = UIEdgeInsetsMake(4, 8, 4, 8);
         button.exclusiveTouch = NO;
         // タップ取りこぼしを減らすため、見た目より判定領域を広げる。
@@ -703,6 +707,16 @@ static const NSUInteger kDefaultHeight = 160;
         detectedType = EMULATOR_CORE_TYPE_GB;
     }
     _coreType = _forceCoreType ? (EmulatorCoreType)_forcedCoreTypeValue : detectedType;
+    if (_autoControllerPresetSwitch) {
+        NSInteger preset = [self recommendedControllerPresetForCore:_coreType];
+        if (_coreType == EMULATOR_CORE_TYPE_NES) {
+            _nesControllerPreset = preset;
+        } else if (_coreType == EMULATOR_CORE_TYPE_GB) {
+            _gbControllerPreset = preset;
+        } else {
+            _gbaControllerPreset = preset;
+        }
+    }
     _core = EmulatorCore_Create(_coreType);
     if (_core == NULL) {
         self.statusLabel.text = @"EmulatorCore_Create failed";
@@ -898,6 +912,12 @@ static const NSUInteger kDefaultHeight = 160;
     return @"GBA";
 }
 
+- (NSInteger)recommendedControllerPresetForCore:(EmulatorCoreType)type {
+    if (type == EMULATOR_CORE_TYPE_NES) { return 0; }
+    if (type == EMULATOR_CORE_TYPE_GB) { return 0; }
+    return 0;
+}
+
 - (void)applyControllerPreset {
     BOOL isNES = (_coreType == EMULATOR_CORE_TYPE_NES);
     BOOL isGB  = (_coreType == EMULATOR_CORE_TYPE_GB);
@@ -905,17 +925,19 @@ static const NSUInteger kDefaultHeight = 160;
     BOOL compact = (preset == 1);
     CGFloat actionSize = compact ? 50.0 : 58.0;
     CGFloat shoulderSize = compact ? 0.0 : 40.0;
-    CGFloat centerSize = compact ? 36.0 : 44.0;
+    CGFloat startWidth = compact ? 64.0 : 72.0;
+    CGFloat selectWidth = compact ? 64.0 : 72.0;
     if (isNES || isGB) {
         actionSize = compact ? 54.0 : 62.0;
-        centerSize = compact ? 34.0 : 42.0;
+        startWidth = compact ? 58.0 : 66.0;
+        selectWidth = compact ? 58.0 : 66.0;
     }
     if (_aButtonSize) _aButtonSize.constant = actionSize;
     if (_bButtonSize) _bButtonSize.constant = actionSize;
     if (_lButtonSize) _lButtonSize.constant = shoulderSize;
     if (_rButtonSize) _rButtonSize.constant = shoulderSize;
-    if (_startButtonSize) _startButtonSize.constant = centerSize;
-    if (_selectButtonSize) _selectButtonSize.constant = centerSize;
+    if (_startButtonSize) _startButtonSize.constant = startWidth;
+    if (_selectButtonSize) _selectButtonSize.constant = selectWidth;
 
     _lButton.hidden = isNES || isGB || compact;
     _rButton.hidden = isNES || isGB || compact;
@@ -951,12 +973,17 @@ static const NSUInteger kDefaultHeight = 160;
 
     for (UIButton* btn in @[_aButton, _bButton, _startButton, _selectButton, _lButton, _rButton]) {
         CGFloat h = CGRectGetHeight(btn.bounds);
-        if (h < 1.0) { h = btn == _startButton || btn == _selectButton ? centerSize : actionSize; }
+        if (h < 1.0) { h = btn == _startButton || btn == _selectButton ? 40.0 : actionSize; }
         btn.layer.cornerRadius = (btn == _startButton || btn == _selectButton) ? 10.0 : MAX(10.0, h * 0.30);
     }
+    _startButton.titleLabel.adjustsFontSizeToFitWidth = YES;
+    _startButton.titleLabel.minimumScaleFactor = 0.52;
+    _selectButton.titleLabel.adjustsFontSizeToFitWidth = YES;
+    _selectButton.titleLabel.minimumScaleFactor = 0.52;
     NSString* controllerText = [NSString stringWithFormat:@"%@ %@",
                                 [self coreTypeLabel:_coreType], (compact ? @"簡易" : @"標準")];
-    [self.controllerModeButton setTitle:[NSString stringWithFormat:@"コントローラー: %@", controllerText]
+    NSString* modeLabel = _autoControllerPresetSwitch ? @"AUTO" : @"MANUAL";
+    [self.controllerModeButton setTitle:[NSString stringWithFormat:@"コントローラー: %@ (%@)", controllerText, modeLabel]
                                forState:UIControlStateNormal];
 }
 
@@ -1002,10 +1029,30 @@ static const NSUInteger kDefaultHeight = 160;
     __weak typeof(self) weakSelf = self;
     [self presentCustomMenuWithTitle:@"コントローラー設定"
                              actions:@[
+        @{ @"title": (_autoControllerPresetSwitch ? @"自動切替: ON（ROM別）" : @"自動切替: OFF（手動固定）"), @"handler": [^{
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            if (!strongSelf) { return; }
+            strongSelf->_autoControllerPresetSwitch = !strongSelf->_autoControllerPresetSwitch;
+            if (strongSelf->_autoControllerPresetSwitch) {
+                NSInteger preset = [strongSelf recommendedControllerPresetForCore:strongSelf->_coreType];
+                if (strongSelf->_coreType == EMULATOR_CORE_TYPE_NES) {
+                    strongSelf->_nesControllerPreset = preset;
+                } else if (strongSelf->_coreType == EMULATOR_CORE_TYPE_GB) {
+                    strongSelf->_gbControllerPreset = preset;
+                } else {
+                    strongSelf->_gbaControllerPreset = preset;
+                }
+            }
+            [strongSelf appendLog:[NSString stringWithFormat:@"コントローラー自動切替: %@",
+                                   strongSelf->_autoControllerPresetSwitch ? @"ON" : @"OFF"]];
+            [strongSelf applyControllerPreset];
+            [strongSelf presentControllerMenu];
+        } copy]},
         @{ @"title": @"GBA: 標準", @"handler": [^{
             __strong typeof(weakSelf) strongSelf = weakSelf;
             if (!strongSelf) { return; }
             strongSelf->_gbaControllerPreset = 0;
+            strongSelf->_autoControllerPresetSwitch = NO;
             [strongSelf appendLog:@"コントローラー設定: GBA 標準"];
             [strongSelf applyControllerPreset];
         } copy]},
@@ -1013,6 +1060,7 @@ static const NSUInteger kDefaultHeight = 160;
             __strong typeof(weakSelf) strongSelf = weakSelf;
             if (!strongSelf) { return; }
             strongSelf->_gbaControllerPreset = 1;
+            strongSelf->_autoControllerPresetSwitch = NO;
             [strongSelf appendLog:@"コントローラー設定: GBA 簡易"];
             [strongSelf applyControllerPreset];
         } copy]},
@@ -1020,6 +1068,7 @@ static const NSUInteger kDefaultHeight = 160;
             __strong typeof(weakSelf) strongSelf = weakSelf;
             if (!strongSelf) { return; }
             strongSelf->_nesControllerPreset = 0;
+            strongSelf->_autoControllerPresetSwitch = NO;
             [strongSelf appendLog:@"コントローラー設定: NES 標準"];
             [strongSelf applyControllerPreset];
         } copy]},
@@ -1027,6 +1076,7 @@ static const NSUInteger kDefaultHeight = 160;
             __strong typeof(weakSelf) strongSelf = weakSelf;
             if (!strongSelf) { return; }
             strongSelf->_nesControllerPreset = 1;
+            strongSelf->_autoControllerPresetSwitch = NO;
             [strongSelf appendLog:@"コントローラー設定: NES 簡易"];
             [strongSelf applyControllerPreset];
         } copy]},
@@ -1034,6 +1084,7 @@ static const NSUInteger kDefaultHeight = 160;
             __strong typeof(weakSelf) strongSelf = weakSelf;
             if (!strongSelf) { return; }
             strongSelf->_gbControllerPreset = 0;
+            strongSelf->_autoControllerPresetSwitch = NO;
             [strongSelf appendLog:@"コントローラー設定: GB/GBC 標準"];
             [strongSelf applyControllerPreset];
         } copy]},
@@ -1041,6 +1092,7 @@ static const NSUInteger kDefaultHeight = 160;
             __strong typeof(weakSelf) strongSelf = weakSelf;
             if (!strongSelf) { return; }
             strongSelf->_gbControllerPreset = 1;
+            strongSelf->_autoControllerPresetSwitch = NO;
             [strongSelf appendLog:@"コントローラー設定: GB/GBC 簡易"];
             [strongSelf applyControllerPreset];
         } copy]},
