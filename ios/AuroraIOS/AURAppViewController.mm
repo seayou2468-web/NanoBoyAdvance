@@ -12,6 +12,17 @@ extern "C" {
 static const NSUInteger kDefaultWidth  = 240;
 static const NSUInteger kDefaultHeight = 160;
 
+@interface AURHitButton : UIButton
+@property (nonatomic, assign) UIEdgeInsets expandedHitInsets;
+@end
+
+@implementation AURHitButton
+- (BOOL)pointInside:(CGPoint)point withEvent:(UIEvent*)event {
+    CGRect largerBounds = UIEdgeInsetsInsetRect(self.bounds, self.expandedHitInsets);
+    return CGRectContainsPoint(largerBounds, point);
+}
+@end
+
 @interface AURViewController () <UIDocumentPickerDelegate>
 @property (nonatomic, strong) AURMetalView*  imageView;
 @property (nonatomic, strong) UILabel*       titleLabel;
@@ -237,7 +248,7 @@ static const NSUInteger kDefaultHeight = 160;
     self.controlsContainer.layer.masksToBounds = YES;
     [self.view addSubview:self.controlsContainer];
     UIButton* (^makeKeyButton)(NSString*, NSInteger, CGFloat) = ^UIButton* (NSString* title, NSInteger key, CGFloat size) {
-        UIButton* button = [UIButton buttonWithType:UIButtonTypeSystem];
+        AURHitButton* button = [AURHitButton buttonWithType:UIButtonTypeSystem];
         button.translatesAutoresizingMaskIntoConstraints = NO;
         button.tag = key;
         [button setTitle:title forState:UIControlStateNormal];
@@ -248,6 +259,8 @@ static const NSUInteger kDefaultHeight = 160;
         button.layer.borderWidth = 1.0;
         button.titleLabel.font = [UIFont systemFontOfSize:(size > 50 ? 22 : 14) weight:UIFontWeightSemibold];
         button.exclusiveTouch = NO;
+        // タップ取りこぼしを減らすため、見た目より判定領域を広げる。
+        button.expandedHitInsets = UIEdgeInsetsMake(-14.0, -14.0, -14.0, -14.0);
         [button.widthAnchor constraintEqualToConstant:size].active = YES;
         [button.heightAnchor constraintEqualToConstant:size].active = YES;
         [button addTarget:self action:@selector(onVirtualKeyDown:) forControlEvents:UIControlEventTouchDown];
