@@ -9,7 +9,12 @@
 #define GB_read_memory GB_safe_read_memory
 
 #ifdef GB_DISABLE_DEBUGGER
+typedef struct {
+    const char *name;
+    uint16_t addr;
+} GB_bank_symbol_t;
 #define GB_debugger_name_for_address(gb, addr) NULL
+#define GB_debugger_find_symbol(gb, addr, prefer_local) NULL
 #endif
 
 typedef void opcode_t(GB_gameboy_t *gb, uint8_t opcode, uint16_t *pc);
