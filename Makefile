@@ -55,7 +55,14 @@ NES_SRCS  := \
 	src/core/cores/quick_nes/nes_emu/Nes_Emu.cpp \
 	src/core/cores/quick_nes/nes_emu/abstract_file.cpp
 NES_OBJS  := $(patsubst %.cpp,$(BUILD_DIR)/%.o,$(NES_SRCS))
-CORE_OBJS := $(BUILD_DIR)/src/core/emulator_core_c_api.o $(BUILD_DIR)/src/core/cores/gba/runtime.o $(BUILD_DIR)/src/core/cores/gba/gba_core_c_api.o $(BUILD_DIR)/src/core/cores/quick_nes/runtime.o
+CORE_OBJS := \
+	$(BUILD_DIR)/src/core/api/emulator_core_c_api.o \
+	$(BUILD_DIR)/src/core/core_adapter_registry.o \
+	$(BUILD_DIR)/src/core/cores/gba/core_adapter.o \
+	$(BUILD_DIR)/src/core/cores/quick_nes/core_adapter.o \
+	$(BUILD_DIR)/src/core/cores/gba/runtime.o \
+	$(BUILD_DIR)/src/core/cores/gba/gba_core_c_api.o \
+	$(BUILD_DIR)/src/core/cores/quick_nes/runtime.o
 MAIN_OBJ  := $(BUILD_DIR)/main.o
 LIBNES    := $(BUILD_DIR)/libquick_nes.a
 
@@ -84,7 +91,7 @@ $(BUILD_DIR)/main.o: main.c
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) $(SDL_CFLAGS) -c $< -o $@
 
-$(BUILD_DIR)/src/core/emulator_core_c_api.o: src/core/emulator_core_c_api.cpp src/core/emulator_core_c_api.h
+$(BUILD_DIR)/src/core/api/emulator_core_c_api.o: src/core/api/emulator_core_c_api.cpp src/core/api/emulator_core_c_api.h src/core/core_adapter.hpp
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) $(SDL_CFLAGS) $(QUICK_NES_CXXFLAGS) -c $< -o $@
 
