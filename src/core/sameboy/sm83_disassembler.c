@@ -8,6 +8,10 @@
 
 #define GB_read_memory GB_safe_read_memory
 
+#ifdef GB_DISABLE_DEBUGGER
+#define GB_debugger_name_for_address(gb, addr) NULL
+#endif
+
 typedef void opcode_t(GB_gameboy_t *gb, uint8_t opcode, uint16_t *pc);
 
 static void ill(GB_gameboy_t *gb, uint8_t opcode, uint16_t *pc)

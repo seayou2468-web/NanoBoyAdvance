@@ -8,6 +8,8 @@
 #include <string.h>
 #include <sys/types.h>
 
+#ifndef GB_DISABLE_DEBUGGER
+
 static size_t map_find_symbol_index(GB_symbol_map_t *map, uint16_t addr, bool is_local)
 {
     if (!map->symbols) {
@@ -115,3 +117,5 @@ const GB_symbol_t *GB_reversed_map_find_symbol(GB_reversed_symbol_map_t *map, co
 
     return NULL;
 }
+
+#endif
