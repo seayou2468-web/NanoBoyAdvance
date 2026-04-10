@@ -24,19 +24,66 @@
     return self;
 }
 
+- (NSString *)skinsDirectoryPath {
+    NSString *docs = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES).firstObject;
+    NSString *path = [docs stringByAppendingPathComponent:@"Skins"];
+    [[NSFileManager defaultManager] createDirectoryAtPath:path withIntermediateDirectories:YES attributes:nil error:nil];
+    return path;
+}
+
 - (void)loadSkinsFromDisk {
-    // Logic to list folders in Documents/Skins and parse info.json
+    NSString *dir = [self skinsDirectoryPath];
+    NSArray *contents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:dir error:nil];
+    for (NSString *item in contents) {
+        NSString *itemPath = [dir stringByAppendingPathComponent:item];
+        BOOL isDir = NO;
+        if ([[NSFileManager defaultManager] fileExistsAtPath:itemPath isDirectory:&isDir] && isDir) {
+            NSString *jsonPath = [itemPath stringByAppendingPathComponent:@"info.json"];
+            NSData *data = [NSData dataWithContentsOfFile:jsonPath];
+            if (data) {
+                AURDeltaSkin *skin = [AURDeltaSkin skinWithJSONData:data folderPath:itemPath];
+                if (skin) [self.importedSkins addObject:skin];
+            }
+        }
+    }
 }
 
 - (void)importSkinAtURL:(NSURL *)url completion:(void(^)(BOOL success))completion {
-    // 1. Create Documents/Skins/skin_name folder
-    // 2. Unzip .deltaskin (which is a ZIP) to that folder
-    // 3. Parse info.json and add to importedSkins
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        // Simplified mock: just check if it is a deltaskin
-        BOOL success = [url.pathExtension.lowercaseString isEqualToString:@"deltaskin"];
+        NSString *tempDir = [NSTemporaryDirectory() stringByAppendingPathComponent:[[NSUUID UUID] UUIDString]];
+        [[NSFileManager defaultManager] createDirectoryAtPath:tempDir withIntermediateDirectories:YES attributes:nil error:nil];
+
+        // Unzip .deltaskin (which is a ZIP)
+        NSTask *task = [[NSTask alloc] init];
+        [task setLaunchPath:@"/usr/bin/unzip"];
+        [task setArguments:@[@"-q", url.path, @"-d", tempDir]];
+        [task launch];
+        [task waitUntilExit];
+
+        if (task.terminationStatus == 0) {
+            NSString *jsonPath = [tempDir stringByAppendingPathComponent:@"info.json"];
+            NSData *jsonData = [NSData dataWithContentsOfFile:jsonPath];
+            if (jsonData) {
+                NSDictionary *json = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
+                NSString *identifier = json[@"identifier"] ?: [[NSUUID UUID] UUIDString];
+                NSString *destPath = [[self skinsDirectoryPath] stringByAppendingPathComponent:identifier];
+
+                [[NSFileManager defaultManager] removeItemAtPath:destPath error:nil];
+                [[NSFileManager defaultManager] moveItemAtPath:tempDir toPath:destPath error:nil];
+
+                AURDeltaSkin *skin = [AURDeltaSkin skinWithJSONData:jsonData folderPath:destPath];
+                if (skin) {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [self.importedSkins addObject:skin];
+                        completion(YES);
+                    });
+                    return;
+                }
+            }
+        }
+
         dispatch_async(dispatch_get_main_queue(), ^{
-            completion(success);
+            completion(NO);
         });
     });
 }
@@ -46,14 +93,18 @@
 }
 
 - (AURControllerSkin *)skinForCoreType:(EmulatorCoreType)coreType isLandscape:(BOOL)isLandscape {
-    // Check imported skins first, otherwise return default programmatic skin
-    // [Implementation same as before for defaults...]
-    return [self defaultSkinForCore:coreType];
+    // Basic logic to pick the first imported skin that supports the traits, or fallback to default
+    for (AURControllerSkin *skin in self.importedSkins) {
+        // Simplified check
+        return skin;
+    }
+    return [self defaultSkinForCore:coreType isLandscape:isLandscape];
 }
 
-- (AURControllerSkin *)defaultSkinForCore:(EmulatorCoreType)coreType {
+- (AURControllerSkin *)defaultSkinForCore:(EmulatorCoreType)coreType isLandscape:(BOOL)isLandscape {
     AURControllerSkin *skin = [[AURControllerSkin alloc] init];
     NSMutableDictionary *rects = [NSMutableDictionary dictionary];
+
     if (coreType == EMULATOR_CORE_TYPE_GBA) {
         skin.name = @"GBA Default";
         rects[@"up"] = [NSValue valueWithCGRect:CGRectMake(45, 120, 45, 45)];
@@ -66,7 +117,28 @@
         rects[@"r"] = [NSValue valueWithCGRect:CGRectMake(265, 0, 110, 45)];
         rects[@"start"] = [NSValue valueWithCGRect:CGRectMake(195, 380, 70, 25)];
         rects[@"select"] = [NSValue valueWithCGRect:CGRectMake(110, 380, 70, 25)];
+    } else if (coreType == EMULATOR_CORE_TYPE_NES) {
+        skin.name = @"NES Default";
+        rects[@"up"] = [NSValue valueWithCGRect:CGRectMake(60, 130, 40, 40)];
+        rects[@"down"] = [NSValue valueWithCGRect:CGRectMake(60, 210, 40, 40)];
+        rects[@"left"] = [NSValue valueWithCGRect:CGRectMake(20, 170, 40, 40)];
+        rects[@"right"] = [NSValue valueWithCGRect:CGRectMake(100, 170, 40, 40)];
+        rects[@"a"] = [NSValue valueWithCGRect:CGRectMake(300, 170, 60, 60)];
+        rects[@"b"] = [NSValue valueWithCGRect:CGRectMake(225, 170, 60, 60)];
+        rects[@"start"] = [NSValue valueWithCGRect:CGRectMake(210, 350, 55, 20)];
+        rects[@"select"] = [NSValue valueWithCGRect:CGRectMake(110, 350, 55, 20)];
+    } else {
+        skin.name = @"GB/GBC Default";
+        rects[@"up"] = [NSValue valueWithCGRect:CGRectMake(50, 120, 45, 45)];
+        rects[@"down"] = [NSValue valueWithCGRect:CGRectMake(50, 200, 45, 45)];
+        rects[@"left"] = [NSValue valueWithCGRect:CGRectMake(10, 160, 45, 45)];
+        rects[@"right"] = [NSValue valueWithCGRect:CGRectMake(90, 160, 45, 45)];
+        rects[@"a"] = [NSValue valueWithCGRect:CGRectMake(290, 160, 65, 65)];
+        rects[@"b"] = [NSValue valueWithCGRect:CGRectMake(215, 160, 65, 65)];
+        rects[@"start"] = [NSValue valueWithCGRect:CGRectMake(200, 340, 60, 20)];
+        rects[@"select"] = [NSValue valueWithCGRect:CGRectMake(110, 340, 60, 20)];
     }
+
     skin.buttonRects = rects;
     return skin;
 }

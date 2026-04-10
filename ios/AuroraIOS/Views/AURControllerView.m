@@ -115,6 +115,17 @@
         self.backgroundColor = [UIColor colorWithRed:0.2 green:0.18 blue:0.25 alpha:1.0];
     } else if (isNES) {
         self.backgroundColor = [UIColor colorWithWhite:0.85 alpha:1.0];
+        if (key == EMULATOR_KEY_A || key == EMULATOR_KEY_B) {
+            baseColor = [UIColor colorWithRed:0.7 green:0.1 blue:0.1 alpha:1.0];
+            button.layer.borderColor = [UIColor colorWithWhite:0.0 alpha:0.2].CGColor;
+            button.layer.borderWidth = 2.0;
+        }
+    } else {
+        // GBC / GB
+        self.backgroundColor = [UIColor colorWithRed:0.3 green:0.3 blue:0.35 alpha:1.0];
+        if (key == EMULATOR_KEY_A || key == EMULATOR_KEY_B) {
+            baseColor = [UIColor colorWithRed:0.6 green:0.0 blue:0.4 alpha:1.0];
+        }
     }
 
     [button setTitle:title forState:UIControlStateNormal];

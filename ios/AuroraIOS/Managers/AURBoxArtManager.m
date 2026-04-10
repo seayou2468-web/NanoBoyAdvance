@@ -12,14 +12,10 @@
 }
 
 - (void)fetchBoxArtForGameTitle:(NSString *)title completion:(void(^)(UIImage *image))completion {
-    // Delta uses a specific hash-based or exact-name-based search.
-    // For this simulation, we will attempt to find a local image that matches the title
-    // or return a placeholder with the game title drawn on it.
-
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         UIImage *image = [UIImage imageNamed:title];
         if (!image) {
-            image = [self generatePlaceholderForTitle:title];
+            image = [self generateCartridgePlaceholderForTitle:title];
         }
 
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -28,27 +24,34 @@
     });
 }
 
-- (UIImage *)generatePlaceholderForTitle:(NSString *)title {
-    CGSize size = CGSizeMake(200, 300);
+- (UIImage *)generateCartridgePlaceholderForTitle:(NSString *)title {
+    CGSize size = CGSizeMake(200, 220); // Cartridge shape
     UIGraphicsBeginImageContextWithOptions(size, YES, 0);
     CGContextRef context = UIGraphicsGetCurrentContext();
 
-    // Gradient Background (Delta-style)
-    CGFloat locations[2] = {0.0, 1.0};
-    CGFloat components[8] = {0.2, 0.2, 0.3, 1.0, 0.1, 0.1, 0.15, 1.0};
-    CGColorSpaceRef rgb = CGColorSpaceCreateDeviceRGB();
-    CGGradientRef gradient = CGGradientCreateWithColorComponents(rgb, components, locations, 2);
-    CGContextDrawLinearGradient(context, gradient, CGPointMake(0, 0), CGPointMake(0, size.height), 0);
-    CGGradientRelease(gradient);
-    CGColorSpaceRelease(rgb);
+    // Cartridge Plastic (Gray)
+    [[UIColor colorWithWhite:0.4 alpha:1.0] setFill];
+    [[UIBezierPath bezierPathWithRoundedRect:CGRectMake(0, 0, size.width, size.height) cornerRadius:10] fill];
 
-    // Draw Text
+    // Label Area
+    CGRect labelRect = CGRectMake(15, 40, size.width - 30, size.height - 80);
+    [[UIColor colorWithWhite:0.9 alpha:1.0] setFill];
+    [[UIBezierPath bezierPathWithRect:labelRect] fill];
+
+    // Draw Title on Label
     NSDictionary *attr = @{
-        NSFontAttributeName: [UIFont systemFontOfSize:24 weight:UIFontWeightBold],
-        NSForegroundColorAttributeName: [UIColor whiteColor]
+        NSFontAttributeName: [UIFont systemFontOfSize:18 weight:UIFontWeightBold],
+        NSForegroundColorAttributeName: [UIColor blackColor]
     };
-    CGRect textRect = CGRectMake(10, 100, size.width - 20, 100);
-    [title drawInRect:textRect withAttributes:attr];
+    [title drawInRect:CGRectInset(labelRect, 10, 10) withAttributes:attr];
+
+    // Cartridge Grooves (Delta style detail)
+    [[UIColor colorWithWhite:0.3 alpha:1.0] setStroke];
+    UIBezierPath *grooves = [UIBezierPath bezierPath];
+    [grooves moveToPoint:CGPointMake(20, 10)]; [grooves addLineToPoint:CGPointMake(size.width - 20, 10)];
+    [grooves moveToPoint:CGPointMake(20, 20)]; [grooves addLineToPoint:CGPointMake(size.width - 20, 20)];
+    grooves.lineWidth = 2;
+    [grooves stroke];
 
     UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
