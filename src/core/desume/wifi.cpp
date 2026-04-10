@@ -26,7 +26,7 @@
 #include "utils/task.h"
 #include <driver.h>
 #include <registers.h>
-#include <rthreads/rthreads.h>
+#include "rthreads/rthreads.h"
 
 #ifdef HOST_WINDOWS
 #include <winsock2.h>

@@ -19,7 +19,7 @@
 
 #include "types.h"
 #include "Database.h"
-#include "retro_miscellaneous.h"
+#include "compat/retro_miscellaneous.h"
 
 //------------------------------------------------------------
 //large databases are first. scroll down to ENDLARGE to find the code

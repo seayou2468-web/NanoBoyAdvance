@@ -21,7 +21,7 @@
 
 #include "types.h"
 #include "fsnitro.h"
-#include "file/file_path.h"
+#include "../file/file_path.h"
 #include "NDSSystem.h"
 
 FS_NITRO::FS_NITRO()

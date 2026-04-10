@@ -23,13 +23,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stack>
+#include <filesystem>
 
 #include "../types.h"
 #include "../debug.h"
 #include "../emufile.h"
-#include "retro_dirent.h"
-#include "retro_stat.h"
-#include "file/file_path.h"
 
 #include "emufat.h"
 #include "vfat.h"
@@ -40,44 +38,35 @@ enum EListCallbackArg {
 	EListCallbackArg_Item, EListCallbackArg_Pop
 };
 
-typedef void (*ListCallback)(RDIR* rdir, EListCallbackArg);
+struct DirectoryEntry
+{
+	std::string name;
+	bool isDir = false;
+};
 
-// List all files and subdirectories recursively
-//TODO: clunky architecture. we've combined the callbacks into one handler.
-//we could merge the callback and list_files function, or refactor the callback into one for each enum which receives a unit of work after 
-//the more detailed recursing logic (caused by libretro-common integration) is handled in the lister
+typedef void (*ListCallback)(const DirectoryEntry&, EListCallbackArg);
+
 static void list_files(const char *filepath, ListCallback list_callback)
 {
-	void * hFind;
-	char *fname;
-	u32 dwError;
-
-	RDIR* rdir = retro_opendir(filepath);
-	if(!rdir) return;
-	if(retro_dirent_error(rdir))
-	{
-		retro_closedir(rdir);
+	namespace fs = std::filesystem;
+	fs::path root(filepath);
+	if (!fs::exists(root) || !fs::is_directory(root))
 		return;
-	}
 
-	for(;;)
+	for (const auto &entry : fs::directory_iterator(root))
 	{
-		if(!retro_readdir(rdir))
-			break;
+		DirectoryEntry item;
+		item.name = entry.path().filename().string();
+		item.isDir = entry.is_directory();
+		list_callback(item, EListCallbackArg_Item);
+		printf("cflash added %s\n", item.name.c_str());
 
-		const char* fname2 = retro_dirent_get_name(rdir);
-		list_callback(rdir,EListCallbackArg_Item);
-		printf("cflash added %s\n", fname2);
-
-		if (retro_dirent_is_dir(rdir, fname2) && (strcmp(fname2, ".")) && strcmp(fname2, ".."))
+		if (item.isDir)
 		{
-			std::string subdir = (std::string)filepath + path_default_slash() + fname2;
-			list_files(subdir.c_str(), list_callback);
-			list_callback(rdir, EListCallbackArg_Pop);
+			list_files(entry.path().string().c_str(), list_callback);
+			list_callback(item, EListCallbackArg_Pop);
 		}
 	}
-
-	retro_closedir(rdir);
 }
 
 enum eCallbackType
@@ -97,9 +86,9 @@ static std::stack<std::string> pathStack;
 static std::stack<std::string> virtPathStack;
 static std::string currVirtPath;
 
-static void DirectoryListCallback(RDIR* rdir, EListCallbackArg arg)
+static void DirectoryListCallback(const DirectoryEntry& entry, EListCallbackArg arg)
 {
-	const char* fname = retro_dirent_get_name(rdir);
+	const char* fname = entry.name.c_str();
 
 	if(arg == EListCallbackArg_Pop) 
 	{
@@ -110,7 +99,7 @@ static void DirectoryListCallback(RDIR* rdir, EListCallbackArg arg)
 		return;
 	}
 
-	if(retro_dirent_is_dir(rdir,currVirtPath.c_str()))
+	if(entry.isDir)
 	{
 		if(!strcmp(fname,".")) return;
 		if(!strcmp(fname,"..")) return;
@@ -132,12 +121,12 @@ static void DirectoryListCallback(RDIR* rdir, EListCallbackArg arg)
 			dataSectors++; //directories take one sector
 		}
 
-		currPath = currPath + path_default_slash() + fname;
+		currPath = currPath + "/" + fname;
 		return;
 	}
 	else
 	{
-		std::string path = currPath + path_default_slash() + fname;
+		std::string path = currPath + "/" + fname;
 
 		if(callbackType == eCallbackType_Build)
 		{
@@ -162,8 +151,10 @@ static void DirectoryListCallback(RDIR* rdir, EListCallbackArg arg)
 		else
 		{
 			//allocate sectors for file
-			int32_t fileSize = path_get_size(path.c_str());
-			if(fileSize == -1) { count_failed = true; dataSectors = 0; }
+			namespace fs = std::filesystem;
+			std::error_code ec;
+			const auto fileSize = fs::file_size(path, ec);
+			if(ec) { count_failed = true; dataSectors = 0; }
 			else dataSectors += (fileSize+511)/512 + 1;
 		}
 	}

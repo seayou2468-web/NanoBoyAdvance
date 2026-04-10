@@ -16,7 +16,7 @@
 */
 
 #include <stdlib.h>
-#include <retro_inline.h>
+#include "../compat/retro_inline.h"
 #include "guid.h"
 #include "../types.h"
 

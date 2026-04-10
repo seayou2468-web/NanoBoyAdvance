@@ -18,39 +18,18 @@
 #include <string>
 #include <vector>
 #include <string.h>
+#include <TargetConditionals.h>
 #include "types.h"
 
-#if defined(HOST_WINDOWS)
-	#define WIN32_LEAN_AND_MEAN
-	#include <windows.h>
-	#include <direct.h>
-
-		#include "frontend/windows/winutil.h"
-		#include "frontend/windows/resource.h"
-
-#if defined(__MINGW32__)
-#define mkdir(A, B) mkdir(A)
+#if !defined(__APPLE__) || !TARGET_OS_IPHONE
+#error "DeSmuME path module is restricted to iOS builds in this repository."
 #endif
-
-#elif !defined(DESMUME_COCOA)
-	#include <glib.h>
-#endif /* HOST_WINDOWS */
 
 #include "time.h"
 
-#ifdef HOST_WINDOWS
-	#define FILE_EXT_DELIMITER_CHAR		'.'
-	#define DIRECTORY_DELIMITER_CHAR	'\\'
-	#define ALL_DIRECTORY_DELIMITER_STRING "/\\"
-#else
-	#define FILE_EXT_DELIMITER_CHAR		'.'
-	#define DIRECTORY_DELIMITER_CHAR	'/'
-	#define ALL_DIRECTORY_DELIMITER_STRING "/"
-#endif
-
-#ifdef HOST_WINDOWS
-void FCEUD_MakePathDirs(const char *fname);
-#endif
+#define FILE_EXT_DELIMITER_CHAR		'.'
+#define DIRECTORY_DELIMITER_CHAR	'/'
+#define ALL_DIRECTORY_DELIMITER_STRING "/"
 
 class Path
 {
@@ -192,4 +171,3 @@ public:
 };
 
 extern PathInfo path;
-

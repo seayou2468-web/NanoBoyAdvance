@@ -29,7 +29,7 @@
 #include <string.h>
 #include <fcntl.h>
 
-#include <rthreads/rthreads.h>
+#include "rthreads/rthreads.h"
 #include "../gdbstub.h"
 #include "../types.h"
 #include "../NDSSystem.h"

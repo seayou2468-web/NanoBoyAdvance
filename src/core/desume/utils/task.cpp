@@ -18,22 +18,20 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <condition_variable>
+#include <mutex>
+#include <thread>
+
 #include "types.h"
 #include "task.h"
-#include <rthreads/rthreads.h>
-
-#ifdef __APPLE__
-#include <AvailabilityMacros.h>
-#include <CoreFoundation/CoreFoundation.h>
-#include <pthread.h>
-#endif
 
 class Task::Impl {
-private:
-	sthread_t* _thread;
-	bool _isThreadRunning;
-	
 public:
+	std::thread _thread;
+	bool _isThreadRunning;
+	std::mutex _mutex;
+	std::condition_variable _condWork;
+
 	Impl();
 	~Impl();
 
@@ -42,40 +40,17 @@ public:
 	void* finish();
 	void shutdown();
 
-	bool needSetThreadName;
-	char threadName[16]; // pthread_setname_np() assumes a max character length of 16.
-	
-	slock_t *mutex;
-	scond_t *condWork;
 	TWork workFunc;
 	void *workFuncParam;
 	void *ret;
 	bool exitThread;
 };
 
-static void taskProc(void *arg)
+static void taskProc(Task::Impl *ctx)
 {
-	Task::Impl *ctx = (Task::Impl *)arg;
-	
-	// The pthread_setname_np() function is gimped on macOS because it can't set thread
-	// names from any thread other than the current thread. That's why we can only set the
-	// thread name right here. We are not modifying rthreads, which is meant to be
-	// cross-platform, due to the substantially different nature of macOS's gimped version
-	// of pthread_setname_np().
-#if defined(MAC_OS_X_VERSION_10_6) && (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_6)
-	if (ctx->needSetThreadName)
-	{
-		pthread_setname_np(ctx->threadName);
-		ctx->needSetThreadName = false;
-	}
-#endif
-
 	do {
-		slock_lock(ctx->mutex);
-
-		while (ctx->workFunc == NULL && !ctx->exitThread) {
-			scond_wait(ctx->condWork, ctx->mutex);
-		}
+		std::unique_lock<std::mutex> lock(ctx->_mutex);
+		ctx->_condWork.wait(lock, [&]() { return ctx->workFunc != NULL || ctx->exitThread; });
 
 		if (ctx->workFunc != NULL) {
 			ctx->ret = ctx->workFunc(ctx->workFuncParam);
@@ -84,10 +59,7 @@ static void taskProc(void *arg)
 		}
 
 		ctx->workFunc = NULL;
-		scond_signal(ctx->condWork);
-
-		slock_unlock(ctx->mutex);
-
+		ctx->_condWork.notify_all();
 	} while(!ctx->exitThread);
 }
 
@@ -98,117 +70,74 @@ Task::Impl::Impl()
 	workFuncParam = NULL;
 	ret = NULL;
 	exitThread = false;
-	
-	memset(threadName, 0, sizeof(threadName));
-	needSetThreadName = false;
-
-	mutex = slock_new();
-	condWork = scond_new();
 }
 
 Task::Impl::~Impl()
 {
 	shutdown();
-	slock_free(mutex);
-	scond_free(condWork);
 }
 
 void Task::Impl::start(bool spinlock, int threadPriority, const char *name)
 {
-	slock_lock(this->mutex);
-	
+	(void)spinlock;
+	(void)threadPriority;
+	(void)name;
+	std::lock_guard<std::mutex> lock(this->_mutex);
 	if (this->_isThreadRunning) {
-		slock_unlock(this->mutex);
 		return;
 	}
-	
+
 	this->workFunc = NULL;
 	this->workFuncParam = NULL;
 	this->ret = NULL;
 	this->exitThread = false;
-	this->_thread = sthread_create_with_priority(&taskProc, this, threadPriority);
+	this->_thread = std::thread(taskProc, this);
 	this->_isThreadRunning = true;
-	
-#if !defined(USE_WIN32_THREADS) && !defined(__APPLE__)
-	sthread_setname(this->_thread, name);
-#else
-	
-#if defined(DESMUME_COCOA) && defined(MAC_OS_X_VERSION_10_6) && (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_6)
-	// Setting the thread name on macOS uses pthread_setname_np(), but this requires macOS v10.6 or later.
-	this->needSetThreadName = (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber10_6) && (name != NULL);
-#else
-	this->needSetThreadName = (name != NULL);
-#endif
-	
-	if (this->needSetThreadName)
-	{
-		strncpy(this->threadName, name, sizeof(this->threadName));
-	}
-#endif
-	
-	slock_unlock(this->mutex);
 }
 
 void Task::Impl::execute(const TWork &work, void *param)
 {
-	slock_lock(this->mutex);
-
+	std::lock_guard<std::mutex> lock(this->_mutex);
 	if ((work == NULL) || (this->workFunc != NULL) || !this->_isThreadRunning)
 	{
-		slock_unlock(this->mutex);
 		return;
 	}
 
 	this->workFunc = work;
 	this->workFuncParam = param;
-	scond_signal(this->condWork);
-
-	slock_unlock(this->mutex);
+	this->_condWork.notify_all();
 }
 
 void* Task::Impl::finish()
 {
-	void *returnValue = NULL;
-
-	slock_lock(this->mutex);
-
+	std::unique_lock<std::mutex> lock(this->_mutex);
 	if ((this->workFunc == NULL) || !this->_isThreadRunning) {
-		slock_unlock(this->mutex);
-		return returnValue;
+		return NULL;
 	}
 
-	while (this->workFunc != NULL)
-	{
-		scond_wait(this->condWork, this->mutex);
-	}
-
-	returnValue = this->ret;
-
-	slock_unlock(this->mutex);
-
-	return returnValue;
+	this->_condWork.wait(lock, [&]() { return this->workFunc == NULL; });
+	return this->ret;
 }
 
 void Task::Impl::shutdown()
 {
-	slock_lock(this->mutex);
+	{
+		std::lock_guard<std::mutex> lock(this->_mutex);
+		if (!this->_isThreadRunning) {
+			return;
+		}
 
-	if (!this->_isThreadRunning) {
-		slock_unlock(this->mutex);
-		return;
+		this->workFunc = NULL;
+		this->exitThread = true;
+		this->_condWork.notify_all();
 	}
 
-	this->workFunc = NULL;
-	this->exitThread = true;
-	scond_signal(this->condWork);
+	if (this->_thread.joinable()) {
+		this->_thread.join();
+	}
 
-	slock_unlock(this->mutex);
-
-	sthread_join(this->_thread);
-
-	slock_lock(this->mutex);
+	std::lock_guard<std::mutex> lock(this->_mutex);
 	this->_isThreadRunning = false;
-	slock_unlock(this->mutex);
 }
 
 void Task::start(bool spinlock) { impl->start(spinlock, 0, NULL); }
@@ -218,5 +147,3 @@ Task::Task() : impl(new Task::Impl()) {}
 Task::~Task() { delete impl; }
 void Task::execute(const TWork &work, void* param) { impl->execute(work,param); }
 void* Task::finish() { return impl->finish(); }
-
-
