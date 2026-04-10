@@ -53,59 +53,114 @@
 
 - (void)styleButton:(UIButton *)button forEmulatorKey:(EmulatorKey)key scale:(CGFloat)scale skinName:(NSString *)skinName {
     BOOL isGBA = [skinName containsString:@"GBA"];
+    BOOL isNES = [skinName containsString:@"NES"];
 
     UIColor *baseColor = [UIColor colorWithWhite:0.15 alpha:1.0];
     UIColor *textColor = [UIColor whiteColor];
     CGFloat cornerRadius = 4.0 * scale;
     NSString *title = @"";
 
+    // Default appearance
+    button.layer.shadowColor = [UIColor blackColor].CGColor;
+    button.layer.shadowOffset = CGSizeMake(0, 2 * scale);
+    button.layer.shadowOpacity = 0.5;
+    button.layer.shadowRadius = 2 * scale;
+
     switch (key) {
         case EMULATOR_KEY_A:
             title = @"A";
-            baseColor = isGBA ? [UIColor colorWithRed:0.2 green:0.2 blue:0.25 alpha:1.0] : [UIColor colorWithRed:0.7 green:0.1 blue:0.1 alpha:1.0];
+            baseColor = isGBA ? [UIColor colorWithRed:0.25 green:0.22 blue:0.4 alpha:1.0] : [UIColor colorWithRed:0.75 green:0.1 blue:0.15 alpha:1.0];
             cornerRadius = button.bounds.size.width / 2.0;
             break;
         case EMULATOR_KEY_B:
             title = @"B";
-            baseColor = isGBA ? [UIColor colorWithRed:0.2 green:0.2 blue:0.25 alpha:1.0] : [UIColor colorWithRed:0.7 green:0.1 blue:0.1 alpha:1.0];
+            baseColor = isGBA ? [UIColor colorWithRed:0.25 green:0.22 blue:0.4 alpha:1.0] : [UIColor colorWithRed:0.75 green:0.1 blue:0.15 alpha:1.0];
             cornerRadius = button.bounds.size.width / 2.0;
             break;
-        case EMULATOR_KEY_UP: title = @"▲"; cornerRadius = 5.0 * scale; break;
-        case EMULATOR_KEY_DOWN: title = @"▼"; cornerRadius = 5.0 * scale; break;
-        case EMULATOR_KEY_LEFT: title = @"◀"; cornerRadius = 5.0 * scale; break;
-        case EMULATOR_KEY_RIGHT: title = @"▶"; cornerRadius = 5.0 * scale; break;
-        case EMULATOR_KEY_START: title = @"START"; cornerRadius = 10.0 * scale; break;
-        case EMULATOR_KEY_SELECT: title = @"SELECT"; cornerRadius = 10.0 * scale; break;
+        case EMULATOR_KEY_UP: title = @""; break;
+        case EMULATOR_KEY_DOWN: title = @""; break;
+        case EMULATOR_KEY_LEFT: title = @""; break;
+        case EMULATOR_KEY_RIGHT: title = @""; break;
+        case EMULATOR_KEY_START: title = @"START"; cornerRadius = 8.0 * scale; break;
+        case EMULATOR_KEY_SELECT: title = @"SELECT"; cornerRadius = 8.0 * scale; break;
         case EMULATOR_KEY_L: title = @"L"; cornerRadius = 15.0 * scale; break;
         case EMULATOR_KEY_R: title = @"R"; cornerRadius = 15.0 * scale; break;
         default: break;
     }
 
     if (isGBA) {
-        self.backgroundColor = [UIColor colorWithRed:0.15 green:0.12 blue:0.2 alpha:1.0];
-        if (key == EMULATOR_KEY_A || key == EMULATOR_KEY_B) {
+        self.backgroundColor = [UIColor colorWithRed:0.2 green:0.18 blue:0.25 alpha:1.0]; // GBA Purple
+        if (key >= EMULATOR_KEY_UP && key <= EMULATOR_KEY_RIGHT) {
+            baseColor = [UIColor colorWithWhite:0.1 alpha:1.0];
+            cornerRadius = 4.0 * scale;
+        } else if (key == EMULATOR_KEY_L || key == EMULATOR_KEY_R) {
             baseColor = [UIColor colorWithWhite:1.0 alpha:0.1];
             button.layer.borderColor = [UIColor colorWithWhite:1.0 alpha:0.2].CGColor;
             button.layer.borderWidth = 1.0;
-        } else if (key >= EMULATOR_KEY_UP && key <= EMULATOR_KEY_RIGHT) {
-            baseColor = [UIColor colorWithWhite:0.0 alpha:0.3];
         }
-    } else {
-        self.backgroundColor = [UIColor colorWithWhite:0.8 alpha:1.0];
+    } else if (isNES) {
+        self.backgroundColor = [UIColor colorWithWhite:0.85 alpha:1.0]; // NES Gray
+        if (key >= EMULATOR_KEY_UP && key <= EMULATOR_KEY_RIGHT) {
+            baseColor = [UIColor colorWithWhite:0.1 alpha:1.0];
+            cornerRadius = 2.0 * scale;
+        } else if (key == EMULATOR_KEY_START || key == EMULATOR_KEY_SELECT) {
+            baseColor = [UIColor colorWithWhite:0.3 alpha:1.0];
+            cornerRadius = button.bounds.size.height / 2.0;
+        }
     }
 
     [button setTitle:title forState:UIControlStateNormal];
     [button setTitleColor:textColor forState:UIControlStateNormal];
-    button.titleLabel.font = [UIFont systemFontOfSize:12.0 * scale weight:UIFontWeightBold];
+    button.titleLabel.font = [UIFont fontWithName:@"HelveticaNeue-Bold" size:14.0 * scale] ?: [UIFont systemFontOfSize:14.0 * scale weight:UIFontWeightBold];
     button.backgroundColor = baseColor;
     button.layer.cornerRadius = cornerRadius;
-    button.clipsToBounds = YES;
+
+    // Draw D-Pad arrows if it is a D-Pad button
+    if (key >= EMULATOR_KEY_UP && key <= EMULATOR_KEY_RIGHT) {
+        [self addArrowToButton:button forKey:key scale:scale];
+    }
+}
+
+- (void)addArrowToButton:(UIButton *)button forKey:(EmulatorKey)key scale:(CGFloat)scale {
+    CAShapeLayer *arrow = [CAShapeLayer layer];
+    UIBezierPath *path = [UIBezierPath bezierPath];
+    CGFloat w = button.bounds.size.width;
+    CGFloat h = button.bounds.size.height;
+    CGFloat s = 10 * scale;
+
+    switch (key) {
+        case EMULATOR_KEY_UP:
+            [path moveToPoint:CGPointMake(w/2, h/2 - s)];
+            [path addLineToPoint:CGPointMake(w/2 - s, h/2 + s/2)];
+            [path addLineToPoint:CGPointMake(w/2 + s, h/2 + s/2)];
+            break;
+        case EMULATOR_KEY_DOWN:
+            [path moveToPoint:CGPointMake(w/2, h/2 + s)];
+            [path addLineToPoint:CGPointMake(w/2 - s, h/2 - s/2)];
+            [path addLineToPoint:CGPointMake(w/2 + s, h/2 - s/2)];
+            break;
+        case EMULATOR_KEY_LEFT:
+            [path moveToPoint:CGPointMake(w/2 - s, h/2)];
+            [path addLineToPoint:CGPointMake(w/2 + s/2, h/2 - s)];
+            [path addLineToPoint:CGPointMake(w/2 + s/2, h/2 + s)];
+            break;
+        case EMULATOR_KEY_RIGHT:
+            [path moveToPoint:CGPointMake(w/2 + s, h/2)];
+            [path addLineToPoint:CGPointMake(w/2 - s/2, h/2 - s)];
+            [path addLineToPoint:CGPointMake(w/2 - s/2, h/2 + s)];
+            break;
+        default: break;
+    }
+    [path closePath];
+    arrow.path = path.CGPath;
+    arrow.fillColor = [UIColor colorWithWhite:1.0 alpha:0.3].CGColor;
+    [button.layer addSublayer:arrow];
 }
 
 - (void)buttonDown:(UIButton *)sender {
     [UIView animateWithDuration:0.05 animations:^{
-        sender.transform = CGAffineTransformMakeScale(0.92, 0.92);
-        sender.alpha = 0.7;
+        sender.transform = CGAffineTransformMakeScale(0.95, 0.95);
+        sender.alpha = 0.8;
     }];
     [self.delegate controllerViewDidPressKey:(EmulatorKey)sender.tag];
 }

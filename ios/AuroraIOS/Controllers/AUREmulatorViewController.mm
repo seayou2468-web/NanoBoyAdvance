@@ -1,4 +1,5 @@
 #import "AUREmulatorViewController.h"
+#import "AURInGameMenuViewController.h"
 #import "../Views/AURControllerView.h"
 #import "../Managers/AURSkinManager.h"
 #import "../Managers/AURDatabaseManager.h"
@@ -6,7 +7,7 @@
 #import "../Metal.h"
 #import <QuartzCore/QuartzCore.h>
 
-@interface AUREmulatorViewController () <AURControllerViewDelegate, AURExternalControllerDelegate> {
+@interface AUREmulatorViewController () <AURControllerViewDelegate, AURExternalControllerDelegate, AURInGameMenuDelegate> {
     EmulatorCoreHandle* _core;
     EmulatorCoreType    _coreType;
     EmulatorVideoSpec   _videoSpec;
@@ -90,7 +91,8 @@
         EmulatorCore_LoadBIOSFromPath(_core, biosPath.fileSystemRepresentation);
     }
 
-    if (EmulatorCore_LoadROMFromPath(_core, self.romURL.fileSystemRepresentation)) {
+    const char *path = self.romURL.path.fileSystemRepresentation;
+    if (path && EmulatorCore_LoadROMFromPath(_core, path)) {
         EmulatorCore_GetVideoSpec(_core, &_videoSpec);
         _running = YES;
         self.displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(gameLoop)];
@@ -134,16 +136,19 @@
 }
 
 - (void)menuTapped {
-    UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil message:nil preferredStyle:UIAlertControllerStyleActionSheet];
-    [alert addAction:[UIAlertAction actionWithTitle:@"Save State" style:UIAlertActionStyleDefault handler:nil]];
-    [alert addAction:[UIAlertAction actionWithTitle:@"Load State" style:UIAlertActionStyleDefault handler:nil]];
-    [alert addAction:[UIAlertAction actionWithTitle:@"Cheats" style:UIAlertActionStyleDefault handler:nil]];
-    [alert addAction:[UIAlertAction actionWithTitle:@"Fast Forward" style:UIAlertActionStyleDefault handler:nil]];
-    [alert addAction:[UIAlertAction actionWithTitle:@"Quit" style:UIAlertActionStyleDestructive handler:^(UIAlertAction *action) {
+    AURInGameMenuViewController *menuVC = [[AURInGameMenuViewController alloc] init];
+    menuVC.delegate = self;
+    menuVC.modalPresentationStyle = UIModalPresentationOverFullScreen;
+    menuVC.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
+    [self presentViewController:menuVC animated:YES completion:nil];
+}
+
+#pragma mark - AURInGameMenuDelegate
+
+- (void)inGameMenuDidSelectAction:(NSString *)action {
+    if ([action isEqualToString:@"Quit Game"]) {
         [self dismissViewControllerAnimated:YES completion:nil];
-    }]];
-    [alert addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
-    [self presentViewController:alert animated:YES completion:nil];
+    }
 }
 
 @end

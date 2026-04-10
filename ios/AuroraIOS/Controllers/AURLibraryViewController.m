@@ -132,7 +132,8 @@
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     AURGame *game = self.games[indexPath.item];
-    AUREmulatorViewController *emuVC = [[AUREmulatorViewController alloc] initWithROMURL:[NSURL fileURLWithPath:game.romPath] coreType:game.coreType];
+    NSURL *romURL = [NSURL fileURLWithPath:game.romPath];
+    AUREmulatorViewController *emuVC = [[AUREmulatorViewController alloc] initWithROMURL:romURL coreType:game.coreType];
     emuVC.modalPresentationStyle = UIModalPresentationFullScreen;
     [self presentViewController:emuVC animated:YES completion:nil];
 }
