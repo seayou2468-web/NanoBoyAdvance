@@ -17,6 +17,7 @@ struct CoreAdapter {
 
   bool (*load_bios_from_path)(void* runtime, const char* bios_path, std::string& last_error);
   bool (*load_rom_from_path)(void* runtime, const char* rom_path, std::string& last_error);
+  bool (*load_rom_from_memory)(void* runtime, const void* rom_data, size_t rom_size, std::string& last_error);
   void (*step_frame)(void* runtime, std::string& last_error);
   void (*set_key_status)(void* runtime, int key, bool pressed);
   bool (*get_video_spec)(EmulatorVideoSpec* out_spec);

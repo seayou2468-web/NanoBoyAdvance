@@ -24,7 +24,7 @@ APP       := $(BUILD_DIR)/nanoboyadvance-linux
 LIBNBA    := $(BUILD_DIR)/libnba.a
 DUMP_TOOL := $(BUILD_DIR)/dump_frames
 
-NBA_SRCS  := $(shell find src/core/gba/nba/src -name '*.cpp')
+NBA_SRCS  := $(shell find src/core/nanoboyadvance/nba/src -name '*.cpp')
 NBA_OBJS  := $(patsubst %.cpp,$(BUILD_DIR)/%.o,$(NBA_SRCS))
 NES_SRCS  := \
 	src/core/quick_nes/nes_emu/Blip_Buffer.cpp \
@@ -57,11 +57,12 @@ NES_SRCS  := \
 NES_OBJS  := $(patsubst %.cpp,$(BUILD_DIR)/%.o,$(NES_SRCS))
 CORE_OBJS := \
 	$(BUILD_DIR)/src/core/api/emulator_core_c_api.o \
+	$(BUILD_DIR)/src/core/api/frontend_utils.o \
 	$(BUILD_DIR)/src/core/core_adapter_registry.o \
-	$(BUILD_DIR)/src/core/gba/core_adapter.o \
+	$(BUILD_DIR)/src/core/nanoboyadvance/core_adapter.o \
 	$(BUILD_DIR)/src/core/quick_nes/core_adapter.o \
-	$(BUILD_DIR)/src/core/gba/runtime.o \
-	$(BUILD_DIR)/src/core/gba/gba_core_c_api.o \
+	$(BUILD_DIR)/src/core/nanoboyadvance/runtime.o \
+	$(BUILD_DIR)/src/core/nanoboyadvance/gba_core_c_api.o \
 	$(BUILD_DIR)/src/core/quick_nes/runtime.o
 MAIN_OBJ  := $(BUILD_DIR)/main.o
 LIBNES    := $(BUILD_DIR)/libquick_nes.a
@@ -95,11 +96,11 @@ $(BUILD_DIR)/src/core/api/emulator_core_c_api.o: src/core/api/emulator_core_c_ap
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) $(SDL_CFLAGS) $(QUICK_NES_CXXFLAGS) -c $< -o $@
 
-$(BUILD_DIR)/src/core/gba/runtime.o: src/core/gba/runtime.cpp src/core/gba/runtime.hpp
+$(BUILD_DIR)/src/core/nanoboyadvance/runtime.o: src/core/nanoboyadvance/runtime.cpp src/core/nanoboyadvance/runtime.hpp
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) $(SDL_CFLAGS) -c $< -o $@
 
-$(BUILD_DIR)/src/core/gba/gba_core_c_api.o: src/core/gba/gba_core_c_api.cpp src/core/gba/gba_core_c_api.h src/core/emulator_core_c_api.h
+$(BUILD_DIR)/src/core/nanoboyadvance/gba_core_c_api.o: src/core/nanoboyadvance/gba_core_c_api.cpp src/core/nanoboyadvance/gba_core_c_api.h src/core/emulator_core_c_api.h
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) $(SDL_CFLAGS) -c $< -o $@
 

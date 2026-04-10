@@ -8,24 +8,29 @@
 #pragma once
 
 #include <filesystem>
-#include "../../../../../core/gba/nba/include/nba/core.hpp"
+#include "../../../../../core/nanoboyadvance/nba/include/nba/core.hpp"
 #include <string>
 
 namespace fs = std::filesystem;
 
 namespace nba {
 
-struct SaveStateWriter {
+struct SaveStateLoader {
   enum class Result {
+    CannotFindFile,
     CannotOpenFile,
-    CannotWrite,
+    BadImage,
+    UnsupportedVersion,
     Success
   };
 
-  static auto Write(
+  static auto Load(
     std::unique_ptr<CoreBase>& core,
     fs::path const& path
   ) -> Result;
+
+private:
+  static auto Validate(SaveState const& save_state) -> Result;
 };
 
 } // namespace nba

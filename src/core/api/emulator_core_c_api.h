@@ -41,7 +41,7 @@ typedef struct EmulatorVideoSpec {
   uint32_t height;
 } EmulatorVideoSpec;
 
-// Returns a stable core identifier (e.g. "gba") for logging/UI labels.
+// Returns a stable core identifier (e.g. "nanoboyadvance") for logging/UI labels.
 const char* EmulatorCoreTypeName(EmulatorCoreType core_type);
 
 EmulatorCoreHandle* EmulatorCore_Create(EmulatorCoreType core_type);
@@ -49,6 +49,7 @@ void EmulatorCore_Destroy(EmulatorCoreHandle* handle);
 
 bool EmulatorCore_LoadBIOSFromPath(EmulatorCoreHandle* handle, const char* bios_path);
 bool EmulatorCore_LoadROMFromPath(EmulatorCoreHandle* handle, const char* rom_path);
+bool EmulatorCore_LoadROMFromMemory(EmulatorCoreHandle* handle, const void* rom_data, size_t rom_size);
 void EmulatorCore_StepFrame(EmulatorCoreHandle* handle);
 void EmulatorCore_SetKeyStatus(EmulatorCoreHandle* handle, EmulatorKey key, bool pressed);
 

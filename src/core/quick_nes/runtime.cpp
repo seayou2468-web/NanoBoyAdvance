@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <array>
 #include <exception>
+#include <limits>
 
 namespace core::quick_nes {
 
@@ -61,6 +62,39 @@ bool LoadROMFromPath(Runtime& runtime, const char* rom_path, std::string& last_e
       return false;
     }
 
+    if (const blargg_err_t err = runtime.emu->load_ines(Auto_File_Reader(rom_reader))) {
+      last_error = err;
+      return false;
+    }
+
+    runtime.emu->set_sprite_mode(Nes_Emu::sprites_visible);
+    runtime.emu->reset(true);
+    return true;
+  } catch (const std::exception& e) {
+    last_error = std::string("NES runtime exception: ") + e.what();
+    return false;
+  } catch (...) {
+    last_error = "NES runtime exception: unknown";
+    return false;
+  }
+}
+
+bool LoadROMFromMemory(Runtime& runtime, const void* rom_data, size_t rom_size, std::string& last_error) {
+  try {
+    if (rom_data == nullptr || rom_size < 16U || rom_size > static_cast<size_t>(std::numeric_limits<long>::max())) {
+      last_error = "ROM image is invalid";
+      return false;
+    }
+
+    runtime.emu = std::make_unique<Nes_Emu>();
+    const auto indexed_height = static_cast<size_t>(runtime.emu->buffer_height());
+    runtime.indexed_frame_row_bytes = static_cast<size_t>(Nes_Emu::buffer_width);
+    runtime.indexed_frame.assign(runtime.indexed_frame_row_bytes * indexed_height, 0U);
+    runtime.emu->set_pixels(runtime.indexed_frame.data(), Nes_Emu::buffer_width);
+    runtime.key_state.fill(false);
+    std::fill(runtime.frame_rgba.begin(), runtime.frame_rgba.end(), 0U);
+
+    Mem_File_Reader rom_reader(rom_data, static_cast<long>(rom_size));
     if (const blargg_err_t err = runtime.emu->load_ines(Auto_File_Reader(rom_reader))) {
       last_error = err;
       return false;

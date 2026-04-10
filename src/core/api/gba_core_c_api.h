@@ -1,3 +1,3 @@
 #pragma once
 
-#include "../gba/gba_core_c_api.h"
+#include "../nanoboyadvance/gba_core_c_api.h"

@@ -67,6 +67,15 @@ bool EmulatorCore_LoadROMFromPath(EmulatorCoreHandle* handle, const char* rom_pa
   return handle->adapter->load_rom_from_path(handle->runtime, rom_path, handle->last_error);
 }
 
+bool EmulatorCore_LoadROMFromMemory(EmulatorCoreHandle* handle, const void* rom_data, size_t rom_size) {
+  if (handle == nullptr || handle->adapter == nullptr || handle->adapter->load_rom_from_memory == nullptr) {
+    return false;
+  }
+
+  handle->last_error.clear();
+  return handle->adapter->load_rom_from_memory(handle->runtime, rom_data, rom_size, handle->last_error);
+}
+
 void EmulatorCore_StepFrame(EmulatorCoreHandle* handle) {
   if (handle == nullptr || handle->adapter == nullptr || handle->adapter->step_frame == nullptr) {
     return;

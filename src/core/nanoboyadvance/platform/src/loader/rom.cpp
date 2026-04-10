@@ -8,12 +8,12 @@
 #include <filesystem>
 #include <fstream>
 #include "../../include/platform/loader/rom.hpp"
-#include "../../../../core/gba/nba/include/nba/rom/backup/eeprom.hpp"
-#include "../../../../core/gba/nba/include/nba/rom/backup/flash.hpp"
-#include "../../../../core/gba/nba/include/nba/rom/backup/sram.hpp"
-#include "../../../../core/gba/nba/include/nba/rom/header.hpp"
-#include "../../../../core/gba/nba/include/nba/rom/rom.hpp"
-#include "../../../../core/gba/nba/include/nba/log.hpp"
+#include "../../../../core/nanoboyadvance/nba/include/nba/rom/backup/eeprom.hpp"
+#include "../../../../core/nanoboyadvance/nba/include/nba/rom/backup/flash.hpp"
+#include "../../../../core/nanoboyadvance/nba/include/nba/rom/backup/sram.hpp"
+#include "../../../../core/nanoboyadvance/nba/include/nba/rom/header.hpp"
+#include "../../../../core/nanoboyadvance/nba/include/nba/rom/rom.hpp"
+#include "../../../../core/nanoboyadvance/nba/include/nba/log.hpp"
 #include <string_view>
 #include <utility>
 

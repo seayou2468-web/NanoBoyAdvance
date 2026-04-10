@@ -98,13 +98,24 @@ bool LoadROMFromPath(Runtime& runtime, const char* rom_path, std::string& last_e
     return false;
   }
 
+  return LoadROMFromMemory(runtime, rom_data.data(), rom_data.size(), last_error);
+}
+
+bool LoadROMFromMemory(Runtime& runtime, const void* rom_data, size_t rom_size, std::string& last_error) {
+  if (rom_data == nullptr || rom_size < 192U || rom_size > kMaxRomBytes) {
+    last_error = "invalid ROM image";
+    return false;
+  }
+
+  std::vector<u8> rom_bytes(static_cast<const u8*>(rom_data), static_cast<const u8*>(rom_data) + rom_size);
+
   try {
     runtime.config->skip_bios = runtime.bios_data.empty();
     runtime.core = nba::CreateCore(runtime.config);
     if (!runtime.bios_data.empty()) {
       runtime.core->Attach(runtime.bios_data);
     }
-    runtime.core->Attach(nba::ROM{std::move(rom_data), std::unique_ptr<nba::Backup>{}, std::unique_ptr<nba::GPIO>{}});
+    runtime.core->Attach(nba::ROM{std::move(rom_bytes), std::unique_ptr<nba::Backup>{}, std::unique_ptr<nba::GPIO>{}});
     runtime.core->Reset();
     return true;
   } catch (const std::exception& ex) {

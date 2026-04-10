@@ -18,6 +18,10 @@ bool GBA_LoadROMFromPath(GBACoreHandle* handle, const char* rom_path) {
   return EmulatorCore_LoadROMFromPath(handle, rom_path);
 }
 
+bool GBA_LoadROMFromMemory(GBACoreHandle* handle, const void* rom_data, size_t rom_size) {
+  return EmulatorCore_LoadROMFromMemory(handle, rom_data, rom_size);
+}
+
 void GBA_StepFrame(GBACoreHandle* handle) {
   EmulatorCore_StepFrame(handle);
 }

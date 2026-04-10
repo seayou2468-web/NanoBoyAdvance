@@ -9,13 +9,15 @@ independent and plugged into a shared API boundary.
   - Public core API used by frontends (`emulator_core_c_api.*`, `gba_core_c_api.h` shim target).
 - `src/core/core_adapter.*`
   - Adapter contract + registry that maps `EmulatorCoreType` to concrete core implementations.
-- `src/core/gba/`
+- `src/core/nanoboyadvance/`
   - GBA runtime and GBA-specific compatibility API.
   - `platform/` keeps GBA-only platform helpers colocated with the core.
 - `src/core/quick_nes/`
   - QuickNES runtime bridge and bundled emulator implementation.
 - `src/core/emulator_core_c_api.h`, `src/core/gba_core_c_api.h`
   - Backward-compatible include shims.
+- `src/core/api/frontend_utils.*`
+  - Frontend-oriented ROM/save/cheat helpers (std-only, no external dependencies).
 
 ## Why this structure
 

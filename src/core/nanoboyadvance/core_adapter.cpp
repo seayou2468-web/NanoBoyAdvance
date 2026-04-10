@@ -30,6 +30,14 @@ bool LoadROMFromPath(void* runtime, const char* rom_path, std::string& last_erro
   return core::gba::LoadROMFromPath(*static_cast<core::gba::Runtime*>(runtime), rom_path, last_error);
 }
 
+bool LoadROMFromMemory(void* runtime, const void* rom_data, size_t rom_size, std::string& last_error) {
+  if (runtime == nullptr) {
+    last_error = "core runtime is not initialized";
+    return false;
+  }
+  return core::gba::LoadROMFromMemory(*static_cast<core::gba::Runtime*>(runtime), rom_data, rom_size, last_error);
+}
+
 void StepFrame(void* runtime, std::string& last_error) {
   if (runtime == nullptr) {
     return;
@@ -68,12 +76,13 @@ const uint32_t* GetFrameBufferRGBA(void* runtime, size_t* pixel_count) {
 namespace core {
 
 const CoreAdapter kGBAAdapter = {
-  .name = "gba",
+  .name = "nanoboyadvance",
   .type = EMULATOR_CORE_TYPE_GBA,
   .create_runtime = CreateRuntime,
   .destroy_runtime = DestroyRuntime,
   .load_bios_from_path = LoadBIOSFromPath,
   .load_rom_from_path = LoadROMFromPath,
+  .load_rom_from_memory = LoadROMFromMemory,
   .step_frame = StepFrame,
   .set_key_status = SetKeyStatus,
   .get_video_spec = GetVideoSpec,
