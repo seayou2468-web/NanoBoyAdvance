@@ -1,3 +1,7 @@
+#ifndef GB_INTERNAL
+#define GB_INTERNAL
+#endif
+
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>

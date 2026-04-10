@@ -1,3 +1,7 @@
+#ifndef GB_INTERNAL
+#define GB_INTERNAL
+#endif
+
 #include "random.h"
 #include <time.h>
 

@@ -1,3 +1,7 @@
+#ifndef GB_INTERNAL
+#define GB_INTERNAL
+#endif
+
 #include "gb.h"
 #include "cheats.h"
 #include <stdio.h>

@@ -1,3 +1,7 @@
+#ifndef GB_INTERNAL
+#define GB_INTERNAL
+#endif
+
 #include "gb.h"
 #include "random.h"
 #include <math.h>

@@ -1,3 +1,7 @@
+#ifndef GB_INTERNAL
+#define GB_INTERNAL
+#endif
+
 #include "gb.h"
 
 static uint32_t noise_seed = 0;

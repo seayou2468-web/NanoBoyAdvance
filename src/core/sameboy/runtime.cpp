@@ -11,36 +11,30 @@ namespace {
 
 constexpr size_t kFramePixels = 160U * 144U;
 
-uint32_t EncodePixel(GB_gameboy_t*, uint8_t r, uint8_t g, uint8_t b) {
-  return 0xFF000000U | (static_cast<uint32_t>(r) << 16U) | (static_cast<uint32_t>(g) << 8U) |
-         static_cast<uint32_t>(b);
-}
-
-GB_key_t ToSameBoyKey(int key) {
+SBA_Key ToSameBoyKey(int key) {
   switch (key) {
-    case 0: return GB_KEY_A;
-    case 1: return GB_KEY_B;
-    case 2: return GB_KEY_SELECT;
-    case 3: return GB_KEY_START;
-    case 4: return GB_KEY_RIGHT;
-    case 5: return GB_KEY_LEFT;
-    case 6: return GB_KEY_UP;
-    case 7: return GB_KEY_DOWN;
-    default: return GB_KEY_MAX;
+    case 0: return SBA_KEY_A;
+    case 1: return SBA_KEY_B;
+    case 2: return SBA_KEY_SELECT;
+    case 3: return SBA_KEY_START;
+    case 4: return SBA_KEY_RIGHT;
+    case 5: return SBA_KEY_LEFT;
+    case 6: return SBA_KEY_UP;
+    case 7: return SBA_KEY_DOWN;
+    default: return static_cast<SBA_Key>(-1);
   }
 }
 
 void ResetCore(Runtime& runtime) {
   if (runtime.gb != nullptr) {
-    GB_free(runtime.gb);
-    GB_dealloc(runtime.gb);
+    SBA_destroy(runtime.gb);
   }
-  runtime.gb = GB_init(GB_alloc(), GB_MODEL_CGB_E);
+  runtime.gb = SBA_create(SBA_MODEL_CGB_E);
   runtime.key_state.fill(false);
   std::fill(runtime.frame_rgba.begin(), runtime.frame_rgba.end(), 0U);
   if (runtime.gb != nullptr) {
-    GB_set_rgb_encode_callback(runtime.gb, EncodePixel);
-    GB_set_pixels_output(runtime.gb, runtime.frame_rgba.data());
+    SBA_use_default_argb_encoder(runtime.gb);
+    SBA_set_pixels_output(runtime.gb, runtime.frame_rgba.data());
   }
 }
 
@@ -65,7 +59,7 @@ bool LoadROMFromPath(Runtime& runtime, const char* rom_path, std::string& last_e
       return false;
     }
 
-    if (GB_load_rom(runtime.gb, rom_path) != 0) {
+    if (SBA_load_rom(runtime.gb, rom_path) != 0) {
       last_error = "failed to load GB ROM from path";
       return false;
     }
@@ -95,7 +89,7 @@ bool LoadROMFromMemory(Runtime& runtime, const void* rom_data, size_t rom_size, 
 
     runtime.rom_storage.resize(rom_size);
     std::memcpy(runtime.rom_storage.data(), rom_data, rom_size);
-    GB_load_rom_from_buffer(runtime.gb, runtime.rom_storage.data(), runtime.rom_storage.size());
+    SBA_load_rom_from_buffer(runtime.gb, runtime.rom_storage.data(), runtime.rom_storage.size());
     return true;
   } catch (const std::exception& e) {
     last_error = std::string("SameBoy runtime exception: ") + e.what();
@@ -110,7 +104,7 @@ void StepFrame(Runtime& runtime, std::string&) {
   if (runtime.gb == nullptr) {
     return;
   }
-  GB_run_frame(runtime.gb);
+  SBA_run_frame(runtime.gb);
 }
 
 void SetKeyStatus(Runtime& runtime, int key, bool pressed) {
@@ -121,9 +115,9 @@ void SetKeyStatus(Runtime& runtime, int key, bool pressed) {
     return;
   }
   runtime.key_state[static_cast<size_t>(key)] = pressed;
-  const GB_key_t gb_key = ToSameBoyKey(key);
-  if (gb_key != GB_KEY_MAX) {
-    GB_set_key_state(runtime.gb, gb_key, pressed);
+  const SBA_Key gb_key = ToSameBoyKey(key);
+  if (static_cast<int>(gb_key) >= 0) {
+    SBA_set_key_state(runtime.gb, gb_key, pressed);
   }
 }
 
@@ -139,7 +133,7 @@ bool SaveStateToBuffer(Runtime& runtime, void* out_buffer, size_t buffer_size, s
     last_error = "SameBoy core is not initialized";
     return false;
   }
-  const size_t required_size = GB_get_save_state_size(runtime.gb);
+  const size_t required_size = SBA_get_save_state_size(runtime.gb);
   if (out_size != nullptr) {
     *out_size = required_size;
   }
@@ -150,7 +144,7 @@ bool SaveStateToBuffer(Runtime& runtime, void* out_buffer, size_t buffer_size, s
     last_error = "state buffer is too small";
     return false;
   }
-  GB_save_state_to_buffer(runtime.gb, static_cast<uint8_t*>(out_buffer));
+  SBA_save_state_to_buffer(runtime.gb, static_cast<uint8_t*>(out_buffer));
   return true;
 }
 
@@ -163,7 +157,7 @@ bool LoadStateFromBuffer(Runtime& runtime, const void* state_buffer, size_t stat
     last_error = "invalid save-state buffer";
     return false;
   }
-  if (GB_load_state_from_buffer(runtime.gb, static_cast<const uint8_t*>(state_buffer), state_size) != 0) {
+  if (SBA_load_state_from_buffer(runtime.gb, static_cast<const uint8_t*>(state_buffer), state_size) != 0) {
     last_error = "failed to load save-state buffer";
     return false;
   }
@@ -179,7 +173,7 @@ bool ApplyCheatCode(Runtime& runtime, const char* cheat_code, std::string& last_
     last_error = "cheat code is empty";
     return false;
   }
-  if (GB_import_cheat(runtime.gb, cheat_code, "", true) == nullptr) {
+  if (!SBA_import_cheat(runtime.gb, cheat_code)) {
     last_error = "failed to apply GB cheat code";
     return false;
   }

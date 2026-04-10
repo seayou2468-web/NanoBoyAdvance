@@ -1,3 +1,7 @@
+#ifndef GB_INTERNAL
+#define GB_INTERNAL
+#endif
+
 #include "gb.h"
 
 void GB_cheat_search_reset(GB_gameboy_t *gb)

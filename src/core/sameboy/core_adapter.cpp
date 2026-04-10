@@ -11,8 +11,7 @@ void* CreateRuntime() {
 void DestroyRuntime(void* runtime) {
   auto* sameboy_runtime = static_cast<core::sameboy::Runtime*>(runtime);
   if (sameboy_runtime != nullptr && sameboy_runtime->gb != nullptr) {
-    GB_free(sameboy_runtime->gb);
-    GB_dealloc(sameboy_runtime->gb);
+    SBA_destroy(sameboy_runtime->gb);
     sameboy_runtime->gb = nullptr;
   }
   delete sameboy_runtime;

@@ -7,14 +7,12 @@
 #include <string>
 #include <vector>
 
-extern "C" {
-#include "gb.h"
-}
+#include "c_api.hpp"
 
 namespace core::sameboy {
 
 struct Runtime {
-  GB_gameboy_t* gb = nullptr;
+  SBA_Gameboy* gb = nullptr;
   std::array<uint32_t, 160U * 144U> frame_rgba{};
   std::array<bool, 10> key_state{};
   std::vector<uint8_t> rom_storage;

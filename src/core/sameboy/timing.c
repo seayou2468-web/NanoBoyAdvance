@@ -1,3 +1,7 @@
+#ifndef GB_INTERNAL
+#define GB_INTERNAL
+#endif
+
 #include "gb.h"
 #ifdef _WIN32
 #ifndef _WIN32_WINNT
