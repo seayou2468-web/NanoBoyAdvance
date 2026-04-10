@@ -99,7 +99,7 @@ bool ApplyCheatCode(void* runtime, const char* cheat_code, std::string& last_err
 
 namespace core {
 
-const CoreAdapter kQuickNesAdapter = {
+extern const CoreAdapter kQuickNesAdapter = {
   .name = "quick_nes",
   .type = EMULATOR_CORE_TYPE_NES,
   .create_runtime = CreateRuntime,
