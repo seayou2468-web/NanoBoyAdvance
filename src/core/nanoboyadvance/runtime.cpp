@@ -23,7 +23,11 @@ public:
       std::fill(frame_.begin(), frame_.end(), 0u);
       return;
     }
-    std::copy_n(buffer, frame_.size(), frame_.begin());
+    for (size_t i = 0; i < frame_.size(); ++i) {
+      const uint32_t pixel = buffer[i];  // input: 0xAARRGGBB
+      frame_[i] = (pixel & 0xFF00FF00U) | ((pixel & 0x00FF0000U) >> 16U) | ((pixel & 0x000000FFU) << 16U);
+      // output bytes in memory become RGBA for MTLPixelFormatRGBA8Unorm uploads.
+    }
   }
 
   const uint32_t* Data() const {
