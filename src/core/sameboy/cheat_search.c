@@ -3,6 +3,7 @@
 #endif
 
 #include "gb.h"
+#include <stdlib.h>
 
 void GB_cheat_search_reset(GB_gameboy_t *gb)
 {

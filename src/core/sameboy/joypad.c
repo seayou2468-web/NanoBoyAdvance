@@ -5,6 +5,7 @@
 #include "gb.h"
 #include <assert.h>
 #include <math.h>
+#include <stdlib.h>
 
 static inline bool should_bounce(GB_gameboy_t *gb)
 {
