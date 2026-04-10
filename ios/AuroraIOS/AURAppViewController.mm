@@ -21,6 +21,10 @@ static const NSUInteger kDefaultHeight = 160;
 @property (nonatomic, strong) UIButton*      emulatorModeButton;
 @property (nonatomic, strong) UIButton*      controllerModeButton;
 @property (nonatomic, strong) UIButton*      appMenuButton;
+@property (nonatomic, strong) UIView*        menuOverlayView;
+@property (nonatomic, strong) UIView*        menuCardView;
+@property (nonatomic, strong) UILabel*       menuTitleLabel;
+@property (nonatomic, strong) UIStackView*   menuStackView;
 @property (nonatomic, strong) UITextView*    logTextView;
 @property (nonatomic, strong) UIView*        controlsContainer;
 @property (nonatomic, strong) CADisplayLink* displayLink;
@@ -32,6 +36,8 @@ static const NSUInteger kDefaultHeight = 160;
 - (void)presentControllerMenu;
 - (void)presentAppMenu;
 - (void)presentVideoSettingsMenu;
+- (void)presentCustomMenuWithTitle:(NSString*)title actions:(NSArray<NSDictionary*>*)actions;
+- (void)dismissCustomMenu;
 - (void)applyControllerPreset;
 - (NSString*)coreTypeLabel:(EmulatorCoreType)type;
 @end
@@ -49,12 +55,20 @@ static const NSUInteger kDefaultHeight = 160;
     NSInteger       _forcedCoreTypeValue;
     NSInteger       _gbaControllerPreset; // 0: standard, 1: compact
     NSInteger       _nesControllerPreset; // 0: standard, 1: compact
+    NSInteger       _gbControllerPreset;  // 0: standard, 1: compact
     UIButton*       _lButton;
     UIButton*       _rButton;
     UIButton*       _aButton;
     UIButton*       _bButton;
     UIButton*       _startButton;
     UIButton*       _selectButton;
+    NSLayoutConstraint* _aButtonSize;
+    NSLayoutConstraint* _bButtonSize;
+    NSLayoutConstraint* _lButtonSize;
+    NSLayoutConstraint* _rButtonSize;
+    NSLayoutConstraint* _startButtonSize;
+    NSLayoutConstraint* _selectButtonSize;
+    NSMutableArray*  _menuHandlers;
     float           _videoSaturation;
     float           _videoVibrance;
     float           _videoContrast;
@@ -80,6 +94,8 @@ static const NSUInteger kDefaultHeight = 160;
     _forcedCoreTypeValue = EMULATOR_CORE_TYPE_GBA;
     _gbaControllerPreset = 0;
     _nesControllerPreset = 1;
+    _gbControllerPreset = 1;
+    _menuHandlers = [NSMutableArray array];
     _videoSaturation = 1.08f;
     _videoVibrance = 0.30f;
     _videoContrast = 1.06f;
@@ -272,6 +288,24 @@ static const NSUInteger kDefaultHeight = 160;
     _rButton = rBtn;
     _aButton = aBtn;
     _bButton = bBtn;
+    for (NSLayoutConstraint* c in aBtn.constraints) {
+        if (c.firstAttribute == NSLayoutAttributeWidth) { _aButtonSize = c; }
+    }
+    for (NSLayoutConstraint* c in bBtn.constraints) {
+        if (c.firstAttribute == NSLayoutAttributeWidth) { _bButtonSize = c; }
+    }
+    for (NSLayoutConstraint* c in lBtn.constraints) {
+        if (c.firstAttribute == NSLayoutAttributeWidth) { _lButtonSize = c; }
+    }
+    for (NSLayoutConstraint* c in rBtn.constraints) {
+        if (c.firstAttribute == NSLayoutAttributeWidth) { _rButtonSize = c; }
+    }
+    for (NSLayoutConstraint* c in startBtn.constraints) {
+        if (c.firstAttribute == NSLayoutAttributeWidth) { _startButtonSize = c; }
+    }
+    for (NSLayoutConstraint* c in selectBtn.constraints) {
+        if (c.firstAttribute == NSLayoutAttributeWidth) { _selectButtonSize = c; }
+    }
     UIStackView* shoulderRow = [[UIStackView alloc] initWithArrangedSubviews:@[lBtn, rBtn]];
     shoulderRow.axis = UILayoutConstraintAxisHorizontal;
     shoulderRow.spacing = 10.0;
@@ -385,6 +419,54 @@ static const NSUInteger kDefaultHeight = 160;
         [controlsMainStack.trailingAnchor constraintEqualToAnchor:self.controlsContainer.trailingAnchor constant:-12],
         [controlsMainStack.topAnchor constraintEqualToAnchor:self.controlsContainer.topAnchor constant:10],
         [controlsMainStack.bottomAnchor constraintEqualToAnchor:self.controlsContainer.bottomAnchor constant:-10],
+    ]];
+
+    self.menuOverlayView = [[UIView alloc] initWithFrame:CGRectZero];
+    self.menuOverlayView.translatesAutoresizingMaskIntoConstraints = NO;
+    self.menuOverlayView.hidden = YES;
+    self.menuOverlayView.backgroundColor = [UIColor colorWithWhite:0 alpha:0.42];
+    UITapGestureRecognizer* overlayTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dismissCustomMenu)];
+    overlayTap.cancelsTouchesInView = NO;
+    [self.menuOverlayView addGestureRecognizer:overlayTap];
+    [self.view addSubview:self.menuOverlayView];
+
+    self.menuCardView = [[UIView alloc] initWithFrame:CGRectZero];
+    self.menuCardView.translatesAutoresizingMaskIntoConstraints = NO;
+    self.menuCardView.backgroundColor = UIColor.secondarySystemBackgroundColor;
+    self.menuCardView.layer.cornerRadius = 16.0;
+    self.menuCardView.layer.masksToBounds = YES;
+    self.menuCardView.userInteractionEnabled = YES;
+    [self.menuOverlayView addSubview:self.menuCardView];
+
+    self.menuTitleLabel = [[UILabel alloc] initWithFrame:CGRectZero];
+    self.menuTitleLabel.translatesAutoresizingMaskIntoConstraints = NO;
+    self.menuTitleLabel.font = [UIFont systemFontOfSize:18 weight:UIFontWeightBold];
+    self.menuTitleLabel.textAlignment = NSTextAlignmentCenter;
+    [self.menuCardView addSubview:self.menuTitleLabel];
+
+    self.menuStackView = [[UIStackView alloc] initWithFrame:CGRectZero];
+    self.menuStackView.translatesAutoresizingMaskIntoConstraints = NO;
+    self.menuStackView.axis = UILayoutConstraintAxisVertical;
+    self.menuStackView.spacing = 8.0;
+    [self.menuCardView addSubview:self.menuStackView];
+
+    [NSLayoutConstraint activateConstraints:@[
+        [self.menuOverlayView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
+        [self.menuOverlayView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],
+        [self.menuOverlayView.topAnchor constraintEqualToAnchor:self.view.topAnchor],
+        [self.menuOverlayView.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor],
+        [self.menuCardView.centerXAnchor constraintEqualToAnchor:self.menuOverlayView.centerXAnchor],
+        [self.menuCardView.centerYAnchor constraintEqualToAnchor:self.menuOverlayView.centerYAnchor],
+        [self.menuCardView.widthAnchor constraintLessThanOrEqualToConstant:360],
+        [self.menuCardView.leadingAnchor constraintGreaterThanOrEqualToAnchor:self.menuOverlayView.leadingAnchor constant:20],
+        [self.menuCardView.trailingAnchor constraintLessThanOrEqualToAnchor:self.menuOverlayView.trailingAnchor constant:-20],
+        [self.menuTitleLabel.leadingAnchor constraintEqualToAnchor:self.menuCardView.leadingAnchor constant:16],
+        [self.menuTitleLabel.trailingAnchor constraintEqualToAnchor:self.menuCardView.trailingAnchor constant:-16],
+        [self.menuTitleLabel.topAnchor constraintEqualToAnchor:self.menuCardView.topAnchor constant:16],
+        [self.menuStackView.leadingAnchor constraintEqualToAnchor:self.menuCardView.leadingAnchor constant:16],
+        [self.menuStackView.trailingAnchor constraintEqualToAnchor:self.menuCardView.trailingAnchor constant:-16],
+        [self.menuStackView.topAnchor constraintEqualToAnchor:self.menuTitleLabel.bottomAnchor constant:14],
+        [self.menuStackView.bottomAnchor constraintEqualToAnchor:self.menuCardView.bottomAnchor constant:-16],
     ]];
 
     [self appendLog:@"ROM は毎回選択モードです（bookmark 復元なし）"];
@@ -501,7 +583,12 @@ static const NSUInteger kDefaultHeight = 160;
     [self.imageView clearFrame];
 
     NSString* ext = url.pathExtension.lowercaseString ?: @"";
-    EmulatorCoreType detectedType = [ext isEqualToString:@"nes"] ? EMULATOR_CORE_TYPE_NES : EMULATOR_CORE_TYPE_GBA;
+    EmulatorCoreType detectedType = EMULATOR_CORE_TYPE_GBA;
+    if ([ext isEqualToString:@"nes"]) {
+        detectedType = EMULATOR_CORE_TYPE_NES;
+    } else if ([ext isEqualToString:@"gb"] || [ext isEqualToString:@"gbc"]) {
+        detectedType = EMULATOR_CORE_TYPE_GB;
+    }
     _coreType = _forceCoreType ? (EmulatorCoreType)_forcedCoreTypeValue : detectedType;
     _core = EmulatorCore_Create(_coreType);
     if (_core == NULL) {
@@ -690,268 +777,316 @@ static const NSUInteger kDefaultHeight = 160;
 }
 
 - (NSString*)coreTypeLabel:(EmulatorCoreType)type {
-    return (type == EMULATOR_CORE_TYPE_NES) ? @"NES" : @"GBA";
+    if (type == EMULATOR_CORE_TYPE_NES) { return @"NES"; }
+    if (type == EMULATOR_CORE_TYPE_GB) { return @"GB/GBC"; }
+    return @"GBA";
 }
 
 - (void)applyControllerPreset {
     BOOL isNES = (_coreType == EMULATOR_CORE_TYPE_NES);
-    NSInteger preset = isNES ? _nesControllerPreset : _gbaControllerPreset;
+    BOOL isGB  = (_coreType == EMULATOR_CORE_TYPE_GB);
+    NSInteger preset = isNES ? _nesControllerPreset : (isGB ? _gbControllerPreset : _gbaControllerPreset);
     BOOL compact = (preset == 1);
+    CGFloat actionSize = compact ? 50.0 : 58.0;
+    CGFloat shoulderSize = compact ? 0.0 : 40.0;
+    CGFloat centerSize = compact ? 36.0 : 44.0;
+    if (isNES || isGB) {
+        actionSize = compact ? 54.0 : 62.0;
+        centerSize = compact ? 34.0 : 42.0;
+    }
+    if (_aButtonSize) _aButtonSize.constant = actionSize;
+    if (_bButtonSize) _bButtonSize.constant = actionSize;
+    if (_lButtonSize) _lButtonSize.constant = shoulderSize;
+    if (_rButtonSize) _rButtonSize.constant = shoulderSize;
+    if (_startButtonSize) _startButtonSize.constant = centerSize;
+    if (_selectButtonSize) _selectButtonSize.constant = centerSize;
 
-    _lButton.hidden = isNES || compact;
-    _rButton.hidden = isNES || compact;
+    _lButton.hidden = isNES || isGB || compact;
+    _rButton.hidden = isNES || isGB || compact;
 
     if (isNES) {
-        [_aButton setTitle:(compact ? @"A" : @"A (NES)") forState:UIControlStateNormal];
-        [_bButton setTitle:(compact ? @"B" : @"B (NES)") forState:UIControlStateNormal];
-        [_startButton setTitle:@"Start (NES)" forState:UIControlStateNormal];
-        [_selectButton setTitle:@"Select (NES)" forState:UIControlStateNormal];
+        [_aButton setTitle:@"A" forState:UIControlStateNormal];
+        [_bButton setTitle:@"B" forState:UIControlStateNormal];
+        [_startButton setTitle:@"START" forState:UIControlStateNormal];
+        [_selectButton setTitle:@"SELECT" forState:UIControlStateNormal];
         _aButton.backgroundColor = [UIColor colorWithRed:0.58 green:0.16 blue:0.16 alpha:1.0];
         _bButton.backgroundColor = [UIColor colorWithRed:0.30 green:0.12 blue:0.52 alpha:1.0];
+    } else if (isGB) {
+        [_aButton setTitle:@"A" forState:UIControlStateNormal];
+        [_bButton setTitle:@"B" forState:UIControlStateNormal];
+        [_startButton setTitle:@"START" forState:UIControlStateNormal];
+        [_selectButton setTitle:@"SELECT" forState:UIControlStateNormal];
+        _aButton.backgroundColor = [UIColor colorWithRed:0.26 green:0.44 blue:0.78 alpha:1.0];
+        _bButton.backgroundColor = [UIColor colorWithRed:0.14 green:0.29 blue:0.56 alpha:1.0];
     } else {
         [_aButton setTitle:@"A" forState:UIControlStateNormal];
         [_bButton setTitle:@"B" forState:UIControlStateNormal];
-        [_startButton setTitle:@"Start" forState:UIControlStateNormal];
-        [_selectButton setTitle:@"Select" forState:UIControlStateNormal];
+        [_startButton setTitle:@"START" forState:UIControlStateNormal];
+        [_selectButton setTitle:@"SELECT" forState:UIControlStateNormal];
         _aButton.backgroundColor = [UIColor colorWithRed:0.18 green:0.20 blue:0.26 alpha:1.0];
         _bButton.backgroundColor = [UIColor colorWithRed:0.18 green:0.20 blue:0.26 alpha:1.0];
     }
-    NSString* controllerText = compact ? @"簡易" : @"標準";
+    NSString* controllerText = [NSString stringWithFormat:@"%@ %@",
+                                [self coreTypeLabel:_coreType], (compact ? @"簡易" : @"標準")];
     [self.controllerModeButton setTitle:[NSString stringWithFormat:@"コントローラー: %@", controllerText]
                                forState:UIControlStateNormal];
 }
 
 - (void)presentEmulatorMenu {
-    UIAlertController* menu =
-        [UIAlertController alertControllerWithTitle:@"エミュレーター選択"
-                                            message:@"ROM拡張子から自動判定、または固定選択できます。"
-                                     preferredStyle:UIAlertControllerStyleActionSheet];
-
     __weak typeof(self) weakSelf = self;
-    [menu addAction:[UIAlertAction actionWithTitle:@"自動判定"
-                                             style:UIAlertActionStyleDefault
-                                           handler:^(__unused UIAlertAction* action) {
-        __strong typeof(weakSelf) strongSelf = weakSelf;
-        if (!strongSelf) { return; }
-        strongSelf->_forceCoreType = NO;
-        [strongSelf.emulatorModeButton setTitle:@"エミュ: 自動" forState:UIControlStateNormal];
-        [strongSelf appendLog:@"エミュレーター選択: 自動判定"];
-    }]];
-
-    [menu addAction:[UIAlertAction actionWithTitle:@"GBA 固定"
-                                             style:UIAlertActionStyleDefault
-                                           handler:^(__unused UIAlertAction* action) {
-        __strong typeof(weakSelf) strongSelf = weakSelf;
-        if (!strongSelf) { return; }
-        strongSelf->_forceCoreType = YES;
-        strongSelf->_forcedCoreTypeValue = EMULATOR_CORE_TYPE_GBA;
-        [strongSelf.emulatorModeButton setTitle:@"エミュ: GBA 固定" forState:UIControlStateNormal];
-        [strongSelf appendLog:@"エミュレーター選択: GBA 固定"];
-    }]];
-
-    [menu addAction:[UIAlertAction actionWithTitle:@"NES 固定"
-                                             style:UIAlertActionStyleDefault
-                                           handler:^(__unused UIAlertAction* action) {
-        __strong typeof(weakSelf) strongSelf = weakSelf;
-        if (!strongSelf) { return; }
-        strongSelf->_forceCoreType = YES;
-        strongSelf->_forcedCoreTypeValue = EMULATOR_CORE_TYPE_NES;
-        [strongSelf.emulatorModeButton setTitle:@"エミュ: NES 固定" forState:UIControlStateNormal];
-        [strongSelf appendLog:@"エミュレーター選択: NES 固定"];
-    }]];
-
-    [menu addAction:[UIAlertAction actionWithTitle:@"キャンセル"
-                                             style:UIAlertActionStyleCancel
-                                           handler:nil]];
-    [self presentViewController:menu animated:YES completion:nil];
+    [self presentCustomMenuWithTitle:@"エミュレーター選択"
+                             actions:@[
+        @{ @"title": @"自動判定", @"handler": [^{
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            if (!strongSelf) { return; }
+            strongSelf->_forceCoreType = NO;
+            [strongSelf.emulatorModeButton setTitle:@"エミュ: 自動" forState:UIControlStateNormal];
+            [strongSelf appendLog:@"エミュレーター選択: 自動判定"];
+        } copy]},
+        @{ @"title": @"GBA 固定", @"handler": [^{
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            if (!strongSelf) { return; }
+            strongSelf->_forceCoreType = YES;
+            strongSelf->_forcedCoreTypeValue = EMULATOR_CORE_TYPE_GBA;
+            [strongSelf.emulatorModeButton setTitle:@"エミュ: GBA 固定" forState:UIControlStateNormal];
+            [strongSelf appendLog:@"エミュレーター選択: GBA 固定"];
+        } copy]},
+        @{ @"title": @"NES 固定", @"handler": [^{
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            if (!strongSelf) { return; }
+            strongSelf->_forceCoreType = YES;
+            strongSelf->_forcedCoreTypeValue = EMULATOR_CORE_TYPE_NES;
+            [strongSelf.emulatorModeButton setTitle:@"エミュ: NES 固定" forState:UIControlStateNormal];
+            [strongSelf appendLog:@"エミュレーター選択: NES 固定"];
+        } copy]},
+        @{ @"title": @"GB/GBC 固定", @"handler": [^{
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            if (!strongSelf) { return; }
+            strongSelf->_forceCoreType = YES;
+            strongSelf->_forcedCoreTypeValue = EMULATOR_CORE_TYPE_GB;
+            [strongSelf.emulatorModeButton setTitle:@"エミュ: GB/GBC 固定" forState:UIControlStateNormal];
+            [strongSelf appendLog:@"エミュレーター選択: GB/GBC 固定"];
+        } copy]},
+    ]];
 }
 
 - (void)presentControllerMenu {
-    UIAlertController* menu =
-        [UIAlertController alertControllerWithTitle:@"コントローラー設定"
-                                            message:@"エミュごとに表示プリセットを切り替えます。"
-                                     preferredStyle:UIAlertControllerStyleActionSheet];
     __weak typeof(self) weakSelf = self;
-    [menu addAction:[UIAlertAction actionWithTitle:@"GBA: 標準"
-                                             style:UIAlertActionStyleDefault
-                                           handler:^(__unused UIAlertAction* action) {
-        __strong typeof(weakSelf) strongSelf = weakSelf;
-        if (!strongSelf) { return; }
-        strongSelf->_gbaControllerPreset = 0;
-        [strongSelf appendLog:@"コントローラー設定: GBA 標準"];
-        [strongSelf applyControllerPreset];
-    }]];
-    [menu addAction:[UIAlertAction actionWithTitle:@"GBA: 簡易"
-                                             style:UIAlertActionStyleDefault
-                                           handler:^(__unused UIAlertAction* action) {
-        __strong typeof(weakSelf) strongSelf = weakSelf;
-        if (!strongSelf) { return; }
-        strongSelf->_gbaControllerPreset = 1;
-        [strongSelf appendLog:@"コントローラー設定: GBA 簡易"];
-        [strongSelf applyControllerPreset];
-    }]];
-    [menu addAction:[UIAlertAction actionWithTitle:@"NES: 標準"
-                                             style:UIAlertActionStyleDefault
-                                           handler:^(__unused UIAlertAction* action) {
-        __strong typeof(weakSelf) strongSelf = weakSelf;
-        if (!strongSelf) { return; }
-        strongSelf->_nesControllerPreset = 0;
-        [strongSelf appendLog:@"コントローラー設定: NES 標準"];
-        [strongSelf applyControllerPreset];
-    }]];
-    [menu addAction:[UIAlertAction actionWithTitle:@"NES: 簡易"
-                                             style:UIAlertActionStyleDefault
-                                           handler:^(__unused UIAlertAction* action) {
-        __strong typeof(weakSelf) strongSelf = weakSelf;
-        if (!strongSelf) { return; }
-        strongSelf->_nesControllerPreset = 1;
-        [strongSelf appendLog:@"コントローラー設定: NES 簡易"];
-        [strongSelf applyControllerPreset];
-    }]];
-    [menu addAction:[UIAlertAction actionWithTitle:@"キャンセル"
-                                             style:UIAlertActionStyleCancel
-                                           handler:nil]];
-    [self presentViewController:menu animated:YES completion:nil];
+    [self presentCustomMenuWithTitle:@"コントローラー設定"
+                             actions:@[
+        @{ @"title": @"GBA: 標準", @"handler": [^{
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            if (!strongSelf) { return; }
+            strongSelf->_gbaControllerPreset = 0;
+            [strongSelf appendLog:@"コントローラー設定: GBA 標準"];
+            [strongSelf applyControllerPreset];
+        } copy]},
+        @{ @"title": @"GBA: 簡易", @"handler": [^{
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            if (!strongSelf) { return; }
+            strongSelf->_gbaControllerPreset = 1;
+            [strongSelf appendLog:@"コントローラー設定: GBA 簡易"];
+            [strongSelf applyControllerPreset];
+        } copy]},
+        @{ @"title": @"NES: 標準", @"handler": [^{
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            if (!strongSelf) { return; }
+            strongSelf->_nesControllerPreset = 0;
+            [strongSelf appendLog:@"コントローラー設定: NES 標準"];
+            [strongSelf applyControllerPreset];
+        } copy]},
+        @{ @"title": @"NES: 簡易", @"handler": [^{
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            if (!strongSelf) { return; }
+            strongSelf->_nesControllerPreset = 1;
+            [strongSelf appendLog:@"コントローラー設定: NES 簡易"];
+            [strongSelf applyControllerPreset];
+        } copy]},
+        @{ @"title": @"GB/GBC: 標準", @"handler": [^{
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            if (!strongSelf) { return; }
+            strongSelf->_gbControllerPreset = 0;
+            [strongSelf appendLog:@"コントローラー設定: GB/GBC 標準"];
+            [strongSelf applyControllerPreset];
+        } copy]},
+        @{ @"title": @"GB/GBC: 簡易", @"handler": [^{
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            if (!strongSelf) { return; }
+            strongSelf->_gbControllerPreset = 1;
+            [strongSelf appendLog:@"コントローラー設定: GB/GBC 簡易"];
+            [strongSelf applyControllerPreset];
+        } copy]},
+    ]];
 }
 
 - (void)presentAppMenu {
-    UIAlertController* menu =
-        [UIAlertController alertControllerWithTitle:@"マルチエミュメニュー"
-                                            message:@"設定・セーブ・チートなどの機能入口です。"
-                                     preferredStyle:UIAlertControllerStyleActionSheet];
     __weak typeof(self) weakSelf = self;
-    [menu addAction:[UIAlertAction actionWithTitle:@"映像設定 (画質/シェーダー/彩度)"
-                                             style:UIAlertActionStyleDefault
-                                           handler:^(__unused UIAlertAction* action) {
-        __strong typeof(weakSelf) strongSelf = weakSelf;
-        if (!strongSelf) { return; }
-        [strongSelf presentVideoSettingsMenu];
-    }]];
-    [menu addAction:[UIAlertAction actionWithTitle:@"ステートセーブ"
-                                             style:UIAlertActionStyleDefault
-                                           handler:^(__unused UIAlertAction* action) {
-        __strong typeof(weakSelf) strongSelf = weakSelf;
-        if (!strongSelf) { return; }
-        strongSelf.statusLabel.text = @"選択: ステートセーブ";
-        [strongSelf appendLog:@"メニュー選択: ステートセーブ"];
-    }]];
-    [menu addAction:[UIAlertAction actionWithTitle:@"ステートロード"
-                                             style:UIAlertActionStyleDefault
-                                           handler:^(__unused UIAlertAction* action) {
-        __strong typeof(weakSelf) strongSelf = weakSelf;
-        if (!strongSelf) { return; }
-        strongSelf.statusLabel.text = @"選択: ステートロード";
-        [strongSelf appendLog:@"メニュー選択: ステートロード"];
-    }]];
-    [menu addAction:[UIAlertAction actionWithTitle:@"チート管理"
-                                             style:UIAlertActionStyleDefault
-                                           handler:^(__unused UIAlertAction* action) {
-        __strong typeof(weakSelf) strongSelf = weakSelf;
-        if (!strongSelf) { return; }
-        strongSelf.statusLabel.text = @"選択: チート管理";
-        [strongSelf appendLog:@"メニュー選択: チート管理"];
-    }]];
-    [menu addAction:[UIAlertAction actionWithTitle:@"エミュ切替メニュー"
-                                             style:UIAlertActionStyleDefault
-                                           handler:^(__unused UIAlertAction* action) {
-        __strong typeof(weakSelf) strongSelf = weakSelf;
-        if (!strongSelf) { return; }
-        [strongSelf presentEmulatorMenu];
-    }]];
-    [menu addAction:[UIAlertAction actionWithTitle:@"キャンセル"
-                                             style:UIAlertActionStyleCancel
-                                           handler:nil]];
-    [self presentViewController:menu animated:YES completion:nil];
+    [self presentCustomMenuWithTitle:@"マルチエミュメニュー"
+                             actions:@[
+        @{ @"title": @"映像設定 (画質/シェーダー/彩度)", @"handler": [^{
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            if (!strongSelf) { return; }
+            [strongSelf presentVideoSettingsMenu];
+        } copy]},
+        @{ @"title": @"ステートセーブ", @"handler": [^{
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            if (!strongSelf) { return; }
+            strongSelf.statusLabel.text = @"選択: ステートセーブ";
+            [strongSelf appendLog:@"メニュー選択: ステートセーブ"];
+        } copy]},
+        @{ @"title": @"ステートロード", @"handler": [^{
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            if (!strongSelf) { return; }
+            strongSelf.statusLabel.text = @"選択: ステートロード";
+            [strongSelf appendLog:@"メニュー選択: ステートロード"];
+        } copy]},
+        @{ @"title": @"チート管理", @"handler": [^{
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            if (!strongSelf) { return; }
+            strongSelf.statusLabel.text = @"選択: チート管理";
+            [strongSelf appendLog:@"メニュー選択: チート管理"];
+        } copy]},
+        @{ @"title": @"エミュ切替メニュー", @"handler": [^{
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            if (!strongSelf) { return; }
+            [strongSelf presentEmulatorMenu];
+        } copy]},
+    ]];
 }
 
 - (void)presentVideoSettingsMenu {
-    UIAlertController* menu =
-        [UIAlertController alertControllerWithTitle:@"映像設定"
-                                            message:@"画質・シェーダー・彩度などを選択します。"
-                                     preferredStyle:UIAlertControllerStyleActionSheet];
     __weak typeof(self) weakSelf = self;
-    [menu addAction:[UIAlertAction actionWithTitle:@"画質: 高画質 (Bicubic)"
-                                             style:UIAlertActionStyleDefault
-                                           handler:^(__unused UIAlertAction* action) {
-        __strong typeof(weakSelf) strongSelf = weakSelf;
-        if (!strongSelf) { return; }
-        strongSelf->_upscaleMode = AURUpscaleModeQuality;
-        [strongSelf.imageView setUpscaleMode:strongSelf->_upscaleMode];
-        [strongSelf appendLog:@"映像設定: 高画質アップスケール"];
-    }]];
-    [menu addAction:[UIAlertAction actionWithTitle:@"画質: バランス (自動)"
-                                             style:UIAlertActionStyleDefault
-                                           handler:^(__unused UIAlertAction* action) {
-        __strong typeof(weakSelf) strongSelf = weakSelf;
-        if (!strongSelf) { return; }
-        strongSelf->_upscaleMode = AURUpscaleModeAuto;
-        [strongSelf.imageView setUpscaleMode:strongSelf->_upscaleMode];
-        [strongSelf appendLog:@"映像設定: バランス（自動）"];
-    }]];
-    [menu addAction:[UIAlertAction actionWithTitle:@"画質: 省電力 (高速)"
-                                             style:UIAlertActionStyleDefault
-                                           handler:^(__unused UIAlertAction* action) {
-        __strong typeof(weakSelf) strongSelf = weakSelf;
-        if (!strongSelf) { return; }
-        strongSelf->_upscaleMode = AURUpscaleModePerformance;
-        [strongSelf.imageView setUpscaleMode:strongSelf->_upscaleMode];
-        [strongSelf appendLog:@"映像設定: 省電力アップスケール"];
-    }]];
-    [menu addAction:[UIAlertAction actionWithTitle:@"見え方: 鮮やか"
-                                             style:UIAlertActionStyleDefault
-                                           handler:^(__unused UIAlertAction* action) {
-        __strong typeof(weakSelf) strongSelf = weakSelf;
-        if (!strongSelf) { return; }
-        strongSelf->_videoSaturation = 1.16f;
-        strongSelf->_videoVibrance   = 0.40f;
-        strongSelf->_videoContrast   = 1.10f;
-        strongSelf->_videoSharpen    = 0.22f;
-        strongSelf->_videoLutMix     = 0.22f;
-        [strongSelf.imageView setPostProcessSaturation:strongSelf->_videoSaturation
-                                              vibrance:strongSelf->_videoVibrance
-                                              contrast:strongSelf->_videoContrast
-                                               sharpen:strongSelf->_videoSharpen
-                                                lutMix:strongSelf->_videoLutMix];
-        [strongSelf appendLog:@"見え方補正: 鮮やかプリセット"];
-    }]];
-    [menu addAction:[UIAlertAction actionWithTitle:@"見え方: 標準"
-                                             style:UIAlertActionStyleDefault
-                                           handler:^(__unused UIAlertAction* action) {
-        __strong typeof(weakSelf) strongSelf = weakSelf;
-        if (!strongSelf) { return; }
-        strongSelf->_videoSaturation = 1.08f;
-        strongSelf->_videoVibrance   = 0.30f;
-        strongSelf->_videoContrast   = 1.06f;
-        strongSelf->_videoSharpen    = 0.18f;
-        strongSelf->_videoLutMix     = 0.15f;
-        [strongSelf.imageView setPostProcessSaturation:strongSelf->_videoSaturation
-                                              vibrance:strongSelf->_videoVibrance
-                                              contrast:strongSelf->_videoContrast
-                                               sharpen:strongSelf->_videoSharpen
-                                                lutMix:strongSelf->_videoLutMix];
-        [strongSelf appendLog:@"見え方補正: 標準プリセット"];
-    }]];
-    [menu addAction:[UIAlertAction actionWithTitle:@"見え方: ナチュラル"
-                                             style:UIAlertActionStyleDefault
-                                           handler:^(__unused UIAlertAction* action) {
-        __strong typeof(weakSelf) strongSelf = weakSelf;
-        if (!strongSelf) { return; }
-        strongSelf->_videoSaturation = 1.00f;
-        strongSelf->_videoVibrance   = 0.12f;
-        strongSelf->_videoContrast   = 1.02f;
-        strongSelf->_videoSharpen    = 0.08f;
-        strongSelf->_videoLutMix     = 0.05f;
-        [strongSelf.imageView setPostProcessSaturation:strongSelf->_videoSaturation
-                                              vibrance:strongSelf->_videoVibrance
-                                              contrast:strongSelf->_videoContrast
-                                               sharpen:strongSelf->_videoSharpen
-                                                lutMix:strongSelf->_videoLutMix];
-        [strongSelf appendLog:@"見え方補正: ナチュラルプリセット"];
-    }]];
-    [menu addAction:[UIAlertAction actionWithTitle:@"キャンセル"
-                                             style:UIAlertActionStyleCancel
-                                           handler:nil]];
-    [self presentViewController:menu animated:YES completion:nil];
+    [self presentCustomMenuWithTitle:@"映像設定"
+                             actions:@[
+        @{ @"title": @"画質: 高画質 (Bicubic)", @"handler": [^{
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            if (!strongSelf) { return; }
+            strongSelf->_upscaleMode = AURUpscaleModeQuality;
+            [strongSelf.imageView setUpscaleMode:strongSelf->_upscaleMode];
+            [strongSelf appendLog:@"映像設定: 高画質アップスケール"];
+        } copy]},
+        @{ @"title": @"画質: バランス (自動)", @"handler": [^{
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            if (!strongSelf) { return; }
+            strongSelf->_upscaleMode = AURUpscaleModeAuto;
+            [strongSelf.imageView setUpscaleMode:strongSelf->_upscaleMode];
+            [strongSelf appendLog:@"映像設定: バランス（自動）"];
+        } copy]},
+        @{ @"title": @"画質: 省電力 (高速)", @"handler": [^{
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            if (!strongSelf) { return; }
+            strongSelf->_upscaleMode = AURUpscaleModePerformance;
+            [strongSelf.imageView setUpscaleMode:strongSelf->_upscaleMode];
+            [strongSelf appendLog:@"映像設定: 省電力アップスケール"];
+        } copy]},
+        @{ @"title": @"見え方: 鮮やか", @"handler": [^{
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            if (!strongSelf) { return; }
+            strongSelf->_videoSaturation = 1.16f;
+            strongSelf->_videoVibrance   = 0.40f;
+            strongSelf->_videoContrast   = 1.10f;
+            strongSelf->_videoSharpen    = 0.22f;
+            strongSelf->_videoLutMix     = 0.22f;
+            [strongSelf.imageView setPostProcessSaturation:strongSelf->_videoSaturation
+                                                  vibrance:strongSelf->_videoVibrance
+                                                  contrast:strongSelf->_videoContrast
+                                                   sharpen:strongSelf->_videoSharpen
+                                                    lutMix:strongSelf->_videoLutMix];
+            [strongSelf appendLog:@"見え方補正: 鮮やかプリセット"];
+        } copy]},
+        @{ @"title": @"見え方: 標準", @"handler": [^{
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            if (!strongSelf) { return; }
+            strongSelf->_videoSaturation = 1.08f;
+            strongSelf->_videoVibrance   = 0.30f;
+            strongSelf->_videoContrast   = 1.06f;
+            strongSelf->_videoSharpen    = 0.18f;
+            strongSelf->_videoLutMix     = 0.15f;
+            [strongSelf.imageView setPostProcessSaturation:strongSelf->_videoSaturation
+                                                  vibrance:strongSelf->_videoVibrance
+                                                  contrast:strongSelf->_videoContrast
+                                                   sharpen:strongSelf->_videoSharpen
+                                                    lutMix:strongSelf->_videoLutMix];
+            [strongSelf appendLog:@"見え方補正: 標準プリセット"];
+        } copy]},
+        @{ @"title": @"見え方: ナチュラル", @"handler": [^{
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            if (!strongSelf) { return; }
+            strongSelf->_videoSaturation = 1.00f;
+            strongSelf->_videoVibrance   = 0.12f;
+            strongSelf->_videoContrast   = 1.02f;
+            strongSelf->_videoSharpen    = 0.08f;
+            strongSelf->_videoLutMix     = 0.05f;
+            [strongSelf.imageView setPostProcessSaturation:strongSelf->_videoSaturation
+                                                  vibrance:strongSelf->_videoVibrance
+                                                  contrast:strongSelf->_videoContrast
+                                                   sharpen:strongSelf->_videoSharpen
+                                                    lutMix:strongSelf->_videoLutMix];
+            [strongSelf appendLog:@"見え方補正: ナチュラルプリセット"];
+        } copy]},
+    ]];
+}
+
+- (void)onCustomMenuActionTapped:(UIButton*)sender {
+    NSInteger idx = sender.tag;
+    [self dismissCustomMenu];
+    if (idx < 0 || idx >= (NSInteger)_menuHandlers.count) { return; }
+    id blockObj = _menuHandlers[(NSUInteger)idx];
+    if (blockObj && blockObj != [NSNull null]) {
+        void (^handler)(void) = blockObj;
+        handler();
+    }
+}
+
+- (void)presentCustomMenuWithTitle:(NSString*)title actions:(NSArray<NSDictionary*>*)actions {
+    [self dismissCustomMenu];
+    self.menuTitleLabel.text = title;
+    [_menuHandlers removeAllObjects];
+
+    for (UIView* v in self.menuStackView.arrangedSubviews) {
+        [self.menuStackView removeArrangedSubview:v];
+        [v removeFromSuperview];
+    }
+
+    NSInteger idx = 0;
+    for (NSDictionary* action in actions) {
+        NSString* actionTitle = action[@"title"];
+        id handler = action[@"handler"];
+        if (![actionTitle isKindOfClass:[NSString class]]) { continue; }
+        UIButton* button = [UIButton buttonWithType:UIButtonTypeSystem];
+        button.translatesAutoresizingMaskIntoConstraints = NO;
+        [button setTitle:actionTitle forState:UIControlStateNormal];
+        button.tag = idx++;
+        button.layer.cornerRadius = 10.0;
+        button.backgroundColor = [UIColor colorWithRed:0.20 green:0.23 blue:0.31 alpha:1.0];
+        button.tintColor = UIColor.whiteColor;
+        button.titleLabel.font = [UIFont systemFontOfSize:16 weight:UIFontWeightSemibold];
+        [button.heightAnchor constraintEqualToConstant:44].active = YES;
+        [button addTarget:self action:@selector(onCustomMenuActionTapped:) forControlEvents:UIControlEventTouchUpInside];
+        [self.menuStackView addArrangedSubview:button];
+        [_menuHandlers addObject:(handler ?: [NSNull null])];
+    }
+
+    UIButton* closeButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    closeButton.translatesAutoresizingMaskIntoConstraints = NO;
+    [closeButton setTitle:@"閉じる" forState:UIControlStateNormal];
+    closeButton.layer.cornerRadius = 10.0;
+    closeButton.backgroundColor = UIColor.tertiarySystemBackgroundColor;
+    [closeButton.heightAnchor constraintEqualToConstant:42].active = YES;
+    [closeButton addTarget:self action:@selector(dismissCustomMenu) forControlEvents:UIControlEventTouchUpInside];
+    [self.menuStackView addArrangedSubview:closeButton];
+
+    self.menuOverlayView.alpha = 0.0;
+    self.menuOverlayView.hidden = NO;
+    [UIView animateWithDuration:0.18 animations:^{
+        self.menuOverlayView.alpha = 1.0;
+    }];
+}
+
+- (void)dismissCustomMenu {
+    if (self.menuOverlayView.hidden) { return; }
+    self.menuOverlayView.hidden = YES;
+    self.menuOverlayView.alpha = 0.0;
 }
 
 - (void)appendLog:(NSString*)message {
