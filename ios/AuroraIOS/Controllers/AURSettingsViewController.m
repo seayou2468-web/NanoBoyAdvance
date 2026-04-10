@@ -1,5 +1,6 @@
 #import "AURSettingsViewController.h"
 #import "../Managers/AURDatabaseManager.h"
+#import "../Managers/AURSkinManager.h"
 #import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 
 @interface AURSettingsViewController () <UITableViewDelegate, UITableViewDataSource, UIDocumentPickerDelegate>
@@ -78,6 +79,15 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    if (indexPath.section == 2 && indexPath.row == 0) {
+        // Import Skin
+        UTType *deltaSkinType = [UTType typeWithFilenameExtension:@"deltaskin"];
+        UIDocumentPickerViewController *picker = [[UIDocumentPickerViewController alloc] initForOpeningContentTypes:@[deltaSkinType ?: UTTypeData] asCopy:YES];
+        picker.delegate = self;
+        picker.view.tag = 1001; // Skin picker tag
+        [self presentViewController:picker animated:YES completion:nil];
+        return;
+    }
     if (indexPath.section == 1) {
         if (indexPath.row == 0) self.pickingCoreType = EMULATOR_CORE_TYPE_GBA;
         else if (indexPath.row == 1) self.pickingCoreType = EMULATOR_CORE_TYPE_GB;
@@ -93,9 +103,18 @@
 - (void)documentPicker:(UIDocumentPickerViewController *)controller didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls {
     NSURL *url = urls.firstObject;
     if (url) {
-        [[AURDatabaseManager sharedManager] setBIOSPath:url.path forCoreType:self.pickingCoreType];
-        [self updateSections];
-        [self.tableView reloadData];
+        if (controller.view.tag == 1001) {
+            [[AURSkinManager sharedManager] importSkinAtURL:url completion:^(BOOL success) {
+                if (success) {
+                    [self updateSections];
+                    [self.tableView reloadData];
+                }
+            }];
+        } else {
+            [[AURDatabaseManager sharedManager] setBIOSPath:url.path forCoreType:self.pickingCoreType];
+            [self updateSections];
+            [self.tableView reloadData];
+        }
     }
 }
 
