@@ -221,6 +221,11 @@ static const NSUInteger kDefaultHeight = 160;
                            action:@selector(presentAppMenu)
                  forControlEvents:UIControlEventTouchUpInside];
     [self.appMenuButton setTitle:@"メニュー" forState:UIControlStateNormal];
+    for (UIButton* button in @[self.emulatorModeButton, self.controllerModeButton, self.appMenuButton]) {
+        button.titleLabel.adjustsFontSizeToFitWidth = YES;
+        button.titleLabel.minimumScaleFactor = 0.70;
+        button.titleLabel.lineBreakMode = NSLineBreakByTruncatingTail;
+    }
 
     UIStackView* modeButtonStack = [[UIStackView alloc] initWithArrangedSubviews:@[
         self.emulatorModeButton, self.controllerModeButton, self.appMenuButton
@@ -270,8 +275,8 @@ static const NSUInteger kDefaultHeight = 160;
         [button.heightAnchor constraintEqualToConstant:36].active = YES;
         return button;
     };
-    UIButton* quickSaveBtn = makeQuickButton(@"クイック保存", @selector(performQuickSave), @"square.and.arrow.down");
-    UIButton* quickLoadBtn = makeQuickButton(@"クイック読込", @selector(performQuickLoad), @"arrow.clockwise.square");
+    UIButton* quickSaveBtn = makeQuickButton(@"保存", @selector(performQuickSave), @"square.and.arrow.down");
+    UIButton* quickLoadBtn = makeQuickButton(@"読込", @selector(performQuickLoad), @"arrow.clockwise.square");
     UIButton* settingsBtn = makeQuickButton(@"設定", @selector(presentSettingsPage), @"slider.horizontal.3");
     UIButton* logsBtn = makeQuickButton(@"ログ", @selector(presentLogViewer), @"doc.text.magnifyingglass");
     self.quickActionStack = [[UIStackView alloc] initWithArrangedSubviews:@[quickSaveBtn, quickLoadBtn, settingsBtn, logsBtn]];
@@ -323,24 +328,6 @@ static const NSUInteger kDefaultHeight = 160;
     UIButton* downBtn = makeKeyButton(@"↓", EMULATOR_KEY_DOWN, 52);
     UIButton* leftBtn = makeKeyButton(@"←", EMULATOR_KEY_LEFT, 52);
     UIButton* rightBtn = makeKeyButton(@"→", EMULATOR_KEY_RIGHT, 52);
-    UIView* dpadView = [[UIView alloc] initWithFrame:CGRectZero];
-    dpadView.translatesAutoresizingMaskIntoConstraints = NO;
-    [dpadView addSubview:upBtn];
-    [dpadView addSubview:downBtn];
-    [dpadView addSubview:leftBtn];
-    [dpadView addSubview:rightBtn];
-    [dpadView.widthAnchor constraintEqualToConstant:156].active = YES;
-    [dpadView.heightAnchor constraintEqualToConstant:156].active = YES;
-    [NSLayoutConstraint activateConstraints:@[
-        [upBtn.centerXAnchor constraintEqualToAnchor:dpadView.centerXAnchor],
-        [upBtn.topAnchor constraintEqualToAnchor:dpadView.topAnchor],
-        [downBtn.centerXAnchor constraintEqualToAnchor:dpadView.centerXAnchor],
-        [downBtn.bottomAnchor constraintEqualToAnchor:dpadView.bottomAnchor],
-        [leftBtn.centerYAnchor constraintEqualToAnchor:dpadView.centerYAnchor],
-        [leftBtn.leadingAnchor constraintEqualToAnchor:dpadView.leadingAnchor],
-        [rightBtn.centerYAnchor constraintEqualToAnchor:dpadView.centerYAnchor],
-        [rightBtn.trailingAnchor constraintEqualToAnchor:dpadView.trailingAnchor],
-    ]];
 
     UIButton* selectBtn = makeKeyButton(@"Select", EMULATOR_KEY_SELECT, 40);
     UIButton* startBtn = makeKeyButton(@"Start", EMULATOR_KEY_START, 40);
@@ -380,22 +367,13 @@ static const NSUInteger kDefaultHeight = 160;
     for (NSLayoutConstraint* c in selectBtn.constraints) {
         if (c.firstAttribute == NSLayoutAttributeWidth) { _selectButtonSize = c; }
     }
-    UIView* actionCluster = [[UIView alloc] initWithFrame:CGRectZero];
-    actionCluster.translatesAutoresizingMaskIntoConstraints = NO;
-    [actionCluster addSubview:aBtn];
-    [actionCluster addSubview:bBtn];
-    [actionCluster.widthAnchor constraintEqualToConstant:152].active = YES;
-    [actionCluster.heightAnchor constraintEqualToConstant:98].active = YES;
-    [NSLayoutConstraint activateConstraints:@[
-        [aBtn.trailingAnchor constraintEqualToAnchor:actionCluster.trailingAnchor],
-        [aBtn.topAnchor constraintEqualToAnchor:actionCluster.topAnchor],
-        [bBtn.leadingAnchor constraintEqualToAnchor:actionCluster.leadingAnchor],
-        [bBtn.bottomAnchor constraintEqualToAnchor:actionCluster.bottomAnchor],
-    ]];
-
-    [self.controlsContainer addSubview:dpadView];
+    [self.controlsContainer addSubview:upBtn];
+    [self.controlsContainer addSubview:downBtn];
+    [self.controlsContainer addSubview:leftBtn];
+    [self.controlsContainer addSubview:rightBtn];
     [self.controlsContainer addSubview:centerStack];
-    [self.controlsContainer addSubview:actionCluster];
+    [self.controlsContainer addSubview:aBtn];
+    [self.controlsContainer addSubview:bBtn];
     [self.controlsContainer addSubview:lBtn];
     [self.controlsContainer addSubview:rBtn];
 
@@ -506,11 +484,19 @@ static const NSUInteger kDefaultHeight = 160;
         [rBtn.topAnchor constraintEqualToAnchor:self.controlsContainer.topAnchor constant:8],
         [rBtn.trailingAnchor constraintEqualToAnchor:self.controlsContainer.trailingAnchor constant:-14],
 
-        [dpadView.leadingAnchor constraintEqualToAnchor:self.controlsContainer.leadingAnchor constant:12],
-        [dpadView.bottomAnchor constraintEqualToAnchor:self.controlsContainer.bottomAnchor constant:-8],
+        [leftBtn.leadingAnchor constraintEqualToAnchor:self.controlsContainer.leadingAnchor constant:12],
+        [leftBtn.bottomAnchor constraintEqualToAnchor:self.controlsContainer.bottomAnchor constant:-22],
+        [upBtn.leadingAnchor constraintEqualToAnchor:leftBtn.trailingAnchor constant:12],
+        [upBtn.bottomAnchor constraintEqualToAnchor:leftBtn.topAnchor constant:-10],
+        [downBtn.leadingAnchor constraintEqualToAnchor:leftBtn.trailingAnchor constant:12],
+        [downBtn.topAnchor constraintEqualToAnchor:leftBtn.bottomAnchor constant:10],
+        [rightBtn.leadingAnchor constraintEqualToAnchor:upBtn.trailingAnchor constant:12],
+        [rightBtn.bottomAnchor constraintEqualToAnchor:leftBtn.bottomAnchor],
 
-        [actionCluster.trailingAnchor constraintEqualToAnchor:self.controlsContainer.trailingAnchor constant:-12],
-        [actionCluster.bottomAnchor constraintEqualToAnchor:self.controlsContainer.bottomAnchor constant:-14],
+        [aBtn.trailingAnchor constraintEqualToAnchor:self.controlsContainer.trailingAnchor constant:-12],
+        [aBtn.bottomAnchor constraintEqualToAnchor:self.controlsContainer.bottomAnchor constant:-20],
+        [bBtn.trailingAnchor constraintEqualToAnchor:aBtn.leadingAnchor constant:-12],
+        [bBtn.bottomAnchor constraintEqualToAnchor:aBtn.bottomAnchor],
 
         [centerStack.centerXAnchor constraintEqualToAnchor:self.controlsContainer.centerXAnchor],
         [centerStack.bottomAnchor constraintEqualToAnchor:self.controlsContainer.bottomAnchor constant:-14],
@@ -945,8 +931,8 @@ static const NSUInteger kDefaultHeight = 160;
     if (isNES) {
         [_aButton setTitle:@"A" forState:UIControlStateNormal];
         [_bButton setTitle:@"B" forState:UIControlStateNormal];
-        [_startButton setTitle:@"START" forState:UIControlStateNormal];
-        [_selectButton setTitle:@"SELECT" forState:UIControlStateNormal];
+        [_startButton setTitle:@"STA" forState:UIControlStateNormal];
+        [_selectButton setTitle:@"SEL" forState:UIControlStateNormal];
         _aButton.backgroundColor = [UIColor colorWithRed:0.58 green:0.16 blue:0.16 alpha:1.0];
         _bButton.backgroundColor = [UIColor colorWithRed:0.30 green:0.12 blue:0.52 alpha:1.0];
         _startButton.backgroundColor = [UIColor colorWithWhite:0.24 alpha:1.0];
@@ -954,8 +940,8 @@ static const NSUInteger kDefaultHeight = 160;
     } else if (isGB) {
         [_aButton setTitle:@"A" forState:UIControlStateNormal];
         [_bButton setTitle:@"B" forState:UIControlStateNormal];
-        [_startButton setTitle:@"START" forState:UIControlStateNormal];
-        [_selectButton setTitle:@"SELECT" forState:UIControlStateNormal];
+        [_startButton setTitle:@"STA" forState:UIControlStateNormal];
+        [_selectButton setTitle:@"SEL" forState:UIControlStateNormal];
         _aButton.backgroundColor = [UIColor colorWithRed:0.26 green:0.44 blue:0.78 alpha:1.0];
         _bButton.backgroundColor = [UIColor colorWithRed:0.14 green:0.29 blue:0.56 alpha:1.0];
         _startButton.backgroundColor = [UIColor colorWithRed:0.26 green:0.30 blue:0.38 alpha:1.0];
@@ -963,8 +949,8 @@ static const NSUInteger kDefaultHeight = 160;
     } else {
         [_aButton setTitle:@"A" forState:UIControlStateNormal];
         [_bButton setTitle:@"B" forState:UIControlStateNormal];
-        [_startButton setTitle:@"START" forState:UIControlStateNormal];
-        [_selectButton setTitle:@"SELECT" forState:UIControlStateNormal];
+        [_startButton setTitle:@"STA" forState:UIControlStateNormal];
+        [_selectButton setTitle:@"SEL" forState:UIControlStateNormal];
         _aButton.backgroundColor = [UIColor colorWithRed:0.18 green:0.20 blue:0.26 alpha:1.0];
         _bButton.backgroundColor = [UIColor colorWithRed:0.18 green:0.20 blue:0.26 alpha:1.0];
         _startButton.backgroundColor = [UIColor colorWithRed:0.20 green:0.24 blue:0.31 alpha:1.0];
@@ -983,7 +969,7 @@ static const NSUInteger kDefaultHeight = 160;
     NSString* controllerText = [NSString stringWithFormat:@"%@ %@",
                                 [self coreTypeLabel:_coreType], (compact ? @"簡易" : @"標準")];
     NSString* modeLabel = _autoControllerPresetSwitch ? @"AUTO" : @"MANUAL";
-    [self.controllerModeButton setTitle:[NSString stringWithFormat:@"コントローラー: %@ (%@)", controllerText, modeLabel]
+    [self.controllerModeButton setTitle:[NSString stringWithFormat:@"コン: %@(%@)", controllerText, modeLabel]
                                forState:UIControlStateNormal];
 }
 
