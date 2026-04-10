@@ -2,6 +2,8 @@
 
 #include <algorithm>
 #include <array>
+#include <cstdio>
+#include <cstring>
 #include <exception>
 #include <limits>
 
@@ -124,13 +126,17 @@ void StepFrame(Runtime& runtime, std::string& last_error) {
   }
 
   const auto& frame = runtime.emu->frame();
+  for (size_t i = 0; i < runtime.palette_rgba_lut.size(); ++i) {
+    const unsigned short color_index = frame.palette[i];
+    const auto rgb = Nes_Emu::nes_colors[color_index % Nes_Emu::color_table_size];
+    runtime.palette_rgba_lut[i] = ToRGBA32(rgb);
+  }
+
   for (size_t y = 0; y < 240U; ++y) {
     const auto* row = frame.pixels + static_cast<ptrdiff_t>(y) * frame.pitch;
+    auto* dst = runtime.frame_rgba.data() + y * 256U;
     for (size_t x = 0; x < 256U; ++x) {
-      const uint8_t palette_index = row[x];
-      const unsigned short color_index = frame.palette[palette_index];
-      const auto rgb = Nes_Emu::nes_colors[color_index % Nes_Emu::color_table_size];
-      runtime.frame_rgba[y * 256U + x] = ToRGBA32(rgb);
+      dst[x] = runtime.palette_rgba_lut[row[x]];
     }
   }
 }
@@ -147,6 +153,78 @@ const uint32_t* GetFrameBufferRGBA(Runtime& runtime, size_t* pixel_count) {
     *pixel_count = kFramePixels;
   }
   return runtime.frame_rgba.data();
+}
+
+bool SaveStateToBuffer(Runtime& runtime, void* out_buffer, size_t buffer_size, size_t* out_size, std::string& last_error) {
+  if (!runtime.emu) {
+    last_error = "NES core is not initialized";
+    return false;
+  }
+  constexpr size_t kStateSize = sizeof(Nes_State);
+  if (out_size != nullptr) {
+    *out_size = kStateSize;
+  }
+  if (out_buffer == nullptr) {
+    return true;
+  }
+  if (buffer_size < kStateSize) {
+    last_error = "state buffer is too small";
+    return false;
+  }
+  Nes_State state{};
+  runtime.emu->save_state(&state);
+  std::memcpy(out_buffer, &state, kStateSize);
+  return true;
+}
+
+bool LoadStateFromBuffer(Runtime& runtime, const void* state_buffer, size_t state_size, std::string& last_error) {
+  if (!runtime.emu) {
+    last_error = "NES core is not initialized";
+    return false;
+  }
+  if (state_buffer == nullptr || state_size != sizeof(Nes_State)) {
+    last_error = "invalid save-state buffer";
+    return false;
+  }
+  Nes_State state{};
+  std::memcpy(&state, state_buffer, sizeof(state));
+  runtime.emu->load_state(state);
+  return true;
+}
+
+bool ApplyCheatCode(Runtime& runtime, const char* cheat_code, std::string& last_error) {
+  if (!runtime.emu) {
+    last_error = "NES core is not initialized";
+    return false;
+  }
+  if (cheat_code == nullptr) {
+    last_error = "cheat code is null";
+    return false;
+  }
+
+  // Supported format: ram:HHHH=VV (hex address/value)
+  unsigned int address = 0;
+  unsigned int value = 0;
+  if (std::sscanf(cheat_code, "ram:%x=%x", &address, &value) != 2) {
+    last_error = "unsupported cheat format (expected ram:HHHH=VV)";
+    return false;
+  }
+  if (value > 0xFFU) {
+    last_error = "RAM cheat value out of range";
+    return false;
+  }
+
+  if (address < Nes_Emu::low_mem_size) {
+    runtime.emu->low_mem()[address] = static_cast<uint8_t>(value);
+    return true;
+  }
+  if (address >= 0x6000U && address < 0x6000U + Nes_Emu::high_mem_size) {
+    runtime.emu->high_mem()[address - 0x6000U] = static_cast<uint8_t>(value);
+    return true;
+  }
+
+  last_error = "RAM cheat address out of writable range";
+  return false;
 }
 
 }  // namespace core::quick_nes

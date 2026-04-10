@@ -57,6 +57,17 @@ bool EmulatorCore_GetVideoSpec(const EmulatorCoreHandle* handle, EmulatorVideoSp
 const uint32_t* EmulatorCore_GetFrameBufferRGBA(EmulatorCoreHandle* handle, size_t* pixel_count);
 const char* EmulatorCore_GetLastError(EmulatorCoreHandle* handle);
 
+// Save/load state as raw binary blob owned by the caller.
+// Pass out_buffer=null to query required size in out_size.
+bool EmulatorCore_SaveStateToBuffer(
+    EmulatorCoreHandle* handle, void* out_buffer, size_t buffer_size, size_t* out_size);
+bool EmulatorCore_LoadStateFromBuffer(
+    EmulatorCoreHandle* handle, const void* state_buffer, size_t state_size);
+
+// Apply a cheat code string.
+// Current implementation supports NES RAM-poke format: "ram:HHHH=VV".
+bool EmulatorCore_ApplyCheatCode(EmulatorCoreHandle* handle, const char* cheat_code);
+
 #ifdef __cplusplus
 }
 #endif

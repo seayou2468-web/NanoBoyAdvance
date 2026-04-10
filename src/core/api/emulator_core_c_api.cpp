@@ -123,4 +123,32 @@ const char* EmulatorCore_GetLastError(EmulatorCoreHandle* handle) {
   return handle->last_error.c_str();
 }
 
+bool EmulatorCore_SaveStateToBuffer(
+    EmulatorCoreHandle* handle, void* out_buffer, size_t buffer_size, size_t* out_size) {
+  if (handle == nullptr || handle->adapter == nullptr || handle->adapter->save_state_to_buffer == nullptr) {
+    return false;
+  }
+  handle->last_error.clear();
+  return handle->adapter->save_state_to_buffer(
+      handle->runtime, out_buffer, buffer_size, out_size, handle->last_error);
+}
+
+bool EmulatorCore_LoadStateFromBuffer(
+    EmulatorCoreHandle* handle, const void* state_buffer, size_t state_size) {
+  if (handle == nullptr || handle->adapter == nullptr || handle->adapter->load_state_from_buffer == nullptr) {
+    return false;
+  }
+  handle->last_error.clear();
+  return handle->adapter->load_state_from_buffer(
+      handle->runtime, state_buffer, state_size, handle->last_error);
+}
+
+bool EmulatorCore_ApplyCheatCode(EmulatorCoreHandle* handle, const char* cheat_code) {
+  if (handle == nullptr || handle->adapter == nullptr || handle->adapter->apply_cheat_code == nullptr) {
+    return false;
+  }
+  handle->last_error.clear();
+  return handle->adapter->apply_cheat_code(handle->runtime, cheat_code, handle->last_error);
+}
+
 }  // extern "C"

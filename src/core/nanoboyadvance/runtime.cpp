@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cstring>
 #include <filesystem>
 #include <fstream>
 #include <vector>
@@ -11,6 +12,7 @@
 #include "nba/include/nba/device/video_device.hpp"
 #include "nba/include/nba/integer.hpp"
 #include "nba/include/nba/rom/rom.hpp"
+#include "nba/include/nba/save_state.hpp"
 
 namespace core::gba {
 
@@ -157,6 +159,51 @@ const uint32_t* GetFrameBufferRGBA(Runtime& runtime, size_t* pixel_count) {
     return nullptr;
   }
   return runtime.video_device->Data();
+}
+
+bool SaveStateToBuffer(Runtime& runtime, void* out_buffer, size_t buffer_size, size_t* out_size, std::string& last_error) {
+  if (!runtime.core) {
+    last_error = "core is not initialized";
+    return false;
+  }
+
+  constexpr size_t kStateSize = sizeof(nba::SaveState);
+  if (out_size != nullptr) {
+    *out_size = kStateSize;
+  }
+  if (out_buffer == nullptr) {
+    return true;
+  }
+  if (buffer_size < kStateSize) {
+    last_error = "state buffer is too small";
+    return false;
+  }
+
+  nba::SaveState state{};
+  runtime.core->CopyState(state);
+  std::memcpy(out_buffer, &state, kStateSize);
+  return true;
+}
+
+bool LoadStateFromBuffer(Runtime& runtime, const void* state_buffer, size_t state_size, std::string& last_error) {
+  if (!runtime.core) {
+    last_error = "core is not initialized";
+    return false;
+  }
+  if (state_buffer == nullptr || state_size != sizeof(nba::SaveState)) {
+    last_error = "invalid save-state buffer";
+    return false;
+  }
+
+  nba::SaveState state{};
+  std::memcpy(&state, state_buffer, sizeof(state));
+  runtime.core->LoadState(state);
+  return true;
+}
+
+bool ApplyCheatCode(Runtime&, const char*, std::string& last_error) {
+  last_error = "cheat is not implemented for GBA core yet";
+  return false;
 }
 
 }  // namespace core::gba

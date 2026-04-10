@@ -68,6 +68,33 @@ const uint32_t* GetFrameBufferRGBA(void* runtime, size_t* pixel_count) {
   return core::quick_nes::GetFrameBufferRGBA(*static_cast<core::quick_nes::Runtime*>(runtime), pixel_count);
 }
 
+bool SaveStateToBuffer(void* runtime, void* out_buffer, size_t buffer_size, size_t* out_size, std::string& last_error) {
+  if (runtime == nullptr) {
+    last_error = "core runtime is not initialized";
+    return false;
+  }
+  return core::quick_nes::SaveStateToBuffer(
+      *static_cast<core::quick_nes::Runtime*>(runtime), out_buffer, buffer_size, out_size, last_error);
+}
+
+bool LoadStateFromBuffer(void* runtime, const void* state_buffer, size_t state_size, std::string& last_error) {
+  if (runtime == nullptr) {
+    last_error = "core runtime is not initialized";
+    return false;
+  }
+  return core::quick_nes::LoadStateFromBuffer(
+      *static_cast<core::quick_nes::Runtime*>(runtime), state_buffer, state_size, last_error);
+}
+
+bool ApplyCheatCode(void* runtime, const char* cheat_code, std::string& last_error) {
+  if (runtime == nullptr) {
+    last_error = "core runtime is not initialized";
+    return false;
+  }
+  return core::quick_nes::ApplyCheatCode(
+      *static_cast<core::quick_nes::Runtime*>(runtime), cheat_code, last_error);
+}
+
 }  // namespace
 
 namespace core {
@@ -84,6 +111,9 @@ const CoreAdapter kQuickNesAdapter = {
   .set_key_status = SetKeyStatus,
   .get_video_spec = GetVideoSpec,
   .get_framebuffer_rgba = GetFrameBufferRGBA,
+  .save_state_to_buffer = SaveStateToBuffer,
+  .load_state_from_buffer = LoadStateFromBuffer,
+  .apply_cheat_code = ApplyCheatCode,
 };
 
 }  // namespace core
