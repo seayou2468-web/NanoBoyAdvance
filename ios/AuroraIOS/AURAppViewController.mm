@@ -3,6 +3,7 @@
 
 #import <QuartzCore/QuartzCore.h>
 #import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
+#import <vector>
 
 extern "C" {
 #include "../../src/core/emulator_core_c_api.h"
@@ -75,6 +76,7 @@ static const NSUInteger kDefaultHeight = 160;
     float           _videoSharpen;
     float           _videoLutMix;
     AURUpscaleMode  _upscaleMode;
+    std::vector<uint32_t> _metalUploadPixels;
 #if DEBUG
     NSUInteger      _frameCounter;
     uint32_t        _lastFrameSample;
@@ -760,7 +762,20 @@ static const NSUInteger kDefaultHeight = 160;
     CFTimeInterval t2 = CACurrentMediaTime();
 #endif
 
-    [self.imageView displayFrameRGBA:frameRGBA width:_videoSpec.width height:_videoSpec.height];
+    const uint32_t* uploadPixels = frameRGBA;
+    if (_videoSpec.pixel_format == EMULATOR_PIXEL_FORMAT_ARGB8888) {
+        _metalUploadPixels.resize(expectedPixels);
+        for (size_t i = 0; i < expectedPixels; ++i) {
+            const uint32_t argb = frameRGBA[i];
+            _metalUploadPixels[i] =
+                (argb & 0xFF000000u) |
+                ((argb & 0x00FF0000u) >> 16u) |
+                (argb & 0x0000FF00u) |
+                ((argb & 0x000000FFu) << 16u);
+        }
+        uploadPixels = _metalUploadPixels.data();
+    }
+    [self.imageView displayFrameRGBA:uploadPixels width:_videoSpec.width height:_videoSpec.height];
 #if DEBUG
     CFTimeInterval t3 = CACurrentMediaTime();
     _frameCounter++;
