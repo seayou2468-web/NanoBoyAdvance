@@ -17,9 +17,12 @@ void DestroyRuntime(void* runtime) {
   delete sameboy_runtime;
 }
 
-bool LoadBIOSFromPath(void*, const char*, std::string& last_error) {
-  last_error = "SameBoy core does not require external BIOS";
-  return false;
+bool LoadBIOSFromPath(void* runtime, const char* bios_path, std::string& last_error) {
+  if (runtime == nullptr) {
+    last_error = "core runtime is not initialized";
+    return false;
+  }
+  return core::sameboy::LoadBIOSFromPath(*static_cast<core::sameboy::Runtime*>(runtime), bios_path, last_error);
 }
 
 bool LoadROMFromPath(void* runtime, const char* rom_path, std::string& last_error) {

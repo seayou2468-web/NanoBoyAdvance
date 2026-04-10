@@ -51,6 +51,18 @@ void SBA_load_rom_from_buffer(SBA_Gameboy* gb, const uint8_t* buffer, size_t siz
     GB_load_rom_from_buffer(gb->gb, buffer, size);
 }
 
+int SBA_load_boot_rom(SBA_Gameboy* gb, const char* path)
+{
+    if (gb == NULL || gb->gb == NULL) return -1;
+    return GB_load_boot_rom(gb->gb, path);
+}
+
+void SBA_load_boot_rom_from_buffer(SBA_Gameboy* gb, const uint8_t* buffer, size_t size)
+{
+    if (gb == NULL || gb->gb == NULL) return;
+    GB_load_boot_rom_from_buffer(gb->gb, buffer, size);
+}
+
 uint64_t SBA_run_frame(SBA_Gameboy* gb)
 {
     if (gb == NULL || gb->gb == NULL) return 0;

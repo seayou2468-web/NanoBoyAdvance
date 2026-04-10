@@ -604,7 +604,7 @@ static const NSUInteger kDefaultHeight = 160;
     [url getResourceValue:&fileSize forKey:NSURLFileSizeKey error:nil];
     [self appendLog:[NSString stringWithFormat:@"ROM サイズ: %@ bytes", fileSize ?: @0]];
 
-    if (_coreType == EMULATOR_CORE_TYPE_GBA && _selectedBIOSPath.length > 0) {
+    if ((_coreType == EMULATOR_CORE_TYPE_GBA || _coreType == EMULATOR_CORE_TYPE_GB) && _selectedBIOSPath.length > 0) {
         [self appendLog:[NSString stringWithFormat:@"BIOS 読み込み: %@", _selectedBIOSPath.lastPathComponent]];
         if (!EmulatorCore_LoadBIOSFromPath(_core, _selectedBIOSPath.fileSystemRepresentation)) {
             const char* err = EmulatorCore_GetLastError(_core);

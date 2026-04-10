@@ -4,12 +4,16 @@
 #include <cstdlib>
 #include <cstring>
 #include <exception>
+#include <filesystem>
+#include <fstream>
 
 namespace core::sameboy {
 
 namespace {
 
 constexpr size_t kFramePixels = 160U * 144U;
+constexpr size_t kMaxRomBytes = 8U * 1024U * 1024U;
+constexpr size_t kMaxBiosBytes = 16U * 1024U;
 
 SBA_Key ToSameBoyKey(int key) {
   switch (key) {
@@ -35,7 +39,31 @@ void ResetCore(Runtime& runtime) {
   if (runtime.gb != nullptr) {
     SBA_use_default_argb_encoder(runtime.gb);
     SBA_set_pixels_output(runtime.gb, runtime.frame_rgba.data());
+    if (!runtime.bios_storage.empty()) {
+      SBA_load_boot_rom_from_buffer(runtime.gb, runtime.bios_storage.data(), runtime.bios_storage.size());
+    }
   }
+}
+
+bool ReadBinaryFile(const std::filesystem::path& path, std::vector<uint8_t>& out, size_t min_size, size_t max_size) {
+  if (!std::filesystem::exists(path) || std::filesystem::is_directory(path)) {
+    return false;
+  }
+
+  std::error_code ec;
+  const auto file_size = std::filesystem::file_size(path, ec);
+  if (ec || file_size < min_size || file_size > max_size) {
+    return false;
+  }
+
+  std::ifstream file(path, std::ios::binary);
+  if (!file.is_open()) {
+    return false;
+  }
+
+  out.resize(static_cast<size_t>(file_size));
+  file.read(reinterpret_cast<char*>(out.data()), static_cast<std::streamsize>(file_size));
+  return file.good() || file.eof();
 }
 
 }  // namespace
@@ -44,6 +72,33 @@ std::unique_ptr<Runtime> CreateRuntime() {
   auto runtime = std::make_unique<Runtime>();
   ResetCore(*runtime);
   return runtime;
+}
+
+bool LoadBIOSFromPath(Runtime& runtime, const char* bios_path, std::string& last_error) {
+  try {
+    if (bios_path == nullptr || bios_path[0] == '\0') {
+      last_error = "BIOS path is empty";
+      return false;
+    }
+
+    std::vector<uint8_t> bios;
+    if (!ReadBinaryFile(std::filesystem::path(bios_path), bios, 256U, kMaxBiosBytes)) {
+      last_error = "failed to read GB boot ROM";
+      return false;
+    }
+
+    runtime.bios_storage = std::move(bios);
+    if (runtime.gb != nullptr) {
+      SBA_load_boot_rom_from_buffer(runtime.gb, runtime.bios_storage.data(), runtime.bios_storage.size());
+    }
+    return true;
+  } catch (const std::exception& e) {
+    last_error = std::string("SameBoy BIOS load exception: ") + e.what();
+    return false;
+  } catch (...) {
+    last_error = "SameBoy BIOS load exception: unknown";
+    return false;
+  }
 }
 
 bool LoadROMFromPath(Runtime& runtime, const char* rom_path, std::string& last_error) {
@@ -59,7 +114,15 @@ bool LoadROMFromPath(Runtime& runtime, const char* rom_path, std::string& last_e
       return false;
     }
 
-    if (SBA_load_rom(runtime.gb, rom_path) != 0) {
+    std::vector<uint8_t> rom_data;
+    if (!ReadBinaryFile(std::filesystem::path(rom_path), rom_data, 192U, kMaxRomBytes)) {
+      last_error = "failed to read GB ROM from path";
+      return false;
+    }
+
+    runtime.rom_storage = std::move(rom_data);
+    SBA_load_rom_from_buffer(runtime.gb, runtime.rom_storage.data(), runtime.rom_storage.size());
+    if (runtime.rom_storage.empty()) {
       last_error = "failed to load GB ROM from path";
       return false;
     }

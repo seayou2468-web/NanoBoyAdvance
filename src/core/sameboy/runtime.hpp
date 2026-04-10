@@ -16,9 +16,11 @@ struct Runtime {
   std::array<uint32_t, 160U * 144U> frame_rgba{};
   std::array<bool, 10> key_state{};
   std::vector<uint8_t> rom_storage;
+  std::vector<uint8_t> bios_storage;
 };
 
 std::unique_ptr<Runtime> CreateRuntime();
+bool LoadBIOSFromPath(Runtime& runtime, const char* bios_path, std::string& last_error);
 bool LoadROMFromPath(Runtime& runtime, const char* rom_path, std::string& last_error);
 bool LoadROMFromMemory(Runtime& runtime, const void* rom_data, size_t rom_size, std::string& last_error);
 void StepFrame(Runtime& runtime, std::string& last_error);
