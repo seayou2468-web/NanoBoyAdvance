@@ -2,10 +2,11 @@
 #import "../Views/AURControllerView.h"
 #import "../Managers/AURSkinManager.h"
 #import "../Managers/AURDatabaseManager.h"
+#import "../Managers/AURExternalControllerManager.h"
 #import "../Metal.h"
 #import <QuartzCore/QuartzCore.h>
 
-@interface AUREmulatorViewController () <AURControllerViewDelegate> {
+@interface AUREmulatorViewController () <AURControllerViewDelegate, AURExternalControllerDelegate> {
     EmulatorCoreHandle* _core;
     EmulatorCoreType    _coreType;
     EmulatorVideoSpec   _videoSpec;
@@ -73,6 +74,9 @@
 
     [self startEmulator];
     [self.controllerView applySkin:[[AURSkinManager sharedManager] skinForCoreType:_coreType isLandscape:NO]];
+
+    [AURExternalControllerManager sharedManager].delegate = self;
+    [[AURExternalControllerManager sharedManager] startMonitoring];
 }
 
 - (void)startEmulator {
@@ -114,6 +118,16 @@
 }
 
 - (void)controllerViewDidReleaseKey:(EmulatorKey)key {
+    if (_core) EmulatorCore_SetKeyStatus(_core, key, false);
+}
+
+#pragma mark - AURExternalControllerDelegate
+
+- (void)externalControllerDidPressKey:(EmulatorKey)key {
+    if (_core) EmulatorCore_SetKeyStatus(_core, key, true);
+}
+
+- (void)externalControllerDidReleaseKey:(EmulatorKey)key {
     if (_core) EmulatorCore_SetKeyStatus(_core, key, false);
 }
 

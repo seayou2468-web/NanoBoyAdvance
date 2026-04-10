@@ -13,36 +13,38 @@
 
 - (AURControllerSkin *)skinForCoreType:(EmulatorCoreType)coreType isLandscape:(BOOL)isLandscape {
     AURControllerSkin *skin = [[AURControllerSkin alloc] init];
-
-    // Logic to define button rects based on the images provided (mocking layout for now)
-    // In a real implementation, these would match the pixel coordinates of the skin PNGs.
-
     NSMutableDictionary *rects = [NSMutableDictionary dictionary];
 
+    // Normalized coordinates based on a 375pt wide reference
     if (coreType == EMULATOR_CORE_TYPE_GBA) {
         skin.name = @"GBA Default";
-        // Mock GBA layout
-        rects[@(EMULATOR_KEY_UP).stringValue] = [NSValue valueWithCGRect:CGRectMake(50, 450, 50, 50)];
-        rects[@(EMULATOR_KEY_DOWN).stringValue] = [NSValue valueWithCGRect:CGRectMake(50, 550, 50, 50)];
-        rects[@(EMULATOR_KEY_LEFT).stringValue] = [NSValue valueWithCGRect:CGRectMake(0, 500, 50, 50)];
-        rects[@(EMULATOR_KEY_RIGHT).stringValue] = [NSValue valueWithCGRect:CGRectMake(100, 500, 50, 50)];
-        rects[@(EMULATOR_KEY_A).stringValue] = [NSValue valueWithCGRect:CGRectMake(300, 500, 60, 60)];
-        rects[@(EMULATOR_KEY_B).stringValue] = [NSValue valueWithCGRect:CGRectMake(230, 530, 60, 60)];
-        rects[@(EMULATOR_KEY_L).stringValue] = [NSValue valueWithCGRect:CGRectMake(0, 400, 80, 40)];
-        rects[@(EMULATOR_KEY_R).stringValue] = [NSValue valueWithCGRect:CGRectMake(280, 400, 80, 40)];
-        rects[@(EMULATOR_KEY_START).stringValue] = [NSValue valueWithCGRect:CGRectMake(200, 650, 60, 30)];
-        rects[@(EMULATOR_KEY_SELECT).stringValue] = [NSValue valueWithCGRect:CGRectMake(100, 650, 60, 30)];
-    } else if (coreType == EMULATOR_CORE_TYPE_NES) {
+        // D-PAD
+        rects[@(EMULATOR_KEY_UP).stringValue] = [NSValue valueWithCGRect:CGRectMake(40, 50, 45, 45)];
+        rects[@(EMULATOR_KEY_DOWN).stringValue] = [NSValue valueWithCGRect:CGRectMake(40, 130, 45, 45)];
+        rects[@(EMULATOR_KEY_LEFT).stringValue] = [NSValue valueWithCGRect:CGRectMake(0, 90, 45, 45)];
+        rects[@(EMULATOR_KEY_RIGHT).stringValue] = [NSValue valueWithCGRect:CGRectMake(80, 90, 45, 45)];
+        // Buttons
+        rects[@(EMULATOR_KEY_A).stringValue] = [NSValue valueWithCGRect:CGRectMake(290, 70, 70, 70)];
+        rects[@(EMULATOR_KEY_B).stringValue] = [NSValue valueWithCGRect:CGRectMake(220, 110, 70, 70)];
+        // Shoulders
+        rects[@(EMULATOR_KEY_L).stringValue] = [NSValue valueWithCGRect:CGRectMake(0, 0, 100, 40)];
+        rects[@(EMULATOR_KEY_R).stringValue] = [NSValue valueWithCGRect:CGRectMake(275, 0, 100, 40)];
+        // System
+        rects[@(EMULATOR_KEY_START).stringValue] = [NSValue valueWithCGRect:CGRectMake(200, 250, 60, 30)];
+        rects[@(EMULATOR_KEY_SELECT).stringValue] = [NSValue valueWithCGRect:CGRectMake(115, 250, 60, 30)];
+    } else {
         skin.name = @"NES Default";
-        // Mock NES layout
-        rects[@(EMULATOR_KEY_UP).stringValue] = [NSValue valueWithCGRect:CGRectMake(60, 460, 40, 40)];
-        rects[@(EMULATOR_KEY_DOWN).stringValue] = [NSValue valueWithCGRect:CGRectMake(60, 540, 40, 40)];
-        rects[@(EMULATOR_KEY_LEFT).stringValue] = [NSValue valueWithCGRect:CGRectMake(20, 500, 40, 40)];
-        rects[@(EMULATOR_KEY_RIGHT).stringValue] = [NSValue valueWithCGRect:CGRectMake(100, 500, 40, 40)];
-        rects[@(EMULATOR_KEY_A).stringValue] = [NSValue valueWithCGRect:CGRectMake(300, 500, 50, 50)];
-        rects[@(EMULATOR_KEY_B).stringValue] = [NSValue valueWithCGRect:CGRectMake(240, 500, 50, 50)];
-        rects[@(EMULATOR_KEY_START).stringValue] = [NSValue valueWithCGRect:CGRectMake(210, 600, 50, 20)];
-        rects[@(EMULATOR_KEY_SELECT).stringValue] = [NSValue valueWithCGRect:CGRectMake(130, 600, 50, 20)];
+        // D-PAD
+        rects[@(EMULATOR_KEY_UP).stringValue] = [NSValue valueWithCGRect:CGRectMake(60, 80, 40, 40)];
+        rects[@(EMULATOR_KEY_DOWN).stringValue] = [NSValue valueWithCGRect:CGRectMake(60, 160, 40, 40)];
+        rects[@(EMULATOR_KEY_LEFT).stringValue] = [NSValue valueWithCGRect:CGRectMake(20, 120, 40, 40)];
+        rects[@(EMULATOR_KEY_RIGHT).stringValue] = [NSValue valueWithCGRect:CGRectMake(100, 120, 40, 40)];
+        // Buttons
+        rects[@(EMULATOR_KEY_A).stringValue] = [NSValue valueWithCGRect:CGRectMake(300, 120, 55, 55)];
+        rects[@(EMULATOR_KEY_B).stringValue] = [NSValue valueWithCGRect:CGRectMake(235, 120, 55, 55)];
+        // System
+        rects[@(EMULATOR_KEY_START).stringValue] = [NSValue valueWithCGRect:CGRectMake(210, 220, 50, 25)];
+        rects[@(EMULATOR_KEY_SELECT).stringValue] = [NSValue valueWithCGRect:CGRectMake(120, 220, 50, 25)];
     }
 
     skin.buttonRects = rects;
