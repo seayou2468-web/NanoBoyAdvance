@@ -28,16 +28,6 @@
 #include "registers.h"
 #include "rthreads/rthreads.h"
 
-#ifdef HOST_WINDOWS
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#define socket_t    SOCKET
-#define sockaddr_t  SOCKADDR
-#ifndef WXPORT
-#include "windriver.h"
-#endif
-#define PCAP_DEVICE_NAME description
-#else
 #include <stddef.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -48,7 +38,6 @@
 #define sockaddr_t  struct sockaddr
 #define closesocket close
 #define PCAP_DEVICE_NAME name
-#endif
 
 #ifndef INVALID_SOCKET
 #define INVALID_SOCKET  (socket_t)-1
@@ -57,25 +46,25 @@
 #define BASEPORT 7000
 #define PACKET_SIZE 65535
 
-// Some platforms need HAVE_REMOTE to work with libpcap, but
-// Apple platforms are not among them.
-#ifndef __APPLE__
-#define HAVE_REMOTE
-#endif
-
-#ifdef HOST_WINDOWS
-#define WPCAP
-#endif
-
-#include <pcap.h>
-typedef struct pcap pcap_t;
+typedef unsigned char u_char;
+struct pcap_pkthdr
+{
+	unsigned int len;
+};
+struct pcap_if
+{
+	pcap_if* next;
+	char* name;
+	char* description;
+};
+typedef struct pcap_if pcap_if_t;
 
 //sometimes this isnt defined
 #ifndef PCAP_OPENFLAG_PROMISCUOUS
 #define PCAP_OPENFLAG_PROMISCUOUS 1
 #endif
 
-// PCAP_ERRBUF_SIZE should 256 bytes according to POSIX libpcap and winpcap.
+// PCAP_ERRBUF_SIZE should be 256 bytes for compatibility with legacy capture APIs.
 // Define it if it isn't available.
 #ifndef PCAP_ERRBUF_SIZE
 #define PCAP_ERRBUF_SIZE 256
@@ -298,7 +287,7 @@ FW_WFCProfile FW_WFCProfile3 = { "",
 #define WIFI_LOG(level, ...) {}
 #endif
 
-// For debugging purposes, the results of libpcap can be written to a file.
+// For debugging purposes, captured packets can be written to a file.
 // Note that enabling this setting can negatively affect emulation performance.
 #define WIFI_SAVE_PCAP_TO_FILE 0
 
@@ -3120,7 +3109,7 @@ static void SoftAP_RXPacketGet_Callback(u_char* userData, const pcap_pkthdr* pkt
 
 	// This is the smallest possible frame size there can be. As of this time:
 	// 14 bytes - The IEEE 802.3 frame header size (EthernetFrameHeader)
-	// 4 bytes - Size of the FCS at the end of every IEEE 802.3 frame. (not included because libpcap is not guaranteed to include this)
+	// 4 bytes - Size of the FCS at the end of every IEEE 802.3 frame. (not included because the capture backend is not guaranteed to include this)
 	if(pktHeader->len <= sizeof(EthernetFrameHeader))
 	{
 		return; // The packet is too small to be of any use.
@@ -3177,7 +3166,7 @@ static void* Infrastructure_RXPacketGetOnThread(void* arg)
 
 void DummyPCapInterface::__CopyErrorString(char* errbuf)
 {
-	const char* errString = "libpcap is not available";
+	const char* errString = "External packet-capture backend is not available";
 	strncpy(errbuf, errString, PCAP_ERRBUF_SIZE);
 }
 
@@ -3223,55 +3212,6 @@ void DummyPCapInterface::breakloop(void* dev)
 {
 	// Do nothing.
 }
-
-#ifndef HOST_WINDOWS
-
-int POSIXPCapInterface::findalldevs(void** alldevs, char* errbuf)
-{
-	return pcap_findalldevs((pcap_if_t**)alldevs, errbuf);
-}
-
-void POSIXPCapInterface::freealldevs(void* alldevs)
-{
-	pcap_freealldevs((pcap_if_t*)alldevs);
-}
-
-void* POSIXPCapInterface::open(const char* source, int snaplen, int flags, int readtimeout, char* errbuf)
-{
-	return pcap_open_live(source, snaplen, flags, readtimeout, errbuf);
-}
-
-void POSIXPCapInterface::close(void* dev)
-{
-	pcap_close((pcap_t*)dev);
-}
-
-int POSIXPCapInterface::setnonblock(void* dev, int nonblock, char* errbuf)
-{
-	return pcap_setnonblock((pcap_t*)dev, nonblock, errbuf);
-}
-
-int POSIXPCapInterface::sendpacket(void* dev, const void* data, int len)
-{
-	return pcap_sendpacket((pcap_t*)dev, (u_char*)data, len);
-}
-
-int POSIXPCapInterface::dispatch(void* dev, int num, void* callback, void* userdata)
-{
-	if(callback == NULL)
-	{
-		return -1;
-	}
-
-	return pcap_dispatch((pcap_t*)dev, num, (pcap_handler)callback, (u_char*)userdata);
-}
-
-void POSIXPCapInterface::breakloop(void* dev)
-{
-	pcap_breakloop((pcap_t*)dev);
-}
-
-#endif
 
 WifiCommInterface::WifiCommInterface()
 {
@@ -3676,7 +3616,7 @@ bool SoftAPCommInterface::Start(WifiHandler* currentWifiHandler)
 	else
 	{
 		this->_bridgeDevice = NULL;
-		WIFI_LOG(1, "SoftAP: No libpcap interface has been set.\n");
+		WIFI_LOG(1, "SoftAP: No packet-capture interface has been set.\n");
 	}
 
 	const bool hasBridgeDevice = (this->_bridgeDevice != NULL);
@@ -3805,13 +3745,8 @@ WifiHandler::WifiHandler()
 
 	_packetCaptureFile = NULL;
 
-	#ifndef HOST_WINDOWS
-	_pcap = new POSIXPCapInterface;
-	_isSocketsSupported = true;
-	#else
 	_pcap = &dummyPCapInterface;
-	_isSocketsSupported = false;
-	#endif
+	_isSocketsSupported = true;
 
 	WIFI_initCRC32Table();
 	Reset();
@@ -4595,7 +4530,7 @@ bool WifiHandler::CommStart()
 		}
 		else
 		{
-			WIFI_LOG(1, "Infrastructure mode requires libpcap for full functionality,\n      but libpcap is not available on this system. Network functions\n      will be disabled for this session.\n");
+			WIFI_LOG(1, "Infrastructure mode requires an external packet-capture backend,\n      but no backend is available in this build. Network functions\n      will be disabled for this session.\n");
 		}
 	}
 
@@ -5154,7 +5089,7 @@ size_t WifiHandler::ConvertDataFrame8023To80211(const u8* inIEEE8023Frame, const
 {
 	size_t sendPacketSize = 0;
 
-	// Convert the libpcap 802.3 header into an NDS-compatible 802.11 header.
+	// Convert the captured 802.3 header into an NDS-compatible 802.11 header.
 	const EthernetFrameHeader& IEEE8023Header = (EthernetFrameHeader&)inIEEE8023Frame[0];
 	WifiDataFrameHeaderDS2STA& IEEE80211Header = (WifiDataFrameHeaderDS2STA&)outIEEE80211Frame[0];
 	IEEE80211Header.fc.value = 0;

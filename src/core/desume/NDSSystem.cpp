@@ -58,9 +58,8 @@
 #include "SPU.h"
 #include "wifi.h"
 #include "Database.h"
-#include "frontend/modules/Disassembler.h"
-
 #if defined(HOST_WINDOWS) && !defined(TARGET_INTERFACE)
+#include "frontend/modules/Disassembler.h"
 #include "display.h"
 extern HWND DisViewWnd[2];
 #endif

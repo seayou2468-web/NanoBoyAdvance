@@ -3260,25 +3260,6 @@ public:
 	virtual void breakloop(void *dev);
 };
 
-#ifndef HOST_WINDOWS
-
-class POSIXPCapInterface : public ClientPCapInterface
-{
-public:
-	virtual ~POSIXPCapInterface() {}
-	
-	virtual int findalldevs(void **alldevs, char *errbuf);
-	virtual void freealldevs(void *alldevs);
-	virtual void* open(const char *source, int snaplen, int flags, int readtimeout, char *errbuf);
-	virtual void close(void *dev);
-	virtual int setnonblock(void *dev, int nonblock, char *errbuf);
-	virtual int sendpacket(void *dev, const void *data, int len);
-	virtual int dispatch(void *dev, int num, void *callback, void *userdata);
-	virtual void breakloop(void *dev);
-};
-
-#endif
-
 class WifiCommInterface
 {
 protected:

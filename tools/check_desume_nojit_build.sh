@@ -14,11 +14,18 @@ exclude_patterns = (
     "movie.cpp",
     "commandline.cpp",
     "frontend/",
+    "metaspu/win32/",
+    "3dnow_win.cpp",
+    "cpu_detect_x86_win.cpp",
     "OGLRender",
     "GPU_Operations_AVX2.cpp",
     "GPU_Operations_SSE2.cpp",
     "GPU_Operations_NEON.cpp",
     "GPU_Operations_AltiVec.cpp",
+    "utils/colorspacehandler/colorspacehandler_AVX2.cpp",
+    "utils/colorspacehandler/colorspacehandler_AVX512.cpp",
+    "utils/colorspacehandler/colorspacehandler_NEON.cpp",
+    "utils/colorspacehandler/colorspacehandler_AltiVec.cpp",
 )
 
 files = []
