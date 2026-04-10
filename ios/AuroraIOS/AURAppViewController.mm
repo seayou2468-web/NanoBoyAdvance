@@ -113,7 +113,7 @@ static const NSUInteger kDefaultHeight = 160;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.view.backgroundColor = UIColor.blackColor;
+    self.view.backgroundColor = [UIColor colorWithRed:0.05 green:0.06 blue:0.09 alpha:1.0];
     _videoSpec.width = (uint32_t)kDefaultWidth;
     _videoSpec.height = (uint32_t)kDefaultHeight;
     _forceCoreType = NO;
@@ -135,19 +135,19 @@ static const NSUInteger kDefaultHeight = 160;
 
     // ImageView
     self.imageView = [[AURMetalView alloc] initWithFrame:CGRectZero];
-    self.imageView.backgroundColor = [UIColor colorWithWhite:0.05 alpha:1.0];
+    self.imageView.backgroundColor = UIColor.blackColor;
     self.imageView.opaque = YES;
-    self.imageView.layer.cornerRadius = 14.0;
+    self.imageView.layer.cornerRadius = 8.0;
     self.imageView.layer.masksToBounds = YES;
     self.imageView.layer.borderWidth = 1.0;
-    self.imageView.layer.borderColor = [UIColor colorWithWhite:0.25 alpha:1.0].CGColor;
+    self.imageView.layer.borderColor = [UIColor colorWithWhite:1.0 alpha:0.12].CGColor;
     self.imageView.translatesAutoresizingMaskIntoConstraints = NO;
     [self.view addSubview:self.imageView];
 
     self.titleLabel = [[UILabel alloc] initWithFrame:CGRectZero];
     self.titleLabel.translatesAutoresizingMaskIntoConstraints = NO;
-    self.titleLabel.text = @"NanoBoyAdvance";
-    self.titleLabel.font = [UIFont systemFontOfSize:22 weight:UIFontWeightBold];
+    self.titleLabel.text = @"NanoBoyAdvance / Retro UI";
+    self.titleLabel.font = [UIFont systemFontOfSize:16 weight:UIFontWeightSemibold];
     self.titleLabel.textAlignment = NSTextAlignmentCenter;
     self.titleLabel.textColor = UIColor.labelColor;
     [self.view addSubview:self.titleLabel];
@@ -155,7 +155,7 @@ static const NSUInteger kDefaultHeight = 160;
     // Status label
     self.statusLabel = [[UILabel alloc] initWithFrame:CGRectZero];
     self.statusLabel.translatesAutoresizingMaskIntoConstraints = NO;
-    self.statusLabel.textColor = UIColor.secondaryLabelColor;
+    self.statusLabel.textColor = [UIColor colorWithRed:0.60 green:0.76 blue:1.0 alpha:0.95];
     self.statusLabel.numberOfLines = 0;
     self.statusLabel.textAlignment = NSTextAlignmentCenter;
     self.statusLabel.font =
@@ -234,6 +234,7 @@ static const NSUInteger kDefaultHeight = 160;
     modeButtonStack.axis = UILayoutConstraintAxisHorizontal;
     modeButtonStack.distribution = UIStackViewDistributionFillEqually;
     modeButtonStack.spacing = 10.0;
+    modeButtonStack.alpha = 0.90;
     [self.view addSubview:modeButtonStack];
 
     UIStackView* fileButtonStack = [[UIStackView alloc] initWithArrangedSubviews:@[self.selectROMButton, self.selectBIOSButton]];
@@ -241,6 +242,7 @@ static const NSUInteger kDefaultHeight = 160;
     fileButtonStack.axis = UILayoutConstraintAxisHorizontal;
     fileButtonStack.distribution = UIStackViewDistributionFillEqually;
     fileButtonStack.spacing = 12.0;
+    fileButtonStack.alpha = 0.90;
     [self.view addSubview:fileButtonStack];
 
     // ROM/実行ログ
@@ -266,6 +268,8 @@ static const NSUInteger kDefaultHeight = 160;
             cfg.image = [UIImage systemImageNamed:iconName];
             cfg.imagePadding = 6;
             cfg.cornerStyle = UIButtonConfigurationCornerStyleCapsule;
+            cfg.baseBackgroundColor = [UIColor colorWithRed:0.07 green:0.15 blue:0.28 alpha:0.92];
+            cfg.baseForegroundColor = [UIColor colorWithRed:0.44 green:0.72 blue:1.0 alpha:1.0];
             button.configuration = cfg;
         } else {
             [button setTitle:title forState:UIControlStateNormal];
@@ -289,9 +293,11 @@ static const NSUInteger kDefaultHeight = 160;
     // Virtual controller
     self.controlsContainer = [[UIView alloc] initWithFrame:CGRectZero];
     self.controlsContainer.translatesAutoresizingMaskIntoConstraints = NO;
-    self.controlsContainer.backgroundColor = [UIColor colorWithWhite:0.08 alpha:0.85];
+    self.controlsContainer.backgroundColor = [UIColor colorWithRed:0.03 green:0.04 blue:0.06 alpha:0.92];
     self.controlsContainer.layer.cornerRadius = 14.0;
     self.controlsContainer.layer.masksToBounds = YES;
+    self.controlsContainer.layer.borderWidth = 1.0;
+    self.controlsContainer.layer.borderColor = [UIColor colorWithWhite:1.0 alpha:0.08].CGColor;
     [self.view addSubview:self.controlsContainer];
     UIButton* (^makeKeyButton)(NSString*, NSInteger, CGFloat) = ^UIButton* (NSString* title, NSInteger key, CGFloat size) {
         AURHitButton* button = [AURHitButton buttonWithType:UIButtonTypeSystem];
@@ -299,10 +305,10 @@ static const NSUInteger kDefaultHeight = 160;
         button.tag = key;
         [button setTitle:title forState:UIControlStateNormal];
         button.tintColor = UIColor.whiteColor;
-        button.backgroundColor = [UIColor colorWithRed:0.18 green:0.20 blue:0.26 alpha:1.0];
-        button.layer.cornerRadius = size * 0.28;
-        button.layer.borderColor = [UIColor colorWithWhite:1.0 alpha:0.08].CGColor;
-        button.layer.borderWidth = 1.0;
+        button.backgroundColor = [UIColor colorWithRed:0.22 green:0.28 blue:0.42 alpha:0.38];
+        button.layer.cornerRadius = size * 0.50;
+        button.layer.borderColor = [UIColor colorWithRed:0.72 green:0.84 blue:1.0 alpha:0.48].CGColor;
+        button.layer.borderWidth = 1.4;
         button.titleLabel.font = [UIFont systemFontOfSize:(size > 50 ? 22 : 14) weight:UIFontWeightSemibold];
         button.titleLabel.adjustsFontSizeToFitWidth = YES;
         button.titleLabel.minimumScaleFactor = 0.60;
@@ -329,8 +335,8 @@ static const NSUInteger kDefaultHeight = 160;
     UIButton* leftBtn = makeKeyButton(@"←", EMULATOR_KEY_LEFT, 52);
     UIButton* rightBtn = makeKeyButton(@"→", EMULATOR_KEY_RIGHT, 52);
 
-    UIButton* selectBtn = makeKeyButton(@"Select", EMULATOR_KEY_SELECT, 40);
-    UIButton* startBtn = makeKeyButton(@"Start", EMULATOR_KEY_START, 40);
+    UIButton* selectBtn = makeKeyButton(@"SEL", EMULATOR_KEY_SELECT, 38);
+    UIButton* startBtn = makeKeyButton(@"STA", EMULATOR_KEY_START, 38);
     _selectButton = selectBtn;
     _startButton = startBtn;
     selectBtn.titleLabel.font = [UIFont systemFontOfSize:13 weight:UIFontWeightSemibold];
@@ -341,10 +347,10 @@ static const NSUInteger kDefaultHeight = 160;
     centerStack.distribution = UIStackViewDistributionFillEqually;
     centerStack.translatesAutoresizingMaskIntoConstraints = NO;
 
-    UIButton* lBtn = makeKeyButton(@"L", EMULATOR_KEY_L, 40);
-    UIButton* rBtn = makeKeyButton(@"R", EMULATOR_KEY_R, 40);
-    UIButton* bBtn = makeKeyButton(@"B", EMULATOR_KEY_B, 56);
-    UIButton* aBtn = makeKeyButton(@"A", EMULATOR_KEY_A, 56);
+    UIButton* lBtn = makeKeyButton(@"L", EMULATOR_KEY_L, 42);
+    UIButton* rBtn = makeKeyButton(@"R", EMULATOR_KEY_R, 42);
+    UIButton* bBtn = makeKeyButton(@"B", EMULATOR_KEY_B, 62);
+    UIButton* aBtn = makeKeyButton(@"A", EMULATOR_KEY_A, 62);
     _lButton = lBtn;
     _rButton = rBtn;
     _aButton = aBtn;
@@ -485,18 +491,18 @@ static const NSUInteger kDefaultHeight = 160;
         [rBtn.trailingAnchor constraintEqualToAnchor:self.controlsContainer.trailingAnchor constant:-14],
 
         [leftBtn.leadingAnchor constraintEqualToAnchor:self.controlsContainer.leadingAnchor constant:12],
-        [leftBtn.bottomAnchor constraintEqualToAnchor:self.controlsContainer.bottomAnchor constant:-22],
-        [upBtn.leadingAnchor constraintEqualToAnchor:leftBtn.trailingAnchor constant:12],
+        [leftBtn.bottomAnchor constraintEqualToAnchor:self.controlsContainer.bottomAnchor constant:-24],
+        [upBtn.centerXAnchor constraintEqualToAnchor:leftBtn.centerXAnchor constant:64],
         [upBtn.bottomAnchor constraintEqualToAnchor:leftBtn.topAnchor constant:-10],
-        [downBtn.leadingAnchor constraintEqualToAnchor:leftBtn.trailingAnchor constant:12],
+        [downBtn.centerXAnchor constraintEqualToAnchor:upBtn.centerXAnchor],
         [downBtn.topAnchor constraintEqualToAnchor:leftBtn.bottomAnchor constant:10],
         [rightBtn.leadingAnchor constraintEqualToAnchor:upBtn.trailingAnchor constant:12],
-        [rightBtn.bottomAnchor constraintEqualToAnchor:leftBtn.bottomAnchor],
+        [rightBtn.centerYAnchor constraintEqualToAnchor:leftBtn.centerYAnchor],
 
         [aBtn.trailingAnchor constraintEqualToAnchor:self.controlsContainer.trailingAnchor constant:-12],
-        [aBtn.bottomAnchor constraintEqualToAnchor:self.controlsContainer.bottomAnchor constant:-20],
-        [bBtn.trailingAnchor constraintEqualToAnchor:aBtn.leadingAnchor constant:-12],
-        [bBtn.bottomAnchor constraintEqualToAnchor:aBtn.bottomAnchor],
+        [aBtn.bottomAnchor constraintEqualToAnchor:self.controlsContainer.bottomAnchor constant:-30],
+        [bBtn.trailingAnchor constraintEqualToAnchor:aBtn.leadingAnchor constant:-14],
+        [bBtn.topAnchor constraintEqualToAnchor:aBtn.bottomAnchor constant:-26],
 
         [centerStack.centerXAnchor constraintEqualToAnchor:self.controlsContainer.centerXAnchor],
         [centerStack.bottomAnchor constraintEqualToAnchor:self.controlsContainer.bottomAnchor constant:-14],
@@ -1087,7 +1093,7 @@ static const NSUInteger kDefaultHeight = 160;
 
 - (void)presentAppMenu {
     __weak typeof(self) weakSelf = self;
-    [self presentCustomMenuWithTitle:@"マルチエミュメニュー"
+    [self presentCustomMenuWithTitle:@"クイックメニュー (RetroArch風)"
                              actions:@[
         @{ @"title": @"一時停止 / 再開", @"handler": [^{
             __strong typeof(weakSelf) strongSelf = weakSelf;
@@ -1449,7 +1455,7 @@ static const NSUInteger kDefaultHeight = 160;
 
     UILabel* header = [[UILabel alloc] initWithFrame:CGRectZero];
     header.translatesAutoresizingMaskIntoConstraints = NO;
-    header.text = @"UI / 操作のクイック設定";
+    header.text = @"RetroArch風 クイック設定";
     header.font = [UIFont systemFontOfSize:22 weight:UIFontWeightBold];
 
     UIStackView* stack = [[UIStackView alloc] initWithFrame:CGRectZero];
