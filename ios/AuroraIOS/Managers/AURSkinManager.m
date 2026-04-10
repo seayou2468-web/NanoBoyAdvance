@@ -1,4 +1,6 @@
 #import "AURSkinManager.h"
+#define MINIZ_NO_TIME
+#include "../External/miniz/miniz.c"
 
 @interface AURSkinManager ()
 @property (nonatomic, strong) NSMutableArray *importedSkins;
@@ -53,14 +55,10 @@
         NSString *tempDir = [NSTemporaryDirectory() stringByAppendingPathComponent:[[NSUUID UUID] UUIDString]];
         [[NSFileManager defaultManager] createDirectoryAtPath:tempDir withIntermediateDirectories:YES attributes:nil error:nil];
 
-        // Unzip .deltaskin (which is a ZIP)
-        NSTask *task = [[NSTask alloc] init];
-        [task setLaunchPath:@"/usr/bin/unzip"];
-        [task setArguments:@[@"-q", url.path, @"-d", tempDir]];
-        [task launch];
-        [task waitUntilExit];
+        // Use miniz to unzip .deltaskin (which is a ZIP)
+        BOOL unzipSuccess = [self unzipFileAtPath:url.path toDirectory:tempDir];
 
-        if (task.terminationStatus == 0) {
+        if (unzipSuccess) {
             NSString *jsonPath = [tempDir stringByAppendingPathComponent:@"info.json"];
             NSData *jsonData = [NSData dataWithContentsOfFile:jsonPath];
             if (jsonData) {
@@ -88,15 +86,46 @@
     });
 }
 
+- (BOOL)unzipFileAtPath:(NSString *)path toDirectory:(NSString *)dest {
+    mz_zip_archive zip_archive;
+    memset(&zip_archive, 0, sizeof(zip_archive));
+
+    if (!mz_zip_reader_init_file(&zip_archive, [path fileSystemRepresentation], 0)) {
+        return NO;
+    }
+
+    mz_uint num_files = mz_zip_reader_get_num_files(&zip_archive);
+    for (mz_uint i = 0; i < num_files; i++) {
+        mz_zip_archive_file_stat file_stat;
+        if (!mz_zip_reader_get_stat(&zip_archive, i, &file_stat)) {
+            continue;
+        }
+
+        if (mz_zip_reader_is_file_a_directory(&zip_archive, i)) {
+            NSString *dirPath = [dest stringByAppendingPathComponent:[NSString stringWithUTF8String:file_stat.m_filename]];
+            [[NSFileManager defaultManager] createDirectoryAtPath:dirPath withIntermediateDirectories:YES attributes:nil error:nil];
+        } else {
+            NSString *filePath = [dest stringByAppendingPathComponent:[NSString stringWithUTF8String:file_stat.m_filename]];
+            [[NSFileManager defaultManager] createDirectoryAtPath:[filePath stringByDeletingLastPathComponent] withIntermediateDirectories:YES attributes:nil error:nil];
+
+            if (!mz_zip_reader_extract_to_file(&zip_archive, i, [filePath fileSystemRepresentation], 0)) {
+                mz_zip_reader_end(&zip_archive);
+                return NO;
+            }
+        }
+    }
+
+    mz_zip_reader_end(&zip_archive);
+    return YES;
+}
+
 - (NSArray<AURControllerSkin *> *)allSkins {
     return self.importedSkins;
 }
 
 - (AURControllerSkin *)skinForCoreType:(EmulatorCoreType)coreType isLandscape:(BOOL)isLandscape {
-    // Basic logic to pick the first imported skin that supports the traits, or fallback to default
     for (AURControllerSkin *skin in self.importedSkins) {
-        // Simplified check
-        return skin;
+        return skin; // Simplified logic
     }
     return [self defaultSkinForCore:coreType isLandscape:isLandscape];
 }
