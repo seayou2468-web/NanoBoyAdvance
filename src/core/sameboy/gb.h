@@ -9,6 +9,10 @@ extern "C" {
 #include <stdalign.h>
 #include <time.h>
 
+#ifndef GB_DISABLE_DEBUGGER
+#define GB_DISABLE_DEBUGGER
+#endif
+
 #ifndef GB_DISABLE_CHEAT_SEARCH
 #ifdef GB_DISABLE_CHEATS
 #define GB_DISABLE_CHEAT_SEARCH
