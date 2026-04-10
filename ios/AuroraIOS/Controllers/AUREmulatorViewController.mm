@@ -1,6 +1,8 @@
 #import "AUREmulatorViewController.h"
 #import "../Views/AURControllerView.h"
-#import "../Views/Metal.h"
+#import "../Managers/AURSkinManager.h"
+#import "../Managers/AURDatabaseManager.h"
+#import "../Metal.h"
 #import <QuartzCore/QuartzCore.h>
 
 @interface AUREmulatorViewController () <AURControllerViewDelegate> {
@@ -70,11 +72,17 @@
     ]];
 
     [self startEmulator];
+    [self.controllerView applySkin:[[AURSkinManager sharedManager] skinForCoreType:_coreType isLandscape:NO]];
 }
 
 - (void)startEmulator {
     _core = EmulatorCore_Create(_coreType);
     if (!_core) return;
+
+    NSString *biosPath = [[AURDatabaseManager sharedManager] BIOSPathForCoreType:_coreType];
+    if (biosPath) {
+        EmulatorCore_LoadBIOSFromPath(_core, biosPath.fileSystemRepresentation);
+    }
 
     if (EmulatorCore_LoadROMFromPath(_core, self.romURL.fileSystemRepresentation)) {
         EmulatorCore_GetVideoSpec(_core, &_videoSpec);

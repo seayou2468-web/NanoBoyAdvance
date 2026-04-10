@@ -2,6 +2,7 @@
 
 @interface AURDatabaseManager ()
 @property (nonatomic, strong) NSMutableArray<AURGame *> *allGames;
+@property (nonatomic, strong) NSMutableDictionary<NSNumber *, NSString *> *biosPaths;
 @end
 
 @implementation AURDatabaseManager
@@ -19,6 +20,7 @@
     self = [super init];
     if (self) {
         _allGames = [NSMutableArray array];
+        _biosPaths = [NSMutableDictionary dictionary];
         [self loadDatabase];
     }
     return self;
@@ -40,6 +42,15 @@
 - (void)addGame:(AURGame *)game {
     [self.allGames addObject:game];
     [self saveDatabase];
+}
+
+- (void)setBIOSPath:(NSString *)path forCoreType:(EmulatorCoreType)coreType {
+    self.biosPaths[@(coreType)] = path;
+    [self saveDatabase];
+}
+
+- (NSString *)BIOSPathForCoreType:(EmulatorCoreType)coreType {
+    return self.biosPaths[@(coreType)];
 }
 
 @end
