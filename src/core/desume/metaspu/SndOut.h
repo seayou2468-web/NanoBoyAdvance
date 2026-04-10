@@ -19,7 +19,7 @@
 
 #include <algorithm>
 
-#include "types.h"
+#include "../types.h"
 
 struct StereoOut16;
 struct StereoOut32;

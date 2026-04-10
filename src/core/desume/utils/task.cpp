@@ -22,7 +22,7 @@
 #include <mutex>
 #include <thread>
 
-#include "types.h"
+#include "../types.h"
 #include "task.h"
 
 class Task::Impl {

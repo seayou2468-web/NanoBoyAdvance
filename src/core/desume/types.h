@@ -204,6 +204,10 @@
 	#endif
 #endif
 
+#ifndef INLINE
+	#define INLINE RETRO_INLINE
+#endif
+
 #ifndef NOINLINE
 	#ifdef __GNUC__
 		#define NOINLINE __attribute__((noinline))

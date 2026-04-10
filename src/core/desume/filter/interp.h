@@ -31,7 +31,7 @@
 #ifndef __INTERP_H
 #define __INTERP_H
 
-#include "types.h"
+#include "../types.h"
 
 /***************************************************************************/
 /* Basic types */
