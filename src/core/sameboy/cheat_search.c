@@ -5,6 +5,8 @@
 #include "gb.h"
 #include <stdlib.h>
 
+#ifndef GB_DISABLE_CHEAT_SEARCH
+
 void GB_cheat_search_reset(GB_gameboy_t *gb)
 {
     if (gb->cheat_search_data) {
@@ -145,3 +147,5 @@ void GB_cheat_search_get_results(GB_gameboy_t *gb, GB_cheat_search_result_t *res
         }
     }
 }
+
+#endif
