@@ -1,0 +1,2990 @@
+{
+  "debugObjects" : {
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/utils\/xstring.cpp" : {
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/utils\/xstring.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "line" : 22,
+          "message" : "'encodings\/utf.h' file not found",
+          "severity" : 2,
+          "column" : 10
+        }
+      ]
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/emufile.cpp" : {
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/emufile.cpp",
+      "debugItems" : [
+        {
+          "message" : "'vsprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use vsnprintf(3) instead.",
+          "line" : 205,
+          "column" : 3,
+          "severity" : 1
+        },
+        {
+          "message" : "'vsprintf' has been explicitly marked deprecated here",
+          "line" : 298,
+          "column" : 1,
+          "severity" : 0
+        },
+        {
+          "message" : "expanded from macro '__deprecated_msg'",
+          "line" : 227,
+          "column" : 48,
+          "severity" : 0
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/nanoboyadvance\/nba\/src\/bus\/bus.cpp" : {
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/nanoboyadvance\/nba\/src\/bus\/bus.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "severity" : 1,
+          "column" : 17,
+          "line" : 40,
+          "message" : "expression with side effects will be evaluated despite being used as an operand to 'typeid'"
+        }
+      ]
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/ios\/AuroraIOS\/Metal.m" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "column" : 24,
+          "message" : "assigning retained object to unsafe_unretained variable; object will be released after assignment",
+          "line" : 71,
+          "severity" : 1
+        },
+        {
+          "column" : 59,
+          "message" : "'mainScreen' is deprecated: first deprecated in iOS 26.0 - Use a UIScreen instance found through context instead (i.e, view.window.windowScene.screen), or for properties like UIScreen.scale with trait equivalents, use a traitCollection found through context.",
+          "line" : 285,
+          "severity" : 1
+        },
+        {
+          "column" : 49,
+          "message" : "property 'mainScreen' is declared deprecated here",
+          "line" : 57,
+          "severity" : 0
+        },
+        {
+          "column" : 49,
+          "message" : "'mainScreen' has been explicitly marked deprecated here",
+          "line" : 57,
+          "severity" : 0
+        }
+      ],
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/ios\/AuroraIOS\/Metal.m"
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/utils\/colorspacehandler\/colorspacehandler_AVX2.cpp" : {
+      "debugItems" : [
+        {
+          "severity" : 2,
+          "line" : 21,
+          "message" : "'types.h' file not found",
+          "column" : 10
+        }
+      ],
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/utils\/colorspacehandler\/colorspacehandler_AVX2.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/nanoboyadvance\/nba\/src\/serialization.cpp" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "message" : "expression with side effects will be evaluated despite being used as an operand to 'typeid'",
+          "column" : 17,
+          "severity" : 1,
+          "line" : 40
+        }
+      ],
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/nanoboyadvance\/nba\/src\/serialization.cpp"
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/nanoboyadvance\/nba\/src\/bus\/serialization.cpp" : {
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/nanoboyadvance\/nba\/src\/bus\/serialization.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "line" : 40,
+          "message" : "expression with side effects will be evaluated despite being used as an operand to 'typeid'",
+          "severity" : 1,
+          "column" : 17
+        }
+      ]
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/path.cpp" : {
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/path.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "message" : "'vsprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use vsnprintf(3) instead.",
+          "line" : 205,
+          "column" : 3,
+          "severity" : 1
+        },
+        {
+          "message" : "'vsprintf' has been explicitly marked deprecated here",
+          "line" : 298,
+          "column" : 1,
+          "severity" : 0
+        },
+        {
+          "message" : "expanded from macro '__deprecated_msg'",
+          "line" : 227,
+          "column" : 48,
+          "severity" : 0
+        },
+        {
+          "message" : "use of undeclared identifier 'g_get_user_config_dir'",
+          "line" : 218,
+          "column" : 31,
+          "severity" : 2
+        },
+        {
+          "message" : "use of undeclared identifier 'g_mkdir_with_parents'",
+          "line" : 219,
+          "column" : 2,
+          "severity" : 2
+        },
+        {
+          "message" : "use of undeclared identifier 'g_free'; did you mean 'free'?",
+          "line" : 221,
+          "column" : 2,
+          "severity" : 2
+        },
+        {
+          "column" : 7,
+          "severity" : 0,
+          "message" : "'free' declared here",
+          "line" : 56
+        },
+        {
+          "column" : 42,
+          "severity" : 1,
+          "message" : "address of array 'this->pathToModule' will always evaluate to 'true'",
+          "line" : 270
+        }
+      ]
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/utils\/AsmJit\/core\/assembler.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.",
+          "line" : 175,
+          "severity" : 1,
+          "column" : 14
+        },
+        {
+          "message" : "'sprintf' has been explicitly marked deprecated here",
+          "line" : 278,
+          "severity" : 0,
+          "column" : 1
+        },
+        {
+          "line" : 227,
+          "column" : 48,
+          "severity" : 0,
+          "message" : "expanded from macro '__deprecated_msg'"
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/utils\/AsmJit\/core\/assembler.cpp"
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/nanoboyadvance\/platform\/src\/emulator_thread.cpp" : {
+      "debugItems" : [
+        {
+          "severity" : 1,
+          "column" : 17,
+          "line" : 40,
+          "message" : "expression with side effects will be evaluated despite being used as an operand to 'typeid'"
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/nanoboyadvance\/platform\/src\/emulator_thread.cpp"
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/GPU_Operations_SSE2.cpp" : {
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/GPU_Operations_SSE2.cpp",
+      "debugItems" : [
+        {
+          "column" : 3,
+          "message" : "This code requires SSE2 support.",
+          "severity" : 2,
+          "line" : 19
+        },
+        {
+          "column" : 3,
+          "message" : "This error might occur if this file is compiled directly. Do not compile this file directly, as it is already included in GPU_Operations.cpp.",
+          "severity" : 1,
+          "line" : 20
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/utils\/arm_jit\/arm64_emit.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "unknown type name 'u_int'",
+          "column" : 8,
+          "severity" : 2,
+          "line" : 54
+        },
+        {
+          "severity" : 2,
+          "message" : "unknown type name 'u_int'",
+          "line" : 54,
+          "column" : 21
+        },
+        {
+          "severity" : 2,
+          "message" : "unknown type name 'u_int'",
+          "line" : 54,
+          "column" : 31
+        },
+        {
+          "column" : 5,
+          "severity" : 2,
+          "message" : "use of undeclared identifier 'assert'",
+          "line" : 153
+        },
+        {
+          "column" : 3,
+          "severity" : 2,
+          "message" : "use of undeclared identifier 'assert'",
+          "line" : 168
+        },
+        {
+          "column" : 45,
+          "severity" : 2,
+          "message" : "unknown type name 'u_int'",
+          "line" : 186
+        },
+        {
+          "column" : 40,
+          "severity" : 2,
+          "message" : "unknown type name 'u_int'",
+          "line" : 192
+        },
+        {
+          "column" : 53,
+          "severity" : 2,
+          "message" : "unknown type name 'u_int'",
+          "line" : 209
+        },
+        {
+          "column" : 43,
+          "severity" : 2,
+          "message" : "unknown type name 'u_int'",
+          "line" : 210
+        },
+        {
+          "column" : 53,
+          "severity" : 2,
+          "message" : "unknown type name 'u_int'",
+          "line" : 210
+        },
+        {
+          "column" : 39,
+          "severity" : 2,
+          "message" : "unknown type name 'u_int'",
+          "line" : 211
+        },
+        {
+          "column" : 35,
+          "severity" : 2,
+          "message" : "unknown type name 'u_int'",
+          "line" : 214
+        },
+        {
+          "column" : 45,
+          "severity" : 2,
+          "message" : "unknown type name 'u_int'",
+          "line" : 214
+        },
+        {
+          "column" : 55,
+          "severity" : 2,
+          "message" : "unknown type name 'u_int'",
+          "line" : 214
+        },
+        {
+          "column" : 36,
+          "severity" : 2,
+          "message" : "unknown type name 'u_int'",
+          "line" : 222
+        },
+        {
+          "column" : 46,
+          "severity" : 2,
+          "message" : "unknown type name 'u_int'",
+          "line" : 222
+        },
+        {
+          "column" : 53,
+          "severity" : 2,
+          "message" : "unknown type name 'u_int'",
+          "line" : 227
+        },
+        {
+          "column" : 39,
+          "severity" : 2,
+          "message" : "unknown type name 'u_int'",
+          "line" : 229
+        },
+        {
+          "column" : 3,
+          "severity" : 2,
+          "message" : "call to 'emit_movimm' is ambiguous",
+          "line" : 234
+        },
+        {
+          "column" : 13,
+          "severity" : 0,
+          "message" : "candidate function",
+          "line" : 209
+        },
+        {
+          "column" : 13,
+          "severity" : 0,
+          "message" : "candidate function",
+          "line" : 227
+        }
+      ],
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/utils\/arm_jit\/arm64_emit.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/nanoboyadvance\/nba\/src\/hw\/keypad\/keypad.cpp" : {
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/nanoboyadvance\/nba\/src\/hw\/keypad\/keypad.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "column" : 17,
+          "message" : "expression with side effects will be evaluated despite being used as an operand to 'typeid'",
+          "severity" : 1,
+          "line" : 40
+        }
+      ]
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/addons\/slot1comp_rom.cpp" : {
+      "debugItems" : [
+        {
+          "line" : 205,
+          "column" : 3,
+          "message" : "'vsprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use vsnprintf(3) instead.",
+          "severity" : 1
+        },
+        {
+          "line" : 298,
+          "column" : 1,
+          "message" : "'vsprintf' has been explicitly marked deprecated here",
+          "severity" : 0
+        },
+        {
+          "line" : 227,
+          "column" : 48,
+          "message" : "expanded from macro '__deprecated_msg'",
+          "severity" : 0
+        }
+      ],
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/addons\/slot1comp_rom.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/MMU.cpp" : {
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/MMU.cpp",
+      "debugItems" : [
+        {
+          "column" : 10,
+          "line" : 21,
+          "severity" : 2,
+          "message" : "'types.h' file not found"
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/nanoboyadvance\/nba\/src\/bus\/io.cpp" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/nanoboyadvance\/nba\/src\/bus\/io.cpp",
+      "debugItems" : [
+        {
+          "column" : 17,
+          "line" : 40,
+          "severity" : 1,
+          "message" : "expression with side effects will be evaluated despite being used as an operand to 'typeid'"
+        }
+      ]
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/filter\/scanline.cpp" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "line" : 19,
+          "message" : "'types.h' file not found",
+          "column" : 10,
+          "severity" : 2
+        }
+      ],
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/filter\/scanline.cpp"
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/filter\/2xsai.cpp" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "severity" : 2,
+          "message" : "'types.h' file not found",
+          "column" : 10,
+          "line" : 2
+        }
+      ],
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/filter\/2xsai.cpp"
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/nanoboyadvance\/nba\/src\/hw\/apu\/hle\/mp2k.cpp" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "line" : 40,
+          "message" : "expression with side effects will be evaluated despite being used as an operand to 'typeid'",
+          "column" : 17,
+          "severity" : 1
+        }
+      ],
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/nanoboyadvance\/nba\/src\/hw\/apu\/hle\/mp2k.cpp"
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/nanoboyadvance\/platform\/src\/writer\/save_state.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "expression with side effects will be evaluated despite being used as an operand to 'typeid'",
+          "severity" : 1,
+          "line" : 40,
+          "column" : 17
+        }
+      ],
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/nanoboyadvance\/platform\/src\/writer\/save_state.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/gfx3d.cpp" : {
+      "debugItems" : [
+        {
+          "line" : 21,
+          "column" : 10,
+          "severity" : 2,
+          "message" : "'types.h' file not found"
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/gfx3d.cpp"
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/GPU_Operations_AltiVec.cpp" : {
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/GPU_Operations_AltiVec.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "column" : 3,
+          "severity" : 2,
+          "message" : "This code requires PowerPC AltiVec support.",
+          "line" : 29
+        },
+        {
+          "column" : 3,
+          "severity" : 1,
+          "message" : "This error might occur if this file is compiled directly. Do not compile this file directly, as it is already included in GPU_Operations.cpp.",
+          "line" : 30
+        }
+      ]
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/utils\/colorspacehandler\/colorspacehandler_AltiVec.cpp" : {
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/utils\/colorspacehandler\/colorspacehandler_AltiVec.cpp",
+      "debugItems" : [
+        {
+          "column" : 10,
+          "line" : 18,
+          "severity" : 2,
+          "message" : "'colorspacehandler_Altivec.h' file not found"
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/utils\/arm_jit\/arm_emit.cpp" : {
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/utils\/arm_jit\/arm_emit.cpp",
+      "debugItems" : [
+        {
+          "column" : 8,
+          "message" : "unknown type name 'u_int'",
+          "line" : 48,
+          "severity" : 2
+        },
+        {
+          "column" : 23,
+          "message" : "unknown type name 'u_int'",
+          "line" : 48,
+          "severity" : 2
+        },
+        {
+          "column" : 33,
+          "message" : "unknown type name 'u_int'",
+          "line" : 48,
+          "severity" : 2
+        },
+        {
+          "column" : 43,
+          "message" : "unknown type name 'u_int'",
+          "line" : 48,
+          "severity" : 2
+        },
+        {
+          "column" : 8,
+          "message" : "unknown type name 'u_int'",
+          "line" : 53,
+          "severity" : 2
+        },
+        {
+          "column" : 27,
+          "message" : "unknown type name 'u_int'",
+          "line" : 53,
+          "severity" : 2
+        },
+        {
+          "column" : 37,
+          "message" : "unknown type name 'u_int'",
+          "line" : 53,
+          "severity" : 2
+        },
+        {
+          "column" : 47,
+          "message" : "unknown type name 'u_int'",
+          "line" : 53,
+          "severity" : 2
+        },
+        {
+          "column" : 57,
+          "message" : "unknown type name 'u_int'",
+          "line" : 53,
+          "severity" : 2
+        },
+        {
+          "column" : 8,
+          "message" : "unknown type name 'u_int'",
+          "line" : 67,
+          "severity" : 2
+        },
+        {
+          "column" : 21,
+          "message" : "unknown type name 'u_int'",
+          "line" : 67,
+          "severity" : 2
+        },
+        {
+          "column" : 31,
+          "message" : "unknown type name 'u_int'",
+          "line" : 67,
+          "severity" : 2
+        },
+        {
+          "column" : 39,
+          "message" : "unknown type name 'u_int'",
+          "line" : 83,
+          "severity" : 2
+        },
+        {
+          "column" : 49,
+          "message" : "unknown type name 'u_int'",
+          "line" : 83,
+          "severity" : 2
+        },
+        {
+          "column" : 43,
+          "message" : "unknown type name 'u_int'",
+          "line" : 84,
+          "severity" : 2
+        },
+        {
+          "column" : 53,
+          "message" : "unknown type name 'u_int'",
+          "line" : 84,
+          "severity" : 2
+        },
+        {
+          "column" : 39,
+          "message" : "unknown type name 'u_int'",
+          "line" : 85,
+          "severity" : 2
+        },
+        {
+          "column" : 40,
+          "message" : "unknown type name 'u32'",
+          "line" : 87,
+          "severity" : 2
+        },
+        {
+          "column" : 39,
+          "message" : "unknown type name 'u_int'",
+          "line" : 91,
+          "severity" : 2
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/nanoboyadvance\/platform\/src\/loader\/rom.cpp" : {
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/nanoboyadvance\/platform\/src\/loader\/rom.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "severity" : 1,
+          "message" : "expression with side effects will be evaluated despite being used as an operand to 'typeid'",
+          "line" : 40,
+          "column" : 17
+        },
+        {
+          "severity" : 1,
+          "message" : "enumeration values 'Detect' and 'None' not handled in switch",
+          "line" : 171,
+          "column" : 10
+        }
+      ]
+    },
+    "Internal" : {
+      "title" : "Internal",
+      "debugItems" : [
+        {
+          "message" : "Failed to compile source code",
+          "severity" : 2,
+          "line" : 0,
+          "column" : 0
+        }
+      ],
+      "type" : {
+        "DebugMessage" : {
+
+        }
+      }
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/nanoboyadvance\/nba\/src\/hw\/rom\/gpio\/rtc.cpp" : {
+      "debugItems" : [
+        {
+          "column" : 14,
+          "severity" : 1,
+          "message" : "enumeration value 'Complete' not handled in switch",
+          "line" : 75
+        },
+        {
+          "column" : 10,
+          "severity" : 1,
+          "message" : "enumeration values 'ForceReset', 'ForceIRQ', and 'Free' not handled in switch",
+          "line" : 176
+        }
+      ],
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/nanoboyadvance\/nba\/src\/hw\/rom\/gpio\/rtc.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/utils\/colorspacehandler\/colorspacehandler_SSE2.cpp" : {
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/utils\/colorspacehandler\/colorspacehandler_SSE2.cpp",
+      "debugItems" : [
+        {
+          "column" : 10,
+          "severity" : 2,
+          "message" : "'types.h' file not found",
+          "line" : 21
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/rtc.cpp" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "line" : 29,
+          "message" : "'utils\/md5.h' file not found",
+          "column" : 10,
+          "severity" : 2
+        }
+      ],
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/rtc.cpp"
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/movie.cpp" : {
+      "debugItems" : [
+        {
+          "line" : 29,
+          "column" : 10,
+          "severity" : 2,
+          "message" : "'utils\/md5.h' file not found"
+        }
+      ],
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/movie.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/OGLRender.cpp" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/OGLRender.cpp",
+      "debugItems" : [
+        {
+          "line" : 21,
+          "message" : "'types.h' file not found",
+          "column" : 10,
+          "severity" : 2
+        }
+      ]
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/lua-engine.cpp" : {
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/lua-engine.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "message" : "'utils\/md5.h' file not found",
+          "column" : 10,
+          "line" : 29,
+          "severity" : 2
+        }
+      ]
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/wifi.cpp" : {
+      "debugItems" : [
+        {
+          "severity" : 1,
+          "message" : "'vsprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use vsnprintf(3) instead.",
+          "column" : 3,
+          "line" : 205
+        },
+        {
+          "severity" : 0,
+          "message" : "'vsprintf' has been explicitly marked deprecated here",
+          "column" : 1,
+          "line" : 298
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro '__deprecated_msg'",
+          "column" : 48,
+          "line" : 227
+        },
+        {
+          "severity" : 1,
+          "message" : "'BIT' macro redefined",
+          "column" : 9,
+          "line" : 4
+        },
+        {
+          "severity" : 0,
+          "message" : "previous definition is here",
+          "column" : 9,
+          "line" : 8
+        },
+        {
+          "severity" : 2,
+          "message" : "typedef redefinition with different types ('pthread_mutex_t' (aka '_opaque_pthread_mutex_t') vs 'slock')",
+          "column" : 25,
+          "line" : 5
+        },
+        {
+          "severity" : 0,
+          "message" : "previous definition is here",
+          "column" : 15,
+          "line" : 216
+        },
+        {
+          "severity" : 2,
+          "message" : "allocation of incomplete type 'slock_t' (aka 'slock')",
+          "column" : 25,
+          "line" : 8
+        },
+        {
+          "severity" : 0,
+          "message" : "forward declaration of 'slock'",
+          "column" : 8,
+          "line" : 215
+        },
+        {
+          "severity" : 2,
+          "message" : "no matching function for call to 'pthread_mutex_init'",
+          "column" : 5,
+          "line" : 9
+        },
+        {
+          "severity" : 0,
+          "message" : "candidate function not viable: cannot convert argument of incomplete type 'slock_t *' (aka 'slock *') to 'pthread_mutex_t * _Nonnull' (aka '_opaque_pthread_mutex_t *') for 1st argument",
+          "column" : 5,
+          "line" : 388
+        },
+        {
+          "severity" : 2,
+          "message" : "no matching function for call to 'pthread_mutex_destroy'",
+          "column" : 5,
+          "line" : 15
+        },
+        {
+          "severity" : 0,
+          "message" : "candidate function not viable: cannot convert argument of incomplete type 'slock_t *' (aka 'slock *') to 'pthread_mutex_t * _Nonnull' (aka '_opaque_pthread_mutex_t *') for 1st argument",
+          "column" : 5,
+          "line" : 381
+        },
+        {
+          "severity" : 1,
+          "message" : "deleting pointer to incomplete type 'slock_t' (aka 'slock') is incompatible with C++2c and may cause undefined behavior",
+          "column" : 5,
+          "line" : 16
+        },
+        {
+          "severity" : 0,
+          "message" : "forward declaration of 'slock'",
+          "column" : 8,
+          "line" : 215
+        },
+        {
+          "severity" : 2,
+          "message" : "no matching function for call to 'pthread_mutex_lock'",
+          "column" : 5,
+          "line" : 20
+        },
+        {
+          "severity" : 0,
+          "message" : "candidate function not viable: cannot convert argument of incomplete type 'slock_t *' (aka 'slock *') to 'pthread_mutex_t * _Nonnull' (aka '_opaque_pthread_mutex_t *') for 1st argument",
+          "column" : 5,
+          "line" : 393
+        },
+        {
+          "severity" : 2,
+          "message" : "no matching function for call to 'pthread_mutex_unlock'",
+          "column" : 5,
+          "line" : 24
+        },
+        {
+          "severity" : 0,
+          "message" : "candidate function not viable: cannot convert argument of incomplete type 'slock_t *' (aka 'slock *') to 'pthread_mutex_t * _Nonnull' (aka '_opaque_pthread_mutex_t *') for 1st argument",
+          "column" : 5,
+          "line" : 405
+        },
+        {
+          "severity" : 2,
+          "message" : "'pcap.h' file not found",
+          "column" : 10,
+          "line" : 70
+        }
+      ],
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/wifi.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/gdbstub\/gdbstub.cpp" : {
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/gdbstub\/gdbstub.cpp",
+      "debugItems" : [
+        {
+          "column" : 1,
+          "severity" : 2,
+          "line" : 52,
+          "message" : "unknown type name 'slock'"
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/rasterize.cpp" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "severity" : 2,
+          "column" : 10,
+          "message" : "'types.h' file not found",
+          "line" : 21
+        }
+      ],
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/rasterize.cpp"
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/mc.cpp" : {
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/mc.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "line" : 29,
+          "severity" : 2,
+          "message" : "'utils\/md5.h' file not found",
+          "column" : 10
+        }
+      ]
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/armcpu.cpp" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "message" : "'vsprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use vsnprintf(3) instead.",
+          "line" : 205,
+          "severity" : 1,
+          "column" : 3
+        },
+        {
+          "message" : "'vsprintf' has been explicitly marked deprecated here",
+          "line" : 298,
+          "severity" : 0,
+          "column" : 1
+        },
+        {
+          "message" : "expanded from macro '__deprecated_msg'",
+          "line" : 227,
+          "severity" : 0,
+          "column" : 48
+        },
+        {
+          "message" : "'BIT' macro redefined",
+          "line" : 4,
+          "severity" : 1,
+          "column" : 9
+        },
+        {
+          "message" : "previous definition is here",
+          "line" : 8,
+          "severity" : 0,
+          "column" : 9
+        }
+      ],
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/armcpu.cpp"
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/OGLRender_ES3.cpp" : {
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/OGLRender_ES3.cpp",
+      "debugItems" : [
+        {
+          "message" : "'types.h' file not found",
+          "line" : 21,
+          "column" : 10,
+          "severity" : 2
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/nanoboyadvance\/runtime.cpp" : {
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/nanoboyadvance\/runtime.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "line" : 40,
+          "column" : 17,
+          "message" : "expression with side effects will be evaluated despite being used as an operand to 'typeid'",
+          "severity" : 1
+        }
+      ]
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/addons\/slot2_gbagame.cpp" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "line" : 205,
+          "column" : 3,
+          "message" : "'vsprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use vsnprintf(3) instead.",
+          "severity" : 1
+        },
+        {
+          "line" : 298,
+          "column" : 1,
+          "message" : "'vsprintf' has been explicitly marked deprecated here",
+          "severity" : 0
+        },
+        {
+          "line" : 227,
+          "column" : 48,
+          "message" : "expanded from macro '__deprecated_msg'",
+          "severity" : 0
+        }
+      ],
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/addons\/slot2_gbagame.cpp"
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/FIFO.cpp" : {
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/FIFO.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "severity" : 2,
+          "message" : "'types.h' file not found",
+          "line" : 21,
+          "column" : 10
+        }
+      ]
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/cp15.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "'vsprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use vsnprintf(3) instead.",
+          "line" : 205,
+          "column" : 3,
+          "severity" : 1
+        },
+        {
+          "message" : "'vsprintf' has been explicitly marked deprecated here",
+          "line" : 298,
+          "column" : 1,
+          "severity" : 0
+        },
+        {
+          "message" : "expanded from macro '__deprecated_msg'",
+          "line" : 227,
+          "column" : 48,
+          "severity" : 0
+        },
+        {
+          "message" : "'BIT' macro redefined",
+          "line" : 4,
+          "column" : 9,
+          "severity" : 1
+        },
+        {
+          "message" : "previous definition is here",
+          "line" : 8,
+          "column" : 9,
+          "severity" : 0
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/cp15.cpp"
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/utils\/AsmJit\/x86\/x86compileritem.cpp" : {
+      "debugItems" : [
+        {
+          "line" : 786,
+          "severity" : 2,
+          "message" : "cast from pointer to smaller type 'sysint_t' (aka 'int') loses information",
+          "column" : 13
+        },
+        {
+          "line" : 1304,
+          "severity" : 2,
+          "message" : "cast from pointer to smaller type 'sysint_t' (aka 'int') loses information",
+          "column" : 13
+        },
+        {
+          "line" : 1395,
+          "severity" : 2,
+          "message" : "cast from pointer to smaller type 'sysint_t' (aka 'int') loses information",
+          "column" : 13
+        },
+        {
+          "line" : 1404,
+          "severity" : 2,
+          "message" : "cast from pointer to smaller type 'sysint_t' (aka 'int') loses information",
+          "column" : 13
+        },
+        {
+          "line" : 1572,
+          "severity" : 2,
+          "message" : "cast from pointer to smaller type 'sysint_t' (aka 'int') loses information",
+          "column" : 13
+        },
+        {
+          "line" : 2068,
+          "severity" : 2,
+          "message" : "cast from pointer to smaller type 'sysint_t' (aka 'int') loses information",
+          "column" : 13
+        },
+        {
+          "line" : 2156,
+          "severity" : 2,
+          "message" : "cast from pointer to smaller type 'sysint_t' (aka 'int') loses information",
+          "column" : 13
+        },
+        {
+          "line" : 2164,
+          "severity" : 2,
+          "message" : "cast from pointer to smaller type 'sysint_t' (aka 'int') loses information",
+          "column" : 13
+        }
+      ],
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/utils\/AsmJit\/x86\/x86compileritem.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/metaspu\/metaspu.cpp" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "line" : 30,
+          "severity" : 2,
+          "message" : "'types.h' file not found",
+          "column" : 10
+        }
+      ],
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/metaspu\/metaspu.cpp"
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/runtime.cpp" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "line" : 21,
+          "column" : 10,
+          "severity" : 2,
+          "message" : "'types.h' file not found"
+        }
+      ],
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/runtime.cpp"
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/nanoboyadvance\/nba\/src\/bus\/timing.cpp" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "line" : 40,
+          "severity" : 1,
+          "message" : "expression with side effects will be evaluated despite being used as an operand to 'typeid'",
+          "column" : 17
+        }
+      ],
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/nanoboyadvance\/nba\/src\/bus\/timing.cpp"
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/filter\/bilinear.cpp" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "column" : 10,
+          "line" : 8,
+          "severity" : 2,
+          "message" : "'types.h' file not found"
+        }
+      ],
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/filter\/bilinear.cpp"
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/utils\/libfat\/directory.cpp" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "line" : 118,
+          "message" : "result of comparison of constant 240 with expression of type 'const char' is always false",
+          "severity" : 1,
+          "column" : 33
+        }
+      ],
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/utils\/libfat\/directory.cpp"
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/nanoboyadvance\/nba\/src\/core.cpp" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/nanoboyadvance\/nba\/src\/core.cpp",
+      "debugItems" : [
+        {
+          "message" : "expression with side effects will be evaluated despite being used as an operand to 'typeid'",
+          "line" : 40,
+          "severity" : 1,
+          "column" : 17
+        }
+      ]
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/SPU.cpp" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "message" : "'types.h' file not found",
+          "severity" : 2,
+          "column" : 10,
+          "line" : 30
+        }
+      ],
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/SPU.cpp"
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/utils\/emufat.cpp" : {
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/utils\/emufat.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "column" : 10,
+          "line" : 4,
+          "severity" : 2,
+          "message" : "'types.h' file not found"
+        }
+      ]
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/GPU.cpp" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "message" : "'types.h' file not found",
+          "column" : 10,
+          "severity" : 2,
+          "line" : 21
+        }
+      ],
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/GPU.cpp"
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/saves.cpp" : {
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/saves.cpp",
+      "debugItems" : [
+        {
+          "message" : "'types.h' file not found",
+          "column" : 10,
+          "severity" : 2,
+          "line" : 21
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/NDSSystem.cpp" : {
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/NDSSystem.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "column" : 9,
+          "severity" : 1,
+          "message" : "'BIT' macro redefined",
+          "line" : 4
+        },
+        {
+          "column" : 9,
+          "severity" : 0,
+          "message" : "previous definition is here",
+          "line" : 8
+        },
+        {
+          "column" : 10,
+          "severity" : 2,
+          "message" : "'types.h' file not found",
+          "line" : 21
+        }
+      ]
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/utils\/AsmJit\/x86\/x86compilerfunc.cpp" : {
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/utils\/AsmJit\/x86\/x86compilerfunc.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "line" : 786,
+          "column" : 13,
+          "severity" : 2,
+          "message" : "cast from pointer to smaller type 'sysint_t' (aka 'int') loses information"
+        },
+        {
+          "line" : 1304,
+          "column" : 13,
+          "severity" : 2,
+          "message" : "cast from pointer to smaller type 'sysint_t' (aka 'int') loses information"
+        },
+        {
+          "line" : 1395,
+          "column" : 13,
+          "severity" : 2,
+          "message" : "cast from pointer to smaller type 'sysint_t' (aka 'int') loses information"
+        },
+        {
+          "line" : 1404,
+          "column" : 13,
+          "severity" : 2,
+          "message" : "cast from pointer to smaller type 'sysint_t' (aka 'int') loses information"
+        },
+        {
+          "line" : 1572,
+          "severity" : 2,
+          "column" : 13,
+          "message" : "cast from pointer to smaller type 'sysint_t' (aka 'int') loses information"
+        },
+        {
+          "line" : 2068,
+          "severity" : 2,
+          "column" : 13,
+          "message" : "cast from pointer to smaller type 'sysint_t' (aka 'int') loses information"
+        },
+        {
+          "line" : 2156,
+          "severity" : 2,
+          "column" : 13,
+          "message" : "cast from pointer to smaller type 'sysint_t' (aka 'int') loses information"
+        },
+        {
+          "line" : 2164,
+          "severity" : 2,
+          "column" : 13,
+          "message" : "cast from pointer to smaller type 'sysint_t' (aka 'int') loses information"
+        }
+      ]
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/utils\/arm_jit\/arm_jit_arm.cpp" : {
+      "debugItems" : [
+        {
+          "column" : 10,
+          "message" : "'types.h' file not found",
+          "line" : 19,
+          "severity" : 2
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/utils\/arm_jit\/arm_jit_arm.cpp"
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/nanoboyadvance\/nba\/src\/arm\/tablegen\/tablegen.cpp" : {
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/nanoboyadvance\/nba\/src\/arm\/tablegen\/tablegen.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "severity" : 1,
+          "message" : "expression with side effects will be evaluated despite being used as an operand to 'typeid'",
+          "column" : 17,
+          "line" : 40
+        }
+      ]
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/slot1.cpp" : {
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/slot1.cpp",
+      "debugItems" : [
+        {
+          "message" : "'vsprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use vsnprintf(3) instead.",
+          "line" : 205,
+          "column" : 3,
+          "severity" : 1
+        },
+        {
+          "message" : "'vsprintf' has been explicitly marked deprecated here",
+          "line" : 298,
+          "column" : 1,
+          "severity" : 0
+        },
+        {
+          "message" : "expanded from macro '__deprecated_msg'",
+          "line" : 227,
+          "column" : 48,
+          "severity" : 0
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/utils\/AsmJit\/x86\/x86cpuinfo.cpp" : {
+      "debugItems" : [
+        {
+          "severity" : 2,
+          "column" : 3,
+          "message" : "invalid output constraint '=a' in asm",
+          "line" : 151
+        },
+        {
+          "severity" : 0,
+          "column" : 10,
+          "message" : "expanded from macro '__myCpuId'",
+          "line" : 143
+        }
+      ],
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/utils\/AsmJit\/x86\/x86cpuinfo.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/nanoboyadvance\/nba\/src\/hw\/timer\/timer.cpp" : {
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/nanoboyadvance\/nba\/src\/hw\/timer\/timer.cpp",
+      "debugItems" : [
+        {
+          "line" : 65,
+          "column" : 1,
+          "message" : "non-void function does not return a value in all control paths",
+          "severity" : 1
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/quick_nes\/nes_emu\/Mapper_Namco106.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "logical not is only applied to the left hand side of this bitwise operator",
+          "line" : 77,
+          "column" : 8,
+          "severity" : 1
+        },
+        {
+          "message" : "add parentheses after the '!' to evaluate the bitwise operator first",
+          "line" : 77,
+          "column" : 8,
+          "severity" : 0
+        },
+        {
+          "message" : "add parentheses around left hand side expression to silence this warning",
+          "line" : 77,
+          "column" : 8,
+          "severity" : 0
+        }
+      ],
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/quick_nes\/nes_emu\/Mapper_Namco106.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/commandline.cpp" : {
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/commandline.cpp",
+      "debugItems" : [
+        {
+          "line" : 29,
+          "message" : "'utils\/md5.h' file not found",
+          "severity" : 2,
+          "column" : 10
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/addons\/slot1_retail_mcrom_debug.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "'types.h' file not found",
+          "line" : 22,
+          "severity" : 2,
+          "column" : 10
+        }
+      ],
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/addons\/slot1_retail_mcrom_debug.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/utils\/colorspacehandler\/colorspacehandler.cpp" : {
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/utils\/colorspacehandler\/colorspacehandler.cpp",
+      "debugItems" : [
+        {
+          "severity" : 2,
+          "line" : 21,
+          "column" : 10,
+          "message" : "'types.h' file not found"
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/quick_nes\/nes_emu\/Nes_State.cpp" : {
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/quick_nes\/nes_emu\/Nes_State.cpp",
+      "debugItems" : [
+        {
+          "line" : 54,
+          "message" : "implicit conversion from 'const frame_count_t' (aka 'const long') to '::uint32_t' (aka 'unsigned int') changes value from 4611686018427387904 to 0",
+          "column" : 20,
+          "severity" : 1
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/metaspu\/SoundTouch\/3dnow_win.cpp" : {
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/metaspu\/SoundTouch\/3dnow_win.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "severity" : 2,
+          "message" : "\"wrong platform - this source code file is exclusively for Win32 platform\"",
+          "line" : 70,
+          "column" : 2
+        }
+      ]
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/filter\/epx.cpp" : {
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/filter\/epx.cpp",
+      "debugItems" : [
+        {
+          "column" : 10,
+          "line" : 19,
+          "severity" : 2,
+          "message" : "'types.h' file not found"
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/OGLRender_3_2.cpp" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "column" : 10,
+          "message" : "'types.h' file not found",
+          "line" : 21,
+          "severity" : 2
+        }
+      ],
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/OGLRender_3_2.cpp"
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/metaspu\/SoundTouch\/cpu_detect_x86_win.cpp" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "message" : "wrong platform - this source code file is exclusively for Win32 platform",
+          "line" : 49,
+          "column" : 2,
+          "severity" : 2
+        }
+      ],
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/metaspu\/SoundTouch\/cpu_detect_x86_win.cpp"
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/utils\/colorspacehandler\/colorspacehandler_NEON.cpp" : {
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/utils\/colorspacehandler\/colorspacehandler_NEON.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "column" : 10,
+          "message" : "'types.h' file not found",
+          "line" : 21,
+          "severity" : 2
+        }
+      ]
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/nanoboyadvance\/platform\/src\/loader\/save_state.cpp" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/nanoboyadvance\/platform\/src\/loader\/save_state.cpp",
+      "debugItems" : [
+        {
+          "column" : 17,
+          "severity" : 1,
+          "message" : "expression with side effects will be evaluated despite being used as an operand to 'typeid'",
+          "line" : 40
+        }
+      ]
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/addons\/slot1_retail_nand.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "'vsprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use vsnprintf(3) instead.",
+          "severity" : 1,
+          "column" : 3,
+          "line" : 205
+        },
+        {
+          "line" : 298,
+          "column" : 1,
+          "severity" : 0,
+          "message" : "'vsprintf' has been explicitly marked deprecated here"
+        },
+        {
+          "line" : 227,
+          "column" : 48,
+          "severity" : 0,
+          "message" : "expanded from macro '__deprecated_msg'"
+        }
+      ],
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/addons\/slot1_retail_nand.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/addons\/slot1_r4.cpp" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "message" : "'vsprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use vsnprintf(3) instead.",
+          "severity" : 1,
+          "column" : 3,
+          "line" : 205
+        },
+        {
+          "message" : "'vsprintf' has been explicitly marked deprecated here",
+          "severity" : 0,
+          "column" : 1,
+          "line" : 298
+        },
+        {
+          "message" : "expanded from macro '__deprecated_msg'",
+          "severity" : 0,
+          "column" : 48,
+          "line" : 227
+        }
+      ],
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/addons\/slot1_r4.cpp"
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/driver.cpp" : {
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/driver.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "message" : "'types.h' file not found",
+          "column" : 10,
+          "severity" : 2,
+          "line" : 21
+        }
+      ]
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/GPU_Operations.cpp" : {
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/GPU_Operations.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "severity" : 2,
+          "message" : "'types.h' file not found",
+          "column" : 10,
+          "line" : 21
+        }
+      ]
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/render3D.cpp" : {
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/render3D.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "column" : 10,
+          "line" : 21,
+          "severity" : 2,
+          "message" : "'types.h' file not found"
+        }
+      ]
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/nanoboyadvance\/nba\/src\/hw\/irq\/serialization.cpp" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "column" : 17,
+          "severity" : 1,
+          "line" : 40,
+          "message" : "expression with side effects will be evaluated despite being used as an operand to 'typeid'"
+        }
+      ],
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/nanoboyadvance\/nba\/src\/hw\/irq\/serialization.cpp"
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/GPU_Operations_NEON.cpp" : {
+      "debugItems" : [
+        {
+          "column" : 3,
+          "message" : "This code requires ARM64 NEON support.",
+          "line" : 19,
+          "severity" : 2
+        },
+        {
+          "column" : 3,
+          "message" : "This error might occur if this file is compiled directly. Do not compile this file directly, as it is already included in GPU_Operations.cpp.",
+          "line" : 20,
+          "severity" : 1
+        }
+      ],
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/GPU_Operations_NEON.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/nanoboyadvance\/core_adapter.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "expression with side effects will be evaluated despite being used as an operand to 'typeid'",
+          "column" : 17,
+          "line" : 40,
+          "severity" : 1
+        }
+      ],
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/nanoboyadvance\/core_adapter.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/utils\/advanscene.cpp" : {
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/utils\/advanscene.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "severity" : 1,
+          "column" : 3,
+          "message" : "'vsprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use vsnprintf(3) instead.",
+          "line" : 205
+        },
+        {
+          "severity" : 0,
+          "column" : 1,
+          "message" : "'vsprintf' has been explicitly marked deprecated here",
+          "line" : 298
+        },
+        {
+          "severity" : 0,
+          "column" : 48,
+          "message" : "expanded from macro '__deprecated_msg'",
+          "line" : 227
+        }
+      ]
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/nanoboyadvance\/nba\/src\/arm\/serialization.cpp" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "message" : "expression with side effects will be evaluated despite being used as an operand to 'typeid'",
+          "line" : 40,
+          "severity" : 1,
+          "column" : 17
+        }
+      ],
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/nanoboyadvance\/nba\/src\/arm\/serialization.cpp"
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/metaspu\/win32\/ConfigSoundtouch.cpp" : {
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/metaspu\/win32\/ConfigSoundtouch.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "severity" : 2,
+          "column" : 10,
+          "line" : 21,
+          "message" : "'types.h' file not found"
+        }
+      ]
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/utils\/AsmJit\/x86\/x86assembler.cpp" : {
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/utils\/AsmJit\/x86\/x86assembler.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "message" : "cast from pointer to smaller type 'sysint_t' (aka 'int') loses information",
+          "severity" : 2,
+          "line" : 786,
+          "column" : 13
+        },
+        {
+          "message" : "cast from pointer to smaller type 'sysint_t' (aka 'int') loses information",
+          "severity" : 2,
+          "line" : 1304,
+          "column" : 13
+        },
+        {
+          "message" : "cast from pointer to smaller type 'sysint_t' (aka 'int') loses information",
+          "severity" : 2,
+          "line" : 1395,
+          "column" : 13
+        },
+        {
+          "message" : "cast from pointer to smaller type 'sysint_t' (aka 'int') loses information",
+          "severity" : 2,
+          "line" : 1404,
+          "column" : 13
+        },
+        {
+          "message" : "cast from pointer to smaller type 'int32_t' (aka 'int') loses information",
+          "severity" : 2,
+          "line" : 238,
+          "column" : 19
+        },
+        {
+          "message" : "'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.",
+          "severity" : 1,
+          "line" : 670,
+          "column" : 16
+        },
+        {
+          "message" : "'sprintf' has been explicitly marked deprecated here",
+          "severity" : 0,
+          "line" : 278,
+          "column" : 1
+        },
+        {
+          "message" : "expanded from macro '__deprecated_msg'",
+          "severity" : 0,
+          "line" : 227,
+          "column" : 48
+        },
+        {
+          "message" : "cast from pointer to smaller type 'sysuint_t' (aka 'unsigned int') loses information",
+          "severity" : 2,
+          "line" : 677,
+          "column" : 37
+        },
+        {
+          "message" : "'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.",
+          "severity" : 1,
+          "line" : 746,
+          "column" : 18
+        },
+        {
+          "message" : "'sprintf' has been explicitly marked deprecated here",
+          "severity" : 0,
+          "line" : 278,
+          "column" : 1
+        },
+        {
+          "message" : "expanded from macro '__deprecated_msg'",
+          "severity" : 0,
+          "line" : 227,
+          "column" : 48
+        },
+        {
+          "message" : "cast to 'void *' from smaller integer type 'sysint_t' (aka 'int')",
+          "severity" : 1,
+          "line" : 1098,
+          "column" : 48
+        },
+        {
+          "message" : "cast to 'void *' from smaller integer type 'sysint_t' (aka 'int')",
+          "severity" : 1,
+          "line" : 1353,
+          "column" : 47
+        },
+        {
+          "message" : "cast from pointer to smaller type 'sysint_t' (aka 'int') loses information",
+          "severity" : 2,
+          "line" : 2693,
+          "column" : 15
+        },
+        {
+          "message" : "cast from pointer to smaller type 'sysuint_t' (aka 'unsigned int') loses information",
+          "severity" : 2,
+          "line" : 2702,
+          "column" : 27
+        }
+      ]
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/utils\/arm_jit\/emit_core.cpp" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "column" : 5,
+          "message" : "unknown type name 'u8'",
+          "severity" : 2,
+          "line" : 27
+        },
+        {
+          "column" : 5,
+          "message" : "unknown type name 'u32'",
+          "severity" : 2,
+          "line" : 33
+        },
+        {
+          "column" : 5,
+          "message" : "use of undeclared identifier 'std'",
+          "severity" : 2,
+          "line" : 38
+        },
+        {
+          "column" : 8,
+          "message" : "use of undeclared identifier 'std'",
+          "severity" : 2,
+          "line" : 41
+        },
+        {
+          "column" : 1,
+          "message" : "unknown type name 'u32'",
+          "severity" : 2,
+          "line" : 44
+        },
+        {
+          "column" : 1,
+          "message" : "unknown type name 't_bytes'",
+          "severity" : 2,
+          "line" : 45
+        },
+        {
+          "column" : 1,
+          "message" : "use of undeclared identifier 'std'",
+          "severity" : 2,
+          "line" : 47
+        },
+        {
+          "column" : 10,
+          "message" : "use of undeclared identifier 'JittedFunc'",
+          "severity" : 2,
+          "line" : 47
+        },
+        {
+          "column" : 20,
+          "message" : "use of undeclared identifier 'PROT_READ'",
+          "severity" : 2,
+          "line" : 63
+        },
+        {
+          "column" : 32,
+          "message" : "use of undeclared identifier 'PROT_WRITE'",
+          "severity" : 2,
+          "line" : 63
+        },
+        {
+          "column" : 45,
+          "message" : "use of undeclared identifier 'PROT_EXEC'",
+          "severity" : 2,
+          "line" : 63
+        },
+        {
+          "column" : 20,
+          "message" : "use of undeclared identifier 'MAP_PRIVATE'",
+          "severity" : 2,
+          "line" : 64
+        },
+        {
+          "column" : 19,
+          "message" : "use of undeclared identifier 'std'",
+          "severity" : 2,
+          "line" : 73
+        },
+        {
+          "column" : 29,
+          "message" : "use of undeclared identifier 'JittedFunc'",
+          "severity" : 2,
+          "line" : 73
+        },
+        {
+          "column" : 43,
+          "message" : "expected '(' for function-style cast or type construction",
+          "severity" : 2,
+          "line" : 73
+        },
+        {
+          "column" : 46,
+          "message" : "use of undeclared identifier 'JittedFunc'",
+          "severity" : 2,
+          "line" : 73
+        },
+        {
+          "column" : 13,
+          "message" : "use of undeclared identifier 'printf'",
+          "severity" : 2,
+          "line" : 85
+        },
+        {
+          "column" : 13,
+          "message" : "use of undeclared identifier 'arm_jit_reset'",
+          "severity" : 2,
+          "line" : 86
+        },
+        {
+          "column" : 2,
+          "message" : "use of undeclared identifier 'std'",
+          "severity" : 2,
+          "line" : 103
+        }
+      ],
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/utils\/arm_jit\/emit_core.cpp"
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/cheatSystem.cpp" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "message" : "'BIT' macro redefined",
+          "column" : 9,
+          "severity" : 1,
+          "line" : 4
+        },
+        {
+          "message" : "previous definition is here",
+          "column" : 9,
+          "severity" : 0,
+          "line" : 8
+        },
+        {
+          "message" : "'vsprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use vsnprintf(3) instead.",
+          "severity" : 1,
+          "line" : 205,
+          "column" : 3
+        },
+        {
+          "message" : "'vsprintf' has been explicitly marked deprecated here",
+          "severity" : 0,
+          "line" : 298,
+          "column" : 1
+        },
+        {
+          "message" : "expanded from macro '__deprecated_msg'",
+          "severity" : 0,
+          "line" : 227,
+          "column" : 48
+        }
+      ],
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/cheatSystem.cpp"
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/thumb_instructions.cpp" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/thumb_instructions.cpp",
+      "debugItems" : [
+        {
+          "line" : 205,
+          "message" : "'vsprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use vsnprintf(3) instead.",
+          "severity" : 1,
+          "column" : 3
+        },
+        {
+          "line" : 298,
+          "message" : "'vsprintf' has been explicitly marked deprecated here",
+          "severity" : 0,
+          "column" : 1
+        },
+        {
+          "line" : 227,
+          "message" : "expanded from macro '__deprecated_msg'",
+          "severity" : 0,
+          "column" : 48
+        },
+        {
+          "line" : 4,
+          "message" : "'BIT' macro redefined",
+          "severity" : 1,
+          "column" : 9
+        },
+        {
+          "line" : 8,
+          "message" : "previous definition is here",
+          "severity" : 0,
+          "column" : 9
+        }
+      ]
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/mic.cpp" : {
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/mic.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "message" : "'vsprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use vsnprintf(3) instead.",
+          "line" : 205,
+          "severity" : 1,
+          "column" : 3
+        },
+        {
+          "message" : "'vsprintf' has been explicitly marked deprecated here",
+          "line" : 298,
+          "severity" : 0,
+          "column" : 1
+        },
+        {
+          "message" : "expanded from macro '__deprecated_msg'",
+          "line" : 227,
+          "severity" : 0,
+          "column" : 48
+        }
+      ]
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/ios\/AuroraIOS\/Controllers\/AURInGameMenuViewController.m" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "message" : "'contentEdgeInsets' is deprecated: first deprecated in iOS 15.0 - This property is ignored when using UIButtonConfiguration",
+          "line" : 51,
+          "column" : 12,
+          "severity" : 1
+        },
+        {
+          "message" : "'contentEdgeInsets' has been explicitly marked deprecated here",
+          "line" : 162,
+          "column" : 35,
+          "severity" : 0
+        },
+        {
+          "message" : "'imageEdgeInsets' is deprecated: first deprecated in iOS 15.0 - This property is ignored when using UIButtonConfiguration",
+          "line" : 52,
+          "column" : 12,
+          "severity" : 1
+        },
+        {
+          "message" : "'imageEdgeInsets' has been explicitly marked deprecated here",
+          "line" : 164,
+          "column" : 35,
+          "severity" : 0
+        }
+      ],
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/ios\/AuroraIOS\/Controllers\/AURInGameMenuViewController.m"
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/nanoboyadvance\/nba\/src\/hw\/rom\/backup\/flash.cpp" : {
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/nanoboyadvance\/nba\/src\/hw\/rom\/backup\/flash.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "line" : 83,
+          "message" : "enumeration value 'ERASE_SECTOR' not handled in switch",
+          "column" : 12,
+          "severity" : 1
+        }
+      ]
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/nanoboyadvance\/nba\/src\/hw\/dma\/dma.cpp" : {
+      "debugItems" : [
+        {
+          "severity" : 1,
+          "message" : "expression with side effects will be evaluated despite being used as an operand to 'typeid'",
+          "column" : 17,
+          "line" : 40
+        },
+        {
+          "severity" : 1,
+          "message" : "enumeration value 'Immediate' not handled in switch",
+          "column" : 10,
+          "line" : 430
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/nanoboyadvance\/nba\/src\/hw\/dma\/dma.cpp"
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/addons\/slot1comp_protocol.cpp" : {
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/addons\/slot1comp_protocol.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "column" : 3,
+          "line" : 205,
+          "message" : "'vsprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use vsnprintf(3) instead.",
+          "severity" : 1
+        },
+        {
+          "column" : 1,
+          "line" : 298,
+          "message" : "'vsprintf' has been explicitly marked deprecated here",
+          "severity" : 0
+        },
+        {
+          "column" : 48,
+          "line" : 227,
+          "message" : "expanded from macro '__deprecated_msg'",
+          "severity" : 0
+        }
+      ]
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/bios.cpp" : {
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/bios.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "message" : "'BIT' macro redefined",
+          "severity" : 1,
+          "column" : 9,
+          "line" : 4
+        },
+        {
+          "message" : "previous definition is here",
+          "severity" : 0,
+          "column" : 9,
+          "line" : 8
+        }
+      ]
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/arm_instructions.cpp" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "line" : 205,
+          "message" : "'vsprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use vsnprintf(3) instead.",
+          "severity" : 1,
+          "column" : 3
+        },
+        {
+          "line" : 298,
+          "message" : "'vsprintf' has been explicitly marked deprecated here",
+          "severity" : 0,
+          "column" : 1
+        },
+        {
+          "line" : 227,
+          "message" : "expanded from macro '__deprecated_msg'",
+          "severity" : 0,
+          "column" : 48
+        }
+      ],
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/arm_instructions.cpp"
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/addons\/slot2_expMemory.cpp" : {
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/addons\/slot2_expMemory.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "severity" : 1,
+          "column" : 3,
+          "line" : 205,
+          "message" : "'vsprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use vsnprintf(3) instead."
+        },
+        {
+          "severity" : 0,
+          "column" : 1,
+          "line" : 298,
+          "message" : "'vsprintf' has been explicitly marked deprecated here"
+        },
+        {
+          "severity" : 0,
+          "column" : 48,
+          "line" : 227,
+          "message" : "expanded from macro '__deprecated_msg'"
+        }
+      ]
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/utils\/AsmJit\/x86\/x86compilercontext.cpp" : {
+      "debugItems" : [
+        {
+          "severity" : 2,
+          "line" : 786,
+          "column" : 13,
+          "message" : "cast from pointer to smaller type 'sysint_t' (aka 'int') loses information"
+        },
+        {
+          "severity" : 2,
+          "line" : 1304,
+          "column" : 13,
+          "message" : "cast from pointer to smaller type 'sysint_t' (aka 'int') loses information"
+        },
+        {
+          "severity" : 2,
+          "line" : 1395,
+          "column" : 13,
+          "message" : "cast from pointer to smaller type 'sysint_t' (aka 'int') loses information"
+        },
+        {
+          "severity" : 2,
+          "line" : 1404,
+          "column" : 13,
+          "message" : "cast from pointer to smaller type 'sysint_t' (aka 'int') loses information"
+        },
+        {
+          "severity" : 2,
+          "line" : 1572,
+          "column" : 13,
+          "message" : "cast from pointer to smaller type 'sysint_t' (aka 'int') loses information"
+        },
+        {
+          "severity" : 2,
+          "line" : 2068,
+          "column" : 13,
+          "message" : "cast from pointer to smaller type 'sysint_t' (aka 'int') loses information"
+        },
+        {
+          "severity" : 2,
+          "line" : 2156,
+          "column" : 13,
+          "message" : "cast from pointer to smaller type 'sysint_t' (aka 'int') loses information"
+        },
+        {
+          "severity" : 2,
+          "line" : 2164,
+          "column" : 13,
+          "message" : "cast from pointer to smaller type 'sysint_t' (aka 'int') loses information"
+        }
+      ],
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/utils\/AsmJit\/x86\/x86compilercontext.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/addons\/slot2_mpcf.cpp" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/addons\/slot2_mpcf.cpp",
+      "debugItems" : [
+        {
+          "severity" : 1,
+          "message" : "'vsprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use vsnprintf(3) instead.",
+          "column" : 3,
+          "line" : 205
+        },
+        {
+          "severity" : 0,
+          "message" : "'vsprintf' has been explicitly marked deprecated here",
+          "column" : 1,
+          "line" : 298
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro '__deprecated_msg'",
+          "column" : 48,
+          "line" : 227
+        }
+      ]
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/utils\/AsmJit\/x86\/x86compiler.cpp" : {
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/utils\/AsmJit\/x86\/x86compiler.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "line" : 786,
+          "severity" : 2,
+          "message" : "cast from pointer to smaller type 'sysint_t' (aka 'int') loses information",
+          "column" : 13
+        },
+        {
+          "line" : 1304,
+          "severity" : 2,
+          "message" : "cast from pointer to smaller type 'sysint_t' (aka 'int') loses information",
+          "column" : 13
+        },
+        {
+          "line" : 1395,
+          "severity" : 2,
+          "message" : "cast from pointer to smaller type 'sysint_t' (aka 'int') loses information",
+          "column" : 13
+        },
+        {
+          "line" : 1404,
+          "severity" : 2,
+          "message" : "cast from pointer to smaller type 'sysint_t' (aka 'int') loses information",
+          "column" : 13
+        },
+        {
+          "line" : 1572,
+          "severity" : 2,
+          "message" : "cast from pointer to smaller type 'sysint_t' (aka 'int') loses information",
+          "column" : 13
+        },
+        {
+          "line" : 2068,
+          "severity" : 2,
+          "message" : "cast from pointer to smaller type 'sysint_t' (aka 'int') loses information",
+          "column" : 13
+        },
+        {
+          "line" : 2156,
+          "severity" : 2,
+          "message" : "cast from pointer to smaller type 'sysint_t' (aka 'int') loses information",
+          "column" : 13
+        },
+        {
+          "line" : 2164,
+          "severity" : 2,
+          "message" : "cast from pointer to smaller type 'sysint_t' (aka 'int') loses information",
+          "column" : 13
+        },
+        {
+          "line" : 390,
+          "severity" : 1,
+          "message" : "'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.",
+          "column" : 5
+        },
+        {
+          "line" : 278,
+          "severity" : 0,
+          "message" : "'sprintf' has been explicitly marked deprecated here",
+          "column" : 1
+        },
+        {
+          "line" : 227,
+          "severity" : 0,
+          "message" : "expanded from macro '__deprecated_msg'",
+          "column" : 48
+        }
+      ]
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/debug.cpp" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/debug.cpp",
+      "debugItems" : [
+        {
+          "column" : 3,
+          "severity" : 1,
+          "line" : 205,
+          "message" : "'vsprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use vsnprintf(3) instead."
+        },
+        {
+          "column" : 1,
+          "severity" : 0,
+          "line" : 298,
+          "message" : "'vsprintf' has been explicitly marked deprecated here"
+        },
+        {
+          "column" : 48,
+          "severity" : 0,
+          "line" : 227,
+          "message" : "expanded from macro '__deprecated_msg'"
+        },
+        {
+          "column" : 10,
+          "severity" : 2,
+          "line" : 29,
+          "message" : "'utils\/md5.h' file not found"
+        }
+      ]
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/ios\/AuroraIOS\/Models\/AURDeltaSkin.m" : {
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/ios\/AuroraIOS\/Models\/AURDeltaSkin.m",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "column" : 39,
+          "severity" : 1,
+          "message" : "auto property synthesis will not synthesize property 'identifier'; it will be implemented by its superclass, use @dynamic to acknowledge intention",
+          "line" : 6
+        },
+        {
+          "column" : 39,
+          "severity" : 0,
+          "message" : "property declared here",
+          "line" : 8
+        },
+        {
+          "column" : 17,
+          "severity" : 0,
+          "message" : "detected while default synthesizing properties in class implementation",
+          "line" : 3
+        }
+      ]
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/nanoboyadvance\/nba\/src\/hw\/irq\/irq.cpp" : {
+      "debugItems" : [
+        {
+          "severity" : 1,
+          "line" : 40,
+          "column" : 17,
+          "message" : "expression with side effects will be evaluated despite being used as an operand to 'typeid'"
+        }
+      ],
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/nanoboyadvance\/nba\/src\/hw\/irq\/irq.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/utils\/fsnitro.cpp" : {
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/utils\/fsnitro.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "line" : 22,
+          "severity" : 2,
+          "message" : "'types.h' file not found",
+          "column" : 10
+        }
+      ]
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/nanoboyadvance\/nba\/src\/hw\/rom\/gpio\/gpio.cpp" : {
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/nanoboyadvance\/nba\/src\/hw\/rom\/gpio\/gpio.cpp",
+      "debugItems" : [
+        {
+          "message" : "expression with side effects will be evaluated despite being used as an operand to 'typeid'",
+          "line" : 26,
+          "severity" : 1,
+          "column" : 37
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/utils\/colorspacehandler\/colorspacehandler_AVX512.cpp" : {
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/utils\/colorspacehandler\/colorspacehandler_AVX512.cpp",
+      "debugItems" : [
+        {
+          "severity" : 2,
+          "message" : "'types.h' file not found",
+          "line" : 21,
+          "column" : 10
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/texcache.cpp" : {
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/texcache.cpp",
+      "debugItems" : [
+        {
+          "severity" : 2,
+          "message" : "'types.h' file not found",
+          "line" : 21,
+          "column" : 10
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/nanoboyadvance\/nba\/src\/hw\/keypad\/serialization.cpp" : {
+      "debugItems" : [
+        {
+          "column" : 17,
+          "message" : "expression with side effects will be evaluated despite being used as an operand to 'typeid'",
+          "severity" : 1,
+          "line" : 40
+        }
+      ],
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/nanoboyadvance\/nba\/src\/hw\/keypad\/serialization.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/GPU_Operations_AVX2.cpp" : {
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/GPU_Operations_AVX2.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "line" : 19,
+          "message" : "This code requires AVX2 support.",
+          "column" : 3,
+          "severity" : 2
+        },
+        {
+          "line" : 20,
+          "message" : "This error might occur if this file is compiled directly. Do not compile this file directly, as it is already included in GPU_Operations.cpp.",
+          "column" : 3,
+          "severity" : 1
+        }
+      ]
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/metaspu\/Timestretcher.cpp" : {
+      "debugItems" : [
+        {
+          "line" : 21,
+          "message" : "'types.h' file not found",
+          "severity" : 2,
+          "column" : 10
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/metaspu\/Timestretcher.cpp"
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/ROMReader.cpp" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/ROMReader.cpp",
+      "debugItems" : [
+        {
+          "severity" : 1,
+          "message" : "'vsprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use vsnprintf(3) instead.",
+          "line" : 205,
+          "column" : 3
+        },
+        {
+          "severity" : 0,
+          "message" : "'vsprintf' has been explicitly marked deprecated here",
+          "line" : 298,
+          "column" : 1
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro '__deprecated_msg'",
+          "line" : 227,
+          "column" : 48
+        }
+      ]
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/metaspu\/SndOut.cpp" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "column" : 10,
+          "severity" : 2,
+          "message" : "'types.h' file not found",
+          "line" : 30
+        }
+      ],
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/metaspu\/SndOut.cpp"
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/nanoboyadvance\/nba\/src\/hw\/ppu\/merge.cpp" : {
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/nanoboyadvance\/nba\/src\/hw\/ppu\/merge.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "severity" : 1,
+          "message" : "enumeration value 'SFX_NONE' not handled in switch",
+          "column" : 18,
+          "line" : 205
+        }
+      ]
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/nanoboyadvance\/platform\/src\/loader\/bios.cpp" : {
+      "debugItems" : [
+        {
+          "column" : 17,
+          "message" : "expression with side effects will be evaluated despite being used as an operand to 'typeid'",
+          "severity" : 1,
+          "line" : 40
+        }
+      ],
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/nanoboyadvance\/platform\/src\/loader\/bios.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/utils\/vfat.cpp" : {
+      "title" : "Projects\/12BDFF92-9BE8-47DE-94C4-9044F5BA705D\/src\/core\/desume\/utils\/vfat.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "line" : 205,
+          "column" : 3,
+          "severity" : 1,
+          "message" : "'vsprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use vsnprintf(3) instead."
+        },
+        {
+          "line" : 298,
+          "column" : 1,
+          "severity" : 0,
+          "message" : "'vsprintf' has been explicitly marked deprecated here"
+        },
+        {
+          "line" : 227,
+          "column" : 48,
+          "severity" : 0,
+          "message" : "expanded from macro '__deprecated_msg'"
+        },
+        {
+          "line" : 4,
+          "column" : 10,
+          "severity" : 2,
+          "message" : "'types.h' file not found"
+        }
+      ]
+    }
+  }
+}
