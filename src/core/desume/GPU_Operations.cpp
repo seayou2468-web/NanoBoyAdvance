@@ -16,6 +16,9 @@
 */
 
 #include "GPU_Operations.h"
+#include <algorithm>
+#include <cassert>
+#include <cstring>
 
 
 static size_t _gpuLargestDstLineCount = 1;

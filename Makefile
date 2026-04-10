@@ -70,10 +70,12 @@ CORE_OBJS := \
 MAIN_OBJ  := $(BUILD_DIR)/main.o
 LIBNES    := $(BUILD_DIR)/libquick_nes.a
 
-.PHONY: all clean dump-frames
+.PHONY: all clean dump-frames desume-core-check
 
 all: $(APP)
 dump-frames: $(DUMP_TOOL)
+desume-core-check:
+	bash tools/check_desume_nojit_build.sh
 
 $(APP): $(MAIN_OBJ) $(CORE_OBJS) $(LIBNBA) $(LIBNES)
 	@mkdir -p $(dir $@)

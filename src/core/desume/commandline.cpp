@@ -28,7 +28,7 @@
 #include "NDSSystem.h"
 #include "utils/datetime.h"
 #include "utils/xstring.h"
-#include <compat/getopt.h>
+#include <getopt.h>
 //#include "frontend/modules/mGetOpt.h" //to test with this, make sure global `optind` is initialized to 1
 
 #define printerror(...) fprintf(stderr, __VA_ARGS__)
@@ -640,4 +640,3 @@ void CommandLine::process_addonCommands()
         rtcHourOverride = diff;
     }
 }
-

@@ -18,11 +18,10 @@
 #include <string>
 #include <vector>
 #include <string.h>
-#include <TargetConditionals.h>
 #include "types.h"
 
-#if !defined(__APPLE__) || !TARGET_OS_IPHONE
-#error "DeSmuME path module is restricted to iOS builds in this repository."
+#if defined(__APPLE__)
+#include <TargetConditionals.h>
 #endif
 
 #include "time.h"

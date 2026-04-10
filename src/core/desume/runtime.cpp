@@ -33,8 +33,9 @@ bool EnsureInitialized(Runtime& runtime, std::string& last_error) {
 
   if (GPU != nullptr) {
     GPU->SetColorFormat(NDSColorFormat_BGR555_Rev);
-    GPU->SetFramebufferSize(kScreenWidth, kScreenHeight);
+    GPU->SetCustomFramebufferSize(kScreenWidth, kScreenHeight);
   }
+  CommonSettings.use_jit = false;
 
   runtime.initialized = true;
   return true;
