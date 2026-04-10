@@ -1,14 +1,7 @@
 #import "AURSceneDelegate.h"
-#import "AURViewController.h"
+#import "Controllers/AURLibraryViewController.h"
 
 @implementation AURSceneDelegate
-
-- (AURViewController* _Nullable)rootViewController {
-    if (![self.window.rootViewController isKindOfClass:[AURViewController class]]) {
-        return nil;
-    }
-    return (AURViewController*)self.window.rootViewController;
-}
 
 // MARK: - UIWindowSceneDelegate
 
@@ -24,7 +17,16 @@
     UIWindowScene* windowScene = (UIWindowScene*)scene;
 
     self.window = [[UIWindow alloc] initWithWindowScene:windowScene];
-    self.window.rootViewController = [AURViewController new];
+
+    AURLibraryViewController *libraryVC = [[AURLibraryViewController alloc] init];
+    UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:libraryVC];
+
+    // Delta-like appearance for Navigation Bar
+    navController.navigationBar.prefersLargeTitles = YES;
+    navController.navigationBar.barStyle = UIBarStyleBlack;
+    navController.navigationBar.tintColor = [UIColor systemPinkColor];
+
+    self.window.rootViewController = navController;
     [self.window makeKeyAndVisible];
 }
 
@@ -34,22 +36,18 @@
 
 - (void)sceneDidBecomeActive:(UIScene*)scene {
     (void)scene;
-    [[self rootViewController] handleApplicationDidBecomeActive];
 }
 
 - (void)sceneWillResignActive:(UIScene*)scene {
     (void)scene;
-    [[self rootViewController] handleApplicationWillResignActive];
 }
 
 - (void)sceneDidEnterBackground:(UIScene*)scene {
     (void)scene;
-    [[self rootViewController] handleApplicationDidEnterBackground];
 }
 
 - (void)sceneWillEnterForeground:(UIScene*)scene {
     (void)scene;
-    [[self rootViewController] handleApplicationWillEnterForeground];
 }
 
 @end
