@@ -19,7 +19,7 @@
 */
 
 #ifdef HAVE_LIBZ
-#include <zlib.h>
+#include "zlib_compat.h"
 #endif
 #include <stack>
 #include <set>

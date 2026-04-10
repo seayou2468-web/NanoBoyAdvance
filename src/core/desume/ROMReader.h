@@ -20,7 +20,7 @@
 #define _ROMREADER_H_
 
 #ifdef HAVE_LIBZ
-#include <zlib.h>
+#include "zlib_compat.h"
 #endif
 #include <string.h>
 

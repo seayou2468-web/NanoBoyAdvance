@@ -26,7 +26,7 @@
 #include <string.h>
 #include <string>
 #include <stdarg.h>
-#include <zlib.h>
+#include "zlib_compat.h"
 #include <stdlib.h>
 #include <map>
 

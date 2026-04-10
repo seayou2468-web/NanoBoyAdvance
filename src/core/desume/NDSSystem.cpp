@@ -21,9 +21,9 @@
 #include <stdlib.h>
 #include <algorithm>
 #include <math.h>
-#include <zlib.h>
+#include "zlib_compat.h"
 
-#include <features/features_cpu.h>
+#include "features/features_cpu.h"
 
 #include "utils/decrypt/decrypt.h"
 #include "utils/decrypt/crc.h"

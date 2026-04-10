@@ -14,6 +14,8 @@ const CoreAdapter* FindCoreAdapter(EmulatorCoreType type) {
       return &kQuickNesAdapter;
     case EMULATOR_CORE_TYPE_GB:
       return &kSameBoyAdapter;
+    case EMULATOR_CORE_TYPE_NDS:
+      return nullptr;
     default:
       return nullptr;
   }

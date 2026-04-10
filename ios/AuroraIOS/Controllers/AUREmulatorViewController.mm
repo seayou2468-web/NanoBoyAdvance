@@ -84,7 +84,16 @@
 
 - (void)startEmulator {
     _core = EmulatorCore_Create(_coreType);
-    if (!_core) return;
+    if (!_core) {
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Core unavailable"
+                                                                       message:@"このコアはまだiOS実行に接続されていません。"
+                                                                preferredStyle:UIAlertControllerStyleAlert];
+        [alert addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(__unused UIAlertAction * _Nonnull action) {
+            [self dismissViewControllerAnimated:YES completion:nil];
+        }]];
+        [self presentViewController:alert animated:YES completion:nil];
+        return;
+    }
 
     NSString *biosPath = [[AURDatabaseManager sharedManager] BIOSPathForCoreType:_coreType];
     if (biosPath) {

@@ -19,9 +19,9 @@
 #ifndef TYPES_HPP
 #define TYPES_HPP
 
-#include <retro_miscellaneous.h>
-#include <retro_inline.h>
-#include <math/fxp.h>
+#include "compat/retro_miscellaneous.h"
+#include "compat/retro_inline.h"
+#include "math/fxp.h"
 
 #ifdef __APPLE__
 	#include <AvailabilityMacros.h>
@@ -125,7 +125,7 @@
 #endif
 
 #if defined(_MSC_VER) || defined(__MINGW32__)
-	#include <compat/msvc.h>
+	#include "compat/msvc.h"
 
 #else
 	#define WINAPI
