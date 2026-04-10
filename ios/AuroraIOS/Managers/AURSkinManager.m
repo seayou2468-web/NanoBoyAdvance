@@ -50,12 +50,17 @@
 }
 
 - (void)importSkinAtURL:(NSURL *)url completion:(void(^)(BOOL success))completion {
+    BOOL accessing = [url startAccessingSecurityScopedResource];
+
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         NSString *tempDir = [NSTemporaryDirectory() stringByAppendingPathComponent:[[NSUUID UUID] UUIDString]];
         [[NSFileManager defaultManager] createDirectoryAtPath:tempDir withIntermediateDirectories:YES attributes:nil error:nil];
 
-        // Use miniz to unzip .deltaskin (which is a ZIP)
         BOOL unzipSuccess = [self unzipFileAtPath:url.path toDirectory:tempDir];
+
+        if (accessing) {
+            [url stopAccessingSecurityScopedResource];
+        }
 
         if (unzipSuccess) {
             NSString *jsonPath = [tempDir stringByAppendingPathComponent:@"info.json"];
@@ -100,13 +105,13 @@
             continue;
         }
 
-        if (mz_zip_reader_is_file_a_directory(&zip_archive, i)) {
-            NSString *dirPath = [dest stringByAppendingPathComponent:[NSString stringWithUTF8String:file_stat.m_filename]];
-            [[NSFileManager defaultManager] createDirectoryAtPath:dirPath withIntermediateDirectories:YES attributes:nil error:nil];
-        } else {
-            NSString *filePath = [dest stringByAppendingPathComponent:[NSString stringWithUTF8String:file_stat.m_filename]];
-            [[NSFileManager defaultManager] createDirectoryAtPath:[filePath stringByDeletingLastPathComponent] withIntermediateDirectories:YES attributes:nil error:nil];
+        NSString *fileName = [NSString stringWithUTF8String:file_stat.m_filename];
+        NSString *filePath = [dest stringByAppendingPathComponent:fileName];
 
+        if (mz_zip_reader_is_file_a_directory(&zip_archive, i)) {
+            [[NSFileManager defaultManager] createDirectoryAtPath:filePath withIntermediateDirectories:YES attributes:nil error:nil];
+        } else {
+            [[NSFileManager defaultManager] createDirectoryAtPath:[filePath stringByDeletingLastPathComponent] withIntermediateDirectories:YES attributes:nil error:nil];
             if (!mz_zip_reader_extract_to_file(&zip_archive, i, [filePath fileSystemRepresentation], 0)) {
                 mz_zip_reader_end(&zip_archive);
                 return NO;
@@ -123,14 +128,21 @@
 }
 
 - (AURControllerSkin *)skinForCoreType:(EmulatorCoreType)coreType isLandscape:(BOOL)isLandscape {
-    for (AURControllerSkin *skin in self.importedSkins) {
-        return skin; // Simplified logic
+    NSString *targetType = @"com.rileytestut.delta.game.gba";
+    if (coreType == EMULATOR_CORE_TYPE_NES) targetType = @"com.rileytestut.delta.game.nes";
+    else if (coreType == EMULATOR_CORE_TYPE_GB) targetType = @"com.rileytestut.delta.game.gbc";
+
+    for (AURDeltaSkin *skin in self.importedSkins) {
+        if ([skin.gameTypeIdentifier isEqualToString:targetType]) {
+            return skin;
+        }
     }
     return [self defaultSkinForCore:coreType isLandscape:isLandscape];
 }
 
 - (AURControllerSkin *)defaultSkinForCore:(EmulatorCoreType)coreType isLandscape:(BOOL)isLandscape {
     AURControllerSkin *skin = [[AURControllerSkin alloc] init];
+    skin.isStandard = YES;
     NSMutableDictionary *rects = [NSMutableDictionary dictionary];
 
     if (coreType == EMULATOR_CORE_TYPE_GBA) {
@@ -145,7 +157,7 @@
         rects[@"r"] = [NSValue valueWithCGRect:CGRectMake(265, 0, 110, 45)];
         rects[@"start"] = [NSValue valueWithCGRect:CGRectMake(195, 380, 70, 25)];
         rects[@"select"] = [NSValue valueWithCGRect:CGRectMake(110, 380, 70, 25)];
-    } else if (coreType == EMULATOR_CORE_TYPE_NES) {
+    } else {
         skin.name = @"NES Default";
         rects[@"up"] = [NSValue valueWithCGRect:CGRectMake(60, 130, 40, 40)];
         rects[@"down"] = [NSValue valueWithCGRect:CGRectMake(60, 210, 40, 40)];
@@ -155,16 +167,6 @@
         rects[@"b"] = [NSValue valueWithCGRect:CGRectMake(225, 170, 60, 60)];
         rects[@"start"] = [NSValue valueWithCGRect:CGRectMake(210, 350, 55, 20)];
         rects[@"select"] = [NSValue valueWithCGRect:CGRectMake(110, 350, 55, 20)];
-    } else {
-        skin.name = @"GB/GBC Default";
-        rects[@"up"] = [NSValue valueWithCGRect:CGRectMake(50, 120, 45, 45)];
-        rects[@"down"] = [NSValue valueWithCGRect:CGRectMake(50, 200, 45, 45)];
-        rects[@"left"] = [NSValue valueWithCGRect:CGRectMake(10, 160, 45, 45)];
-        rects[@"right"] = [NSValue valueWithCGRect:CGRectMake(90, 160, 45, 45)];
-        rects[@"a"] = [NSValue valueWithCGRect:CGRectMake(290, 160, 65, 65)];
-        rects[@"b"] = [NSValue valueWithCGRect:CGRectMake(215, 160, 65, 65)];
-        rects[@"start"] = [NSValue valueWithCGRect:CGRectMake(200, 340, 60, 20)];
-        rects[@"select"] = [NSValue valueWithCGRect:CGRectMake(110, 340, 60, 20)];
     }
 
     skin.buttonRects = rects;

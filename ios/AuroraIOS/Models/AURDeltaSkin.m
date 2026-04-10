@@ -10,10 +10,13 @@
     AURDeltaSkin *skin = [[AURDeltaSkin alloc] init];
     skin.name = json[@"name"];
     skin.identifier = json[@"identifier"];
+    skin.gameTypeIdentifier = json[@"gameTypeIdentifier"];
 
-    // Mapping Delta JSON to our internal structure
-    // Simplifying: using first portrait layout for now
-    NSDictionary *portrait = json[@"layouts"][@"portrait"];
+    // Support multiple layouts
+    skin.layouts = json[@"layouts"];
+
+    // Default to portrait standard for basic mapping
+    NSDictionary *portrait = skin.layouts[@"portrait"];
     if (portrait) {
         NSString *bgName = portrait[@"assets"][@"background"];
         if (bgName) {
@@ -27,7 +30,6 @@
             NSDictionary *frame = item[@"frame"];
             if (inputs.count > 0 && frame) {
                 CGRect rect = CGRectMake([frame[@"x"] floatValue], [frame[@"y"] floatValue], [frame[@"width"] floatValue], [frame[@"height"] floatValue]);
-                // Map first input to a key (simplified)
                 NSString *input = inputs.firstObject;
                 rects[input] = [NSValue valueWithCGRect:rect];
             }
@@ -36,6 +38,13 @@
     }
 
     return skin;
+}
+
+- (BOOL)supportsTraits:(AURControllerSkinTraits *)traits {
+    // Better traits support check
+    NSString *orientationKey = (traits.orientation == AURControllerSkinOrientationLandscape) ? @"landscape" : @"portrait";
+    if (self.layouts[orientationKey]) return YES;
+    return NO;
 }
 
 @end

@@ -100,6 +100,7 @@
 - (void)documentPicker:(UIDocumentPickerViewController *)controller didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls {
     NSURL *url = urls.firstObject;
     if (url) {
+        BOOL accessing = [url startAccessingSecurityScopedResource];
         AURGame *game = [[AURGame alloc] init];
         game.title = [[url lastPathComponent] stringByDeletingPathExtension];
         game.romPath = [url path];
@@ -110,6 +111,9 @@
         else game.coreType = EMULATOR_CORE_TYPE_GB;
 
         [[AURDatabaseManager sharedManager] addGame:game];
+        if (accessing) {
+            [url stopAccessingSecurityScopedResource];
+        }
         [self reloadData];
     }
 }
