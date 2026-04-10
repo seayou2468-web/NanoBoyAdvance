@@ -40,6 +40,9 @@ static const NSUInteger kDefaultHeight = 160;
 - (void)dismissCustomMenu;
 - (void)applyControllerPreset;
 - (NSString*)coreTypeLabel:(EmulatorCoreType)type;
+- (void)setVirtualKey:(EmulatorKey)key pressed:(BOOL)pressed;
+- (void)releaseAllVirtualKeys;
+- (void)presentLogViewer;
 @end
 
 @implementation AURViewController {
@@ -75,6 +78,9 @@ static const NSUInteger kDefaultHeight = 160;
     float           _videoSharpen;
     float           _videoLutMix;
     AURUpscaleMode  _upscaleMode;
+    BOOL            _isPaused;
+    NSInteger       _screenScalePreset; // 0: fit, 1: medium, 2: compact
+    NSMutableSet<NSNumber*>* _pressedKeys;
 #if DEBUG
     NSUInteger      _frameCounter;
     uint32_t        _lastFrameSample;
@@ -102,6 +108,9 @@ static const NSUInteger kDefaultHeight = 160;
     _videoSharpen = 0.18f;
     _videoLutMix = 0.15f;
     _upscaleMode = AURUpscaleModeAuto;
+    _isPaused = NO;
+    _screenScalePreset = 0;
+    _pressedKeys = [NSMutableSet set];
 
     // ImageView
     self.imageView = [[AURMetalView alloc] initWithFrame:CGRectZero];
@@ -238,11 +247,16 @@ static const NSUInteger kDefaultHeight = 160;
         button.layer.borderColor = [UIColor colorWithWhite:1.0 alpha:0.08].CGColor;
         button.layer.borderWidth = 1.0;
         button.titleLabel.font = [UIFont systemFontOfSize:(size > 50 ? 22 : 14) weight:UIFontWeightSemibold];
+        button.exclusiveTouch = NO;
         [button.widthAnchor constraintEqualToConstant:size].active = YES;
         [button.heightAnchor constraintEqualToConstant:size].active = YES;
         [button addTarget:self action:@selector(onVirtualKeyDown:) forControlEvents:UIControlEventTouchDown];
+        [button addTarget:self action:@selector(onVirtualKeyDown:) forControlEvents:UIControlEventTouchDragInside];
+        [button addTarget:self action:@selector(onVirtualKeyDown:) forControlEvents:UIControlEventTouchDragEnter];
         [button addTarget:self action:@selector(onVirtualKeyUp:) forControlEvents:UIControlEventTouchUpInside];
         [button addTarget:self action:@selector(onVirtualKeyUp:) forControlEvents:UIControlEventTouchUpOutside];
+        [button addTarget:self action:@selector(onVirtualKeyUp:) forControlEvents:UIControlEventTouchDragOutside];
+        [button addTarget:self action:@selector(onVirtualKeyUp:) forControlEvents:UIControlEventTouchDragExit];
         [button addTarget:self action:@selector(onVirtualKeyUp:) forControlEvents:UIControlEventTouchCancel];
         return button;
     };
@@ -513,6 +527,25 @@ static const NSUInteger kDefaultHeight = 160;
 
     CGFloat minLogHeight = isLandscape ? 56.0 : (shortEdge <= 390.0 ? 64.0 : 84.0);
     self.logMinHeightConstraint.constant = minLogHeight;
+
+    CGFloat baseRatio = isLandscape ? 0.56 : 0.40;
+    if (_screenScalePreset == 1) {
+        baseRatio = isLandscape ? 0.50 : 0.35;
+    } else if (_screenScalePreset == 2) {
+        baseRatio = isLandscape ? 0.44 : 0.30;
+    }
+    CGFloat maxImageHeight = size.height * baseRatio;
+    for (NSLayoutConstraint* c in self.view.constraints) {
+        if (c.firstItem == self.imageView && c.firstAttribute == NSLayoutAttributeHeight &&
+            c.relation == NSLayoutRelationLessThanOrEqual) {
+            c.constant = maxImageHeight;
+            return;
+        }
+    }
+    NSLayoutConstraint* cap =
+        [self.imageView.heightAnchor constraintLessThanOrEqualToConstant:maxImageHeight];
+    cap.priority = UILayoutPriorityRequired;
+    cap.active = YES;
 }
 
 // MARK: - ROM Picker
@@ -644,6 +677,7 @@ static const NSUInteger kDefaultHeight = 160;
     self.imageAspectConstraint.active = YES;
 
     _running = YES;
+    _isPaused = NO;
     _whiteFrameStreak = 0;
     _didLogWhiteFrameHint = NO;
 #if DEBUG
@@ -670,7 +704,7 @@ static const NSUInteger kDefaultHeight = 160;
 // MARK: - DisplayLink
 
 - (void)startDisplayLink {
-    if (!_running || self.displayLink != nil) { return; }
+    if (!_running || _isPaused || self.displayLink != nil) { return; }
 
     CADisplayLink* dl =
         [CADisplayLink displayLinkWithTarget:self
@@ -687,6 +721,7 @@ static const NSUInteger kDefaultHeight = 160;
 - (void)stopDisplayLink {
     [self.displayLink invalidate];
     self.displayLink = nil;
+    [self releaseAllVirtualKeys];
 }
 
 // MARK: - App Lifecycle Hooks
@@ -699,7 +734,7 @@ static const NSUInteger kDefaultHeight = 160;
 // MARK: - Render
 
 - (void)stepFrameAndRender {
-    if (_core == NULL) { return; }
+    if (_core == NULL || _isPaused) { return; }
 #if DEBUG
     CFTimeInterval t0 = CACurrentMediaTime();
 #endif
@@ -923,6 +958,25 @@ static const NSUInteger kDefaultHeight = 160;
     __weak typeof(self) weakSelf = self;
     [self presentCustomMenuWithTitle:@"マルチエミュメニュー"
                              actions:@[
+        @{ @"title": @"一時停止 / 再開", @"handler": [^{
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            if (!strongSelf || strongSelf->_core == NULL) { return; }
+            strongSelf->_isPaused = !strongSelf->_isPaused;
+            if (strongSelf->_isPaused) {
+                [strongSelf stopDisplayLink];
+                strongSelf.statusLabel.text = @"⏸ 一時停止中";
+                [strongSelf appendLog:@"再生状態: 一時停止"];
+            } else {
+                strongSelf.statusLabel.text = @"▶ 再開";
+                [strongSelf appendLog:@"再生状態: 再開"];
+                [strongSelf startDisplayLink];
+            }
+        } copy]},
+        @{ @"title": @"ログを別画面で開く", @"handler": [^{
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            if (!strongSelf) { return; }
+            [strongSelf presentLogViewer];
+        } copy]},
         @{ @"title": @"映像設定 (画質/シェーダー/彩度)", @"handler": [^{
             __strong typeof(weakSelf) strongSelf = weakSelf;
             if (!strongSelf) { return; }
@@ -1024,6 +1078,27 @@ static const NSUInteger kDefaultHeight = 160;
                                                     lutMix:strongSelf->_videoLutMix];
             [strongSelf appendLog:@"見え方補正: ナチュラルプリセット"];
         } copy]},
+        @{ @"title": @"画面サイズ: フィット", @"handler": [^{
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            if (!strongSelf) { return; }
+            strongSelf->_screenScalePreset = 0;
+            [strongSelf updateAdaptiveLayoutForBounds:strongSelf.view.bounds.size];
+            [strongSelf appendLog:@"画面サイズ設定: フィット"];
+        } copy]},
+        @{ @"title": @"画面サイズ: 中", @"handler": [^{
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            if (!strongSelf) { return; }
+            strongSelf->_screenScalePreset = 1;
+            [strongSelf updateAdaptiveLayoutForBounds:strongSelf.view.bounds.size];
+            [strongSelf appendLog:@"画面サイズ設定: 中"];
+        } copy]},
+        @{ @"title": @"画面サイズ: 小", @"handler": [^{
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            if (!strongSelf) { return; }
+            strongSelf->_screenScalePreset = 2;
+            [strongSelf updateAdaptiveLayoutForBounds:strongSelf.view.bounds.size];
+            [strongSelf appendLog:@"画面サイズ設定: 小"];
+        } copy]},
     ]];
 }
 
@@ -1039,6 +1114,7 @@ static const NSUInteger kDefaultHeight = 160;
 }
 
 - (void)presentCustomMenuWithTitle:(NSString*)title actions:(NSArray<NSDictionary*>*)actions {
+    [self releaseAllVirtualKeys];
     [self dismissCustomMenu];
     self.menuTitleLabel.text = title;
     [_menuHandlers removeAllObjects];
@@ -1098,13 +1174,72 @@ static const NSUInteger kDefaultHeight = 160;
 }
 
 - (void)onVirtualKeyDown:(UIButton*)sender {
-    if (_core == NULL) { return; }
-    EmulatorCore_SetKeyStatus(_core, (EmulatorKey)sender.tag, true);
+    [self setVirtualKey:(EmulatorKey)sender.tag pressed:YES];
+    sender.alpha = 0.65;
 }
 
 - (void)onVirtualKeyUp:(UIButton*)sender {
+    [self setVirtualKey:(EmulatorKey)sender.tag pressed:NO];
+    sender.alpha = 1.0;
+}
+
+- (void)setVirtualKey:(EmulatorKey)key pressed:(BOOL)pressed {
     if (_core == NULL) { return; }
-    EmulatorCore_SetKeyStatus(_core, (EmulatorKey)sender.tag, false);
+    NSNumber* keyNumber = @(key);
+    BOOL alreadyPressed = [_pressedKeys containsObject:keyNumber];
+    if (pressed && alreadyPressed) { return; }
+    if (!pressed && !alreadyPressed) { return; }
+    if (pressed) {
+        [_pressedKeys addObject:keyNumber];
+    } else {
+        [_pressedKeys removeObject:keyNumber];
+    }
+    EmulatorCore_SetKeyStatus(_core, key, pressed);
+}
+
+- (void)releaseAllVirtualKeys {
+    if (_core == NULL) {
+        [_pressedKeys removeAllObjects];
+        return;
+    }
+    for (NSNumber* keyNumber in _pressedKeys.allObjects) {
+        EmulatorCore_SetKeyStatus(_core, (EmulatorKey)keyNumber.integerValue, false);
+    }
+    [_pressedKeys removeAllObjects];
+}
+
+- (void)presentLogViewer {
+    UIViewController* vc = [[UIViewController alloc] init];
+    vc.view.backgroundColor = UIColor.systemBackgroundColor;
+    vc.modalPresentationStyle = UIModalPresentationPageSheet;
+    vc.title = @"実行ログ";
+
+    UITextView* tv = [[UITextView alloc] initWithFrame:CGRectZero];
+    tv.translatesAutoresizingMaskIntoConstraints = NO;
+    tv.editable = NO;
+    tv.selectable = YES;
+    tv.font = [UIFont monospacedSystemFontOfSize:12 weight:UIFontWeightRegular];
+    tv.text = self.logTextView.text ?: @"";
+    [vc.view addSubview:tv];
+
+    UIButton* close = [UIButton buttonWithType:UIButtonTypeSystem];
+    close.translatesAutoresizingMaskIntoConstraints = NO;
+    [close setTitle:@"閉じる" forState:UIControlStateNormal];
+    [close addAction:[UIAction actionWithHandler:^(__kindof UIAction* _Nonnull action) {
+        [vc dismissViewControllerAnimated:YES completion:nil];
+    }] forControlEvents:UIControlEventTouchUpInside];
+    [vc.view addSubview:close];
+
+    [NSLayoutConstraint activateConstraints:@[
+        [close.topAnchor constraintEqualToAnchor:vc.view.safeAreaLayoutGuide.topAnchor constant:10],
+        [close.trailingAnchor constraintEqualToAnchor:vc.view.safeAreaLayoutGuide.trailingAnchor constant:-16],
+        [tv.topAnchor constraintEqualToAnchor:close.bottomAnchor constant:8],
+        [tv.leadingAnchor constraintEqualToAnchor:vc.view.safeAreaLayoutGuide.leadingAnchor constant:12],
+        [tv.trailingAnchor constraintEqualToAnchor:vc.view.safeAreaLayoutGuide.trailingAnchor constant:-12],
+        [tv.bottomAnchor constraintEqualToAnchor:vc.view.safeAreaLayoutGuide.bottomAnchor constant:-12],
+    ]];
+
+    [self presentViewController:vc animated:YES completion:nil];
 }
 
 @end
