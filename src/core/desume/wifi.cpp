@@ -24,8 +24,8 @@
 #include "debug.h"
 #include "utils/bits.h"
 #include "utils/task.h"
-#include <driver.h>
-#include <registers.h>
+#include "driver.h"
+#include "registers.h"
 #include "rthreads/rthreads.h"
 
 #ifdef HOST_WINDOWS

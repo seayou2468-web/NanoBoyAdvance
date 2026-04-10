@@ -94,7 +94,7 @@ const INTERFACE_ID _FAT_disc_interfaces[] = {
 
 /* ====================== GBA ====================== */
 #elif defined (GBA)
-#include <disc.h>
+#include "disc.h"
 
 const INTERFACE_ID _FAT_disc_interfaces[] = {
 	{"fat", discGetInterface},
@@ -102,4 +102,3 @@ const INTERFACE_ID _FAT_disc_interfaces[] = {
 };	
 
 #endif
-
