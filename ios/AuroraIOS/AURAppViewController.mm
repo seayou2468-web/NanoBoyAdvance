@@ -731,27 +731,33 @@ static const NSUInteger kDefaultHeight = 160;
     [menu addAction:[UIAlertAction actionWithTitle:@"自動判定"
                                              style:UIAlertActionStyleDefault
                                            handler:^(__unused UIAlertAction* action) {
-        weakSelf->_forceCoreType = NO;
-        [weakSelf.emulatorModeButton setTitle:@"エミュ: 自動" forState:UIControlStateNormal];
-        [weakSelf appendLog:@"エミュレーター選択: 自動判定"];
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf) { return; }
+        strongSelf->_forceCoreType = NO;
+        [strongSelf.emulatorModeButton setTitle:@"エミュ: 自動" forState:UIControlStateNormal];
+        [strongSelf appendLog:@"エミュレーター選択: 自動判定"];
     }]];
 
     [menu addAction:[UIAlertAction actionWithTitle:@"GBA 固定"
                                              style:UIAlertActionStyleDefault
                                            handler:^(__unused UIAlertAction* action) {
-        weakSelf->_forceCoreType = YES;
-        weakSelf->_forcedCoreTypeValue = EMULATOR_CORE_TYPE_GBA;
-        [weakSelf.emulatorModeButton setTitle:@"エミュ: GBA 固定" forState:UIControlStateNormal];
-        [weakSelf appendLog:@"エミュレーター選択: GBA 固定"];
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf) { return; }
+        strongSelf->_forceCoreType = YES;
+        strongSelf->_forcedCoreTypeValue = EMULATOR_CORE_TYPE_GBA;
+        [strongSelf.emulatorModeButton setTitle:@"エミュ: GBA 固定" forState:UIControlStateNormal];
+        [strongSelf appendLog:@"エミュレーター選択: GBA 固定"];
     }]];
 
     [menu addAction:[UIAlertAction actionWithTitle:@"NES 固定"
                                              style:UIAlertActionStyleDefault
                                            handler:^(__unused UIAlertAction* action) {
-        weakSelf->_forceCoreType = YES;
-        weakSelf->_forcedCoreTypeValue = EMULATOR_CORE_TYPE_NES;
-        [weakSelf.emulatorModeButton setTitle:@"エミュ: NES 固定" forState:UIControlStateNormal];
-        [weakSelf appendLog:@"エミュレーター選択: NES 固定"];
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf) { return; }
+        strongSelf->_forceCoreType = YES;
+        strongSelf->_forcedCoreTypeValue = EMULATOR_CORE_TYPE_NES;
+        [strongSelf.emulatorModeButton setTitle:@"エミュ: NES 固定" forState:UIControlStateNormal];
+        [strongSelf appendLog:@"エミュレーター選択: NES 固定"];
     }]];
 
     [menu addAction:[UIAlertAction actionWithTitle:@"キャンセル"
@@ -769,30 +775,38 @@ static const NSUInteger kDefaultHeight = 160;
     [menu addAction:[UIAlertAction actionWithTitle:@"GBA: 標準"
                                              style:UIAlertActionStyleDefault
                                            handler:^(__unused UIAlertAction* action) {
-        weakSelf->_gbaControllerPreset = 0;
-        [weakSelf appendLog:@"コントローラー設定: GBA 標準"];
-        [weakSelf applyControllerPreset];
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf) { return; }
+        strongSelf->_gbaControllerPreset = 0;
+        [strongSelf appendLog:@"コントローラー設定: GBA 標準"];
+        [strongSelf applyControllerPreset];
     }]];
     [menu addAction:[UIAlertAction actionWithTitle:@"GBA: 簡易"
                                              style:UIAlertActionStyleDefault
                                            handler:^(__unused UIAlertAction* action) {
-        weakSelf->_gbaControllerPreset = 1;
-        [weakSelf appendLog:@"コントローラー設定: GBA 簡易"];
-        [weakSelf applyControllerPreset];
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf) { return; }
+        strongSelf->_gbaControllerPreset = 1;
+        [strongSelf appendLog:@"コントローラー設定: GBA 簡易"];
+        [strongSelf applyControllerPreset];
     }]];
     [menu addAction:[UIAlertAction actionWithTitle:@"NES: 標準"
                                              style:UIAlertActionStyleDefault
                                            handler:^(__unused UIAlertAction* action) {
-        weakSelf->_nesControllerPreset = 0;
-        [weakSelf appendLog:@"コントローラー設定: NES 標準"];
-        [weakSelf applyControllerPreset];
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf) { return; }
+        strongSelf->_nesControllerPreset = 0;
+        [strongSelf appendLog:@"コントローラー設定: NES 標準"];
+        [strongSelf applyControllerPreset];
     }]];
     [menu addAction:[UIAlertAction actionWithTitle:@"NES: 簡易"
                                              style:UIAlertActionStyleDefault
                                            handler:^(__unused UIAlertAction* action) {
-        weakSelf->_nesControllerPreset = 1;
-        [weakSelf appendLog:@"コントローラー設定: NES 簡易"];
-        [weakSelf applyControllerPreset];
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf) { return; }
+        strongSelf->_nesControllerPreset = 1;
+        [strongSelf appendLog:@"コントローラー設定: NES 簡易"];
+        [strongSelf applyControllerPreset];
     }]];
     [menu addAction:[UIAlertAction actionWithTitle:@"キャンセル"
                                              style:UIAlertActionStyleCancel
@@ -809,30 +823,40 @@ static const NSUInteger kDefaultHeight = 160;
     [menu addAction:[UIAlertAction actionWithTitle:@"映像設定 (画質/シェーダー/彩度)"
                                              style:UIAlertActionStyleDefault
                                            handler:^(__unused UIAlertAction* action) {
-        [weakSelf presentVideoSettingsMenu];
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf) { return; }
+        [strongSelf presentVideoSettingsMenu];
     }]];
     [menu addAction:[UIAlertAction actionWithTitle:@"ステートセーブ"
                                              style:UIAlertActionStyleDefault
                                            handler:^(__unused UIAlertAction* action) {
-        weakSelf.statusLabel.text = @"選択: ステートセーブ";
-        [weakSelf appendLog:@"メニュー選択: ステートセーブ"];
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf) { return; }
+        strongSelf.statusLabel.text = @"選択: ステートセーブ";
+        [strongSelf appendLog:@"メニュー選択: ステートセーブ"];
     }]];
     [menu addAction:[UIAlertAction actionWithTitle:@"ステートロード"
                                              style:UIAlertActionStyleDefault
                                            handler:^(__unused UIAlertAction* action) {
-        weakSelf.statusLabel.text = @"選択: ステートロード";
-        [weakSelf appendLog:@"メニュー選択: ステートロード"];
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf) { return; }
+        strongSelf.statusLabel.text = @"選択: ステートロード";
+        [strongSelf appendLog:@"メニュー選択: ステートロード"];
     }]];
     [menu addAction:[UIAlertAction actionWithTitle:@"チート管理"
                                              style:UIAlertActionStyleDefault
                                            handler:^(__unused UIAlertAction* action) {
-        weakSelf.statusLabel.text = @"選択: チート管理";
-        [weakSelf appendLog:@"メニュー選択: チート管理"];
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf) { return; }
+        strongSelf.statusLabel.text = @"選択: チート管理";
+        [strongSelf appendLog:@"メニュー選択: チート管理"];
     }]];
     [menu addAction:[UIAlertAction actionWithTitle:@"エミュ切替メニュー"
                                              style:UIAlertActionStyleDefault
                                            handler:^(__unused UIAlertAction* action) {
-        [weakSelf presentEmulatorMenu];
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf) { return; }
+        [strongSelf presentEmulatorMenu];
     }]];
     [menu addAction:[UIAlertAction actionWithTitle:@"キャンセル"
                                              style:UIAlertActionStyleCancel
@@ -849,68 +873,80 @@ static const NSUInteger kDefaultHeight = 160;
     [menu addAction:[UIAlertAction actionWithTitle:@"画質: 高画質 (Bicubic)"
                                              style:UIAlertActionStyleDefault
                                            handler:^(__unused UIAlertAction* action) {
-        weakSelf->_upscaleMode = AURUpscaleModeQuality;
-        [weakSelf.imageView setUpscaleMode:weakSelf->_upscaleMode];
-        [weakSelf appendLog:@"映像設定: 高画質アップスケール"];
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf) { return; }
+        strongSelf->_upscaleMode = AURUpscaleModeQuality;
+        [strongSelf.imageView setUpscaleMode:strongSelf->_upscaleMode];
+        [strongSelf appendLog:@"映像設定: 高画質アップスケール"];
     }]];
     [menu addAction:[UIAlertAction actionWithTitle:@"画質: バランス (自動)"
                                              style:UIAlertActionStyleDefault
                                            handler:^(__unused UIAlertAction* action) {
-        weakSelf->_upscaleMode = AURUpscaleModeAuto;
-        [weakSelf.imageView setUpscaleMode:weakSelf->_upscaleMode];
-        [weakSelf appendLog:@"映像設定: バランス（自動）"];
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf) { return; }
+        strongSelf->_upscaleMode = AURUpscaleModeAuto;
+        [strongSelf.imageView setUpscaleMode:strongSelf->_upscaleMode];
+        [strongSelf appendLog:@"映像設定: バランス（自動）"];
     }]];
     [menu addAction:[UIAlertAction actionWithTitle:@"画質: 省電力 (高速)"
                                              style:UIAlertActionStyleDefault
                                            handler:^(__unused UIAlertAction* action) {
-        weakSelf->_upscaleMode = AURUpscaleModePerformance;
-        [weakSelf.imageView setUpscaleMode:weakSelf->_upscaleMode];
-        [weakSelf appendLog:@"映像設定: 省電力アップスケール"];
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf) { return; }
+        strongSelf->_upscaleMode = AURUpscaleModePerformance;
+        [strongSelf.imageView setUpscaleMode:strongSelf->_upscaleMode];
+        [strongSelf appendLog:@"映像設定: 省電力アップスケール"];
     }]];
     [menu addAction:[UIAlertAction actionWithTitle:@"見え方: 鮮やか"
                                              style:UIAlertActionStyleDefault
                                            handler:^(__unused UIAlertAction* action) {
-        weakSelf->_videoSaturation = 1.16f;
-        weakSelf->_videoVibrance = 0.40f;
-        weakSelf->_videoContrast = 1.10f;
-        weakSelf->_videoSharpen = 0.22f;
-        weakSelf->_videoLutMix = 0.22f;
-        [weakSelf.imageView setPostProcessSaturation:weakSelf->_videoSaturation
-                                            vibrance:weakSelf->_videoVibrance
-                                            contrast:weakSelf->_videoContrast
-                                             sharpen:weakSelf->_videoSharpen
-                                              lutMix:weakSelf->_videoLutMix];
-        [weakSelf appendLog:@"見え方補正: 鮮やかプリセット"];
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf) { return; }
+        strongSelf->_videoSaturation = 1.16f;
+        strongSelf->_videoVibrance   = 0.40f;
+        strongSelf->_videoContrast   = 1.10f;
+        strongSelf->_videoSharpen    = 0.22f;
+        strongSelf->_videoLutMix     = 0.22f;
+        [strongSelf.imageView setPostProcessSaturation:strongSelf->_videoSaturation
+                                              vibrance:strongSelf->_videoVibrance
+                                              contrast:strongSelf->_videoContrast
+                                               sharpen:strongSelf->_videoSharpen
+                                                lutMix:strongSelf->_videoLutMix];
+        [strongSelf appendLog:@"見え方補正: 鮮やかプリセット"];
     }]];
     [menu addAction:[UIAlertAction actionWithTitle:@"見え方: 標準"
                                              style:UIAlertActionStyleDefault
                                            handler:^(__unused UIAlertAction* action) {
-        weakSelf->_videoSaturation = 1.08f;
-        weakSelf->_videoVibrance = 0.30f;
-        weakSelf->_videoContrast = 1.06f;
-        weakSelf->_videoSharpen = 0.18f;
-        weakSelf->_videoLutMix = 0.15f;
-        [weakSelf.imageView setPostProcessSaturation:weakSelf->_videoSaturation
-                                            vibrance:weakSelf->_videoVibrance
-                                            contrast:weakSelf->_videoContrast
-                                             sharpen:weakSelf->_videoSharpen
-                                              lutMix:weakSelf->_videoLutMix];
-        [weakSelf appendLog:@"見え方補正: 標準プリセット"];
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf) { return; }
+        strongSelf->_videoSaturation = 1.08f;
+        strongSelf->_videoVibrance   = 0.30f;
+        strongSelf->_videoContrast   = 1.06f;
+        strongSelf->_videoSharpen    = 0.18f;
+        strongSelf->_videoLutMix     = 0.15f;
+        [strongSelf.imageView setPostProcessSaturation:strongSelf->_videoSaturation
+                                              vibrance:strongSelf->_videoVibrance
+                                              contrast:strongSelf->_videoContrast
+                                               sharpen:strongSelf->_videoSharpen
+                                                lutMix:strongSelf->_videoLutMix];
+        [strongSelf appendLog:@"見え方補正: 標準プリセット"];
     }]];
     [menu addAction:[UIAlertAction actionWithTitle:@"見え方: ナチュラル"
                                              style:UIAlertActionStyleDefault
                                            handler:^(__unused UIAlertAction* action) {
-        weakSelf->_videoSaturation = 1.00f;
-        weakSelf->_videoVibrance = 0.12f;
-        weakSelf->_videoContrast = 1.02f;
-        weakSelf->_videoSharpen = 0.08f;
-        weakSelf->_videoLutMix = 0.05f;
-        [weakSelf.imageView setPostProcessSaturation:weakSelf->_videoSaturation
-                                            vibrance:weakSelf->_videoVibrance
-                                            contrast:weakSelf->_videoContrast
-                                             sharpen:weakSelf->_videoSharpen
-                                              lutMix:weakSelf->_videoLutMix];
-        [weakSelf appendLog:@"見え方補正: ナチュラルプリセット"];
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf) { return; }
+        strongSelf->_videoSaturation = 1.00f;
+        strongSelf->_videoVibrance   = 0.12f;
+        strongSelf->_videoContrast   = 1.02f;
+        strongSelf->_videoSharpen    = 0.08f;
+        strongSelf->_videoLutMix     = 0.05f;
+        [strongSelf.imageView setPostProcessSaturation:strongSelf->_videoSaturation
+                                              vibrance:strongSelf->_videoVibrance
+                                              contrast:strongSelf->_videoContrast
+                                               sharpen:strongSelf->_videoSharpen
+                                                lutMix:strongSelf->_videoLutMix];
+        [strongSelf appendLog:@"見え方補正: ナチュラルプリセット"];
     }]];
     [menu addAction:[UIAlertAction actionWithTitle:@"キャンセル"
                                              style:UIAlertActionStyleCancel
