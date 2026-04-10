@@ -1,21 +1,25 @@
 #include "../core_adapter.hpp"
 
-#include <memory>
-
 #include "runtime.hpp"
 
 namespace {
 
 void* CreateRuntime() {
-  return core::quick_nes::CreateRuntime().release();
+  return core::sameboy::CreateRuntime().release();
 }
 
 void DestroyRuntime(void* runtime) {
-  delete static_cast<core::quick_nes::Runtime*>(runtime);
+  auto* sameboy_runtime = static_cast<core::sameboy::Runtime*>(runtime);
+  if (sameboy_runtime != nullptr && sameboy_runtime->gb != nullptr) {
+    GB_free(sameboy_runtime->gb);
+    GB_dealloc(sameboy_runtime->gb);
+    sameboy_runtime->gb = nullptr;
+  }
+  delete sameboy_runtime;
 }
 
 bool LoadBIOSFromPath(void*, const char*, std::string& last_error) {
-  last_error = "NES core does not use external BIOS";
+  last_error = "SameBoy core does not require external BIOS";
   return false;
 }
 
@@ -24,7 +28,7 @@ bool LoadROMFromPath(void* runtime, const char* rom_path, std::string& last_erro
     last_error = "core runtime is not initialized";
     return false;
   }
-  return core::quick_nes::LoadROMFromPath(*static_cast<core::quick_nes::Runtime*>(runtime), rom_path, last_error);
+  return core::sameboy::LoadROMFromPath(*static_cast<core::sameboy::Runtime*>(runtime), rom_path, last_error);
 }
 
 bool LoadROMFromMemory(void* runtime, const void* rom_data, size_t rom_size, std::string& last_error) {
@@ -32,29 +36,29 @@ bool LoadROMFromMemory(void* runtime, const void* rom_data, size_t rom_size, std
     last_error = "core runtime is not initialized";
     return false;
   }
-  return core::quick_nes::LoadROMFromMemory(*static_cast<core::quick_nes::Runtime*>(runtime), rom_data, rom_size, last_error);
+  return core::sameboy::LoadROMFromMemory(*static_cast<core::sameboy::Runtime*>(runtime), rom_data, rom_size, last_error);
 }
 
 void StepFrame(void* runtime, std::string& last_error) {
   if (runtime == nullptr) {
     return;
   }
-  core::quick_nes::StepFrame(*static_cast<core::quick_nes::Runtime*>(runtime), last_error);
+  core::sameboy::StepFrame(*static_cast<core::sameboy::Runtime*>(runtime), last_error);
 }
 
 void SetKeyStatus(void* runtime, int key, bool pressed) {
   if (runtime == nullptr) {
     return;
   }
-  core::quick_nes::SetKeyStatus(*static_cast<core::quick_nes::Runtime*>(runtime), key, pressed);
+  core::sameboy::SetKeyStatus(*static_cast<core::sameboy::Runtime*>(runtime), key, pressed);
 }
 
 bool GetVideoSpec(EmulatorVideoSpec* out_spec) {
   if (out_spec == nullptr) {
     return false;
   }
-  out_spec->width = 256;
-  out_spec->height = 240;
+  out_spec->width = 160;
+  out_spec->height = 144;
   out_spec->pixel_format = EMULATOR_PIXEL_FORMAT_ARGB8888;
   return true;
 }
@@ -66,7 +70,7 @@ const uint32_t* GetFrameBufferRGBA(void* runtime, size_t* pixel_count) {
     }
     return nullptr;
   }
-  return core::quick_nes::GetFrameBufferRGBA(*static_cast<core::quick_nes::Runtime*>(runtime), pixel_count);
+  return core::sameboy::GetFrameBufferRGBA(*static_cast<core::sameboy::Runtime*>(runtime), pixel_count);
 }
 
 bool SaveStateToBuffer(void* runtime, void* out_buffer, size_t buffer_size, size_t* out_size, std::string& last_error) {
@@ -74,8 +78,8 @@ bool SaveStateToBuffer(void* runtime, void* out_buffer, size_t buffer_size, size
     last_error = "core runtime is not initialized";
     return false;
   }
-  return core::quick_nes::SaveStateToBuffer(
-      *static_cast<core::quick_nes::Runtime*>(runtime), out_buffer, buffer_size, out_size, last_error);
+  return core::sameboy::SaveStateToBuffer(
+      *static_cast<core::sameboy::Runtime*>(runtime), out_buffer, buffer_size, out_size, last_error);
 }
 
 bool LoadStateFromBuffer(void* runtime, const void* state_buffer, size_t state_size, std::string& last_error) {
@@ -83,8 +87,8 @@ bool LoadStateFromBuffer(void* runtime, const void* state_buffer, size_t state_s
     last_error = "core runtime is not initialized";
     return false;
   }
-  return core::quick_nes::LoadStateFromBuffer(
-      *static_cast<core::quick_nes::Runtime*>(runtime), state_buffer, state_size, last_error);
+  return core::sameboy::LoadStateFromBuffer(
+      *static_cast<core::sameboy::Runtime*>(runtime), state_buffer, state_size, last_error);
 }
 
 bool ApplyCheatCode(void* runtime, const char* cheat_code, std::string& last_error) {
@@ -92,17 +96,17 @@ bool ApplyCheatCode(void* runtime, const char* cheat_code, std::string& last_err
     last_error = "core runtime is not initialized";
     return false;
   }
-  return core::quick_nes::ApplyCheatCode(
-      *static_cast<core::quick_nes::Runtime*>(runtime), cheat_code, last_error);
+  return core::sameboy::ApplyCheatCode(
+      *static_cast<core::sameboy::Runtime*>(runtime), cheat_code, last_error);
 }
 
 }  // namespace
 
 namespace core {
 
-extern const CoreAdapter kQuickNesAdapter = {
-  .name = "quick_nes",
-  .type = EMULATOR_CORE_TYPE_NES,
+extern const CoreAdapter kSameBoyAdapter = {
+  .name = "sameboy",
+  .type = EMULATOR_CORE_TYPE_GB,
   .create_runtime = CreateRuntime,
   .destroy_runtime = DestroyRuntime,
   .load_bios_from_path = LoadBIOSFromPath,

@@ -53,15 +53,20 @@ NES_SRCS  := \
 	src/core/quick_nes/nes_emu/Nes_Emu.cpp \
 	src/core/quick_nes/nes_emu/abstract_file.cpp
 NES_OBJS  := $(patsubst %.cpp,$(BUILD_DIR)/%.o,$(NES_SRCS))
+SAMEBOY_SRCS := $(shell find src/core/sameboy -name '*.c')
+SAMEBOY_OBJS := $(patsubst %.c,$(BUILD_DIR)/%.o,$(SAMEBOY_SRCS))
 CORE_OBJS := \
 	$(BUILD_DIR)/src/core/api/emulator_core_c_api.o \
 	$(BUILD_DIR)/src/core/api/frontend_utils.o \
 	$(BUILD_DIR)/src/core/core_adapter_registry.o \
 	$(BUILD_DIR)/src/core/nanoboyadvance/core_adapter.o \
 	$(BUILD_DIR)/src/core/quick_nes/core_adapter.o \
+	$(BUILD_DIR)/src/core/sameboy/core_adapter.o \
 	$(BUILD_DIR)/src/core/nanoboyadvance/runtime.o \
 	$(BUILD_DIR)/src/core/nanoboyadvance/gba_core_c_api.o \
-	$(BUILD_DIR)/src/core/quick_nes/runtime.o
+	$(BUILD_DIR)/src/core/quick_nes/runtime.o \
+	$(BUILD_DIR)/src/core/sameboy/runtime.o \
+	$(SAMEBOY_OBJS)
 MAIN_OBJ  := $(BUILD_DIR)/main.o
 LIBNES    := $(BUILD_DIR)/libquick_nes.a
 
@@ -113,6 +118,10 @@ $(BUILD_DIR)/src/core/quick_nes/nes_emu/%.o: src/core/quick_nes/nes_emu/%.cpp
 $(BUILD_DIR)/%.o: %.cpp
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) $(SDL_CFLAGS) -c $< -o $@
+
+$(BUILD_DIR)/%.o: %.c
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) $(SDL_CFLAGS) -Wno-unused-function -Wno-unused-parameter -Wno-sign-compare -c $< -o $@
 
 clean:
 	rm -rf $(BUILD_DIR)

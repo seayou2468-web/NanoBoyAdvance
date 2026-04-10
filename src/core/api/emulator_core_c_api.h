@@ -18,9 +18,15 @@ extern "C" {
 
 typedef struct EmulatorCoreHandle EmulatorCoreHandle;
 
+typedef enum EmulatorPixelFormat {
+  EMULATOR_PIXEL_FORMAT_ARGB8888 = 0,
+  EMULATOR_PIXEL_FORMAT_RGBA8888 = 1,
+} EmulatorPixelFormat;
+
 typedef enum EmulatorCoreType {
   EMULATOR_CORE_TYPE_GBA = 0,
   EMULATOR_CORE_TYPE_NES = 1,
+  EMULATOR_CORE_TYPE_GB = 2,
 } EmulatorCoreType;
 
 typedef enum EmulatorKey {
@@ -39,6 +45,7 @@ typedef enum EmulatorKey {
 typedef struct EmulatorVideoSpec {
   uint32_t width;
   uint32_t height;
+  EmulatorPixelFormat pixel_format;
 } EmulatorVideoSpec;
 
 // Returns a stable core identifier (e.g. "nanoboyadvance") for logging/UI labels.

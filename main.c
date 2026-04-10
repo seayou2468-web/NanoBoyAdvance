@@ -14,7 +14,7 @@ enum {
 
 int main(int argc, char** argv) {
   if (argc < 2) {
-    fprintf(stderr, "Usage: %s <rom.(gba|nes)>\n", argv[0]);
+    fprintf(stderr, "Usage: %s <rom.(gba|nes|gb|gbc)>\n", argv[0]);
     return 1;
   }
 
@@ -22,6 +22,9 @@ int main(int argc, char** argv) {
   const char* ext = strrchr(argv[1], '.');
   if (ext != NULL && strcmp(ext, ".nes") == 0) {
     core_type = EMULATOR_CORE_TYPE_NES;
+  }
+  if (ext != NULL && (strcmp(ext, ".gb") == 0 || strcmp(ext, ".gbc") == 0)) {
+    core_type = EMULATOR_CORE_TYPE_GB;
   }
 
   EmulatorCoreHandle* core = EmulatorCore_Create(core_type);
@@ -68,7 +71,7 @@ int main(int argc, char** argv) {
 
   SDL_Texture* texture = SDL_CreateTexture(
       renderer,
-      SDL_PIXELFORMAT_ARGB8888,
+      video_spec.pixel_format == EMULATOR_PIXEL_FORMAT_RGBA8888 ? SDL_PIXELFORMAT_RGBA8888 : SDL_PIXELFORMAT_ARGB8888,
       SDL_TEXTUREACCESS_STREAMING,
       (int)video_spec.width,
       (int)video_spec.height);

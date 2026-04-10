@@ -11,12 +11,16 @@ The generic C API (`api/emulator_core_c_api.*`) is the project-specific "core co
 Each emulator core plugs into this API (similar to a libretro-like frontend/core boundary),
 so cores can be added/managed independently without changing frontend call sites.
 
+`EmulatorVideoSpec` includes `pixel_format`, so frontends can pick a matching texture format per core
+instead of assuming a single global channel ordering.
+
 ## Current cores
 
 - `nanoboyadvance`: existing GBA runtime.
 - `nanoboyadvance/platform`: GBA-specific platform layer moved from `src/platform/core` so GBA-related
   loader/config/thread/save-state code is managed together with the GBA core.
 - `quick_nes`: NES core using the bundled QuickNES (`nes_emu`) implementation and runtime bridge.
+- `sameboy`: GB/GBC core using bundled SameBoy sources and runtime bridge.
 
 ## How to add a new core
 
