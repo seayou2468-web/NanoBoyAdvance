@@ -4,6 +4,11 @@
 #include <assert.h>
 #include <string.h>
 #include <stdlib.h>
+#include <sys/types.h>
+
+#ifndef GB_VERSION
+#define GB_VERSION "unknown"
+#endif
 
 #ifdef GB_BIG_ENDIAN
 #define BESS_NAME "SameBoy v" GB_VERSION " (Big Endian)"

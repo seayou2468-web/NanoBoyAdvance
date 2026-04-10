@@ -53,7 +53,7 @@ NES_SRCS  := \
 	src/core/quick_nes/nes_emu/Nes_Emu.cpp \
 	src/core/quick_nes/nes_emu/abstract_file.cpp
 NES_OBJS  := $(patsubst %.cpp,$(BUILD_DIR)/%.o,$(NES_SRCS))
-SAMEBOY_SRCS := $(shell find src/core/sameboy -name '*.c')
+SAMEBOY_SRCS := $(filter-out src/core/sameboy/cheat_search.c src/core/sameboy/sm83_disassembler.c src/core/sameboy/symbol_hash.c,$(shell find src/core/sameboy -name '*.c'))
 SAMEBOY_OBJS := $(patsubst %.c,$(BUILD_DIR)/%.o,$(SAMEBOY_SRCS))
 CORE_OBJS := \
 	$(BUILD_DIR)/src/core/api/emulator_core_c_api.o \
@@ -114,6 +114,14 @@ $(BUILD_DIR)/src/core/quick_nes/runtime.o: src/core/quick_nes/runtime.cpp src/co
 $(BUILD_DIR)/src/core/quick_nes/nes_emu/%.o: src/core/quick_nes/nes_emu/%.cpp
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) $(SDL_CFLAGS) -Wno-register -Wno-deprecated-declarations -Wno-multichar -Wno-deprecated -c $< -o $@
+
+$(BUILD_DIR)/src/core/sameboy/%.o: src/core/sameboy/%.c
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) $(SDL_CFLAGS) -DGB_INTERNAL -DGB_DISABLE_DEBUGGER -DGB_VERSION=\"unknown\" -Wno-unused-function -Wno-unused-parameter -Wno-sign-compare -c $< -o $@
+
+$(BUILD_DIR)/src/core/sameboy/%.o: src/core/sameboy/%.cpp
+	@mkdir -p $(dir $@)
+	$(CXX) $(CXXFLAGS) $(SDL_CFLAGS) -DGB_DISABLE_DEBUGGER -c $< -o $@
 
 $(BUILD_DIR)/%.o: %.cpp
 	@mkdir -p $(dir $@)

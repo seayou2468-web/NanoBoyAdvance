@@ -6,6 +6,10 @@
 #include <stdlib.h>
 #include "gb.h"
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 /* Band limited synthesis loosely based on: http://www.slack.net/~ant/bl-synth/ */
 static int32_t band_limited_steps[GB_BAND_LIMITED_PHASES][GB_BAND_LIMITED_WIDTH];
 
