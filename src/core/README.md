@@ -6,9 +6,15 @@
 - `cores/<core-name>/`: per-core implementation directory (runtime + optional compatibility wrapper).
 - `gba_core_c_api.h`: backward-compatible include path for existing GBA callers.
 
+The generic C API (`emulator_core_c_api.*`) is the project-specific "core connection API".
+Each emulator core plugs into this API (similar to a libretro-like frontend/core boundary),
+so cores can be added/managed independently without changing frontend call sites.
+
 ## Current cores
 
 - `cores/gba`: existing GBA runtime.
+- `cores/gba/platform`: GBA-specific platform layer moved from `src/platform/core` so GBA-related
+  loader/config/thread/save-state code is managed together with the GBA core.
 - `cores/quick_nes`: NES core using the bundled QuickNES (`nes_emu`) implementation and runtime bridge.
 
 ## How to add a new core
