@@ -1,5 +1,5 @@
 #include "filter.h"
-#include "types.h"
+#include "../types.h"
 
 //ref: http://vba-rerecording.googlecode.com/svn/trunk/src/2xsai.cpp
 

@@ -19,10 +19,10 @@
 #include <string>
 #include <cstring>
 
-#include "types.h"
+#include "../types.h"
 #include "fsnitro.h"
 #include "../file/file_path.h"
-#include "NDSSystem.h"
+#include "../NDSSystem.h"
 
 FS_NITRO::FS_NITRO()
 {

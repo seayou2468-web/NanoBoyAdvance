@@ -5,7 +5,7 @@
  **/
 
 #include "filter.h"
-#include "types.h"
+#include "../types.h"
 
 int systemRedShift    = 16;
 int systemGreenShift  = 8;

@@ -18,6 +18,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#if !defined(HOST_WINDOWS)
+#include <sys/stat.h>
+#include <sys/types.h>
+#endif
 
 #include "types.h"
 #include "path.h"
@@ -215,10 +219,15 @@ void PathInfo::LoadModulePath()
 
 	strncpy(pathToModule, pathStr.c_str(), MAX_PATH);
 #else
-	char *cwd = g_build_filename(g_get_user_config_dir(), "desmume", NULL);
-	g_mkdir_with_parents(cwd, 0755);
-	strncpy(pathToModule, cwd, MAX_PATH);
-	g_free(cwd);
+	const char* homeDir = getenv("HOME");
+	if ((homeDir == NULL) || (homeDir[0] == '\0'))
+	{
+		homeDir = ".";
+	}
+
+	std::string cwd = std::string(homeDir) + DIRECTORY_DELIMITER_CHAR + "desmume";
+	mkdir(cwd.c_str(), 0755);
+	strncpy(pathToModule, cwd.c_str(), MAX_PATH);
 #endif
 }
 

@@ -19,6 +19,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
+#include <assert.h>
 #include <sys/mman.h>
 
 #define R11 11
@@ -51,7 +53,7 @@ typedef unsigned int (*JittedFunc)();
 static void output_w32(t_bytes *bytes, unsigned int word);
 unsigned int genlabel();
 
-static u_int genimm(u_int imm,u_int *encoded)
+static unsigned int genimm(unsigned int imm,unsigned int *encoded)
 {
   if(imm==0) {*encoded=0;return 1;}
   int i=32;
@@ -183,13 +185,13 @@ static uint32_t genimm2(uint64_t imm, uint32_t regsize, uint32_t * encoded) {
   return 1;
 }
 
-static void emit_branch_label(t_bytes *out, u_int id, int cond);
+static void emit_branch_label(t_bytes *out, unsigned int id, int cond);
 static void emit_test(t_bytes *out, int rs, int rt);
 static void emit_cmpimm(t_bytes *out, int reg, int val);
 static void set_carry_flag(t_bytes *out);
 static void clear_carry_flag(t_bytes *out);
 static void emit_andimm(t_bytes *out,int rs,int imm,int rt);
-static void emit_label(t_bytes *bytes, u_int id);
+static void emit_label(t_bytes *bytes, unsigned int id);
 static void get_carry_flag(t_bytes *out, int reg);
 
 static void emit_lsls_reg(t_bytes *out, int reg, int nreg);
@@ -206,12 +208,12 @@ static void emit_lsr_reg(t_bytes *out, int reg, int nreg);
 static void emit_testimm(t_bytes *out, int rs,int imm);
 
 static void output_w32_FROM_PC(t_bytes *bytes, unsigned int word);
-static void emit_movimm(t_bytes *out, uintptr_t imm,u_int rt);
-static void emit_movimm2pad(t_bytes *out, u_int imm,u_int rt);
-static void emit_addnop(t_bytes *out, u_int r);
+static void emit_movimm(t_bytes *out, uintptr_t imm,unsigned int rt);
+static void emit_movimm2pad(t_bytes *out, unsigned int imm,unsigned int rt);
+static void emit_addnop(t_bytes *out, unsigned int r);
 
 static void emit_setc(t_bytes *out, int reg);
-static void emit_or(t_bytes *out, u_int rs1,u_int rs2,u_int rt);
+static void emit_or(t_bytes *out, unsigned int rs1,unsigned int rs2,unsigned int rt);
 
 static void output_w32(t_bytes *bytes, unsigned int word);
 
@@ -219,14 +221,14 @@ static void output_w32_full(t_bytes *bytes, unsigned int word, int type, int lab
 
 static void emit_lsr_reg_quick(t_bytes *out, int reg, int nreg);
 
-static void emit_mul(t_bytes *out, u_int rs1,u_int rs2);
+static void emit_mul(t_bytes *out, unsigned int rs1,unsigned int rs2);
 
 
 static void emit_setnz(t_bytes *out, int reg);
 static void emit_setz(t_bytes *out, int reg);
-static void emit_movimm(t_bytes *out, uintptr_t imm,u_int rt);
+static void emit_movimm(t_bytes *out, uintptr_t imm,unsigned int rt);
 static void emit_mov(t_bytes *out, int rs,int rt);
-static void emit_jmpreg(t_bytes *out, u_int r);
+static void emit_jmpreg(t_bytes *out, unsigned int r);
 
 static void emit_brk(t_bytes *out);
 
@@ -761,34 +763,34 @@ static void emit_zeroreg(t_bytes *out, int rt)
 {
   output_w32(out, 0x52800000|rt);
 }
-static void emit_movn(t_bytes *out, u_int imm,u_int rt)
+static void emit_movn(t_bytes *out, unsigned int imm,unsigned int rt)
 {
   output_w32(out, 0x12800000|imm<<5|rt);
 }
 
-static void emit_movimms(t_bytes *out, u_int imm,u_int rt)
+static void emit_movimms(t_bytes *out, unsigned int imm,unsigned int rt)
 {
 	emit_movimm(out, imm, rt);
   emit_cmpimm(out, rt, 0);
 }
 
-static void emit_movz(t_bytes *out, u_int imm,u_int rt)
+static void emit_movz(t_bytes *out, unsigned int imm,unsigned int rt)
 {
   output_w32(out, 0x52800000|imm<<5|rt);
 }
-static void emit_movn_lsl16(t_bytes *out, u_int imm,u_int rt)
+static void emit_movn_lsl16(t_bytes *out, unsigned int imm,unsigned int rt)
 {
   output_w32(out, 0x12a00000|imm<<5|rt);
 }
-static void emit_movz_lsl16(t_bytes *out, u_int imm,u_int rt)
+static void emit_movz_lsl16(t_bytes *out, unsigned int imm,unsigned int rt)
 {
   output_w32(out, 0x52a00000|imm<<5|rt);
 }
-static void emit_movk(t_bytes *out, u_int imm,u_int rt)
+static void emit_movk(t_bytes *out, unsigned int imm,unsigned int rt)
 {
   output_w32(out, 0x72800000|imm<<5|rt);
 }
-static void emit_movk_lsl16(t_bytes *out, u_int imm,u_int rt)
+static void emit_movk_lsl16(t_bytes *out, unsigned int imm,unsigned int rt)
 {
   output_w32(out, 0x72a00000|imm<<5|rt);
 }
@@ -810,7 +812,7 @@ static void emit_mov_cond(t_bytes *out, int rs,int rt, int cond)
   emit_label(out, (int)done);
 }
 
-static void emit_movk_lslnum(t_bytes *out, u_int imm,u_int rt, int lsl)
+static void emit_movk_lslnum(t_bytes *out, unsigned int imm,unsigned int rt, int lsl)
 {
   uint32_t lsl_bit;
 
@@ -832,7 +834,7 @@ static void emit_movk_lslnum(t_bytes *out, u_int imm,u_int rt, int lsl)
   output_w32(out, 0x72800000|imm<<5|rt|lsl_bit);
 }
 
-static void emit_movk_lslnum64(t_bytes *out, u_int imm,u_int rt, int lsl)
+static void emit_movk_lslnum64(t_bytes *out, unsigned int imm,unsigned int rt, int lsl)
 {
   uint32_t lsl_bit;
 
@@ -854,19 +856,19 @@ static void emit_movk_lslnum64(t_bytes *out, u_int imm,u_int rt, int lsl)
   output_w32(out, 0x80000000|0x72800000|imm<<5|rt|lsl_bit);
 }
 
-static void emit_movz64(t_bytes *out, u_int imm,u_int rt)
+static void emit_movz64(t_bytes *out, unsigned int imm,unsigned int rt)
 {
   output_w32(out, 0x80000000|0x52800000|imm<<5|rt);
 }
 
-static void emit_ptr(t_bytes *out, uintptr_t ptr, u_int rt) {
+static void emit_ptr(t_bytes *out, uintptr_t ptr, unsigned int rt) {
   emit_movz64(out, ptr&0xffff,rt);
   if ((ptr>>16)&0xffff) emit_movk_lslnum64(out, (ptr>>16)&0xffff,rt, 16);
   if ((ptr>>32)&0xffff) emit_movk_lslnum64(out, (ptr>>32)&0xffff,rt, 32);
   if ((ptr>>48)&0xffff) emit_movk_lslnum64(out, (ptr>>48)&0xffff,rt, 48);
 }
 
-static void emit_movimm(t_bytes *out, uintptr_t imm,u_int rt)
+static void emit_movimm(t_bytes *out, uintptr_t imm,unsigned int rt)
 {
   uint32_t armval=0;
   if(imm<65536) {
@@ -895,17 +897,17 @@ static void emit_not(t_bytes *out, int rs,int rt)
   output_w32(out, 0x2a200000|rs<<16|WZR<<5|rt);
 }
 
-static void emit_and(t_bytes *out, u_int rs1,u_int rs2,u_int rt)
+static void emit_and(t_bytes *out, unsigned int rs1,unsigned int rs2,unsigned int rt)
 {
   output_w32(out, 0x0a000000|rs2<<16|rs1<<5|rt);
 }
 
-static void emit_or(t_bytes *out, u_int rs1,u_int rs2,u_int rt)
+static void emit_or(t_bytes *out, unsigned int rs1,unsigned int rs2,unsigned int rt)
 {
   output_w32(out, 0x2a000000|rs2<<16|rs1<<5|rt);
 }
 
-static void emit_or64(t_bytes *out, u_int rs1,u_int rs2,u_int rt)
+static void emit_or64(t_bytes *out, unsigned int rs1,unsigned int rs2,unsigned int rt)
 {
   output_w32(out, 0xAA000000|rs2<<16|rs1<<5|rt);
 }
@@ -916,34 +918,34 @@ static void emit_or_and_set_flags(t_bytes *out, int rs1,int rs2,int rt)
   emit_cmpimm(out, rt, 0);
 }
 
-static void emit_xor(t_bytes *out, u_int rs1,u_int rs2,u_int rt)
+static void emit_xor(t_bytes *out, unsigned int rs1,unsigned int rs2,unsigned int rt)
 {
   output_w32(out, 0x4a000000|rs2<<16|rs1<<5|rt);
 }
 
-static void emit_ands(t_bytes *out, u_int rs1,u_int rs2,u_int rt)
+static void emit_ands(t_bytes *out, unsigned int rs1,unsigned int rs2,unsigned int rt)
 {
   output_w32(out, 0x6a000000|rs2<<16|rs1<<5|rt);
 }
 
-static void emit_ors(t_bytes *out, u_int rs1,u_int rs2,u_int rt)
+static void emit_ors(t_bytes *out, unsigned int rs1,unsigned int rs2,unsigned int rt)
 {
  emit_or_and_set_flags(out, rs1,rs2,rt);
 }
-static void emit_xors(t_bytes *out, u_int rs1,u_int rs2,u_int rt)
+static void emit_xors(t_bytes *out, unsigned int rs1,unsigned int rs2,unsigned int rt)
 {
   output_w32(out, 0x4a000000|rs2<<16|rs1<<5|rt);
   emit_cmpimm(out, rt, 0);
 }
 
-static void emit_addimm64(t_bytes *out, u_int rs,int imm,u_int rt)
+static void emit_addimm64(t_bytes *out, unsigned int rs,int imm,unsigned int rt)
 {
   emit_movimm(out, imm, 16);
   emit_add64(out, rs, 16, rt);
 }
 
 
-static void emit_addimm(t_bytes *out, u_int rs,int imm,u_int rt)
+static void emit_addimm(t_bytes *out, unsigned int rs,int imm,unsigned int rt)
 {
   if(imm!=0) {
     //assert(imm>-16777216&&imm<16777216);
@@ -966,7 +968,7 @@ static void emit_addimm(t_bytes *out, u_int rs,int imm,u_int rt)
   else if(rs!=rt) emit_mov(out, rs,rt);
 }
 
-static void emit_addsimm(t_bytes *out, u_int rs,int imm,u_int rt)
+static void emit_addsimm(t_bytes *out, unsigned int rs,int imm,unsigned int rt)
 {
   emit_movimm(out, imm, 16);
   emit_adds(out, rs, 16, rt);
@@ -977,7 +979,7 @@ static void emit_cmp(t_bytes *out, int rs,int rt)
   output_w32(out, 0x6b000000|rt<<16|rs<<5|WZR);
 }
 
-static void emit_smulbb(t_bytes *out, u_int rs1, u_int rs2) {
+static void emit_smulbb(t_bytes *out, unsigned int rs1, unsigned int rs2) {
   output_w32(out, 0x93403C11|rs1<<5); // SBFX x17, x0, #0, #16
   output_w32(out, 0x93403C12|rs2<<5); // SBFX x18, x0, #0, #16
 
@@ -985,14 +987,14 @@ static void emit_smulbb(t_bytes *out, u_int rs1, u_int rs2) {
   output_w32(out, 0x9B207C00|(18<<16)|(17<<5)|rs1);
 }
 
-static void emit_smulbt(t_bytes *out, u_int rs1, u_int rs2) {
+static void emit_smulbt(t_bytes *out, unsigned int rs1, unsigned int rs2) {
   output_w32(out, 0x93403C11|rs1<<5); // SBFX x17, x0, #0, #16
   output_w32(out, 0x93507C12|rs2<<5); // SBFX x18, x0, #16, #16
   // mu;
   output_w32(out, 0x9B207C00|(18<<16)|(17<<5)|rs1);
 }
 
-static void emit_smultb(t_bytes *out, u_int rs1, u_int rs2) {
+static void emit_smultb(t_bytes *out, unsigned int rs1, unsigned int rs2) {
   output_w32(out, 0x93507C11|rs1<<5); //SBFX x17, rs1, #16, #16
   output_w32(out, 0x93403C12|rs2<<5); // SBFX x18, x0, #0, #16
 
@@ -1000,7 +1002,7 @@ static void emit_smultb(t_bytes *out, u_int rs1, u_int rs2) {
   output_w32(out, 0x9B207C00|(18<<16)|(17<<5)|rs1);
 }
 
-static void emit_smultt(t_bytes *out, u_int rs1, u_int rs2) {
+static void emit_smultt(t_bytes *out, unsigned int rs1, unsigned int rs2) {
   output_w32(out, 0x93507C11|rs1<<5); // SBFX x17, rs1, #16, #16
   output_w32(out, 0x93507C12|rs2<<5); // SBFX x18, rs2, #16, #16
 
@@ -1009,7 +1011,7 @@ static void emit_smultt(t_bytes *out, u_int rs1, u_int rs2) {
 }
 
 
-static void emit_smulwt(t_bytes *out, u_int rs1, u_int rs2) {
+static void emit_smulwt(t_bytes *out, unsigned int rs1, unsigned int rs2) {
   output_w32(out, 0x93507C12|rs1<<5); // SBFX x18, x0, #16, #16
 
   // mul
@@ -1017,7 +1019,7 @@ static void emit_smulwt(t_bytes *out, u_int rs1, u_int rs2) {
   output_w32(out, 0x9B207C00|(18<<16)|(rs2<<5)|rs1);
   emit_asr64(out, rs1, 16);
 }
-static void emit_smulwb(t_bytes *out, u_int rs1, u_int rs2) {
+static void emit_smulwb(t_bytes *out, unsigned int rs1, unsigned int rs2) {
   output_w32(out, 0x93403C12|rs1<<5); // SBFX x18, x0, #0, #16
 
   // mul
@@ -1027,7 +1029,7 @@ static void emit_smulwb(t_bytes *out, u_int rs1, u_int rs2) {
   emit_asr64(out, rs1, 16);
 }
 
-static void emit_smlawb(t_bytes *out, u_int hi, u_int lo, u_int rs1, u_int rs2)
+static void emit_smlawb(t_bytes *out, unsigned int hi, unsigned int lo, unsigned int rs1, unsigned int rs2)
 {
   output_w32(out, 0x93403C12|rs1<<5); // SBFX x18, x0, #0, #16
   //output_w32(out, 0x9B007C00|(18<<16)|(rs2<<5)|14);
@@ -1035,7 +1037,7 @@ static void emit_smlawb(t_bytes *out, u_int hi, u_int lo, u_int rs1, u_int rs2)
   emit_asr64(out, 14, 16);
   emit_adds(out, 14, lo, hi); // sets carry flag - need to use in SET_Q
 }
-static void emit_smlawt(t_bytes *out, u_int hi, u_int lo, u_int rs1, u_int rs2)
+static void emit_smlawt(t_bytes *out, unsigned int hi, unsigned int lo, unsigned int rs1, unsigned int rs2)
 {
   output_w32(out, 0x93507C12|rs1<<5); // SBFX x18, x0, #16, #16
   //output_w32(out, 0x9B007C00|(18<<16)|(rs2<<5)|14);
@@ -1044,7 +1046,7 @@ static void emit_smlawt(t_bytes *out, u_int hi, u_int lo, u_int rs1, u_int rs2)
   emit_adds(out, 14, lo, hi); // sets carry flag - need to use in SET_Q
 }
 
-static void emit_smlabb(t_bytes *out, u_int hi, u_int lo, u_int rs1, u_int rs2)
+static void emit_smlabb(t_bytes *out, unsigned int hi, unsigned int lo, unsigned int rs1, unsigned int rs2)
 {
   output_w32(out, 0x93403C11|rs1<<5); // SBFX x17, x0, #0, #16  
   output_w32(out, 0x93403C12|rs2<<5); // SBFX x18, x0, #0, #16
@@ -1052,7 +1054,7 @@ static void emit_smlabb(t_bytes *out, u_int hi, u_int lo, u_int rs1, u_int rs2)
   output_w32(out, 0x9B207C00|(18<<16)|(17<<5)|hi);
   emit_adds(out, hi, lo, hi); // sets carry flag - need to use in SET_Q
 }
-static void emit_smlabt(t_bytes *out, u_int hi, u_int lo, u_int rs1, u_int rs2)
+static void emit_smlabt(t_bytes *out, unsigned int hi, unsigned int lo, unsigned int rs1, unsigned int rs2)
 {
   output_w32(out, 0x93403C11|rs1<<5); // SBFX x17, x0, #0, #16
   output_w32(out, 0x93507C12|rs2<<5); // SBFX x18, x0, #16, #16
@@ -1060,7 +1062,7 @@ static void emit_smlabt(t_bytes *out, u_int hi, u_int lo, u_int rs1, u_int rs2)
   output_w32(out, 0x9B207C00|(18<<16)|(17<<5)|hi);
   emit_adds(out, hi, lo, hi); // sets carry flag - need to use in SET_Q
 }
-static void emit_smlatb(t_bytes *out, u_int hi, u_int lo, u_int rs1, u_int rs2)
+static void emit_smlatb(t_bytes *out, unsigned int hi, unsigned int lo, unsigned int rs1, unsigned int rs2)
 {
   output_w32(out, 0x93507C11|rs1<<5); // SBFX x17, x0, #16, #16
   output_w32(out, 0x93403C12|rs2<<5); // sbfx x18, x0, #0, #16
@@ -1068,7 +1070,7 @@ static void emit_smlatb(t_bytes *out, u_int hi, u_int lo, u_int rs1, u_int rs2)
   output_w32(out, 0x9B207C00|(18<<16)|(17<<5)|hi);
   emit_adds(out, hi, lo, hi); // sets carry flag - need to use in SET_Q
 }
-static void emit_smlatt(t_bytes *out, u_int hi, u_int lo, u_int rs1, u_int rs2)
+static void emit_smlatt(t_bytes *out, unsigned int hi, unsigned int lo, unsigned int rs1, unsigned int rs2)
 {
   output_w32(out, 0x93507C11|rs1<<5); // SBFX x17, rs1, #16, #16
   output_w32(out, 0x93507C12|rs2<<5); // SBFX x18, rs2, #16, #16
@@ -1077,7 +1079,7 @@ static void emit_smlatt(t_bytes *out, u_int hi, u_int lo, u_int rs1, u_int rs2)
   emit_adds(out, hi, lo, hi); // sets carry flag - need to use in SET_Q
 }
 
-static void emit_smlalbb(t_bytes *out, u_int hi, u_int lo, u_int rs1, u_int rs2)
+static void emit_smlalbb(t_bytes *out, unsigned int hi, unsigned int lo, unsigned int rs1, unsigned int rs2)
 {
   emit_mov(out, hi, 17); 
   output_w32(out, 0xB3607C11|lo<<5);       // BFI x17, xhi, #32, #32
@@ -1090,7 +1092,7 @@ static void emit_smlalbb(t_bytes *out, u_int hi, u_int lo, u_int rs1, u_int rs2)
   output_w32(out, 0xD360FE20|lo); // lsr lo, x17, #32
   emit_mov(out, 17, hi);
 }
-static void emit_smlalbt(t_bytes *out, u_int hi, u_int lo, u_int rs1, u_int rs2)
+static void emit_smlalbt(t_bytes *out, unsigned int hi, unsigned int lo, unsigned int rs1, unsigned int rs2)
 {
   emit_mov(out, hi, 17); 
   output_w32(out, 0xB3607C11|lo<<5);       // BFI x17, xhi, #32, #32
@@ -1103,7 +1105,7 @@ static void emit_smlalbt(t_bytes *out, u_int hi, u_int lo, u_int rs1, u_int rs2)
   output_w32(out, 0xD360FE20|lo); // lsr lo, x17, #32
   emit_mov(out, 17, hi);
 }
-static void emit_smlaltb(t_bytes *out, u_int hi, u_int lo, u_int rs1, u_int rs2)
+static void emit_smlaltb(t_bytes *out, unsigned int hi, unsigned int lo, unsigned int rs1, unsigned int rs2)
 {
   emit_mov(out, hi, 17); 
   output_w32(out, 0xB3607C11|lo<<5);       // BFI x17, xhi, #32, #32
@@ -1116,7 +1118,7 @@ static void emit_smlaltb(t_bytes *out, u_int hi, u_int lo, u_int rs1, u_int rs2)
   output_w32(out, 0xD360FE20|lo); // lsr lo, x17, #32
   emit_mov(out, 17, hi);
 }
-static void emit_smlaltt(t_bytes *out, u_int hi, u_int lo, u_int rs1, u_int rs2)
+static void emit_smlaltt(t_bytes *out, unsigned int hi, unsigned int lo, unsigned int rs1, unsigned int rs2)
 {
   emit_mov(out, hi, 17); 
   output_w32(out, 0xB3607C11|lo<<5);       // BFI x17, xhi, #32, #32
@@ -1130,21 +1132,21 @@ static void emit_smlaltt(t_bytes *out, u_int hi, u_int lo, u_int rs1, u_int rs2)
   emit_mov(out, 17, hi);
 }
 
-static void emit_mul(t_bytes *out, u_int rs1,u_int rs2)
+static void emit_mul(t_bytes *out, unsigned int rs1,unsigned int rs2)
 {
   output_w32(out, 0x1B007C00|(rs2<<16)|(rs1<<5)|rs1);
 }
-static void emit_muls(t_bytes *out, u_int rs1,u_int rs2)
+static void emit_muls(t_bytes *out, unsigned int rs1,unsigned int rs2)
 {
   output_w32(out, 0x1B007C00|(rs2<<16)|(rs1<<5)|rs1);
   emit_cmpimm(out, rs1, 0);
 }
 
-static void emit_mla(t_bytes *out, u_int hi, u_int lo, u_int rs1, u_int rs2)
+static void emit_mla(t_bytes *out, unsigned int hi, unsigned int lo, unsigned int rs1, unsigned int rs2)
 {
   output_w32(out, 0x1B000000|(lo<<10)|(rs2<<16)|(rs1<<5)|hi);
 }
-static void emit_mlas(t_bytes *out, u_int hi, u_int lo, u_int rs1, u_int rs2)
+static void emit_mlas(t_bytes *out, unsigned int hi, unsigned int lo, unsigned int rs1, unsigned int rs2)
 {
   output_w32(out, 0x1B000000|(lo<<10)|(rs2<<16)|(rs1<<5)|hi);
   emit_cmpimm(out, hi, 0);
@@ -1152,14 +1154,14 @@ static void emit_mlas(t_bytes *out, u_int hi, u_int lo, u_int rs1, u_int rs2)
 static void emit_cmpx64(t_bytes *out, int rs) {
   output_w32(out, 0xF100001F|rs<<5);
 }
-static void emit_umull(t_bytes *out, u_int hi, u_int lo, u_int rs1, u_int rs2)
+static void emit_umull(t_bytes *out, unsigned int hi, unsigned int lo, unsigned int rs1, unsigned int rs2)
 {
   output_w32(out, 0x9BA07C11|(rs2<<16)|(rs1<<5)); // UMADDL x17, w#, w#, XZR
   
   output_w32(out, 0xD360FE20|lo); // lsr lo, x17, #32
   emit_mov(out, 17, hi);
 }
-static void emit_umulls(t_bytes *out, u_int hi, u_int lo, u_int rs1, u_int rs2)
+static void emit_umulls(t_bytes *out, unsigned int hi, unsigned int lo, unsigned int rs1, unsigned int rs2)
 {
   output_w32(out, 0x9BA07C11|(rs2<<16)|(rs1<<5)); // UMADDL x17, w#, w#, XZR
   emit_cmpx64(out, 17);
@@ -1167,7 +1169,7 @@ static void emit_umulls(t_bytes *out, u_int hi, u_int lo, u_int rs1, u_int rs2)
   output_w32(out, 0xD360FE20|lo); // lsr lo, x17, #32
   emit_mov(out, 17, hi);
 }
-static void emit_umlal(t_bytes *out, u_int hi, u_int lo, u_int rs1, u_int rs2)
+static void emit_umlal(t_bytes *out, unsigned int hi, unsigned int lo, unsigned int rs1, unsigned int rs2)
 {
   emit_mov(out, hi, 17); 
   output_w32(out, 0xB3607C11|lo<<5);       // BFI x17, xhi, #32, #32
@@ -1177,7 +1179,7 @@ static void emit_umlal(t_bytes *out, u_int hi, u_int lo, u_int rs1, u_int rs2)
   output_w32(out, 0xD360FE20|lo); // lsr lo, x17, #32
   emit_mov(out, 17, hi);
 }
-static void emit_umlals(t_bytes *out, u_int hi, u_int lo, u_int rs1, u_int rs2)
+static void emit_umlals(t_bytes *out, unsigned int hi, unsigned int lo, unsigned int rs1, unsigned int rs2)
 {
   emit_mov(out, hi, 17); 
   output_w32(out, 0xB3607C11|lo<<5);       // BFI x17, xhi, #32, #32
@@ -1188,14 +1190,14 @@ static void emit_umlals(t_bytes *out, u_int hi, u_int lo, u_int rs1, u_int rs2)
   output_w32(out, 0xD360FE20|lo); // lsr lo, x17, #32
   emit_mov(out, 17, hi);
 }
-static void emit_smull(t_bytes *out, u_int hi, u_int lo, u_int rs1, u_int rs2)
+static void emit_smull(t_bytes *out, unsigned int hi, unsigned int lo, unsigned int rs1, unsigned int rs2)
 {
   output_w32(out, 0x9B207C11|(rs2<<16)|(rs1<<5)); // SMADDL x17, w#, w#, XZR
 
   output_w32(out, 0xD360FE20|lo); // lsr lo, x17, #32
   emit_mov(out, 17, hi);
 }
-static void emit_smulls(t_bytes *out, u_int hi, u_int lo, u_int rs1, u_int rs2)
+static void emit_smulls(t_bytes *out, unsigned int hi, unsigned int lo, unsigned int rs1, unsigned int rs2)
 {
 
   output_w32(out, 0x9B207C11|(rs2<<16)|(rs1<<5)); // SMADDL x17, w#, w#, XZR
@@ -1205,7 +1207,7 @@ static void emit_smulls(t_bytes *out, u_int hi, u_int lo, u_int rs1, u_int rs2)
   emit_mov(out, 17, hi);
 }
 
-static void emit_smlal(t_bytes *out, u_int hi, u_int lo, u_int rs1, u_int rs2)
+static void emit_smlal(t_bytes *out, unsigned int hi, unsigned int lo, unsigned int rs1, unsigned int rs2)
 {
   emit_mov(out, hi, 17); 
   output_w32(out, 0xB3607C11|lo<<5);       // BFI x17, xhi, #32, #32
@@ -1215,7 +1217,7 @@ static void emit_smlal(t_bytes *out, u_int hi, u_int lo, u_int rs1, u_int rs2)
   output_w32(out, 0xD360FE20|lo); // lsr lo, x17, #32
   emit_mov(out, 17, hi);
 }
-static void emit_smlals(t_bytes *out, u_int hi, u_int lo, u_int rs1, u_int rs2)
+static void emit_smlals(t_bytes *out, unsigned int hi, unsigned int lo, unsigned int rs1, unsigned int rs2)
 {
   emit_mov(out, hi, 17); 
   output_w32(out, 0xB3607C11|lo<<5);       // BFI x17, xhi, #32, #32
@@ -1238,7 +1240,7 @@ static void emit_teq(t_bytes *out, int rs, int rt)
   emit_cmpimm(out, 16, 0);
 }
 
-static u_int gencondjmp(intptr_t offset)
+static unsigned int gencondjmp(intptr_t offset)
 {
   return (offset>>2)&0x7ffff;
 }
@@ -1312,7 +1314,7 @@ static void emit_str_ptr_cond(t_bytes *out, uintptr_t ptr, int reg, int cond) {
 	emit_str_cond(out, R10, reg, cond);
 }
 
-static void emit_write_ptr32(t_bytes *out, uintptr_t ptr, u_int val) {
+static void emit_write_ptr32(t_bytes *out, uintptr_t ptr, unsigned int val) {
   emit_ptr(out, (uintptr_t)ptr, R2);
 	emit_movimm(out, val, R4);
 	emit_str(out, R2, R4);
@@ -1472,21 +1474,21 @@ static void emit_cmpimm(t_bytes *out, int rs,int imm)
 
 static void emit_testimm(t_bytes *out, int rs,int imm)
 {
-  u_int armval, ret;
+  unsigned int armval, ret;
   ret=genimm2(imm,32,&armval);
   output_w32(out, 0x72000000|armval<<10|rs<<5|WZR);
 }
 
 static void emit_testimm64(t_bytes * out, int rs,int64_t imm)
 {
-  u_int armval, ret;
+  unsigned int armval, ret;
   ret=genimm2(imm,64,&armval);
   output_w32(out, 0xf2000000|armval<<10|rs<<5|WZR);
 }
 
 static void emit_orimm(t_bytes *out, int rs,int imm,int rt)
 {
-  u_int armval;
+  unsigned int armval;
   if(imm==0) {
     if(rs!=rt) emit_mov(out, rs,rt);
   }else if(false && genimm2(imm,32,&armval)) {
@@ -1504,7 +1506,7 @@ static void emit_xorimm(t_bytes *out, int reg, int val, int rt) {
 
 static void emit_andimm(t_bytes *out,int rs,int imm,int rt)
 {
-  u_int armval;
+  unsigned int armval;
   if(imm==0) {
     emit_zeroreg(out, rt);
   }else if(false && genimm2((uint64_t)imm,32,&armval)) {
@@ -1517,7 +1519,7 @@ static void emit_andimm(t_bytes *out,int rs,int imm,int rt)
 
 static void emit_andsimm(t_bytes *out,int rs,int imm,int rt)
 {
-  u_int armval;
+  unsigned int armval;
   if(imm==0) {
     emit_zeroreg(out, rt);
     emit_cmp(out, rt, rt);

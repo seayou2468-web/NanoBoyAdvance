@@ -16,7 +16,7 @@
 */
 
 #include "filter.h"
-#include "types.h"
+#include "../types.h"
 #include <stdio.h>
 #include <string.h>
 

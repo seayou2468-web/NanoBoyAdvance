@@ -49,7 +49,7 @@
 #endif // HOST_WINDOWS
 
 
-slock *cpu_mutex = NULL;
+slock_t *cpu_mutex = NULL;
 
 #ifdef __GNUC__
 #define UNUSED_PARM( parm) parm __attribute__((unused))

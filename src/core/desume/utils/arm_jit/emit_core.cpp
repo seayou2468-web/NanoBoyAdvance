@@ -19,6 +19,15 @@
 #ifdef __APPLE__
 #include <libkern/OSCacheControl.h>
 #endif
+#include <map>
+#include <vector>
+#include <cstdio>
+#include <cstdlib>
+#include <cstdint>
+#include <sys/mman.h>
+
+#include "../../types.h"
+#include "../../arm_jit.h"
 
 #define CHUNK_SIZE 6048*4
 
@@ -44,7 +53,7 @@ static int g_TOTALBYTES = 0;
 u32 *g_PTR = NULL;
 t_bytes *g_currBlock = NULL;
 
-std::map<JittedFunc, u_int> allFuncs;
+std::map<JittedFunc, unsigned int> allFuncs;
 
 #ifndef MAP_ANONYMOUS
 	#ifdef MAP_ANON
@@ -100,7 +109,7 @@ static void *armjitarm_alloc_func(size_t size) {
 }
 
 static  void freeFuncs() {
-	std::map<JittedFunc, u_int>::iterator it;
+	std::map<JittedFunc, unsigned int>::iterator it;
 	for (it=allFuncs.begin(); it!=allFuncs.end(); ++it) {
 		munmap((void *)it->first, (uintptr_t)it->second);
 	}

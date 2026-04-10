@@ -16,7 +16,7 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "types.h"
+#include "../../types.h"
 
 #ifdef HAVE_JIT
 
@@ -25,14 +25,14 @@
 #include <map>
 #include <vector>
 
-#include "utils/bits.h"
-#include "armcpu.h"
-#include "instructions.h"
-#include "instruction_attributes.h"
-#include "MMU.h"
-#include "MMU_timing.h"
-#include "arm_jit.h"
-#include "bios.h"
+#include "../bits.h"
+#include "../../armcpu.h"
+#include "../../instructions.h"
+#include "../../instruction_attributes.h"
+#include "../../MMU.h"
+#include "../../MMU_timing.h"
+#include "../../arm_jit.h"
+#include "../../bios.h"
 
 #include <stdio.h>
 static const char *disassemble(u32 opcode);
@@ -3769,13 +3769,13 @@ static int OP_SWI_THUMB(const u32 i) { return op_swi(i & 0x1F); }
 typedef int (*ArmOpCompiler)(u32);
 static const ArmOpCompiler arm_instruction_compilers[4096] = {
 #define TABDECL(x) x
-#include "instruction_tabdef.inc"
+#include "../../instruction_tabdef.inc"
 #undef TABDECL
 };
 
 static const ArmOpCompiler thumb_instruction_compilers[1024] = {
 #define TABDECL(x) x
-#include "thumb_tabdef.inc"
+#include "../../thumb_tabdef.inc"
 #undef TABDECL
 };
 

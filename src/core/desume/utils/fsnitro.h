@@ -19,7 +19,7 @@
 #define _FS_NITRO_H_
 
 #include <string>
-#include "types.h"
+#include "../types.h"
 
 enum FNT_TYPES
 {

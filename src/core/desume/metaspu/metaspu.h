@@ -27,7 +27,7 @@
 
 #include <algorithm>
 
-#include "types.h"
+#include "../types.h"
 
 template< typename T >
 static FORCEINLINE void Clampify( T& src, T min, T max )

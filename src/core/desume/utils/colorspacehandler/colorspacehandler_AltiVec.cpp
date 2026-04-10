@@ -15,7 +15,7 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "colorspacehandler_Altivec.h"
+#include "colorspacehandler_AltiVec.h"
 
 #ifndef ENABLE_ALTIVEC
 	#error This code requires PowerPC AltiVec support.

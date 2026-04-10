@@ -16,7 +16,7 @@
 */
 
 #include "filter.h"
-#include "types.h"
+#include "../types.h"
 #include "interp.h"
 
 // transforms each 1 pixel into a 2x2 block of output pixels

@@ -19,7 +19,7 @@
 */
 
 #include <string>
-#include "encodings/utf.h"
+#include "../encodings/utf.h"
 #include "xstring.h"
 
 //a vc-style substring operation (very kind and lenient)
