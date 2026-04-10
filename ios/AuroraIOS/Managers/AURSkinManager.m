@@ -1,6 +1,5 @@
 #import "AURSkinManager.h"
-#define MINIZ_NO_TIME
-#include "../External/miniz/miniz.c"
+#import "../External/miniz/miniz.h"
 
 @interface AURSkinManager ()
 @property (nonatomic, strong) NSMutableArray *importedSkins;
