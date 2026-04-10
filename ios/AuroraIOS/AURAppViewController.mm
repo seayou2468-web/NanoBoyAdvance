@@ -18,6 +18,9 @@ static const NSUInteger kDefaultHeight = 160;
 @property (nonatomic, strong) UILabel*       statusLabel;
 @property (nonatomic, strong) UIButton*      selectROMButton;
 @property (nonatomic, strong) UIButton*      selectBIOSButton;
+@property (nonatomic, strong) UIButton*      emulatorModeButton;
+@property (nonatomic, strong) UIButton*      controllerModeButton;
+@property (nonatomic, strong) UIButton*      appMenuButton;
 @property (nonatomic, strong) UITextView*    logTextView;
 @property (nonatomic, strong) UIView*        controlsContainer;
 @property (nonatomic, strong) CADisplayLink* displayLink;
@@ -25,6 +28,11 @@ static const NSUInteger kDefaultHeight = 160;
 @property (nonatomic, strong) NSLayoutConstraint* logMinHeightConstraint;
 @property (nonatomic, strong) NSLayoutConstraint* imageAspectConstraint;
 - (void)appendLog:(NSString*)message;
+- (void)presentEmulatorMenu;
+- (void)presentControllerMenu;
+- (void)presentAppMenu;
+- (void)applyControllerPreset;
+- (NSString*)coreTypeLabel:(EmulatorCoreType)type;
 @end
 
 @implementation AURViewController {
@@ -36,6 +44,14 @@ static const NSUInteger kDefaultHeight = 160;
     NSString*       _selectedBIOSPath;
     NSUInteger      _whiteFrameStreak;
     BOOL            _didLogWhiteFrameHint;
+    BOOL            _forceCoreType;
+    NSInteger       _forcedCoreTypeValue;
+    NSInteger       _gbaControllerPreset; // 0: standard, 1: compact
+    NSInteger       _nesControllerPreset; // 0: standard, 1: compact
+    UIButton*       _lButton;
+    UIButton*       _rButton;
+    UIButton*       _aButton;
+    UIButton*       _bButton;
 #if DEBUG
     NSUInteger      _frameCounter;
     uint32_t        _lastFrameSample;
@@ -51,6 +67,10 @@ static const NSUInteger kDefaultHeight = 160;
     self.view.backgroundColor = UIColor.blackColor;
     _videoSpec.width = (uint32_t)kDefaultWidth;
     _videoSpec.height = (uint32_t)kDefaultHeight;
+    _forceCoreType = NO;
+    _forcedCoreTypeValue = EMULATOR_CORE_TYPE_GBA;
+    _gbaControllerPreset = 0;
+    _nesControllerPreset = 1;
 
     // ImageView
     self.imageView = [[AURMetalView alloc] initWithFrame:CGRectZero];
@@ -119,6 +139,37 @@ static const NSUInteger kDefaultHeight = 160;
     } else {
         [self.selectBIOSButton setTitle:@"BIOS を選択…" forState:UIControlStateNormal];
     }
+
+    self.emulatorModeButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    self.emulatorModeButton.translatesAutoresizingMaskIntoConstraints = NO;
+    [self.emulatorModeButton addTarget:self
+                                action:@selector(presentEmulatorMenu)
+                      forControlEvents:UIControlEventTouchUpInside];
+    [self.emulatorModeButton setTitle:@"エミュ: 自動" forState:UIControlStateNormal];
+
+    self.controllerModeButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    self.controllerModeButton.translatesAutoresizingMaskIntoConstraints = NO;
+    [self.controllerModeButton addTarget:self
+                                  action:@selector(presentControllerMenu)
+                        forControlEvents:UIControlEventTouchUpInside];
+    [self.controllerModeButton setTitle:@"コントローラー" forState:UIControlStateNormal];
+
+    self.appMenuButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    self.appMenuButton.translatesAutoresizingMaskIntoConstraints = NO;
+    [self.appMenuButton addTarget:self
+                           action:@selector(presentAppMenu)
+                 forControlEvents:UIControlEventTouchUpInside];
+    [self.appMenuButton setTitle:@"メニュー" forState:UIControlStateNormal];
+
+    UIStackView* modeButtonStack = [[UIStackView alloc] initWithArrangedSubviews:@[
+        self.emulatorModeButton, self.controllerModeButton, self.appMenuButton
+    ]];
+    modeButtonStack.translatesAutoresizingMaskIntoConstraints = NO;
+    modeButtonStack.axis = UILayoutConstraintAxisHorizontal;
+    modeButtonStack.distribution = UIStackViewDistributionFillEqually;
+    modeButtonStack.spacing = 10.0;
+    [self.view addSubview:modeButtonStack];
+
     UIStackView* fileButtonStack = [[UIStackView alloc] initWithArrangedSubviews:@[self.selectROMButton, self.selectBIOSButton]];
     fileButtonStack.translatesAutoresizingMaskIntoConstraints = NO;
     fileButtonStack.axis = UILayoutConstraintAxisHorizontal;
@@ -200,6 +251,10 @@ static const NSUInteger kDefaultHeight = 160;
     UIButton* rBtn = makeKeyButton(@"R", EMULATOR_KEY_R, 40);
     UIButton* bBtn = makeKeyButton(@"B", EMULATOR_KEY_B, 56);
     UIButton* aBtn = makeKeyButton(@"A", EMULATOR_KEY_A, 56);
+    _lButton = lBtn;
+    _rButton = rBtn;
+    _aButton = aBtn;
+    _bButton = bBtn;
     UIStackView* shoulderRow = [[UIStackView alloc] initWithArrangedSubviews:@[lBtn, rBtn]];
     shoulderRow.axis = UILayoutConstraintAxisHorizontal;
     shoulderRow.spacing = 10.0;
@@ -268,8 +323,18 @@ static const NSUInteger kDefaultHeight = 160;
             constraintEqualToAnchor:self.view.safeAreaLayoutGuide.trailingAnchor
             constant:-16],
         [fileButtonStack.topAnchor
+            constraintEqualToAnchor:modeButtonStack.bottomAnchor
+            constant:10],
+
+        [modeButtonStack.leadingAnchor
+            constraintEqualToAnchor:self.view.safeAreaLayoutGuide.leadingAnchor
+            constant:16],
+        [modeButtonStack.trailingAnchor
+            constraintEqualToAnchor:self.view.safeAreaLayoutGuide.trailingAnchor
+            constant:-16],
+        [modeButtonStack.topAnchor
             constraintEqualToAnchor:self.statusLabel.bottomAnchor
-            constant:14],
+            constant:10],
 
         [self.controlsContainer.leadingAnchor
             constraintEqualToAnchor:self.view.safeAreaLayoutGuide.leadingAnchor
@@ -306,6 +371,8 @@ static const NSUInteger kDefaultHeight = 160;
     ]];
 
     [self appendLog:@"ROM は毎回選択モードです（bookmark 復元なし）"];
+    [self appendLog:@"メニュー追加: エミュ選択 / コントローラー選択 / 設定・セーブ・チート"];
+    [self applyControllerPreset];
     [self updateAdaptiveLayoutForBounds:self.view.bounds.size];
 }
 
@@ -411,14 +478,17 @@ static const NSUInteger kDefaultHeight = 160;
     [self.imageView clearFrame];
 
     NSString* ext = url.pathExtension.lowercaseString ?: @"";
-    _coreType = [ext isEqualToString:@"nes"] ? EMULATOR_CORE_TYPE_NES : EMULATOR_CORE_TYPE_GBA;
+    EmulatorCoreType detectedType = [ext isEqualToString:@"nes"] ? EMULATOR_CORE_TYPE_NES : EMULATOR_CORE_TYPE_GBA;
+    _coreType = _forceCoreType ? (EmulatorCoreType)_forcedCoreTypeValue : detectedType;
     _core = EmulatorCore_Create(_coreType);
     if (_core == NULL) {
         self.statusLabel.text = @"EmulatorCore_Create failed";
         [self appendLog:@"EmulatorCore_Create failed"];
         return;
     }
-    [self appendLog:[NSString stringWithFormat:@"EmulatorCore_Create success (%s)", EmulatorCoreTypeName(_coreType)]];
+    [self appendLog:[NSString stringWithFormat:@"EmulatorCore_Create success (%s / %@)",
+                     EmulatorCoreTypeName(_coreType), [self coreTypeLabel:_coreType]]];
+    [self applyControllerPreset];
 
     NSNumber* fileSize = nil;
     [url getResourceValue:&fileSize forKey:NSURLFileSizeKey error:nil];
@@ -594,6 +664,136 @@ static const NSUInteger kDefaultHeight = 160;
             (t3 - t0) * 1000.0]];
     }
 #endif
+}
+
+- (NSString*)coreTypeLabel:(EmulatorCoreType)type {
+    return (type == EMULATOR_CORE_TYPE_NES) ? @"NES" : @"GBA";
+}
+
+- (void)applyControllerPreset {
+    BOOL isNES = (_coreType == EMULATOR_CORE_TYPE_NES);
+    NSInteger preset = isNES ? _nesControllerPreset : _gbaControllerPreset;
+    BOOL compact = (preset == 1);
+
+    _lButton.hidden = isNES || compact;
+    _rButton.hidden = isNES || compact;
+
+    if (isNES) {
+        [_aButton setTitle:(compact ? @"A" : @"A (NES)") forState:UIControlStateNormal];
+        [_bButton setTitle:(compact ? @"B" : @"B (NES)") forState:UIControlStateNormal];
+    } else {
+        [_aButton setTitle:@"A" forState:UIControlStateNormal];
+        [_bButton setTitle:@"B" forState:UIControlStateNormal];
+    }
+    NSString* controllerText = compact ? @"簡易" : @"標準";
+    [self.controllerModeButton setTitle:[NSString stringWithFormat:@"コントローラー: %@", controllerText]
+                               forState:UIControlStateNormal];
+}
+
+- (void)presentEmulatorMenu {
+    UIAlertController* menu =
+        [UIAlertController alertControllerWithTitle:@"エミュレーター選択"
+                                            message:@"ROM拡張子から自動判定、または固定選択できます。"
+                                     preferredStyle:UIAlertControllerStyleActionSheet];
+
+    __weak typeof(self) weakSelf = self;
+    [menu addAction:[UIAlertAction actionWithTitle:@"自動判定"
+                                             style:UIAlertActionStyleDefault
+                                           handler:^(__unused UIAlertAction* action) {
+        weakSelf->_forceCoreType = NO;
+        [weakSelf.emulatorModeButton setTitle:@"エミュ: 自動" forState:UIControlStateNormal];
+        [weakSelf appendLog:@"エミュレーター選択: 自動判定"];
+    }]];
+
+    [menu addAction:[UIAlertAction actionWithTitle:@"GBA 固定"
+                                             style:UIAlertActionStyleDefault
+                                           handler:^(__unused UIAlertAction* action) {
+        weakSelf->_forceCoreType = YES;
+        weakSelf->_forcedCoreTypeValue = EMULATOR_CORE_TYPE_GBA;
+        [weakSelf.emulatorModeButton setTitle:@"エミュ: GBA 固定" forState:UIControlStateNormal];
+        [weakSelf appendLog:@"エミュレーター選択: GBA 固定"];
+    }]];
+
+    [menu addAction:[UIAlertAction actionWithTitle:@"NES 固定"
+                                             style:UIAlertActionStyleDefault
+                                           handler:^(__unused UIAlertAction* action) {
+        weakSelf->_forceCoreType = YES;
+        weakSelf->_forcedCoreTypeValue = EMULATOR_CORE_TYPE_NES;
+        [weakSelf.emulatorModeButton setTitle:@"エミュ: NES 固定" forState:UIControlStateNormal];
+        [weakSelf appendLog:@"エミュレーター選択: NES 固定"];
+    }]];
+
+    [menu addAction:[UIAlertAction actionWithTitle:@"キャンセル"
+                                             style:UIAlertActionStyleCancel
+                                           handler:nil]];
+    [self presentViewController:menu animated:YES completion:nil];
+}
+
+- (void)presentControllerMenu {
+    UIAlertController* menu =
+        [UIAlertController alertControllerWithTitle:@"コントローラー設定"
+                                            message:@"エミュごとに表示プリセットを切り替えます。"
+                                     preferredStyle:UIAlertControllerStyleActionSheet];
+    __weak typeof(self) weakSelf = self;
+    [menu addAction:[UIAlertAction actionWithTitle:@"GBA: 標準"
+                                             style:UIAlertActionStyleDefault
+                                           handler:^(__unused UIAlertAction* action) {
+        weakSelf->_gbaControllerPreset = 0;
+        [weakSelf appendLog:@"コントローラー設定: GBA 標準"];
+        [weakSelf applyControllerPreset];
+    }]];
+    [menu addAction:[UIAlertAction actionWithTitle:@"GBA: 簡易"
+                                             style:UIAlertActionStyleDefault
+                                           handler:^(__unused UIAlertAction* action) {
+        weakSelf->_gbaControllerPreset = 1;
+        [weakSelf appendLog:@"コントローラー設定: GBA 簡易"];
+        [weakSelf applyControllerPreset];
+    }]];
+    [menu addAction:[UIAlertAction actionWithTitle:@"NES: 標準"
+                                             style:UIAlertActionStyleDefault
+                                           handler:^(__unused UIAlertAction* action) {
+        weakSelf->_nesControllerPreset = 0;
+        [weakSelf appendLog:@"コントローラー設定: NES 標準"];
+        [weakSelf applyControllerPreset];
+    }]];
+    [menu addAction:[UIAlertAction actionWithTitle:@"NES: 簡易"
+                                             style:UIAlertActionStyleDefault
+                                           handler:^(__unused UIAlertAction* action) {
+        weakSelf->_nesControllerPreset = 1;
+        [weakSelf appendLog:@"コントローラー設定: NES 簡易"];
+        [weakSelf applyControllerPreset];
+    }]];
+    [menu addAction:[UIAlertAction actionWithTitle:@"キャンセル"
+                                             style:UIAlertActionStyleCancel
+                                           handler:nil]];
+    [self presentViewController:menu animated:YES completion:nil];
+}
+
+- (void)presentAppMenu {
+    UIAlertController* menu =
+        [UIAlertController alertControllerWithTitle:@"マルチエミュメニュー"
+                                            message:@"設定・セーブ・チートなどの機能入口です。"
+                                     preferredStyle:UIAlertControllerStyleActionSheet];
+    __weak typeof(self) weakSelf = self;
+    NSArray<NSString*>* items = @[
+        @"設定 (映像/音声/操作)",
+        @"ステートセーブ",
+        @"ステートロード",
+        @"チート管理",
+        @"エミュ切替メニュー"
+    ];
+    for (NSString* item in items) {
+        [menu addAction:[UIAlertAction actionWithTitle:item
+                                                 style:UIAlertActionStyleDefault
+                                               handler:^(__unused UIAlertAction* action) {
+            weakSelf.statusLabel.text = [NSString stringWithFormat:@"選択: %@", item];
+            [weakSelf appendLog:[NSString stringWithFormat:@"メニュー選択: %@", item]];
+        }]];
+    }
+    [menu addAction:[UIAlertAction actionWithTitle:@"キャンセル"
+                                             style:UIAlertActionStyleCancel
+                                           handler:nil]];
+    [self presentViewController:menu animated:YES completion:nil];
 }
 
 - (void)appendLog:(NSString*)message {
