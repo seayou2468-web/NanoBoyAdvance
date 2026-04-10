@@ -10,8 +10,6 @@ CXX      := c++
 AR       := ar
 CFLAGS   := -O2 -std=c11 -Wall -Wextra -Wpedantic
 CXXFLAGS := -O2 -std=c++20 -Wall -Wextra -Wpedantic -ffunction-sections -fdata-sections
-QUICK_NES_CXXFLAGS := -Isrc/core/quick_nes -Isrc/core/quick_nes/nes_emu
-
 SDL_CFLAGS := $(shell pkg-config --cflags sdl2 2>/dev/null)
 SDL_LIBS   := $(shell pkg-config --libs sdl2 2>/dev/null)
 
@@ -78,7 +76,7 @@ $(APP): $(MAIN_OBJ) $(CORE_OBJS) $(LIBNBA) $(LIBNES)
 
 $(DUMP_TOOL): tools/dump_frames.cpp $(CORE_OBJS) $(LIBNBA) $(LIBNES)
 	@mkdir -p $(dir $@)
-	$(CXX) $(CXXFLAGS) $(SDL_CFLAGS) -Wl,--gc-sections -I. -o $@ tools/dump_frames.cpp $(CORE_OBJS) $(LIBNBA) $(LIBNES) $(SDL_LIBS)
+	$(CXX) $(CXXFLAGS) $(SDL_CFLAGS) -Wl,--gc-sections -o $@ tools/dump_frames.cpp $(CORE_OBJS) $(LIBNBA) $(LIBNES) $(SDL_LIBS)
 
 $(LIBNBA): $(NBA_OBJS)
 	@mkdir -p $(dir $@)
@@ -94,7 +92,7 @@ $(BUILD_DIR)/main.o: main.c
 
 $(BUILD_DIR)/src/core/api/emulator_core_c_api.o: src/core/api/emulator_core_c_api.cpp src/core/api/emulator_core_c_api.h src/core/core_adapter.hpp
 	@mkdir -p $(dir $@)
-	$(CXX) $(CXXFLAGS) $(SDL_CFLAGS) $(QUICK_NES_CXXFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(SDL_CFLAGS) -c $< -o $@
 
 $(BUILD_DIR)/src/core/nanoboyadvance/runtime.o: src/core/nanoboyadvance/runtime.cpp src/core/nanoboyadvance/runtime.hpp
 	@mkdir -p $(dir $@)
@@ -106,11 +104,11 @@ $(BUILD_DIR)/src/core/nanoboyadvance/gba_core_c_api.o: src/core/nanoboyadvance/g
 
 $(BUILD_DIR)/src/core/quick_nes/runtime.o: src/core/quick_nes/runtime.cpp src/core/quick_nes/runtime.hpp
 	@mkdir -p $(dir $@)
-	$(CXX) $(CXXFLAGS) $(SDL_CFLAGS) $(QUICK_NES_CXXFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(SDL_CFLAGS) -c $< -o $@
 
 $(BUILD_DIR)/src/core/quick_nes/nes_emu/%.o: src/core/quick_nes/nes_emu/%.cpp
 	@mkdir -p $(dir $@)
-	$(CXX) $(CXXFLAGS) $(SDL_CFLAGS) $(QUICK_NES_CXXFLAGS) -Wno-register -Wno-deprecated-declarations -Wno-multichar -Wno-deprecated -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(SDL_CFLAGS) -Wno-register -Wno-deprecated-declarations -Wno-multichar -Wno-deprecated -c $< -o $@
 
 $(BUILD_DIR)/%.o: %.cpp
 	@mkdir -p $(dir $@)

@@ -5,7 +5,7 @@
  * Refer to the included LICENSE file.
  */
 
-#include "../../../core/nanoboyadvance/nba/include/nba/log.hpp"
+#include "../../nba/include/nba/log.hpp"
 #include <filesystem>
 #include <fstream>
 #include "../include/platform/config.hpp"

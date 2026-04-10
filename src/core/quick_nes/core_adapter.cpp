@@ -1,4 +1,4 @@
-#include "../../core_adapter.hpp"
+#include "../core_adapter.hpp"
 
 #include <memory>
 

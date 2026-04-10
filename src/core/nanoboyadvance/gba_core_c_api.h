@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../api/emulator_core_c_api.h"
+#include "../api/emulator_core_c_api.h"
 
 #ifdef __cplusplus
 extern "C" {

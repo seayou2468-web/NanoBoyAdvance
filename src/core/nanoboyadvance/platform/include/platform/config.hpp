@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "../../../../core/nanoboyadvance/nba/include/nba/config.hpp"
+#include "../../../nba/include/nba/config.hpp"
 #include <ostream>
 #include <string>
 

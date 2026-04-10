@@ -8,7 +8,7 @@
 #pragma once
 
 #include <filesystem>
-#include "../../../../../core/nanoboyadvance/nba/include/nba/core.hpp"
+#include "../../../../nba/include/nba/core.hpp"
 #include <string>
 
 namespace fs = std::filesystem;

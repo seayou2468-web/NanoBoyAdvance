@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-#include "src/core/emulator_core_c_api.h"
+#include "../src/core/emulator_core_c_api.h"
 
 namespace {
 
