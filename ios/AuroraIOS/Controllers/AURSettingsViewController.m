@@ -1,4 +1,5 @@
 #import "AURSettingsViewController.h"
+#import "AURPreferredControllerSkinsViewController.h"
 #import "../Managers/AURDatabaseManager.h"
 #import "../Managers/AURSkinManager.h"
 #import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
@@ -34,7 +35,7 @@
     self.sections = @[
         @{@"title": @"User Interface", @"items": @[@"Appearance", @"App Icon"]},
         @{@"title": @"Core Settings (BIOS)", @"items": @[@"GBA BIOS", @"GB/GBC BIOS"], @"details": @[gbaBios, gbBios]},
-        @{@"title": @"Controllers", @"items": @[@"Controller Skins", @"Game Controllers"]},
+        @{@"title": @"Controllers", @"items": @[@"Preferred Skins", @"Import Skin"]},
         @{@"title": @"About", @"items": @[@"Version 1.0"]}
     ];
 }
@@ -79,15 +80,7 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
-    if (indexPath.section == 2 && indexPath.row == 0) {
-        // Import Skin
-        UTType *deltaSkinType = [UTType typeWithFilenameExtension:@"deltaskin"];
-        UIDocumentPickerViewController *picker = [[UIDocumentPickerViewController alloc] initForOpeningContentTypes:@[deltaSkinType ?: UTTypeData] asCopy:YES];
-        picker.delegate = self;
-        picker.view.tag = 1001; // Skin picker tag
-        [self presentViewController:picker animated:YES completion:nil];
-        return;
-    }
+
     if (indexPath.section == 1) {
         if (indexPath.row == 0) self.pickingCoreType = EMULATOR_CORE_TYPE_GBA;
         else if (indexPath.row == 1) self.pickingCoreType = EMULATOR_CORE_TYPE_GB;
@@ -95,6 +88,19 @@
         UIDocumentPickerViewController *picker = [[UIDocumentPickerViewController alloc] initForOpeningContentTypes:@[UTTypeData] asCopy:YES];
         picker.delegate = self;
         [self presentViewController:picker animated:YES completion:nil];
+    }
+    else if (indexPath.section == 2) {
+        if (indexPath.row == 0) {
+            AURPreferredControllerSkinsViewController *vc = [[AURPreferredControllerSkinsViewController alloc] init];
+            vc.coreType = EMULATOR_CORE_TYPE_GBA;
+            [self.navigationController pushViewController:vc animated:YES];
+        } else if (indexPath.row == 1) {
+            UTType *deltaSkinType = [UTType typeWithFilenameExtension:@"deltaskin"];
+            UIDocumentPickerViewController *picker = [[UIDocumentPickerViewController alloc] initForOpeningContentTypes:@[deltaSkinType ?: UTTypeData] asCopy:YES];
+            picker.delegate = self;
+            picker.view.tag = 1001;
+            [self presentViewController:picker animated:YES completion:nil];
+        }
     }
 }
 
