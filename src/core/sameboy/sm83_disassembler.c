@@ -9,12 +9,7 @@
 #define GB_read_memory GB_safe_read_memory
 
 #ifdef GB_DISABLE_DEBUGGER
-typedef struct {
-    const char *name;
-    uint16_t addr;
-} GB_bank_symbol_t;
 #define GB_debugger_name_for_address(gb, addr) NULL
-#define GB_debugger_find_symbol(gb, addr, prefer_local) NULL
 #endif
 
 typedef void opcode_t(GB_gameboy_t *gb, uint8_t opcode, uint16_t *pc);
@@ -771,6 +766,7 @@ static opcode_t *opcodes[256] = {
 
 void GB_cpu_disassemble(GB_gameboy_t *gb, uint16_t pc, uint16_t count)
 {
+#ifndef GB_DISABLE_DEBUGGER
     const GB_bank_symbol_t *function_symbol = GB_debugger_find_symbol(gb, pc, false);
 
     if (function_symbol && pc - function_symbol->addr > 0x1000) {
@@ -782,8 +778,10 @@ void GB_cpu_disassemble(GB_gameboy_t *gb, uint16_t pc, uint16_t count)
     }
 
     uint16_t current_function = function_symbol? function_symbol->addr : 0;
+#endif
 
     while (count--) {
+#ifndef GB_DISABLE_DEBUGGER
         function_symbol = GB_debugger_find_symbol(gb, pc, false);
         if (function_symbol && function_symbol->addr == pc) {
             if (current_function != function_symbol->addr) {
@@ -797,6 +795,9 @@ void GB_cpu_disassemble(GB_gameboy_t *gb, uint16_t pc, uint16_t count)
         else {
             GB_log(gb, "%s%04x: ", pc == gb->pc? "  ->": "    ", pc);
         }
+#else
+        GB_log(gb, "%s%04x: ", pc == gb->pc? "  ->": "    ", pc);
+#endif
         uint8_t opcode = GB_read_memory(gb, pc);
         opcodes[opcode](gb, opcode, &pc);
     }
