@@ -22,6 +22,7 @@
 #include "types.h"
 
 #include <functional>
+#include <cstdio>
 #include <string>
 #include <vector>
 
@@ -110,6 +111,8 @@ void SetConfigArray(ConfigEntry entry, std::vector<u8> value);
 FILE* OpenFile(std::string path, std::string mode, bool mustexist=false);
 FILE* OpenLocalFile(std::string path, std::string mode);
 FILE* OpenDataFile(std::string path);
+int FileSeek(FILE* file, s64 offset, int origin);
+s64 FileTell(FILE* file);
 
 inline bool FileExists(std::string name)
 {

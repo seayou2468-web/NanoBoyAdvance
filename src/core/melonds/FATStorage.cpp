@@ -17,7 +17,6 @@
 */
 
 #include <string.h>
-#include <dirent.h>
 #include <inttypes.h>
 #include <vector>
 
@@ -25,16 +24,6 @@
 #include "Platform.h"
 
 namespace fs = std::filesystem;
-
-
-// really, Windows?
-#ifdef __WIN32__
-    #define melon_fseek _fseeki64
-    #define melon_ftell _ftelli64
-#else
-    #define melon_fseek fseek
-    #define melon_ftell ftell
-#endif // __WIN32__
 
 
 FATStorage::FATStorage(std::string filename, u64 size, bool readonly, std::string sourcedir)
@@ -151,7 +140,7 @@ u32 FATStorage::ReadSectorsInternal(FILE* file, u64 filelen, u32 start, u32 num,
         num = len >> 9;
     }
 
-    melon_fseek(file, addr, SEEK_SET);
+    Platform::FileSeek(file, static_cast<s64>(addr), SEEK_SET);
 
     u32 res = fread(data, 0x200, num, file);
     if (res < num)
@@ -180,7 +169,7 @@ u32 FATStorage::WriteSectorsInternal(FILE* file, u64 filelen, u32 start, u32 num
         num = len >> 9;
     }
 
-    melon_fseek(file, addr, SEEK_SET);
+    Platform::FileSeek(file, static_cast<s64>(addr), SEEK_SET);
 
     u32 res = fwrite(data, 0x200, num, file);
     return res;
@@ -366,7 +355,7 @@ bool FATStorage::ExportFile(std::string path, fs::path out)
                         err);
     }
 
-    fout = Platform::OpenFile(out.u8string().c_str(), "wb");
+    fout = Platform::OpenFile(out.string(), "wb");
     if (!fout)
     {
         f_close(&file);
@@ -414,7 +403,7 @@ void FATStorage::ExportDirectory(std::string path, std::string outbase, int leve
         if (!info.fname[0]) break;
 
         std::string fullpath = path + info.fname;
-        fs::path outpath = fs::u8path(outbase + "/" + fullpath);
+        fs::path outpath = fs::path(outbase + "/" + fullpath);
 
         if (info.fattrib & AM_DIR)
         {
@@ -496,7 +485,7 @@ bool FATStorage::DeleteHostDirectory(std::string path, std::string outbase, int 
 {
     if (level >= 32) return false;
 
-    fs::path dirpath = fs::u8path(outbase + "/" + path);
+    fs::path dirpath = fs::path(outbase + "/" + path);
     if (!fs::is_directory(dirpath))
         return true; // already deleted? oh well
 
@@ -530,7 +519,7 @@ bool FATStorage::DeleteHostDirectory(std::string path, std::string outbase, int 
 
     for (const auto& key : filedeletelist)
     {
-        fs::path fullpath = fs::u8path(outbase + "/" + key);
+        fs::path fullpath = fs::path(outbase + "/" + key);
         std::error_code err;
         fs::permissions(fullpath,
                         fs::perms::owner_read | fs::perms::owner_write,
@@ -549,7 +538,7 @@ bool FATStorage::DeleteHostDirectory(std::string path, std::string outbase, int 
     }
 
     {
-        fs::path fullpath = fs::u8path(outbase + "/" + path);
+        fs::path fullpath = fs::path(outbase + "/" + path);
 
         std::error_code err;
         fs::permissions(fullpath,
@@ -596,7 +585,7 @@ void FATStorage::ExportChanges(std::string outbase)
 
     for (const auto& key : deletelist)
     {
-        fs::path fullpath = fs::u8path(outbase + "/" + key);
+        fs::path fullpath = fs::path(outbase + "/" + key);
 
         std::error_code err;
         fs::permissions(fullpath,
@@ -738,7 +727,7 @@ void FATStorage::CleanupDirectory(std::string sourcedir, std::string path, int l
         {
             if (DirIndex.count(fullpath) < 1)
                 dirdeletelist.push_back(fullpath);
-            else if (!fs::is_directory(fs::u8path(sourcedir+"/"+fullpath)))
+            else if (!fs::is_directory(fs::path(sourcedir+"/"+fullpath)))
             {
                 DirIndex.erase(fullpath);
                 dirdeletelist.push_back(fullpath);
@@ -750,7 +739,7 @@ void FATStorage::CleanupDirectory(std::string sourcedir, std::string path, int l
         {
             if (FileIndex.count(fullpath) < 1)
                 filedeletelist.push_back(fullpath);
-            else if (!fs::is_regular_file(fs::u8path(sourcedir+"/"+fullpath)))
+            else if (!fs::is_regular_file(fs::path(sourcedir+"/"+fullpath)))
             {
                 FileIndex.erase(fullpath);
                 filedeletelist.push_back(fullpath);
@@ -784,7 +773,7 @@ bool FATStorage::ImportFile(std::string path, fs::path in)
     FILE* fin;
     FRESULT res;
 
-    fin = Platform::OpenFile(in.u8string().c_str(), "rb");
+    fin = Platform::OpenFile(in.string(), "rb");
     if (!fin)
         return false;
 
@@ -835,9 +824,9 @@ bool FATStorage::ImportDirectory(std::string sourcedir)
     // iterate through the host directory:
     // * directories will be added if they aren't in the index
     // * files will be added if they aren't in the index, or if the size or last-modified-date don't match
-    for (auto& entry : fs::recursive_directory_iterator(fs::u8path(sourcedir)))
+    for (auto& entry : fs::recursive_directory_iterator(fs::path(sourcedir)))
     {
-        std::string fullpath = entry.path().u8string();
+        std::string fullpath = entry.path().string();
         std::string innerpath = fullpath.substr(srclen);
         if (innerpath[0] == '/' || innerpath[0] == '\\')
             innerpath = innerpath.substr(1);
@@ -947,7 +936,7 @@ bool FATStorage::Load(std::string filename, u64 size, std::string sourcedir)
     bool hasdir = !sourcedir.empty();
     if (hasdir)
     {
-        if (!fs::is_directory(fs::u8path(sourcedir)))
+        if (!fs::is_directory(fs::path(sourcedir)))
         {
             hasdir = false;
             SourceDir = "";
@@ -984,8 +973,8 @@ bool FATStorage::Load(std::string filename, u64 size, std::string sourcedir)
 
         if (FileSize == 0)
         {
-            melon_fseek(FF_File, 0, SEEK_END);
-            FileSize = melon_ftell(FF_File);
+            Platform::FileSeek(FF_File, 0, SEEK_END);
+            FileSize = static_cast<u64>(Platform::FileTell(FF_File));
         }
     }
 
@@ -1020,7 +1009,7 @@ bool FATStorage::Load(std::string filename, u64 size, std::string sourcedir)
         {
             if (hasdir)
             {
-                FileSize = GetDirectorySize(fs::u8path(sourcedir));
+                FileSize = GetDirectorySize(fs::path(sourcedir));
                 FileSize += 0x8000000ULL; // 128MB leeway
 
                 // make it a power of two

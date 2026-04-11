@@ -112,6 +112,9 @@ bool write_rgba_png(const std::filesystem::path& path, uint32_t width, uint32_t 
 }
 
 EmulatorCoreType detect_core_type(const std::string& rom_path) {
+  if (rom_path.size() >= 4 && rom_path.substr(rom_path.size() - 4) == ".nds") {
+    return EMULATOR_CORE_TYPE_NDS;
+  }
   if (rom_path.size() >= 4 && rom_path.substr(rom_path.size() - 4) == ".nes") {
     return EMULATOR_CORE_TYPE_NES;
   }
@@ -147,6 +150,24 @@ int main(int argc, char** argv) {
   if (!core) {
     std::cerr << "Failed to create core\n";
     return 1;
+  }
+
+  const EmulatorCoreType core_type = detect_core_type(rom_path);
+  if (core_type == EMULATOR_CORE_TYPE_NDS) {
+    if (const char* bios9 = std::getenv("NDS_BIOS9_PATH"); bios9 != nullptr && bios9[0] != '\0') {
+      if (!EmulatorCore_LoadBIOSFromPath(core, bios9)) {
+        std::cerr << "Failed to load BIOS9: " << EmulatorCore_GetLastError(core) << "\n";
+        EmulatorCore_Destroy(core);
+        return 1;
+      }
+    }
+    if (const char* bios7 = std::getenv("NDS_BIOS7_PATH"); bios7 != nullptr && bios7[0] != '\0') {
+      if (!EmulatorCore_LoadBIOSFromPath(core, bios7)) {
+        std::cerr << "Failed to load BIOS7: " << EmulatorCore_GetLastError(core) << "\n";
+        EmulatorCore_Destroy(core);
+        return 1;
+      }
+    }
   }
 
   if (!EmulatorCore_LoadROMFromPath(core, rom_path.c_str())) {

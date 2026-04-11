@@ -134,7 +134,6 @@ void Write(u8 val, bool last)
         printf("BPTWL: soft-reset\n");
         val = 0; // checkme
         // TODO: soft-reset might need to be scheduled later!
-        // TODO: this has been moved for the JIT to work, nothing is confirmed here
         NDS::ARM7->Halt(4);
         CurPos = -1;
         return;

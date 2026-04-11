@@ -12,6 +12,9 @@ namespace core::melonds {
 namespace {
 
 constexpr size_t kFramePixels = 256U * 384U;
+constexpr uint32_t kTopScreenHeight = 192U;
+constexpr uint32_t kFrameWidth = 256U;
+constexpr uint32_t kFrameHeight = 384U;
 
 std::mutex g_core_lock;
 bool g_in_use = false;
@@ -42,6 +45,49 @@ bool ReadBinaryFile(const char* path, std::vector<uint8_t>& out, std::string& la
 
 void ClearFrame(Runtime& runtime) {
   std::fill(runtime.frame_rgba.begin(), runtime.frame_rgba.end(), 0xFF000000U);
+}
+
+uint32_t MixColor(uint8_t r, uint8_t g, uint8_t b) {
+  return 0xFF000000U | (static_cast<uint32_t>(r) << 16U) | (static_cast<uint32_t>(g) << 8U) | b;
+}
+
+void RenderPlaceholderFrame(Runtime& runtime) {
+  const uint32_t frame_tick = runtime.frame_counter++;
+  const bool has_bios = !runtime.bios7_data.empty() && !runtime.bios9_data.empty();
+
+  for (uint32_t y = 0; y < kFrameHeight; ++y) {
+    for (uint32_t x = 0; x < kFrameWidth; ++x) {
+      const size_t idx = static_cast<size_t>(y) * kFrameWidth + x;
+      const uint8_t rom_byte = runtime.rom_data.empty() ? 0 : runtime.rom_data[(idx + frame_tick) % runtime.rom_data.size()];
+
+      const uint8_t scroll_x = static_cast<uint8_t>((x + frame_tick) & 0xFFU);
+      const uint8_t scroll_y = static_cast<uint8_t>((y + (frame_tick * 3U)) & 0xFFU);
+
+      uint8_t r = static_cast<uint8_t>(scroll_x ^ rom_byte);
+      uint8_t g = static_cast<uint8_t>(scroll_y ^ static_cast<uint8_t>(rom_byte << 1U));
+      uint8_t b = static_cast<uint8_t>((scroll_x + scroll_y) ^ static_cast<uint8_t>(rom_byte >> 1U));
+
+      if (y >= kTopScreenHeight) {
+        std::swap(r, b);
+      }
+
+      runtime.frame_rgba[idx] = MixColor(r, g, b);
+    }
+  }
+
+  if (has_bios) {
+    for (uint32_t x = 0; x < kFrameWidth; ++x) {
+      runtime.frame_rgba[kTopScreenHeight * kFrameWidth + x] = 0xFFFFFFFFU;
+    }
+  }
+
+  if (runtime.key_state[0]) {  // A
+    for (uint32_t y = 0; y < 24; ++y) {
+      for (uint32_t x = 0; x < 24; ++x) {
+        runtime.frame_rgba[static_cast<size_t>(y) * kFrameWidth + x] = 0xFFFF4040U;
+      }
+    }
+  }
 }
 
 }  // namespace
@@ -112,7 +158,7 @@ void StepFrame(Runtime& runtime, std::string& last_error) {
     last_error = "melonDS ROM is not loaded";
     return;
   }
-  ClearFrame(runtime);
+  RenderPlaceholderFrame(runtime);
   last_error.clear();
 }
 

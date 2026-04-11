@@ -128,6 +128,28 @@ FILE* OpenDataFile(std::string path) {
   return OpenFile(std::move(path), "rb", true);
 }
 
+int FileSeek(FILE* file, s64 offset, int origin) {
+  if (file == nullptr) {
+    return -1;
+  }
+#if defined(_WIN32)
+  return _fseeki64(file, offset, origin);
+#else
+  return std::fseek(file, static_cast<long>(offset), origin);
+#endif
+}
+
+s64 FileTell(FILE* file) {
+  if (file == nullptr) {
+    return -1;
+  }
+#if defined(_WIN32)
+  return _ftelli64(file);
+#else
+  return std::ftell(file);
+#endif
+}
+
 Thread* Thread_Create(std::function<void()> func) {
   auto* thread = new ThreadImpl();
   thread->worker = std::thread([func = std::move(func)]() { func(); });

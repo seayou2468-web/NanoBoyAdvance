@@ -17,6 +17,7 @@ struct Runtime {
   std::vector<uint8_t> bios7_data;
   std::array<uint32_t, 256U * 384U> frame_rgba{};
   std::array<bool, 10> key_state{};
+  uint32_t frame_counter = 0;
 };
 
 std::unique_ptr<Runtime> CreateRuntime();
