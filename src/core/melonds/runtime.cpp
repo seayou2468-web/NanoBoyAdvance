@@ -58,19 +58,33 @@ bool CopyFramebuffer(Runtime& runtime, std::string& last_error) {
     last_error = "invalid GPU front buffer index";
     return false;
   }
-  const uint32_t* top = GPU::Framebuffer[front][0];
-  const uint32_t* bottom = GPU::Framebuffer[front][1];
-  if (top == nullptr || bottom == nullptr) {
-    last_error = "GPU framebuffer is not available";
-    return false;
+
+  const int candidates[2] = {front, front ? 0 : 1};
+  for (int idx = 0; idx < 2; ++idx) {
+    const int buffer_index = candidates[idx];
+    const uint32_t* top = GPU::Framebuffer[buffer_index][0];
+    const uint32_t* bottom = GPU::Framebuffer[buffer_index][1];
+    if (top == nullptr && bottom == nullptr) {
+      continue;
+    }
+
+    uint32_t* out_top = runtime.frame_rgba.data();
+    uint32_t* out_bottom = runtime.frame_rgba.data() + (kFrameWidth * kTopScreenHeight);
+    if (top != nullptr) {
+      std::memcpy(out_top, top, sizeof(uint32_t) * kFrameWidth * kTopScreenHeight);
+    } else {
+      std::fill_n(out_top, kFrameWidth * kTopScreenHeight, 0xFF000000U);
+    }
+    if (bottom != nullptr) {
+      std::memcpy(out_bottom, bottom, sizeof(uint32_t) * kFrameWidth * kTopScreenHeight);
+    } else {
+      std::fill_n(out_bottom, kFrameWidth * kTopScreenHeight, 0xFF000000U);
+    }
+    return true;
   }
 
-  std::memcpy(runtime.frame_rgba.data(), top, sizeof(uint32_t) * kFrameWidth * kTopScreenHeight);
-  std::memcpy(
-      runtime.frame_rgba.data() + (kFrameWidth * kTopScreenHeight),
-      bottom,
-      sizeof(uint32_t) * kFrameWidth * kTopScreenHeight);
-  return true;
+  last_error = "GPU framebuffer is not available";
+  return false;
 }
 
 }  // namespace
@@ -92,7 +106,7 @@ std::unique_ptr<Runtime> CreateRuntime() {
       return nullptr;
     }
     GPU::InitRenderer(0);
-GPU::RenderSettings render_settings{};
+    GPU::RenderSettings render_settings{};
     render_settings.Soft_Threaded = false;
     render_settings.GL_ScaleFactor = 1;
     render_settings.GL_BetterPolygons = false;
@@ -161,9 +175,9 @@ bool LoadROMFromMemory(Runtime& runtime, const void* rom_data, size_t rom_size, 
   }
 
   runtime.rom_data.assign(static_cast<const uint8_t*>(rom_data), static_cast<const uint8_t*>(rom_data) + rom_size);
-  runtime.rom_loaded = NDS::LoadCart(runtime.rom_data.data(), static_cast<uint32_t>(runtime.rom_data.size()), nullptr, 0);
   NDS::LoadBIOS();
-        if (!runtime.rom_loaded) {
+  runtime.rom_loaded = NDS::LoadCart(runtime.rom_data.data(), static_cast<uint32_t>(runtime.rom_data.size()), nullptr, 0);
+  if (!runtime.rom_loaded) {
     last_error = "melonDS failed to load NDS cart";
     return false;
   }

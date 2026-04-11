@@ -6,6 +6,8 @@
 #import "../Managers/AURExternalControllerManager.h"
 #import "../Metal.h"
 #import <QuartzCore/QuartzCore.h>
+#include <array>
+#include <cstring>
 
 @interface AUREmulatorViewController () <AURControllerViewDelegate, AURExternalControllerDelegate, AURInGameMenuDelegate> {
     EmulatorCoreHandle* _core;
@@ -169,12 +171,40 @@
     const uint32_t* frameRGBA = EmulatorCore_GetFrameBufferRGBA(_core, &pixelCount);
     if (!frameRGBA) return;
 
-    if (_coreType == EMULATOR_CORE_TYPE_NDS && _videoSpec.width == 256 && _videoSpec.height >= 384) {
-        const size_t screenPixels = 256U * 192U;
-        if (pixelCount < screenPixels * 2U) return;
+    if (_coreType == EMULATOR_CORE_TYPE_NDS) {
+        constexpr size_t kScreenWidth = 256U;
+        constexpr size_t kScreenHeight = 192U;
+        constexpr size_t kScreenPixels = kScreenWidth * kScreenHeight;
+        static std::array<uint32_t, kScreenPixels> blankBottomFrame{};
+        static std::array<uint32_t, kScreenPixels> splitTopFrame{};
+        static std::array<uint32_t, kScreenPixels> splitBottomFrame{};
 
-        [self.imageView displayFrameRGBA:frameRGBA width:256 height:192];
-        [self.ndsBottomImageView displayFrameRGBA:(frameRGBA + screenPixels) width:256 height:192];
+        const size_t expectedPixels = (size_t)_videoSpec.width * (size_t)_videoSpec.height;
+        if (_videoSpec.width >= 512 && _videoSpec.height >= 192 && pixelCount >= expectedPixels) {
+            // 512x192 の横並びバッファ（左=上画面、右=下画面）を 256x192 x2 に分離する。
+            for (size_t y = 0; y < kScreenHeight; ++y) {
+                const uint32_t *row = frameRGBA + (y * (size_t)_videoSpec.width);
+                std::memcpy(splitTopFrame.data() + (y * kScreenWidth), row, sizeof(uint32_t) * kScreenWidth);
+                std::memcpy(
+                    splitBottomFrame.data() + (y * kScreenWidth),
+                    row + kScreenWidth,
+                    sizeof(uint32_t) * kScreenWidth);
+            }
+            [self.imageView displayFrameRGBA:splitTopFrame.data() width:256 height:192];
+            [self.ndsBottomImageView displayFrameRGBA:splitBottomFrame.data() width:256 height:192];
+            return;
+        }
+
+        if (pixelCount >= kScreenPixels * 2U) {
+            [self.imageView displayFrameRGBA:frameRGBA width:256 height:192];
+            [self.ndsBottomImageView displayFrameRGBA:(frameRGBA + kScreenPixels) width:256 height:192];
+            return;
+        }
+        if (pixelCount >= kScreenPixels) {
+            [self.imageView displayFrameRGBA:frameRGBA width:256 height:192];
+            [self.ndsBottomImageView displayFrameRGBA:blankBottomFrame.data() width:256 height:192];
+            return;
+        }
         return;
     }
 
