@@ -9,6 +9,9 @@
 #include <string.h>
 #include <errno.h>
 #include <stdarg.h>
+#if defined(__GNUC__) || defined(__clang__)
+#include <alloca.h>
+#endif
 #ifndef _WIN32
 #include <sys/select.h>
 #include <unistd.h>

@@ -5,6 +5,8 @@ python3 - <<'PY'
 import pathlib
 import re
 import subprocess
+import os
+from concurrent.futures import ThreadPoolExecutor
 
 root = pathlib.Path("src/core/desume")
 exclude_patterns = (
@@ -39,12 +41,17 @@ files.sort()
 base = ["clang++", "-std=c++17", "-fsyntax-only", "-UHAVE_JIT", "-Isrc/core/desume"]
 errors = []
 warnings = 0
+jobs = max(1, int(os.environ.get("DESUME_CHECK_JOBS", "1")))
 
-for source in files:
+def check_source(source: str):
     proc = subprocess.run(base + [source], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-    warnings += len(re.findall(r": warning:", proc.stderr))
-    if proc.returncode != 0:
-        errors.append((source, proc.stderr))
+    return source, proc.returncode, proc.stderr
+
+with ThreadPoolExecutor(max_workers=jobs) as executor:
+    for source, returncode, stderr in executor.map(check_source, files):
+        warnings += len(re.findall(r": warning:", stderr))
+        if returncode != 0:
+            errors.append((source, stderr))
 
 error_count = sum(len(re.findall(r": error:", text)) for _, text in errors)
 

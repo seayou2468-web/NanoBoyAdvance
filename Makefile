@@ -8,8 +8,13 @@ endif
 CC       := cc
 CXX      := c++
 AR       := ar
-CFLAGS   := -O2 -std=c11 -Wall -Wextra -Wpedantic
-CXXFLAGS := -O2 -std=c++20 -Wall -Wextra -Wpedantic -ffunction-sections -fdata-sections
+BASE_CFLAGS   := -std=gnu11 -Wall -Wextra -Wpedantic
+BASE_CXXFLAGS := -std=c++20 -Wall -Wextra -Wpedantic -ffunction-sections -fdata-sections
+OPT_LEVEL ?= 2
+CFLAGS   ?= -O$(OPT_LEVEL) $(BASE_CFLAGS)
+CXXFLAGS ?= -O$(OPT_LEVEL) $(BASE_CXXFLAGS)
+OPTIMIZED_OPT_LEVEL ?= 3
+OPTIMIZED_EXTRA_FLAGS ?= -DNDEBUG -march=native -mtune=native -fno-math-errno
 SDL_CFLAGS := $(shell pkg-config --cflags sdl2 2>/dev/null)
 SDL_LIBS   := $(shell pkg-config --libs sdl2 2>/dev/null)
 
@@ -51,6 +56,9 @@ NES_SRCS  := \
 	src/core/quick_nes/nes_emu/Mapper_Namco106.cpp \
 	src/core/quick_nes/nes_emu/Nes_Namco_Apu.cpp \
 	src/core/quick_nes/nes_emu/Nes_Emu.cpp \
+	src/core/quick_nes/nes_emu/Nes_State.cpp \
+	src/core/quick_nes/nes_emu/Nes_Apu_State.cpp \
+	src/core/quick_nes/nes_emu/apu_state.cpp \
 	src/core/quick_nes/nes_emu/abstract_file.cpp
 NES_OBJS  := $(patsubst %.cpp,$(BUILD_DIR)/%.o,$(NES_SRCS))
 SAMEBOY_SRCS := $(filter-out src/core/sameboy/cheat_search.c src/core/sameboy/sm83_disassembler.c src/core/sameboy/symbol_hash.c,$(shell find src/core/sameboy -name '*.c'))
@@ -70,12 +78,14 @@ CORE_OBJS := \
 MAIN_OBJ  := $(BUILD_DIR)/main.o
 LIBNES    := $(BUILD_DIR)/libquick_nes.a
 
-.PHONY: all clean dump-frames desume-core-check
+.PHONY: all clean dump-frames desume-core-check optimized
 
 all: $(APP)
 dump-frames: $(DUMP_TOOL)
 desume-core-check:
-	bash tools/check_desume_nojit_build.sh
+	DESUME_CHECK_JOBS=1 bash tools/check_desume_nojit_build.sh
+optimized:
+	$(MAKE) OPT_LEVEL=$(OPTIMIZED_OPT_LEVEL) CFLAGS="-O$(OPTIMIZED_OPT_LEVEL) $(BASE_CFLAGS) $(OPTIMIZED_EXTRA_FLAGS)" CXXFLAGS="-O$(OPTIMIZED_OPT_LEVEL) $(BASE_CXXFLAGS) $(OPTIMIZED_EXTRA_FLAGS)" all
 
 $(APP): $(MAIN_OBJ) $(CORE_OBJS) $(LIBNBA) $(LIBNES)
 	@mkdir -p $(dir $@)
