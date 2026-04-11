@@ -51,6 +51,7 @@ jobs:
             -DGB_DISABLE_DEBUGGER
             -UHAVE_JIT
             -DDISABLE_JIT=1
+            -DENABLE_DESUME_CORE
             -I.
             -I./ios/AuroraIOS
             -I./src
@@ -86,6 +87,41 @@ jobs:
 
           while IFS= read -r src; do CORE_CPP+=("$src"); done < <(find src/core/nanoboyadvance/nba/src -name '*.cpp' -print)
           while IFS= read -r src; do CORE_CPP+=("$src"); done < <(find src/core/quick_nes/nes_emu -name '*.cpp' -print)
+          DESUME_EXCLUDES=(
+            "utils/arm_jit/"
+            "arm_jit.cpp"
+            "lua-engine.cpp"
+            "debug.cpp"
+            "gdbstub/"
+            "movie.cpp"
+            "commandline.cpp"
+            "frontend/"
+            "metaspu/win32/"
+            "3dnow_win.cpp"
+            "cpu_detect_x86_win.cpp"
+            "OGLRender"
+            "GPU_Operations_AVX2.cpp"
+            "GPU_Operations_SSE2.cpp"
+            "GPU_Operations_NEON.cpp"
+            "GPU_Operations_AltiVec.cpp"
+            "utils/colorspacehandler/colorspacehandler_AVX2.cpp"
+            "utils/colorspacehandler/colorspacehandler_AVX512.cpp"
+            "utils/colorspacehandler/colorspacehandler_NEON.cpp"
+            "utils/colorspacehandler/colorspacehandler_AltiVec.cpp"
+          )
+
+          while IFS= read -r src; do
+            skip="0"
+            for pat in "${DESUME_EXCLUDES[@]}"; do
+              if [[ "$src" == *"$pat"* ]]; then
+                skip="1"
+                break
+              fi
+            done
+            [[ "$skip" == "1" ]] && continue
+            CORE_CPP+=("$src")
+          done < <(find src/core/desume -name '*.cpp' -print)
+
           while IFS= read -r src; do
             case "$src" in
               *cheat_search.c|*sm83_disassembler.c|*symbol_hash.c) continue ;;
