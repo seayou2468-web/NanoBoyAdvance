@@ -173,7 +173,9 @@ bool EmulatorFrontend_IsSupportedROMPath(const char* rom_path) {
   }
 
   const std::string path(rom_path);
-  return EndsWithIgnoreCase(path, ".gba") || EndsWithIgnoreCase(path, ".nes") || EndsWithIgnoreCase(path, ".zip");
+  return EndsWithIgnoreCase(path, ".gba") || EndsWithIgnoreCase(path, ".nes") ||
+         EndsWithIgnoreCase(path, ".gb") || EndsWithIgnoreCase(path, ".gbc") ||
+         EndsWithIgnoreCase(path, ".nds") || EndsWithIgnoreCase(path, ".zip");
 }
 
 bool EmulatorFrontend_LoadROMImageFromPath(const char* rom_path,

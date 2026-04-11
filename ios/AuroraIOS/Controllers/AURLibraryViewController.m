@@ -107,6 +107,7 @@
         NSString *ext = [[url pathExtension] lowercaseString];
         if ([ext isEqualToString:@"gba"]) game.coreType = EMULATOR_CORE_TYPE_GBA;
         else if ([ext isEqualToString:@"nes"]) game.coreType = EMULATOR_CORE_TYPE_NES;
+        else if ([ext isEqualToString:@"nds"]) game.coreType = EMULATOR_CORE_TYPE_NDS;
         else game.coreType = EMULATOR_CORE_TYPE_GB;
 
         [[AURDatabaseManager sharedManager] addGame:game];

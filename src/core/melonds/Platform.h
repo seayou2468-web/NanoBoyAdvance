@@ -23,6 +23,7 @@
 
 #include <functional>
 #include <string>
+#include <vector>
 
 namespace Platform
 {
@@ -89,6 +90,11 @@ int GetConfigInt(ConfigEntry entry);
 bool GetConfigBool(ConfigEntry entry);
 std::string GetConfigString(ConfigEntry entry);
 bool GetConfigArray(ConfigEntry entry, void* data);
+
+void SetConfigInt(ConfigEntry entry, int value);
+void SetConfigBool(ConfigEntry entry, bool value);
+void SetConfigString(ConfigEntry entry, std::string value);
+void SetConfigArray(ConfigEntry entry, std::vector<u8> value);
 
 // fopen() wrappers
 // * OpenFile():
