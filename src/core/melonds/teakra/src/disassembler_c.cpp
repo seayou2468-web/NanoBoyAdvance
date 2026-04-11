@@ -1,5 +1,5 @@
-#include "teakra/disassembler.h"
-#include "teakra/disassembler_c.h"
+#include "../include/teakra/disassembler.h"
+#include "../include/teakra/disassembler_c.h"
 
 extern "C" {
 	bool Teakra_Disasm_NeedExpansion(uint16_t opcode) {

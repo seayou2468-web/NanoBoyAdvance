@@ -3,7 +3,7 @@
 #include <optional>
 #include <unordered_map>
 #include <variant>
-#include "teakra/disassembler.h"
+#include "../include/teakra/disassembler.h"
 #include "common_types.h"
 #include "crash.h"
 #include "parser.h"

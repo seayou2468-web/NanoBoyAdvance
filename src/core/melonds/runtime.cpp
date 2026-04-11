@@ -92,7 +92,7 @@ std::unique_ptr<Runtime> CreateRuntime() {
       return nullptr;
     }
     GPU::InitRenderer(0);
-    GPU::RenderSettings render_settings{};
+GPU::RenderSettings render_settings{};
     render_settings.Soft_Threaded = false;
     render_settings.GL_ScaleFactor = 1;
     render_settings.GL_BetterPolygons = false;
@@ -156,7 +156,7 @@ bool LoadROMFromMemory(Runtime& runtime, const void* rom_data, size_t rom_size, 
   runtime.rom_data.assign(static_cast<const uint8_t*>(rom_data), static_cast<const uint8_t*>(rom_data) + rom_size);
   runtime.rom_loaded = NDS::LoadCart(runtime.rom_data.data(), static_cast<uint32_t>(runtime.rom_data.size()), nullptr, 0);
   NDS::LoadBIOS();
-  if (!runtime.rom_loaded) {
+        if (!runtime.rom_loaded) {
     last_error = "melonDS failed to load NDS cart";
     return false;
   }

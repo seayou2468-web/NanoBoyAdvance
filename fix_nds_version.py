@@ -1,19 +1,31 @@
 import os
+path = 'src/core/melonds/NDS.cpp'
+with open(path, 'rb') as f:
+    data = f.read()
 
-file_path = 'src/core/melonds/NDS.cpp'
-with open(file_path, 'r') as f:
-    content = f.read()
+old = b'// NO$GBA debug register "Emulation ID"\n    if(addr >= 0x04FFFA00 && addr < 0x04FFFA10)\n    {\n        // FIX: GBATek says this should be padded with spaces\n        auto idx = addr - 0x04FFFA00;\n        return (u8)(emuID[idx]);\n    }'
 
-# Make sure MELONDS_VERSION is treated as a string even if it's not defined as one (though it should be)
-# The issue seen earlier was a compilation error in NDS.cpp line 2839
-old_line = 'static char const emuID[16] = "melonDS " MELONDS_VERSION;'
-new_line = '''#ifndef MELONDS_VERSION
+new = b'''// NO$GBA debug register "Emulation ID"
+    if(addr >= 0x04FFFA00 && addr < 0x04FFFA10)
+    {
+        // FIX: GBATek says this should be padded with spaces
+#ifndef MELONDS_VERSION
 #define MELONDS_VERSION "unknown"
 #endif
-        static char const emuID[16] = "melonDS " MELONDS_VERSION;'''
+        static char const emuID[16] = "melonDS " MELONDS_VERSION;
+        auto idx = addr - 0x04FFFA00;
+        return (u8)(emuID[idx]);
+    }'''
 
-if old_line in content:
-    content = content.replace(old_line, new_line)
-    with open(file_path, 'w') as f:
-        f.write(content)
-    print("Fixed NDS.cpp version macro usage")
+if old in data:
+    data = data.replace(old, new)
+else:
+    # Try a slightly different version if match fails
+    data = data.replace(b'return (u8)(emuID[idx]);', b'''#ifndef MELONDS_VERSION
+#define MELONDS_VERSION "unknown"
+#endif
+        static char const emuID[16] = "melonDS " MELONDS_VERSION;
+        return (u8)(emuID[idx]);''')
+
+with open(path, 'wb') as f:
+    f.write(data)

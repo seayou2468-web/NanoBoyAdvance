@@ -16,7 +16,7 @@
     with melonDS. If not, see http://www.gnu.org/licenses/.
 */
 
-#include "teakra/teakra.h"
+#include "teakra/include/teakra/teakra.h"
 
 #include "DSi.h"
 #include "DSi_DSP.h"

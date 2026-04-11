@@ -182,7 +182,7 @@ bool Init()
     SharedWRAM = new u8[SharedWRAMSize];
     ARM7WRAM = new u8[ARM7WRAMSize];
 
-    DMAs[0] = new DMA(0, 0);
+DMAs[0] = new DMA(0, 0);
     DMAs[1] = new DMA(0, 1);
     DMAs[2] = new DMA(0, 2);
     DMAs[3] = new DMA(0, 3);
@@ -218,6 +218,7 @@ void DeInit()
     delete[] MainRAM;
     delete[] SharedWRAM;
     delete[] ARM7WRAM;
+
     NDSCart::DeInit();
     GBACart::DeInit();
     GPU::DeInit();
@@ -2836,7 +2837,7 @@ u8 ARM9IORead8(u32 addr)
     if(addr >= 0x04FFFA00 && addr < 0x04FFFA10)
     {
         // FIX: GBATek says this should be padded with spaces
-        #ifndef MELONDS_VERSION
+#ifndef MELONDS_VERSION
 #define MELONDS_VERSION "unknown"
 #endif
         static char const emuID[16] = "melonDS " MELONDS_VERSION;

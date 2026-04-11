@@ -2,7 +2,7 @@
 #include <cstdio>
 #include <iomanip>
 #include <memory>
-#include "teakra/disassembler.h"
+#include "../../include/teakra/disassembler.h"
 #include "../core_timing.h"
 #include "../interpreter.h"
 #include "../memory_interface.h"
