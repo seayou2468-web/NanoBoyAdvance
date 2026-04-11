@@ -18,76 +18,173 @@ jobs:
         with:
           xcode-version: "26.1.1"
 
-      - name: Verify toolchain
+      - name: Verify iOS 26 device toolchain
         run: |
           xcodebuild -version
-          xcrun --sdk iphonesimulator --show-sdk-path
+          xcrun --sdk iphoneos --show-sdk-path
 
-      - name: Build DeSmuME core for iOS (Lua/Debug removed)
+      - name: Build all cores for iOS device SDK (no JIT, Lua/Debug removed)
+        env:
+          DESUME_CHECK_JOBS: "2"
         run: |
-          python3 - <<'PY'
-          import pathlib
-          import subprocess
+          bash tools/check_desume_nojit_build.sh
 
-          root = pathlib.Path("src/core/desume")
-          exclude_patterns = (
-              "utils/arm_jit/",
-              "arm_jit.cpp",
-              "lua-engine.cpp",
-              "debug.cpp",
-              "gdbstub/",
-              "movie.cpp",
-              "commandline.cpp",
-              "frontend/",
-              "metaspu/win32/",
-              "3dnow_win.cpp",
-              "cpu_detect_x86_win.cpp",
-              "OGLRender",
-              "GPU_Operations_AVX2.cpp",
-              "GPU_Operations_SSE2.cpp",
-              "GPU_Operations_NEON.cpp",
-              "GPU_Operations_AltiVec.cpp",
-              "utils/colorspacehandler/colorspacehandler_AVX2.cpp",
-              "utils/colorspacehandler/colorspacehandler_AVX512.cpp",
-              "utils/colorspacehandler/colorspacehandler_NEON.cpp",
-              "utils/colorspacehandler/colorspacehandler_AltiVec.cpp",
-          )
-
-          files = []
-          for path in root.rglob("*.cpp"):
-              normalized = str(path).replace("\\", "/")
-              if any(pattern in normalized for pattern in exclude_patterns):
-                  continue
-              files.append(normalized)
-          files.sort()
-
-          base = [
-              "xcrun", "--sdk", "iphonesimulator", "clang++",
-              "-std=c++17", "-fsyntax-only", "-Isrc/core/desume", "-UHAVE_JIT"
-          ]
-
-          for source in files:
-              subprocess.run(base + [source], check=True)
-
-          print(f"Checked {len(files)} DeSmuME translation units for iOS.")
-          PY
-
-      - name: Build iOS app sources (syntax check)
+      - name: Build iOS app (.app) for iOS 26 device SDK
         run: |
-          SDKROOT="$(xcrun --sdk iphonesimulator --show-sdk-path)"
-          APPLE_FLAGS=(
-            -fobjc-arc
-            -fobjc-abi-version=2
-            -fobjc-legacy-dispatch
+          set -euo pipefail
+
+          SDKROOT="$(xcrun --sdk iphoneos --show-sdk-path)"
+          BUILD_ROOT="build/ios-app"
+          OBJ_DIR="$BUILD_ROOT/obj"
+          APP_DIR="$BUILD_ROOT/AuroraIOS.app"
+
+          mkdir -p "$OBJ_DIR" "$APP_DIR"
+
+          COMMON_FLAGS=(
             -isysroot "$SDKROOT"
-            -mios-simulator-version-min=17.0
+            -target arm64-apple-ios26.0
+            -miphoneos-version-min=26.0
+            -fvisibility=hidden
+            -ffunction-sections
+            -fdata-sections
+            -DNDEBUG
+            -DGB_DISABLE_DEBUGGER
+            -UHAVE_JIT
+            -DDISABLE_JIT=1
+            -DENABLE_DESUME_CORE
             -I.
             -I./ios/AuroraIOS
             -I./src
             -I./src/core
             -I./src/core/api
             -I./src/core/desume
+            -I./src/core/nanoboyadvance/nba/include
+            -I./src/core/nanoboyadvance/platform/include
           )
 
-          xcrun --sdk iphonesimulator clang -fsyntax-only "${APPLE_FLAGS[@]}" $(find ios/AuroraIOS -name '*.m' -print)
-          xcrun --sdk iphonesimulator clang++ -std=c++20 -fsyntax-only "${APPLE_FLAGS[@]}" $(find ios/AuroraIOS -name '*.mm' -print)
+          while IFS= read -r src; do
+            obj="$OBJ_DIR/$(echo "$src" | sed 's|/|_|g').o"
+            xcrun --sdk iphoneos clang -fobjc-arc "${COMMON_FLAGS[@]}" -c "$src" -o "$obj"
+          done < <(find ios/AuroraIOS -name '*.m' -print)
+
+          while IFS= read -r src; do
+            obj="$OBJ_DIR/$(echo "$src" | sed 's|/|_|g').o"
+            xcrun --sdk iphoneos clang++ -std=c++20 -fobjc-arc "${COMMON_FLAGS[@]}" -c "$src" -o "$obj"
+          done < <(find ios/AuroraIOS -name '*.mm' -print)
+
+          CORE_CPP=(
+            src/core/api/emulator_core_c_api.cpp
+            src/core/api/frontend_utils.cpp
+            src/core/core_adapter_registry.cpp
+            src/core/nanoboyadvance/core_adapter.cpp
+            src/core/nanoboyadvance/runtime.cpp
+            src/core/nanoboyadvance/gba_core_c_api.cpp
+            src/core/quick_nes/core_adapter.cpp
+            src/core/quick_nes/runtime.cpp
+            src/core/sameboy/core_adapter.cpp
+            src/core/sameboy/runtime.cpp
+          )
+
+          while IFS= read -r src; do CORE_CPP+=("$src"); done < <(find src/core/nanoboyadvance/nba/src -name '*.cpp' -print)
+          while IFS= read -r src; do CORE_CPP+=("$src"); done < <(find src/core/quick_nes/nes_emu -name '*.cpp' -print)
+          DESUME_EXCLUDES=(
+            "utils/arm_jit/"
+            "arm_jit.cpp"
+            "lua-engine.cpp"
+            "debug.cpp"
+            "gdbstub/"
+            "movie.cpp"
+            "commandline.cpp"
+            "frontend/"
+            "metaspu/win32/"
+            "3dnow_win.cpp"
+            "cpu_detect_x86_win.cpp"
+            "OGLRender"
+            "GPU_Operations_AVX2.cpp"
+            "GPU_Operations_SSE2.cpp"
+            "GPU_Operations_NEON.cpp"
+            "GPU_Operations_AltiVec.cpp"
+            "utils/colorspacehandler/colorspacehandler_AVX2.cpp"
+            "utils/colorspacehandler/colorspacehandler_AVX512.cpp"
+            "utils/colorspacehandler/colorspacehandler_NEON.cpp"
+            "utils/colorspacehandler/colorspacehandler_AltiVec.cpp"
+          )
+
+          while IFS= read -r src; do
+            skip="0"
+            for pat in "${DESUME_EXCLUDES[@]}"; do
+              if [[ "$src" == *"$pat"* ]]; then
+                skip="1"
+                break
+              fi
+            done
+            [[ "$skip" == "1" ]] && continue
+            CORE_CPP+=("$src")
+          done < <(find src/core/desume -name '*.cpp' -print)
+
+          while IFS= read -r src; do
+            case "$src" in
+              *cheat_search.c|*sm83_disassembler.c|*symbol_hash.c) continue ;;
+            esac
+            obj="$OBJ_DIR/$(echo "$src" | sed 's|/|_|g').o"
+            xcrun --sdk iphoneos clang -std=gnu11 "${COMMON_FLAGS[@]}" -DGB_INTERNAL -DGB_DISABLE_DEBUGGER -DGB_VERSION=\"unknown\" -Wno-unused-function -Wno-unused-parameter -Wno-sign-compare -c "$src" -o "$obj"
+          done < <(find src/core/sameboy -name '*.c' -print)
+
+          for src in "${CORE_CPP[@]}"; do
+            obj="$OBJ_DIR/$(echo "$src" | sed 's|/|_|g').o"
+            xcrun --sdk iphoneos clang++ -std=c++20 "${COMMON_FLAGS[@]}" -Wno-register -Wno-deprecated-declarations -Wno-multichar -Wno-deprecated -c "$src" -o "$obj"
+          done
+
+          xcrun --sdk iphoneos clang++ -o "$APP_DIR/frappe" "$OBJ_DIR"/*.o \
+            -isysroot "$SDKROOT" \
+            -target arm64-apple-ios26.0 \
+            -miphoneos-version-min=26.0 \
+            -Wl,-dead_strip \
+            -framework Foundation \
+            -framework UIKit \
+            -framework CoreGraphics \
+            -framework QuartzCore \
+            -framework Metal \
+            -framework AVFoundation \
+            -framework AVKit \
+            -framework Network \
+            -framework CoreImage \
+            -framework CoreServices \
+            -framework UniformTypeIdentifiers \
+            -framework LocalAuthentication \
+            -framework MapKit \
+            -framework CoreLocation \
+            -framework JavaScriptCore \
+            -framework GameController
+
+          cat > "$APP_DIR/Info.plist" <<'PLIST'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>CFBundleDevelopmentRegion</key><string>en</string>
+            <key>CFBundleExecutable</key><string>frappe</string>
+            <key>CFBundleIdentifier</key><string>com.frappev.rn</string>
+            <key>CFBundleInfoDictionaryVersion</key><string>6.0</string>
+            <key>CFBundleName</key><string>frappe</string>
+            <key>CFBundlePackageType</key><string>APPL</string>
+            <key>CFBundleShortVersionString</key><string>1.0</string>
+            <key>CFBundleVersion</key><string>1.0</string>
+            <key>LSRequiresIPhoneOS</key><true/>
+            <key>UIApplicationSceneManifest</key>
+            <dict>
+              <key>UIApplicationSupportsMultipleScenes</key><false/>
+            </dict>
+            <key>UILaunchStoryboardName</key><string></string>
+          </dict>
+          </plist>
+          PLIST
+
+          /usr/bin/codesign --force --sign - "$APP_DIR" || true
+
+      - name: Upload .app artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: AuroraIOS-app
+          path: build/ios-app/AuroraIOS.app
+          if-no-files-found: error
