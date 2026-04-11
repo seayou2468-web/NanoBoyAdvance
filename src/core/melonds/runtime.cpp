@@ -117,16 +117,17 @@ bool LoadBIOSFromPath(Runtime& runtime, const char* bios_path, std::string& last
   if (!ReadBinaryFile(bios_path, data, last_error)) {
     return false;
   }
+  const std::string resolved_path = std::filesystem::absolute(std::filesystem::path(bios_path)).string();
 
   if (data.size() == 0x1000U) {
     runtime.bios9_data = std::move(data);
-    runtime.bios9_path = bios_path;
+    runtime.bios9_path = resolved_path;
     Platform::SetConfigString(Platform::BIOS9Path, runtime.bios9_path);
     return true;
   }
   if (data.size() == 0x4000U) {
     runtime.bios7_data = std::move(data);
-    runtime.bios7_path = bios_path;
+    runtime.bios7_path = resolved_path;
     Platform::SetConfigString(Platform::BIOS7Path, runtime.bios7_path);
     return true;
   }
