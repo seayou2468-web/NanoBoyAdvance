@@ -15,8 +15,10 @@ struct Runtime {
   std::vector<uint8_t> rom_data;
   std::vector<uint8_t> bios9_data;
   std::vector<uint8_t> bios7_data;
+  std::vector<uint8_t> firmware_data;
   std::string bios9_path;
   std::string bios7_path;
+  std::string firmware_path;
   std::array<uint32_t, 256U * 384U> frame_rgba{};
   std::array<bool, 10> key_state{};
   uint32_t frame_counter = 0;

@@ -99,6 +99,7 @@
 - (NSNumber *)biosStorageKeyForIdentifier:(NSString *)identifier {
     if ([identifier isEqualToString:@"nds_arm9"]) return @1001;
     if ([identifier isEqualToString:@"nds_arm7"]) return @1002;
+    if ([identifier isEqualToString:@"nds_firmware"]) return @1003;
     if ([identifier isEqualToString:@"gba"]) return @(EMULATOR_CORE_TYPE_GBA);
     if ([identifier isEqualToString:@"gb"]) return @(EMULATOR_CORE_TYPE_GB);
     return nil;
