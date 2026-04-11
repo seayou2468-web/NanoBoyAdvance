@@ -157,7 +157,12 @@
 
     const char *path = self.romURL.path.fileSystemRepresentation;
     if (path && EmulatorCore_LoadROMFromPath(_core, path)) {
-        EmulatorCore_GetVideoSpec(_core, &_videoSpec);
+        if (!EmulatorCore_GetVideoSpec(_core, &_videoSpec)) {
+            _videoSpec.width = 0;
+            _videoSpec.height = 0;
+            _videoSpec.pixel_format = EMULATOR_PIXEL_FORMAT_RGBA8888;
+            NSLog(@"[AUR][Emu] video spec not available, using framebuffer-size fallback.");
+        }
         _running = YES;
         self.displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(gameLoop)];
         [self.displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
@@ -178,7 +183,8 @@
     const uint32_t* frameRGBA = EmulatorCore_GetFrameBufferRGBA(_core, &pixelCount);
     if (!frameRGBA) return;
 
-    if (_coreType == EMULATOR_CORE_TYPE_NDS && _videoSpec.width == 256 && _videoSpec.height >= 384) {
+    if (_coreType == EMULATOR_CORE_TYPE_NDS &&
+        ((_videoSpec.width == 256 && _videoSpec.height >= 384) || pixelCount >= (256U * 384U))) {
         const size_t screenPixels = 256U * 192U;
         if (pixelCount < screenPixels * 2U) return;
 
@@ -187,6 +193,9 @@
         return;
     }
 
+    if (_videoSpec.width == 0 || _videoSpec.height == 0) {
+        return;
+    }
     [self.imageView displayFrameRGBA:frameRGBA width:_videoSpec.width height:_videoSpec.height];
 }
 

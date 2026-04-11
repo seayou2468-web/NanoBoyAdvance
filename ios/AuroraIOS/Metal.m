@@ -328,6 +328,7 @@ typedef struct {
                    width:(NSUInteger)width
                   height:(NSUInteger)height {
     if (!pixels || width == 0 || height == 0 || !_device || !_commandQueue) return;
+    [self _updateDrawableSize];
     [self ensureResourcesWithWidth:width height:height];
     if (!_frameBuffer || !_sourceTexture || !_pipelineState || !_fastPipelineState || !_samplerState || !_colorLUT3D) return;
 
@@ -374,8 +375,9 @@ typedef struct {
     // Render Pass: Bicubic アップスケール + 色補正 → Drawable (実画面解像度)
     MTLRenderPassDescriptor *rpd = [MTLRenderPassDescriptor renderPassDescriptor];
     rpd.colorAttachments[0].texture     = drawable.texture;
-    rpd.colorAttachments[0].loadAction  = MTLLoadActionDontCare;
+    rpd.colorAttachments[0].loadAction  = MTLLoadActionClear;
     rpd.colorAttachments[0].storeAction = MTLStoreActionStore;
+    rpd.colorAttachments[0].clearColor  = MTLClearColorMake(0.0, 0.0, 0.0, 1.0);
 
     CGSize drawableSize = layer.drawableSize;
     const float drawablePixels = (float)(drawableSize.width * drawableSize.height);
