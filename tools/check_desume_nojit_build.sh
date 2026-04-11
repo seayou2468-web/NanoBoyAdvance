@@ -13,6 +13,8 @@ exclude_patterns = (
     "utils/arm_jit/",
     "arm_jit.cpp",
     "lua-engine.cpp",
+    "debug.cpp",
+    "gdbstub/",
     "movie.cpp",
     "commandline.cpp",
     "frontend/",

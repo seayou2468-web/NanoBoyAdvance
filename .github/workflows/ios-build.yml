@@ -1,0 +1,93 @@
+name: iOS Build
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  ios-build:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode 26.1.1
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: "26.1.1"
+
+      - name: Verify toolchain
+        run: |
+          xcodebuild -version
+          xcrun --sdk iphonesimulator --show-sdk-path
+
+      - name: Build DeSmuME core for iOS (Lua/Debug removed)
+        run: |
+          python3 - <<'PY'
+          import pathlib
+          import subprocess
+
+          root = pathlib.Path("src/core/desume")
+          exclude_patterns = (
+              "utils/arm_jit/",
+              "arm_jit.cpp",
+              "lua-engine.cpp",
+              "debug.cpp",
+              "gdbstub/",
+              "movie.cpp",
+              "commandline.cpp",
+              "frontend/",
+              "metaspu/win32/",
+              "3dnow_win.cpp",
+              "cpu_detect_x86_win.cpp",
+              "OGLRender",
+              "GPU_Operations_AVX2.cpp",
+              "GPU_Operations_SSE2.cpp",
+              "GPU_Operations_NEON.cpp",
+              "GPU_Operations_AltiVec.cpp",
+              "utils/colorspacehandler/colorspacehandler_AVX2.cpp",
+              "utils/colorspacehandler/colorspacehandler_AVX512.cpp",
+              "utils/colorspacehandler/colorspacehandler_NEON.cpp",
+              "utils/colorspacehandler/colorspacehandler_AltiVec.cpp",
+          )
+
+          files = []
+          for path in root.rglob("*.cpp"):
+              normalized = str(path).replace("\\", "/")
+              if any(pattern in normalized for pattern in exclude_patterns):
+                  continue
+              files.append(normalized)
+          files.sort()
+
+          base = [
+              "xcrun", "--sdk", "iphonesimulator", "clang++",
+              "-std=c++17", "-fsyntax-only", "-Isrc/core/desume", "-UHAVE_JIT"
+          ]
+
+          for source in files:
+              subprocess.run(base + [source], check=True)
+
+          print(f"Checked {len(files)} DeSmuME translation units for iOS.")
+          PY
+
+      - name: Build iOS app sources (syntax check)
+        run: |
+          SDKROOT="$(xcrun --sdk iphonesimulator --show-sdk-path)"
+          APPLE_FLAGS=(
+            -fobjc-arc
+            -fobjc-abi-version=2
+            -fobjc-legacy-dispatch
+            -isysroot "$SDKROOT"
+            -mios-simulator-version-min=17.0
+            -I.
+            -I./ios/AuroraIOS
+            -I./src
+            -I./src/core
+            -I./src/core/api
+            -I./src/core/desume
+          )
+
+          xcrun --sdk iphonesimulator clang -fsyntax-only "${APPLE_FLAGS[@]}" $(find ios/AuroraIOS -name '*.m' -print)
+          xcrun --sdk iphonesimulator clang++ -std=c++20 -fsyntax-only "${APPLE_FLAGS[@]}" $(find ios/AuroraIOS -name '*.mm' -print)
