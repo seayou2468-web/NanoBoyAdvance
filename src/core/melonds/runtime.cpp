@@ -131,8 +131,14 @@ bool LoadBIOSFromPath(Runtime& runtime, const char* bios_path, std::string& last
     Platform::SetConfigString(Platform::BIOS7Path, runtime.bios7_path);
     return true;
   }
+  if (data.size() == 0x20000U || data.size() == 0x40000U || data.size() == 0x80000U) {
+    runtime.firmware_data = std::move(data);
+    runtime.firmware_path = resolved_path;
+    Platform::SetConfigString(Platform::FirmwarePath, runtime.firmware_path);
+    return true;
+  }
 
-  last_error = "unsupported BIOS size (expected 4KB ARM9 or 16KB ARM7)";
+  last_error = "unsupported BIOS/firmware size (expected 4KB ARM9, 16KB ARM7, or 128/256/512KB firmware)";
   return false;
 }
 

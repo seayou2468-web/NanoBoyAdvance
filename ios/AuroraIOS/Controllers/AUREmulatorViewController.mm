@@ -76,20 +76,20 @@
         self.ndsContainerView.translatesAutoresizingMaskIntoConstraints = NO;
         self.ndsBottomImageView.translatesAutoresizingMaskIntoConstraints = NO;
         [NSLayoutConstraint activateConstraints:@[
-            [self.ndsContainerView.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor],
-            [self.ndsContainerView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
-            [self.ndsContainerView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],
-            [self.ndsContainerView.heightAnchor constraintEqualToAnchor:self.view.heightAnchor multiplier:0.4],
+            [self.ndsContainerView.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor constant:8.0],
+            [self.ndsContainerView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor constant:12.0],
+            [self.ndsContainerView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor constant:-12.0],
+            [self.ndsContainerView.heightAnchor constraintEqualToAnchor:self.view.heightAnchor multiplier:0.52],
 
             [self.imageView.topAnchor constraintEqualToAnchor:self.ndsContainerView.topAnchor],
             [self.imageView.leadingAnchor constraintEqualToAnchor:self.ndsContainerView.leadingAnchor],
             [self.imageView.trailingAnchor constraintEqualToAnchor:self.ndsContainerView.trailingAnchor],
 
-            [self.ndsBottomImageView.topAnchor constraintEqualToAnchor:self.imageView.bottomAnchor constant:8.0],
+            [self.ndsBottomImageView.topAnchor constraintEqualToAnchor:self.imageView.bottomAnchor constant:12.0],
             [self.ndsBottomImageView.leadingAnchor constraintEqualToAnchor:self.ndsContainerView.leadingAnchor],
             [self.ndsBottomImageView.trailingAnchor constraintEqualToAnchor:self.ndsContainerView.trailingAnchor],
+            [self.ndsBottomImageView.heightAnchor constraintEqualToAnchor:self.imageView.heightAnchor],
             [self.ndsBottomImageView.bottomAnchor constraintEqualToAnchor:self.ndsContainerView.bottomAnchor],
-            [self.imageView.heightAnchor constraintEqualToAnchor:self.ndsBottomImageView.heightAnchor],
 
             [self.controllerView.topAnchor constraintEqualToAnchor:self.ndsContainerView.bottomAnchor],
             [self.controllerView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
@@ -129,11 +129,15 @@
     if (_coreType == EMULATOR_CORE_TYPE_NDS) {
         NSString *arm9Path = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"nds_arm9"];
         NSString *arm7Path = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"nds_arm7"];
+        NSString *firmwarePath = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"nds_firmware"];
         if (arm9Path.length > 0 && !EmulatorCore_LoadBIOSFromPath(_core, arm9Path.fileSystemRepresentation)) {
             NSLog(@"[AUR][NDS] ARM9 BIOS load failed: %s", EmulatorCore_GetLastError(_core) ?: "unknown error");
         }
         if (arm7Path.length > 0 && !EmulatorCore_LoadBIOSFromPath(_core, arm7Path.fileSystemRepresentation)) {
             NSLog(@"[AUR][NDS] ARM7 BIOS load failed: %s", EmulatorCore_GetLastError(_core) ?: "unknown error");
+        }
+        if (firmwarePath.length > 0 && !EmulatorCore_LoadBIOSFromPath(_core, firmwarePath.fileSystemRepresentation)) {
+            NSLog(@"[AUR][NDS] Firmware load failed: %s", EmulatorCore_GetLastError(_core) ?: "unknown error");
         }
     } else {
         NSString *biosPath = [[AURDatabaseManager sharedManager] BIOSPathForCoreType:_coreType];
