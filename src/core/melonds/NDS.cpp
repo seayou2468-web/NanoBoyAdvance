@@ -178,6 +178,9 @@ bool Init()
     ARM9 = new ARMv5();
     ARM7 = new ARMv4();
 
+    MainRAM = new u8[MainRAMMaxSize];
+    SharedWRAM = new u8[SharedWRAMSize];
+    ARM7WRAM = new u8[ARM7WRAMSize];
 
     DMAs[0] = new DMA(0, 0);
     DMAs[1] = new DMA(0, 1);
@@ -212,6 +215,9 @@ void DeInit()
     for (int i = 0; i < 8; i++)
         delete DMAs[i];
 
+    delete[] MainRAM;
+    delete[] SharedWRAM;
+    delete[] ARM7WRAM;
     NDSCart::DeInit();
     GBACart::DeInit();
     GPU::DeInit();
