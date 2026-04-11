@@ -17,9 +17,7 @@ roots = (
 )
 
 exclude_patterns = (
-    # Explicitly strip JIT / Lua / debug related units.
-    "utils/arm_jit/",
-    "arm_jit.cpp",
+    # Explicitly strip Lua / debug related units.
     "lua-engine.cpp",
     "debug.cpp",
     "gdbstub/",
@@ -105,7 +103,7 @@ with report.open("w", encoding="utf-8") as fp:
     fp.write(f"error_count={error_count}\\n")
     fp.write(f"warning_count={warnings}\\n")
     fp.write("jit=disabled\\n")
-    fp.write("excluded=lua-engine.cpp,debug.cpp,arm_jit.cpp,utils/arm_jit/*\\n")
+    fp.write("excluded=lua-engine.cpp,debug.cpp\\n")
     fp.write(f"cxx_base={' '.join(shlex.quote(x) for x in cxx_base)}\\n")
     fp.write(f"c_base={' '.join(shlex.quote(x) for x in c_base)}\\n\\n")
     for source, text in errors:
