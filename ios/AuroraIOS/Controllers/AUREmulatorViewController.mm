@@ -129,11 +129,15 @@
     if (_coreType == EMULATOR_CORE_TYPE_NDS) {
         NSString *arm9Path = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"nds_arm9"];
         NSString *arm7Path = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"nds_arm7"];
+        NSString *firmwarePath = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"nds_firmware"];
         if (arm9Path.length > 0 && !EmulatorCore_LoadBIOSFromPath(_core, arm9Path.fileSystemRepresentation)) {
             NSLog(@"[AUR][NDS] ARM9 BIOS load failed: %s", EmulatorCore_GetLastError(_core) ?: "unknown error");
         }
         if (arm7Path.length > 0 && !EmulatorCore_LoadBIOSFromPath(_core, arm7Path.fileSystemRepresentation)) {
             NSLog(@"[AUR][NDS] ARM7 BIOS load failed: %s", EmulatorCore_GetLastError(_core) ?: "unknown error");
+        }
+        if (firmwarePath.length > 0 && !EmulatorCore_LoadBIOSFromPath(_core, firmwarePath.fileSystemRepresentation)) {
+            NSLog(@"[AUR][NDS] Firmware load failed: %s", EmulatorCore_GetLastError(_core) ?: "unknown error");
         }
     } else {
         NSString *biosPath = [[AURDatabaseManager sharedManager] BIOSPathForCoreType:_coreType];

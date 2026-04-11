@@ -34,10 +34,11 @@
     NSString *gbBios = [[AURDatabaseManager sharedManager] BIOSPathForCoreType:EMULATOR_CORE_TYPE_GB].lastPathComponent ?: @"Optional";
     NSString *ndsArm9Bios = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"nds_arm9"].lastPathComponent ?: @"Required (4KB)";
     NSString *ndsArm7Bios = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"nds_arm7"].lastPathComponent ?: @"Required (16KB)";
+    NSString *ndsFirmware = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"nds_firmware"].lastPathComponent ?: @"Optional (128/256/512KB)";
 
     self.sections = @[
         @{@"title": @"User Interface", @"items": @[@"Appearance", @"App Icon"]},
-        @{@"title": @"Core Settings (BIOS)", @"items": @[@"GBA BIOS", @"GB/GBC BIOS", @"NDS ARM9 BIOS", @"NDS ARM7 BIOS"], @"details": @[gbaBios, gbBios, ndsArm9Bios, ndsArm7Bios]},
+        @{@"title": @"Core Settings (BIOS)", @"items": @[@"GBA BIOS", @"GB/GBC BIOS", @"NDS ARM9 BIOS", @"NDS ARM7 BIOS", @"NDS Firmware"], @"details": @[gbaBios, gbBios, ndsArm9Bios, ndsArm7Bios, ndsFirmware]},
         @{@"title": @"Controllers", @"items": @[@"Preferred Skins", @"Import Skin"]},
         @{@"title": @"About", @"items": @[@"Version 1.0"]}
     ];
@@ -97,6 +98,9 @@
         } else if (indexPath.row == 3) {
             self.pickingCoreType = EMULATOR_CORE_TYPE_NDS;
             self.pickingBIOSIdentifier = @"nds_arm7";
+        } else if (indexPath.row == 4) {
+            self.pickingCoreType = EMULATOR_CORE_TYPE_NDS;
+            self.pickingBIOSIdentifier = @"nds_firmware";
         }
 
         UIDocumentPickerViewController *picker = [[UIDocumentPickerViewController alloc] initForOpeningContentTypes:@[UTTypeData] asCopy:YES];
