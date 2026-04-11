@@ -1,5 +1,5 @@
-#include "../include/teakra/teakra.h"
-#include "../include/teakra/teakra_c.h"
+#include "teakra/teakra.h"
+#include "teakra/teakra_c.h"
 
 extern "C" {
 
@@ -19,9 +19,6 @@ void Teakra_Reset(TeakraContext* context) {
     context->teakra.Reset();
 }
 
-uint8_t* Teakra_GetDspMemory(TeakraContext* context) {
-    return context->teakra.GetDspMemory().data();
-}
 
 int Teakra_SendDataIsEmpty(const TeakraContext* context, uint8_t index) {
     return context->teakra.SendDataIsEmpty(index);

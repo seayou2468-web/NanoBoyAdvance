@@ -6,7 +6,7 @@
 #include "crash.h"
 #include "decoder.h"
 #include "operand.h"
-#include "../include/teakra/disassembler.h"
+#include "teakra/disassembler.h"
 
 namespace Teakra::Disassembler {
 
