@@ -1,6 +1,5 @@
 #include "../core_adapter.hpp"
 
-#include "NDS.h"
 #include "runtime.hpp"
 
 namespace {
@@ -10,12 +9,8 @@ void* CreateRuntime() {
 }
 
 void DestroyRuntime(void* runtime) {
-  auto* melonds_runtime = static_cast<core::melonds::Runtime*>(runtime);
-  if (melonds_runtime != nullptr && melonds_runtime->initialized) {
-    NDS::Stop();
-    NDS::DeInit();
-  }
-  delete melonds_runtime;
+  delete static_cast<core::melonds::Runtime*>(runtime);
+  core::melonds::ReleaseRuntime();
 }
 
 bool LoadBIOSFromPath(void* runtime, const char* bios_path, std::string& last_error) {

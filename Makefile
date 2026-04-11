@@ -1,10 +1,3 @@
-UNAME_S := $(shell uname -s)
-
-ifeq ($(UNAME_S),Linux)
-else
-$(error This Makefile is Linux-only)
-endif
-
 CC       := cc
 CXX      := c++
 AR       := ar
@@ -39,7 +32,9 @@ NES_SRCS  := \
 	src/core/quick_nes/nes_emu/Nes_Ppu_Rendering.cpp \
 	src/core/quick_nes/nes_emu/Nes_Apu.cpp \
 	src/core/quick_nes/nes_emu/Nes_Oscs.cpp \
+	src/core/quick_nes/nes_emu/apu_state.cpp \
 	src/core/quick_nes/nes_emu/Nes_Mapper.cpp \
+	src/core/quick_nes/nes_emu/Nes_State.cpp \
 	src/core/quick_nes/nes_emu/nes_data.cpp \
 	src/core/quick_nes/nes_emu/nes_mappers.cpp \
 	src/core/quick_nes/nes_emu/misc_mappers.cpp \
@@ -62,10 +57,12 @@ CORE_OBJS := \
 	$(BUILD_DIR)/src/core/nanoboyadvance/core_adapter.o \
 	$(BUILD_DIR)/src/core/quick_nes/core_adapter.o \
 	$(BUILD_DIR)/src/core/sameboy/core_adapter.o \
+	$(BUILD_DIR)/src/core/melonds/core_adapter.o \
 	$(BUILD_DIR)/src/core/nanoboyadvance/runtime.o \
 	$(BUILD_DIR)/src/core/nanoboyadvance/gba_core_c_api.o \
 	$(BUILD_DIR)/src/core/quick_nes/runtime.o \
 	$(BUILD_DIR)/src/core/sameboy/runtime.o \
+	$(BUILD_DIR)/src/core/melonds/runtime.o \
 	$(SAMEBOY_OBJS)
 MAIN_OBJ  := $(BUILD_DIR)/main.o
 LIBNES    := $(BUILD_DIR)/libquick_nes.a

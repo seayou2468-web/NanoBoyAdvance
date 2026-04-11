@@ -22,10 +22,6 @@
 #include "DSi.h"
 #include "ARM.h"
 
-#ifdef JIT_ENABLED
-#include "ARMJIT.h"
-#include "ARMJIT_Memory.h"
-#endif
 
 // access timing for cached regions
 // this would be an average between cache hits and cache misses
@@ -121,9 +117,6 @@ void ARMv5::UpdateDTCMSetting()
 
     if (newDTCMBase != DTCMBase || newDTCMMask != DTCMMask)
     {
-#ifdef JIT_ENABLED
-        ARMJIT_Memory::RemapDTCM(newDTCMBase, newDTCMSize);
-#endif
         DTCMBase = newDTCMBase;
         DTCMMask = newDTCMMask;
     }
@@ -134,9 +127,6 @@ void ARMv5::UpdateITCMSetting()
     if (CP15Control & (1<<18))
     {
         ITCMSize = 0x200 << ((ITCMSetting >> 1) & 0x1F);
-#ifdef JIT_ENABLED
-        FastBlockLookupSize = 0;
-#endif
     }
     else
     {
@@ -903,9 +893,6 @@ void ARMv5::DataWrite8(u32 addr, u8 val)
     {
         DataCycles = 1;
         *(u8*)&ITCM[addr & (ITCMPhysicalSize - 1)] = val;
-#ifdef JIT_ENABLED
-        ARMJIT::CheckAndInvalidate<0, ARMJIT_Memory::memregion_ITCM>(addr);
-#endif
         return;
     }
     if ((addr & DTCMMask) == DTCMBase)
@@ -935,9 +922,6 @@ void ARMv5::DataWrite16(u32 addr, u16 val)
     {
         DataCycles = 1;
         *(u16*)&ITCM[addr & (ITCMPhysicalSize - 1)] = val;
-#ifdef JIT_ENABLED
-        ARMJIT::CheckAndInvalidate<0, ARMJIT_Memory::memregion_ITCM>(addr);
-#endif
         return;
     }
     if ((addr & DTCMMask) == DTCMBase)
@@ -967,9 +951,6 @@ void ARMv5::DataWrite32(u32 addr, u32 val)
     {
         DataCycles = 1;
         *(u32*)&ITCM[addr & (ITCMPhysicalSize - 1)] = val;
-#ifdef JIT_ENABLED
-        ARMJIT::CheckAndInvalidate<0, ARMJIT_Memory::memregion_ITCM>(addr);
-#endif
         return;
     }
     if ((addr & DTCMMask) == DTCMBase)
@@ -991,9 +972,6 @@ void ARMv5::DataWrite32S(u32 addr, u32 val)
     {
         DataCycles += 1;
         *(u32*)&ITCM[addr & (ITCMPhysicalSize - 1)] = val;
-#ifdef JIT_ENABLED
-        ARMJIT::CheckAndInvalidate<0, ARMJIT_Memory::memregion_ITCM>(addr);
-#endif
         return;
     }
     if ((addr & DTCMMask) == DTCMBase)

@@ -1697,7 +1697,10 @@ static void GB_reset_internal(GB_gameboy_t *gb, bool quick)
     } *preserved_state = NULL;
         
     if (quick) {
-        preserved_state = alloca(sizeof(*preserved_state));
+        preserved_state = malloc(sizeof(*preserved_state));
+        if (!preserved_state) {
+            return;
+        }
         memcpy(preserved_state->hram, gb->hram, sizeof(gb->hram));
         memcpy(preserved_state->background_palettes_data, gb->background_palettes_data, sizeof(gb->background_palettes_data));
         memcpy(preserved_state->object_palettes_data, gb->object_palettes_data, sizeof(gb->object_palettes_data));
@@ -1791,6 +1794,7 @@ static void GB_reset_internal(GB_gameboy_t *gb, bool quick)
         gb->io_registers[GB_IO_DMA] = preserved_state->dma;
         gb->io_registers[GB_IO_OBP0] = preserved_state->obp0;
         gb->io_registers[GB_IO_OBP1] = preserved_state->obp1;
+        free(preserved_state);
     }
     gb->apu.apu_cycles_in_2mhz = true;
     

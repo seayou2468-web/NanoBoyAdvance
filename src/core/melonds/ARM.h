@@ -60,9 +60,6 @@ public:
     }
 
     virtual void Execute() = 0;
-#ifdef JIT_ENABLED
-    virtual void ExecuteJIT() = 0;
-#endif
 
     bool CheckCondition(u32 code)
     {
@@ -149,10 +146,6 @@ public:
 
     NDS::MemRegion CodeMem;
 
-#ifdef JIT_ENABLED
-    u32 FastBlockLookupStart, FastBlockLookupSize;
-    u64* FastBlockLookup;
-#endif
 
     static u32 ConditionTable[16];
 
@@ -185,9 +178,6 @@ public:
     void DataAbort();
 
     void Execute();
-#ifdef JIT_ENABLED
-    void ExecuteJIT();
-#endif
 
     // all code accesses are forced nonseq 32bit
     u32 CodeRead32(u32 addr, bool branch);
@@ -266,7 +256,7 @@ public:
 
     u32 DTCMSetting, ITCMSetting;
 
-    // for aarch64 JIT they need to go up here
+    // keep these grouped here for platform-specific register handling
     // to be addressable by a 12-bit immediate
     u32 ITCMSize;
     u32 DTCMBase, DTCMMask;
@@ -316,9 +306,6 @@ public:
     void JumpTo(u32 addr, bool restorecpsr = false);
 
     void Execute();
-#ifdef JIT_ENABLED
-    void ExecuteJIT();
-#endif
 
     u16 CodeRead16(u32 addr)
     {

@@ -24,10 +24,6 @@
 #include "ARMInterpreter.h"
 #include "AREngine.h"
 
-#ifdef JIT_ENABLED
-#include "ARMJIT.h"
-#include "ARMJIT_Memory.h"
-#endif
 
 // instruction timing notes
 //
@@ -77,9 +73,7 @@ ARM::~ARM()
 
 ARMv5::ARMv5() : ARM(0)
 {
-#ifndef JIT_ENABLED
     DTCM = new u8[DTCMPhysicalSize];
-#endif
 
     PU_Map = PU_PrivMap;
 }
@@ -91,9 +85,7 @@ ARMv4::ARMv4() : ARM(1)
 
 ARMv5::~ARMv5()
 {
-#ifndef JIT_ENABLED
     delete[] DTCM;
-#endif
 }
 
 void ARM::Reset()
@@ -128,11 +120,6 @@ void ARM::Reset()
 
     CodeMem.Mem = NULL;
 
-#ifdef JIT_ENABLED
-    FastBlockLookup = NULL;
-    FastBlockLookupStart = 0;
-    FastBlockLookupSize = 0;
-#endif
 
     // zorp
     JumpTo(ExceptionBase);
@@ -211,15 +198,6 @@ void ARM::DoSavestate(Savestate* file)
     file->VarArray(R_IRQ, 3*sizeof(u32));
     file->VarArray(R_UND, 3*sizeof(u32));
     file->Var32(&CurInstr);
-#ifdef JIT_ENABLED
-    if (!file->Saving && NDS::EnableJIT)
-    {
-        // hack, the JIT doesn't really pipeline
-        // but we still want JIT save states to be
-        // loaded while running the interpreter
-        FillPipeline();
-    }
-#endif
     file->VarArray(NextInstr, 2*sizeof(u32));
 
     file->Var32(&ExceptionBase);
@@ -648,73 +626,6 @@ void ARMv5::Execute()
         Halted = 0;
 }
 
-#ifdef JIT_ENABLED
-void ARMv5::ExecuteJIT()
-{
-    if (Halted)
-    {
-        if (Halted == 2)
-        {
-            Halted = 0;
-        }
-        else if (NDS::HaltInterrupted(0))
-        {
-            Halted = 0;
-            if (NDS::IME[0] & 0x1)
-                TriggerIRQ();
-        }
-        else
-        {
-            NDS::ARM9Timestamp = NDS::ARM9Target;
-            return;
-        }
-    }
-
-    while (NDS::ARM9Timestamp < NDS::ARM9Target)
-    {
-        u32 instrAddr = R[15] - ((CPSR&0x20)?2:4);
-
-        if ((instrAddr < FastBlockLookupStart || instrAddr >= (FastBlockLookupStart + FastBlockLookupSize))
-            && !ARMJIT::SetupExecutableRegion(0, instrAddr, FastBlockLookup, FastBlockLookupStart, FastBlockLookupSize))
-        {
-            NDS::ARM9Timestamp = NDS::ARM9Target;
-            printf("ARMv5 PC in non executable region %08X\n", R[15]);
-            return;
-        }
-
-        ARMJIT::JitBlockEntry block = ARMJIT::LookUpBlock(0, FastBlockLookup,
-            instrAddr - FastBlockLookupStart, instrAddr);
-        if (block)
-            ARM_Dispatch(this, block);
-        else
-            ARMJIT::CompileBlock(this);
-
-        if (StopExecution)
-        {
-            // this order is crucial otherwise idle loops waiting for an IRQ won't function
-            if (IRQ)
-                TriggerIRQ();
-
-            if (Halted || IdleLoop)
-            {
-                if ((Halted == 1 || IdleLoop) && NDS::ARM9Timestamp < NDS::ARM9Target)
-                {
-                    Cycles = 0;
-                    NDS::ARM9Timestamp = NDS::ARM9Target;
-                }
-                IdleLoop = 0;
-                break;
-            }
-        }
-
-        NDS::ARM9Timestamp += Cycles;
-        Cycles = 0;
-    }
-
-    if (Halted == 2)
-        Halted = 0;
-}
-#endif
 
 void ARMv4::Execute()
 {
@@ -799,78 +710,6 @@ void ARMv4::Execute()
     }
 }
 
-#ifdef JIT_ENABLED
-void ARMv4::ExecuteJIT()
-{
-    if (Halted)
-    {
-        if (Halted == 2)
-        {
-            Halted = 0;
-        }
-        else if (NDS::HaltInterrupted(1))
-        {
-            Halted = 0;
-            if (NDS::IME[1] & 0x1)
-                TriggerIRQ();
-        }
-        else
-        {
-            NDS::ARM7Timestamp = NDS::ARM7Target;
-            return;
-        }
-    }
-
-    while (NDS::ARM7Timestamp < NDS::ARM7Target)
-    {
-        u32 instrAddr = R[15] - ((CPSR&0x20)?2:4);
-
-        if ((instrAddr < FastBlockLookupStart || instrAddr >= (FastBlockLookupStart + FastBlockLookupSize))
-            && !ARMJIT::SetupExecutableRegion(1, instrAddr, FastBlockLookup, FastBlockLookupStart, FastBlockLookupSize))
-        {
-            NDS::ARM7Timestamp = NDS::ARM7Target;
-            printf("ARMv4 PC in non executable region %08X\n", R[15]);
-            return;
-        }
-
-        ARMJIT::JitBlockEntry block = ARMJIT::LookUpBlock(1, FastBlockLookup,
-            instrAddr - FastBlockLookupStart, instrAddr);
-        if (block)
-            ARM_Dispatch(this, block);
-        else
-            ARMJIT::CompileBlock(this);
-
-        if (StopExecution)
-        {
-            if (IRQ)
-                TriggerIRQ();
-
-            if (Halted || IdleLoop)
-            {
-                if ((Halted == 1 || IdleLoop) && NDS::ARM7Timestamp < NDS::ARM7Target)
-                {
-                    Cycles = 0;
-                    NDS::ARM7Timestamp = NDS::ARM7Target;
-                }
-                IdleLoop = 0;
-                break;
-            }
-        }
-
-        NDS::ARM7Timestamp += Cycles;
-        Cycles = 0;
-    }
-
-    if (Halted == 2)
-        Halted = 0;
-
-    if (Halted == 4)
-    {
-        DSi::SoftReset();
-        Halted = 2;
-    }
-}
-#endif
 
 void ARMv5::FillPipeline()
 {
