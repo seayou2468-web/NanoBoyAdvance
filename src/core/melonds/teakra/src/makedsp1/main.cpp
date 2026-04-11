@@ -1,3 +1,4 @@
+#if 0
 #include <cstdio>
 #include <fstream>
 #include <iostream>
@@ -39,6 +40,7 @@ std::vector<std::string> StringToTokens(const std::string& in) {
     return out;
 }
 
+#ifndef NO_MAIN
 int main(int argc, char** argv) {
     auto parser = Teakra::GenerateParser();
 
@@ -170,3 +172,7 @@ int main(int argc, char** argv) {
 
     fclose(out);
 }
+
+#endif // NO_MAIN
+
+#endif

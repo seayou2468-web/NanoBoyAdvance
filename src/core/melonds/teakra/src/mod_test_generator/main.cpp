@@ -1,8 +1,10 @@
+#if 0
 #include <cstdio>
 #include <cstdlib>
 #include <memory>
 #include "../test.h"
 
+#ifndef NO_MAIN
 int main(int argc, char** argv) {
     if (argc < 2) {
         std::fprintf(stderr, "A file path argument must be provided. Exiting...\n");
@@ -55,3 +57,7 @@ int main(int argc, char** argv) {
 
     return 0;
 }
+
+#endif // NO_MAIN
+
+#endif

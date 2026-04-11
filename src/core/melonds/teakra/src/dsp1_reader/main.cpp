@@ -1,3 +1,4 @@
+#if 0
 #include <cstdio>
 #include <cstring>
 #include <string>
@@ -76,6 +77,7 @@ Dsp1::Dsp1(std::vector<u8> raw) {
     }
 }
 
+#ifndef NO_MAIN
 int main(int argc, char** argv) {
     if (argc < 3)
         return -1;
@@ -123,3 +125,7 @@ int main(int argc, char** argv) {
 
     fclose(file);
 }
+
+#endif // NO_MAIN
+
+#endif

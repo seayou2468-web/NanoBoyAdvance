@@ -1,8 +1,10 @@
+#if 0
 #include <cstdio>
 #include <string>
 #include "../../include/teakra/disassembler.h"
 #include "coff.h"
 
+#ifndef NO_MAIN
 int main(int argc, char** argv) {
     if (argc < 2) {
         printf("Please input a file\n");
@@ -130,3 +132,7 @@ int main(int argc, char** argv) {
     std::fclose(in);
     std::fclose(out);
 }
+
+#endif // NO_MAIN
+
+#endif

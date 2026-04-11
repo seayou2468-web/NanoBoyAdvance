@@ -1,3 +1,4 @@
+#if 0
 #include <cinttypes>
 #include <cstdio>
 #include <iomanip>
@@ -18,6 +19,7 @@ std::string Flag16ToString(u16 value, const char* symbols) {
     return result;
 }
 
+#ifndef NO_MAIN
 int main(int argc, char** argv) {
     if (argc < 2) {
         std::fprintf(stderr, "A filename argument must be provided. Exiting...\n");
@@ -251,3 +253,7 @@ int main(int argc, char** argv) {
 
     return 0;
 }
+
+#endif // NO_MAIN
+
+#endif
