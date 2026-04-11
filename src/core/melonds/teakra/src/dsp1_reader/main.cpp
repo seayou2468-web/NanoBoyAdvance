@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-#include <teakra/disassembler.h>
+#include "../../../include/teakra/disassembler.h"
 #include "../common_types.h"
 
 class Dsp1 {

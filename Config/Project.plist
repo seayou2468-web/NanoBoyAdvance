@@ -31,6 +31,8 @@
 	<key>LDECompilerFlags</key>
 	<array>
 		<string>-fobjc-arc</string>
+		<string>-Isrc/core/melonds</string>
+		<string>-Isrc/core/melonds/teakra/include</string>
 	</array>
 	<key>LDEDisplayName</key>
 	<string>gbemu-ハヤマサ</string>

@@ -1,6 +1,6 @@
 #include <cstdio>
 #include <string>
-#include <teakra/disassembler.h>
+#include "../../../include/teakra/disassembler.h"
 #include "coff.h"
 
 int main(int argc, char** argv) {

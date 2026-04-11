@@ -1,5 +1,5 @@
-#include "teakra/teakra.h"
-#include "teakra/teakra_c.h"
+#include "../include/teakra/teakra.h"
+#include "../include/teakra/teakra_c.h"
 
 extern "C" {
 

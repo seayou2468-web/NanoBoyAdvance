@@ -10,7 +10,7 @@
 #include "mmio.h"
 #include "processor.h"
 #include "shared_memory.h"
-#include "teakra/teakra.h"
+#include "../include/teakra/teakra.h"
 #include "timer.h"
 
 namespace Teakra {
