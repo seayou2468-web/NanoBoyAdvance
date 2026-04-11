@@ -11,3 +11,5 @@ CMakeSettings.json
 cmake-build-*
 
 .DS_Store
+
+artifacts/

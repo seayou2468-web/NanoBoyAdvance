@@ -9,12 +9,14 @@
 #include "src/core/emulator_core_c_api.h"
 
 enum {
-  WINDOW_SCALE = 3
+  WINDOW_SCALE = 3,
+  NDS_SCREEN_HEIGHT = 192,
+  NDS_SCREEN_GAP = 8
 };
 
 int main(int argc, char** argv) {
   if (argc < 2) {
-    fprintf(stderr, "Usage: %s <rom.(gba|nes|gb|gbc)>\n", argv[0]);
+    fprintf(stderr, "Usage: %s <rom.(gba|nds|nes|gb|gbc)>\n", argv[0]);
     return 1;
   }
 
@@ -22,6 +24,9 @@ int main(int argc, char** argv) {
   const char* ext = strrchr(argv[1], '.');
   if (ext != NULL && strcmp(ext, ".nes") == 0) {
     core_type = EMULATOR_CORE_TYPE_NES;
+  }
+  if (ext != NULL && strcmp(ext, ".nds") == 0) {
+    core_type = EMULATOR_CORE_TYPE_NDS;
   }
   if (ext != NULL && (strcmp(ext, ".gb") == 0 || strcmp(ext, ".gbc") == 0)) {
     core_type = EMULATOR_CORE_TYPE_GB;
@@ -31,6 +36,28 @@ int main(int argc, char** argv) {
   if (!core) {
     fprintf(stderr, "EmulatorCore_Create failed\n");
     return 1;
+  }
+
+  if (core_type == EMULATOR_CORE_TYPE_NDS) {
+    const char* bios9 = getenv("NDS_BIOS9_PATH");
+    if (bios9 != NULL && bios9[0] != '\0') {
+      if (!EmulatorCore_LoadBIOSFromPath(core, bios9)) {
+        const char* err = EmulatorCore_GetLastError(core);
+        fprintf(stderr, "EmulatorCore_LoadBIOSFromPath BIOS9 failed: %s\n", err ? err : "unknown");
+        EmulatorCore_Destroy(core);
+        return 1;
+      }
+    }
+
+    const char* bios7 = getenv("NDS_BIOS7_PATH");
+    if (bios7 != NULL && bios7[0] != '\0') {
+      if (!EmulatorCore_LoadBIOSFromPath(core, bios7)) {
+        const char* err = EmulatorCore_GetLastError(core);
+        fprintf(stderr, "EmulatorCore_LoadBIOSFromPath BIOS7 failed: %s\n", err ? err : "unknown");
+        EmulatorCore_Destroy(core);
+        return 1;
+      }
+    }
   }
 
   EmulatorVideoSpec video_spec = {0};
@@ -46,12 +73,17 @@ int main(int argc, char** argv) {
     return 1;
   }
 
+  const int is_nds = (core_type == EMULATOR_CORE_TYPE_NDS);
+  const int window_width = (int)video_spec.width * WINDOW_SCALE;
+  const int window_height =
+      is_nds ? ((NDS_SCREEN_HEIGHT * 2 + NDS_SCREEN_GAP) * WINDOW_SCALE) : ((int)video_spec.height * WINDOW_SCALE);
+
   SDL_Window* window = SDL_CreateWindow(
       "NanoBoyAdvance Linux Frontend",
       SDL_WINDOWPOS_CENTERED,
       SDL_WINDOWPOS_CENTERED,
-      (int)video_spec.width * WINDOW_SCALE,
-      (int)video_spec.height * WINDOW_SCALE,
+      window_width,
+      window_height,
       SDL_WINDOW_SHOWN);
   if (!window) {
     fprintf(stderr, "SDL_CreateWindow failed: %s\n", SDL_GetError());
@@ -120,7 +152,23 @@ int main(int argc, char** argv) {
 
     SDL_UpdateTexture(texture, NULL, pixels, (int)video_spec.width * (int)sizeof(uint32_t));
     SDL_RenderClear(renderer);
-    SDL_RenderCopy(renderer, texture, NULL, NULL);
+
+    if (is_nds) {
+      SDL_Rect src_top = {0, 0, (int)video_spec.width, NDS_SCREEN_HEIGHT};
+      SDL_Rect src_bottom = {0, NDS_SCREEN_HEIGHT, (int)video_spec.width, NDS_SCREEN_HEIGHT};
+      SDL_Rect dst_top = {0, 0, (int)video_spec.width * WINDOW_SCALE, NDS_SCREEN_HEIGHT * WINDOW_SCALE};
+      SDL_Rect dst_bottom = {
+          0,
+          (NDS_SCREEN_HEIGHT + NDS_SCREEN_GAP) * WINDOW_SCALE,
+          (int)video_spec.width * WINDOW_SCALE,
+          NDS_SCREEN_HEIGHT * WINDOW_SCALE};
+
+      SDL_RenderCopy(renderer, texture, &src_top, &dst_top);
+      SDL_RenderCopy(renderer, texture, &src_bottom, &dst_bottom);
+    } else {
+      SDL_RenderCopy(renderer, texture, NULL, NULL);
+    }
+
     SDL_RenderPresent(renderer);
   }
 

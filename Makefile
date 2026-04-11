@@ -2,7 +2,7 @@ CC       := cc
 CXX      := c++
 AR       := ar
 CFLAGS   := -O2 -std=c11 -Wall -Wextra -Wpedantic
-CXXFLAGS := -O2 -std=c++20 -Wall -Wextra -Wpedantic -ffunction-sections -fdata-sections
+CXXFLAGS := -O2 -std=c++20 -Wall -Wextra -Wpedantic -ffunction-sections -fdata-sections -DMELONDS_VERSION=\"nba\" -Isrc/core/melonds/teakra/include
 SDL_CFLAGS := $(shell pkg-config --cflags sdl2 2>/dev/null)
 SDL_LIBS   := $(shell pkg-config --libs sdl2 2>/dev/null)
 
@@ -50,6 +50,16 @@ NES_SRCS  := \
 NES_OBJS  := $(patsubst %.cpp,$(BUILD_DIR)/%.o,$(NES_SRCS))
 SAMEBOY_SRCS := $(filter-out src/core/sameboy/cheat_search.c src/core/sameboy/sm83_disassembler.c src/core/sameboy/symbol_hash.c,$(shell find src/core/sameboy -name '*.c'))
 SAMEBOY_OBJS := $(patsubst %.c,$(BUILD_DIR)/%.o,$(SAMEBOY_SRCS))
+MELONDS_CPP_ALL := $(shell find src/core/melonds -name '*.cpp')
+MELONDS_CPP_EXCLUDED := \
+	src/core/melonds/core_adapter.cpp \
+	src/core/melonds/runtime.cpp \
+	src/core/melonds/teakra/src/teakra_c.cpp \
+	src/core/melonds/teakra/src/disassembler_c.cpp \
+	$(shell find src/core/melonds -path '*/main.cpp')
+MELONDS_CPP_SRCS := $(filter-out $(MELONDS_CPP_EXCLUDED),$(MELONDS_CPP_ALL))
+MELONDS_C_SRCS := $(shell find src/core/melonds -name '*.c')
+MELONDS_OBJS := $(patsubst %.cpp,$(BUILD_DIR)/%.o,$(MELONDS_CPP_SRCS)) $(patsubst %.c,$(BUILD_DIR)/%.o,$(MELONDS_C_SRCS))
 CORE_OBJS := \
 	$(BUILD_DIR)/src/core/api/emulator_core_c_api.o \
 	$(BUILD_DIR)/src/core/api/frontend_utils.o \
@@ -63,6 +73,7 @@ CORE_OBJS := \
 	$(BUILD_DIR)/src/core/quick_nes/runtime.o \
 	$(BUILD_DIR)/src/core/sameboy/runtime.o \
 	$(BUILD_DIR)/src/core/melonds/runtime.o \
+	$(MELONDS_OBJS) \
 	$(SAMEBOY_OBJS)
 MAIN_OBJ  := $(BUILD_DIR)/main.o
 LIBNES    := $(BUILD_DIR)/libquick_nes.a
