@@ -6,6 +6,7 @@
 #import "../Managers/AURExternalControllerManager.h"
 #import "../Metal.h"
 #import <QuartzCore/QuartzCore.h>
+#include <array>
 
 @interface AUREmulatorViewController () <AURControllerViewDelegate, AURExternalControllerDelegate, AURInGameMenuDelegate> {
     EmulatorCoreHandle* _core;
@@ -169,12 +170,20 @@
     const uint32_t* frameRGBA = EmulatorCore_GetFrameBufferRGBA(_core, &pixelCount);
     if (!frameRGBA) return;
 
-    if (_coreType == EMULATOR_CORE_TYPE_NDS && _videoSpec.width == 256 && _videoSpec.height >= 384) {
+    if (_coreType == EMULATOR_CORE_TYPE_NDS) {
         const size_t screenPixels = 256U * 192U;
-        if (pixelCount < screenPixels * 2U) return;
+        if (pixelCount >= screenPixels * 2U) {
+            [self.imageView displayFrameRGBA:frameRGBA width:256 height:192];
+            [self.ndsBottomImageView displayFrameRGBA:(frameRGBA + screenPixels) width:256 height:192];
+            return;
+        }
+        if (pixelCount >= screenPixels) {
+            static std::array<uint32_t, 256U * 192U> blankBottomFrame{};
+            [self.imageView displayFrameRGBA:frameRGBA width:256 height:192];
+            [self.ndsBottomImageView displayFrameRGBA:blankBottomFrame.data() width:256 height:192];
+            return;
+        }
 
-        [self.imageView displayFrameRGBA:frameRGBA width:256 height:192];
-        [self.ndsBottomImageView displayFrameRGBA:(frameRGBA + screenPixels) width:256 height:192];
         return;
     }
 
