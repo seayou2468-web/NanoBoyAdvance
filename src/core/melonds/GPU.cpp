@@ -143,10 +143,6 @@ u8 VRAMFlat_TexPal[128*1024];
 u32 OAMDirty;
 u32 PaletteDirty;
 
-#ifdef OGLRENDERER_ENABLED
-std::unique_ptr<GLCompositor> CurGLCompositor = {};
-#endif
-
 bool Init()
 {
     GPU2D_Renderer = std::make_unique<GPU2D::SoftRenderer>();
@@ -294,12 +290,6 @@ void Stop()
     memset(Framebuffer[1][0], 0, fbsize*4);
     memset(Framebuffer[1][1], 0, fbsize*4);
 
-#ifdef OGLRENDERER_ENABLED
-    // This needs a better way to know that we're
-    // using the OpenGL renderer specifically
-    if (GPU3D::CurrentRenderer->Accelerated)
-        CurGLCompositor->Stop();
-#endif
 }
 
 void DoSavestate(Savestate* file)
@@ -383,62 +373,20 @@ void AssignFramebuffers()
 
 void InitRenderer(int renderer)
 {
-#ifdef OGLRENDERER_ENABLED
-    if (renderer == 1)
-    {
-        CurGLCompositor = std::make_unique<GLCompositor>();
-        // Create opengl rendrerer
-        if (!CurGLCompositor->Init())
-        {
-            // Fallback on software renderer
-            renderer = 0;
-            GPU3D::CurrentRenderer = std::make_unique<GPU3D::SoftRenderer>();
-            GPU3D::CurrentRenderer->Init();
-        }
-        GPU3D::CurrentRenderer = std::make_unique<GPU3D::GLRenderer>();
-        if (!GPU3D::CurrentRenderer->Init())
-        {
-            // Fallback on software renderer
-            CurGLCompositor->DeInit();
-            CurGLCompositor.reset();
-            renderer = 0;
-            GPU3D::CurrentRenderer = std::make_unique<GPU3D::SoftRenderer>();
-        }
-    }
-    else
-#endif
-    {
-        GPU3D::CurrentRenderer = std::make_unique<GPU3D::SoftRenderer>();
-        GPU3D::CurrentRenderer->Init();
-    }
-
-    Renderer = renderer;
+    (void)renderer;
+    GPU3D::CurrentRenderer = std::make_unique<GPU3D::SoftRenderer>();
+    GPU3D::CurrentRenderer->Init();
+    Renderer = 0;
 }
 
 void DeInitRenderer()
 {
     GPU3D::CurrentRenderer->DeInit();
-#ifdef OGLRENDERER_ENABLED
-    if (Renderer == 1)
-    {
-        CurGLCompositor->DeInit();
-    }
-#endif
 }
 
 void ResetRenderer()
 {
-    if (Renderer == 0)
-    {
-        GPU3D::CurrentRenderer->Reset();
-    }
-#ifdef OGLRENDERER_ENABLED
-    else
-    {
-        CurGLCompositor->Reset();
-        GPU3D::CurrentRenderer->Reset();
-    }
-#endif
+    GPU3D::CurrentRenderer->Reset();
 }
 
 void SetRenderSettings(int renderer, RenderSettings& settings)
@@ -472,17 +420,7 @@ void SetRenderSettings(int renderer, RenderSettings& settings)
 
     AssignFramebuffers();
 
-    if (Renderer == 0)
-    {
-        GPU3D::CurrentRenderer->SetRenderSettings(settings);
-    }
-#ifdef OGLRENDERER_ENABLED
-    else
-    {
-        CurGLCompositor->SetRenderSettings(settings);
-        GPU3D::CurrentRenderer->SetRenderSettings(settings);
-    }
-#endif
+    GPU3D::CurrentRenderer->SetRenderSettings(settings);
 }
 
 
@@ -1176,11 +1114,6 @@ void StartScanline(u32 line)
             GPU2D_B.VBlank();
             GPU3D::VBlank();
 
-#ifdef OGLRENDERER_ENABLED
-            // Need a better way to identify the openGL renderer in particular
-            if (GPU3D::CurrentRenderer->Accelerated)
-                CurGLCompositor->RenderFrame();
-#endif
         }
     }
 

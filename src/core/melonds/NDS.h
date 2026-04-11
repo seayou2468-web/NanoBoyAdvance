@@ -168,9 +168,6 @@ enum
     GBAAddon_RAMExpansion = 1,
 };
 
-#ifdef JIT_ENABLED
-extern bool EnableJIT;
-#endif
 extern int ConsoleType;
 extern int CurCPU;
 

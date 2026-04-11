@@ -7,4 +7,6 @@
 - (void)addGame:(AURGame *)game;
 - (void)setBIOSPath:(NSString *)path forCoreType:(EmulatorCoreType)coreType;
 - (NSString *)BIOSPathForCoreType:(EmulatorCoreType)coreType;
+- (void)setBIOSPath:(NSString *)path forIdentifier:(NSString *)identifier;
+- (NSString *)BIOSPathForIdentifier:(NSString *)identifier;
 @end

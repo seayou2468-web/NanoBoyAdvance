@@ -86,9 +86,20 @@
     _core = EmulatorCore_Create(_coreType);
     if (!_core) return;
 
-    NSString *biosPath = [[AURDatabaseManager sharedManager] BIOSPathForCoreType:_coreType];
-    if (biosPath) {
-        EmulatorCore_LoadBIOSFromPath(_core, biosPath.fileSystemRepresentation);
+    if (_coreType == EMULATOR_CORE_TYPE_NDS) {
+        NSString *arm9Path = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"nds_arm9"];
+        NSString *arm7Path = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"nds_arm7"];
+        if (arm9Path.length > 0) {
+            EmulatorCore_LoadBIOSFromPath(_core, arm9Path.fileSystemRepresentation);
+        }
+        if (arm7Path.length > 0) {
+            EmulatorCore_LoadBIOSFromPath(_core, arm7Path.fileSystemRepresentation);
+        }
+    } else {
+        NSString *biosPath = [[AURDatabaseManager sharedManager] BIOSPathForCoreType:_coreType];
+        if (biosPath.length > 0) {
+            EmulatorCore_LoadBIOSFromPath(_core, biosPath.fileSystemRepresentation);
+        }
     }
 
     const char *path = self.romURL.path.fileSystemRepresentation;

@@ -1,9 +1,10 @@
 #ifndef PLATFORMOGL_H
 #define PLATFORMOGL_H
 
-// if you don't wanna use glad for your platform
-// add your header here!
+#include <cstdint>
 
-#include "frontend/glad/glad.h"
+using GLenum = std::uint32_t;
+using GLuint = std::uint32_t;
+using GLint = std::int32_t;
 
 #endif

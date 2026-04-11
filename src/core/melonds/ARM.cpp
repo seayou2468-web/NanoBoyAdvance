@@ -23,7 +23,6 @@
 #include "ARM.h"
 #include "ARMInterpreter.h"
 #include "AREngine.h"
-#include "ARMJIT.h"
 
 #ifdef JIT_ENABLED
 #include "ARMJIT.h"

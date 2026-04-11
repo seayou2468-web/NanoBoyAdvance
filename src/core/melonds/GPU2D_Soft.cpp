@@ -210,7 +210,6 @@ void SoftRenderer::DrawScanline(u32 line, Unit* unit)
         else if (CurUnit->CaptureLatch && (((CurUnit->CaptureCnt >> 29) & 0x3) != 1))
         {
             _3DLine = GPU3D::GetLine(n3dline);
-            //GPU3D::GLRenderer::PrepareCaptureFrame();
         }
     }
 
@@ -362,15 +361,8 @@ void SoftRenderer::DrawScanline(u32 line, Unit* unit)
 
 void SoftRenderer::VBlankEnd(Unit* unitA, Unit* unitB)
 {
-#ifdef OGLRENDERER_ENABLED
-    if (GPU3D::CurrentRenderer->Accelerated)
-    {
-        if ((unitA->CaptureCnt & (1<<31)) && (((unitA->CaptureCnt >> 29) & 0x3) != 1))
-        {
-            reinterpret_cast<GPU3D::GLRenderer*>(GPU3D::CurrentRenderer.get())->PrepareCaptureFrame();
-        }
-    }
-#endif
+    (void)unitA;
+    (void)unitB;
 }
 
 void SoftRenderer::DoCapture(u32 line, u32 width)

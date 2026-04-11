@@ -20,8 +20,6 @@
 
 #include <stdio.h>
 
-#include "ARMJIT.h"
-
 namespace ARMInstrInfo
 {
 
@@ -386,8 +384,7 @@ Info Decode(bool thumb, u32 num, u32 instr)
         {
             if (res.Kind == tk_LDR_PCREL)
             {
-                if (!ARMJIT::LiteralOptimizations)
-                    res.SrcRegs |= 1 << 15;
+                res.SrcRegs |= 1 << 15;
                 res.SpecialKind = special_LoadLiteral;
             }
             else

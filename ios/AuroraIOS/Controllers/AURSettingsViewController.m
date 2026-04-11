@@ -8,6 +8,7 @@
 @property (nonatomic, strong) UITableView *tableView;
 @property (nonatomic, strong) NSArray *sections;
 @property (nonatomic, assign) EmulatorCoreType pickingCoreType;
+@property (nonatomic, copy) NSString *pickingBIOSIdentifier;
 @end
 
 @implementation AURSettingsViewController
@@ -31,10 +32,12 @@
 - (void)updateSections {
     NSString *gbaBios = [[AURDatabaseManager sharedManager] BIOSPathForCoreType:EMULATOR_CORE_TYPE_GBA].lastPathComponent ?: @"Required";
     NSString *gbBios = [[AURDatabaseManager sharedManager] BIOSPathForCoreType:EMULATOR_CORE_TYPE_GB].lastPathComponent ?: @"Optional";
+    NSString *ndsArm9Bios = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"nds_arm9"].lastPathComponent ?: @"Required (4KB)";
+    NSString *ndsArm7Bios = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"nds_arm7"].lastPathComponent ?: @"Required (16KB)";
 
     self.sections = @[
         @{@"title": @"User Interface", @"items": @[@"Appearance", @"App Icon"]},
-        @{@"title": @"Core Settings (BIOS)", @"items": @[@"GBA BIOS", @"GB/GBC BIOS"], @"details": @[gbaBios, gbBios]},
+        @{@"title": @"Core Settings (BIOS)", @"items": @[@"GBA BIOS", @"GB/GBC BIOS", @"NDS ARM9 BIOS", @"NDS ARM7 BIOS"], @"details": @[gbaBios, gbBios, ndsArm9Bios, ndsArm7Bios]},
         @{@"title": @"Controllers", @"items": @[@"Preferred Skins", @"Import Skin"]},
         @{@"title": @"About", @"items": @[@"Version 1.0"]}
     ];
@@ -82,8 +85,19 @@
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
 
     if (indexPath.section == 1) {
-        if (indexPath.row == 0) self.pickingCoreType = EMULATOR_CORE_TYPE_GBA;
-        else if (indexPath.row == 1) self.pickingCoreType = EMULATOR_CORE_TYPE_GB;
+        if (indexPath.row == 0) {
+            self.pickingCoreType = EMULATOR_CORE_TYPE_GBA;
+            self.pickingBIOSIdentifier = @"gba";
+        } else if (indexPath.row == 1) {
+            self.pickingCoreType = EMULATOR_CORE_TYPE_GB;
+            self.pickingBIOSIdentifier = @"gb";
+        } else if (indexPath.row == 2) {
+            self.pickingCoreType = EMULATOR_CORE_TYPE_NDS;
+            self.pickingBIOSIdentifier = @"nds_arm9";
+        } else if (indexPath.row == 3) {
+            self.pickingCoreType = EMULATOR_CORE_TYPE_NDS;
+            self.pickingBIOSIdentifier = @"nds_arm7";
+        }
 
         UIDocumentPickerViewController *picker = [[UIDocumentPickerViewController alloc] initForOpeningContentTypes:@[UTTypeData] asCopy:YES];
         picker.delegate = self;
@@ -117,7 +131,11 @@
                 }
             }];
         } else {
-            [[AURDatabaseManager sharedManager] setBIOSPath:url.path forCoreType:self.pickingCoreType];
+            if (self.pickingBIOSIdentifier.length > 0) {
+                [[AURDatabaseManager sharedManager] setBIOSPath:url.path forIdentifier:self.pickingBIOSIdentifier];
+            } else {
+                [[AURDatabaseManager sharedManager] setBIOSPath:url.path forCoreType:self.pickingCoreType];
+            }
             [self updateSections];
             [self.tableView reloadData];
         }

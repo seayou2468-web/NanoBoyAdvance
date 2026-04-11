@@ -168,8 +168,4 @@ extern std::unique_ptr<Renderer3D> CurrentRenderer;
 
 #include "GPU3D_Soft.h"
 
-#ifdef OGLRENDERER_ENABLED
-#include "GPU3D_OpenGL.h"
-#endif
-
 #endif

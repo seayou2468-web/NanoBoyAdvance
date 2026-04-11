@@ -81,10 +81,6 @@ u32 ARM7Regions[0x20000];
 ARMv5* ARM9;
 ARMv4* ARM7;
 
-#ifdef JIT_ENABLED
-bool EnableJIT;
-#endif
-
 u32 NumFrames;
 u32 NumLagFrames;
 bool LagFrameFlag;
@@ -505,10 +501,6 @@ void Reset()
 {
     FILE* f;
     u32 i;
-
-#ifdef JIT_ENABLED
-    EnableJIT = Platform::GetConfigBool(Platform::JIT_Enable);
-#endif
 
     RunningGame = false;
     LastSysClockCycles = 0;
@@ -1043,7 +1035,7 @@ void RunSystem(u64 timestamp)
     }
 }
 
-template <bool EnableJIT, int ConsoleType>
+template <int ConsoleType>
 u32 RunFrame()
 {
     FrameStartTimestamp = SysTimestamp;
@@ -1077,12 +1069,7 @@ u32 RunFrame()
             }
             else
             {
-#ifdef JIT_ENABLED
-                if (EnableJIT)
-                    ARM9->ExecuteJIT();
-                else
-#endif
-                    ARM9->Execute();
+                ARM9->Execute();
             }
 
             RunTimers(0);
@@ -1105,12 +1092,7 @@ u32 RunFrame()
                 }
                 else
                 {
-#ifdef JIT_ENABLED
-                    if (EnableJIT)
-                        ARM7->ExecuteJIT();
-                    else
-#endif
-                        ARM7->Execute();
+                    ARM7->Execute();
                 }
 
                 RunTimers(1);
@@ -1127,13 +1109,6 @@ u32 RunFrame()
             }
         }
 
-#ifdef DEBUG_CHECK_DESYNC
-        printf("[%08X%08X] ARM9=%ld, ARM7=%ld, GPU=%ld\n",
-            (u32)(SysTimestamp>>32), (u32)SysTimestamp,
-            (ARM9Timestamp>>1)-SysTimestamp,
-            ARM7Timestamp-SysTimestamp,
-            GPU3D::Timestamp-SysTimestamp);
-#endif
         SPU::TransferOutput();
     }
 
@@ -1151,16 +1126,9 @@ u32 RunFrame()
 
 u32 RunFrame()
 {
-#ifdef JIT_ENABLED
-    if (EnableJIT)
-        return NDS::ConsoleType == 1
-            ? RunFrame<true, 1>()
-            : RunFrame<true, 0>();
-    else
-#endif
-        return NDS::ConsoleType == 1
-            ? RunFrame<false, 1>()
-            : RunFrame<false, 0>();
+    return NDS::ConsoleType == 1
+        ? RunFrame<1>()
+        : RunFrame<0>();
 }
 
 void Reschedule(u64 target)
@@ -1982,58 +1950,6 @@ void StartSqrt()
     SqrtCnt |= 0x8000;
     NDS::ScheduleEvent(NDS::Event_Sqrt, false, 13, SqrtDone, 0);
 }
-
-
-
-void debug(u32 param)
-{
-    printf("ARM9 PC=%08X LR=%08X %08X\n", ARM9->R[15], ARM9->R[14], ARM9->R_IRQ[1]);
-    printf("ARM7 PC=%08X LR=%08X %08X\n", ARM7->R[15], ARM7->R[14], ARM7->R_IRQ[1]);
-
-    printf("ARM9 IME=%08X IE=%08X IF=%08X\n", IME[0], IE[0], IF[0]);
-    printf("ARM7 IME=%08X IE=%08X IF=%08X IE2=%04X IF2=%04X\n", IME[1], IE[1], IF[1], IE2, IF2);
-
-    //for (int i = 0; i < 9; i++)
-    //    printf("VRAM %c: %02X\n", 'A'+i, GPU::VRAMCNT[i]);
-
-    FILE*
-    shit = fopen("debug/crayon.bin", "wb");
-    fwrite(ARM9->ITCM, 0x8000, 1, shit);
-    for (u32 i = 0x02000000; i < 0x02400000; i+=4)
-    {
-        u32 val = ARM7Read32(i);
-        fwrite(&val, 4, 1, shit);
-    }
-    for (u32 i = 0x037F0000; i < 0x03810000; i+=4)
-    {
-        u32 val = ARM7Read32(i);
-        fwrite(&val, 4, 1, shit);
-    }
-    for (u32 i = 0x06000000; i < 0x06040000; i+=4)
-    {
-        u32 val = ARM7Read32(i);
-        fwrite(&val, 4, 1, shit);
-    }
-    fclose(shit);
-
-    /*FILE*
-    shit = fopen("debug/directboot9.bin", "wb");
-    for (u32 i = 0x02000000; i < 0x04000000; i+=4)
-    {
-        u32 val = DSi::ARM9Read32(i);
-        fwrite(&val, 4, 1, shit);
-    }
-    fclose(shit);
-    shit = fopen("debug/camera7.bin", "wb");
-    for (u32 i = 0x02000000; i < 0x04000000; i+=4)
-    {
-        u32 val = DSi::ARM7Read32(i);
-        fwrite(&val, 4, 1, shit);
-    }
-    fclose(shit);*/
-}
-
-
 
 u8 ARM9Read8(u32 addr)
 {

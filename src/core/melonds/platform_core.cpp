@@ -37,6 +37,20 @@ std::unordered_map<int, bool> g_config_bool;
 std::unordered_map<int, std::string> g_config_string;
 std::unordered_map<int, std::vector<u8>> g_config_array;
 
+const std::filesystem::path& SourceRoot() {
+  static const std::filesystem::path root =
+      std::filesystem::path(__FILE__).parent_path();
+  return root;
+}
+
+std::filesystem::path ResolvePath(std::string_view path) {
+  std::filesystem::path candidate(path);
+  if (candidate.is_absolute()) {
+    return candidate;
+  }
+  return SourceRoot() / candidate;
+}
+
 }  // namespace
 
 void SetConfigInt(ConfigEntry entry, int value) {
@@ -99,10 +113,11 @@ bool GetConfigArray(ConfigEntry entry, void* data) {
 }
 
 FILE* OpenFile(std::string path, std::string mode, bool mustexist) {
-  if (mustexist && !std::filesystem::exists(path)) {
+  const std::filesystem::path resolved = ResolvePath(path);
+  if (mustexist && !std::filesystem::exists(resolved)) {
     return nullptr;
   }
-  return std::fopen(path.c_str(), mode.c_str());
+  return std::fopen(resolved.string().c_str(), mode.c_str());
 }
 
 FILE* OpenLocalFile(std::string path, std::string mode) {

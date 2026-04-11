@@ -100,11 +100,17 @@
             continue;
         }
 
+        NSString *entryName = [NSString stringWithUTF8String:file_stat.m_filename];
+        if (entryName.length == 0 || [entryName hasPrefix:@"/"] || [entryName containsString:@".."]) {
+            mz_zip_reader_end(&zip_archive);
+            return NO;
+        }
+
         if (mz_zip_reader_is_file_a_directory(&zip_archive, i)) {
-            NSString *dirPath = [dest stringByAppendingPathComponent:[NSString stringWithUTF8String:file_stat.m_filename]];
+            NSString *dirPath = [dest stringByAppendingPathComponent:entryName];
             [[NSFileManager defaultManager] createDirectoryAtPath:dirPath withIntermediateDirectories:YES attributes:nil error:nil];
         } else {
-            NSString *filePath = [dest stringByAppendingPathComponent:[NSString stringWithUTF8String:file_stat.m_filename]];
+            NSString *filePath = [dest stringByAppendingPathComponent:entryName];
             [[NSFileManager defaultManager] createDirectoryAtPath:[filePath stringByDeletingLastPathComponent] withIntermediateDirectories:YES attributes:nil error:nil];
 
             if (!mz_zip_reader_extract_to_file(&zip_archive, i, [filePath fileSystemRepresentation], 0)) {
