@@ -161,9 +161,9 @@ bool LoadROMFromMemory(Runtime& runtime, const void* rom_data, size_t rom_size, 
   }
 
   runtime.rom_data.assign(static_cast<const uint8_t*>(rom_data), static_cast<const uint8_t*>(rom_data) + rom_size);
-  runtime.rom_loaded = NDS::LoadCart(runtime.rom_data.data(), static_cast<uint32_t>(runtime.rom_data.size()), nullptr, 0);
   NDS::LoadBIOS();
-        if (!runtime.rom_loaded) {
+  runtime.rom_loaded = NDS::LoadCart(runtime.rom_data.data(), static_cast<uint32_t>(runtime.rom_data.size()), nullptr, 0);
+  if (!runtime.rom_loaded) {
     last_error = "melonDS failed to load NDS cart";
     return false;
   }

@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 
 #include <SDL.h>
 
@@ -13,6 +14,91 @@ enum {
   NDS_SCREEN_HEIGHT = 192,
   NDS_SCREEN_GAP = 8
 };
+
+typedef struct {
+  char bios9[1024];
+  char bios7[1024];
+  char firmware[1024];
+} NDSPersistentConfig;
+
+static void TrimTrailingWhitespace(char* text) {
+  if (text == NULL) {
+    return;
+  }
+  size_t len = strlen(text);
+  while (len > 0 && (text[len - 1] == '\n' || text[len - 1] == '\r' || text[len - 1] == ' ' || text[len - 1] == '\t')) {
+    text[len - 1] = '\0';
+    len--;
+  }
+}
+
+static const char* NDSConfigPath(void) {
+  static char path[1200];
+  const char* home = getenv("HOME");
+  if (home == NULL || home[0] == '\0') {
+    return NULL;
+  }
+  (void)snprintf(path, sizeof(path), "%s/.config/nanoboyadvance/nds_paths.cfg", home);
+  return path;
+}
+
+static void LoadNDSPersistentConfig(NDSPersistentConfig* config) {
+  if (config == NULL) {
+    return;
+  }
+  config->bios9[0] = '\0';
+  config->bios7[0] = '\0';
+  config->firmware[0] = '\0';
+
+  const char* path = NDSConfigPath();
+  if (path == NULL) {
+    return;
+  }
+  FILE* file = fopen(path, "r");
+  if (file == NULL) {
+    return;
+  }
+
+  char line[2300];
+  while (fgets(line, sizeof(line), file) != NULL) {
+    TrimTrailingWhitespace(line);
+    if (strncmp(line, "bios9=", 6) == 0) {
+      (void)snprintf(config->bios9, sizeof(config->bios9), "%s", line + 6);
+    } else if (strncmp(line, "bios7=", 6) == 0) {
+      (void)snprintf(config->bios7, sizeof(config->bios7), "%s", line + 6);
+    } else if (strncmp(line, "firmware=", 9) == 0) {
+      (void)snprintf(config->firmware, sizeof(config->firmware), "%s", line + 9);
+    }
+  }
+
+  fclose(file);
+}
+
+static void SaveNDSPersistentConfig(const NDSPersistentConfig* config) {
+  if (config == NULL) {
+    return;
+  }
+  const char* home = getenv("HOME");
+  const char* path = NDSConfigPath();
+  if (home == NULL || home[0] == '\0' || path == NULL) {
+    return;
+  }
+
+  char config_dir[1100];
+  (void)snprintf(config_dir, sizeof(config_dir), "%s/.config", home);
+  (void)mkdir(config_dir, 0755);
+  (void)snprintf(config_dir, sizeof(config_dir), "%s/.config/nanoboyadvance", home);
+  (void)mkdir(config_dir, 0755);
+
+  FILE* file = fopen(path, "w");
+  if (file == NULL) {
+    return;
+  }
+  fprintf(file, "bios9=%s\n", config->bios9);
+  fprintf(file, "bios7=%s\n", config->bios7);
+  fprintf(file, "firmware=%s\n", config->firmware);
+  fclose(file);
+}
 
 int main(int argc, char** argv) {
   if (argc < 2) {
@@ -39,7 +125,13 @@ int main(int argc, char** argv) {
   }
 
   if (core_type == EMULATOR_CORE_TYPE_NDS) {
+    NDSPersistentConfig persisted = {0};
+    LoadNDSPersistentConfig(&persisted);
+
     const char* bios9 = getenv("NDS_BIOS9_PATH");
+    if ((bios9 == NULL || bios9[0] == '\0') && persisted.bios9[0] != '\0') {
+      bios9 = persisted.bios9;
+    }
     if (bios9 != NULL && bios9[0] != '\0') {
       if (!EmulatorCore_LoadBIOSFromPath(core, bios9)) {
         const char* err = EmulatorCore_GetLastError(core);
@@ -47,9 +139,13 @@ int main(int argc, char** argv) {
         EmulatorCore_Destroy(core);
         return 1;
       }
+      (void)snprintf(persisted.bios9, sizeof(persisted.bios9), "%s", bios9);
     }
 
     const char* bios7 = getenv("NDS_BIOS7_PATH");
+    if ((bios7 == NULL || bios7[0] == '\0') && persisted.bios7[0] != '\0') {
+      bios7 = persisted.bios7;
+    }
     if (bios7 != NULL && bios7[0] != '\0') {
       if (!EmulatorCore_LoadBIOSFromPath(core, bios7)) {
         const char* err = EmulatorCore_GetLastError(core);
@@ -57,7 +153,24 @@ int main(int argc, char** argv) {
         EmulatorCore_Destroy(core);
         return 1;
       }
+      (void)snprintf(persisted.bios7, sizeof(persisted.bios7), "%s", bios7);
     }
+
+    const char* firmware = getenv("NDS_FIRMWARE_PATH");
+    if ((firmware == NULL || firmware[0] == '\0') && persisted.firmware[0] != '\0') {
+      firmware = persisted.firmware;
+    }
+    if (firmware != NULL && firmware[0] != '\0') {
+      if (!EmulatorCore_LoadBIOSFromPath(core, firmware)) {
+        const char* err = EmulatorCore_GetLastError(core);
+        fprintf(stderr, "EmulatorCore_LoadBIOSFromPath firmware failed: %s\n", err ? err : "unknown");
+        EmulatorCore_Destroy(core);
+        return 1;
+      }
+      (void)snprintf(persisted.firmware, sizeof(persisted.firmware), "%s", firmware);
+    }
+
+    SaveNDSPersistentConfig(&persisted);
   }
 
   EmulatorVideoSpec video_spec = {0};
