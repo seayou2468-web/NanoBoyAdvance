@@ -8,9 +8,14 @@
         self.imageView = [[UIImageView alloc] init];
         self.imageView.contentMode = UIViewContentModeScaleAspectFill;
         self.imageView.clipsToBounds = YES;
-        self.imageView.layer.cornerRadius = 10;
+        self.imageView.layer.cornerRadius = 18;
+        self.imageView.layer.cornerCurve = CALayerCornerCurveContinuous;
         self.imageView.backgroundColor = [UIColor colorWithWhite:0.15 alpha:1.0];
         [self.contentView addSubview:self.imageView];
+        self.imageView.layer.shadowColor = [UIColor blackColor].CGColor;
+        self.imageView.layer.shadowOpacity = 0.4;
+        self.imageView.layer.shadowOffset = CGSizeMake(0, 8);
+        self.imageView.layer.shadowRadius = 12;
 
         self.titleLabel = [[UILabel alloc] init];
         self.titleLabel.font = [UIFont systemFontOfSize:12 weight:UIFontWeightMedium];

@@ -1,3 +1,4 @@
+#import "../Views/AURBackgroundView.h"
 #import "AURLibraryViewController.h"
 #import "AURSettingsViewController.h"
 #import "AUREmulatorViewController.h"
@@ -11,43 +12,57 @@
 @property (nonatomic, strong) UICollectionView *collectionView;
 @property (nonatomic, strong) UISegmentedControl *segmentedControl;
 @property (nonatomic, strong) NSArray<AURGame *> *games;
+@property (nonatomic, strong) AURBackgroundView *backgroundView;
 @end
 
 @implementation AURLibraryViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.view.backgroundColor = [UIColor colorWithRed:0.05 green:0.06 blue:0.09 alpha:1.0];
-    self.title = @"Library";
+    self.view.backgroundColor = [UIColor blackColor];
 
-    // Setup Segmented Control for Systems
+    // Background Aurora View
+    self.backgroundView = [[AURBackgroundView alloc] initWithFrame:self.view.bounds];
+    [self.view addSubview:self.backgroundView];
+    self.backgroundView.translatesAutoresizingMaskIntoConstraints = NO;
+    [NSLayoutConstraint activateConstraints:@[
+        [self.backgroundView.topAnchor constraintEqualToAnchor:self.view.topAnchor],
+        [self.backgroundView.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor],
+        [self.backgroundView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
+        [self.backgroundView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor]
+    ]];
+
+    // Glassmorphic Navigation Bar appearance
+    UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
+    [appearance configureWithTransparentBackground];
+    appearance.backgroundEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleDark];
+    appearance.titleTextAttributes = @{NSForegroundColorAttributeName: [UIColor whiteColor], NSFontAttributeName: [UIFont systemFontOfSize:22 weight:UIFontWeightBold]};
+    self.navigationItem.standardAppearance = appearance;
+    self.navigationItem.scrollEdgeAppearance = appearance;
+    self.title = @"Aurora";
+
+    // ... (rest of the setup)
+
+    // Setup Segmented Control for Systems (Glassmorphic)
     self.segmentedControl = [[UISegmentedControl alloc] initWithItems:@[@"GBA", @"GBC", @"GB", @"NES", @"NDS"]];
     self.segmentedControl.selectedSegmentIndex = 0;
     [self.segmentedControl addTarget:self action:@selector(segmentChanged:) forControlEvents:UIControlEventValueChanged];
     self.navigationItem.titleView = self.segmentedControl;
 
-    // Appearance customization for segmented control (Delta-like)
-    NSDictionary *normalAttributes = @{NSForegroundColorAttributeName: [UIColor lightGrayColor]};
-    NSDictionary *selectedAttributes = @{NSForegroundColorAttributeName: [UIColor whiteColor]};
-    [self.segmentedControl setTitleTextAttributes:normalAttributes forState:UIControlStateNormal];
-    [self.segmentedControl setTitleTextAttributes:selectedAttributes forState:UIControlStateSelected];
+    // Appearance
+    self.segmentedControl.selectedSegmentTintColor = [UIColor colorWithWhite:1.0 alpha:0.2];
+    [self.segmentedControl setTitleTextAttributes:@{NSForegroundColorAttributeName: [UIColor whiteColor]} forState:UIControlStateNormal];
 
-    // Settings Button
-    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage systemImageNamed:@"gear"] style:UIBarButtonItemStylePlain target:self action:@selector(settingsTapped)];
-    self.navigationItem.leftBarButtonItem.tintColor = [UIColor systemPinkColor];
+    // Settings Button (Modern)
+    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage systemImageNamed:@"line.3.horizontal.circle.fill"] style:UIBarButtonItemStylePlain target:self action:@selector(settingsTapped)];
+    self.navigationItem.leftBarButtonItem.tintColor = [UIColor colorWithRed:0.0 green:1.0 blue:0.76 alpha:1.0]; // Aurora Cyan
 
     // Add Button
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addTapped)];
-    self.navigationItem.rightBarButtonItem.tintColor = [UIColor systemPinkColor];
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage systemImageNamed:@"plus.circle.fill"] style:UIBarButtonItemStylePlain target:self action:@selector(addTapped)];
+    self.navigationItem.rightBarButtonItem.tintColor = [UIColor colorWithRed:0.0 green:1.0 blue:0.76 alpha:1.0];
 
-    // Setup Collection View
-    CGFloat width = (self.view.bounds.size.width - 60) / 3;
-    UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
-    layout.itemSize = CGSizeMake(width, width * 1.5);
-    layout.sectionInset = UIEdgeInsetsMake(20, 20, 20, 20);
-    layout.minimumInteritemSpacing = 10;
-    layout.minimumLineSpacing = 20;
-
+    // Setup Collection View (Compositional Layout)
+    UICollectionViewCompositionalLayout *layout = [self _createLayout];
     self.collectionView = [[UICollectionView alloc] initWithFrame:self.view.bounds collectionViewLayout:layout];
     self.collectionView.delegate = self;
     self.collectionView.dataSource = self;
@@ -64,6 +79,21 @@
     ]];
 
     [self reloadData];
+}
+
+- (UICollectionViewCompositionalLayout *)_createLayout {
+    return [[UICollectionViewCompositionalLayout alloc] initWithSectionProvider:^NSCollectionLayoutSection * _Nullable(NSInteger sectionIndex, id<NSCollectionLayoutEnvironment>  _Nonnull layoutEnvironment) {
+        NSCollectionLayoutSize *itemSize = [NSCollectionLayoutSize sizeWithWidthDimension:[NSCollectionLayoutDimension fractionalWidthDimension:0.33] heightDimension:[NSCollectionLayoutDimension fractionalHeightDimension:1.0]];
+        NSCollectionLayoutItem *item = [NSCollectionLayoutItem itemWithLayoutSize:itemSize];
+        item.contentInsets = NSDirectionalEdgeInsetsMake(8, 8, 8, 8);
+
+        NSCollectionLayoutSize *groupSize = [NSCollectionLayoutSize sizeWithWidthDimension:[NSCollectionLayoutDimension fractionalWidthDimension:1.0] heightDimension:[NSCollectionLayoutDimension fractionalWidthDimension:0.5]];
+        NSCollectionLayoutGroup *group = [NSCollectionLayoutGroup horizontalGroupWithLayoutSize:groupSize subitems:@[item]];
+
+        NSCollectionLayoutSection *section = [NSCollectionLayoutSection sectionWithGroup:group];
+        section.contentInsets = NSDirectionalEdgeInsetsMake(16, 8, 16, 8);
+        return section;
+    }];
 }
 
 - (void)segmentChanged:(UISegmentedControl *)sender {

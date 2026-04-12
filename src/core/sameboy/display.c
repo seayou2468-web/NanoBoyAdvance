@@ -75,7 +75,7 @@ void GB_set_pixels_output(GB_gameboy_t *gb, uint32_t *output)
 
 /* FIFO functions */
 
-static inline unsigned fifo_size(GB_fifo_t *fifo)
+static inline __attribute__((always_inline)) unsigned fifo_size(GB_fifo_t *fifo)
 {
     return fifo->size;
 }
@@ -315,7 +315,7 @@ void GB_display_vblank(GB_gameboy_t *gb, GB_vblank_type_t type)
     GB_timing_sync(gb);
 }
 
-static inline void temperature_tint(double temperature, double *r, double *g, double *b)
+static inline __attribute__((always_inline)) void temperature_tint(double temperature, double *r, double *g, double *b)
 {
     if (temperature >= 0) {
         *r = 1;
@@ -335,22 +335,22 @@ static inline void temperature_tint(double temperature, double *r, double *g, do
     }
 }
 
-static inline uint8_t scale_channel(uint8_t x)
+static inline __attribute__((always_inline)) uint8_t scale_channel(uint8_t x)
 {
     return (x << 3) | (x >> 2);
 }
 
-static inline uint8_t scale_channel_with_curve(uint8_t x)
+static inline __attribute__((always_inline)) uint8_t scale_channel_with_curve(uint8_t x)
 {
     return inline_const(uint8_t[], {0,6,12,20,28,36,45,56,66,76,88,100,113,125,137,149,161,172,182,192,202,210,218,225,232,238,243,247,250,252,254,255})[x];
 }
 
-static inline uint8_t scale_channel_with_curve_agb(uint8_t x)
+static inline __attribute__((always_inline)) uint8_t scale_channel_with_curve_agb(uint8_t x)
 {
     return inline_const(uint8_t[], {0,3,8,14,20,26,33,40,47,54,62,70,78,86,94,103,112,120,129,138,147,157,166,176,185,195,205,215,225,235,245,255})[x];
 }
 
-static inline uint8_t scale_channel_with_curve_sgb(uint8_t x)
+static inline __attribute__((always_inline)) uint8_t scale_channel_with_curve_sgb(uint8_t x)
 {
     return inline_const(uint8_t[], {0,2,5,9,15,20,27,34,42,50,58,67,76,85,94,104,114,123,133,143,153,163,173,182,192,202,211,220,229,238,247,255})[x];
 }
@@ -596,7 +596,7 @@ void GB_lcd_off(GB_gameboy_t *gb)
     }
 }
 
-static inline uint8_t oam_read(GB_gameboy_t *gb, uint8_t addr)
+static inline __attribute__((always_inline)) uint8_t oam_read(GB_gameboy_t *gb, uint8_t addr)
 {
     if (unlikely(gb->oam_ppu_blocked)) {
         return 0xFF;
@@ -803,7 +803,7 @@ static void render_pixel_if_possible(GB_gameboy_t *gb)
     gb->lcd_x++;
 }
 
-static inline void dma_sync(GB_gameboy_t *gb, unsigned *cycles)
+static inline __attribute__((always_inline)) void dma_sync(GB_gameboy_t *gb, unsigned *cycles)
 {
     if (unlikely(GB_is_dma_active(gb))) {
         unsigned offset = *cycles - gb->display_cycles; // Time passed in 8MHz ticks
@@ -820,12 +820,12 @@ static inline void dma_sync(GB_gameboy_t *gb, unsigned *cycles)
     }
 }
 
-static inline uint8_t fetcher_y(GB_gameboy_t *gb)
+static inline __attribute__((always_inline)) uint8_t fetcher_y(GB_gameboy_t *gb)
 {
     return gb->wx_triggered? gb->window_y : gb->current_line + gb->io_registers[GB_IO_SCY];
 }
 
-static inline uint8_t vram_read(GB_gameboy_t *gb, uint16_t addr)
+static inline __attribute__((always_inline)) uint8_t vram_read(GB_gameboy_t *gb, uint16_t addr)
 {
     if (unlikely(gb->vram_ppu_blocked)) {
         return 0xFF;
@@ -1128,7 +1128,7 @@ static uint16_t get_object_line_address(GB_gameboy_t *gb, uint8_t y, uint8_t til
     return line_address;
 }
 
-static inline uint8_t flip(uint8_t x)
+static inline __attribute__((always_inline)) uint8_t flip(uint8_t x)
 {
     x = (x & 0xF0) >> 4 | (x & 0x0F) << 4;
     x = (x & 0xCC) >> 2 | (x & 0x33) << 2;
@@ -1136,7 +1136,7 @@ static inline uint8_t flip(uint8_t x)
     return x;
 }
 
-static inline void get_tile_data(const GB_gameboy_t *gb, uint8_t tile_x, uint8_t y, uint16_t map, uint8_t *attributes, uint8_t *data0, uint8_t *data1)
+static inline __attribute__((always_inline)) void get_tile_data(const GB_gameboy_t *gb, uint8_t tile_x, uint8_t y, uint16_t map, uint8_t *attributes, uint8_t *data0, uint8_t *data1)
 {
     uint8_t current_tile = gb->vram[map + (tile_x & 0x1F) + y / 8 * 32];
     *attributes = GB_is_cgb(gb)? gb->vram[0x2000 + map + (tile_x & 0x1F) + y / 8 * 32] : 0;
@@ -1472,7 +1472,7 @@ object_buffer_pointer++\
     }
 }
 
-static inline uint16_t mode3_batching_length(GB_gameboy_t *gb)
+static inline __attribute__((always_inline)) uint16_t mode3_batching_length(GB_gameboy_t *gb)
 {
     if (gb->position_in_line != (uint8_t)-16) return 0;
     if (gb->model & GB_MODEL_NO_SFC_BIT) return 0;
@@ -1509,7 +1509,7 @@ static inline uint16_t mode3_batching_length(GB_gameboy_t *gb)
     return 0;
 }
 
-static inline uint8_t x_for_object_match(GB_gameboy_t *gb)
+static inline __attribute__((always_inline)) uint8_t x_for_object_match(GB_gameboy_t *gb)
 {
     uint8_t ret = gb->position_in_line + 8;
     if (ret > (uint8_t)-16) return 0;

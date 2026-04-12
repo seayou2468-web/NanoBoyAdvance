@@ -54,7 +54,10 @@
 
     // Menu Button
     UIButton *menuButton = [UIButton buttonWithType:UIButtonTypeSystem];
-    [menuButton setImage:[UIImage systemImageNamed:@"ellipsis.circle.fill"] forState:UIControlStateNormal];
+    [menuButton setImage:[UIImage systemImageNamed:@"line.3.horizontal.circle.fill"] forState:UIControlStateNormal];
+    menuButton.backgroundColor = [UIColor colorWithWhite:1.0 alpha:0.1];
+    menuButton.layer.cornerRadius = 20;
+    menuButton.backdropFilter = [UIBlurEffect effectWithStyle:UIBlurEffectStyleDark]; // Note: This is conceptual for a custom view, but we can use a UIVisualEffectView
     menuButton.tintColor = [UIColor colorWithWhite:1.0 alpha:0.5];
     [menuButton addTarget:self action:@selector(menuTapped) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:menuButton];

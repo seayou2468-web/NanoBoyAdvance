@@ -573,7 +573,7 @@ s32 Channel::Run()
     return val;
 }
 
-void Channel::PanOutput(s32 in, s32& left, s32& right)
+inline void Channel::PanOutput(s32 in, s32& left, s32& right) __attribute__((always_inline))
 {
     left += ((s64)in * (128-Pan)) >> 10;
     right += ((s64)in * Pan) >> 10;
@@ -734,7 +734,7 @@ void Mix(u32 dummy)
         for (int i = 4; i < 16; i++)
         {
             Channel* chan = Channels[i];
-
+            if (__builtin_expect(!(chan->Cnt & (1<<31)), 1)) continue;
             s32 channel = chan->DoRun();
             chan->PanOutput(channel, left, right);
         }

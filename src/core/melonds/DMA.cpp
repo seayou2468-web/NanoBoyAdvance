@@ -562,7 +562,7 @@ void DMA::Run9()
             NDS::ARM9Timestamp += (UnitTimings9_16(burststart) << NDS::ARM9ClockShift);
             burststart = false;
 
-            if (ConsoleType == 1)
+            if (__builtin_expect(ConsoleType == 1, 0))
                 DSi::ARM9Write16(CurDstAddr, DSi::ARM9Read16(CurSrcAddr));
             else
                 NDS::ARM9Write16(CurDstAddr, NDS::ARM9Read16(CurSrcAddr));
@@ -582,7 +582,7 @@ void DMA::Run9()
             NDS::ARM9Timestamp += (UnitTimings9_32(burststart) << NDS::ARM9ClockShift);
             burststart = false;
 
-            if (ConsoleType == 1)
+            if (__builtin_expect(ConsoleType == 1, 0))
                 DSi::ARM9Write32(CurDstAddr, DSi::ARM9Read32(CurSrcAddr));
             else
                 NDS::ARM9Write32(CurDstAddr, NDS::ARM9Read32(CurSrcAddr));
@@ -642,7 +642,7 @@ void DMA::Run7()
             NDS::ARM7Timestamp += UnitTimings7_16(burststart);
             burststart = false;
 
-            if (ConsoleType == 1)
+            if (__builtin_expect(ConsoleType == 1, 0))
                 DSi::ARM7Write16(CurDstAddr, DSi::ARM7Read16(CurSrcAddr));
             else
                 NDS::ARM7Write16(CurDstAddr, NDS::ARM7Read16(CurSrcAddr));
@@ -662,7 +662,7 @@ void DMA::Run7()
             NDS::ARM7Timestamp += UnitTimings7_32(burststart);
             burststart = false;
 
-            if (ConsoleType == 1)
+            if (__builtin_expect(ConsoleType == 1, 0))
                 DSi::ARM7Write32(CurDstAddr, DSi::ARM7Read32(CurSrcAddr));
             else
                 NDS::ARM7Write32(CurDstAddr, NDS::ARM7Read32(CurSrcAddr));

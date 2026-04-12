@@ -83,7 +83,7 @@ template<int mode> void PPU::DrawBackgroundImpl(int cycles) {
     if constexpr(mode <= 1) {
       const uint id = cycle & 3U; // BG0 - BG3
 
-      if((id <= 1 || mode == 0) && (latched_dispcnt_and_current_dispcnt & (256U << id))) {
+      if(__builtin_expect((id <= 1 || mode == 0) && (latched_dispcnt_and_current_dispcnt & (256U << id)), 1)) {
         RenderMode0BG(id, cycle);
       }
     }
