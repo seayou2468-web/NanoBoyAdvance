@@ -79,13 +79,13 @@
             [self.ndsContainerView.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor constant:8.0],
             [self.ndsContainerView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor constant:12.0],
             [self.ndsContainerView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor constant:-12.0],
-            [self.ndsContainerView.heightAnchor constraintEqualToAnchor:self.view.heightAnchor multiplier:0.52],
+            [self.ndsContainerView.heightAnchor constraintEqualToAnchor:self.view.heightAnchor multiplier:0.58],
 
             [self.imageView.topAnchor constraintEqualToAnchor:self.ndsContainerView.topAnchor],
             [self.imageView.leadingAnchor constraintEqualToAnchor:self.ndsContainerView.leadingAnchor],
             [self.imageView.trailingAnchor constraintEqualToAnchor:self.ndsContainerView.trailingAnchor],
 
-            [self.ndsBottomImageView.topAnchor constraintEqualToAnchor:self.imageView.bottomAnchor constant:12.0],
+            [self.ndsBottomImageView.topAnchor constraintEqualToAnchor:self.imageView.bottomAnchor constant:10.0],
             [self.ndsBottomImageView.leadingAnchor constraintEqualToAnchor:self.ndsContainerView.leadingAnchor],
             [self.ndsBottomImageView.trailingAnchor constraintEqualToAnchor:self.ndsContainerView.trailingAnchor],
             [self.ndsBottomImageView.heightAnchor constraintEqualToAnchor:self.imageView.heightAnchor],
@@ -113,7 +113,6 @@
     [self.view layoutIfNeeded]; // Ensure bounds are set before applying skin
 
     [self startEmulator];
-    [self.controllerView applySkin:[[AURSkinManager sharedManager] skinForCoreType:_coreType isLandscape:NO]];
 
     [AURExternalControllerManager sharedManager].delegate = self;
     [[AURExternalControllerManager sharedManager] startMonitoring];
@@ -219,6 +218,16 @@
 - (void)inGameMenuDidSelectAction:(NSString *)action {
     if ([action isEqualToString:@"Quit Game"]) {
         [self dismissViewControllerAnimated:YES completion:nil];
+    }
+}
+
+
+- (void)viewDidLayoutSubviews {
+    [super viewDidLayoutSubviews];
+    static BOOL skinApplied = NO;
+    if (!skinApplied && self.view.bounds.size.width > 0) {
+        [self.controllerView applySkin:[[AURSkinManager sharedManager] skinForCoreType:_coreType isLandscape:NO]];
+        skinApplied = YES;
     }
 }
 
