@@ -331,14 +331,114 @@ typedef struct {
     [self ensureResourcesWithWidth:width height:height];
     if (!_frameBuffer || !_sourceTexture || !_pipelineState || !_fastPipelineState || !_samplerState || !_colorLUT3D) return;
 
-    CAMetalLayer        *layer    = (CAMetalLayer *)self.layer;
-    id<CAMetalDrawable>  drawable = [layer nextDrawable];
-    if (!drawable) return;
-
     // GPU が詰まっている場合は新規フレームをスキップして入力遅延と発熱を抑える。
     if (dispatch_semaphore_wait(_inFlightSemaphore, DISPATCH_TIME_NOW) != 0) {
         return;
     }
+
+    CAMetalLayer        *layer    = (CAMetalLayer *)self.layer;
+    id<CAMetalDrawable>  drawable = [layer nextDrawable];
+    if (!drawable) {
+        dispatch_semaphore_signal(_inFlightSemaphore);
+        return;
+    }
+
+    // CPU → Shared Buffer (パディング行対応ライン毎コピー)
+    const NSUInteger tightBpr = width * sizeof(uint32_t);
+    const NSUInteger bpr      = _frameBytesPerRow;
+    uint8_t       *dst = (uint8_t *)_frameBuffer.contents;
+    const uint8_t *src = (const uint8_t *)pixels;
+    if (bpr == tightBpr) {
+        memcpy(dst, src, tightBpr * height);
+    } else {
+        for (NSUInteger y = 0; y < height; ++y) {
+            memcpy(dst + y * bpr, src + y * tightBpr, tightBpr);
+        }
+    }
+
+    id<MTLCommandBuffer> cb = [_commandQueue commandBuffer];
+    if (!cb) {
+        dispatch_semaphore_signal(_inFlightSemaphore);
+        return;
+    }
+
+    [cb addCompletedHandler:^(__unused id<MTLCommandBuffer> _Nonnull buffer) {
+        dispatch_semaphore_signal(self->_inFlightSemaphore);
+    }];
+
+    // Blit: Shared Buffer → Private Texture
+    id<MTLBlitCommandEncoder> blit = [cb blitCommandEncoder];
+    [blit copyFromBuffer:_frameBuffer
+            sourceOffset:0
+       sourceBytesPerRow:bpr
+     sourceBytesPerImage:bpr * height
+              sourceSize:MTLSizeMake(width, height, 1)
+               toTexture:_sourceTexture
+        destinationSlice:0
+        destinationLevel:0
+       destinationOrigin:MTLOriginMake(0, 0, 0)];
+    [blit endEncoding];
+
+    // Render Pass: Bicubic アップスケール + 色補正 → Drawable (実画面解像度)
+    MTLRenderPassDescriptor *rpd = [MTLRenderPassDescriptor renderPassDescriptor];
+    rpd.colorAttachments[0].texture     = drawable.texture;
+    rpd.colorAttachments[0].loadAction  = MTLLoadActionDontCare;
+    rpd.colorAttachments[0].storeAction = MTLStoreActionStore;
+
+    CGSize drawableSize = layer.drawableSize;
+    const float drawablePixels = (float)(drawableSize.width * drawableSize.height);
+    NSProcessInfo *pi = NSProcessInfo.processInfo;
+    BOOL shouldUseFastPath = pi.isLowPowerModeEnabled;
+    if (@available(iOS 11.0, *)) {
+        NSProcessInfoThermalState thermal = pi.thermalState;
+        shouldUseFastPath = shouldUseFastPath || (thermal >= NSProcessInfoThermalStateSerious);
+    }
+    // iPhone 12 mini 以降の高dpi端末でも過負荷を避けるため、
+    // 描画ピクセルが大きい場合は高速パスへ自動切り替え。
+    shouldUseFastPath = shouldUseFastPath || (drawablePixels > 2.7e6f);
+
+    if (_upscaleMode == AURUpscaleModeQuality) {
+        shouldUseFastPath = NO;
+    } else if (_upscaleMode == AURUpscaleModePerformance) {
+        shouldUseFastPath = YES;
+    }
+
+    float sat = _userSaturation;
+    float vib = _userVibrance;
+    float ctr = _userContrast;
+    float shp = _userSharpen;
+    float lut = _userLutMix;
+    if (shouldUseFastPath) {
+        sat = sat * 0.95f;
+        vib = vib * 0.65f;
+        ctr = ctr * 0.97f;
+        shp = 0.0f;
+        lut = lut * 0.35f;
+    }
+
+    AURPostProcessParams params = {
+        .sourceSize = { (float)width,              (float)height              },
+        .outputSize = { (float)drawableSize.width,  (float)drawableSize.height },
+        .saturation = sat,
+        .vibrance   = vib,
+        .contrast   = ctr,
+        .sharpen    = shp,
+        .lutMix     = lut,
+        ._pad       = 0.0f,
+    };
+
+    id<MTLRenderCommandEncoder> re = [cb renderCommandEncoderWithDescriptor:rpd];
+    [re setRenderPipelineState:(shouldUseFastPath ? _fastPipelineState : _pipelineState)];
+    [re setFragmentTexture:_sourceTexture atIndex:0];
+    [re setFragmentTexture:_colorLUT3D    atIndex:1];
+    [re setFragmentSamplerState:_samplerState atIndex:0];
+    [re setFragmentBytes:&params length:sizeof(params) atIndex:0];
+    [re drawPrimitives:MTLPrimitiveTypeTriangle vertexStart:0 vertexCount:3];
+    [re endEncoding];
+
+    [cb presentDrawable:drawable];
+    [cb commit];
+}
 
     // CPU → Shared Buffer (パディング行対応ライン毎コピー)
     const NSUInteger tightBpr = width * sizeof(uint32_t);

@@ -91,8 +91,8 @@ std::unique_ptr<Runtime> CreateRuntime() {
       Platform::DeInit();
       return nullptr;
     }
-    GPU::InitRenderer(0);
-GPU::RenderSettings render_settings{};
+        GPU::InitRenderer(0);
+    GPU::RenderSettings render_settings{};
     render_settings.Soft_Threaded = false;
     render_settings.GL_ScaleFactor = 1;
     render_settings.GL_BetterPolygons = false;
