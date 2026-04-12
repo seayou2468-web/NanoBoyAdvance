@@ -55,8 +55,8 @@ bool GetVideoSpec(EmulatorVideoSpec* out_spec) {
   if (out_spec == nullptr) {
     return false;
   }
-  out_spec->width = 256;
-  out_spec->height = 384;
+  out_spec->width = 512;
+  out_spec->height = 192;
   out_spec->pixel_format = EMULATOR_PIXEL_FORMAT_RGBA8888;
   return true;
 }

@@ -6,6 +6,7 @@
 #import "../Managers/AURExternalControllerManager.h"
 #import "../Metal.h"
 #import <QuartzCore/QuartzCore.h>
+#include <algorithm>
 #include <array>
 #include <cstring>
 
@@ -81,11 +82,11 @@
             [self.ndsContainerView.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor constant:8.0],
             [self.ndsContainerView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor constant:12.0],
             [self.ndsContainerView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor constant:-12.0],
-            [self.ndsContainerView.heightAnchor constraintEqualToAnchor:self.view.heightAnchor multiplier:0.52],
 
             [self.imageView.topAnchor constraintEqualToAnchor:self.ndsContainerView.topAnchor],
             [self.imageView.leadingAnchor constraintEqualToAnchor:self.ndsContainerView.leadingAnchor],
             [self.imageView.trailingAnchor constraintEqualToAnchor:self.ndsContainerView.trailingAnchor],
+            [self.imageView.heightAnchor constraintEqualToAnchor:self.imageView.widthAnchor multiplier:(192.0 / 256.0)],
 
             [self.ndsBottomImageView.topAnchor constraintEqualToAnchor:self.imageView.bottomAnchor constant:12.0],
             [self.ndsBottomImageView.leadingAnchor constraintEqualToAnchor:self.ndsContainerView.leadingAnchor],
@@ -122,6 +123,8 @@
 }
 
 - (void)startEmulator {
+    [self stopEmulator];
+
     _core = EmulatorCore_Create(_coreType);
     if (!_core) {
         NSLog(@"[AUR][Emu] failed to create core instance");
@@ -159,6 +162,16 @@
     }
 }
 
+- (void)stopEmulator {
+    _running = NO;
+    [self.displayLink invalidate];
+    self.displayLink = nil;
+    if (_core) {
+        EmulatorCore_Destroy(_core);
+        _core = nullptr;
+    }
+}
+
 - (void)gameLoop {
     if (!_running) return;
     EmulatorCore_StepFrame(_core);
@@ -179,11 +192,15 @@
         static std::array<uint32_t, kScreenPixels> splitTopFrame{};
         static std::array<uint32_t, kScreenPixels> splitBottomFrame{};
 
-        const size_t expectedPixels = (size_t)_videoSpec.width * (size_t)_videoSpec.height;
-        if (_videoSpec.width >= 512 && _videoSpec.height >= 192 && pixelCount >= expectedPixels) {
-            // 512x192 の横並びバッファ（左=上画面、右=下画面）を 256x192 x2 に分離する。
-            for (size_t y = 0; y < kScreenHeight; ++y) {
-                const uint32_t *row = frameRGBA + (y * (size_t)_videoSpec.width);
+        const size_t sourceWidth = (size_t)_videoSpec.width;
+        const size_t sourceHeight = (sourceWidth > 0) ? (pixelCount / sourceWidth) : 0;
+        if (sourceWidth >= (kScreenWidth * 2U) && sourceHeight > 0) {
+            // 横並びバッファ（左=上画面、右=下画面）を 256x192 x2 に分離する。
+            std::fill(splitTopFrame.begin(), splitTopFrame.end(), 0xFF000000U);
+            std::fill(splitBottomFrame.begin(), splitBottomFrame.end(), 0xFF000000U);
+            const size_t rowsToCopy = std::min((size_t)kScreenHeight, sourceHeight);
+            for (size_t y = 0; y < rowsToCopy; ++y) {
+                const uint32_t *row = frameRGBA + (y * sourceWidth);
                 std::memcpy(splitTopFrame.data() + (y * kScreenWidth), row, sizeof(uint32_t) * kScreenWidth);
                 std::memcpy(
                     splitBottomFrame.data() + (y * kScreenWidth),
@@ -212,8 +229,14 @@
 }
 
 - (void)dealloc {
-    [self.displayLink invalidate];
-    if (_core) EmulatorCore_Destroy(_core);
+    [self stopEmulator];
+}
+
+- (void)viewDidDisappear:(BOOL)animated {
+    [super viewDidDisappear:animated];
+    if (self.isBeingDismissed || self.isMovingFromParentViewController) {
+        [self stopEmulator];
+    }
 }
 
 #pragma mark - AURControllerViewDelegate
@@ -248,7 +271,14 @@
 
 - (void)inGameMenuDidSelectAction:(NSString *)action {
     if ([action isEqualToString:@"Quit Game"]) {
-        [self dismissViewControllerAnimated:YES completion:nil];
+        [self stopEmulator];
+        if (self.presentingViewController) {
+            [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
+        } else if (self.navigationController) {
+            [self.navigationController popViewControllerAnimated:YES];
+        } else {
+            [self dismissViewControllerAnimated:YES completion:nil];
+        }
     }
 }
 

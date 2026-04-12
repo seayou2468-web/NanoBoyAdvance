@@ -136,9 +136,9 @@
             }];
         } else {
             if (self.pickingBIOSIdentifier.length > 0) {
-                [[AURDatabaseManager sharedManager] setBIOSPath:url.path forIdentifier:self.pickingBIOSIdentifier];
+                [[AURDatabaseManager sharedManager] setBIOSURL:url forIdentifier:self.pickingBIOSIdentifier];
             } else {
-                [[AURDatabaseManager sharedManager] setBIOSPath:url.path forCoreType:self.pickingCoreType];
+                [[AURDatabaseManager sharedManager] setBIOSURL:url forCoreType:self.pickingCoreType];
             }
             [self updateSections];
             [self.tableView reloadData];
