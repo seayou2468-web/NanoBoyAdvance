@@ -42,13 +42,16 @@
     // Setup Metal View(s)
     self.imageView = [[AURMetalView alloc] initWithFrame:CGRectZero];
     if (_coreType == EMULATOR_CORE_TYPE_NDS) {
+        [self.imageView setFramePixelFormat:AURFramePixelFormatBGRA8888];
         self.ndsContainerView = [[UIView alloc] initWithFrame:CGRectZero];
         self.ndsContainerView.backgroundColor = [UIColor blackColor];
         self.ndsBottomImageView = [[AURMetalView alloc] initWithFrame:CGRectZero];
+        [self.ndsBottomImageView setFramePixelFormat:AURFramePixelFormatBGRA8888];
         [self.ndsContainerView addSubview:self.imageView];
         [self.ndsContainerView addSubview:self.ndsBottomImageView];
         [self.view addSubview:self.ndsContainerView];
     } else {
+        [self.imageView setFramePixelFormat:AURFramePixelFormatRGBA8888];
         [self.view addSubview:self.imageView];
     }
 

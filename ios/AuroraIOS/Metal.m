@@ -37,9 +37,28 @@ typedef struct {
 @property (nonatomic, assign) NSUInteger                 frameBytesPerRow;
 @property (nonatomic, assign) CGRect                     sourceRect;
 @property (nonatomic, assign) dispatch_semaphore_t       inFlightSemaphore;
+@property (nonatomic, assign) AURFramePixelFormat        framePixelFormat;
 @end
 
 @implementation AURMetalView
+
+static void AURFillIdentityLUT(float *lutData, NSUInteger width, NSUInteger height) {
+    if (!lutData || width != 16 || height != 256) {
+        return;
+    }
+    for (NSUInteger g = 0; g < 16; ++g) {
+        for (NSUInteger b = 0; b < 16; ++b) {
+            for (NSUInteger r = 0; r < 16; ++r) {
+                NSUInteger y = g * 16 + b;
+                NSUInteger idx = (y * width + r) * 4;
+                lutData[idx + 0] = (float)r / 15.0f;
+                lutData[idx + 1] = (float)g / 15.0f;
+                lutData[idx + 2] = (float)b / 15.0f;
+                lutData[idx + 3] = 1.0f;
+            }
+        }
+    }
+}
 
 + (Class)layerClass {
     return CAMetalLayer.class;
@@ -66,6 +85,7 @@ typedef struct {
     _userSharpen = 0.18f;
     _userLutMix = 0.15f;
     _sourceRect = CGRectMake(0, 0, 1, 1);
+    _framePixelFormat = AURFramePixelFormatRGBA8888;
     
     self.backgroundColor = [UIColor blackColor];
     self.opaque = YES;
@@ -275,6 +295,16 @@ typedef struct {
         NSLog(@"LUT テクスチャ生成エラー");
         return nil;
     }
+
+    const NSUInteger lutWidth = 16;
+    const NSUInteger lutHeight = 256;
+    const NSUInteger lutFloats = lutWidth * lutHeight * 4;
+    float *identityLUT = (float *)calloc(lutFloats, sizeof(float));
+    if (identityLUT) {
+        AURFillIdentityLUT(identityLUT, lutWidth, lutHeight);
+        [self setColorLUT3DData:identityLUT size:lutFloats];
+        free(identityLUT);
+    }
     
     return self;
 }
@@ -315,7 +345,10 @@ typedef struct {
         return;
     }
     
-    MTLTextureDescriptor *texDesc = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatRGBA8Unorm width:width height:height mipmapped:NO];
+    MTLPixelFormat sourcePixelFormat = (_framePixelFormat == AURFramePixelFormatBGRA8888)
+        ? MTLPixelFormatBGRA8Unorm
+        : MTLPixelFormatRGBA8Unorm;
+    MTLTextureDescriptor *texDesc = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:sourcePixelFormat width:width height:height mipmapped:NO];
     texDesc.usage = MTLTextureUsageShaderRead;
     texDesc.storageMode = MTLStorageModeShared;
     
@@ -474,6 +507,17 @@ typedef struct {
 
 - (void)setUpscaleMode:(AURUpscaleMode)m {
     _upscaleMode = m;
+}
+
+- (void)setFramePixelFormat:(AURFramePixelFormat)pixelFormat {
+    if (_framePixelFormat == pixelFormat) {
+        return;
+    }
+    _framePixelFormat = pixelFormat;
+    _frameWidth = 0;
+    _frameHeight = 0;
+    _frameBuffer = nil;
+    _sourceTexture = nil;
 }
 
 - (void)setColorLUT3DData:(const float *)data size:(NSUInteger)size {

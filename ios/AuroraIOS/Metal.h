@@ -10,6 +10,11 @@ typedef NS_ENUM(NSInteger, AURUpscaleMode) {
     AURUpscaleModePerformance = 2,
 };
 
+typedef NS_ENUM(NSInteger, AURFramePixelFormat) {
+    AURFramePixelFormatRGBA8888 = 0,
+    AURFramePixelFormatBGRA8888 = 1,
+};
+
 @interface AURMetalView : UIView
 - (void)displayFrameRGBA:(const uint32_t*)pixels
                    width:(NSUInteger)width
@@ -26,6 +31,7 @@ typedef NS_ENUM(NSInteger, AURUpscaleMode) {
                          sharpen:(float)sharpen
                           lutMix:(float)lutMix;
 - (void)setUpscaleMode:(AURUpscaleMode)mode;
+- (void)setFramePixelFormat:(AURFramePixelFormat)pixelFormat;
 @end
 
 NS_ASSUME_NONNULL_END

@@ -54,9 +54,16 @@ std::unique_ptr<Runtime> CreateRuntime() {
   if (g_in_use) return nullptr;
   if (!g_core_initialized) {
     Platform::Init(0, nullptr);
+    Platform::SetConfigBool(Platform::ExternalBIOSEnable, true);
+    Platform::SetConfigInt(Platform::AudioBitrate, 2);
     NDS::SetConsoleType(0);
     if (!NDS::Init()) { Platform::DeInit(); return nullptr; }
     GPU::InitRenderer(0);
+    GPU::RenderSettings render_settings{};
+    render_settings.Soft_Threaded = false;
+    render_settings.GL_ScaleFactor = 1;
+    render_settings.GL_BetterPolygons = false;
+    GPU::SetRenderSettings(0, render_settings);
     g_core_initialized = true;
   }
   auto r = std::make_unique<Runtime>();
@@ -80,6 +87,10 @@ bool LoadROMFromPath(Runtime& r, const char* p, std::string& err) {
 
 bool LoadROMFromMemory(Runtime& r, const void* d, size_t sz, std::string& err) {
   if (!r.initialized) return false;
+  if (d == nullptr || sz == 0 || sz > static_cast<size_t>(std::numeric_limits<uint32_t>::max())) {
+    err = "invalid ROM image";
+    return false;
+  }
   r.rom_data.assign((const uint8_t*)d, (const uint8_t*)d + sz);
   bool has_ext = !r.bios9_data.empty() && !r.bios7_data.empty();
   Platform::SetConfigBool(Platform::ExternalBIOSEnable, has_ext);
