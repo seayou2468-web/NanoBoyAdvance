@@ -12,6 +12,7 @@
         self.imageView.layer.cornerCurve = CALayerCornerCurveContinuous;
         self.imageView.backgroundColor = [UIColor colorWithWhite:0.15 alpha:1.0];
         [self.contentView addSubview:self.imageView];
+
         self.imageView.layer.shadowColor = [UIColor blackColor].CGColor;
         self.imageView.layer.shadowOpacity = 0.4;
         self.imageView.layer.shadowOffset = CGSizeMake(0, 8);
