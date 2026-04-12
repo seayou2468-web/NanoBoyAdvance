@@ -179,11 +179,12 @@
         static std::array<uint32_t, kScreenPixels> splitTopFrame{};
         static std::array<uint32_t, kScreenPixels> splitBottomFrame{};
 
-        const size_t expectedPixels = (size_t)_videoSpec.width * (size_t)_videoSpec.height;
-        if (_videoSpec.width >= 512 && _videoSpec.height >= 192 && pixelCount >= expectedPixels) {
+        const size_t sourceWidth = (size_t)_videoSpec.width;
+        const size_t sourceHeight = (sourceWidth > 0) ? (pixelCount / sourceWidth) : 0;
+        if (sourceWidth >= (kScreenWidth * 2U) && sourceHeight >= kScreenHeight && pixelCount >= (kScreenPixels * 2U)) {
             // 512x192 の横並びバッファ（左=上画面、右=下画面）を 256x192 x2 に分離する。
             for (size_t y = 0; y < kScreenHeight; ++y) {
-                const uint32_t *row = frameRGBA + (y * (size_t)_videoSpec.width);
+                const uint32_t *row = frameRGBA + (y * sourceWidth);
                 std::memcpy(splitTopFrame.data() + (y * kScreenWidth), row, sizeof(uint32_t) * kScreenWidth);
                 std::memcpy(
                     splitBottomFrame.data() + (y * kScreenWidth),
