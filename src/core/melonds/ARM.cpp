@@ -565,54 +565,53 @@ void ARMv5::Execute()
         }
     }
 
+
     while (NDS::ARM9Timestamp < NDS::ARM9Target)
     {
-        if (__builtin_expect(CPSR & 0x20, 0)) // THUMB (usually ARM is more common in hot loops?) actually DS uses both
+        for (int batch = 0; batch < 16 && NDS::ARM9Timestamp < NDS::ARM9Target; batch++)
         {
-            // prefetch
-            R[15] += 2;
-            CurInstr = NextInstr[0];
-            NextInstr[0] = NextInstr[1];
-            if (R[15] & 0x2) { NextInstr[1] >>= 16; CodeCycles = 0; }
-            else             NextInstr[1] = CodeRead32(R[15], false);
-
-            // actually execute
-            u32 icode = (CurInstr >> 6) & 0x3FF;
-            ARMInterpreter::THUMBInstrTable[icode](this);
-        }
-        else
-        {
-            // prefetch
-            R[15] += 4;
-            CurInstr = NextInstr[0];
-            NextInstr[0] = NextInstr[1];
-            NextInstr[1] = CodeRead32(R[15], false);
-
-            // actually execute
-            if (CheckCondition(CurInstr >> 28))
+            if (__builtin_expect(CPSR & 0x20, 0)) // THUMB
             {
-                u32 icode = ((CurInstr >> 4) & 0xF) | ((CurInstr >> 16) & 0xFF0);
-                ARMInterpreter::ARMInstrTable[icode](this);
-            }
-            else if ((CurInstr & 0xFE000000) == 0xFA000000)
-            {
-                ARMInterpreter::A_BLX_IMM(this);
+                // prefetch
+                R[15] += 2;
+                CurInstr = NextInstr[0];
+                NextInstr[0] = NextInstr[1];
+                if (R[15] & 0x2) { NextInstr[1] >>= 16; CodeCycles = 0; }
+                else             NextInstr[1] = CodeRead32(R[15], false);
+
+                // actually execute
+                u32 icode = (CurInstr >> 6) & 0x3FF;
+                ARMInterpreter::THUMBInstrTable[icode](this);
             }
             else
-                AddCycles_C();
+            {
+                // prefetch
+                R[15] += 4;
+                CurInstr = NextInstr[0];
+                NextInstr[0] = NextInstr[1];
+                NextInstr[1] = CodeRead32(R[15], false);
+
+                // actually execute
+                if (CheckCondition(CurInstr >> 28))
+                {
+                    u32 icode = ((CurInstr >> 4) & 0xF) | ((CurInstr >> 16) & 0xFF0);
+                    ARMInterpreter::ARMInstrTable[icode](this);
+                }
+                else if ((CurInstr & 0xFE000000) == 0xFA000000)
+                {
+                    ARMInterpreter::A_BLX_IMM(this);
+                }
+                else
+                    AddCycles_C();
+            }
+
+            if (__builtin_expect(Halted, 0)) break;
+            if (__builtin_expect(IRQ, 0)) { TriggerIRQ(); break; }
+
+            NDS::ARM9Timestamp += Cycles;
+            Cycles = 0;
         }
-
-        // TODO optimize this shit!!!
-        if (__builtin_expect(Halted, 0)) { if (Halted == 1) NDS::ARM9Timestamp = NDS::ARM9Target; break; }
-        /*if (NDS::IF[0] & NDS::IE[0])
-        {
-            if (NDS::IME[0] & 0x1)
-                TriggerIRQ();
-        }*/
-        if (__builtin_expect(IRQ, 0)) TriggerIRQ();
-
-        NDS::ARM9Timestamp += Cycles;
-        Cycles = 0;
+        if (__builtin_expect(Halted, 0)) break;
     }
 
     if (Halted == 2)
@@ -641,56 +640,49 @@ void ARMv4::Execute()
         }
     }
 
+
     while (NDS::ARM7Timestamp < NDS::ARM7Target)
     {
-        if (__builtin_expect(CPSR & 0x20, 0)) // THUMB (usually ARM is more common in hot loops?) actually DS uses both
+        for (int batch = 0; batch < 16 && NDS::ARM7Timestamp < NDS::ARM7Target; batch++)
         {
-            // prefetch
-            R[15] += 2;
-            CurInstr = NextInstr[0];
-            NextInstr[0] = NextInstr[1];
-            NextInstr[1] = CodeRead16(R[15]);
-
-            // actually execute
-            u32 icode = (CurInstr >> 6);
-            ARMInterpreter::THUMBInstrTable[icode](this);
-        }
-        else
-        {
-            // prefetch
-            R[15] += 4;
-            CurInstr = NextInstr[0];
-            NextInstr[0] = NextInstr[1];
-            NextInstr[1] = CodeRead32(R[15]);
-
-            // actually execute
-            if (CheckCondition(CurInstr >> 28))
+            if (__builtin_expect(CPSR & 0x20, 0)) // THUMB
             {
-                u32 icode = ((CurInstr >> 4) & 0xF) | ((CurInstr >> 16) & 0xFF0);
-                ARMInterpreter::ARMInstrTable[icode](this);
+                // prefetch
+                R[15] += 2;
+                CurInstr = NextInstr[0];
+                NextInstr[0] = NextInstr[1];
+                if (R[15] & 0x2) { NextInstr[1] >>= 16; CodeCycles = 0; }
+                else             NextInstr[1] = CodeRead16(R[15]);
+
+                // actually execute
+                u32 icode = (CurInstr >> 6) & 0x3FF;
+                ARMInterpreter::THUMBInstrTable[icode](this);
             }
             else
-                AddCycles_C();
-        }
-
-        // TODO optimize this shit!!!
-        if (Halted)
-        {
-            if (Halted == 1 && NDS::ARM7Timestamp < NDS::ARM7Target)
             {
-                NDS::ARM7Timestamp = NDS::ARM7Target;
-            }
-            break;
-        }
-        /*if (NDS::IF[1] & NDS::IE[1])
-        {
-            if (NDS::IME[1] & 0x1)
-                TriggerIRQ();
-        }*/
-        if (__builtin_expect(IRQ, 0)) TriggerIRQ();
+                // prefetch
+                R[15] += 4;
+                CurInstr = NextInstr[0];
+                NextInstr[0] = NextInstr[1];
+                NextInstr[1] = CodeRead32(R[15]);
 
-        NDS::ARM7Timestamp += Cycles;
-        Cycles = 0;
+                // actually execute
+                if (CheckCondition(CurInstr >> 28))
+                {
+                    u32 icode = ((CurInstr >> 4) & 0xF) | ((CurInstr >> 16) & 0xFF0);
+                    ARMInterpreter::ARMInstrTable[icode](this);
+                }
+                else
+                    AddCycles_C();
+            }
+
+            if (__builtin_expect(Halted, 0)) break;
+            if (__builtin_expect(IRQ, 0)) { TriggerIRQ(); break; }
+
+            NDS::ARM7Timestamp += Cycles;
+            Cycles = 0;
+        }
+        if (__builtin_expect(Halted, 0)) break;
     }
 
     if (Halted == 2)

@@ -1933,6 +1933,7 @@ void StartSqrt()
 
 u8 ARM9Read8(u32 addr)
 {
+    if (__builtin_expect((addr & 0xFF000000) == 0x02000000, 1)) return MainRAM[addr & MainRAMMask];
     if ((addr & 0xFFFFF000) == 0xFFFF0000)
     {
         return *(u8*)&ARM9BIOS[addr & 0xFFF];
@@ -1991,6 +1992,7 @@ u8 ARM9Read8(u32 addr)
 
 u16 ARM9Read16(u32 addr)
 {
+    if (__builtin_expect((addr & 0xFF000000) == 0x02000000, 1)) return *(u16*)&MainRAM[addr & MainRAMMask];
     addr &= ~0x1;
 
     if ((addr & 0xFFFFF000) == 0xFFFF0000)
@@ -2148,6 +2150,7 @@ void ARM9Write8(u32 addr, u8 val)
 
 void ARM9Write16(u32 addr, u16 val)
 {
+    if (__builtin_expect((addr & 0xFF000000) == 0x02000000, 1)) { *(u16*)&MainRAM[addr & MainRAMMask] = val; return; }
     addr &= ~0x1;
 
     switch (addr & 0xFF000000)
@@ -2205,6 +2208,7 @@ void ARM9Write16(u32 addr, u16 val)
 
 void ARM9Write32(u32 addr, u32 val)
 {
+    if (__builtin_expect((addr & 0xFF000000) == 0x02000000, 1)) { *(u32*)&MainRAM[addr & MainRAMMask] = val; return; }
     addr &= ~0x3;
 
     switch (addr & 0xFF000000)

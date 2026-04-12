@@ -17,6 +17,7 @@ struct Runtime {
   std::array<bool, 10> key_state{};
   std::vector<uint8_t> rom_storage;
   std::vector<uint8_t> bios_storage;
+  std::vector<uint8_t> gbc_bios_storage;
 };
 
 std::unique_ptr<Runtime> CreateRuntime();

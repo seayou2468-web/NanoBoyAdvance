@@ -14,7 +14,8 @@ struct SBA_Gameboy;
 typedef struct SBA_Gameboy SBA_Gameboy;
 
 typedef enum {
-  SBA_MODEL_CGB_E = 0x205,
+  SBA_MODEL_DMG_B = 0x1, // Game Boy
+  SBA_MODEL_CGB_E = 0x205, // Game Boy Color
 } SBA_Model;
 
 typedef enum {
@@ -35,6 +36,7 @@ int SBA_load_rom(SBA_Gameboy* gb, const char* path);
 void SBA_load_rom_from_buffer(SBA_Gameboy* gb, const uint8_t* buffer, size_t size);
 int SBA_load_boot_rom(SBA_Gameboy* gb, const char* path);
 void SBA_load_boot_rom_from_buffer(SBA_Gameboy* gb, const uint8_t* buffer, size_t size);
+void SBA_load_gbc_boot_rom_from_buffer(SBA_Gameboy* gb, const uint8_t* buffer, size_t size);
 uint64_t SBA_run_frame(SBA_Gameboy* gb);
 void SBA_set_key_state(SBA_Gameboy* gb, SBA_Key index, bool pressed);
 

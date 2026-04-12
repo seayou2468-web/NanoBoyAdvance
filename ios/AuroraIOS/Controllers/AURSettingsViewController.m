@@ -30,14 +30,22 @@
 }
 
 - (void)updateSections {
-    NSString *gbaBios = [[AURDatabaseManager sharedManager] BIOSPathForCoreType:EMULATOR_CORE_TYPE_GBA].lastPathComponent ?: @"Required";
-    NSString *gbBios = [[AURDatabaseManager sharedManager] BIOSPathForCoreType:EMULATOR_CORE_TYPE_GB].lastPathComponent ?: @"Optional";
+    NSString *gbaBios = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"gba"].lastPathComponent ?: @"Required";
+    NSString *gbBios = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"gb"].lastPathComponent ?: @"Optional";
+    NSString *gbcBios = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"gbc"].lastPathComponent ?: @"Optional";
     NSString *ndsArm9Bios = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"nds_arm9"].lastPathComponent ?: @"Required (4KB)";
     NSString *ndsArm7Bios = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"nds_arm7"].lastPathComponent ?: @"Required (16KB)";
-    NSString *ndsFirmware = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"nds_firmware"].lastPathComponent ?: @"Optional (128/256/512KB)";
+    NSString *ndsFirmware = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"nds_firmware"].lastPathComponent ?: @"Optional";
 
     self.sections = @[
         @{@"title": @"User Interface", @"items": @[@"Appearance", @"App Icon"]},
+        @{@"title": @"Core Settings (BIOS)",
+          @"items": @[@"GBA BIOS", @"GB BIOS", @"GBC BIOS", @"NDS ARM9 BIOS", @"NDS ARM7 BIOS", @"NDS Firmware"],
+          @"details": @[gbaBios, gbBios, gbcBios, ndsArm9Bios, ndsArm7Bios, ndsFirmware]},
+        @{@"title": @"Controllers", @"items": @[@"Preferred Skins", @"Import Skin"]},
+        @{@"title": @"About", @"items": @[@"Version 1.0"]}
+    ];
+},
         @{@"title": @"Core Settings (BIOS)", @"items": @[@"GBA BIOS", @"GB/GBC BIOS", @"NDS ARM9 BIOS", @"NDS ARM7 BIOS", @"NDS Firmware"], @"details": @[gbaBios, gbBios, ndsArm9Bios, ndsArm7Bios, ndsFirmware]},
         @{@"title": @"Controllers", @"items": @[@"Preferred Skins", @"Import Skin"]},
         @{@"title": @"About", @"items": @[@"Version 1.0"]}
@@ -85,11 +93,14 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
 
-    if (indexPath.section == 1) {
-        if (indexPath.row == 0) {
-            self.pickingCoreType = EMULATOR_CORE_TYPE_GBA;
-            self.pickingBIOSIdentifier = @"gba";
-        } else if (indexPath.row == 1) {
+        if (indexPath.section == 1) {
+        NSArray *ids = @[@"gba", @"gb", @"gbc", @"nds_arm9", @"nds_arm7", @"nds_firmware"];
+        self.pickingBIOSIdentifier = ids[indexPath.row];
+
+        UIDocumentPickerViewController *picker = [[UIDocumentPickerViewController alloc] initForOpeningContentTypes:@[UTTypeData] asCopy:YES];
+        picker.delegate = self;
+        [self presentViewController:picker animated:YES completion:nil];
+    } else if (indexPath.row == 1) {
             self.pickingCoreType = EMULATOR_CORE_TYPE_GB;
             self.pickingBIOSIdentifier = @"gb";
         } else if (indexPath.row == 2) {

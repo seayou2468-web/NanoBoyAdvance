@@ -52,21 +52,26 @@
         [self.view addSubview:self.imageView];
     }
 
-    // Menu Button
+    // Menu Button (Glassmorphic)
+    UIVisualEffectView *blurEffectView = [[UIVisualEffectView alloc] initWithEffect:[UIBlurEffect effectWithStyle:UIBlurEffectStyleDark]];
+    blurEffectView.frame = CGRectMake(0, 0, 40, 40);
+    blurEffectView.layer.cornerRadius = 20;
+    blurEffectView.clipsToBounds = YES;
+
     UIButton *menuButton = [UIButton buttonWithType:UIButtonTypeSystem];
     [menuButton setImage:[UIImage systemImageNamed:@"line.3.horizontal.circle.fill"] forState:UIControlStateNormal];
-    menuButton.backgroundColor = [UIColor colorWithWhite:1.0 alpha:0.1];
-    menuButton.layer.cornerRadius = 20;
-    menuButton.backdropFilter = [UIBlurEffect effectWithStyle:UIBlurEffectStyleDark]; // Note: This is conceptual for a custom view, but we can use a UIVisualEffectView
-    menuButton.tintColor = [UIColor colorWithWhite:1.0 alpha:0.5];
+    menuButton.tintColor = [UIColor colorWithRed:0.0 green:1.0 blue:0.76 alpha:1.0];
     [menuButton addTarget:self action:@selector(menuTapped) forControlEvents:UIControlEventTouchUpInside];
-    [self.view addSubview:menuButton];
-    menuButton.translatesAutoresizingMaskIntoConstraints = NO;
+    [blurEffectView.contentView addSubview:menuButton];
+    menuButton.frame = blurEffectView.bounds;
+
+    [self.view addSubview:blurEffectView];
+    blurEffectView.translatesAutoresizingMaskIntoConstraints = NO;
     [NSLayoutConstraint activateConstraints:@[
-        [menuButton.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor constant:10],
-        [menuButton.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor constant:-10],
-        [menuButton.widthAnchor constraintEqualToConstant:40],
-        [menuButton.heightAnchor constraintEqualToConstant:40]
+        [blurEffectView.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor constant:10],
+        [blurEffectView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor constant:-16],
+        [blurEffectView.widthAnchor constraintEqualToConstant:40],
+        [blurEffectView.heightAnchor constraintEqualToConstant:40]
     ]];
 
     // Setup Controller View
@@ -123,11 +128,23 @@
     _core = EmulatorCore_Create(_coreType);
     if (!_core) return;
 
-    NSString *biosPath = [[NSBundle mainBundle] pathForResource:@"bios9" ofType:@"bin"];
-    if (biosPath) {
-        if (!EmulatorCore_LoadBIOSFromPath(_core, biosPath.UTF8String)) {
-            NSLog(@"[AUR][Emu] BIOS load failed: %s", EmulatorCore_GetLastError(_core) ?: "unknown error");
-        }
+    // Load BIOS files from DatabaseManager (persisted in Documents)
+    if (_coreType == EMULATOR_CORE_TYPE_NDS) {
+        NSString *arm9 = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"nds_arm9"];
+        NSString *arm7 = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"nds_arm7"];
+        NSString *firm = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"nds_firmware"];
+        if (arm9) { if (!EmulatorCore_LoadBIOSFromPath(_core, arm9.UTF8String)) NSLog(@"[AUR][Emu] Failed to load ARM9 BIOS at %@", arm9); }
+        if (arm7) EmulatorCore_LoadBIOSFromPath(_core, arm7.UTF8String);
+        if (firm) EmulatorCore_LoadBIOSFromPath(_core, firm.UTF8String);
+    } else if (_coreType == EMULATOR_CORE_TYPE_GBA) {
+        NSString *gba = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"gba"];
+        if (gba) EmulatorCore_LoadBIOSFromPath(_core, gba.UTF8String);
+    } else if (_coreType == EMULATOR_CORE_TYPE_GB) {
+        // SameBoy core handles GB/GBC. Detect mode if needed, but for now just load what's available.
+        NSString *gb = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"gb"];
+        NSString *gbc = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"gbc"];
+        if (gb) EmulatorCore_LoadBIOSFromPath(_core, gb.UTF8String);
+        if (gbc) EmulatorCore_LoadBIOSFromPath(_core, gbc.UTF8String);
     }
 
     const char *path = self.romURL.path.fileSystemRepresentation;
