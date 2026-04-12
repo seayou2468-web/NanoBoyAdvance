@@ -118,6 +118,16 @@
     return nil;
 }
 
+- (NSString *)persistBIOSFileFromURL:(NSURL *)url storageKey:(NSString *)storageKey {
+    if (!url || !url.isFileURL) return nil;
+    BOOL didAccessSecurityScoped = [url startAccessingSecurityScopedResource];
+    NSString *stored = [self persistBIOSFileAtPath:url.path storageKey:storageKey];
+    if (didAccessSecurityScoped) {
+        [url stopAccessingSecurityScopedResource];
+    }
+    return stored;
+}
+
 - (NSArray<AURGame *> *)gamesForCoreType:(EmulatorCoreType)coreType {
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"coreType == %ld", (long)coreType];
     return [self.allGames filteredArrayUsingPredicate:predicate];
@@ -134,6 +144,14 @@
         self.biosPaths[@(coreType)] = stored;
     }
     [self saveDatabase];
+}
+
+- (void)setBIOSURL:(NSURL *)url forCoreType:(EmulatorCoreType)coreType {
+    NSString *stored = [self persistBIOSFileFromURL:url storageKey:[NSString stringWithFormat:@"core_%ld", (long)coreType]];
+    if (stored.length > 0) {
+        self.biosPaths[@(coreType)] = stored;
+        [self saveDatabase];
+    }
 }
 
 - (NSString *)BIOSPathForCoreType:(EmulatorCoreType)coreType {
@@ -159,6 +177,16 @@
         self.biosPaths[key] = stored;
     }
     [self saveDatabase];
+}
+
+- (void)setBIOSURL:(NSURL *)url forIdentifier:(NSString *)identifier {
+    NSNumber *key = [self biosStorageKeyForIdentifier:identifier];
+    if (!key) return;
+    NSString *stored = [self persistBIOSFileFromURL:url storageKey:[NSString stringWithFormat:@"id_%@", identifier]];
+    if (stored.length > 0) {
+        self.biosPaths[key] = stored;
+        [self saveDatabase];
+    }
 }
 
 - (NSString *)BIOSPathForIdentifier:(NSString *)identifier {
