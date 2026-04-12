@@ -77,6 +77,36 @@
     [payload writeToFile:dbPath atomically:YES];
 }
 
+- (NSString *)persistBIOSFileAtPath:(NSString *)path storageKey:(NSString *)storageKey {
+    if (path.length == 0 || storageKey.length == 0) return path;
+
+    NSString *docs = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES).firstObject;
+    NSString *biosDir = [docs stringByAppendingPathComponent:@"BIOS"];
+    NSFileManager *fm = [NSFileManager defaultManager];
+    NSError *dirError = nil;
+    [fm createDirectoryAtPath:biosDir withIntermediateDirectories:YES attributes:nil error:&dirError];
+    if (dirError) {
+        return path;
+    }
+
+    NSString *ext = path.pathExtension ?: @"";
+    NSString *fileName = ext.length > 0 ? [NSString stringWithFormat:@"%@.%@", storageKey, ext] : storageKey;
+    NSString *destPath = [biosDir stringByAppendingPathComponent:fileName];
+    if ([path isEqualToString:destPath]) {
+        return destPath;
+    }
+
+    NSError *copyError = nil;
+    if ([fm fileExistsAtPath:destPath]) {
+        [fm removeItemAtPath:destPath error:nil];
+    }
+    if ([fm copyItemAtPath:path toPath:destPath error:&copyError]) {
+        return destPath;
+    }
+
+    return path;
+}
+
 - (NSArray<AURGame *> *)gamesForCoreType:(EmulatorCoreType)coreType {
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"coreType == %ld", (long)coreType];
     return [self.allGames filteredArrayUsingPredicate:predicate];
@@ -88,12 +118,15 @@
 }
 
 - (void)setBIOSPath:(NSString *)path forCoreType:(EmulatorCoreType)coreType {
-    self.biosPaths[@(coreType)] = path;
+    NSString *stored = [self persistBIOSFileAtPath:path storageKey:[NSString stringWithFormat:@"core_%ld", (long)coreType]];
+    self.biosPaths[@(coreType)] = stored;
     [self saveDatabase];
 }
 
 - (NSString *)BIOSPathForCoreType:(EmulatorCoreType)coreType {
-    return self.biosPaths[@(coreType)];
+    NSString *path = self.biosPaths[@(coreType)];
+    if (path.length == 0) return nil;
+    return [[NSFileManager defaultManager] fileExistsAtPath:path] ? path : nil;
 }
 
 - (NSNumber *)biosStorageKeyForIdentifier:(NSString *)identifier {
@@ -108,14 +141,17 @@
 - (void)setBIOSPath:(NSString *)path forIdentifier:(NSString *)identifier {
     NSNumber *key = [self biosStorageKeyForIdentifier:identifier];
     if (!key) return;
-    self.biosPaths[key] = path;
+    NSString *stored = [self persistBIOSFileAtPath:path storageKey:[NSString stringWithFormat:@"id_%@", identifier]];
+    self.biosPaths[key] = stored;
     [self saveDatabase];
 }
 
 - (NSString *)BIOSPathForIdentifier:(NSString *)identifier {
     NSNumber *key = [self biosStorageKeyForIdentifier:identifier];
     if (!key) return nil;
-    return self.biosPaths[key];
+    NSString *path = self.biosPaths[key];
+    if (path.length == 0) return nil;
+    return [[NSFileManager defaultManager] fileExistsAtPath:path] ? path : nil;
 }
 
 @end

@@ -6,6 +6,7 @@
 #import "../Managers/AURExternalControllerManager.h"
 #import "../Metal.h"
 #import <QuartzCore/QuartzCore.h>
+#include <algorithm>
 #include <array>
 #include <cstring>
 
@@ -181,9 +182,12 @@
 
         const size_t sourceWidth = (size_t)_videoSpec.width;
         const size_t sourceHeight = (sourceWidth > 0) ? (pixelCount / sourceWidth) : 0;
-        if (sourceWidth >= (kScreenWidth * 2U) && sourceHeight >= kScreenHeight && pixelCount >= (kScreenPixels * 2U)) {
-            // 512x192 の横並びバッファ（左=上画面、右=下画面）を 256x192 x2 に分離する。
-            for (size_t y = 0; y < kScreenHeight; ++y) {
+        if (sourceWidth >= (kScreenWidth * 2U) && sourceHeight > 0) {
+            // 横並びバッファ（左=上画面、右=下画面）を 256x192 x2 に分離する。
+            std::fill(splitTopFrame.begin(), splitTopFrame.end(), 0xFF000000U);
+            std::fill(splitBottomFrame.begin(), splitBottomFrame.end(), 0xFF000000U);
+            const size_t rowsToCopy = std::min((size_t)kScreenHeight, sourceHeight);
+            for (size_t y = 0; y < rowsToCopy; ++y) {
                 const uint32_t *row = frameRGBA + (y * sourceWidth);
                 std::memcpy(splitTopFrame.data() + (y * kScreenWidth), row, sizeof(uint32_t) * kScreenWidth);
                 std::memcpy(
