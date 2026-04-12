@@ -178,9 +178,15 @@ bool LoadROMFromMemory(Runtime& runtime, const void* rom_data, size_t rom_size, 
     return false;
   }
 
-  runtime.rom_data.assign(static_cast<const uint8_t*>(rom_data), static_cast<const uint8_t*>(rom_data) + rom_size);
+    runtime.rom_data.assign(static_cast<const uint8_t*>(rom_data), static_cast<const uint8_t*>(rom_data) + rom_size);
   const bool has_external_bios = !runtime.bios9_data.empty() && !runtime.bios7_data.empty();
   Platform::SetConfigBool(Platform::ExternalBIOSEnable, has_external_bios);
+  if (has_external_bios) {
+    Platform::SetConfigString(Platform::BIOS9Path, runtime.bios9_path);
+    Platform::SetConfigString(Platform::BIOS7Path, runtime.bios7_path);
+    Platform::SetConfigString(Platform::FirmwarePath, runtime.firmware_path);
+  }
+
   NDS::LoadBIOS();
   runtime.rom_loaded = NDS::LoadCart(runtime.rom_data.data(), static_cast<uint32_t>(runtime.rom_data.size()), nullptr, 0);
   if (!runtime.rom_loaded) {

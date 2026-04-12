@@ -1,3 +1,6 @@
+#if defined(__ARM_NEON) || defined(__ARM_NEON__)
+#include <arm_neon.h>
+#endif
 /*
     Copyright 2016-2022 melonDS team
 
