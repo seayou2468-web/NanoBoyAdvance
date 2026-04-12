@@ -2058,10 +2058,9 @@ u32 ARM9Read32(u32 addr)
         return *(u32*)&ARM9BIOS[addr & 0xFFF];
     }
 
+    if (__builtin_expect((addr & 0xFF000000) == 0x02000000, 1)) return *(u32*)&MainRAM[addr & MainRAMMask];
     switch (addr & 0xFF000000)
     {
-    case 0x02000000:
-        return *(u32*)&MainRAM[addr & MainRAMMask];
 
     case 0x03000000:
         if (SWRAM_ARM9.Mem)
@@ -2114,11 +2113,9 @@ u32 ARM9Read32(u32 addr)
 
 void ARM9Write8(u32 addr, u8 val)
 {
+    if (__builtin_expect((addr & 0xFF000000) == 0x02000000, 1)) { *(u8*)&MainRAM[addr & MainRAMMask] = val; return; }
     switch (addr & 0xFF000000)
     {
-    case 0x02000000:
-        *(u8*)&MainRAM[addr & MainRAMMask] = val;
-        return;
 
     case 0x03000000:
         if (SWRAM_ARM9.Mem)

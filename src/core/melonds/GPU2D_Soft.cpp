@@ -1,3 +1,6 @@
+#if defined(__ARM_NEON) || defined(__ARM_NEON__)
+#include <arm_neon.h>
+#endif
 /*
     Copyright 2016-2022 melonDS team
 
@@ -215,8 +218,14 @@ void SoftRenderer::DrawScanline(u32 line, Unit* unit)
 
     if (forceblank)
     {
+#if defined(__ARM_NEON) || defined(__ARM_NEON__)
+        uint32x4_t white = vdupq_n_u32(0xFFFFFFFF);
+        for (int i = 0; i < 256; i+=4)
+            vst1q_u32(&dst[i], white);
+#else
         for (int i = 0; i < 256; i++)
             dst[i] = 0xFFFFFFFF;
+#endif
 
         if (GPU3D::CurrentRenderer->Accelerated)
         {
@@ -244,6 +253,10 @@ void SoftRenderer::DrawScanline(u32 line, Unit* unit)
     case 1: // regular display
         {
             int i = 0;
+#if defined(__ARM_NEON) || defined(__ARM_NEON__)
+            for (; i < (stride & ~3); i+=4)
+                vst1q_u32(&dst[i], vld1q_u32(&BGOBJLine[i]));
+#endif
             for (; i < (stride & ~1); i+=2)
                 *(u64*)&dst[i] = *(u64*)&BGOBJLine[i];
         }
@@ -741,8 +754,14 @@ void SoftRenderer::DrawScanline_BGOBJ(u32 line)
     // forced blank disables BG/OBJ compositing
     if (CurUnit->DispCnt & (1<<7))
     {
+#if defined(__ARM_NEON) || defined(__ARM_NEON__)
+        uint32x4_t blank = vdupq_n_u32(0xFF3F3F3F);
+        for (int i = 0; i < 256; i+=4)
+            vst1q_u32(&BGOBJLine[i], blank);
+#else
         for (int i = 0; i < 256; i++)
             BGOBJLine[i] = 0xFF3F3F3F;
+#endif
 
         return;
     }

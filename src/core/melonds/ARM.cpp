@@ -567,7 +567,7 @@ void ARMv5::Execute()
 
     while (NDS::ARM9Timestamp < NDS::ARM9Target)
     {
-        if (CPSR & 0x20) // THUMB
+        if (__builtin_expect(CPSR & 0x20, 0)) // THUMB (usually ARM is more common in hot loops?) actually DS uses both
         {
             // prefetch
             R[15] += 2;
@@ -603,20 +603,13 @@ void ARMv5::Execute()
         }
 
         // TODO optimize this shit!!!
-        if (Halted)
-        {
-            if (Halted == 1 && NDS::ARM9Timestamp < NDS::ARM9Target)
-            {
-                NDS::ARM9Timestamp = NDS::ARM9Target;
-            }
-            break;
-        }
+        if (__builtin_expect(Halted, 0)) { if (Halted == 1) NDS::ARM9Timestamp = NDS::ARM9Target; break; }
         /*if (NDS::IF[0] & NDS::IE[0])
         {
             if (NDS::IME[0] & 0x1)
                 TriggerIRQ();
         }*/
-        if (IRQ) TriggerIRQ();
+        if (__builtin_expect(IRQ, 0)) TriggerIRQ();
 
         NDS::ARM9Timestamp += Cycles;
         Cycles = 0;
@@ -650,7 +643,7 @@ void ARMv4::Execute()
 
     while (NDS::ARM7Timestamp < NDS::ARM7Target)
     {
-        if (CPSR & 0x20) // THUMB
+        if (__builtin_expect(CPSR & 0x20, 0)) // THUMB (usually ARM is more common in hot loops?) actually DS uses both
         {
             // prefetch
             R[15] += 2;
@@ -694,7 +687,7 @@ void ARMv4::Execute()
             if (NDS::IME[1] & 0x1)
                 TriggerIRQ();
         }*/
-        if (IRQ) TriggerIRQ();
+        if (__builtin_expect(IRQ, 0)) TriggerIRQ();
 
         NDS::ARM7Timestamp += Cycles;
         Cycles = 0;

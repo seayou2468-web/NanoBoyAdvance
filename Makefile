@@ -1,8 +1,8 @@
 CC       := cc
 CXX      := c++
 AR       := ar
-CFLAGS   := -O2 -std=c11 -Wall -Wextra -Wpedantic
-CXXFLAGS := -O2 -std=c++20 -Wall -Wextra -Wpedantic -ffunction-sections -fdata-sections -DMELONDS_VERSION=\"nba\" -Isrc/core/melonds/teakra/include
+CFLAGS   := -O3 -flto -ffast-math -std=c11 -Wall -Wextra -Wpedantic
+CXXFLAGS := -O3 -flto -ffast-math -std=c++20 -Wall -Wextra -Wpedantic -ffunction-sections -fdata-sections -DMELONDS_VERSION=\"nba\" -Isrc/core/melonds/teakra/include
 SDL_CFLAGS := $(shell pkg-config --cflags sdl2 2>/dev/null)
 SDL_LIBS   := $(shell pkg-config --libs sdl2 2>/dev/null)
 

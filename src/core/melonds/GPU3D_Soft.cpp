@@ -422,7 +422,7 @@ u32 AlphaBlend(u32 srccolor, u32 dstcolor, u32 alpha)
     return srcR | (srcG << 8) | (srcB << 16) | (dstalpha << 24);
 }
 
-u32 SoftRenderer::RenderPixel(Polygon* polygon, u8 vr, u8 vg, u8 vb, s16 s, s16 t)
+inline u32 SoftRenderer::RenderPixel(Polygon* polygon, u8 vr, u8 vg, u8 vb, s16 s, s16 t)
 {
     u8 r, g, b, a;
 

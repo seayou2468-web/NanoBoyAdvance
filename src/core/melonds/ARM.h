@@ -61,9 +61,9 @@ public:
 
     virtual void Execute() = 0;
 
-    bool CheckCondition(u32 code)
+    inline bool CheckCondition(u32 code) __attribute__((always_inline))
     {
-        if (code == 0xE) return true;
+        if (__builtin_expect(code == 0xE, 1)) return true;
         if (ConditionTable[code] & (1 << (CPSR>>28))) return true;
         return false;
     }

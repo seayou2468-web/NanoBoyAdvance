@@ -27,8 +27,9 @@
 // ── Uniform バッファ構造体 ─────────────────────────────────────────────────
 // Metal シェーダー側の struct Params と メンバー順・型・パディングを厳密に合わせること。
 typedef struct {
-    vector_float2 sourceSize;  //  8 bytes: GBA フレームサイズ (例: 240x160)
-    vector_float2 outputSize;  //  8 bytes: drawable のピクセルサイズ (実画面解像度)
+    vector_float2 sourceSize;
+    vector_float2 outputSize;
+    vector_float4 sourceRect;
     float         saturation;  //  4 bytes: 全体彩度倍率 (1.0 = 原色)
     float         vibrance;    //  4 bytes: Vibrance 強度 (彩度低い色だけ選択的ブースト)
     float         contrast;    //  4 bytes: コントラスト倍率 (1.0 = 無変化)
@@ -54,6 +55,7 @@ typedef struct {
 @property (nonatomic, assign) float                      userLutMix;
 @property (nonatomic, assign) NSUInteger                 frameWidth;
 @property (nonatomic, assign) NSUInteger                 frameHeight;
+@property (nonatomic, assign) CGRect                     sourceRect;
 @property (nonatomic, assign) NSUInteger                 frameBytesPerRow;
 @property (nonatomic, assign) dispatch_semaphore_t       inFlightSemaphore;
 @end
@@ -139,7 +141,7 @@ typedef struct {
     "}\n"
     "\n"
     // ── 頂点シェーダー ─────────────────────────────────────────────────────
-    "vertex VSOut v_main(uint vid [[vertex_id]]) {\n"
+    "vertex VSOut v_main(uint vid [[vertex_id]], constant Params& p [[buffer(0)]]) {\n"
     "  const float2 p[3] = { float2(-1,-1), float2(3,-1), float2(-1,3) };\n"
     "  float2 uv = p[vid] * 0.5 + 0.5;\n"
     "  VSOut o;\n"
@@ -324,9 +326,19 @@ typedef struct {
 }
 
 // ─── メインの描画エントリポイント ─────────────────────────────────────────
+
 - (void)displayFrameRGBA:(const uint32_t *)pixels
                    width:(NSUInteger)width
                   height:(NSUInteger)height {
+    [self displayFrameRGBA:pixels width:width height:height sourceRect:CGRectMake(0, 0, width, height)];
+}
+
+- (void)displayFrameRGBA:(const uint32_t *)pixels
+                   width:(NSUInteger)width
+                  height:(NSUInteger)height
+              sourceRect:(CGRect)sourceRect {
+    _sourceRect = sourceRect;
+
     if (!pixels || width == 0 || height == 0 || !_device || !_commandQueue) return;
     [self ensureResourcesWithWidth:width height:height];
     if (!_frameBuffer || !_sourceTexture || !_pipelineState || !_fastPipelineState || !_samplerState || !_colorLUT3D) return;
@@ -408,10 +420,17 @@ typedef struct {
         lut = lut * 0.35f;
     }
 
-    AURPostProcessParams params = {
+        AURPostProcessParams params = {
         .sourceSize = { (float)width,              (float)height              },
         .outputSize = { (float)drawableSize.width,  (float)drawableSize.height },
+        .source_rect = {
+            (float)(_sourceRect.origin.x / width),
+            (float)(_sourceRect.origin.y / height),
+            (float)(_sourceRect.size.width / width),
+            (float)(_sourceRect.size.height / height)
+        },
         .saturation = sat,
+
         .vibrance   = vib,
         .contrast   = ctr,
         .sharpen    = shp,
@@ -424,6 +443,7 @@ typedef struct {
     [re setFragmentTexture:_sourceTexture atIndex:0];
     [re setFragmentTexture:_colorLUT3D    atIndex:1];
     [re setFragmentSamplerState:_samplerState atIndex:0];
+    [re setVertexBytes:&params length:sizeof(params) atIndex:0];
     [re setFragmentBytes:&params length:sizeof(params) atIndex:0];
     [re drawPrimitives:MTLPrimitiveTypeTriangle vertexStart:0 vertexCount:3];
     [re endEncoding];

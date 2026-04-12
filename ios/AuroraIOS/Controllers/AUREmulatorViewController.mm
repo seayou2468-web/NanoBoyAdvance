@@ -52,7 +52,7 @@
         [self.view addSubview:self.imageView];
     }
 
-    // Menu Button (Delta-like)
+    // Menu Button
     UIButton *menuButton = [UIButton buttonWithType:UIButtonTypeSystem];
     [menuButton setImage:[UIImage systemImageNamed:@"ellipsis.circle.fill"] forState:UIControlStateNormal];
     menuButton.tintColor = [UIColor colorWithWhite:1.0 alpha:0.5];
@@ -101,10 +101,10 @@
         ]];
     } else {
         [NSLayoutConstraint activateConstraints:@[
-            [self.imageView.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor],
-            [self.imageView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
-            [self.imageView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],
-            [self.imageView.heightAnchor constraintEqualToAnchor:self.view.heightAnchor multiplier:0.4],
+            [self.imageView.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor constant:20.0],
+            [self.imageView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor constant:20.0],
+            [self.imageView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor constant:-20.0],
+            [self.imageView.heightAnchor constraintEqualToAnchor:self.imageView.widthAnchor multiplier:(160.0 / 240.0)],
 
             [self.controllerView.topAnchor constraintEqualToAnchor:self.imageView.bottomAnchor],
             [self.controllerView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
@@ -113,40 +113,16 @@
         ]];
     }
 
-    [self.view layoutIfNeeded]; // Ensure bounds are set before applying skin
-
     [self startEmulator];
-    [self.controllerView applySkin:[[AURSkinManager sharedManager] skinForCoreType:_coreType isLandscape:NO]];
-
-    [AURExternalControllerManager sharedManager].delegate = self;
-    [[AURExternalControllerManager sharedManager] startMonitoring];
 }
 
 - (void)startEmulator {
-    [self stopEmulator];
-
     _core = EmulatorCore_Create(_coreType);
-    if (!_core) {
-        NSLog(@"[AUR][Emu] failed to create core instance");
-        return;
-    }
+    if (!_core) return;
 
-    if (_coreType == EMULATOR_CORE_TYPE_NDS) {
-        NSString *arm9Path = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"nds_arm9"];
-        NSString *arm7Path = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"nds_arm7"];
-        NSString *firmwarePath = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"nds_firmware"];
-        if (arm9Path.length > 0 && !EmulatorCore_LoadBIOSFromPath(_core, arm9Path.fileSystemRepresentation)) {
-            NSLog(@"[AUR][NDS] ARM9 BIOS load failed: %s", EmulatorCore_GetLastError(_core) ?: "unknown error");
-        }
-        if (arm7Path.length > 0 && !EmulatorCore_LoadBIOSFromPath(_core, arm7Path.fileSystemRepresentation)) {
-            NSLog(@"[AUR][NDS] ARM7 BIOS load failed: %s", EmulatorCore_GetLastError(_core) ?: "unknown error");
-        }
-        if (firmwarePath.length > 0 && !EmulatorCore_LoadBIOSFromPath(_core, firmwarePath.fileSystemRepresentation)) {
-            NSLog(@"[AUR][NDS] Firmware load failed: %s", EmulatorCore_GetLastError(_core) ?: "unknown error");
-        }
-    } else {
-        NSString *biosPath = [[AURDatabaseManager sharedManager] BIOSPathForCoreType:_coreType];
-        if (biosPath.length > 0 && !EmulatorCore_LoadBIOSFromPath(_core, biosPath.fileSystemRepresentation)) {
+    NSString *biosPath = [[NSBundle mainBundle] pathForResource:@"bios9" ofType:@"bin"];
+    if (biosPath) {
+        if (!EmulatorCore_LoadBIOSFromPath(_core, biosPath.UTF8String)) {
             NSLog(@"[AUR][Emu] BIOS load failed: %s", EmulatorCore_GetLastError(_core) ?: "unknown error");
         }
     }
@@ -187,39 +163,21 @@
     if (_coreType == EMULATOR_CORE_TYPE_NDS) {
         constexpr size_t kScreenWidth = 256U;
         constexpr size_t kScreenHeight = 192U;
-        constexpr size_t kScreenPixels = kScreenWidth * kScreenHeight;
-        static std::array<uint32_t, kScreenPixels> blankBottomFrame{};
-        static std::array<uint32_t, kScreenPixels> splitTopFrame{};
-        static std::array<uint32_t, kScreenPixels> splitBottomFrame{};
 
         const size_t sourceWidth = (size_t)_videoSpec.width;
         const size_t sourceHeight = (sourceWidth > 0) ? (pixelCount / sourceWidth) : 0;
-        if (sourceWidth >= (kScreenWidth * 2U) && sourceHeight > 0) {
-            // 横並びバッファ（左=上画面、右=下画面）を 256x192 x2 に分離する。
-            std::fill(splitTopFrame.begin(), splitTopFrame.end(), 0xFF000000U);
-            std::fill(splitBottomFrame.begin(), splitBottomFrame.end(), 0xFF000000U);
-            const size_t rowsToCopy = std::min((size_t)kScreenHeight, sourceHeight);
-            for (size_t y = 0; y < rowsToCopy; ++y) {
-                const uint32_t *row = frameRGBA + (y * sourceWidth);
-                std::memcpy(splitTopFrame.data() + (y * kScreenWidth), row, sizeof(uint32_t) * kScreenWidth);
-                std::memcpy(
-                    splitBottomFrame.data() + (y * kScreenWidth),
-                    row + kScreenWidth,
-                    sizeof(uint32_t) * kScreenWidth);
-            }
-            [self.imageView displayFrameRGBA:splitTopFrame.data() width:256 height:192];
-            [self.ndsBottomImageView displayFrameRGBA:splitBottomFrame.data() width:256 height:192];
+
+        if (sourceWidth >= (kScreenWidth * 2U)) {
+            // Side-by-side: Left=Top, Right=Bottom
+            [self.imageView displayFrameRGBA:frameRGBA width:sourceWidth height:sourceHeight sourceRect:CGRectMake(0, 0, kScreenWidth, kScreenHeight)];
+            [self.ndsBottomImageView displayFrameRGBA:frameRGBA width:sourceWidth height:sourceHeight sourceRect:CGRectMake(kScreenWidth, 0, kScreenWidth, kScreenHeight)];
             return;
         }
 
-        if (pixelCount >= kScreenPixels * 2U) {
-            [self.imageView displayFrameRGBA:frameRGBA width:256 height:192];
-            [self.ndsBottomImageView displayFrameRGBA:(frameRGBA + kScreenPixels) width:256 height:192];
-            return;
-        }
-        if (pixelCount >= kScreenPixels) {
-            [self.imageView displayFrameRGBA:frameRGBA width:256 height:192];
-            [self.ndsBottomImageView displayFrameRGBA:blankBottomFrame.data() width:256 height:192];
+        if (pixelCount >= kScreenWidth * kScreenHeight * 2U) {
+            // Top-bottom: Top first, then Bottom
+            [self.imageView displayFrameRGBA:frameRGBA width:kScreenWidth height:kScreenHeight * 2 sourceRect:CGRectMake(0, 0, kScreenWidth, kScreenHeight)];
+            [self.ndsBottomImageView displayFrameRGBA:frameRGBA width:kScreenWidth height:kScreenHeight * 2 sourceRect:CGRectMake(0, kScreenHeight, kScreenWidth, kScreenHeight)];
             return;
         }
         return;
