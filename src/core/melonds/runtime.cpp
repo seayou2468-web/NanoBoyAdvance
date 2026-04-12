@@ -97,8 +97,11 @@ std::unique_ptr<Runtime> CreateRuntime() {
 
   if (!g_core_initialized) {
     Platform::Init(0, nullptr);
-    Platform::SetConfigBool(Platform::ExternalBIOSEnable, true);
+    Platform::SetConfigBool(Platform::ExternalBIOSEnable, false);
     Platform::SetConfigInt(Platform::AudioBitrate, 2);
+    Platform::SetConfigString(Platform::BIOS9Path, "");
+    Platform::SetConfigString(Platform::BIOS7Path, "");
+    Platform::SetConfigString(Platform::FirmwarePath, "");
 
     NDS::SetConsoleType(0);
     if (!NDS::Init()) {
@@ -175,6 +178,8 @@ bool LoadROMFromMemory(Runtime& runtime, const void* rom_data, size_t rom_size, 
   }
 
   runtime.rom_data.assign(static_cast<const uint8_t*>(rom_data), static_cast<const uint8_t*>(rom_data) + rom_size);
+  const bool has_external_bios = !runtime.bios9_data.empty() && !runtime.bios7_data.empty();
+  Platform::SetConfigBool(Platform::ExternalBIOSEnable, has_external_bios);
   NDS::LoadBIOS();
   runtime.rom_loaded = NDS::LoadCart(runtime.rom_data.data(), static_cast<uint32_t>(runtime.rom_data.size()), nullptr, 0);
   if (!runtime.rom_loaded) {
