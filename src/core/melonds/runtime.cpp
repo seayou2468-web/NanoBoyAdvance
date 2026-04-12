@@ -16,9 +16,9 @@ namespace core::melonds {
 namespace {
 
 constexpr size_t kFramePixels = 256U * 384U;
-constexpr uint32_t kTopScreenHeight = 192U;
-constexpr uint32_t kFrameWidth = 256U;
-constexpr uint32_t kFrameHeight = 384U;
+constexpr uint32_t kScreenWidth = 256U;
+constexpr uint32_t kScreenHeight = 192U;
+constexpr uint32_t kCombinedWidth = kScreenWidth * 2U;
 
 std::mutex g_core_lock;
 bool g_in_use = false;
@@ -68,17 +68,18 @@ bool CopyFramebuffer(Runtime& runtime, std::string& last_error) {
       continue;
     }
 
-    uint32_t* out_top = runtime.frame_rgba.data();
-    uint32_t* out_bottom = runtime.frame_rgba.data() + (kFrameWidth * kTopScreenHeight);
-    if (top != nullptr) {
-      std::memcpy(out_top, top, sizeof(uint32_t) * kFrameWidth * kTopScreenHeight);
-    } else {
-      std::fill_n(out_top, kFrameWidth * kTopScreenHeight, 0xFF000000U);
-    }
-    if (bottom != nullptr) {
-      std::memcpy(out_bottom, bottom, sizeof(uint32_t) * kFrameWidth * kTopScreenHeight);
-    } else {
-      std::fill_n(out_bottom, kFrameWidth * kTopScreenHeight, 0xFF000000U);
+    for (size_t y = 0; y < kScreenHeight; ++y) {
+      uint32_t* out_row = runtime.frame_rgba.data() + (y * kCombinedWidth);
+      if (top != nullptr) {
+        std::memcpy(out_row, top + (y * kScreenWidth), sizeof(uint32_t) * kScreenWidth);
+      } else {
+        std::fill_n(out_row, kScreenWidth, 0xFF000000U);
+      }
+      if (bottom != nullptr) {
+        std::memcpy(out_row + kScreenWidth, bottom + (y * kScreenWidth), sizeof(uint32_t) * kScreenWidth);
+      } else {
+        std::fill_n(out_row + kScreenWidth, kScreenWidth, 0xFF000000U);
+      }
     }
     return true;
   }

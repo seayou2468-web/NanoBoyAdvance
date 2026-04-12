@@ -81,11 +81,11 @@
             [self.ndsContainerView.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor constant:8.0],
             [self.ndsContainerView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor constant:12.0],
             [self.ndsContainerView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor constant:-12.0],
-            [self.ndsContainerView.heightAnchor constraintEqualToAnchor:self.view.heightAnchor multiplier:0.52],
 
             [self.imageView.topAnchor constraintEqualToAnchor:self.ndsContainerView.topAnchor],
             [self.imageView.leadingAnchor constraintEqualToAnchor:self.ndsContainerView.leadingAnchor],
             [self.imageView.trailingAnchor constraintEqualToAnchor:self.ndsContainerView.trailingAnchor],
+            [self.imageView.heightAnchor constraintEqualToAnchor:self.imageView.widthAnchor multiplier:(192.0 / 256.0)],
 
             [self.ndsBottomImageView.topAnchor constraintEqualToAnchor:self.imageView.bottomAnchor constant:12.0],
             [self.ndsBottomImageView.leadingAnchor constraintEqualToAnchor:self.ndsContainerView.leadingAnchor],
