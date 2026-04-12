@@ -123,6 +123,8 @@
 }
 
 - (void)startEmulator {
+    [self stopEmulator];
+
     _core = EmulatorCore_Create(_coreType);
     if (!_core) {
         NSLog(@"[AUR][Emu] failed to create core instance");
@@ -157,6 +159,16 @@
         [self.displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
     } else {
         NSLog(@"[AUR][Emu] ROM load failed (%@): %s", self.romURL.lastPathComponent, EmulatorCore_GetLastError(_core) ?: "unknown error");
+    }
+}
+
+- (void)stopEmulator {
+    _running = NO;
+    [self.displayLink invalidate];
+    self.displayLink = nil;
+    if (_core) {
+        EmulatorCore_Destroy(_core);
+        _core = nullptr;
     }
 }
 
@@ -217,8 +229,14 @@
 }
 
 - (void)dealloc {
-    [self.displayLink invalidate];
-    if (_core) EmulatorCore_Destroy(_core);
+    [self stopEmulator];
+}
+
+- (void)viewDidDisappear:(BOOL)animated {
+    [super viewDidDisappear:animated];
+    if (self.isBeingDismissed || self.isMovingFromParentViewController) {
+        [self stopEmulator];
+    }
 }
 
 #pragma mark - AURControllerViewDelegate
@@ -253,7 +271,14 @@
 
 - (void)inGameMenuDidSelectAction:(NSString *)action {
     if ([action isEqualToString:@"Quit Game"]) {
-        [self dismissViewControllerAnimated:YES completion:nil];
+        [self stopEmulator];
+        if (self.presentingViewController) {
+            [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
+        } else if (self.navigationController) {
+            [self.navigationController popViewControllerAnimated:YES];
+        } else {
+            [self dismissViewControllerAnimated:YES completion:nil];
+        }
     }
 }
 
