@@ -9,7 +9,7 @@
         self.imageView.contentMode = UIViewContentModeScaleAspectFill;
         self.imageView.clipsToBounds = YES;
         self.imageView.layer.cornerRadius = 18;
-        self.imageView.layer.cornerCurve = CALayerCornerCurveContinuous;
+        self.imageView.layer.cornerCurve = kCACornerCurveContinuous;
         self.imageView.backgroundColor = [UIColor colorWithWhite:0.15 alpha:1.0];
         [self.contentView addSubview:self.imageView];
 
