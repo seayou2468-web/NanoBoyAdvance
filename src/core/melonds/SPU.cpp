@@ -576,7 +576,7 @@ s32 Channel::Run()
     return val;
 }
 
-inline void Channel::PanOutput(s32 in, s32& left, s32& right) __attribute__((always_inline))
+__attribute__((always_inline)) inline void Channel::PanOutput(s32 in, s32& left, s32& right)
 {
     left += ((s64)in * (128-Pan)) >> 10;
     right += ((s64)in * Pan) >> 10;

@@ -180,10 +180,9 @@ bool LoadROMFromMemory(Runtime& runtime, const void* rom_data, size_t rom_size, 
     last_error = "melonDS failed to load NDS cart";
     return false;
   }
-  // Frontend use-case: once a ROM is selected, always jump straight into it.
-  // Depending on external BIOS/FW contents and settings, relying on firmware boot
-  // can stay on white/menu screens and never reach gameplay.
-  NDS::SetupDirectBoot("game.nds");
+  if (NDS::NeedsDirectBoot()) {
+    NDS::SetupDirectBoot("game.nds");
+  }
   NDS::Start();
   last_error.clear();
   return true;
