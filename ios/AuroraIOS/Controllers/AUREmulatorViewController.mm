@@ -153,6 +153,12 @@
     const char *path = self.romURL.path.fileSystemRepresentation;
     if (path && EmulatorCore_LoadROMFromPath(_core, path)) {
         EmulatorCore_GetVideoSpec(_core, &_videoSpec);
+        if (_coreType != EMULATOR_CORE_TYPE_NDS) {
+            AURFramePixelFormat framePixelFormat = (_videoSpec.pixel_format == EMULATOR_PIXEL_FORMAT_ARGB8888)
+                ? AURFramePixelFormatBGRA8888
+                : AURFramePixelFormatRGBA8888;
+            [self.imageView setFramePixelFormat:framePixelFormat];
+        }
         _running = YES;
         self.displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(gameLoop)];
         [self.displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];

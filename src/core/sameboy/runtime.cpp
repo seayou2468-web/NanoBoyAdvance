@@ -63,7 +63,7 @@ bool LoadBIOSFromPath(Runtime& runtime, const char* bios_path, std::string& last
   try {
     if (bios_path == nullptr || bios_path[0] == '\0') return false;
     std::vector<uint8_t> bios;
-    if (!ReadBinaryFile(std::filesystem.path(bios_path), bios, 256U, kMaxBiosBytes)) return false;
+    if (!ReadBinaryFile(std::filesystem::path(bios_path), bios, 256U, kMaxBiosBytes)) return false;
     std::string path(bios_path);
     if (path.find("gbc") != std::string::npos || bios.size() == 2304) runtime.gbc_bios_storage = std::move(bios);
     else runtime.bios_storage = std::move(bios);
@@ -81,7 +81,7 @@ bool LoadROMFromPath(Runtime& runtime, const char* rom_path, std::string& last_e
     ResetCore(runtime);
     if (runtime.gb == nullptr) return false;
     std::vector<uint8_t> rom_data;
-    if (!ReadBinaryFile(std::filesystem.path(rom_path), rom_data, 192U, kMaxRomBytes)) return false;
+    if (!ReadBinaryFile(std::filesystem::path(rom_path), rom_data, 192U, kMaxRomBytes)) return false;
     runtime.rom_storage = std::move(rom_data);
     SBA_load_rom_from_buffer(runtime.gb, runtime.rom_storage.data(), runtime.rom_storage.size());
     return true;

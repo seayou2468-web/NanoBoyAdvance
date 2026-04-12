@@ -27,8 +27,8 @@ int BuildJoypadMask(const std::array<bool, 10>& key_state) {
 }
 
 uint32_t ToRGBA32(Nes_Emu::rgb_t c) {
-  return 0xFF000000U | (static_cast<uint32_t>(c.red) << 16U) | (static_cast<uint32_t>(c.green) << 8U) |
-         static_cast<uint32_t>(c.blue);
+  return 0xFF000000U | (static_cast<uint32_t>(c.blue) << 16U) | (static_cast<uint32_t>(c.green) << 8U) |
+         static_cast<uint32_t>(c.red);
 }
 
 }  // namespace

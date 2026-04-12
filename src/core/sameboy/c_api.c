@@ -8,10 +8,10 @@ struct SBA_Gameboy {
     GB_gameboy_t *gb;
 };
 
-static uint32_t EncodeARGB(GB_gameboy_t *gb, uint8_t r, uint8_t g, uint8_t b)
+static uint32_t EncodeRGBA(GB_gameboy_t *gb, uint8_t r, uint8_t g, uint8_t b)
 {
     (void) gb;
-    return 0xFF000000U | ((uint32_t) r << 16U) | ((uint32_t) g << 8U) | (uint32_t) b;
+    return 0xFF000000U | ((uint32_t) b << 16U) | ((uint32_t) g << 8U) | (uint32_t) r;
 }
 
 SBA_Gameboy* SBA_create(SBA_Model model)
@@ -83,7 +83,7 @@ void SBA_set_key_state(SBA_Gameboy* gb, SBA_Key index, bool pressed)
 void SBA_use_default_argb_encoder(SBA_Gameboy* gb)
 {
     if (gb == NULL || gb->gb == NULL) return;
-    GB_set_rgb_encode_callback(gb->gb, EncodeARGB);
+    GB_set_rgb_encode_callback(gb->gb, EncodeRGBA);
 }
 
 void SBA_set_pixels_output(SBA_Gameboy* gb, uint32_t* output)
