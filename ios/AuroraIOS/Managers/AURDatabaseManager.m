@@ -78,7 +78,7 @@
 }
 
 - (NSString *)persistBIOSFileAtPath:(NSString *)path storageKey:(NSString *)storageKey {
-    if (path.length == 0 || storageKey.length == 0) return path;
+    if (path.length == 0 || storageKey.length == 0) return nil;
 
     NSString *docs = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES).firstObject;
     NSString *biosDir = [docs stringByAppendingPathComponent:@"BIOS"];
@@ -86,7 +86,7 @@
     NSError *dirError = nil;
     [fm createDirectoryAtPath:biosDir withIntermediateDirectories:YES attributes:nil error:&dirError];
     if (dirError) {
-        return path;
+        return nil;
     }
 
     NSString *ext = path.pathExtension ?: @"";
@@ -104,7 +104,18 @@
         return destPath;
     }
 
-    return path;
+    NSError *readError = nil;
+    NSData *raw = [NSData dataWithContentsOfFile:path options:0 error:&readError];
+    if (!raw) {
+        return nil;
+    }
+
+    NSError *writeError = nil;
+    if ([raw writeToFile:destPath options:NSDataWritingAtomic error:&writeError]) {
+        return destPath;
+    }
+
+    return nil;
 }
 
 - (NSArray<AURGame *> *)gamesForCoreType:(EmulatorCoreType)coreType {
@@ -119,7 +130,9 @@
 
 - (void)setBIOSPath:(NSString *)path forCoreType:(EmulatorCoreType)coreType {
     NSString *stored = [self persistBIOSFileAtPath:path storageKey:[NSString stringWithFormat:@"core_%ld", (long)coreType]];
-    self.biosPaths[@(coreType)] = stored;
+    if (stored.length > 0) {
+        self.biosPaths[@(coreType)] = stored;
+    }
     [self saveDatabase];
 }
 
@@ -142,7 +155,9 @@
     NSNumber *key = [self biosStorageKeyForIdentifier:identifier];
     if (!key) return;
     NSString *stored = [self persistBIOSFileAtPath:path storageKey:[NSString stringWithFormat:@"id_%@", identifier]];
-    self.biosPaths[key] = stored;
+    if (stored.length > 0) {
+        self.biosPaths[key] = stored;
+    }
     [self saveDatabase];
 }
 
