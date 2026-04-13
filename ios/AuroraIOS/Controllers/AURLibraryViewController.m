@@ -44,7 +44,7 @@
     // ... (rest of the setup)
 
     // Setup Segmented Control for Systems (Glassmorphic)
-    self.segmentedControl = [[UISegmentedControl alloc] initWithItems:@[@"GBA", @"GBC", @"GB", @"NES", @"NDS"]];
+    self.segmentedControl = [[UISegmentedControl alloc] initWithItems:@[@"GBA", @"GBC", @"GB", @"NES", @"NDS", @"3DS"]];
     self.segmentedControl.selectedSegmentIndex = 0;
     [self.segmentedControl addTarget:self action:@selector(segmentChanged:) forControlEvents:UIControlEventValueChanged];
     self.navigationItem.titleView = self.segmentedControl;
@@ -113,6 +113,7 @@
         case 2: type = EMULATOR_CORE_TYPE_GB; break; // Actually GB
         case 3: type = EMULATOR_CORE_TYPE_NES; break;
         case 4: type = EMULATOR_CORE_TYPE_NDS; break;
+        case 5: type = EMULATOR_CORE_TYPE_3DS; break;
         default: type = EMULATOR_CORE_TYPE_GBA; break;
     }
     self.games = [[AURDatabaseManager sharedManager] gamesForCoreType:type];
@@ -144,6 +145,7 @@
         if ([ext isEqualToString:@"gba"]) game.coreType = EMULATOR_CORE_TYPE_GBA;
         else if ([ext isEqualToString:@"nes"]) game.coreType = EMULATOR_CORE_TYPE_NES;
         else if ([ext isEqualToString:@"nds"]) game.coreType = EMULATOR_CORE_TYPE_NDS;
+        else if ([ext isEqualToString:@"3ds"] || [ext isEqualToString:@"cci"] || [ext isEqualToString:@"cxi"]) game.coreType = EMULATOR_CORE_TYPE_3DS;
         else game.coreType = EMULATOR_CORE_TYPE_GB;
 
         [[AURDatabaseManager sharedManager] addGame:game];

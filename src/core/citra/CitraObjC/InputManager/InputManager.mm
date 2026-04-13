@@ -31,7 +31,6 @@
 #include "common/param_package.h"
 #include "common/vector_math.h"
 #include "input_common/main.h"
-#include "input_common/sdl/sdl.h"
 #endif
 
 namespace InputManager {

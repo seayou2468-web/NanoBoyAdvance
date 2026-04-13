@@ -1,6 +1,6 @@
 #import <Foundation/Foundation.h>
 #import <GameController/GameController.h>
-#include "../../../src/core/emulator_core_c_api.h"
+#include "../../../src/core/api/emulator_core_c_api.h"
 
 @protocol AURExternalControllerDelegate <NSObject>
 - (void)externalControllerDidPressKey:(EmulatorKey)key;

@@ -1,6 +1,6 @@
 #import <Foundation/Foundation.h>
 #import "../Models/AURDeltaSkin.h"
-#include "../../../src/core/emulator_core_c_api.h"
+#include "../../../src/core/api/emulator_core_c_api.h"
 
 @interface AURSkinManager : NSObject
 + (instancetype)sharedManager;

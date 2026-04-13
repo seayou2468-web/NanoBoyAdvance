@@ -9,11 +9,8 @@
 
 namespace DefaultINI {
 
-const char* sdl3_config_file = R"(
+const char* core_config_file = R"(
 [Core]
-# Whether to use the Just-In-Time (JIT) compiler for CPU emulation
-# 0: Interpreter (slow), 1 (default): JIT (fast)
-use_cpu_jit=1
 
 # Change the Clock Frequency of the emulated 3DS CPU.
 # Underclocking can increase the performance of the game at the risk of freezing.
@@ -26,25 +23,24 @@ cpu_clock_percentage=100
 # 0: enable, 1: disable (default)
 disable_right_eye_render=1
 
-# Whether to compile shaders on multiple worker threads (Vulkan only)
+# Shader worker threads (disabled for software-only renderer)
 # 0: Off (default), 1: On 
 async_shader_compilation=0
+# software renderer only
 
-# Whether to emit PICA fragment shader using SPIRV or GLSL (Vulkan only)
+# SPIR-V shader generation (disabled for software-only renderer)
 # 0: GLSL, 1: SPIR-V (default)
 spirv_shader_gen=1
 
 # Whether to use hardware shaders to emulate 3DS shaders
 # 0: Software, 1 (default): Hardware
-use_hw_shader=1
+use_hw_shader=0
 
 # Whether to use accurate multiplication in hardware shaders
 # 0: Off (Default. Faster, but causes issues in some games) 1: On (Slower, but correct)
 shaders_accurate_mul=0
 
-# Whether to use the Just-In-Time (JIT) compiler for shader emulation
-# 0: Interpreter (slow), 1 (default): JIT (fast)
-use_shader_jit=1
+# Shader execution is fixed to the software interpreter.
 
 # Forces VSync on the display thread. Usually doesn't impact performance, but on some drivers it can
 # so only turn this off if you notice a speed difference.
@@ -143,8 +139,8 @@ enable_realtime_audio=0
 volume=1.0
 
 # Which audio output type to use.
-# 0 (default): Auto-select, 1: No audio output, 2: Cubeb (if available), 3: OpenAL (if available), 4: SDL3 (if available)
-output_type=0
+# 0 (default): Auto-select, 1: No audio output, 2: Cubeb (if available), 3: OpenAL (if available), 4: Reserved
+output_type=3
 
 # Which audio input type to use.
 # 0 (default): Auto-select, 1: No audio input, 2: Static noise, 3: Cubeb (if available), 4: OpenAL (if available)

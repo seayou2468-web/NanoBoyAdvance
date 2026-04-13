@@ -1,6 +1,6 @@
 #import <UIKit/UIKit.h>
 #import "../Models/AURControllerSkin.h"
-#include "../../../src/core/emulator_core_c_api.h"
+#include "../../../src/core/api/emulator_core_c_api.h"
 
 @class AURControllerSkinsViewController;
 

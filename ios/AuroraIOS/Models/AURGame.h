@@ -1,5 +1,5 @@
 #import <Foundation/Foundation.h>
-#include "../../../src/core/emulator_core_c_api.h"
+#include "../../../src/core/api/emulator_core_c_api.h"
 
 @interface AURGame : NSObject <NSSecureCoding>
 @property (nonatomic, copy) NSString *title;

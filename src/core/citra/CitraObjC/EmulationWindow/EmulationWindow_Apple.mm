@@ -22,8 +22,6 @@
 #include "network/network.h"
 #include "video_core/renderer_base.h"
 #include "video_core/video_core.h"
-
-#include <SDL.h>
 #endif
 
 EmulationWindow_Apple::EmulationWindow_Apple(CA::MetalLayer* surface, bool is_secondary, CGSize size) : Frontend::EmuWindow(is_secondary), host_window(surface), m_size(size) {
@@ -34,7 +32,6 @@ EmulationWindow_Apple::EmulationWindow_Apple(CA::MetalLayer* surface, bool is_se
     window_width = m_size.width;
     window_height = m_size.height;
     
-    SDL_SetMainReady();
 };
 
 EmulationWindow_Apple::~EmulationWindow_Apple() {

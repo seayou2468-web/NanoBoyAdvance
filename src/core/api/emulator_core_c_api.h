@@ -28,6 +28,7 @@ typedef enum EmulatorCoreType {
   EMULATOR_CORE_TYPE_NES = 1,
   EMULATOR_CORE_TYPE_GB = 2,
   EMULATOR_CORE_TYPE_NDS = 3,
+  EMULATOR_CORE_TYPE_3DS = 4,
 } EmulatorCoreType;
 
 typedef enum EmulatorKey {
