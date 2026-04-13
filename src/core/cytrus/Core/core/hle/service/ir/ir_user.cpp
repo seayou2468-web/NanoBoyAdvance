@@ -3,8 +3,8 @@
 // Refer to the license.txt file included.
 
 #include <memory>
+#include <span>
 #include <vector>
-#include <boost/crc.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/unique_ptr.hpp>
@@ -22,6 +22,18 @@ SERIALIZE_EXPORT_IMPL(Service::IR::IR_USER)
 SERVICE_CONSTRUCT_IMPL(Service::IR::IR_USER)
 
 namespace Service::IR {
+static u8 Crc8(std::span<const u8> data) {
+    u8 crc = 0;
+    for (u8 byte : data) {
+        crc ^= byte;
+        for (int i = 0; i < 8; ++i) {
+            crc = (crc & 0x80u) != 0 ? static_cast<u8>((crc << 1) ^ 0x07u)
+                                     : static_cast<u8>(crc << 1);
+        }
+    }
+    return crc;
+}
+
 
 template <class Archive>
 void IR_USER::serialize(Archive& ar, const unsigned int) {
@@ -265,7 +277,7 @@ void IR_USER::PutToReceive(std::span<const u8> payload) {
     packet.insert(packet.end(), payload.begin(), payload.end());
 
     // calculates CRC and puts to the end
-    packet.push_back(boost::crc<8, 0x07, 0, 0, false, false>(packet.data(), packet.size()));
+    packet.push_back(Crc8(packet));
 
     if (receive_buffer->Put(packet)) {
         receive_event->Signal();

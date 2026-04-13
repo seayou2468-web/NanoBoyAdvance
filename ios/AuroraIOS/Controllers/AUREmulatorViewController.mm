@@ -124,6 +124,10 @@
         ]];
     }
 
+    AURExternalControllerManager *externalControllerManager = [AURExternalControllerManager sharedManager];
+    externalControllerManager.delegate = self;
+    [externalControllerManager startMonitoring];
+
     [self startEmulator];
 }
 
@@ -221,6 +225,7 @@
 }
 
 - (void)dealloc {
+    [AURExternalControllerManager sharedManager].delegate = nil;
     [self stopEmulator];
 }
 

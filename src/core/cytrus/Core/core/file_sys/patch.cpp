@@ -8,7 +8,6 @@
 #include <string>
 #include <string_view>
 #include <type_traits>
-#include <boost/crc.hpp>
 #include "common/logging/log.h"
 #include "core/file_sys/patch.h"
 
@@ -68,9 +67,15 @@ constexpr std::size_t FooterSize = 12;
 
 // The BPS format uses CRC32 checksums.
 static u32 crc32(const u8* data, std::size_t size) {
-    boost::crc_32_type result;
-    result.process_bytes(data, size);
-    return result.checksum();
+    u32 crc = 0xFFFFFFFFu;
+    for (std::size_t i = 0; i < size; ++i) {
+        crc ^= static_cast<u32>(data[i]);
+        for (int bit = 0; bit < 8; ++bit) {
+            const u32 mask = static_cast<u32>(-(static_cast<s32>(crc & 1u)));
+            crc = (crc >> 1) ^ (0xEDB88320u & mask);
+        }
+    }
+    return ~crc;
 }
 
 // Utility class to make keeping track of offsets and bound checks less error prone.

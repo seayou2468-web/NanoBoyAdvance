@@ -37,7 +37,8 @@ static void TryShutdown() {
 -(CytrusEmulator *) init {
     if (self = [super init]) {
         pause_emulation.store(false);
-        stop_run.store(false);
+        // Treat the initial state as stopped until a ROM is inserted.
+        stop_run.store(true);
     } return self;
 }
 
@@ -108,9 +109,7 @@ static void TryShutdown() {
     
     Frontend::RegisterDefaultApplets(system);
     // system.RegisterMiiSelector(std::make_shared<MiiSelector::AndroidMiiSelector>());
-#if defined(TARGET_OS_IPHONE)
     system.RegisterSoftwareKeyboard(std::make_shared<SoftwareKeyboard::Keyboard>());
-#endif
     
     InputManager::Init();
     Network::Init();
@@ -285,10 +284,13 @@ static void TryShutdown() {
 -(void) stop {
     stop_run.store(true);
     pause_emulation.store(false);
-    top_window->StopPresenting();
-    bottom_window->StopPresenting();
+
+    if (top_window)
+        top_window->StopPresenting();
+    if (bottom_window)
+        bottom_window->StopPresenting();
+
     running_cv.notify_all();
-    
     Core::System::GetInstance().RequestShutdown();
 }
 
@@ -297,7 +299,7 @@ static void TryShutdown() {
 }
 
 -(BOOL) stopped {
-    return stop_run.load() && pause_emulation.load();
+    return stop_run.load();
 }
 
 -(void) orientationChanged:(UIInterfaceOrientation)orientation metalView:(UIView *)metalView secondary:(BOOL)secondary {
@@ -385,8 +387,8 @@ static void TryShutdown() {
     std::string (^string)(NSString *) = ^std::string(NSString *key) { return std::string{[[defaults stringForKey:key] UTF8String]}; };
     
     Settings::values.camera_name[Service::CAM::InnerCamera] = "av_front";
-    Settings::values.camera_name[Service::CAM::OuterLeftCamera] = "av_left_rear";
-    Settings::values.camera_name[Service::CAM::OuterRightCamera] = "av_right_rear";
+    Settings::values.camera_name[Service::CAM::OuterLeftCamera] = "av_rear_left";
+    Settings::values.camera_name[Service::CAM::OuterRightCamera] = "av_rear_right";
     
     // Core
     Settings::values.use_cpu_jit.SetValue(false);

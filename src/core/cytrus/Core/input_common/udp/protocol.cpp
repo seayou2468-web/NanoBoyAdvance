@@ -62,12 +62,10 @@ std::optional<Type> Validate(u8* data, std::size_t size) {
     }
 
     const u32 crc32 = header.crc;
-    boost::crc_32_type result;
     // zero out the crc in the buffer and then run the crc against it
     std::memset(&data[offsetof(Header, crc)], 0, sizeof(u32_le));
 
-    result.process_bytes(data, data_len + sizeof(Header));
-    if (crc32 != result.checksum()) {
+    if (crc32 != ComputeCrc32(std::span<const u8>{data, data_len + sizeof(Header)})) {
         LOG_ERROR(Input, "UDP Packet CRC check failed. Offset: {}", offsetof(Header, crc));
         return std::nullopt;
     }

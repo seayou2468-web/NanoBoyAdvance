@@ -3,9 +3,9 @@
 // Refer to the license.txt file included.
 
 #include <atomic>
+#include <string_view>
 #include <tuple>
 #include <unordered_map>
-#include <boost/algorithm/string/replace.hpp>
 #include <cryptopp/aes.h>
 #include <cryptopp/modes.h>
 #include <fmt/core.h>
@@ -160,6 +160,18 @@ static URLInfo SplitUrl(const std::string& url) {
     };
 }
 
+static void ReplaceAll(std::string& source, std::string_view from, std::string_view to) {
+    if (from.empty()) {
+        return;
+    }
+
+    std::size_t start = 0;
+    while ((start = source.find(from, start)) != std::string::npos) {
+        source.replace(start, from.length(), to);
+        start += to.length();
+    }
+}
+
 static std::size_t WriteHeaders(httplib::Stream& stream,
                                 std::span<const Context::RequestHeader> headers) {
     std::size_t write_len = 0;
@@ -188,7 +200,7 @@ static void SerializeChunkedAsciiPostData(httplib::DataSink& sink, const Context
 
         query =
             fmt::format("{}={}", it->first, httplib::detail::encode_query_param(it->second.value));
-        boost::replace_all(query, "*", "%2A");
+        ReplaceAll(query, "*", "%2A");
         sink.os << query;
     }
 }
@@ -265,7 +277,7 @@ void Context::ParseAsciiPostData() {
     }
 
     post_data_raw = httplib::detail::params_to_query_str(ascii_form);
-    boost::replace_all(post_data_raw, "*", "%2A");
+    ReplaceAll(post_data_raw, "*", "%2A");
 }
 
 std::string Context::ParseMultipartFormData() {

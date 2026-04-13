@@ -5,8 +5,7 @@
 #include <algorithm>
 #include <optional>
 #include <sstream>
-#include <boost/iostreams/device/file_descriptor.hpp>
-#include <boost/iostreams/stream.hpp>
+#include <fstream>
 #include <cryptopp/aes.h>
 #include <cryptopp/modes.h>
 #include "common/common_paths.h"
@@ -291,9 +290,8 @@ std::istringstream GetKeysStream() {
     const std::string filepath = FileUtil::GetUserPath(FileUtil::UserPath::SysDataDir) + KEYS_FILE;
     FileUtil::CreateFullPath(filepath); // Create path if not already created
 
-    boost::iostreams::stream<boost::iostreams::file_descriptor_source> file;
+    std::ifstream file;
     FileUtil::OpenFStream<std::ios_base::in>(file, filepath);
-    std::istringstream ret;
     if (file.is_open()) {
         return std::istringstream(std::string(std::istreambuf_iterator<char>(file), {}));
     } else {

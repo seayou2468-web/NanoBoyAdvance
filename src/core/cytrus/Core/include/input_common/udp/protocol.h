@@ -6,8 +6,8 @@
 
 #include <array>
 #include <optional>
+#include <span>
 #include <type_traits>
-#include <boost/crc.hpp>
 #include "common/bit_field.h"
 #include "common/swap.h"
 
@@ -40,6 +40,18 @@ static_assert(std::is_trivially_copyable_v<Header>, "UDP Message Header is not t
 
 using MacAddress = std::array<u8, 6>;
 constexpr MacAddress EMPTY_MAC_ADDRESS = {0, 0, 0, 0, 0, 0};
+
+inline u32 ComputeCrc32(std::span<const u8> data) {
+    u32 crc = 0xFFFFFFFFu;
+    for (u8 byte : data) {
+        crc ^= static_cast<u32>(byte);
+        for (int bit = 0; bit < 8; ++bit) {
+            const u32 mask = static_cast<u32>(-(static_cast<s32>(crc & 1u)));
+            crc = (crc >> 1) ^ (0xEDB88320u & mask);
+        }
+    }
+    return ~crc;
+}
 
 #pragma pack(push, 1)
 template <typename T>
@@ -98,13 +110,12 @@ static_assert(std::is_trivially_copyable_v<PadData>,
  */
 template <typename T>
 Message<T> Create(const T data, const u32 client_id = 0) {
-    boost::crc_32_type crc;
     Header header{
         CLIENT_MAGIC, PROTOCOL_VERSION, sizeof(T) + sizeof(Type), 0, client_id, GetMessageType<T>(),
     };
     Message<T> message{header, data};
-    crc.process_bytes(&message, sizeof(Message<T>));
-    message.header.crc = crc.checksum();
+    const auto* message_bytes = reinterpret_cast<const u8*>(&message);
+    message.header.crc = ComputeCrc32(std::span<const u8>{message_bytes, sizeof(Message<T>)});
     return message;
 }
 } // namespace Request

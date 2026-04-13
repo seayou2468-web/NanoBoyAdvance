@@ -4,7 +4,7 @@
 
 #include <array>
 #include <chrono>
-#include <boost/crc.hpp>
+#include <span>
 #include <cryptopp/osrng.h>
 
 #include "common/file_util.h"
@@ -19,6 +19,18 @@
 SERVICE_CONSTRUCT_IMPL(Service::NFC::NfcDevice)
 
 namespace Service::NFC {
+static u32 Crc32(std::span<const u8> data) {
+    u32 crc = 0xFFFFFFFFu;
+    for (u8 byte : data) {
+        crc ^= static_cast<u32>(byte);
+        for (int bit = 0; bit < 8; ++bit) {
+            const u32 mask = static_cast<u32>(-(static_cast<s32>(crc & 1u)));
+            crc = (crc >> 1) ^ (0xEDB88320u & mask);
+        }
+    }
+    return ~crc;
+}
+
 template <class Archive>
 void NfcDevice::serialize(Archive& ar, const unsigned int) {
     ar & tag_in_range_event;
@@ -1049,9 +1061,7 @@ void NfcDevice::UpdateSettingsCrc() {
 
     // TODO: this reads data from a global, find what it is
     std::array<u8, 8> unknown_input{};
-    boost::crc_32_type crc;
-    crc.process_bytes(&unknown_input, sizeof(unknown_input));
-    settings.crc = crc.checksum();
+    settings.crc = Crc32(unknown_input);
 }
 
 void NfcDevice::UpdateRegisterInfoCrc() {
@@ -1074,9 +1084,9 @@ void NfcDevice::UpdateRegisterInfoCrc() {
         .unknown2 = tag.file.unknown2,
     };
 
-    boost::crc_32_type crc;
-    crc.process_bytes(&crc_data, sizeof(CrcData));
-    tag.file.register_info_crc = crc.checksum();
+    const auto* crc_data_bytes = reinterpret_cast<const u8*>(&crc_data);
+    tag.file.register_info_crc =
+        Crc32(std::span<const u8>{crc_data_bytes, sizeof(CrcData)});
 }
 
 void NfcDevice::BuildAmiiboWithoutKeys() {

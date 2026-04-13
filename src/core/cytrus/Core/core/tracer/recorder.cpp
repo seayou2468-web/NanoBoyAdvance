@@ -3,12 +3,25 @@
 // Refer to the license.txt file included.
 
 #include <cstring>
+#include <span>
 #include "common/assert.h"
 #include "common/file_util.h"
 #include "common/logging/log.h"
 #include "core/tracer/recorder.h"
 
 namespace CiTrace {
+
+static u32 ComputeCrc32(std::span<const u8> data) {
+    u32 crc = 0xFFFFFFFFu;
+    for (u8 byte : data) {
+        crc ^= static_cast<u32>(byte);
+        for (int bit = 0; bit < 8; ++bit) {
+            const u32 mask = static_cast<u32>(-(static_cast<s32>(crc & 1u)));
+            crc = (crc >> 1) ^ (0xEDB88320u & mask);
+        }
+    }
+    return ~crc;
+}
 
 Recorder::Recorder(const InitialState& initial_state) : initial_state(initial_state) {}
 
@@ -167,9 +180,7 @@ void Recorder::MemoryAccessed(const u8* data, u32 size, u32 physical_address) {
     element.data.memory_load.physical_address = physical_address;
 
     // Compute hash over given memory region to check if the contents are already stored internally
-    boost::crc_32_type result;
-    result.process_bytes(data, size);
-    element.hash = result.checksum();
+    element.hash = ComputeCrc32(std::span<const u8>{data, size});
 
     element.uses_existing_data = (memory_regions.find(element.hash) != memory_regions.end());
     if (!element.uses_existing_data) {

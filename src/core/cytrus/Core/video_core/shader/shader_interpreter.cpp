@@ -5,8 +5,7 @@
 #include <algorithm>
 #include <cmath>
 #include <numeric>
-#include <boost/circular_buffer.hpp>
-#include <boost/container/static_vector.hpp>
+#include <vector>
 #include <nihstro/shader_bytecode.h>
 #include "common/assert.h"
 #include "common/common_types.h"
@@ -44,12 +43,51 @@ struct LoopStackElement {
     u8 previous_aL;
 };
 
+template <typename T>
+class BoundedStack {
+public:
+    explicit BoundedStack(std::size_t capacity) : capacity_{capacity} {
+        items_.reserve(capacity_);
+    }
+
+    void push_back(const T& value) {
+        if (items_.size() == capacity_) {
+            items_.erase(items_.begin());
+        }
+        items_.push_back(value);
+    }
+
+    [[nodiscard]] bool empty() const {
+        return items_.empty();
+    }
+
+    [[nodiscard]] std::size_t size() const {
+        return items_.size();
+    }
+
+    T& back() {
+        return items_.back();
+    }
+
+    const T& back() const {
+        return items_.back();
+    }
+
+    void pop_back() {
+        items_.pop_back();
+    }
+
+private:
+    std::size_t capacity_{};
+    std::vector<T> items_{};
+};
+
 template <bool Debug>
 static void RunInterpreter(const ShaderSetup& setup, ShaderUnit& state,
                            DebugData<Debug>& debug_data, unsigned entry_point) {
-    boost::circular_buffer<IfStackElement> if_stack(8);
-    boost::circular_buffer<CallStackElement> call_stack(4);
-    boost::circular_buffer<LoopStackElement> loop_stack(4);
+    BoundedStack<IfStackElement> if_stack(8);
+    BoundedStack<CallStackElement> call_stack(4);
+    BoundedStack<LoopStackElement> loop_stack(4);
     u32 program_counter = entry_point;
 
     const auto do_if = [&](Instruction instr, bool condition) {

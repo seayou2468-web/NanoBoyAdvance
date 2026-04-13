@@ -7,7 +7,7 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
-#include <boost/optional.hpp>
+#include <optional>
 #include <cryptopp/hex.h>
 #include <cryptopp/osrng.h>
 #include <fmt/ranges.h>
@@ -576,19 +576,19 @@ void Movie::SetReadOnly(bool read_only_) {
     read_only = read_only_;
 }
 
-static boost::optional<CTMHeader> ReadHeader(const std::string& movie_file) {
+static std::optional<CTMHeader> ReadHeader(const std::string& movie_file) {
     FileUtil::IOFile save_record(movie_file, "rb");
     const u64 size = save_record.GetSize();
 
     if (!save_record || size <= sizeof(CTMHeader)) {
-        return boost::none;
+        return std::nullopt;
     }
 
     CTMHeader header;
     save_record.ReadArray(&header, 1);
 
     if (header_magic_bytes != header.filetype) {
-        return boost::none;
+        return std::nullopt;
     }
 
     return header;
@@ -596,7 +596,7 @@ static boost::optional<CTMHeader> ReadHeader(const std::string& movie_file) {
 
 void Movie::PrepareForPlayback(const std::string& movie_file) {
     auto header = ReadHeader(movie_file);
-    if (header == boost::none)
+    if (!header)
         return;
 
     init_time = header.value().clock_init_time;
@@ -652,7 +652,7 @@ Movie::ValidationResult Movie::ValidateMovie(const std::string& movie_file) cons
 
 Movie::MovieMetadata Movie::GetMovieMetadata(const std::string& movie_file) const {
     auto header = ReadHeader(movie_file);
-    if (header == boost::none)
+    if (!header)
         return {};
 
     std::array<char, 33> author{}; // Add a null terminator
