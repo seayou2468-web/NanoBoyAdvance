@@ -11,7 +11,7 @@
 #define BUILD_VERSION "@BUILD_VERSION@"
 #define SHADER_CACHE_VERSION "@SHADER_CACHE_VERSION@"
 
-#import "BuildStrings.h"
+#import "../../CitraObjC/BuildStrings.h"
 
 namespace Common {
 
