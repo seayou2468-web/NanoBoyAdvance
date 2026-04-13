@@ -10,11 +10,10 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include "audio_core/input_details.h"
-#include "audio_core/sink_details.h"
-#include "common/common_types.h"
-#include "core/hle/service/cam/cam_params.h"
-
+#include "../audio_core/input_details.h"
+#include "../audio_core/sink_details.h"
+#include "common_types.h"
+#include "../core/hle/service/cam/cam_params.h"
 namespace Settings {
 
 enum class GraphicsAPI {

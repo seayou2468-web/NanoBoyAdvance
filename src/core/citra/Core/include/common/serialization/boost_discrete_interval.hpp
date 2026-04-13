@@ -5,7 +5,7 @@
 #pragma once
 
 #include <boost/icl/discrete_interval.hpp>
-#include "common/common_types.h"
+#include "../common_types.h"
 #include "common/logging/log.h"
 
 namespace boost::serialization {

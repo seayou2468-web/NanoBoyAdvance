@@ -7,12 +7,11 @@
 #include <string>
 #include <utility>
 #include <boost/serialization/export.hpp>
-#include "common/common_types.h"
-#include "common/memory_ref.h"
-#include "core/hle/kernel/object.h"
-#include "core/hle/kernel/process.h"
-#include "core/hle/result.h"
-
+#include "../../../common/common_types.h"
+#include "../../../common/memory_ref.h"
+#include "object.h"
+#include "process.h"
+#include "../result.h"
 namespace Kernel {
 
 class SharedMemory final : public Object {

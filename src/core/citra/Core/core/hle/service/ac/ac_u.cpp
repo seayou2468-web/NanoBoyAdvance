@@ -2,9 +2,8 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/archives.h"
-#include "core/hle/service/ac/ac_u.h"
-
+#include "../../../../include/common/archives.h"
+#include "../../../../include/core/hle/service/ac/ac_u.h"
 namespace Service::AC {
 
 AC_U::AC_U(std::shared_ptr<Module> ac) : Module::Interface(std::move(ac), "ac:u", 10) {

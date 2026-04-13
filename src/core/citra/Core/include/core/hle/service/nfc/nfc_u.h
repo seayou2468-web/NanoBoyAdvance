@@ -4,8 +4,7 @@
 
 #pragma once
 
-#include "core/hle/service/nfc/nfc.h"
-
+#include "nfc.h"
 namespace Service::NFC {
 
 class NFC_U final : public Module::Interface {

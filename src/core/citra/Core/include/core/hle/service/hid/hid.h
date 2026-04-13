@@ -10,14 +10,13 @@
 #include <memory>
 #include <vector>
 #include <boost/serialization/version.hpp>
-#include "common/bit_field.h"
-#include "common/common_funcs.h"
-#include "common/common_types.h"
-#include "common/settings.h"
-#include "core/core_timing.h"
-#include "core/frontend/input.h"
-#include "core/hle/service/service.h"
-
+#include "../../../../common/bit_field.h"
+#include "../../../../common/common_funcs.h"
+#include "../../../../common/common_types.h"
+#include "../../../../common/settings.h"
+#include "../../../core_timing.h"
+#include "../../../frontend/input.h"
+#include "../service.h"
 namespace Core {
 class System;
 }

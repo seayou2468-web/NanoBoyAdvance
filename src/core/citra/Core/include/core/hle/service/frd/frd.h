@@ -5,9 +5,8 @@
 #pragma once
 
 #include <memory>
-#include "common/common_types.h"
-#include "core/hle/service/service.h"
-
+#include "../../../../common/common_types.h"
+#include "../service.h"
 namespace Core {
 class System;
 }

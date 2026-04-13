@@ -8,11 +8,10 @@
 #include <mutex>
 #include <set>
 #include <thread>
-#include "common/assert.h"
+#include "../include/common/assert.h"
 #include "enet/enet.h"
-#include "network/packet.h"
-#include "network/room_member.h"
-
+#include "../include/network/packet.h"
+#include "../include/network/room_member.h"
 namespace Network {
 
 constexpr u32 ConnectionTimeoutMs = 5000;

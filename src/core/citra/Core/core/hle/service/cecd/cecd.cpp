@@ -8,25 +8,24 @@
 #include <cryptopp/hmac.h>
 #include <cryptopp/sha.h>
 #include <fmt/format.h>
-#include "common/archives.h"
-#include "common/common_paths.h"
-#include "common/file_util.h"
+#include "../../../../include/common/archives.h"
+#include "../../../../include/common/common_paths.h"
+#include "../../../../include/common/file_util.h"
 #include "common/logging/log.h"
-#include "common/string_util.h"
-#include "core/core.h"
-#include "core/file_sys/archive_systemsavedata.h"
-#include "core/file_sys/directory_backend.h"
-#include "core/file_sys/errors.h"
-#include "core/file_sys/file_backend.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/kernel/process.h"
-#include "core/hle/result.h"
-#include "core/hle/service/cecd/cecd.h"
-#include "core/hle/service/cecd/cecd_ndm.h"
-#include "core/hle/service/cecd/cecd_s.h"
-#include "core/hle/service/cecd/cecd_u.h"
-#include "core/hle/service/cfg/cfg.h"
-
+#include "../../../../include/common/string_util.h"
+#include "../../../../include/core/core.h"
+#include "../../../../include/core/file_sys/archive_systemsavedata.h"
+#include "../../../../include/core/file_sys/directory_backend.h"
+#include "../../../../include/core/file_sys/errors.h"
+#include "../../../../include/core/file_sys/file_backend.h"
+#include "../../../../include/core/hle/ipc_helpers.h"
+#include "../../../../include/core/hle/kernel/process.h"
+#include "../../../../include/core/hle/result.h"
+#include "../../../../include/core/hle/service/cecd/cecd.h"
+#include "../../../../include/core/hle/service/cecd/cecd_ndm.h"
+#include "../../../../include/core/hle/service/cecd/cecd_s.h"
+#include "../../../../include/core/hle/service/cecd/cecd_u.h"
+#include "../../../../include/core/hle/service/cfg/cfg.h"
 SERVICE_CONSTRUCT_IMPL(Service::CECD::Module)
 SERIALIZE_EXPORT_IMPL(Service::CECD::Module)
 SERIALIZE_EXPORT_IMPL(Service::CECD::Module::SessionData)

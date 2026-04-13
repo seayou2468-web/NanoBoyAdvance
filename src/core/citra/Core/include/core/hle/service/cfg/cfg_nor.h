@@ -4,8 +4,7 @@
 
 #pragma once
 
-#include "core/hle/service/service.h"
-
+#include "../service.h"
 namespace Service::CFG {
 
 class CFG_NOR final : public ServiceFramework<CFG_NOR> {

@@ -14,10 +14,9 @@
 #include <vector>
 #include <queue>
 
-#include "common/polyfill_thread.h"
-#include "common/thread.h"
-#include "common/unique_function.h"
-
+#include "polyfill_thread.h"
+#include "thread.h"
+#include "unique_function.h"
 namespace Common {
 
 template <class StateType = void>

@@ -5,8 +5,7 @@
 #pragma once
 
 #include <string>
-#include "common/common_types.h"
-
+#include "common_types.h"
 namespace Common {
 struct WebResult {
     enum class Code : u32 {

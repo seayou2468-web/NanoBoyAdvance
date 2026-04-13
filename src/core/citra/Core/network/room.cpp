@@ -11,10 +11,9 @@
 #include <thread>
 #include "common/logging/log.h"
 #include "enet/enet.h"
-#include "network/packet.h"
-#include "network/room.h"
-#include "network/verify_user.h"
-
+#include "../include/network/packet.h"
+#include "../include/network/room.h"
+#include "../include/network/verify_user.h"
 namespace Network {
 
 class Room::RoomImpl {

@@ -3,24 +3,23 @@
 // Refer to the license.txt file included.
 
 #include <vector>
-#include "common/archives.h"
-#include "common/common_types.h"
+#include "../../../../include/common/archives.h"
+#include "../../../../include/common/common_types.h"
 #include "common/logging/log.h"
-#include "common/settings.h"
-#include "core/core.h"
-#include "core/hle/ipc.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/kernel/event.h"
-#include "core/hle/kernel/handle_table.h"
-#include "core/hle/kernel/resource_limit.h"
-#include "core/hle/kernel/shared_page.h"
-#include "core/hle/result.h"
-#include "core/hle/service/ac/ac.h"
-#include "core/hle/service/ac/ac_i.h"
-#include "core/hle/service/ac/ac_u.h"
-#include "core/hle/service/soc/soc_u.h"
-#include "core/memory.h"
-
+#include "../../../../include/common/settings.h"
+#include "../../../../include/core/core.h"
+#include "../../../../include/core/hle/ipc.h"
+#include "../../../../include/core/hle/ipc_helpers.h"
+#include "../../../../include/core/hle/kernel/event.h"
+#include "../../../../include/core/hle/kernel/handle_table.h"
+#include "../../../../include/core/hle/kernel/resource_limit.h"
+#include "../../../../include/core/hle/kernel/shared_page.h"
+#include "../../../../include/core/hle/result.h"
+#include "../../../../include/core/hle/service/ac/ac.h"
+#include "../../../../include/core/hle/service/ac/ac_i.h"
+#include "../../../../include/core/hle/service/ac/ac_u.h"
+#include "../../../../include/core/hle/service/soc/soc_u.h"
+#include "../../../../include/core/memory.h"
 SERIALIZE_EXPORT_IMPL(Service::AC::Module)
 SERVICE_CONSTRUCT_IMPL(Service::AC::Module)
 

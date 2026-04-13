@@ -10,9 +10,8 @@
 #include <unordered_map>
 #include <utility>
 #include "common/logging/log.h"
-#include "common/param_package.h"
-#include "common/vector_math.h"
-
+#include "../../common/param_package.h"
+#include "../../common/vector_math.h"
 namespace Input {
 
 /// An abstract class template for an input device (a button, an analog input, etc.).

@@ -8,21 +8,20 @@
 #include <boost/serialization/array.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/unique_ptr.hpp>
-#include "common/archives.h"
+#include "../../../../include/common/archives.h"
 #include "common/logging/log.h"
-#include "core/3ds.h"
-#include "core/core.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/kernel/event.h"
-#include "core/hle/kernel/handle_table.h"
-#include "core/hle/kernel/shared_memory.h"
-#include "core/hle/kernel/shared_page.h"
-#include "core/hle/service/hid/hid.h"
-#include "core/hle/service/hid/hid_spvr.h"
-#include "core/hle/service/hid/hid_user.h"
-#include "core/hle/service/service.h"
-#include "core/movie.h"
-
+#include "../../../../include/core/3ds.h"
+#include "../../../../include/core/core.h"
+#include "../../../../include/core/hle/ipc_helpers.h"
+#include "../../../../include/core/hle/kernel/event.h"
+#include "../../../../include/core/hle/kernel/handle_table.h"
+#include "../../../../include/core/hle/kernel/shared_memory.h"
+#include "../../../../include/core/hle/kernel/shared_page.h"
+#include "../../../../include/core/hle/service/hid/hid.h"
+#include "../../../../include/core/hle/service/hid/hid_spvr.h"
+#include "../../../../include/core/hle/service/hid/hid_user.h"
+#include "../../../../include/core/hle/service/service.h"
+#include "../../../../include/core/movie.h"
 SERVICE_CONSTRUCT_IMPL(Service::HID::Module)
 SERIALIZE_EXPORT_IMPL(Service::HID::Module)
 

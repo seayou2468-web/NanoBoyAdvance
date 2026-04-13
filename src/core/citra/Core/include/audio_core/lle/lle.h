@@ -5,8 +5,7 @@
 #pragma once
 
 #include <span>
-#include "audio_core/dsp_interface.h"
-
+#include "../dsp_interface.h"
 namespace Core {
 class Timing;
 }

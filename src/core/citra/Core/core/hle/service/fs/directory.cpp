@@ -4,12 +4,11 @@
 
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/unique_ptr.hpp>
-#include "common/archives.h"
+#include "../../../../include/common/archives.h"
 #include "common/logging/log.h"
-#include "core/file_sys/directory_backend.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/service/fs/directory.h"
-
+#include "../../../../include/core/file_sys/directory_backend.h"
+#include "../../../../include/core/hle/ipc_helpers.h"
+#include "../../../../include/core/hle/service/fs/directory.h"
 SERIALIZE_EXPORT_IMPL(Service::FS::Directory)
 
 namespace Service::FS {

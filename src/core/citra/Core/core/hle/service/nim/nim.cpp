@@ -2,12 +2,11 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "core/core.h"
-#include "core/hle/service/nim/nim.h"
-#include "core/hle/service/nim/nim_aoc.h"
-#include "core/hle/service/nim/nim_s.h"
-#include "core/hle/service/nim/nim_u.h"
-
+#include "../../../../include/core/core.h"
+#include "../../../../include/core/hle/service/nim/nim.h"
+#include "../../../../include/core/hle/service/nim/nim_aoc.h"
+#include "../../../../include/core/hle/service/nim/nim_s.h"
+#include "../../../../include/core/hle/service/nim/nim_u.h"
 namespace Service::NIM {
 
 void InstallInterfaces(Core::System& system) {

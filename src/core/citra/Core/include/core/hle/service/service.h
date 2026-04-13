@@ -12,12 +12,11 @@
 #include <boost/container/flat_map.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/shared_ptr.hpp>
-#include "common/common_types.h"
-#include "common/construct.h"
-#include "core/hle/kernel/hle_ipc.h"
-#include "core/hle/kernel/object.h"
-#include "core/hle/service/sm/sm.h"
-
+#include "../../../common/common_types.h"
+#include "../../../common/construct.h"
+#include "../kernel/hle_ipc.h"
+#include "../kernel/object.h"
+#include "sm/sm.h"
 namespace Core {
 class System;
 }

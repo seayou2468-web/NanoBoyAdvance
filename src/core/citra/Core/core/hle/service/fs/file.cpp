@@ -3,18 +3,17 @@
 // Refer to the license.txt file included.
 
 #include <boost/serialization/unique_ptr.hpp>
-#include "common/archives.h"
+#include "../../../../include/common/archives.h"
 #include "common/logging/log.h"
-#include "core/core.h"
-#include "core/file_sys/errors.h"
-#include "core/file_sys/file_backend.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/kernel/client_port.h"
-#include "core/hle/kernel/client_session.h"
-#include "core/hle/kernel/event.h"
-#include "core/hle/kernel/server_session.h"
-#include "core/hle/service/fs/file.h"
-
+#include "../../../../include/core/core.h"
+#include "../../../../include/core/file_sys/errors.h"
+#include "../../../../include/core/file_sys/file_backend.h"
+#include "../../../../include/core/hle/ipc_helpers.h"
+#include "../../../../include/core/hle/kernel/client_port.h"
+#include "../../../../include/core/hle/kernel/client_session.h"
+#include "../../../../include/core/hle/kernel/event.h"
+#include "../../../../include/core/hle/kernel/server_session.h"
+#include "../../../../include/core/hle/service/fs/file.h"
 SERIALIZE_EXPORT_IMPL(Service::FS::File)
 SERIALIZE_EXPORT_IMPL(Service::FS::FileSessionSlot)
 

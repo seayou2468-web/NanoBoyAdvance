@@ -2,9 +2,8 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "core/arm/dyncom/arm_dyncom_dec.h"
-#include "core/arm/skyeye_common/armsupp.h"
-
+#include "../../../include/core/arm/dyncom/arm_dyncom_dec.h"
+#include "../../../include/core/arm/skyeye_common/armsupp.h"
 namespace {
 struct InstructionSetEncodingItem {
     const char* name;

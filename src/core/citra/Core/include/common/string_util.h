@@ -10,9 +10,8 @@
 #include <string>
 #include <string_view>
 #include <vector>
-#include "common/common_types.h"
-#include "common/swap.h"
-
+#include "common_types.h"
+#include "swap.h"
 namespace Common {
 
 /// Make a char lowercase

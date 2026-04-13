@@ -9,14 +9,13 @@
 #include <string>
 #include <boost/optional/optional.hpp>
 #include <boost/serialization/export.hpp>
-#include "common/bit_field.h"
-#include "common/common_types.h"
-#include "core/hle/kernel/event.h"
-#include "core/hle/kernel/hle_ipc.h"
-#include "core/hle/service/gsp/gsp_command.h"
-#include "core/hle/service/gsp/gsp_interrupt.h"
-#include "core/hle/service/service.h"
-
+#include "../../../../common/bit_field.h"
+#include "../../../../common/common_types.h"
+#include "../../kernel/event.h"
+#include "../../kernel/hle_ipc.h"
+#include "gsp_command.h"
+#include "gsp_interrupt.h"
+#include "../service.h"
 namespace Core {
 class System;
 }

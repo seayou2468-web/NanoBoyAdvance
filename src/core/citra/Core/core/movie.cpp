@@ -10,20 +10,19 @@
 #include <boost/optional.hpp>
 #include <cryptopp/hex.h>
 #include <cryptopp/osrng.h>
-#include "common/archives.h"
-#include "common/bit_field.h"
-#include "common/file_util.h"
+#include "../include/common/archives.h"
+#include "../include/common/bit_field.h"
+#include "../include/common/file_util.h"
 #include "common/logging/log.h"
-#include "common/scm_rev.h"
-#include "common/swap.h"
-#include "common/timer.h"
-#include "core/core.h"
-#include "core/hle/service/hid/hid.h"
-#include "core/hle/service/ir/extra_hid.h"
-#include "core/hle/service/ir/ir_rst.h"
-#include "core/loader/loader.h"
-#include "core/movie.h"
-
+#include "../include/common/scm_rev.h"
+#include "../include/common/swap.h"
+#include "../include/common/timer.h"
+#include "../include/core/core.h"
+#include "../include/core/hle/service/hid/hid.h"
+#include "../include/core/hle/service/ir/extra_hid.h"
+#include "../include/core/hle/service/ir/ir_rst.h"
+#include "../include/core/loader/loader.h"
+#include "../include/core/movie.h"
 namespace Core {
 
 enum class ControllerStateType : u8 {

@@ -1,14 +1,13 @@
 // SPDX-FileCopyrightText: Copyright 2018 yuzu Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#include "common/arch.h"
+#include "../../include/common/arch.h"
 #if CYTRUS_ARCH(x86_64) || CYTRUS_ARCH(arm64)
 #include "core/arm/dynarmic/arm_exclusive_monitor.h"
 #endif
-#include "common/settings.h"
-#include "core/arm/exclusive_monitor.h"
-#include "core/memory.h"
-
+#include "../../include/common/settings.h"
+#include "../../include/core/arm/exclusive_monitor.h"
+#include "../../include/core/memory.h"
 namespace Core {
 
 ExclusiveMonitor::~ExclusiveMonitor() = default;

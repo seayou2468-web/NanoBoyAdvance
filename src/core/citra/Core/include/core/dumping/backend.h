@@ -6,10 +6,9 @@
 
 #include <string>
 #include <vector>
-#include "audio_core/audio_types.h"
-#include "common/common_types.h"
-#include "core/frontend/framebuffer_layout.h"
-
+#include "../../audio_core/audio_types.h"
+#include "../../common/common_types.h"
+#include "../frontend/framebuffer_layout.h"
 namespace VideoDumper {
 /**
  * Frame dump data for a single screen

@@ -2,13 +2,12 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/archives.h"
-#include "common/string_util.h"
-#include "core/core.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/kernel/event.h"
-#include "core/hle/service/nim/nim_u.h"
-
+#include "../../../../include/common/archives.h"
+#include "../../../../include/common/string_util.h"
+#include "../../../../include/core/core.h"
+#include "../../../../include/core/hle/ipc_helpers.h"
+#include "../../../../include/core/hle/kernel/event.h"
+#include "../../../../include/core/hle/service/nim/nim_u.h"
 SERVICE_CONSTRUCT_IMPL(Service::NIM::NIM_U)
 SERIALIZE_EXPORT_IMPL(Service::NIM::NIM_U)
 

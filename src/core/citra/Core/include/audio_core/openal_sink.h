@@ -7,8 +7,7 @@
 #include <cstddef>
 #include <memory>
 #include <string>
-#include "audio_core/sink.h"
-
+#include "sink.h"
 namespace AudioCore {
 
 class OpenALSink final : public Sink {

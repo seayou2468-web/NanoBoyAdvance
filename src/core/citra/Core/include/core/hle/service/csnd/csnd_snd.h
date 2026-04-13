@@ -7,10 +7,9 @@
 #include <memory>
 #include <boost/serialization/array.hpp>
 #include <boost/serialization/shared_ptr.hpp>
-#include "core/hle/kernel/mutex.h"
-#include "core/hle/kernel/shared_memory.h"
-#include "core/hle/service/service.h"
-
+#include "../../kernel/mutex.h"
+#include "../../kernel/shared_memory.h"
+#include "../service.h"
 namespace Core {
 class System;
 }

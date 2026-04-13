@@ -5,14 +5,13 @@
 #include <algorithm>
 #include <vector>
 #include "common/logging/log.h"
-#include "core/core.h"
-#include "core/hle/kernel/process.h"
-#include "core/hle/kernel/resource_limit.h"
-#include "core/hle/service/fs/archive.h"
-#include "core/hle/service/fs/fs_user.h"
-#include "core/loader/3dsx.h"
-#include "core/memory.h"
-
+#include "../../include/core/core.h"
+#include "../../include/core/hle/kernel/process.h"
+#include "../../include/core/hle/kernel/resource_limit.h"
+#include "../../include/core/hle/service/fs/archive.h"
+#include "../../include/core/hle/service/fs/fs_user.h"
+#include "../../include/core/loader/3dsx.h"
+#include "../../include/core/memory.h"
 namespace Loader {
 
 /*

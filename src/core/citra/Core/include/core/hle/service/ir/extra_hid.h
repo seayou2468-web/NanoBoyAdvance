@@ -8,11 +8,10 @@
 #include <atomic>
 #include <span>
 #include <boost/serialization/array.hpp>
-#include "common/bit_field.h"
-#include "common/swap.h"
-#include "core/frontend/input.h"
-#include "core/hle/service/ir/ir_user.h"
-
+#include "../../../../common/bit_field.h"
+#include "../../../../common/swap.h"
+#include "../../../frontend/input.h"
+#include "ir_user.h"
 namespace Core {
 struct TimingEventType;
 class Timing;

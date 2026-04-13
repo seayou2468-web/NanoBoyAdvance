@@ -8,17 +8,16 @@
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/unique_ptr.hpp>
 #include <boost/serialization/vector.hpp>
-#include "common/archives.h"
-#include "common/assert.h"
-#include "common/common_types.h"
-#include "core/core.h"
-#include "core/hle/kernel/event.h"
-#include "core/hle/kernel/handle_table.h"
-#include "core/hle/kernel/hle_ipc.h"
+#include "../../../include/common/archives.h"
+#include "../../../include/common/assert.h"
+#include "../../../include/common/common_types.h"
+#include "../../../include/core/core.h"
+#include "../../../include/core/hle/kernel/event.h"
+#include "../../../include/core/hle/kernel/handle_table.h"
+#include "../../../include/core/hle/kernel/hle_ipc.h"
 #include "core/hle/kernel/ipc_debugger/recorder.h"
-#include "core/hle/kernel/kernel.h"
-#include "core/hle/kernel/process.h"
-
+#include "../../../include/core/hle/kernel/kernel.h"
+#include "../../../include/core/hle/kernel/process.h"
 SERIALIZE_EXPORT_IMPL(Kernel::SessionRequestHandler)
 SERIALIZE_EXPORT_IMPL(Kernel::SessionRequestHandler::SessionDataBase)
 SERIALIZE_EXPORT_IMPL(Kernel::SessionRequestHandler::SessionInfo)

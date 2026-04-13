@@ -2,11 +2,10 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "core/core.h"
-#include "core/hle/service/gsp/gsp.h"
-#include "core/hle/service/gsp/gsp_gpu.h"
-#include "core/hle/service/gsp/gsp_lcd.h"
-
+#include "../../../../include/core/core.h"
+#include "../../../../include/core/hle/service/gsp/gsp.h"
+#include "../../../../include/core/hle/service/gsp/gsp_gpu.h"
+#include "../../../../include/core/hle/service/gsp/gsp_lcd.h"
 namespace Service::GSP {
 
 void InstallInterfaces(Core::System& system) {

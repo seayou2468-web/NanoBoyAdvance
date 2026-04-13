@@ -4,8 +4,8 @@
 
 #include <algorithm>
 #include <cstddef>
-#include "audio_core/hle/mixers.h"
-#include "common/assert.h"
+#include "../../include/audio_core/hle/mixers.h"
+#include "../../include/common/assert.h"
 #include "common/logging/log.h"
 
 namespace AudioCore::HLE {

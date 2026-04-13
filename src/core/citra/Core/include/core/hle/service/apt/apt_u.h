@@ -4,8 +4,7 @@
 
 #pragma once
 
-#include "core/hle/service/apt/apt.h"
-
+#include "apt.h"
 namespace Service::APT {
 
 // Application and title launching service. These services handle signaling for home/power button as

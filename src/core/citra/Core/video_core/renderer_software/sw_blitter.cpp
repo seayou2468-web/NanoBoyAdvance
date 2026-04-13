@@ -2,15 +2,14 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/alignment.h"
-#include "common/color.h"
-#include "common/vector_math.h"
-#include "core/memory.h"
-#include "video_core/pica/regs_external.h"
-#include "video_core/rasterizer_interface.h"
-#include "video_core/renderer_software/sw_blitter.h"
-#include "video_core/utils.h"
-
+#include "../../include/common/alignment.h"
+#include "../../include/common/color.h"
+#include "../../include/common/vector_math.h"
+#include "../../include/core/memory.h"
+#include "../../include/video_core/pica/regs_external.h"
+#include "../../include/video_core/rasterizer_interface.h"
+#include "../../include/video_core/renderer_software/sw_blitter.h"
+#include "../../include/video_core/utils.h"
 namespace SwRenderer {
 
 static Common::Vec4<u8> DecodePixel(Pica::PixelFormat input_format, const u8* src_pixel) {

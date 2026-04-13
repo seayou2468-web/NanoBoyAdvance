@@ -3,9 +3,8 @@
 // Refer to the license.txt file included.
 
 #include <array>
-#include "audio_core/input.h"
-#include "audio_core/static_input.h"
-
+#include "../include/audio_core/input.h"
+#include "../include/audio_core/static_input.h"
 namespace AudioCore {
 
 constexpr std::array<u8, 16> NOISE_SAMPLE_8_BIT = {0xFC, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,

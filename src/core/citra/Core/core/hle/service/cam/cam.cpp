@@ -3,23 +3,22 @@
 // Refer to the license.txt file included.
 
 #include <algorithm>
-#include "common/archives.h"
-#include "common/bit_set.h"
+#include "../../../../include/common/archives.h"
+#include "../../../../include/common/bit_set.h"
 #include "common/logging/log.h"
-#include "common/settings.h"
-#include "core/core.h"
-#include "core/core_timing.h"
-#include "core/frontend/camera/factory.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/kernel/event.h"
-#include "core/hle/kernel/process.h"
-#include "core/hle/service/cam/cam.h"
-#include "core/hle/service/cam/cam_c.h"
-#include "core/hle/service/cam/cam_q.h"
-#include "core/hle/service/cam/cam_s.h"
-#include "core/hle/service/cam/cam_u.h"
-#include "core/memory.h"
-
+#include "../../../../include/common/settings.h"
+#include "../../../../include/core/core.h"
+#include "../../../../include/core/core_timing.h"
+#include "../../../../include/core/frontend/camera/factory.h"
+#include "../../../../include/core/hle/ipc_helpers.h"
+#include "../../../../include/core/hle/kernel/event.h"
+#include "../../../../include/core/hle/kernel/process.h"
+#include "../../../../include/core/hle/service/cam/cam.h"
+#include "../../../../include/core/hle/service/cam/cam_c.h"
+#include "../../../../include/core/hle/service/cam/cam_q.h"
+#include "../../../../include/core/hle/service/cam/cam_s.h"
+#include "../../../../include/core/hle/service/cam/cam_u.h"
+#include "../../../../include/core/memory.h"
 SERVICE_CONSTRUCT_IMPL(Service::CAM::Module)
 
 namespace Service::CAM {

@@ -4,14 +4,13 @@
 
 #pragma once
 
-#include "common/arch.h"
+#include "../arch.h"
 #if CYTRUS_ARCH(arm64)
 
 #include <bitset>
 #include <initializer_list>
 #include <oaknut/oaknut.hpp>
-#include "common/assert.h"
-
+#include "../assert.h"
 namespace Common::A64 {
 
 constexpr std::size_t RegToIndex(const oaknut::Reg& reg) {

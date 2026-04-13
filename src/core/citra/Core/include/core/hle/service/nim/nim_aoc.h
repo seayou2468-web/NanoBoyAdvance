@@ -4,8 +4,7 @@
 
 #pragma once
 
-#include "core/hle/service/service.h"
-
+#include "../service.h"
 namespace Service::NIM {
 
 class NIM_AOC final : public ServiceFramework<NIM_AOC> {

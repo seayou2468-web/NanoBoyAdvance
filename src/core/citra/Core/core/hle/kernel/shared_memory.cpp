@@ -6,14 +6,13 @@
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/utility.hpp>
 #include <boost/serialization/weak_ptr.hpp>
-#include "common/archives.h"
+#include "../../../include/common/archives.h"
 #include "common/logging/log.h"
-#include "core/hle/kernel/errors.h"
-#include "core/hle/kernel/memory.h"
-#include "core/hle/kernel/resource_limit.h"
-#include "core/hle/kernel/shared_memory.h"
-#include "core/memory.h"
-
+#include "../../../include/core/hle/kernel/errors.h"
+#include "../../../include/core/hle/kernel/memory.h"
+#include "../../../include/core/hle/kernel/resource_limit.h"
+#include "../../../include/core/hle/kernel/shared_memory.h"
+#include "../../../include/core/memory.h"
 SERIALIZE_EXPORT_IMPL(Kernel::SharedMemory)
 
 namespace Kernel {

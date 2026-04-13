@@ -33,8 +33,7 @@
 #include <cstddef>
 #include <limits>
 #include <type_traits>
-#include "common/swap.h"
-
+#include "swap.h"
 /*
  * Abstract bitfield class
  *

@@ -6,9 +6,9 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include "audio_core/coreaudio_sink.h"
-#include "audio_core/null_sink.h"
-#include "audio_core/sink_details.h"
+#include "../include/audio_core/coreaudio_sink.h"
+#include "../include/audio_core/null_sink.h"
+#include "../include/audio_core/sink_details.h"
 #include "common/logging/log.h"
 
 namespace AudioCore {

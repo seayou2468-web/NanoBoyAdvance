@@ -6,12 +6,11 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include "audio_core/input_details.h"
-#include "audio_core/null_input.h"
-#include "audio_core/static_input.h"
+#include "../include/audio_core/input_details.h"
+#include "../include/audio_core/null_input.h"
+#include "../include/audio_core/static_input.h"
 #include "common/logging/log.h"
-#include "core/core.h"
-
+#include "../include/core/core.h"
 namespace AudioCore {
 namespace {
 // input_details is ordered in terms of desirability, with the best choice at the top.

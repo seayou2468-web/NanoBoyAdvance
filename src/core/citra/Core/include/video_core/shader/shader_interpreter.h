@@ -4,10 +4,9 @@
 
 #pragma once
 
-#include "video_core/pica/output_vertex.h"
+#include "../pica/output_vertex.h"
 #include "video_core/shader/debug_data.h"
-#include "video_core/shader/shader.h"
-
+#include "shader.h"
 namespace Pica {
 struct ShaderRegs;
 }

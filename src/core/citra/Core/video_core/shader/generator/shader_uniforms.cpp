@@ -3,10 +3,9 @@
 // Refer to the license.txt file included.
 
 #include <algorithm>
-#include "video_core/pica/regs_shader.h"
-#include "video_core/pica/shader_setup.h"
-#include "video_core/shader/generator/shader_uniforms.h"
-
+#include "../../../include/video_core/pica/regs_shader.h"
+#include "../../../include/video_core/pica/shader_setup.h"
+#include "../../../include/video_core/shader/generator/shader_uniforms.h"
 namespace Pica::Shader::Generator {
 
 void PicaUniformsData::SetFromRegs(const Pica::ShaderRegs& regs, const Pica::ShaderSetup& setup) {

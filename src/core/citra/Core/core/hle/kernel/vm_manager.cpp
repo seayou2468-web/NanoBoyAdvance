@@ -7,14 +7,13 @@
 #include <boost/serialization/map.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/split_member.hpp>
-#include "common/archives.h"
-#include "common/assert.h"
-#include "core/core.h"
-#include "core/hle/kernel/errors.h"
-#include "core/hle/kernel/vm_manager.h"
-#include "core/hle/service/plgldr/plgldr.h"
-#include "core/memory.h"
-
+#include "../../../include/common/archives.h"
+#include "../../../include/common/assert.h"
+#include "../../../include/core/core.h"
+#include "../../../include/core/hle/kernel/errors.h"
+#include "../../../include/core/hle/kernel/vm_manager.h"
+#include "../../../include/core/hle/service/plgldr/plgldr.h"
+#include "../../../include/core/memory.h"
 SERIALIZE_EXPORT_IMPL(Kernel::VirtualMemoryArea)
 
 namespace Kernel {

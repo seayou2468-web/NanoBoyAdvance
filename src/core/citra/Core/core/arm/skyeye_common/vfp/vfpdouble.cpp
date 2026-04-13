@@ -53,10 +53,9 @@
 
 #include <algorithm>
 #include "common/logging/log.h"
-#include "core/arm/skyeye_common/vfp/asm_vfp.h"
-#include "core/arm/skyeye_common/vfp/vfp.h"
-#include "core/arm/skyeye_common/vfp/vfp_helper.h"
-
+#include "../../../../include/core/arm/skyeye_common/vfp/asm_vfp.h"
+#include "../../../../include/core/arm/skyeye_common/vfp/vfp.h"
+#include "../../../../include/core/arm/skyeye_common/vfp/vfp_helper.h"
 static struct vfp_double vfp_double_default_qnan = {
     2047,
     0,

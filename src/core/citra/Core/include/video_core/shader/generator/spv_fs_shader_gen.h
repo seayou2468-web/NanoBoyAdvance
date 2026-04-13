@@ -7,9 +7,8 @@
 #include <array>
 #include <sirit/sirit.h>
 
-#include "video_core/pica/regs_framebuffer.h"
-#include "video_core/pica/regs_texturing.h"
-
+#include "../../pica/regs_framebuffer.h"
+#include "../../pica/regs_texturing.h"
 namespace Pica::Shader {
 struct FSConfig;
 struct Profile;

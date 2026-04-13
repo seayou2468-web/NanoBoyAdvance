@@ -5,13 +5,12 @@
 #include <algorithm>
 #include <cstring>
 #include <memory>
-#include "core/arm/dyncom/arm_dyncom.h"
-#include "core/arm/dyncom/arm_dyncom_interpreter.h"
-#include "core/arm/dyncom/arm_dyncom_trans.h"
-#include "core/arm/skyeye_common/armstate.h"
-#include "core/core.h"
-#include "core/core_timing.h"
-
+#include "../../../include/core/arm/dyncom/arm_dyncom.h"
+#include "../../../include/core/arm/dyncom/arm_dyncom_interpreter.h"
+#include "../../../include/core/arm/dyncom/arm_dyncom_trans.h"
+#include "../../../include/core/arm/skyeye_common/armstate.h"
+#include "../../../include/core/core.h"
+#include "../../../include/core/core_timing.h"
 namespace Core {
 
 ARM_DynCom::ARM_DynCom(Core::System& system_, Memory::MemorySystem& memory,

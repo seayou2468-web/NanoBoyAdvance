@@ -4,8 +4,7 @@
 
 #pragma once
 
-#include "core/hle/service/news/news.h"
-
+#include "news.h"
 namespace Service::NEWS {
 
 class NEWS_S final : public Module::Interface {

@@ -7,10 +7,9 @@
 #include <span>
 #include <tuple>
 #include <vector>
-#include "common/common_types.h"
-#include "common/swap.h"
-#include "core/hle/service/service.h"
-
+#include "../../../../common/common_types.h"
+#include "../../../../common/swap.h"
+#include "../service.h"
 namespace Service::NWM {
 
 /// Sequence number of the 802.11 authentication frames.

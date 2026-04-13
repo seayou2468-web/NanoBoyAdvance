@@ -6,8 +6,7 @@
 
 #include <memory>
 #include <boost/serialization/export.hpp>
-#include "common/common_types.h"
-
+#include "../../../common/common_types.h"
 namespace Core {
 class System;
 } // namespace Core

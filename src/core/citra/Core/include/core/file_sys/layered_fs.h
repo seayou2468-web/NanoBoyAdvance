@@ -13,10 +13,9 @@
 #include <boost/serialization/export.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/string.hpp>
-#include "common/common_types.h"
-#include "common/swap.h"
-#include "core/file_sys/romfs_reader.h"
-
+#include "../../common/common_types.h"
+#include "../../common/swap.h"
+#include "romfs_reader.h"
 namespace FileSys {
 
 struct RomFSHeader {

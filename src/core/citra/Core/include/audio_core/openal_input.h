@@ -7,8 +7,7 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include "audio_core/input.h"
-
+#include "input.h"
 namespace AudioCore {
 
 class OpenALInput final : public Input {

@@ -10,12 +10,11 @@
 // putting this as a subset of HLE for now.
 
 #include <boost/serialization/export.hpp>
-#include "common/common_funcs.h"
-#include "common/common_types.h"
-#include "common/memory_ref.h"
-#include "common/swap.h"
-#include "core/memory.h"
-
+#include "../../../common/common_funcs.h"
+#include "../../../common/common_types.h"
+#include "../../../common/memory_ref.h"
+#include "../../../common/swap.h"
+#include "../../memory.h"
 namespace ConfigMem {
 
 struct ConfigMemDef {

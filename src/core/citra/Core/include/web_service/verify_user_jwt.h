@@ -5,9 +5,8 @@
 #pragma once
 
 #include <fmt/format.h>
-#include "network/verify_user.h"
-#include "web_service/web_backend.h"
-
+#include "../network/verify_user.h"
+#include "web_backend.h"
 namespace WebService {
 
 class VerifyUserJWT final : public Network::VerifyUser::Backend {

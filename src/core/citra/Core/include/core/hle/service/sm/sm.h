@@ -12,12 +12,11 @@
 #include <boost/serialization/split_member.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/unordered_map.hpp>
-#include "core/hle/kernel/client_port.h"
-#include "core/hle/kernel/object.h"
-#include "core/hle/kernel/server_port.h"
-#include "core/hle/result.h"
-#include "core/hle/service/service.h"
-
+#include "../../kernel/client_port.h"
+#include "../../kernel/object.h"
+#include "../../kernel/server_port.h"
+#include "../../result.h"
+#include "../service.h"
 namespace Core {
 class System;
 }

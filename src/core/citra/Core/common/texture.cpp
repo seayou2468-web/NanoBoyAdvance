@@ -3,9 +3,8 @@
 // Refer to the license.txt file included.
 
 #include <algorithm>
-#include "common/assert.h"
-#include "common/texture.h"
-
+#include "../include/common/assert.h"
+#include "../include/common/texture.h"
 namespace Common {
 
 void FlipRGBA8Texture(std::span<u8> tex, u32 width, u32 height) {

@@ -4,13 +4,12 @@
 
 #pragma once
 
-#include "video_core/pica/regs_framebuffer.h"
-#include "video_core/pica/regs_lighting.h"
-#include "video_core/pica/regs_pipeline.h"
-#include "video_core/pica/regs_rasterizer.h"
-#include "video_core/pica/regs_shader.h"
-#include "video_core/pica/regs_texturing.h"
-
+#include "regs_framebuffer.h"
+#include "regs_lighting.h"
+#include "regs_pipeline.h"
+#include "regs_rasterizer.h"
+#include "regs_shader.h"
+#include "regs_texturing.h"
 namespace Pica {
 
 #define PICA_REG_INDEX(field_name) (offsetof(Pica::RegsInternal, field_name) / sizeof(u32))

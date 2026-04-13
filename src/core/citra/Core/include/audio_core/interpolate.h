@@ -6,9 +6,8 @@
 
 #include <array>
 #include <deque>
-#include "audio_core/audio_types.h"
-#include "common/common_types.h"
-
+#include "audio_types.h"
+#include "../common/common_types.h"
 namespace AudioCore::AudioInterp {
 
 /// A variable length buffer of signed PCM16 stereo samples.

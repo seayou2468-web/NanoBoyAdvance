@@ -8,11 +8,10 @@
 #include <string>
 #include <fmt/format.h>
 #include <httplib.h>
-#include "common/common_types.h"
+#include "../include/common/common_types.h"
 #include "common/logging/log.h"
-#include "common/web_result.h"
-#include "web_service/web_backend.h"
-
+#include "../include/common/web_result.h"
+#include "../include/web_service/web_backend.h"
 namespace WebService {
 
 constexpr std::array<const char, 1> API_VERSION{'1'};

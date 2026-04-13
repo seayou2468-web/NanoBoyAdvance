@@ -5,10 +5,9 @@
 #define DDSKTX_IMPLEMENT
 #include <dds-ktx.h>
 #include <lodepng.h>
-#include "common/file_util.h"
+#include "../../include/common/file_util.h"
 #include "common/logging/log.h"
-#include "core/frontend/image_interface.h"
-
+#include "../../include/core/frontend/image_interface.h"
 namespace Frontend {
 
 bool ImageInterface::DecodePNG(std::vector<u8>& dst, u32& width, u32& height,

@@ -6,8 +6,7 @@
 
 #include <optional>
 #include <vector>
-#include "common/common_types.h"
-
+#include "../common/common_types.h"
 namespace Core {
 
 constexpr u32 NUM_SYSTEM_TITLE_REGIONS = 7;

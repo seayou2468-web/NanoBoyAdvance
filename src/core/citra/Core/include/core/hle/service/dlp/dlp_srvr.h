@@ -4,8 +4,7 @@
 
 #pragma once
 
-#include "core/hle/service/service.h"
-
+#include "../service.h"
 namespace Service::DLP {
 
 class DLP_SRVR final : public ServiceFramework<DLP_SRVR> {

@@ -6,15 +6,14 @@
 #include <cstring>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/binary_object.hpp>
-#include "common/archives.h"
-#include "common/assert.h"
-#include "common/settings.h"
-#include "core/core.h"
-#include "core/core_timing.h"
-#include "core/hle/kernel/shared_page.h"
-#include "core/hle/service/ptm/ptm.h"
-#include "core/movie.h"
-
+#include "../../../include/common/archives.h"
+#include "../../../include/common/assert.h"
+#include "../../../include/common/settings.h"
+#include "../../../include/core/core.h"
+#include "../../../include/core/core_timing.h"
+#include "../../../include/core/hle/kernel/shared_page.h"
+#include "../../../include/core/hle/service/ptm/ptm.h"
+#include "../../../include/core/movie.h"
 SERIALIZE_EXPORT_IMPL(SharedPage::Handler)
 
 namespace boost::serialization {

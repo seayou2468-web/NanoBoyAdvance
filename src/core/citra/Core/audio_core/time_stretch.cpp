@@ -11,9 +11,9 @@
 #include <vector>
 #include <SoundTouch.h>
 
-#include "audio_core/audio_types.h"
-#include "audio_core/time_stretch.h"
-#include "common/assert.h"
+#include "../include/audio_core/audio_types.h"
+#include "../include/audio_core/time_stretch.h"
+#include "../include/common/assert.h"
 #include "common/logging/log.h"
 
 namespace AudioCore {

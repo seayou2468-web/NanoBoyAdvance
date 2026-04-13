@@ -2,13 +2,12 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/archives.h"
-#include "common/common_types.h"
+#include "../../../../include/common/archives.h"
+#include "../../../../include/common/common_types.h"
 #include "common/logging/log.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/result.h"
-#include "core/hle/service/dlp/dlp_srvr.h"
-
+#include "../../../../include/core/hle/ipc_helpers.h"
+#include "../../../../include/core/hle/result.h"
+#include "../../../../include/core/hle/service/dlp/dlp_srvr.h"
 SERIALIZE_EXPORT_IMPL(Service::DLP::DLP_SRVR)
 
 namespace Service::DLP {

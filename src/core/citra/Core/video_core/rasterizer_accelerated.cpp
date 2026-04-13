@@ -2,11 +2,10 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/alignment.h"
-#include "core/memory.h"
-#include "video_core/pica/pica_core.h"
-#include "video_core/rasterizer_accelerated.h"
-
+#include "../include/common/alignment.h"
+#include "../include/core/memory.h"
+#include "../include/video_core/pica/pica_core.h"
+#include "../include/video_core/rasterizer_accelerated.h"
 namespace VideoCore {
 
 using Pica::f24;

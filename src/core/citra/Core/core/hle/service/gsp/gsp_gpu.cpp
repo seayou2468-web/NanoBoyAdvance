@@ -7,21 +7,20 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/optional.hpp>
 #include <boost/serialization/shared_ptr.hpp>
-#include "common/archives.h"
-#include "common/bit_field.h"
-#include "common/hacks/hack_manager.h"
-#include "core/core.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/kernel/shared_memory.h"
-#include "core/hle/kernel/shared_page.h"
-#include "core/hle/result.h"
-#include "core/hle/service/gsp/gsp_gpu.h"
-#include "core/memory.h"
-#include "video_core/gpu.h"
+#include "../../../../include/common/archives.h"
+#include "../../../../include/common/bit_field.h"
+#include "../../../../include/common/hacks/hack_manager.h"
+#include "../../../../include/core/core.h"
+#include "../../../../include/core/hle/ipc_helpers.h"
+#include "../../../../include/core/hle/kernel/shared_memory.h"
+#include "../../../../include/core/hle/kernel/shared_page.h"
+#include "../../../../include/core/hle/result.h"
+#include "../../../../include/core/hle/service/gsp/gsp_gpu.h"
+#include "../../../../include/core/memory.h"
+#include "../../../../include/video_core/gpu.h"
 #include "video_core/gpu_debugger.h"
-#include "video_core/pica/regs_lcd.h"
-#include "video_core/right_eye_disabler.h"
-
+#include "../../../../include/video_core/pica/regs_lcd.h"
+#include "../../../../include/video_core/right_eye_disabler.h"
 SERIALIZE_EXPORT_IMPL(Service::GSP::SessionData)
 SERIALIZE_EXPORT_IMPL(Service::GSP::GSP_GPU)
 SERVICE_CONSTRUCT_IMPL(Service::GSP::GSP_GPU)

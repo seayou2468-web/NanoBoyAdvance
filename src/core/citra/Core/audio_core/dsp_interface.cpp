@@ -3,14 +3,13 @@
 // Refer to the license.txt file included.
 
 #include <cstddef>
-#include "audio_core/dsp_interface.h"
-#include "audio_core/sink.h"
-#include "audio_core/sink_details.h"
-#include "common/assert.h"
-#include "common/settings.h"
-#include "core/core.h"
-#include "core/dumping/backend.h"
-
+#include "../include/audio_core/dsp_interface.h"
+#include "../include/audio_core/sink.h"
+#include "../include/audio_core/sink_details.h"
+#include "../include/common/assert.h"
+#include "../include/common/settings.h"
+#include "../include/core/core.h"
+#include "../include/core/dumping/backend.h"
 namespace AudioCore {
 
 DspInterface::DspInterface(Core::System& system_) : system(system_) {}

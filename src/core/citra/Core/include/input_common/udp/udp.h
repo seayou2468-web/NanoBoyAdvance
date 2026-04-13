@@ -5,8 +5,7 @@
 #pragma once
 
 #include <memory>
-#include "input_common/udp/client.h"
-
+#include "client.h"
 namespace InputCommon::CemuhookUDP {
 
 class State {

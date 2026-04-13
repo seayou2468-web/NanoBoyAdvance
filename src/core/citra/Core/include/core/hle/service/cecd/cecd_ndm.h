@@ -4,8 +4,7 @@
 
 #pragma once
 
-#include "core/hle/service/cecd/cecd.h"
-
+#include "cecd.h"
 namespace Service::CECD {
 
 class CECD_NDM final : public Module::Interface {

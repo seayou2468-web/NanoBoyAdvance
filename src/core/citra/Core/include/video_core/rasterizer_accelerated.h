@@ -4,11 +4,10 @@
 
 #pragma once
 
-#include "common/vector_math.h"
-#include "video_core/rasterizer_interface.h"
-#include "video_core/shader/generator/pica_fs_config.h"
-#include "video_core/shader/generator/shader_uniforms.h"
-
+#include "../common/vector_math.h"
+#include "rasterizer_interface.h"
+#include "shader/generator/pica_fs_config.h"
+#include "shader/generator/shader_uniforms.h"
 namespace Memory {
 class MemorySystem;
 }

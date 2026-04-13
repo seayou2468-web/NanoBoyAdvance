@@ -3,14 +3,13 @@
 // Refer to the license.txt file included.
 
 #include <memory>
-#include "common/archives.h"
-#include "common/file_util.h"
-#include "common/settings.h"
-#include "core/file_sys/archive_sdmcwriteonly.h"
-#include "core/file_sys/directory_backend.h"
-#include "core/file_sys/errors.h"
-#include "core/file_sys/file_backend.h"
-
+#include "../../include/common/archives.h"
+#include "../../include/common/file_util.h"
+#include "../../include/common/settings.h"
+#include "../../include/core/file_sys/archive_sdmcwriteonly.h"
+#include "../../include/core/file_sys/directory_backend.h"
+#include "../../include/core/file_sys/errors.h"
+#include "../../include/core/file_sys/file_backend.h"
 SERIALIZE_EXPORT_IMPL(FileSys::SDMCWriteOnlyArchive)
 SERIALIZE_EXPORT_IMPL(FileSys::ArchiveFactory_SDMCWriteOnly)
 

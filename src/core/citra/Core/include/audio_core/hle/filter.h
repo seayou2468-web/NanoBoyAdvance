@@ -5,10 +5,9 @@
 #pragma once
 
 #include <array>
-#include "audio_core/audio_types.h"
-#include "audio_core/hle/shared_memory.h"
-#include "common/common_types.h"
-
+#include "../audio_types.h"
+#include "shared_memory.h"
+#include "../../common/common_types.h"
 namespace AudioCore::HLE {
 
 /// Preprocessing filters. There is an independent set of filters for each Source.

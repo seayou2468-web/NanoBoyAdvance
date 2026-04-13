@@ -4,8 +4,7 @@
 
 #pragma once
 
-#include "audio_core/hle/decoder.h"
-
+#include "decoder.h"
 namespace AudioCore::HLE {
 
 using NeAACDecHandle = void*;

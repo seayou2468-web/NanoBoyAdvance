@@ -9,13 +9,12 @@
 #include <memory>
 #include <type_traits>
 #include <boost/serialization/access.hpp>
-#include "audio_core/audio_types.h"
-#include "audio_core/hle/common.h"
-#include "common/bit_field.h"
-#include "common/common_funcs.h"
-#include "common/common_types.h"
-#include "common/swap.h"
-
+#include "../audio_types.h"
+#include "common.h"
+#include "../../common/bit_field.h"
+#include "../../common/common_funcs.h"
+#include "../../common/common_types.h"
+#include "../../common/swap.h"
 namespace AudioCore::HLE {
 
 // The application-accessible region of DSP memory consists of two parts. Both are marked as IO and

@@ -4,8 +4,7 @@
 
 #pragma once
 
-#include "core/hle/service/service.h"
-
+#include "../service.h"
 namespace Service::PM {
 
 class PM_DBG final : public ServiceFramework<PM_DBG> {

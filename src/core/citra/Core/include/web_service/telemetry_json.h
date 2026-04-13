@@ -6,9 +6,8 @@
 
 #include <chrono>
 #include <string>
-#include "common/announce_multiplayer_room.h"
-#include "common/telemetry.h"
-
+#include "../common/announce_multiplayer_room.h"
+#include "../common/telemetry.h"
 namespace WebService {
 
 /**

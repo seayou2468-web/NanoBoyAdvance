@@ -2,23 +2,22 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/archives.h"
-#include "common/common_paths.h"
-#include "common/file_util.h"
+#include "../../../../include/common/archives.h"
+#include "../../../../include/common/common_paths.h"
+#include "../../../../include/common/file_util.h"
 #include "common/logging/log.h"
-#include "common/settings.h"
-#include "core/core.h"
-#include "core/file_sys/archive_extsavedata.h"
-#include "core/file_sys/errors.h"
-#include "core/file_sys/file_backend.h"
-#include "core/hle/kernel/shared_page.h"
-#include "core/hle/service/ptm/ptm.h"
-#include "core/hle/service/ptm/ptm_gets.h"
-#include "core/hle/service/ptm/ptm_play.h"
-#include "core/hle/service/ptm/ptm_sets.h"
-#include "core/hle/service/ptm/ptm_sysm.h"
-#include "core/hle/service/ptm/ptm_u.h"
-
+#include "../../../../include/common/settings.h"
+#include "../../../../include/core/core.h"
+#include "../../../../include/core/file_sys/archive_extsavedata.h"
+#include "../../../../include/core/file_sys/errors.h"
+#include "../../../../include/core/file_sys/file_backend.h"
+#include "../../../../include/core/hle/kernel/shared_page.h"
+#include "../../../../include/core/hle/service/ptm/ptm.h"
+#include "../../../../include/core/hle/service/ptm/ptm_gets.h"
+#include "../../../../include/core/hle/service/ptm/ptm_play.h"
+#include "../../../../include/core/hle/service/ptm/ptm_sets.h"
+#include "../../../../include/core/hle/service/ptm/ptm_sysm.h"
+#include "../../../../include/core/hle/service/ptm/ptm_u.h"
 SERIALIZE_EXPORT_IMPL(Service::PTM::Module)
 SERVICE_CONSTRUCT_IMPL(Service::PTM::Module)
 

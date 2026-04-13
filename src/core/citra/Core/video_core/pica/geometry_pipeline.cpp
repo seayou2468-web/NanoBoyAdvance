@@ -5,15 +5,14 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
 #include <boost/serialization/unique_ptr.hpp>
-#include "common/archives.h"
-#include "core/core.h"
-#include "video_core/gpu.h"
-#include "video_core/pica/geometry_pipeline.h"
-#include "video_core/pica/pica_core.h"
-#include "video_core/pica/shader_setup.h"
-#include "video_core/pica/shader_unit.h"
-#include "video_core/shader/shader.h"
-
+#include "../../include/common/archives.h"
+#include "../../include/core/core.h"
+#include "../../include/video_core/gpu.h"
+#include "../../include/video_core/pica/geometry_pipeline.h"
+#include "../../include/video_core/pica/pica_core.h"
+#include "../../include/video_core/pica/shader_setup.h"
+#include "../../include/video_core/pica/shader_unit.h"
+#include "../../include/video_core/shader/shader.h"
 namespace Pica {
 
 /// An attribute buffering interface for different pipeline modes

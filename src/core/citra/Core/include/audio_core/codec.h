@@ -5,9 +5,8 @@
 #pragma once
 
 #include <array>
-#include "audio_core/audio_types.h"
-#include "common/common_types.h"
-
+#include "audio_types.h"
+#include "../common/common_types.h"
 namespace AudioCore::Codec {
 
 /// See: Codec::DecodeADPCM

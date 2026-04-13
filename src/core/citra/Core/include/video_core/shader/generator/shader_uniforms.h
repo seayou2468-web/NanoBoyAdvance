@@ -4,9 +4,8 @@
 
 #pragma once
 
-#include "common/vector_math.h"
-#include "video_core/pica/regs_lighting.h"
-
+#include "../../../common/vector_math.h"
+#include "../../pica/regs_lighting.h"
 namespace Pica {
 struct ShaderRegs;
 struct ShaderSetup;

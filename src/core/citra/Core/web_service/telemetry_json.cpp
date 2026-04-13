@@ -3,11 +3,10 @@
 // Refer to the license.txt file included.
 
 #include "json.hpp"
-#include "common/detached_tasks.h"
-#include "common/web_result.h"
-#include "web_service/telemetry_json.h"
-#include "web_service/web_backend.h"
-
+#include "../include/common/detached_tasks.h"
+#include "../include/common/web_result.h"
+#include "../include/web_service/telemetry_json.h"
+#include "../include/web_service/web_backend.h"
 namespace WebService {
 
 namespace Telemetry = Common::Telemetry;

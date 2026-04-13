@@ -7,9 +7,8 @@
 #include <utility>
 #include <vector>
 #include "common/logging/log.h"
-#include "common/param_package.h"
-#include "common/string_util.h"
-
+#include "../include/common/param_package.h"
+#include "../include/common/string_util.h"
 namespace Common {
 
 constexpr char KEY_VALUE_SEPARATOR = ':';

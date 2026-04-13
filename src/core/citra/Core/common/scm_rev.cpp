@@ -2,8 +2,7 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/scm_rev.h"
-
+#include "../include/common/scm_rev.h"
 #include <string>
 
 #define GIT_BRANCH   "@GIT_BRANCH@"

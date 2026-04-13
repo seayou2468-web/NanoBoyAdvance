@@ -2,11 +2,10 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/settings.h"
-#include "video_core/right_eye_disabler.h"
-#include "video_core/gpu.h"
-#include "video_core/gpu_impl.h"
-
+#include "../include/common/settings.h"
+#include "../include/video_core/right_eye_disabler.h"
+#include "../include/video_core/gpu.h"
+#include "../include/video_core/gpu_impl.h"
 namespace VideoCore {
 bool RightEyeDisabler::ShouldAllowCmdQueueTrigger(PAddr addr, u32 size) {
     if (!enabled || !enable_for_frame)

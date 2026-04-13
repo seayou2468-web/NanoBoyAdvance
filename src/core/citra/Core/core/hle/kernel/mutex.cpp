@@ -5,16 +5,15 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/string.hpp>
-#include "common/archives.h"
-#include "common/assert.h"
-#include "core/core.h"
-#include "core/hle/kernel/errors.h"
-#include "core/hle/kernel/kernel.h"
-#include "core/hle/kernel/mutex.h"
-#include "core/hle/kernel/object.h"
-#include "core/hle/kernel/resource_limit.h"
-#include "core/hle/kernel/thread.h"
-
+#include "../../../include/common/archives.h"
+#include "../../../include/common/assert.h"
+#include "../../../include/core/core.h"
+#include "../../../include/core/hle/kernel/errors.h"
+#include "../../../include/core/hle/kernel/kernel.h"
+#include "../../../include/core/hle/kernel/mutex.h"
+#include "../../../include/core/hle/kernel/object.h"
+#include "../../../include/core/hle/kernel/resource_limit.h"
+#include "../../../include/core/hle/kernel/thread.h"
 SERIALIZE_EXPORT_IMPL(Kernel::Mutex)
 
 namespace Kernel {

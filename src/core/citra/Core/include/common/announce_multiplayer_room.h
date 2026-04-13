@@ -8,9 +8,8 @@
 #include <functional>
 #include <string>
 #include <vector>
-#include "common/common_types.h"
-#include "common/web_result.h"
-
+#include "common_types.h"
+#include "web_result.h"
 namespace AnnounceMultiplayerRoom {
 
 using MacAddress = std::array<u8, 6>;

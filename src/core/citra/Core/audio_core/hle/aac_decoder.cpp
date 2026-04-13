@@ -3,8 +3,7 @@
 // Refer to the license.txt file included.
 
 #include <neaacdec.h>
-#include "audio_core/hle/aac_decoder.h"
-
+#include "../../include/audio_core/hle/aac_decoder.h"
 namespace AudioCore::HLE {
 
 AACDecoder::AACDecoder(Memory::MemorySystem& memory) : memory(memory) {

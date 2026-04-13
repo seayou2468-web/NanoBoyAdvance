@@ -3,10 +3,9 @@
 // Refer to the license.txt file included.
 
 #include <vector>
-#include "core/hle/service/am/am.h"
-#include "core/hle/service/fs/archive.h"
-#include "core/system_titles.h"
-
+#include "../include/core/hle/service/am/am.h"
+#include "../include/core/hle/service/fs/archive.h"
+#include "../include/core/system_titles.h"
 namespace Core {
 
 struct SystemTitle {

@@ -4,14 +4,13 @@
 
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/string.hpp>
-#include "common/archives.h"
-#include "core/hle/kernel/errors.h"
-#include "core/hle/kernel/kernel.h"
-#include "core/hle/kernel/process.h"
-#include "core/hle/kernel/resource_limit.h"
-#include "core/hle/kernel/semaphore.h"
-#include "core/hle/kernel/thread.h"
-
+#include "../../../include/common/archives.h"
+#include "../../../include/core/hle/kernel/errors.h"
+#include "../../../include/core/hle/kernel/kernel.h"
+#include "../../../include/core/hle/kernel/process.h"
+#include "../../../include/core/hle/kernel/resource_limit.h"
+#include "../../../include/core/hle/kernel/semaphore.h"
+#include "../../../include/core/hle/kernel/thread.h"
 SERIALIZE_EXPORT_IMPL(Kernel::Semaphore)
 
 namespace Kernel {

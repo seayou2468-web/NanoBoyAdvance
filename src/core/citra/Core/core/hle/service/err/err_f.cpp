@@ -6,16 +6,15 @@
 #include <chrono>
 #include <iomanip>
 #include <sstream>
-#include "common/archives.h"
-#include "common/bit_field.h"
-#include "common/common_types.h"
+#include "../../../../include/common/archives.h"
+#include "../../../../include/common/bit_field.h"
+#include "../../../../include/common/common_types.h"
 #include "common/logging/log.h"
-#include "core/core.h"
-#include "core/hle/ipc.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/result.h"
-#include "core/hle/service/err/err_f.h"
-#undef exception_info // We use 'exception_info' as a plain identifier, but MSVC defines this in one
+#include "../../../../include/core/core.h"
+#include "../../../../include/core/hle/ipc.h"
+#include "../../../../include/core/hle/ipc_helpers.h"
+#include "../../../../include/core/hle/result.h"
+#include "../../../../include/core/hle/service/err/err_f.h"#undef exception_info // We use 'exception_info' as a plain identifier, but MSVC defines this in one
                       // of its many headers.
 
 SERIALIZE_EXPORT_IMPL(Service::ERR::ERR_F)

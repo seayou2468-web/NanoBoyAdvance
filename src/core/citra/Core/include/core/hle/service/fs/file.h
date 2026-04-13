@@ -6,10 +6,9 @@
 
 #include <memory>
 #include <boost/serialization/base_object.hpp>
-#include "core/file_sys/archive_backend.h"
-#include "core/global.h"
-#include "core/hle/service/service.h"
-
+#include "../../../file_sys/archive_backend.h"
+#include "../../../global.h"
+#include "../service.h"
 namespace Core {
 class System;
 }

@@ -2,13 +2,12 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/arch.h"
-#include "video_core/shader/shader_interpreter.h"
+#include "../../include/common/arch.h"
+#include "../../include/video_core/shader/shader_interpreter.h"
 #if CYTRUS_ARCH(x86_64) || CYTRUS_ARCH(arm64)
 #include "video_core/shader/shader_jit.h"
 #endif
-#include "video_core/shader/shader.h"
-
+#include "../../include/video_core/shader/shader.h"
 namespace Pica {
 
 std::unique_ptr<ShaderEngine> CreateEngine(bool use_jit) {

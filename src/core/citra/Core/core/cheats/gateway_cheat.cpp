@@ -11,14 +11,13 @@
 #include <vector>
 #include <boost/iostreams/device/file_descriptor.hpp>
 #include <boost/iostreams/stream.hpp>
-#include "common/file_util.h"
+#include "../../include/common/file_util.h"
 #include "common/logging/log.h"
-#include "common/string_util.h"
-#include "core/cheats/gateway_cheat.h"
-#include "core/core.h"
-#include "core/hle/service/hid/hid.h"
-#include "core/memory.h"
-
+#include "../../include/common/string_util.h"
+#include "../../include/core/cheats/gateway_cheat.h"
+#include "../../include/core/core.h"
+#include "../../include/core/hle/service/hid/hid.h"
+#include "../../include/core/memory.h"
 namespace Cheats {
 
 struct State {

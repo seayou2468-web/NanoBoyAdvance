@@ -10,8 +10,7 @@
 #include <type_traits>
 #include <boost/crc.hpp>
 #include "common/logging/log.h"
-#include "core/file_sys/patch.h"
-
+#include "../../include/core/file_sys/patch.h"
 namespace FileSys::Patch {
 
 bool ApplyIpsPatch(const std::vector<u8>& ips, std::vector<u8>& buffer) {

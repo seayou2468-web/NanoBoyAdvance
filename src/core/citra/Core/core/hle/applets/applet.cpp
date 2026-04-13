@@ -6,13 +6,12 @@
 #include <memory>
 #include <type_traits>
 #include <utility>
-#include "common/assert.h"
-#include "common/common_types.h"
-#include "core/core.h"
-#include "core/core_timing.h"
-#include "core/hle/applets/applet.h"
-#include "core/hle/result.h"
-
+#include "../../../include/common/assert.h"
+#include "../../../include/common/common_types.h"
+#include "../../../include/core/core.h"
+#include "../../../include/core/core_timing.h"
+#include "../../../include/core/hle/applets/applet.h"
+#include "../../../include/core/hle/result.h"
 namespace HLE::Applets {
 
 bool Applet::IsRunning() const {

@@ -10,9 +10,8 @@
 #include <thread>
 #include <boost/asio.hpp>
 #include "common/logging/log.h"
-#include "input_common/udp/client.h"
-#include "input_common/udp/protocol.h"
-
+#include "../../include/input_common/udp/client.h"
+#include "../../include/input_common/udp/protocol.h"
 using boost::asio::ip::udp;
 using io_service = boost::asio::io_context;//Manic修改
 

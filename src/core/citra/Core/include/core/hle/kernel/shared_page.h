@@ -14,13 +14,12 @@
 #include <ctime>
 #include <memory>
 #include <boost/serialization/export.hpp>
-#include "common/bit_field.h"
-#include "common/common_funcs.h"
-#include "common/common_types.h"
-#include "common/memory_ref.h"
-#include "common/swap.h"
-#include "core/memory.h"
-
+#include "../../../common/bit_field.h"
+#include "../../../common/common_funcs.h"
+#include "../../../common/common_types.h"
+#include "../../../common/memory_ref.h"
+#include "../../../common/swap.h"
+#include "../../memory.h"
 namespace Core {
 struct TimingEventType;
 class Timing;

@@ -2,9 +2,8 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/archives.h"
-#include "core/hle/service/hid/hid_user.h"
-
+#include "../../../../include/common/archives.h"
+#include "../../../../include/core/hle/service/hid/hid_user.h"
 SERIALIZE_EXPORT_IMPL(Service::HID::User)
 
 namespace Service::HID {

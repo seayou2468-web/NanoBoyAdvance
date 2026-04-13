@@ -6,23 +6,22 @@
 
 #include <algorithm>
 #include <cstdio>
-#include "common/common_types.h"
+#include "../../../include/common/common_types.h"
 #include "common/logging/log.h"
-#include "common/microprofile.h"
-#include "core/arm/dyncom/arm_dyncom_dec.h"
-#include "core/arm/dyncom/arm_dyncom_interpreter.h"
-#include "core/arm/dyncom/arm_dyncom_run.h"
-#include "core/arm/dyncom/arm_dyncom_thumb.h"
-#include "core/arm/dyncom/arm_dyncom_trans.h"
-#include "core/arm/skyeye_common/armstate.h"
-#include "core/arm/skyeye_common/armsupp.h"
-#include "core/arm/skyeye_common/vfp/vfp.h"
-#include "core/core.h"
-#include "core/core_timing.h"
+#include "../../../include/common/microprofile.h"
+#include "../../../include/core/arm/dyncom/arm_dyncom_dec.h"
+#include "../../../include/core/arm/dyncom/arm_dyncom_interpreter.h"
+#include "../../../include/core/arm/dyncom/arm_dyncom_run.h"
+#include "../../../include/core/arm/dyncom/arm_dyncom_thumb.h"
+#include "../../../include/core/arm/dyncom/arm_dyncom_trans.h"
+#include "../../../include/core/arm/skyeye_common/armstate.h"
+#include "../../../include/core/arm/skyeye_common/armsupp.h"
+#include "../../../include/core/arm/skyeye_common/vfp/vfp.h"
+#include "../../../include/core/core.h"
+#include "../../../include/core/core_timing.h"
 #include "core/gdbstub/gdbstub.h"
-#include "core/hle/kernel/svc.h"
-#include "core/memory.h"
-
+#include "../../../include/core/hle/kernel/svc.h"
+#include "../../../include/core/memory.h"
 #define RM BITS(sht_oper, 0, 3)
 #define RS BITS(sht_oper, 8, 11)
 
@@ -4575,8 +4574,7 @@ YIELD_INST: {
 }
 
 #define VFP_INTERPRETER_IMPL
-#include "core/arm/skyeye_common/vfp/vfpinstr.cpp"
-#undef VFP_INTERPRETER_IMPL
+#include "../../../include/core/arm/skyeye_common/vfp/vfpinstr.cpp"#undef VFP_INTERPRETER_IMPL
 
 END: {
     SAVE_NZCVT;

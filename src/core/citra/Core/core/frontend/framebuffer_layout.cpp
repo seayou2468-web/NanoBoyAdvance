@@ -4,11 +4,10 @@
 
 #include <cmath>
 
-#include "common/assert.h"
-#include "common/settings.h"
-#include "core/3ds.h"
-#include "core/frontend/framebuffer_layout.h"
-
+#include "../../include/common/assert.h"
+#include "../../include/common/settings.h"
+#include "../../include/core/3ds.h"
+#include "../../include/core/frontend/framebuffer_layout.h"
 namespace Layout {
 
 static constexpr float TOP_SCREEN_ASPECT_RATIO =

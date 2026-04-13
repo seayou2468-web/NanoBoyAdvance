@@ -7,9 +7,8 @@
 #include <array>
 #include <optional>
 #include <vector>
-#include "common/common_types.h"
-#include "common/swap.h"
-
+#include "../../common/common_types.h"
+#include "../../common/swap.h"
 namespace FileSys {
 
 constexpr std::size_t SEEDDB_PADDING_BYTES{12};

@@ -7,20 +7,19 @@
 #include <utility>
 #include <vector>
 #include <boost/serialization/set.hpp>
-#include "common/archives.h"
-#include "common/assert.h"
-#include "common/common_types.h"
+#include "../../../include/common/archives.h"
+#include "../../../include/common/assert.h"
+#include "../../../include/common/common_types.h"
 #include "common/logging/log.h"
-#include "common/settings.h"
-#include "core/core.h"
-#include "core/hle/kernel/config_mem.h"
-#include "core/hle/kernel/memory.h"
-#include "core/hle/kernel/process.h"
-#include "core/hle/kernel/shared_page.h"
-#include "core/hle/kernel/vm_manager.h"
-#include "core/hle/result.h"
-#include "core/memory.h"
-
+#include "../../../include/common/settings.h"
+#include "../../../include/core/core.h"
+#include "../../../include/core/hle/kernel/config_mem.h"
+#include "../../../include/core/hle/kernel/memory.h"
+#include "../../../include/core/hle/kernel/process.h"
+#include "../../../include/core/hle/kernel/shared_page.h"
+#include "../../../include/core/hle/kernel/vm_manager.h"
+#include "../../../include/core/hle/result.h"
+#include "../../../include/core/memory.h"
 SERIALIZE_EXPORT_IMPL(Kernel::MemoryRegionInfo)
 
 namespace Kernel {

@@ -5,14 +5,13 @@
 #include <chrono>
 #include <future>
 #include <vector>
-#include "network/announce_multiplayer_session.h"
-#include "common/announce_multiplayer_room.h"
-#include "common/assert.h"
-#include "network/network.h"
-#include "network/network_settings.h"
-
+#include "../include/network/announce_multiplayer_session.h"
+#include "../include/common/announce_multiplayer_room.h"
+#include "../include/common/assert.h"
+#include "../include/network/network.h"
+#include "../include/network/network_settings.h"
 #ifdef ENABLE_WEB_SERVICE
-#include "web_service/announce_room_json.h"
+#include "../include/web_service/announce_room_json.h"
 #endif
 
 namespace Network {

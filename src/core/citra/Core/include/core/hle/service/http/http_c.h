@@ -18,11 +18,10 @@
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/weak_ptr.hpp>
 #include <httplib.h>
-#include "common/thread.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/kernel/shared_memory.h"
-#include "core/hle/service/service.h"
-
+#include "../../../../common/thread.h"
+#include "../../ipc_helpers.h"
+#include "../../kernel/shared_memory.h"
+#include "../service.h"
 namespace Core {
 class System;
 }

@@ -4,17 +4,16 @@
 
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/string.hpp>
-#include "common/archives.h"
-#include "common/assert.h"
-#include "core/global.h"
-#include "core/hle/kernel/client_port.h"
-#include "core/hle/kernel/client_session.h"
-#include "core/hle/kernel/errors.h"
-#include "core/hle/kernel/hle_ipc.h"
-#include "core/hle/kernel/object.h"
-#include "core/hle/kernel/server_port.h"
-#include "core/hle/kernel/server_session.h"
-
+#include "../../../include/common/archives.h"
+#include "../../../include/common/assert.h"
+#include "../../../include/core/global.h"
+#include "../../../include/core/hle/kernel/client_port.h"
+#include "../../../include/core/hle/kernel/client_session.h"
+#include "../../../include/core/hle/kernel/errors.h"
+#include "../../../include/core/hle/kernel/hle_ipc.h"
+#include "../../../include/core/hle/kernel/object.h"
+#include "../../../include/core/hle/kernel/server_port.h"
+#include "../../../include/core/hle/kernel/server_session.h"
 SERIALIZE_EXPORT_IMPL(Kernel::ClientPort)
 
 namespace Kernel {

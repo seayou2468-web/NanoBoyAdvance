@@ -3,9 +3,8 @@
 // Refer to the license.txt file included.
 
 #include <fmt/format.h>
-#include "core/hle/service/nwm/nwm_uds.h"
-#include "core/hle/service/nwm/uds_connection.h"
-
+#include "../../../../include/core/hle/service/nwm/nwm_uds.h"
+#include "../../../../include/core/hle/service/nwm/uds_connection.h"
 namespace Service::NWM {
 
 // Note: These values were taken from a packet capture of an o3DS XL

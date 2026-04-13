@@ -5,8 +5,7 @@
 #pragma once
 
 #include <memory>
-#include "core/rpc/rpc_server.h"
-
+#include "rpc_server.h"
 namespace Core {
 class System;
 }

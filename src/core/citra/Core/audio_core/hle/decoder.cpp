@@ -2,8 +2,7 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "audio_core/hle/decoder.h"
-
+#include "../../include/audio_core/hle/decoder.h"
 namespace AudioCore::HLE {
 
 DecoderSampleRate GetSampleRateEnum(u32 sample_rate) {

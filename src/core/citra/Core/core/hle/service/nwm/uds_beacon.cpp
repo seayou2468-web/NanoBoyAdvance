@@ -9,10 +9,9 @@
 #include <cryptopp/md5.h>
 #include <cryptopp/modes.h>
 #include <cryptopp/sha.h>
-#include "common/assert.h"
-#include "core/hle/service/nwm/nwm_uds.h"
-#include "core/hle/service/nwm/uds_beacon.h"
-
+#include "../../../../include/common/assert.h"
+#include "../../../../include/core/hle/service/nwm/nwm_uds.h"
+#include "../../../../include/core/hle/service/nwm/uds_beacon.h"
 namespace Service::NWM {
 
 constexpr u64 DefaultNetworkUptime = 900000000; // 15 minutes in microseconds.

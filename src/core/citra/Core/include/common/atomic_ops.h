@@ -3,8 +3,7 @@
 
 #pragma once
 
-#include "common/common_types.h"
-
+#include "common_types.h"
 #if _MSC_VER
 #include <intrin.h>
 #else

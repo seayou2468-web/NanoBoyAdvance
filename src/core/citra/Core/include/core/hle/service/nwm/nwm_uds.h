@@ -16,11 +16,10 @@
 #include <vector>
 #include <boost/optional.hpp>
 #include <boost/serialization/export.hpp>
-#include "common/common_types.h"
-#include "common/swap.h"
-#include "core/hle/service/service.h"
-#include "network/network.h"
-
+#include "../../../../common/common_types.h"
+#include "../../../../common/swap.h"
+#include "../service.h"
+#include "../../../../network/network.h"
 namespace Core {
 class System;
 }

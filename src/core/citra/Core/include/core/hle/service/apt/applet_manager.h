@@ -13,12 +13,11 @@
 #include <boost/serialization/optional.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/vector.hpp>
-#include "core/frontend/input.h"
-#include "core/global.h"
-#include "core/hle/kernel/event.h"
-#include "core/hle/result.h"
-#include "core/hle/service/fs/archive.h"
-
+#include "../../../frontend/input.h"
+#include "../../../global.h"
+#include "../../kernel/event.h"
+#include "../../result.h"
+#include "../fs/archive.h"
 namespace Core {
 class System;
 }

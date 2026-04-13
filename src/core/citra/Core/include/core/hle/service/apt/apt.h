@@ -7,14 +7,13 @@
 #include <array>
 #include <memory>
 #include <vector>
-#include "common/archives.h"
-#include "common/common_funcs.h"
-#include "common/common_types.h"
-#include "common/swap.h"
-#include "core/global.h"
-#include "core/hle/kernel/kernel.h"
-#include "core/hle/service/service.h"
-
+#include "../../../../common/archives.h"
+#include "../../../../common/common_funcs.h"
+#include "../../../../common/common_types.h"
+#include "../../../../common/swap.h"
+#include "../../../global.h"
+#include "../../kernel/kernel.h"
+#include "../service.h"
 namespace Core {
 class System;
 }

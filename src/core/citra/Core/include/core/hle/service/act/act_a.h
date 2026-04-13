@@ -4,8 +4,7 @@
 
 #pragma once
 
-#include "core/hle/service/act/act.h"
-
+#include "act.h"
 namespace Service::ACT {
 
 class ACT_A final : public Module::Interface {

@@ -4,13 +4,12 @@
 
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/string.hpp>
-#include "common/archives.h"
-#include "common/assert.h"
-#include "core/hle/kernel/event.h"
-#include "core/hle/kernel/kernel.h"
-#include "core/hle/kernel/resource_limit.h"
-#include "core/hle/kernel/thread.h"
-
+#include "../../../include/common/archives.h"
+#include "../../../include/common/assert.h"
+#include "../../../include/core/hle/kernel/event.h"
+#include "../../../include/core/hle/kernel/kernel.h"
+#include "../../../include/core/hle/kernel/resource_limit.h"
+#include "../../../include/core/hle/kernel/thread.h"
 SERIALIZE_EXPORT_IMPL(Kernel::Event)
 
 namespace Kernel {

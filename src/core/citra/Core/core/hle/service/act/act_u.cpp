@@ -2,9 +2,8 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/archives.h"
-#include "core/hle/service/act/act_u.h"
-
+#include "../../../../include/common/archives.h"
+#include "../../../../include/core/hle/service/act/act_u.h"
 namespace Service::ACT {
 
 ACT_U::ACT_U(std::shared_ptr<Module> act) : Module::Interface(std::move(act), "act:u") {

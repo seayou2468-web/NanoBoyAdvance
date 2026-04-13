@@ -2,12 +2,10 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/assert.h"
-#include "core/hle/kernel/kernel.h"
-#include "core/hle/kernel/object.h"
-
-#include "common/archives.h"
-
+#include "../../../include/common/assert.h"
+#include "../../../include/core/hle/kernel/kernel.h"
+#include "../../../include/core/hle/kernel/object.h"
+#include "../../../include/common/archives.h"
 SERIALIZE_EXPORT_IMPL(Kernel::Object)
 
 namespace Kernel {

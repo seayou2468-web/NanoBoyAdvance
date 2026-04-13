@@ -13,13 +13,12 @@
 #include <vector>
 #include <boost/container/small_vector.hpp>
 #include <boost/serialization/export.hpp>
-#include "common/common_types.h"
-#include "common/serialization/boost_small_vector.hpp"
-#include "common/swap.h"
-#include "core/hle/ipc.h"
-#include "core/hle/kernel/object.h"
-#include "core/hle/kernel/server_session.h"
-
+#include "../../../common/common_types.h"
+#include "../../../common/serialization/boost_small_vector.hpp"
+#include "../../../common/swap.h"
+#include "../ipc.h"
+#include "object.h"
+#include "server_session.h"
 namespace Service {
 class ServiceFrameworkBase;
 }

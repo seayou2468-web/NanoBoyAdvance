@@ -7,8 +7,7 @@
 #include <list>
 #include <mutex>
 #include <utility>
-#include "input_common/keyboard.h"
-
+#include "../include/input_common/keyboard.h"
 namespace InputCommon {
 
 class KeyButton final : public Input::ButtonDevice {

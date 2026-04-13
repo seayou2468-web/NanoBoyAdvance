@@ -4,14 +4,14 @@
 
 #include <string>
 
-#include "common/error.h"
+#include "../include/common/error.h"
 #include "common/logging/log.h"
-#include "common/thread.h"
+#include "../include/common/thread.h"
 #ifdef __APPLE__
 #include <mach/mach.h>
 #elif defined(_WIN32)
 #include <windows.h>
-#include "common/string_util.h"
+#include "../include/common/string_util.h"
 #else
 #if defined(__Bitrig__) || defined(__DragonFly__) || defined(__FreeBSD__) || defined(__OpenBSD__)
 #include <pthread_np.h>

@@ -7,8 +7,7 @@
 #include <cstddef>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
-#include "common/common_types.h"
-
+#include "../../common/common_types.h"
 #define SERIALIZE_DELAY_GENERATOR                                                                  \
 private:                                                                                           \
     template <class Archive>                                                                       \

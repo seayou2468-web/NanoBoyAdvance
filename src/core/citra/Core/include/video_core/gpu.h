@@ -8,8 +8,7 @@
 #include <memory>
 #include <boost/serialization/access.hpp>
 
-#include "core/hle/service/gsp/gsp_interrupt.h"
-
+#include "../core/hle/service/gsp/gsp_interrupt.h"
 namespace Service::GSP {
 struct Command;
 struct FrameBufferInfo;

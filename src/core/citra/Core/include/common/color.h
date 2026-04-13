@@ -6,10 +6,9 @@
 
 #include <cstring>
 
-#include "common/common_types.h"
-#include "common/swap.h"
-#include "common/vector_math.h"
-
+#include "common_types.h"
+#include "swap.h"
+#include "vector_math.h"
 namespace Common::Color {
 
 /// Convert a 1-bit color component to 8 bit

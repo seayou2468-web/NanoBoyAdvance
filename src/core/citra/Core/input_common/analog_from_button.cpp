@@ -2,8 +2,7 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "input_common/analog_from_button.h"
-
+#include "../include/input_common/analog_from_button.h"
 namespace InputCommon {
 
 class Analog final : public Input::AnalogDevice {

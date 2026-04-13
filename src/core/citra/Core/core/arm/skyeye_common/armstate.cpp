@@ -4,12 +4,11 @@
 
 #include <algorithm>
 #include "common/logging/log.h"
-#include "common/swap.h"
-#include "core/arm/skyeye_common/armstate.h"
-#include "core/arm/skyeye_common/vfp/vfp.h"
-#include "core/core.h"
-#include "core/memory.h"
-
+#include "../../../include/common/swap.h"
+#include "../../../include/core/arm/skyeye_common/armstate.h"
+#include "../../../include/core/arm/skyeye_common/vfp/vfp.h"
+#include "../../../include/core/core.h"
+#include "../../../include/core/memory.h"
 ARMul_State::ARMul_State(Core::System& system_, Memory::MemorySystem& memory_,
                          PrivilegeMode initial_mode)
     : system{system_}, memory{memory_} {

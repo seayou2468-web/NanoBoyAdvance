@@ -4,10 +4,9 @@
 
 #pragma once
 
-#include "core/hle/kernel/kernel.h"
-#include "core/hle/service/apt/apt.h"
-#include "core/hle/service/service.h"
-
+#include "../../kernel/kernel.h"
+#include "apt.h"
+#include "../service.h"
 namespace Service::NS {
 
 /// Interface to "ns:s" service

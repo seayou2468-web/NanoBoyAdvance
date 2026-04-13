@@ -2,9 +2,8 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "video_core/pica/output_vertex.h"
-#include "video_core/pica/regs_rasterizer.h"
-
+#include "../../include/video_core/pica/output_vertex.h"
+#include "../../include/video_core/pica/regs_rasterizer.h"
 namespace Pica {
 
 OutputVertex::OutputVertex(const RasterizerRegs& regs, const AttributeBuffer& output) {

@@ -6,10 +6,9 @@
 
 #include <memory>
 #include <vector>
-#include "audio_core/input.h"
-#include "common/swap.h"
-#include "common/threadsafe_queue.h"
-
+#include "input.h"
+#include "../common/swap.h"
+#include "../common/threadsafe_queue.h"
 namespace AudioCore {
 
 class NullInput final : public Input {

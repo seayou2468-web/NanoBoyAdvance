@@ -6,8 +6,7 @@
 
 #include <boost/container/flat_set.hpp>
 #include <boost/serialization/split_free.hpp>
-#include "common/common_types.h"
-
+#include "../common_types.h"
 namespace boost::serialization {
 
 template <class Archive, class T>

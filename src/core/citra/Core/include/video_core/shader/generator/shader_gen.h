@@ -4,8 +4,7 @@
 
 #pragma once
 
-#include "common/hash.h"
-
+#include "../../../common/hash.h"
 namespace Pica {
 struct RegsInternal;
 struct ShaderSetup;

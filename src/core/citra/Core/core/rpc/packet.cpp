@@ -4,8 +4,7 @@
 
 #include <algorithm>
 #include <cstring>
-#include "core/rpc/packet.h"
-
+#include "../../include/core/rpc/packet.h"
 namespace Core::RPC {
 
 Packet::Packet(const PacketHeader& header_, u8* data,

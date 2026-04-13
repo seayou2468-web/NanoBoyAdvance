@@ -19,12 +19,11 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#include "core/file_sys/file_backend.h"
-#include "core/file_sys/plugin_3gx.h"
-#include "core/file_sys/plugin_3gx_bootloader.h"
-#include "core/hle/kernel/vm_manager.h"
-#include "core/loader/loader.h"
-
+#include "../../include/core/file_sys/file_backend.h"
+#include "../../include/core/file_sys/plugin_3gx.h"
+#include "../../include/core/file_sys/plugin_3gx_bootloader.h"
+#include "../../include/core/hle/kernel/vm_manager.h"
+#include "../../include/core/loader/loader.h"
 static std::string ReadTextInfo(FileUtil::IOFile& file, std::size_t offset, std::size_t max_size) {
     if (offset == 0 || max_size == 0 ||
         max_size > 0x400) { // Limit read string size to 0x400 bytes, just in case

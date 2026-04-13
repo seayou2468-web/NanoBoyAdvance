@@ -9,9 +9,8 @@
 #include <span>
 #include <string>
 #include <utility>
-#include "common/common_types.h"
-#include "core/hle/service/service.h"
-
+#include "../../../../common/common_types.h"
+#include "../service.h"
 namespace FileSys {
 class ArchiveBackend;
 }

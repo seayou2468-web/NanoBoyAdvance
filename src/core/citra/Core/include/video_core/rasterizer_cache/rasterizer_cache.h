@@ -7,20 +7,19 @@
 #include <type_traits>
 #include <boost/container/small_vector.hpp>
 #include <boost/range/iterator_range.hpp>
-#include "common/alignment.h"
+#include "../../common/alignment.h"
 #include "common/logging/log.h"
-#include "common/microprofile.h"
-#include "common/scope_exit.h"
-#include "common/settings.h"
-#include "core/memory.h"
-#include "video_core/custom_textures/custom_tex_manager.h"
-#include "video_core/pica/regs_external.h"
-#include "video_core/pica/regs_internal.h"
-#include "video_core/rasterizer_cache/rasterizer_cache_base.h"
-#include "video_core/rasterizer_cache/surface_base.h"
-#include "video_core/renderer_base.h"
-#include "video_core/texture/texture_decode.h"
-
+#include "../../common/microprofile.h"
+#include "../../common/scope_exit.h"
+#include "../../common/settings.h"
+#include "../../core/memory.h"
+#include "../custom_textures/custom_tex_manager.h"
+#include "../pica/regs_external.h"
+#include "../pica/regs_internal.h"
+#include "rasterizer_cache_base.h"
+#include "surface_base.h"
+#include "../renderer_base.h"
+#include "../texture/texture_decode.h"
 namespace VideoCore {
 
 MICROPROFILE_DECLARE(RasterizerCache_CopySurface);

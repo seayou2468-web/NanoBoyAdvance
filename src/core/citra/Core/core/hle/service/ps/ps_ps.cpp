@@ -4,15 +4,14 @@
 
 #include <cryptopp/aes.h>
 #include <cryptopp/modes.h>
-#include "common/archives.h"
+#include "../../../../include/common/archives.h"
 #include "common/logging/log.h"
-#include "core/core.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/service/ps/ps_ps.h"
-#include "core/hle/service/ssl/ssl_c.h"
-#include "core/hw/aes/arithmetic128.h"
-#include "core/hw/aes/key.h"
-
+#include "../../../../include/core/core.h"
+#include "../../../../include/core/hle/ipc_helpers.h"
+#include "../../../../include/core/hle/service/ps/ps_ps.h"
+#include "../../../../include/core/hle/service/ssl/ssl_c.h"
+#include "../../../../include/core/hw/aes/arithmetic128.h"
+#include "../../../../include/core/hw/aes/key.h"
 SERIALIZE_EXPORT_IMPL(Service::PS::PS_PS)
 
 namespace Service::PS {

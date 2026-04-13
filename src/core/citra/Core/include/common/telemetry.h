@@ -8,8 +8,7 @@
 #include <map>
 #include <memory>
 #include <string>
-#include "common/common_types.h"
-
+#include "common_types.h"
 namespace Common::Telemetry {
 
 /// Field type, used for grouping fields together in the final submitted telemetry log

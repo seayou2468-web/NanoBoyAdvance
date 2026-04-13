@@ -5,10 +5,9 @@
 #include <system_error>
 #include <jwt/jwt.hpp>
 #include "common/logging/log.h"
-#include "common/web_result.h"
-#include "web_service/verify_user_jwt.h"
-#include "web_service/web_backend.h"
-
+#include "../include/common/web_result.h"
+#include "../include/web_service/verify_user_jwt.h"
+#include "../include/web_service/web_backend.h"
 namespace WebService {
 
 static std::string public_key;

@@ -5,9 +5,8 @@
 #pragma once
 
 #include <compare>
-#include "common/hash.h"
-#include "video_core/pica/regs_texturing.h"
-
+#include "../../common/hash.h"
+#include "../pica/regs_texturing.h"
 namespace VideoCore {
 
 struct SamplerParams {

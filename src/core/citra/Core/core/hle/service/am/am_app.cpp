@@ -2,9 +2,8 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/archives.h"
-#include "core/hle/service/am/am_app.h"
-
+#include "../../../../include/common/archives.h"
+#include "../../../../include/core/hle/service/am/am_app.h"
 namespace Service::AM {
 
 AM_APP::AM_APP(std::shared_ptr<Module> am) : Module::Interface(std::move(am), "am:app", 5) {

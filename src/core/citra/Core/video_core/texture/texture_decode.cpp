@@ -2,16 +2,15 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/assert.h"
-#include "common/color.h"
+#include "../../include/common/assert.h"
+#include "../../include/common/color.h"
 #include "common/logging/log.h"
-#include "common/swap.h"
-#include "common/vector_math.h"
-#include "video_core/pica/regs_texturing.h"
-#include "video_core/texture/etc1.h"
-#include "video_core/texture/texture_decode.h"
-#include "video_core/utils.h"
-
+#include "../../include/common/swap.h"
+#include "../../include/common/vector_math.h"
+#include "../../include/video_core/pica/regs_texturing.h"
+#include "../../include/video_core/texture/etc1.h"
+#include "../../include/video_core/texture/texture_decode.h"
+#include "../../include/video_core/utils.h"
 using TextureFormat = Pica::TexturingRegs::TextureFormat;
 
 namespace Pica::Texture {

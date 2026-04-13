@@ -6,10 +6,9 @@
 
 #include <array>
 
-#include "common/bit_field.h"
-#include "common/common_types.h"
-#include "core/hle/applets/mii_selector.h"
-
+#include "../../../../common/bit_field.h"
+#include "../../../../common/common_types.h"
+#include "../../applets/mii_selector.h"
 namespace Service::NFC {
 static constexpr std::size_t amiibo_name_length = 0xA;
 static constexpr std::size_t application_id_version_offset = 0x1c;

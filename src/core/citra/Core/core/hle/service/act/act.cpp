@@ -2,13 +2,12 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "core/core.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/kernel/shared_memory.h"
-#include "core/hle/service/act/act.h"
-#include "core/hle/service/act/act_a.h"
-#include "core/hle/service/act/act_u.h"
-
+#include "../../../../include/core/core.h"
+#include "../../../../include/core/hle/ipc_helpers.h"
+#include "../../../../include/core/hle/kernel/shared_memory.h"
+#include "../../../../include/core/hle/service/act/act.h"
+#include "../../../../include/core/hle/service/act/act_a.h"
+#include "../../../../include/core/hle/service/act/act_u.h"
 namespace Service::ACT {
 
 Module::Interface::Interface(std::shared_ptr<Module> act, const char* name)

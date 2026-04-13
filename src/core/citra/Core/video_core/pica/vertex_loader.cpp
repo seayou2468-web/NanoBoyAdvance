@@ -2,10 +2,9 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/alignment.h"
+#include "../../include/common/alignment.h"
 #include "common/logging/log.h"
-#include "video_core/pica/vertex_loader.h"
-
+#include "../../include/video_core/pica/vertex_loader.h"
 namespace Pica {
 
 VertexLoader::VertexLoader(Memory::MemorySystem& memory_, const PipelineRegs& regs)

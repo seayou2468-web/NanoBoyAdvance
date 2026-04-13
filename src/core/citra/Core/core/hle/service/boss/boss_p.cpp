@@ -2,9 +2,8 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/archives.h"
-#include "core/hle/service/boss/boss_p.h"
-
+#include "../../../../include/common/archives.h"
+#include "../../../../include/core/hle/service/boss/boss_p.h"
 namespace Service::BOSS {
 
 BOSS_P::BOSS_P(std::shared_ptr<Module> boss)

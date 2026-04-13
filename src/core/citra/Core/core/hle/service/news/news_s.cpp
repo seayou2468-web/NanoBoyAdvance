@@ -2,9 +2,8 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/archives.h"
-#include "core/hle/service/news/news_s.h"
-
+#include "../../../../include/common/archives.h"
+#include "../../../../include/core/hle/service/news/news_s.h"
 SERIALIZE_EXPORT_IMPL(Service::NEWS::NEWS_S)
 
 namespace Service::NEWS {

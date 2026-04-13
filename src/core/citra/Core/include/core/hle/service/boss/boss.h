@@ -6,12 +6,11 @@
 
 #include <memory>
 #include <boost/serialization/export.hpp>
-#include "core/global.h"
-#include "core/hle/kernel/event.h"
-#include "core/hle/kernel/resource_limit.h"
-#include "core/hle/service/boss/online_service.h"
-#include "core/hle/service/service.h"
-
+#include "../../../global.h"
+#include "../../kernel/event.h"
+#include "../../kernel/resource_limit.h"
+#include "online_service.h"
+#include "../service.h"
 namespace Core {
 class System;
 }

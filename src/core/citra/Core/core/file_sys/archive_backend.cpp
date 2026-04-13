@@ -6,10 +6,9 @@
 #include <iomanip>
 #include <sstream>
 #include "common/logging/log.h"
-#include "common/string_util.h"
-#include "core/file_sys/archive_backend.h"
-#include "core/memory.h"
-
+#include "../../include/common/string_util.h"
+#include "../../include/core/file_sys/archive_backend.h"
+#include "../../include/core/memory.h"
 namespace FileSys {
 
 Path::Path(LowPathType type, std::vector<u8> data) : type(type) {

@@ -5,12 +5,11 @@
 #pragma once
 
 #include <boost/serialization/access.hpp>
-#include "common/assert.h"
-#include "common/bit_field.h"
-#include "common/common_funcs.h"
-#include "common/common_types.h"
-#include "common/expected.h"
-
+#include "../../common/assert.h"
+#include "../../common/bit_field.h"
+#include "../../common/common_funcs.h"
+#include "../../common/common_types.h"
+#include "../../common/expected.h"
 // All the constants in this file come from http://3dbrew.org/wiki/Error_codes
 
 /**

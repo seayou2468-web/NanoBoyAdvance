@@ -10,12 +10,11 @@
 #include <unordered_map>
 #include <boost/serialization/unique_ptr.hpp>
 #include <boost/serialization/unordered_map.hpp>
-#include "common/common_types.h"
-#include "core/file_sys/archive_backend.h"
-#include "core/hle/result.h"
-#include "core/hle/service/fs/directory.h"
-#include "core/hle/service/fs/file.h"
-
+#include "../../../../common/common_types.h"
+#include "../../../file_sys/archive_backend.h"
+#include "../../result.h"
+#include "directory.h"
+#include "file.h"
 /// The unique system identifier hash, also known as ID0
 static constexpr char SYSTEM_ID[]{"00000000000000000000000000000000"};
 /// The scrambled SD card CID, also known as ID1

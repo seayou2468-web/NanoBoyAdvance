@@ -7,10 +7,9 @@
 #include <memory>
 #include <optional>
 #include <vector>
-#include "common/common_types.h"
-#include "common/swap.h"
-#include "core/core.h"
-
+#include "../../common/common_types.h"
+#include "../../common/swap.h"
+#include "../../core/core.h"
 namespace AudioCore::HLE {
 
 enum class DecoderCommand : u16 {

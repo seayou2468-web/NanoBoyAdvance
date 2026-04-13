@@ -5,11 +5,10 @@
 #include <algorithm>
 #include <random>
 #include <tuple>
-#include "common/assert.h"
+#include "../include/common/assert.h"
 #include "common/logging/log.h"
-#include "common/settings.h"
-#include "core/core_timing.h"
-
+#include "../include/common/settings.h"
+#include "../include/core/core_timing.h"
 namespace Core {
 
 // Sort by time, unless the times are the same, in which case sort by the order added to the queue

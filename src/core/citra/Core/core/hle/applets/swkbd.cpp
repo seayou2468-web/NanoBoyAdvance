@@ -5,18 +5,17 @@
 #include <algorithm>
 #include <cstring>
 #include <string>
-#include "common/assert.h"
+#include "../../../include/common/assert.h"
 #include "common/logging/log.h"
-#include "common/string_util.h"
-#include "core/core.h"
-#include "core/hle/applets/swkbd.h"
-#include "core/hle/kernel/kernel.h"
-#include "core/hle/kernel/shared_memory.h"
-#include "core/hle/result.h"
-#include "core/hle/service/gsp/gsp.h"
-#include "core/hle/service/hid/hid.h"
-#include "core/memory.h"
-
+#include "../../../include/common/string_util.h"
+#include "../../../include/core/core.h"
+#include "../../../include/core/hle/applets/swkbd.h"
+#include "../../../include/core/hle/kernel/kernel.h"
+#include "../../../include/core/hle/kernel/shared_memory.h"
+#include "../../../include/core/hle/result.h"
+#include "../../../include/core/hle/service/gsp/gsp.h"
+#include "../../../include/core/hle/service/hid/hid.h"
+#include "../../../include/core/memory.h"
 namespace HLE::Applets {
 
 Result SoftwareKeyboard::ReceiveParameterImpl(Service::APT::MessageParameter const& parameter) {

@@ -4,10 +4,9 @@
 
 #pragma once
 
-#include "common/hash.h"
-#include "video_core/pica/regs_texturing.h"
-#include "video_core/rasterizer_cache/slot_id.h"
-
+#include "../../common/hash.h"
+#include "../pica/regs_texturing.h"
+#include "slot_id.h"
 namespace VideoCore {
 
 struct TextureCube {

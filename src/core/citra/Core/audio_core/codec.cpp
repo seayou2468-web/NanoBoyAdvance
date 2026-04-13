@@ -6,11 +6,10 @@
 #include <array>
 #include <cstddef>
 #include <cstring>
-#include "audio_core/audio_types.h"
-#include "audio_core/codec.h"
-#include "common/assert.h"
-#include "common/common_types.h"
-
+#include "../include/audio_core/audio_types.h"
+#include "../include/audio_core/codec.h"
+#include "../include/common/assert.h"
+#include "../include/common/common_types.h"
 namespace AudioCore::Codec {
 
 StereoBuffer16 DecodeADPCM(const u8* const data, const std::size_t sample_count,

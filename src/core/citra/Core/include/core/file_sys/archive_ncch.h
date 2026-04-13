@@ -10,10 +10,9 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
 #include <boost/serialization/vector.hpp>
-#include "core/file_sys/archive_backend.h"
-#include "core/file_sys/file_backend.h"
-#include "core/hle/result.h"
-
+#include "archive_backend.h"
+#include "file_backend.h"
+#include "../hle/result.h"
 namespace Service::FS {
 enum class MediaType : u32;
 } // namespace Service::FS

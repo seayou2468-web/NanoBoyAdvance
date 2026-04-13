@@ -4,12 +4,11 @@
 
 #include <tuple>
 #include <utility>
-#include "common/archives.h"
-#include "core/file_sys/archive_other_savedata.h"
-#include "core/file_sys/errors.h"
-#include "core/hle/kernel/process.h"
-#include "core/hle/service/fs/archive.h"
-
+#include "../../include/common/archives.h"
+#include "../../include/core/file_sys/archive_other_savedata.h"
+#include "../../include/core/file_sys/errors.h"
+#include "../../include/core/hle/kernel/process.h"
+#include "../../include/core/hle/service/fs/archive.h"
 SERIALIZE_EXPORT_IMPL(FileSys::ArchiveFactory_OtherSaveDataPermitted)
 SERIALIZE_EXPORT_IMPL(FileSys::ArchiveFactory_OtherSaveDataGeneral)
 

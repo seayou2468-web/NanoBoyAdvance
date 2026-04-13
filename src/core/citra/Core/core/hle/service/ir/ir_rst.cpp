@@ -4,17 +4,16 @@
 
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/shared_ptr.hpp>
-#include "common/archives.h"
-#include "common/settings.h"
-#include "core/core.h"
-#include "core/core_timing.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/kernel/event.h"
-#include "core/hle/kernel/shared_memory.h"
-#include "core/hle/service/hid/hid.h"
-#include "core/hle/service/ir/ir_rst.h"
-#include "core/movie.h"
-
+#include "../../../../include/common/archives.h"
+#include "../../../../include/common/settings.h"
+#include "../../../../include/core/core.h"
+#include "../../../../include/core/core_timing.h"
+#include "../../../../include/core/hle/ipc_helpers.h"
+#include "../../../../include/core/hle/kernel/event.h"
+#include "../../../../include/core/hle/kernel/shared_memory.h"
+#include "../../../../include/core/hle/service/hid/hid.h"
+#include "../../../../include/core/hle/service/ir/ir_rst.h"
+#include "../../../../include/core/movie.h"
 SERIALIZE_EXPORT_IMPL(Service::IR::IR_RST)
 SERVICE_CONSTRUCT_IMPL(Service::IR::IR_RST)
 

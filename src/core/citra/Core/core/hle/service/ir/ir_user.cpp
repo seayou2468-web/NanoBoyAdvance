@@ -9,15 +9,14 @@
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/unique_ptr.hpp>
 #include <fmt/format.h>
-#include "common/archives.h"
-#include "common/swap.h"
-#include "core/core.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/kernel/event.h"
-#include "core/hle/kernel/shared_memory.h"
-#include "core/hle/service/ir/extra_hid.h"
-#include "core/hle/service/ir/ir_user.h"
-
+#include "../../../../include/common/archives.h"
+#include "../../../../include/common/swap.h"
+#include "../../../../include/core/core.h"
+#include "../../../../include/core/hle/ipc_helpers.h"
+#include "../../../../include/core/hle/kernel/event.h"
+#include "../../../../include/core/hle/kernel/shared_memory.h"
+#include "../../../../include/core/hle/service/ir/extra_hid.h"
+#include "../../../../include/core/hle/service/ir/ir_user.h"
 SERIALIZE_EXPORT_IMPL(Service::IR::IR_USER)
 SERVICE_CONSTRUCT_IMPL(Service::IR::IR_USER)
 

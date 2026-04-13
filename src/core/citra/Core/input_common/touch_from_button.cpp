@@ -2,10 +2,9 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/settings.h"
-#include "core/3ds.h"
-#include "input_common/touch_from_button.h"
-
+#include "../include/common/settings.h"
+#include "../include/core/3ds.h"
+#include "../include/input_common/touch_from_button.h"
 namespace InputCommon {
 
 class TouchFromButtonDevice final : public Input::TouchDevice {

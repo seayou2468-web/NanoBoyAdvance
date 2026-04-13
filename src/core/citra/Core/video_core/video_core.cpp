@@ -3,8 +3,8 @@
 // Refer to the license.txt file included.
 
 #include "common/logging/log.h"
-#include "common/settings.h"
-#include "video_core/gpu.h"
+#include "../include/common/settings.h"
+#include "../include/video_core/gpu.h"
 #ifdef ENABLE_OPENGL
 #include "video_core/renderer_opengl/renderer_opengl.h"
 #endif
@@ -14,8 +14,7 @@
 #ifdef ENABLE_VULKAN
 #include "video_core/renderer_vulkan/renderer_vulkan.h"
 #endif
-#include "video_core/video_core.h"
-
+#include "../include/video_core/video_core.h"
 namespace VideoCore {
 
 std::unique_ptr<RendererBase> CreateRenderer(Frontend::EmuWindow& emu_window,

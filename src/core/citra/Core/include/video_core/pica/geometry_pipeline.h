@@ -6,8 +6,7 @@
 
 #include <memory>
 #include <boost/serialization/export.hpp>
-#include "video_core/pica/shader_unit.h"
-
+#include "shader_unit.h"
 namespace Pica {
 
 struct RegsInternal;

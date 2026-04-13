@@ -5,7 +5,7 @@
 #pragma once
 
 #include <cstdlib>
-#include "common/common_funcs.h"
+#include "common_funcs.h"
 #include "common/logging/backend.h"
 #include "common/logging/log.h"
 

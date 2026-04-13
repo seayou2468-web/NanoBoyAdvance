@@ -6,11 +6,10 @@
 
 #include <boost/serialization/access.hpp>
 
-#include "common/bit_field.h"
-#include "common/common_funcs.h"
-#include "common/common_types.h"
-#include "common/vector_math.h"
-
+#include "../../common/bit_field.h"
+#include "../../common/common_funcs.h"
+#include "../../common/common_types.h"
+#include "../../common/vector_math.h"
 #define LCD_REG_INDEX(field_name) (offsetof(Pica::RegsLcd, field_name) / sizeof(u32))
 
 namespace Pica {

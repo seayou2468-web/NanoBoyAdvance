@@ -4,20 +4,19 @@
 
 #include <algorithm>
 #include <boost/serialization/shared_ptr.hpp>
-#include "common/alignment.h"
-#include "common/archives.h"
-#include "common/memory_ref.h"
-#include "core/core.h"
-#include "core/hle/ipc.h"
-#include "core/hle/kernel/handle_table.h"
-#include "core/hle/kernel/ipc.h"
+#include "../../../include/common/alignment.h"
+#include "../../../include/common/archives.h"
+#include "../../../include/common/memory_ref.h"
+#include "../../../include/core/core.h"
+#include "../../../include/core/hle/ipc.h"
+#include "../../../include/core/hle/kernel/handle_table.h"
+#include "../../../include/core/hle/kernel/ipc.h"
 #include "core/hle/kernel/ipc_debugger/recorder.h"
-#include "core/hle/kernel/kernel.h"
-#include "core/hle/kernel/memory.h"
-#include "core/hle/kernel/process.h"
-#include "core/hle/kernel/thread.h"
-#include "core/memory.h"
-
+#include "../../../include/core/hle/kernel/kernel.h"
+#include "../../../include/core/hle/kernel/memory.h"
+#include "../../../include/core/hle/kernel/process.h"
+#include "../../../include/core/hle/kernel/thread.h"
+#include "../../../include/core/memory.h"
 SERIALIZE_EXPORT_IMPL(Kernel::MappedBufferContext)
 
 namespace Kernel {

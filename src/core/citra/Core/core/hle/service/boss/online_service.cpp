@@ -3,20 +3,19 @@
 // Refer to the license.txt file included.
 
 #include <boost/serialization/map.hpp>
-#include "common/archives.h"
-#include "common/file_util.h"
-#include "common/serialization/boost_std_variant.hpp"
-#include "common/string_util.h"
-#include "core/core.h"
-#include "core/file_sys/archive_backend.h"
-#include "core/file_sys/archive_extsavedata.h"
-#include "core/file_sys/archive_systemsavedata.h"
-#include "core/file_sys/directory_backend.h"
-#include "core/file_sys/errors.h"
-#include "core/file_sys/file_backend.h"
-#include "core/hle/kernel/hle_ipc.h"
-#include "core/hle/service/boss/online_service.h"
-
+#include "../../../../include/common/archives.h"
+#include "../../../../include/common/file_util.h"
+#include "../../../../include/common/serialization/boost_std_variant.hpp"
+#include "../../../../include/common/string_util.h"
+#include "../../../../include/core/core.h"
+#include "../../../../include/core/file_sys/archive_backend.h"
+#include "../../../../include/core/file_sys/archive_extsavedata.h"
+#include "../../../../include/core/file_sys/archive_systemsavedata.h"
+#include "../../../../include/core/file_sys/directory_backend.h"
+#include "../../../../include/core/file_sys/errors.h"
+#include "../../../../include/core/file_sys/file_backend.h"
+#include "../../../../include/core/hle/kernel/hle_ipc.h"
+#include "../../../../include/core/hle/service/boss/online_service.h"
 namespace Service::BOSS {
 
 namespace ErrCodes {

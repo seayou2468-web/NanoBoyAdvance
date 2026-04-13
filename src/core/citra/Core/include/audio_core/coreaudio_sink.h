@@ -11,8 +11,7 @@
 #include <AudioUnit/AudioUnit.h>
 #include <cstddef>
 
-#include "audio_core/sink.h"
-
+#include "sink.h"
 namespace AudioCore {
 class CoreAudioSink final : public Sink {
 public:

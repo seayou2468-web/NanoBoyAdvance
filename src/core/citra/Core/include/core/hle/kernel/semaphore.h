@@ -6,11 +6,10 @@
 
 #include <string>
 #include <boost/serialization/export.hpp>
-#include "common/common_types.h"
-#include "core/hle/kernel/object.h"
-#include "core/hle/kernel/wait_object.h"
-#include "core/hle/result.h"
-
+#include "../../../common/common_types.h"
+#include "object.h"
+#include "wait_object.h"
+#include "../result.h"
 namespace Kernel {
 
 class ResourceLimit;

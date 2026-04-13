@@ -3,13 +3,12 @@
 // Refer to the license.txt file included.
 
 #include <tuple>
-#include "common/assert.h"
-#include "core/core.h"
-#include "core/hle/kernel/client_session.h"
-#include "core/hle/result.h"
-#include "core/hle/service/sm/sm.h"
-#include "core/hle/service/sm/srv.h"
-
+#include "../../../../include/common/assert.h"
+#include "../../../../include/core/core.h"
+#include "../../../../include/core/hle/kernel/client_session.h"
+#include "../../../../include/core/hle/result.h"
+#include "../../../../include/core/hle/service/sm/sm.h"
+#include "../../../../include/core/hle/service/sm/srv.h"
 namespace Service::SM {
 
 static Result ValidateServiceName(const std::string& name) {

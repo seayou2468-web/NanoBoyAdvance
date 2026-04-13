@@ -3,10 +3,9 @@
 // Refer to the license.txt file included.
 
 #include <fmt/format.h>
-#include "common/file_util.h"
+#include "../../include/common/file_util.h"
 #include "common/logging/log.h"
-#include "core/file_sys/seed_db.h"
-
+#include "../../include/core/file_sys/seed_db.h"
 namespace FileSys {
 
 bool SeedDB::Load() {

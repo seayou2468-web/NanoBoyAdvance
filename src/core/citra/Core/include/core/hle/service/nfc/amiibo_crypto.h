@@ -7,8 +7,7 @@
 #include <array>
 #include <vector>
 
-#include "core/hle/service/nfc/nfc_types.h"
-
+#include "nfc_types.h"
 namespace CryptoPP {
 class SHA256;
 template <class T>

@@ -2,8 +2,7 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "network/verify_user.h"
-
+#include "../include/network/verify_user.h"
 namespace Network::VerifyUser {
 
 Backend::~Backend() = default;

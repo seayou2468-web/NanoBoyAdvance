@@ -9,20 +9,19 @@
 #include <cryptopp/aes.h>
 #include <cryptopp/modes.h>
 #include <fmt/format.h>
-#include "common/archives.h"
-#include "common/assert.h"
-#include "common/scope_exit.h"
-#include "common/string_util.h"
-#include "core/core.h"
-#include "core/file_sys/archive_ncch.h"
-#include "core/file_sys/file_backend.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/kernel/ipc.h"
-#include "core/hle/romfs.h"
-#include "core/hle/service/fs/archive.h"
-#include "core/hle/service/http/http_c.h"
-#include "core/hw/aes/key.h"
-
+#include "../../../../include/common/archives.h"
+#include "../../../../include/common/assert.h"
+#include "../../../../include/common/scope_exit.h"
+#include "../../../../include/common/string_util.h"
+#include "../../../../include/core/core.h"
+#include "../../../../include/core/file_sys/archive_ncch.h"
+#include "../../../../include/core/file_sys/file_backend.h"
+#include "../../../../include/core/hle/ipc_helpers.h"
+#include "../../../../include/core/hle/kernel/ipc.h"
+#include "../../../../include/core/hle/romfs.h"
+#include "../../../../include/core/hle/service/fs/archive.h"
+#include "../../../../include/core/hle/service/http/http_c.h"
+#include "../../../../include/core/hw/aes/key.h"
 SERIALIZE_EXPORT_IMPL(Service::HTTP::HTTP_C)
 SERIALIZE_EXPORT_IMPL(Service::HTTP::SessionData)
 

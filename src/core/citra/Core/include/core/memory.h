@@ -8,9 +8,8 @@
 #include <string>
 #include <boost/serialization/array.hpp>
 #include <boost/serialization/vector.hpp>
-#include "common/common_types.h"
-#include "common/memory_ref.h"
-
+#include "../common/common_types.h"
+#include "../common/memory_ref.h"
 namespace Kernel {
 class Process;
 }

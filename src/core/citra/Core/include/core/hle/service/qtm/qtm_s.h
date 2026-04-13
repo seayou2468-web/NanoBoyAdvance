@@ -4,8 +4,7 @@
 
 #pragma once
 
-#include "core/hle/service/service.h"
-
+#include "../service.h"
 namespace Service::QTM {
 
 class QTM_S final : public ServiceFramework<QTM_S> {

@@ -2,24 +2,23 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/archives.h"
-#include "common/file_util.h"
-#include "common/settings.h"
-#include "core/core.h"
-#include "core/frontend/input.h"
-#include "core/hle/applets/applet.h"
-#include "core/hle/applets/erreula.h"
-#include "core/hle/applets/mii_selector.h"
-#include "core/hle/applets/mint.h"
-#include "core/hle/applets/swkbd.h"
-#include "core/hle/service/am/am.h"
-#include "core/hle/service/apt/applet_manager.h"
-#include "core/hle/service/apt/errors.h"
-#include "core/hle/service/apt/ns.h"
-#include "core/hle/service/cfg/cfg.h"
-#include "core/hle/service/gsp/gsp_gpu.h"
-#include "video_core/utils.h"
-
+#include "../../../../include/common/archives.h"
+#include "../../../../include/common/file_util.h"
+#include "../../../../include/common/settings.h"
+#include "../../../../include/core/core.h"
+#include "../../../../include/core/frontend/input.h"
+#include "../../../../include/core/hle/applets/applet.h"
+#include "../../../../include/core/hle/applets/erreula.h"
+#include "../../../../include/core/hle/applets/mii_selector.h"
+#include "../../../../include/core/hle/applets/mint.h"
+#include "../../../../include/core/hle/applets/swkbd.h"
+#include "../../../../include/core/hle/service/am/am.h"
+#include "../../../../include/core/hle/service/apt/applet_manager.h"
+#include "../../../../include/core/hle/service/apt/errors.h"
+#include "../../../../include/core/hle/service/apt/ns.h"
+#include "../../../../include/core/hle/service/cfg/cfg.h"
+#include "../../../../include/core/hle/service/gsp/gsp_gpu.h"
+#include "../../../../include/video_core/utils.h"
 SERVICE_CONSTRUCT_IMPL(Service::APT::AppletManager)
 
 namespace Service::APT {

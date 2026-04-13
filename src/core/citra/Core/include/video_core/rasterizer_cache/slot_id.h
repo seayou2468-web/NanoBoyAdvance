@@ -2,8 +2,7 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/slot_vector.h"
-
+#include "../../common/slot_vector.h"
 #pragma once
 
 namespace VideoCore {

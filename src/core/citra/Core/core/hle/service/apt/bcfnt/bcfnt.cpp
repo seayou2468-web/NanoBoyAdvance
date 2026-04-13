@@ -2,9 +2,8 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "core/hle/service/apt/bcfnt/bcfnt.h"
-#include "core/hle/service/service.h"
-
+#include "../../../../../include/core/hle/service/apt/bcfnt/bcfnt.h"
+#include "../../../../../include/core/hle/service/service.h"
 namespace Service::APT::BCFNT {
 
 void RelocateSharedFont(std::shared_ptr<Kernel::SharedMemory> shared_font, VAddr new_address) {

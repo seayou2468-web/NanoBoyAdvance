@@ -4,9 +4,8 @@
 
 #pragma once
 
-#include "core/frontend/camera/factory.h"
-#include "core/frontend/camera/interface.h"
-
+#include "factory.h"
+#include "interface.h"
 namespace Camera {
 
 class BlankCamera final : public CameraInterface {

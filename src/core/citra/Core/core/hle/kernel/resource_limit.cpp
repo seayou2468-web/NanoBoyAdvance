@@ -6,11 +6,10 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/string.hpp>
-#include "common/archives.h"
-#include "common/assert.h"
-#include "common/settings.h"
-#include "core/hle/kernel/resource_limit.h"
-
+#include "../../../include/common/archives.h"
+#include "../../../include/common/assert.h"
+#include "../../../include/common/settings.h"
+#include "../../../include/core/hle/kernel/resource_limit.h"
 SERIALIZE_EXPORT_IMPL(Kernel::ResourceLimit)
 SERIALIZE_EXPORT_IMPL(Kernel::ResourceLimitList)
 

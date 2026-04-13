@@ -5,8 +5,7 @@
 #pragma once
 
 #include <vector>
-#include "common/common_types.h"
-
+#include "../common/common_types.h"
 namespace AudioCore {
 
 enum class Signedness : u8 {

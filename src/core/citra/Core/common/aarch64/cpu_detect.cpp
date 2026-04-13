@@ -2,7 +2,7 @@
 // Licensed under GPLv2+
 // Refer to the license.txt file included.
 
-#include "common/arch.h"
+#include "../../include/common/arch.h"
 #if CYTRUS_ARCH(arm64)
 
 #include <cstring>
@@ -22,9 +22,8 @@
 #include <unistd.h>
 #endif // __APPLE__
 
-#include "common/aarch64/cpu_detect.h"
-#include "common/file_util.h"
-
+#include "../../include/common/aarch64/cpu_detect.h"
+#include "../../include/common/file_util.h"
 namespace Common {
 
 #ifdef __APPLE__

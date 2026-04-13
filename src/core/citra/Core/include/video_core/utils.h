@@ -4,8 +4,7 @@
 
 #pragma once
 
-#include "common/common_types.h"
-
+#include "../common/common_types.h"
 namespace VideoCore {
 
 // 8x8 Z-Order coordinate from 2D coordinates

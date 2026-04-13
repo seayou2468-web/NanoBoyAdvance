@@ -5,9 +5,8 @@
 #pragma once
 
 #include <boost/serialization/export.hpp>
-#include "common/bit_field.h"
-#include "common/common_types.h"
-
+#include "../../common/bit_field.h"
+#include "../../common/common_types.h"
 namespace Mii {
 
 using Nickname = std::array<char16_t, 10>;

@@ -23,8 +23,7 @@
 #include <bit>
 #include <cstring>
 #include <type_traits>
-#include "common/common_types.h"
-
+#include "common_types.h"
 namespace Common {
 
 #ifdef _MSC_VER

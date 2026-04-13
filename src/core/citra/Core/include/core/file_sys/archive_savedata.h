@@ -6,8 +6,7 @@
 
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/shared_ptr.hpp>
-#include "core/file_sys/archive_source_sd_savedata.h"
-
+#include "archive_source_sd_savedata.h"
 namespace FileSys {
 
 /// File system interface to the SaveData archive

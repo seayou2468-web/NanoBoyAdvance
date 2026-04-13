@@ -10,14 +10,13 @@
 #include <vector>
 #include <boost/serialization/export.hpp>
 #include <boost/serialization/shared_ptr.hpp>
-#include "common/common_types.h"
-#include "common/file_util.h"
-#include "core/file_sys/archive_backend.h"
-#include "core/file_sys/directory_backend.h"
-#include "core/file_sys/file_backend.h"
-#include "core/file_sys/romfs_reader.h"
-#include "core/hle/result.h"
-
+#include "../../common/common_types.h"
+#include "../../common/file_util.h"
+#include "archive_backend.h"
+#include "directory_backend.h"
+#include "file_backend.h"
+#include "romfs_reader.h"
+#include "../hle/result.h"
 namespace FileSys {
 
 class IVFCDelayGenerator : public DelayGenerator {

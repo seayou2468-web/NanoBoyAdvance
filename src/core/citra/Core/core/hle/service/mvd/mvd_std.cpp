@@ -2,10 +2,9 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/archives.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/service/mvd/mvd_std.h"
-
+#include "../../../../include/common/archives.h"
+#include "../../../../include/core/hle/ipc_helpers.h"
+#include "../../../../include/core/hle/service/mvd/mvd_std.h"
 SERIALIZE_EXPORT_IMPL(Service::MVD::MVD_STD)
 
 namespace Service::MVD {

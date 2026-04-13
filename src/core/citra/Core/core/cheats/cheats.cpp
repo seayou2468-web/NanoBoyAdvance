@@ -5,12 +5,11 @@
 #include <fstream>
 #include <functional>
 #include <fmt/format.h>
-#include "common/file_util.h"
-#include "core/cheats/cheats.h"
-#include "core/cheats/gateway_cheat.h"
-#include "core/core.h"
-#include "core/core_timing.h"
-
+#include "../../include/common/file_util.h"
+#include "../../include/core/cheats/cheats.h"
+#include "../../include/core/cheats/gateway_cheat.h"
+#include "../../include/core/core.h"
+#include "../../include/core/core_timing.h"
 namespace Cheats {
 
 // Luma3DS uses this interval for applying cheats, so to keep consistent behavior

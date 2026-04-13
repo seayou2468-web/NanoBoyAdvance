@@ -6,18 +6,17 @@
 #include <sstream>
 #include <cryptopp/hex.h>
 #include <fmt/format.h>
-#include "common/archives.h"
-#include "common/file_util.h"
+#include "../include/common/archives.h"
+#include "../include/common/file_util.h"
 #include "common/logging/log.h"
-#include "common/scm_rev.h"
-#include "common/swap.h"
-#include "common/zstd_compression.h"
-#include "core/core.h"
-#include "core/movie.h"
-#include "core/savestate.h"
-#include "core/savestate_data.h"
-#include "network/network.h"
-
+#include "../include/common/scm_rev.h"
+#include "../include/common/swap.h"
+#include "../include/common/zstd_compression.h"
+#include "../include/core/core.h"
+#include "../include/core/movie.h"
+#include "../include/core/savestate.h"
+#include "../include/core/savestate_data.h"
+#include "../include/network/network.h"
 namespace Core {
 
 #pragma pack(push, 1)

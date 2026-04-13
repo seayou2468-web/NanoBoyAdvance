@@ -4,11 +4,10 @@
 
 #include <cmath>
 #include <mutex>
-#include "common/settings.h"
-#include "core/3ds.h"
-#include "core/frontend/emu_window.h"
-#include "core/frontend/input.h"
-
+#include "../../include/common/settings.h"
+#include "../../include/core/3ds.h"
+#include "../../include/core/frontend/emu_window.h"
+#include "../../include/core/frontend/input.h"
 namespace Frontend {
 /// We need a global touch state that is shared across the different window instances
 static std::weak_ptr<EmuWindow::TouchState> global_touch_state;

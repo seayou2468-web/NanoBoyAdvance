@@ -8,9 +8,8 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include "common/common_types.h"
-#include "network/verify_user.h"
-
+#include "../common/common_types.h"
+#include "verify_user.h"
 namespace Network {
 
 constexpr u32 network_version = 4; ///< The version of this Room and RoomMember

@@ -4,8 +4,7 @@
 
 #pragma once
 
-#include "core/hle/service/hid/hid.h"
-
+#include "hid.h"
 // This service is used for interfacing to physical user controls.
 // Uses include game pad controls, touchscreen, accelerometers, gyroscopes, and debug pad.
 

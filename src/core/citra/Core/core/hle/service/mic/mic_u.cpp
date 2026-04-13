@@ -4,20 +4,19 @@
 
 #include <span>
 #include <boost/serialization/weak_ptr.hpp>
-#include "audio_core/input.h"
-#include "audio_core/input_details.h"
-#include "common/archives.h"
+#include "../../../../include/audio_core/input.h"
+#include "../../../../include/audio_core/input_details.h"
+#include "../../../../include/common/archives.h"
 #include "common/logging/log.h"
-#include "common/settings.h"
-#include "core/core.h"
-#include "core/hle/ipc.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/kernel/event.h"
-#include "core/hle/kernel/handle_table.h"
-#include "core/hle/kernel/kernel.h"
-#include "core/hle/kernel/shared_memory.h"
-#include "core/hle/service/mic/mic_u.h"
-
+#include "../../../../include/common/settings.h"
+#include "../../../../include/core/core.h"
+#include "../../../../include/core/hle/ipc.h"
+#include "../../../../include/core/hle/ipc_helpers.h"
+#include "../../../../include/core/hle/kernel/event.h"
+#include "../../../../include/core/hle/kernel/handle_table.h"
+#include "../../../../include/core/hle/kernel/kernel.h"
+#include "../../../../include/core/hle/kernel/shared_memory.h"
+#include "../../../../include/core/hle/service/mic/mic_u.h"
 SERVICE_CONSTRUCT_IMPL(Service::MIC::MIC_U)
 SERIALIZE_EXPORT_IMPL(Service::MIC::MIC_U)
 

@@ -2,9 +2,8 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/archives.h"
-#include "core/hle/service/apt/apt_u.h"
-
+#include "../../../../include/common/archives.h"
+#include "../../../../include/core/hle/service/apt/apt_u.h"
 namespace Service::APT {
 
 APT_U::APT_U(std::shared_ptr<Module> apt)

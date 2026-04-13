@@ -5,11 +5,10 @@
 #include <algorithm>
 #include <array>
 #include <cstddef>
-#include "audio_core/hle/common.h"
-#include "audio_core/hle/filter.h"
-#include "audio_core/hle/shared_memory.h"
-#include "common/common_types.h"
-
+#include "../../include/audio_core/hle/common.h"
+#include "../../include/audio_core/hle/filter.h"
+#include "../../include/audio_core/hle/shared_memory.h"
+#include "../../include/common/common_types.h"
 namespace AudioCore::HLE {
 
 void SourceFilters::Reset() {

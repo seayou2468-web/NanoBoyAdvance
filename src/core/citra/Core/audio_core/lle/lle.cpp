@@ -6,15 +6,14 @@
 #include <atomic>
 #include <thread>
 #include <teakra/teakra.h>
-#include "audio_core/lle/lle.h"
-#include "common/assert.h"
-#include "common/bit_field.h"
-#include "common/swap.h"
-#include "common/thread.h"
-#include "core/core.h"
-#include "core/core_timing.h"
-#include "core/hle/service/dsp/dsp_dsp.h"
-
+#include "../../include/audio_core/lle/lle.h"
+#include "../../include/common/assert.h"
+#include "../../include/common/bit_field.h"
+#include "../../include/common/swap.h"
+#include "../../include/common/thread.h"
+#include "../../include/core/core.h"
+#include "../../include/core/core_timing.h"
+#include "../../include/core/hle/service/dsp/dsp_dsp.h"
 namespace AudioCore {
 
 enum class SegmentType : u8 {

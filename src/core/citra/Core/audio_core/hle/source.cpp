@@ -4,14 +4,13 @@
 
 #include <algorithm>
 #include <array>
-#include "audio_core/codec.h"
-#include "audio_core/hle/common.h"
-#include "audio_core/hle/source.h"
-#include "audio_core/interpolate.h"
-#include "common/assert.h"
+#include "../../include/audio_core/codec.h"
+#include "../../include/audio_core/hle/common.h"
+#include "../../include/audio_core/hle/source.h"
+#include "../../include/audio_core/interpolate.h"
+#include "../../include/common/assert.h"
 #include "common/logging/log.h"
-#include "core/memory.h"
-
+#include "../../include/core/memory.h"
 namespace AudioCore::HLE {
 
 SourceStatus::Status Source::Tick(SourceConfiguration::Configuration& config,

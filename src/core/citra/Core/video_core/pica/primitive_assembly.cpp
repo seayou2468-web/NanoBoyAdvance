@@ -3,8 +3,7 @@
 // Refer to the license.txt file included.
 
 #include "common/logging/log.h"
-#include "video_core/pica/primitive_assembly.h"
-
+#include "../../include/video_core/pica/primitive_assembly.h"
 namespace Pica {
 
 PrimitiveAssembler::PrimitiveAssembler(PipelineRegs::TriangleTopology topology)

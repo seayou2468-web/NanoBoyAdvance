@@ -5,20 +5,19 @@
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/unordered_map.hpp>
 #include <boost/serialization/vector.hpp>
-#include "common/archives.h"
-#include "common/serialization/atomic.h"
-#include "core/hle/kernel/client_port.h"
-#include "core/hle/kernel/config_mem.h"
-#include "core/hle/kernel/handle_table.h"
+#include "../../../include/common/archives.h"
+#include "../../../include/common/serialization/atomic.h"
+#include "../../../include/core/hle/kernel/client_port.h"
+#include "../../../include/core/hle/kernel/config_mem.h"
+#include "../../../include/core/hle/kernel/handle_table.h"
 #include "core/hle/kernel/ipc_debugger/recorder.h"
-#include "core/hle/kernel/kernel.h"
-#include "core/hle/kernel/memory.h"
-#include "core/hle/kernel/process.h"
-#include "core/hle/kernel/resource_limit.h"
-#include "core/hle/kernel/shared_page.h"
-#include "core/hle/kernel/thread.h"
-#include "core/hle/kernel/timer.h"
-
+#include "../../../include/core/hle/kernel/kernel.h"
+#include "../../../include/core/hle/kernel/memory.h"
+#include "../../../include/core/hle/kernel/process.h"
+#include "../../../include/core/hle/kernel/resource_limit.h"
+#include "../../../include/core/hle/kernel/shared_page.h"
+#include "../../../include/core/hle/kernel/thread.h"
+#include "../../../include/core/hle/kernel/timer.h"
 SERIALIZE_EXPORT_IMPL(Kernel::New3dsHwCapabilities)
 
 namespace Kernel {

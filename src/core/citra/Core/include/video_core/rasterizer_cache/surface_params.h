@@ -5,10 +5,9 @@
 #pragma once
 
 #include <boost/icl/right_open_interval.hpp>
-#include "common/math_util.h"
-#include "video_core/custom_textures/custom_format.h"
-#include "video_core/rasterizer_cache/pixel_format.h"
-
+#include "../../common/math_util.h"
+#include "../custom_textures/custom_format.h"
+#include "pixel_format.h"
 namespace VideoCore {
 
 using SurfaceInterval = boost::icl::right_open_interval<PAddr>;

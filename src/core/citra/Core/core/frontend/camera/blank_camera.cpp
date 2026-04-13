@@ -2,9 +2,8 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "core/frontend/camera/blank_camera.h"
-#include "core/hle/service/cam/cam.h"
-
+#include "../../../include/core/frontend/camera/blank_camera.h"
+#include "../../../include/core/hle/service/cam/cam.h"
 namespace Camera {
 
 void BlankCamera::StartCapture() {}

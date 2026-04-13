@@ -12,11 +12,10 @@
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/unordered_map.hpp>
 #include <boost/serialization/vector.hpp>
-#include "common/common_types.h"
-#include "core/file_sys/archive_backend.h"
-#include "core/hle/result.h"
-#include "core/loader/loader.h"
-
+#include "../../common/common_types.h"
+#include "archive_backend.h"
+#include "../hle/result.h"
+#include "../loader/loader.h"
 namespace FileSys {
 
 struct NCCHData {

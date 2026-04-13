@@ -2,8 +2,7 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/hacks/hack_manager.h"
-
+#include "../../include/common/hacks/hack_manager.h"
 namespace Common::Hacks {
 
 HackManager hack_manager = {

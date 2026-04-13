@@ -4,18 +4,17 @@
 
 #include <span>
 #include <unordered_map>
-#include "common/assert.h"
-#include "common/file_util.h"
+#include "../../include/common/assert.h"
+#include "../../include/common/file_util.h"
 #include "common/logging/log.h"
-#include "common/param_package.h"
-#include "common/scope_exit.h"
-#include "common/settings.h"
-#include "common/string_util.h"
-#include "core/core_timing.h"
-#include "core/dumping/ffmpeg_backend.h"
-#include "video_core/gpu.h"
-#include "video_core/renderer_base.h"
-
+#include "../../include/common/param_package.h"
+#include "../../include/common/scope_exit.h"
+#include "../../include/common/settings.h"
+#include "../../include/common/string_util.h"
+#include "../../include/core/core_timing.h"
+#include "../../include/core/dumping/ffmpeg_backend.h"
+#include "../../include/video_core/gpu.h"
+#include "../../include/video_core/renderer_base.h"
 using namespace DynamicLibrary;
 
 namespace VideoDumper {

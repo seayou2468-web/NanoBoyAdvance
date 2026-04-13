@@ -4,8 +4,7 @@
 
 #pragma once
 
-#include "common/common_types.h"
-
+#include "../common_types.h"
 namespace Common::Hacks {
 
 enum class HackType : int {

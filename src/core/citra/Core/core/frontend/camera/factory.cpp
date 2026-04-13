@@ -4,9 +4,8 @@
 
 #include <unordered_map>
 #include "common/logging/log.h"
-#include "core/frontend/camera/blank_camera.h"
-#include "core/frontend/camera/factory.h"
-
+#include "../../../include/core/frontend/camera/blank_camera.h"
+#include "../../../include/core/frontend/camera/factory.h"
 namespace Camera {
 
 static std::unordered_map<std::string, std::unique_ptr<CameraFactory>> factories;

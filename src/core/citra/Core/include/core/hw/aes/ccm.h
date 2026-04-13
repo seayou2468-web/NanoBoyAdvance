@@ -8,8 +8,7 @@
 #include <cstddef>
 #include <span>
 #include <vector>
-#include "common/common_types.h"
-
+#include "../../../common/common_types.h"
 namespace HW::AES {
 
 constexpr std::size_t CCM_NONCE_SIZE = 12;

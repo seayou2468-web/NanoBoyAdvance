@@ -6,9 +6,8 @@
 
 #include <functional>
 #include <string>
-#include "common/announce_multiplayer_room.h"
-#include "web_service/web_backend.h"
-
+#include "../common/announce_multiplayer_room.h"
+#include "web_backend.h"
 namespace WebService {
 
 /**

@@ -4,9 +4,8 @@
 
 #pragma once
 
-#include "core/hle/applets/applet.h"
-#include "core/hle/kernel/shared_memory.h"
-
+#include "applet.h"
+#include "../kernel/shared_memory.h"
 namespace HLE::Applets {
 
 class Mint final : public Applet {

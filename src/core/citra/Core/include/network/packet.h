@@ -6,8 +6,7 @@
 
 #include <array>
 #include <vector>
-#include "common/common_types.h"
-
+#include "../common/common_types.h"
 namespace Network {
 
 /// A class that serializes data for network transfer. It also handles endianess

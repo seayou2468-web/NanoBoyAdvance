@@ -4,8 +4,7 @@
 
 #pragma once
 
-#include "core/hle/service/am/am.h"
-
+#include "am.h"
 namespace Service::AM {
 
 class AM_SYS final : public Module::Interface {

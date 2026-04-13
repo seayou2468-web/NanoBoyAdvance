@@ -8,9 +8,8 @@
 #include <string>
 #include <boost/serialization/export.hpp>
 #include <boost/serialization/string.hpp>
-#include "core/file_sys/archive_backend.h"
-#include "core/hle/result.h"
-
+#include "archive_backend.h"
+#include "../hle/result.h"
 namespace FileSys {
 
 /// A common source of SD save data archive

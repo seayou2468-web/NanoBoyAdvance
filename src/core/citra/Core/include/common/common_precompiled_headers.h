@@ -11,5 +11,5 @@
 
 #include <fmt/format.h>
 
-#include "common/assert.h"
-#include "common/common_types.h"
+#include "assert.h"
+#include "common_types.h"

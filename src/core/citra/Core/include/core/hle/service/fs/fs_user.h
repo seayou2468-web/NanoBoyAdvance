@@ -7,11 +7,10 @@
 #include <optional>
 #include <unordered_map>
 #include <boost/serialization/base_object.hpp>
-#include "common/common_types.h"
-#include "core/file_sys/errors.h"
-#include "core/hle/service/fs/archive.h"
-#include "core/hle/service/service.h"
-
+#include "../../../../common/common_types.h"
+#include "../../../file_sys/errors.h"
+#include "archive.h"
+#include "../service.h"
 namespace Core {
 class System;
 }

@@ -7,8 +7,7 @@
 #include <array>
 #include <cstddef>
 #include <deque>
-#include "common/common_types.h"
-
+#include "../common/common_types.h"
 namespace AudioCore {
 
 /// Samples per second which the 3DS's audio hardware natively outputs at

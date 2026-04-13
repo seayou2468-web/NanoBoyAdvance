@@ -10,14 +10,13 @@
 #include <string>
 #include <boost/optional.hpp>
 #include <boost/serialization/version.hpp>
-#include "common/common_types.h"
-#include "core/arm/arm_interface.h"
-#include "core/cheats/cheats.h"
-#include "core/hle/service/apt/applet_manager.h"
-#include "core/hle/service/plgldr/plgldr.h"
-#include "core/movie.h"
-#include "core/perf_stats.h"
-
+#include "../common/common_types.h"
+#include "arm/arm_interface.h"
+#include "cheats/cheats.h"
+#include "hle/service/apt/applet_manager.h"
+#include "hle/service/plgldr/plgldr.h"
+#include "movie.h"
+#include "perf_stats.h"
 namespace Frontend {
 class EmuWindow;
 class ImageInterface;

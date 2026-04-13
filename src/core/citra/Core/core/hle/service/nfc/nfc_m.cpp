@@ -2,9 +2,8 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/archives.h"
-#include "core/hle/service/nfc/nfc_m.h"
-
+#include "../../../../include/common/archives.h"
+#include "../../../../include/core/hle/service/nfc/nfc_m.h"
 SERIALIZE_EXPORT_IMPL(Service::NFC::NFC_M)
 
 namespace Service::NFC {

@@ -7,22 +7,21 @@
 #include <boost/serialization/list.hpp>
 #include <boost/serialization/map.hpp>
 #include <cryptopp/osrng.h>
-#include "common/archives.h"
-#include "common/common_types.h"
+#include "../../../../include/common/archives.h"
+#include "../../../../include/common/common_types.h"
 #include "common/logging/log.h"
-#include "core/core.h"
-#include "core/core_timing.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/kernel/event.h"
-#include "core/hle/kernel/shared_memory.h"
-#include "core/hle/kernel/shared_page.h"
-#include "core/hle/result.h"
-#include "core/hle/service/nwm/nwm_uds.h"
-#include "core/hle/service/nwm/uds_beacon.h"
-#include "core/hle/service/nwm/uds_connection.h"
-#include "core/hle/service/nwm/uds_data.h"
-#include "core/memory.h"
-
+#include "../../../../include/core/core.h"
+#include "../../../../include/core/core_timing.h"
+#include "../../../../include/core/hle/ipc_helpers.h"
+#include "../../../../include/core/hle/kernel/event.h"
+#include "../../../../include/core/hle/kernel/shared_memory.h"
+#include "../../../../include/core/hle/kernel/shared_page.h"
+#include "../../../../include/core/hle/result.h"
+#include "../../../../include/core/hle/service/nwm/nwm_uds.h"
+#include "../../../../include/core/hle/service/nwm/uds_beacon.h"
+#include "../../../../include/core/hle/service/nwm/uds_connection.h"
+#include "../../../../include/core/hle/service/nwm/uds_data.h"
+#include "../../../../include/core/memory.h"
 SERIALIZE_EXPORT_IMPL(Service::NWM::NWM_UDS)
 SERVICE_CONSTRUCT_IMPL(Service::NWM::NWM_UDS)
 

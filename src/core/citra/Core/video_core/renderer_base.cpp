@@ -2,13 +2,12 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/settings.h"
-#include "core/core.h"
-#include "core/frontend/emu_window.h"
+#include "../include/common/settings.h"
+#include "../include/core/core.h"
+#include "../include/core/frontend/emu_window.h"
 #include "core/tracer/recorder.h"
 #include "video_core/debug_utils/debug_utils.h"
-#include "video_core/renderer_base.h"
-
+#include "../include/video_core/renderer_base.h"
 namespace VideoCore {
 
 RendererBase::RendererBase(Core::System& system_, Frontend::EmuWindow& window,

@@ -7,14 +7,13 @@
 #include <memory>
 #include <vector>
 #include <fmt/format.h>
-#include "common/archives.h"
-#include "common/common_types.h"
-#include "common/file_util.h"
-#include "core/file_sys/archive_systemsavedata.h"
-#include "core/file_sys/errors.h"
-#include "core/file_sys/savedata_archive.h"
-#include "core/hle/service/fs/archive.h"
-
+#include "../../include/common/archives.h"
+#include "../../include/common/common_types.h"
+#include "../../include/common/file_util.h"
+#include "../../include/core/file_sys/archive_systemsavedata.h"
+#include "../../include/core/file_sys/errors.h"
+#include "../../include/core/file_sys/savedata_archive.h"
+#include "../../include/core/hle/service/fs/archive.h"
 SERIALIZE_EXPORT_IMPL(FileSys::ArchiveFactory_SystemSaveData)
 
 namespace FileSys {

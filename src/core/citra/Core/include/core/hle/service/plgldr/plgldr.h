@@ -23,8 +23,7 @@
 
 #include <memory>
 #include <boost/serialization/export.hpp>
-#include "core/hle/service/service.h"
-
+#include "../service.h"
 namespace Core {
 class System;
 }

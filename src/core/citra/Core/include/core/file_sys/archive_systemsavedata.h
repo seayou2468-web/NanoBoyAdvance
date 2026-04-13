@@ -8,10 +8,9 @@
 #include <string>
 #include <boost/serialization/export.hpp>
 #include <boost/serialization/string.hpp>
-#include "common/common_types.h"
-#include "core/file_sys/archive_backend.h"
-#include "core/hle/result.h"
-
+#include "../../common/common_types.h"
+#include "archive_backend.h"
+#include "../hle/result.h"
 namespace FileSys {
 
 /// File system interface to the SystemSaveData archive

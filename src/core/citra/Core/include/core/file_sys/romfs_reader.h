@@ -5,11 +5,10 @@
 #include <boost/serialization/array.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
-#include "common/alignment.h"
-#include "common/common_types.h"
-#include "common/file_util.h"
-#include "common/static_lru_cache.h"
-
+#include "../../common/alignment.h"
+#include "../../common/common_types.h"
+#include "../../common/file_util.h"
+#include "../../common/static_lru_cache.h"
 namespace FileSys {
 
 /**

@@ -7,23 +7,22 @@
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/weak_ptr.hpp>
-#include "audio_core/audio_types.h"
-#include "audio_core/hle/aac_decoder.h"
-#include "audio_core/hle/common.h"
-#include "audio_core/hle/decoder.h"
-#include "audio_core/hle/hle.h"
-#include "audio_core/hle/mixers.h"
-#include "audio_core/hle/shared_memory.h"
-#include "audio_core/hle/source.h"
-#include "audio_core/sink.h"
-#include "common/archives.h"
-#include "common/assert.h"
-#include "common/common_types.h"
-#include "common/hash.h"
+#include "../../include/audio_core/audio_types.h"
+#include "../../include/audio_core/hle/aac_decoder.h"
+#include "../../include/audio_core/hle/common.h"
+#include "../../include/audio_core/hle/decoder.h"
+#include "../../include/audio_core/hle/hle.h"
+#include "../../include/audio_core/hle/mixers.h"
+#include "../../include/audio_core/hle/shared_memory.h"
+#include "../../include/audio_core/hle/source.h"
+#include "../../include/audio_core/sink.h"
+#include "../../include/common/archives.h"
+#include "../../include/common/assert.h"
+#include "../../include/common/common_types.h"
+#include "../../include/common/hash.h"
 #include "common/logging/log.h"
-#include "core/core.h"
-#include "core/core_timing.h"
-
+#include "../../include/core/core.h"
+#include "../../include/core/core_timing.h"
 using InterruptType = Service::DSP::InterruptType;
 
 namespace AudioCore {

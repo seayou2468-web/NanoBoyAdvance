@@ -8,10 +8,9 @@
 #include <tuple>
 #include <utility>
 
-#include "common/common_types.h"
-#include "core/3ds.h"
-#include "core/frontend/framebuffer_layout.h"
-
+#include "../../common/common_types.h"
+#include "../3ds.h"
+#include "framebuffer_layout.h"
 namespace Common {
 class DynamicLibrary;
 }

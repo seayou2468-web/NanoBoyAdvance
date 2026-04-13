@@ -5,8 +5,7 @@
 #pragma once
 
 #include <memory>
-#include "core/hle/service/ac/ac.h"
-
+#include "ac.h"
 namespace Service::AC {
 
 class AC_U final : public Module::Interface {

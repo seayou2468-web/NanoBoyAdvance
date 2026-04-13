@@ -5,8 +5,7 @@
 #pragma once
 
 #include <span>
-#include "common/common_types.h"
-
+#include "common_types.h"
 namespace Common {
 
 void FlipRGBA8Texture(std::span<u8> tex, u32 width, u32 height);

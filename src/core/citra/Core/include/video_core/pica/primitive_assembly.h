@@ -8,9 +8,8 @@
 #include <functional>
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/array.hpp>
-#include "video_core/pica/output_vertex.h"
-#include "video_core/pica/regs_pipeline.h"
-
+#include "output_vertex.h"
+#include "regs_pipeline.h"
 namespace Pica {
 
 /**

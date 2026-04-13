@@ -2,13 +2,12 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "core/core.h"
-#include "core/hle/service/qtm/qtm.h"
-#include "core/hle/service/qtm/qtm_c.h"
-#include "core/hle/service/qtm/qtm_s.h"
-#include "core/hle/service/qtm/qtm_sp.h"
-#include "core/hle/service/qtm/qtm_u.h"
-
+#include "../../../../include/core/core.h"
+#include "../../../../include/core/hle/service/qtm/qtm.h"
+#include "../../../../include/core/hle/service/qtm/qtm_c.h"
+#include "../../../../include/core/hle/service/qtm/qtm_s.h"
+#include "../../../../include/core/hle/service/qtm/qtm_sp.h"
+#include "../../../../include/core/hle/service/qtm/qtm_u.h"
 namespace Service::QTM {
 
 void InstallInterfaces(Core::System& system) {

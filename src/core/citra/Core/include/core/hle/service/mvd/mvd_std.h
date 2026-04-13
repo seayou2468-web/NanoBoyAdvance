@@ -4,8 +4,7 @@
 
 #pragma once
 
-#include "core/hle/service/service.h"
-
+#include "../service.h"
 namespace Service::MVD {
 
 class MVD_STD final : public ServiceFramework<MVD_STD> {

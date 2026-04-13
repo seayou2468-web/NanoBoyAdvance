@@ -2,22 +2,21 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/archives.h"
-#include "common/microprofile.h"
-#include "core/core.h"
-#include "core/core_timing.h"
-#include "core/hle/service/gsp/gsp_gpu.h"
-#include "core/hle/service/plgldr/plgldr.h"
+#include "../include/common/archives.h"
+#include "../include/common/microprofile.h"
+#include "../include/core/core.h"
+#include "../include/core/core_timing.h"
+#include "../include/core/hle/service/gsp/gsp_gpu.h"
+#include "../include/core/hle/service/plgldr/plgldr.h"
 #include "video_core/debug_utils/debug_utils.h"
-#include "video_core/gpu.h"
+#include "../include/video_core/gpu.h"
 #include "video_core/gpu_debugger.h"
-#include "video_core/pica/pica_core.h"
-#include "video_core/pica/regs_lcd.h"
-#include "video_core/renderer_base.h"
-#include "video_core/renderer_software/sw_blitter.h"
-#include "video_core/right_eye_disabler.h"
-#include "video_core/video_core.h"
-
+#include "../include/video_core/pica/pica_core.h"
+#include "../include/video_core/pica/regs_lcd.h"
+#include "../include/video_core/renderer_base.h"
+#include "../include/video_core/renderer_software/sw_blitter.h"
+#include "../include/video_core/right_eye_disabler.h"
+#include "../include/video_core/video_core.h"
 namespace VideoCore {
 
 constexpr VAddr VADDR_LCD = 0x1ED02000;

@@ -4,11 +4,10 @@
 
 #pragma once
 
-#include "common/common_types.h"
-#include "core/hle/kernel/process.h"
-#include "core/hle/service/fs/archive.h"
-#include "core/hle/service/service.h"
-
+#include "../../../../common/common_types.h"
+#include "../../kernel/process.h"
+#include "../fs/archive.h"
+#include "../service.h"
 namespace Core {
 class System;
 }

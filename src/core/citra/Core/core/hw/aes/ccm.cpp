@@ -7,11 +7,10 @@
 #include <cryptopp/ccm.h>
 #include <cryptopp/cryptlib.h>
 #include <cryptopp/filters.h>
-#include "common/alignment.h"
+#include "../../../include/common/alignment.h"
 #include "common/logging/log.h"
-#include "core/hw/aes/ccm.h"
-#include "core/hw/aes/key.h"
-
+#include "../../../include/core/hw/aes/ccm.h"
+#include "../../../include/core/hw/aes/key.h"
 namespace HW::AES {
 
 namespace {

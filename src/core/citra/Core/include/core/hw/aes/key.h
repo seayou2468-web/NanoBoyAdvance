@@ -7,8 +7,7 @@
 #include <array>
 #include <cstddef>
 #include <vector>
-#include "common/common_types.h"
-
+#include "../../../common/common_types.h"
 namespace HW::AES {
 
 enum KeySlotID : std::size_t {

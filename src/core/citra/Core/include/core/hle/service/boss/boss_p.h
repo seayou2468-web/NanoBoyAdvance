@@ -4,8 +4,7 @@
 
 #pragma once
 
-#include "core/hle/service/boss/boss.h"
-
+#include "boss.h"
 namespace Service::BOSS {
 
 class BOSS_P final : public Module::Interface {

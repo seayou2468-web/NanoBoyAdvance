@@ -11,13 +11,12 @@
 #include <boost/serialization/priority_queue.hpp>
 #include <boost/serialization/vector.hpp>
 #include <queue>
-#include "audio_core/audio_types.h"
-#include "audio_core/codec.h"
-#include "audio_core/hle/common.h"
-#include "audio_core/hle/filter.h"
-#include "audio_core/interpolate.h"
-#include "common/common_types.h"
-
+#include "../audio_types.h"
+#include "../codec.h"
+#include "common.h"
+#include "filter.h"
+#include "../interpolate.h"
+#include "../../common/common_types.h"
 namespace Memory {
 class MemorySystem;
 }

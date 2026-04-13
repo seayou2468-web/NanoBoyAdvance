@@ -6,8 +6,7 @@
 
 #include <vector>
 
-#include "common/common_types.h"
-
+#include "../../common/common_types.h"
 namespace FileSys::Patch {
 
 bool ApplyIpsPatch(const std::vector<u8>& patch, std::vector<u8>& buffer);

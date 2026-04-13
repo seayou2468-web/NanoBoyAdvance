@@ -4,9 +4,8 @@
 
 #pragma once
 
-#include "common/common_types.h"
-#include "common/vector_math.h"
-
+#include "../../common/common_types.h"
+#include "../../common/vector_math.h"
 namespace Pica::Texture {
 
 Common::Vec3<u8> SampleETC1Subtile(u64 value, unsigned int x, unsigned int y);

@@ -4,10 +4,9 @@
 
 #include <string_view>
 #include <utility>
-#include "audio_core/dsp_interface.h"
-#include "common/file_util.h"
-#include "common/settings.h"
-
+#include "../include/audio_core/dsp_interface.h"
+#include "../include/common/file_util.h"
+#include "../include/common/settings.h"
 namespace Settings {
 
 namespace {

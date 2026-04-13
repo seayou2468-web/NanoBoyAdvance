@@ -4,8 +4,7 @@
 
 #pragma once
 
-#include "common/common_types.h"
-
+#include "../../../../common/common_types.h"
 namespace Service::CAM {
 
 enum CameraIndex {

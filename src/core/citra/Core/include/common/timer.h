@@ -6,8 +6,7 @@
 
 #include <chrono>
 #include <string>
-#include "common/common_types.h"
-
+#include "common_types.h"
 namespace Common {
 class Timer {
 public:

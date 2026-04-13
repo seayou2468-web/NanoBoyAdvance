@@ -3,21 +3,20 @@
 // Refer to the license.txt file included.
 
 #include "json.hpp"
-#include "common/file_util.h"
-#include "common/literals.h"
-#include "common/memory_detect.h"
-#include "common/microprofile.h"
-#include "common/settings.h"
-#include "common/string_util.h"
-#include "common/texture.h"
-#include "core/core.h"
-#include "core/frontend/image_interface.h"
-#include "core/hle/kernel/kernel.h"
-#include "core/hle/kernel/process.h"
-#include "video_core/custom_textures/custom_tex_manager.h"
-#include "video_core/rasterizer_cache/surface_params.h"
-#include "video_core/rasterizer_cache/utils.h"
-
+#include "../../include/common/file_util.h"
+#include "../../include/common/literals.h"
+#include "../../include/common/memory_detect.h"
+#include "../../include/common/microprofile.h"
+#include "../../include/common/settings.h"
+#include "../../include/common/string_util.h"
+#include "../../include/common/texture.h"
+#include "../../include/core/core.h"
+#include "../../include/core/frontend/image_interface.h"
+#include "../../include/core/hle/kernel/kernel.h"
+#include "../../include/core/hle/kernel/process.h"
+#include "../../include/video_core/custom_textures/custom_tex_manager.h"
+#include "../../include/video_core/rasterizer_cache/surface_params.h"
+#include "../../include/video_core/rasterizer_cache/utils.h"
 namespace VideoCore {
 
 namespace {

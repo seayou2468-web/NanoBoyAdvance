@@ -21,18 +21,17 @@
 
 #include <boost/serialization/weak_ptr.hpp>
 #include <fmt/format.h>
-#include "common/archives.h"
+#include "../../../../include/common/archives.h"
 #include "common/logging/log.h"
-#include "common/settings.h"
-#include "core/core.h"
-#include "core/file_sys/plugin_3gx.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/kernel/event.h"
-#include "core/hle/kernel/handle_table.h"
-#include "core/hle/kernel/kernel.h"
-#include "core/hle/service/plgldr/plgldr.h"
-#include "core/loader/loader.h"
-
+#include "../../../../include/common/settings.h"
+#include "../../../../include/core/core.h"
+#include "../../../../include/core/file_sys/plugin_3gx.h"
+#include "../../../../include/core/hle/ipc_helpers.h"
+#include "../../../../include/core/hle/kernel/event.h"
+#include "../../../../include/core/hle/kernel/handle_table.h"
+#include "../../../../include/core/hle/kernel/kernel.h"
+#include "../../../../include/core/hle/service/plgldr/plgldr.h"
+#include "../../../../include/core/loader/loader.h"
 SERIALIZE_EXPORT_IMPL(Service::PLGLDR::PLG_LDR)
 SERVICE_CONSTRUCT_IMPL(Service::PLGLDR::PLG_LDR)
 

@@ -5,8 +5,7 @@
 #pragma once
 
 #include <utility>
-#include "common/common_funcs.h"
-
+#include "common_funcs.h"
 namespace detail {
 template <typename Func>
 struct ScopeExitHelper {

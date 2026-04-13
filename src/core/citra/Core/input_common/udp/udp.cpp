@@ -5,12 +5,11 @@
 #include <mutex>
 #include <optional>
 #include <tuple>
-#include "common/param_package.h"
-#include "common/settings.h"
-#include "core/frontend/input.h"
-#include "input_common/udp/client.h"
-#include "input_common/udp/udp.h"
-
+#include "../../include/common/param_package.h"
+#include "../../include/common/settings.h"
+#include "../../include/core/frontend/input.h"
+#include "../../include/input_common/udp/client.h"
+#include "../../include/input_common/udp/udp.h"
 namespace InputCommon::CemuhookUDP {
 
 class UDPTouchDevice final : public Input::TouchDevice {

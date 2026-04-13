@@ -13,11 +13,10 @@
 #include <boost/icl/interval_map.hpp>
 #include <tsl/robin_map.h>
 
-#include "video_core/rasterizer_cache/framebuffer_base.h"
-#include "video_core/rasterizer_cache/sampler_params.h"
-#include "video_core/rasterizer_cache/surface_params.h"
-#include "video_core/rasterizer_cache/texture_cube.h"
-
+#include "framebuffer_base.h"
+#include "sampler_params.h"
+#include "surface_params.h"
+#include "texture_cube.h"
 namespace Memory {
 class MemorySystem;
 }

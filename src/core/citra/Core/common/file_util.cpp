@@ -11,15 +11,14 @@
 #include <boost/iostreams/device/file_descriptor.hpp>
 #include <boost/iostreams/stream.hpp>
 #include <fmt/format.h>
-#include "common/assert.h"
-#include "common/common_funcs.h"
-#include "common/common_paths.h"
-#include "common/error.h"
-#include "common/file_util.h"
+#include "../include/common/assert.h"
+#include "../include/common/common_funcs.h"
+#include "../include/common/common_paths.h"
+#include "../include/common/error.h"
+#include "../include/common/file_util.h"
 #include "common/logging/log.h"
-#include "common/scope_exit.h"
-#include "common/string_util.h"
-
+#include "../include/common/scope_exit.h"
+#include "../include/common/string_util.h"
 #ifdef _WIN32
 #include <windows.h>
 // windows.h needs to be included before other windows headers
@@ -29,8 +28,7 @@
 #include <shellapi.h>
 #include <shlobj.h> // for SHGetFolderPath
 #include <tchar.h>
-#include "common/string_util.h"
-
+#include "../include/common/string_util.h"
 #ifdef _MSC_VER
 // 64 bit offsets for MSVC
 #define fseeko _fseeki64
@@ -76,7 +74,7 @@
 
 #ifdef ANDROID
 #include "common/android_storage.h"
-#include "common/string_util.h"
+#include "../include/common/string_util.h"
 #endif
 
 #include <algorithm>

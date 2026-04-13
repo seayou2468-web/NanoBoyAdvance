@@ -4,11 +4,10 @@
 
 #include <algorithm>
 #include <cstring>
-#include "common/arch.h"
-#include "common/assert.h"
-#include "common/scm_rev.h"
-#include "common/telemetry.h"
-
+#include "../include/common/arch.h"
+#include "../include/common/assert.h"
+#include "../include/common/scm_rev.h"
+#include "../include/common/telemetry.h"
 #if CYTRUS_ARCH(x86_64)
 #include "common/x64/cpu_detect.h"
 #endif

@@ -7,12 +7,11 @@
 #include <map>
 #include <memory>
 #include <boost/serialization/export.hpp>
-#include "common/common_types.h"
-#include "common/memory_ref.h"
-#include "core/hle/kernel/memory.h"
-#include "core/hle/result.h"
-#include "core/memory.h"
-
+#include "../../../common/common_types.h"
+#include "../../../common/memory_ref.h"
+#include "memory.h"
+#include "../result.h"
+#include "../../memory.h"
 namespace Kernel {
 
 enum class VMAType : u8 {

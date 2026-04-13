@@ -7,12 +7,11 @@
 #include <algorithm>
 #include <bit>
 #include <span>
-#include "common/alignment.h"
-#include "common/color.h"
-#include "video_core/rasterizer_cache/pixel_format.h"
-#include "video_core/texture/etc1.h"
-#include "video_core/utils.h"
-
+#include "../../common/alignment.h"
+#include "../../common/color.h"
+#include "pixel_format.h"
+#include "../texture/etc1.h"
+#include "../utils.h"
 namespace VideoCore {
 
 template <typename T>

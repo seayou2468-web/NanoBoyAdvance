@@ -4,25 +4,24 @@
 
 #include <algorithm>
 #include <fmt/format.h>
-#include "common/archives.h"
-#include "common/assert.h"
-#include "common/file_util.h"
+#include "../../../../include/common/archives.h"
+#include "../../../../include/common/assert.h"
+#include "../../../../include/common/file_util.h"
 #include "common/logging/log.h"
-#include "common/scope_exit.h"
-#include "common/string_util.h"
-#include "core/core.h"
-#include "core/file_sys/archive_systemsavedata.h"
-#include "core/file_sys/errors.h"
-#include "core/file_sys/file_backend.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/kernel/shared_page.h"
-#include "core/hle/result.h"
-#include "core/hle/service/fs/fs_user.h"
-#include "core/hle/service/news/news.h"
-#include "core/hle/service/news/news_s.h"
-#include "core/hle/service/news/news_u.h"
-#include "core/hle/service/service.h"
-
+#include "../../../../include/common/scope_exit.h"
+#include "../../../../include/common/string_util.h"
+#include "../../../../include/core/core.h"
+#include "../../../../include/core/file_sys/archive_systemsavedata.h"
+#include "../../../../include/core/file_sys/errors.h"
+#include "../../../../include/core/file_sys/file_backend.h"
+#include "../../../../include/core/hle/ipc_helpers.h"
+#include "../../../../include/core/hle/kernel/shared_page.h"
+#include "../../../../include/core/hle/result.h"
+#include "../../../../include/core/hle/service/fs/fs_user.h"
+#include "../../../../include/core/hle/service/news/news.h"
+#include "../../../../include/core/hle/service/news/news_s.h"
+#include "../../../../include/core/hle/service/news/news_u.h"
+#include "../../../../include/core/hle/service/service.h"
 SERVICE_CONSTRUCT_IMPL(Service::NEWS::Module)
 
 namespace Service::NEWS {

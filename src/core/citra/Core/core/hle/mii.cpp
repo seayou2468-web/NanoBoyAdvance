@@ -4,9 +4,8 @@
 
 #include <boost/crc.hpp>
 #include <boost/serialization/binary_object.hpp>
-#include "common/archives.h"
-#include "core/hle/mii.h"
-
+#include "../../include/common/archives.h"
+#include "../../include/core/hle/mii.h"
 SERIALIZE_EXPORT_IMPL(Mii::MiiData)
 SERIALIZE_EXPORT_IMPL(Mii::ChecksummedMiiData)
 

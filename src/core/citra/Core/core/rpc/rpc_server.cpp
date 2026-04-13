@@ -3,11 +3,10 @@
 // Refer to the license.txt file included.
 
 #include "common/logging/log.h"
-#include "core/core.h"
-#include "core/memory.h"
-#include "core/rpc/packet.h"
-#include "core/rpc/rpc_server.h"
-
+#include "../../include/core/core.h"
+#include "../../include/core/memory.h"
+#include "../../include/core/rpc/packet.h"
+#include "../../include/core/rpc/rpc_server.h"
 namespace Core::RPC {
 
 RPCServer::RPCServer(Core::System& system_) : system{system_} {

@@ -4,8 +4,7 @@
 
 #pragma once
 
-#include "core/hle/service/service.h"
-
+#include "../service.h"
 namespace Service::CAM {
 
 class CAM_Q : public ServiceFramework<CAM_Q> {

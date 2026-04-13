@@ -8,10 +8,9 @@
 #include <span>
 #include <unordered_map>
 #include <unordered_set>
-#include "common/thread_worker.h"
-#include "video_core/custom_textures/material.h"
-#include "video_core/rasterizer_interface.h"
-
+#include "../../common/thread_worker.h"
+#include "material.h"
+#include "../rasterizer_interface.h"
 namespace Core {
 class System;
 }

@@ -5,13 +5,12 @@
 #include <memory>
 #include <string>
 #include "common/logging/log.h"
-#include "common/string_util.h"
-#include "core/core.h"
-#include "core/hle/kernel/process.h"
-#include "core/loader/3dsx.h"
-#include "core/loader/elf.h"
-#include "core/loader/ncch.h"
-
+#include "../../include/common/string_util.h"
+#include "../../include/core/core.h"
+#include "../../include/core/hle/kernel/process.h"
+#include "../../include/core/loader/3dsx.h"
+#include "../../include/core/loader/elf.h"
+#include "../../include/core/loader/ncch.h"
 namespace Loader {
 
 FileType IdentifyFile(FileUtil::IOFile& file) {

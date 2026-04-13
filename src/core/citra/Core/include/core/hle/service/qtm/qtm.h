@@ -4,8 +4,7 @@
 
 #pragma once
 
-#include "core/hle/service/service.h"
-namespace Core {
+#include "../service.h"namespace Core {
 class System;
 }
 

@@ -6,9 +6,9 @@
 #include <vector>
 #include <AL/al.h>
 #include <AL/alc.h>
-#include "audio_core/input.h"
-#include "audio_core/openal_input.h"
-#include "audio_core/sink.h"
+#include "../include/audio_core/input.h"
+#include "../include/audio_core/openal_input.h"
+#include "../include/audio_core/sink.h"
 #include "common/logging/log.h"
 
 #ifdef __APPLE__

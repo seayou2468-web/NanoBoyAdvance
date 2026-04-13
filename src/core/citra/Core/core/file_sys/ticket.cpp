@@ -5,12 +5,11 @@
 #include <algorithm>
 #include <cryptopp/aes.h>
 #include <cryptopp/modes.h>
-#include "common/alignment.h"
-#include "core/file_sys/cia_common.h"
-#include "core/file_sys/ticket.h"
-#include "core/hw/aes/key.h"
-#include "core/loader/loader.h"
-
+#include "../../include/common/alignment.h"
+#include "../../include/core/file_sys/cia_common.h"
+#include "../../include/core/file_sys/ticket.h"
+#include "../../include/core/hw/aes/key.h"
+#include "../../include/core/loader/loader.h"
 namespace FileSys {
 
 Loader::ResultStatus Ticket::Load(std::span<const u8> file_data, std::size_t offset) {

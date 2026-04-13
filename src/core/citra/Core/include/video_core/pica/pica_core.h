@@ -4,16 +4,15 @@
 
 #pragma once
 
-#include "core/hle/service/gsp/gsp_interrupt.h"
-#include "video_core/pica/geometry_pipeline.h"
-#include "video_core/pica/packed_attribute.h"
-#include "video_core/pica/primitive_assembly.h"
-#include "video_core/pica/regs_external.h"
-#include "video_core/pica/regs_internal.h"
-#include "video_core/pica/regs_lcd.h"
-#include "video_core/pica/shader_setup.h"
-#include "video_core/pica/shader_unit.h"
-
+#include "../../core/hle/service/gsp/gsp_interrupt.h"
+#include "geometry_pipeline.h"
+#include "packed_attribute.h"
+#include "primitive_assembly.h"
+#include "regs_external.h"
+#include "regs_internal.h"
+#include "regs_lcd.h"
+#include "shader_setup.h"
+#include "shader_unit.h"
 namespace Memory {
 class MemorySystem;
 }

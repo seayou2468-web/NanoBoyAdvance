@@ -5,10 +5,9 @@
 #pragma once
 
 #include <boost/serialization/export.hpp>
-#include "core/hle/kernel/object.h"
-#include "core/hle/kernel/resource_limit.h"
-#include "core/hle/kernel/wait_object.h"
-
+#include "object.h"
+#include "resource_limit.h"
+#include "wait_object.h"
 namespace Kernel {
 
 class Event final : public WaitObject {

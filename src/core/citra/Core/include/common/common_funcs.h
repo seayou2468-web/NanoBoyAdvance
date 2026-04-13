@@ -4,8 +4,7 @@
 
 #pragma once
 
-#include "common/common_types.h"
-
+#include "common_types.h"
 /// Textually concatenates two tokens. The double-expansion is required by the C preprocessor.
 #define CONCAT2(x, y) DO_CONCAT2(x, y)
 #define DO_CONCAT2(x, y) x##y

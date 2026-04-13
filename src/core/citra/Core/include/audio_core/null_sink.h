@@ -5,9 +5,8 @@
 #pragma once
 
 #include <cstddef>
-#include "audio_core/audio_types.h"
-#include "audio_core/sink.h"
-
+#include "audio_types.h"
+#include "sink.h"
 namespace AudioCore {
 
 class NullSink final : public Sink {

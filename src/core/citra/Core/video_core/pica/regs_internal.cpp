@@ -6,9 +6,8 @@
 #include <iterator>
 #include <utility>
 
-#include "common/common_types.h"
-#include "video_core/pica/regs_internal.h"
-
+#include "../../include/common/common_types.h"
+#include "../../include/video_core/pica/regs_internal.h"
 namespace Pica {
 
 static constexpr std::pair<u16, const char*> register_names[] = {

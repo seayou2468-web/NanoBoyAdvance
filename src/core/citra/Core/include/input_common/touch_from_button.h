@@ -5,8 +5,7 @@
 #pragma once
 
 #include <memory>
-#include "core/frontend/input.h"
-
+#include "../core/frontend/input.h"
 namespace InputCommon {
 
 /**

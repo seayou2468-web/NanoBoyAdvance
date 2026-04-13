@@ -5,15 +5,14 @@
 #include <cstring>
 #include <memory>
 #include <string>
-#include "common/common_types.h"
-#include "common/file_util.h"
+#include "../../include/common/common_types.h"
+#include "../../include/common/file_util.h"
 #include "common/logging/log.h"
-#include "core/core.h"
-#include "core/hle/kernel/process.h"
-#include "core/hle/kernel/resource_limit.h"
-#include "core/loader/elf.h"
-#include "core/memory.h"
-
+#include "../../include/core/core.h"
+#include "../../include/core/hle/kernel/process.h"
+#include "../../include/core/hle/kernel/resource_limit.h"
+#include "../../include/core/loader/elf.h"
+#include "../../include/core/memory.h"
 using Kernel::CodeSet;
 
 // File type

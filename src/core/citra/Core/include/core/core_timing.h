@@ -25,11 +25,10 @@
 #include <vector>
 #include <boost/serialization/split_member.hpp>
 #include <boost/serialization/vector.hpp>
-#include "common/common_types.h"
+#include "../common/common_types.h"
 #include "common/logging/log.h"
-#include "common/threadsafe_queue.h"
-#include "core/global.h"
-
+#include "../common/threadsafe_queue.h"
+#include "global.h"
 // The timing we get from the assembly is 268,111,855.956 Hz
 // It is possible that this number isn't just an integer because the compiler could have
 // optimized the multiplication by a multiply-by-constant division.

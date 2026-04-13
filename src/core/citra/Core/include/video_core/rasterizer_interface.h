@@ -6,8 +6,7 @@
 
 #include <atomic>
 #include <functional>
-#include "common/common_types.h"
-
+#include "../common/common_types.h"
 namespace Pica {
 struct OutputVertex;
 }

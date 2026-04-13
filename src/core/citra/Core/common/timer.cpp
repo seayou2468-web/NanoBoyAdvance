@@ -4,9 +4,8 @@
 
 #include <ctime>
 #include <fmt/format.h>
-#include "common/common_types.h"
-#include "common/timer.h"
-
+#include "../include/common/common_types.h"
+#include "../include/common/timer.h"
 namespace Common {
 
 std::chrono::milliseconds Timer::GetTimeMs() {

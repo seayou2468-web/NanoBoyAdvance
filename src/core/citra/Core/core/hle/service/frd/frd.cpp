@@ -5,20 +5,19 @@
 #include <array>
 #include <cstring>
 #include <vector>
-#include "common/archives.h"
-#include "common/assert.h"
+#include "../../../../include/common/archives.h"
+#include "../../../../include/common/assert.h"
 #include "common/logging/log.h"
-#include "core/core.h"
-#include "core/hle/applets/mii_selector.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/kernel/event.h"
-#include "core/hle/mii.h"
-#include "core/hle/result.h"
-#include "core/hle/service/cfg/cfg.h"
-#include "core/hle/service/frd/frd.h"
-#include "core/hle/service/frd/frd_a.h"
-#include "core/hle/service/frd/frd_u.h"
-
+#include "../../../../include/core/core.h"
+#include "../../../../include/core/hle/applets/mii_selector.h"
+#include "../../../../include/core/hle/ipc_helpers.h"
+#include "../../../../include/core/hle/kernel/event.h"
+#include "../../../../include/core/hle/mii.h"
+#include "../../../../include/core/hle/result.h"
+#include "../../../../include/core/hle/service/cfg/cfg.h"
+#include "../../../../include/core/hle/service/frd/frd.h"
+#include "../../../../include/core/hle/service/frd/frd_a.h"
+#include "../../../../include/core/hle/service/frd/frd_u.h"
 SERVICE_CONSTRUCT_IMPL(Service::FRD::Module)
 
 namespace Service::FRD {

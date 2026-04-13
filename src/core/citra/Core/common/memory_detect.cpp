@@ -16,8 +16,7 @@
 #endif
 #endif
 
-#include "common/memory_detect.h"
-
+#include "../include/common/memory_detect.h"
 namespace Common {
 
 // Detects the RAM and Swapfile sizes

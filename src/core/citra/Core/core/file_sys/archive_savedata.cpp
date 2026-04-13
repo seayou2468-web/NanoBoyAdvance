@@ -3,11 +3,10 @@
 // Refer to the license.txt file included.
 
 #include <utility>
-#include "common/archives.h"
-#include "core/core.h"
-#include "core/file_sys/archive_savedata.h"
-#include "core/hle/kernel/process.h"
-
+#include "../../include/common/archives.h"
+#include "../../include/core/core.h"
+#include "../../include/core/file_sys/archive_savedata.h"
+#include "../../include/core/hle/kernel/process.h"
 SERIALIZE_EXPORT_IMPL(FileSys::ArchiveFactory_SaveData)
 
 namespace FileSys {

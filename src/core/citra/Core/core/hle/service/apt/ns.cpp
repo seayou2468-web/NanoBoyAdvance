@@ -2,11 +2,10 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "core/core.h"
-#include "core/hle/service/am/am.h"
-#include "core/hle/service/apt/ns.h"
-#include "core/loader/loader.h"
-
+#include "../../../../include/core/core.h"
+#include "../../../../include/core/hle/service/am/am.h"
+#include "../../../../include/core/hle/service/apt/ns.h"
+#include "../../../../include/core/loader/loader.h"
 namespace Service::NS {
 
 std::shared_ptr<Kernel::Process> LaunchTitle(FS::MediaType media_type, u64 title_id) {

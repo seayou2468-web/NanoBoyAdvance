@@ -8,11 +8,10 @@
 #include <cryptopp/nbtheory.h>
 #include <cryptopp/sha.h>
 #include <fmt/format.h>
-#include "common/common_paths.h"
-#include "common/file_util.h"
+#include "../../../include/common/common_paths.h"
+#include "../../../include/common/file_util.h"
 #include "common/logging/log.h"
-#include "core/hw/rsa/rsa.h"
-
+#include "../../../include/core/hw/rsa/rsa.h"
 namespace HW::RSA {
 
 namespace {

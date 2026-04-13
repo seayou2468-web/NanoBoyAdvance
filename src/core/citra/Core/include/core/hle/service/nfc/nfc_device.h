@@ -8,11 +8,10 @@
 #include <vector>
 #include <boost/serialization/binary_object.hpp>
 
-#include "common/common_types.h"
-#include "core/hle/service/nfc/nfc_results.h"
-#include "core/hle/service/nfc/nfc_types.h"
-#include "core/hle/service/service.h"
-
+#include "../../../../common/common_types.h"
+#include "nfc_results.h"
+#include "nfc_types.h"
+#include "../service.h"
 namespace Kernel {
 class KEvent;
 class KReadableEvent;

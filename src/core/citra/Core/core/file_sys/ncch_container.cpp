@@ -8,16 +8,15 @@
 #include <cryptopp/aes.h>
 #include <cryptopp/modes.h>
 #include <cryptopp/sha.h>
-#include "common/common_types.h"
+#include "../../include/common/common_types.h"
 #include "common/logging/log.h"
-#include "core/core.h"
-#include "core/file_sys/layered_fs.h"
-#include "core/file_sys/ncch_container.h"
-#include "core/file_sys/patch.h"
-#include "core/file_sys/seed_db.h"
-#include "core/hw/aes/key.h"
-#include "core/loader/loader.h"
-
+#include "../../include/core/core.h"
+#include "../../include/core/file_sys/layered_fs.h"
+#include "../../include/core/file_sys/ncch_container.h"
+#include "../../include/core/file_sys/patch.h"
+#include "../../include/core/file_sys/seed_db.h"
+#include "../../include/core/hw/aes/key.h"
+#include "../../include/core/loader/loader.h"
 namespace FileSys {
 
 static const int kMaxSections = 8;   ///< Maximum number of sections (files) in an ExeFs

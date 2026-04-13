@@ -6,8 +6,7 @@
 #include <zstd.h>
 
 #include "common/logging/log.h"
-#include "common/zstd_compression.h"
-
+#include "../include/common/zstd_compression.h"
 namespace Common::Compression {
 
 std::vector<u8> CompressDataZSTD(std::span<const u8> source, s32 compression_level) {

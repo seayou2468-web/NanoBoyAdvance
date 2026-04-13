@@ -5,8 +5,7 @@
 #pragma once
 
 #include <functional>
-#include "common/common_types.h"
-
+#include "../common/common_types.h"
 namespace AudioCore {
 
 constexpr char auto_device_name[] = "auto";

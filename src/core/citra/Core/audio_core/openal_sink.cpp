@@ -6,8 +6,8 @@
 #include <AL/al.h>
 #include <AL/alc.h>
 #include <AL/alext.h>
-#include "audio_core/audio_types.h"
-#include "audio_core/openal_sink.h"
+#include "../include/audio_core/audio_types.h"
+#include "../include/audio_core/openal_sink.h"
 #include "common/logging/log.h"
 
 namespace AudioCore {

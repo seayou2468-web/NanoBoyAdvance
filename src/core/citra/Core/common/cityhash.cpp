@@ -29,9 +29,8 @@
 
 #include <algorithm>
 #include <string.h> // for memcpy and memset
-#include "common/cityhash.h"
-#include "common/swap.h"
-
+#include "../include/common/cityhash.h"
+#include "../include/common/swap.h"
 // #include "config.h"
 #ifdef __GNUC__
 #define HAVE_BUILTIN_EXPECT 1

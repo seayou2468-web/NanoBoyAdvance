@@ -2,10 +2,9 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/string_util.h"
-#include "core/hle/service/cfg/cfg.h"
-#include "core/hle/service/cfg/cfg_defaults.h"
-
+#include "../../../../include/common/string_util.h"
+#include "../../../../include/core/hle/service/cfg/cfg.h"
+#include "../../../../include/core/hle/service/cfg/cfg_defaults.h"
 namespace Service::CFG {
 
 constexpr std::size_t NUM_LOCATION_NAMES = 0x10;

@@ -7,15 +7,14 @@
 #include <sstream>
 #include <boost/iostreams/device/file_descriptor.hpp>
 #include <boost/iostreams/stream.hpp>
-#include "common/common_paths.h"
-#include "common/file_util.h"
+#include "../../../include/common/common_paths.h"
+#include "../../../include/common/file_util.h"
 #include "common/logging/log.h"
-#include "common/string_util.h"
-#include "core/hle/service/fs/archive.h"
-#include "core/hw/aes/arithmetic128.h"
-#include "core/hw/aes/key.h"
-#include "core/hw/rsa/rsa.h"
-
+#include "../../../include/common/string_util.h"
+#include "../../../include/core/hle/service/fs/archive.h"
+#include "../../../include/core/hw/aes/arithmetic128.h"
+#include "../../../include/core/hw/aes/key.h"
+#include "../../../include/core/hw/rsa/rsa.h"
 namespace HW::AES {
 
 namespace {

@@ -13,9 +13,8 @@
 #include <cryptopp/sha.h>
 
 #include "common/logging/log.h"
-#include "core/hle/service/nfc/amiibo_crypto.h"
-#include "core/hw/aes/key.h"
-
+#include "../../../../include/core/hle/service/nfc/amiibo_crypto.h"
+#include "../../../../include/core/hw/aes/key.h"
 namespace Service::NFC::AmiiboCrypto {
 
 bool IsAmiiboValid(const EncryptedNTAG215File& ntag_file) {

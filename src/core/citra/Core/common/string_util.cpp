@@ -12,10 +12,9 @@
 
 #include <boost/locale/encoding_utf.hpp>
 
-#include "common/common_paths.h"
+#include "../include/common/common_paths.h"
 #include "common/logging/log.h"
-#include "common/string_util.h"
-
+#include "../include/common/string_util.h"
 #ifdef _WIN32
 #include <windows.h>
 #endif

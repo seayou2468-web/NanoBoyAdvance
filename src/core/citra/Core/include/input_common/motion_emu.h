@@ -4,8 +4,7 @@
 
 #pragma once
 
-#include "core/frontend/input.h"
-
+#include "../core/frontend/input.h"
 namespace InputCommon {
 
 class MotionEmuDevice;

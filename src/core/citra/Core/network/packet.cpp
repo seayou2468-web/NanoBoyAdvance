@@ -9,8 +9,7 @@
 #endif
 #include <cstring>
 #include <string>
-#include "network/packet.h"
-
+#include "../include/network/packet.h"
 namespace Network {
 
 #ifndef htonll

@@ -8,11 +8,10 @@
 #include <boost/serialization/array.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/shared_ptr.hpp>
-#include "audio_core/dsp_interface.h"
-#include "core/hle/kernel/event.h"
-#include "core/hle/result.h"
-#include "core/hle/service/service.h"
-
+#include "../../../../audio_core/dsp_interface.h"
+#include "../../kernel/event.h"
+#include "../../result.h"
+#include "../service.h"
 namespace Core {
 class System;
 }

@@ -8,24 +8,23 @@
 #include <boost/serialization/unordered_map.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/weak_ptr.hpp>
-#include "common/archives.h"
-#include "common/assert.h"
-#include "common/common_types.h"
+#include "../../../include/common/archives.h"
+#include "../../../include/common/assert.h"
+#include "../../../include/common/common_types.h"
 #include "common/logging/log.h"
-#include "common/serialization/boost_flat_set.h"
-#include "common/settings.h"
-#include "core/arm/arm_interface.h"
-#include "core/arm/skyeye_common/armstate.h"
-#include "core/core.h"
-#include "core/hle/kernel/errors.h"
-#include "core/hle/kernel/kernel.h"
-#include "core/hle/kernel/mutex.h"
-#include "core/hle/kernel/process.h"
-#include "core/hle/kernel/resource_limit.h"
-#include "core/hle/kernel/thread.h"
-#include "core/hle/result.h"
-#include "core/memory.h"
-
+#include "../../../include/common/serialization/boost_flat_set.h"
+#include "../../../include/common/settings.h"
+#include "../../../include/core/arm/arm_interface.h"
+#include "../../../include/core/arm/skyeye_common/armstate.h"
+#include "../../../include/core/core.h"
+#include "../../../include/core/hle/kernel/errors.h"
+#include "../../../include/core/hle/kernel/kernel.h"
+#include "../../../include/core/hle/kernel/mutex.h"
+#include "../../../include/core/hle/kernel/process.h"
+#include "../../../include/core/hle/kernel/resource_limit.h"
+#include "../../../include/core/hle/kernel/thread.h"
+#include "../../../include/core/hle/result.h"
+#include "../../../include/core/memory.h"
 SERIALIZE_EXPORT_IMPL(Kernel::Thread)
 SERIALIZE_EXPORT_IMPL(Kernel::WakeupCallback)
 

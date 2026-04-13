@@ -3,9 +3,8 @@
 // Refer to the license.txt file included.
 
 #include <algorithm>
-#include "audio_core/interpolate.h"
-#include "common/assert.h"
-
+#include "../include/audio_core/interpolate.h"
+#include "../include/common/assert.h"
 namespace AudioCore::AudioInterp {
 
 // Calculations are done in fixed point with 24 fractional bits.

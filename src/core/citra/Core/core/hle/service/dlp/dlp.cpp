@@ -2,12 +2,11 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "core/core.h"
-#include "core/hle/service/dlp/dlp.h"
-#include "core/hle/service/dlp/dlp_clnt.h"
-#include "core/hle/service/dlp/dlp_fkcl.h"
-#include "core/hle/service/dlp/dlp_srvr.h"
-
+#include "../../../../include/core/core.h"
+#include "../../../../include/core/hle/service/dlp/dlp.h"
+#include "../../../../include/core/hle/service/dlp/dlp_clnt.h"
+#include "../../../../include/core/hle/service/dlp/dlp_fkcl.h"
+#include "../../../../include/core/hle/service/dlp/dlp_srvr.h"
 namespace Service::DLP {
 
 void InstallInterfaces(Core::System& system) {

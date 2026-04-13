@@ -5,10 +5,9 @@
 #pragma once
 
 #include <memory>
-#include "common/swap.h"
-#include "core/hle/kernel/shared_memory.h"
-#include "core/hle/service/service.h"
-
+#include "../../../../../common/swap.h"
+#include "../../../kernel/shared_memory.h"
+#include "../../service.h"
 namespace Service::APT::BCFNT { ///< BCFNT Shared Font file structures
 
 struct CFNT {

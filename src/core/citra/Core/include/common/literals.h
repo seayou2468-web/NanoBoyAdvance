@@ -4,8 +4,7 @@
 
 #pragma once
 
-#include "common/common_types.h"
-
+#include "common_types.h"
 namespace Common::Literals {
 
 constexpr u64 operator""_KiB(unsigned long long int x) {

@@ -4,20 +4,19 @@
 
 #include <cryptopp/osrng.h>
 
-#include "common/assert.h"
-#include "common/common_types.h"
-#include "common/file_util.h"
+#include "../include/common/assert.h"
+#include "../include/common/common_types.h"
+#include "../include/common/file_util.h"
 #include "common/logging/log.h"
-#include "common/scm_rev.h"
-#include "common/settings.h"
-#include "core/core.h"
-#include "core/loader/loader.h"
-#include "core/telemetry_session.h"
-#include "network/network_settings.h"
-
+#include "../include/common/scm_rev.h"
+#include "../include/common/settings.h"
+#include "../include/core/core.h"
+#include "../include/core/loader/loader.h"
+#include "../include/core/telemetry_session.h"
+#include "../include/network/network_settings.h"
 #ifdef ENABLE_WEB_SERVICE
-#include "web_service/telemetry_json.h"
-#include "web_service/verify_login.h"
+#include "../include/web_service/telemetry_json.h"
+#include "../include/web_service/verify_login.h"
 #endif
 
 namespace Core {

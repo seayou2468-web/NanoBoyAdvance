@@ -4,13 +4,12 @@
 
 #pragma once
 
-#include "common/arch.h"
+#include "../arch.h"
 #if CYTRUS_ARCH(arm64)
 
 #include <type_traits>
 #include <oaknut/oaknut.hpp>
-#include "common/aarch64/oaknut_abi.h"
-
+#include "oaknut_abi.h"
 namespace Common::A64 {
 
 // BL can only reach targets within +-128MiB(24 bits)

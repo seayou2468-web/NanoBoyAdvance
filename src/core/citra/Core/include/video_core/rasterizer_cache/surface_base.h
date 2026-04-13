@@ -5,9 +5,8 @@
 #pragma once
 
 #include <boost/icl/interval_set.hpp>
-#include "video_core/rasterizer_cache/surface_params.h"
-#include "video_core/rasterizer_cache/utils.h"
-
+#include "surface_params.h"
+#include "utils.h"
 namespace VideoCore {
 
 using SurfaceRegions = boost::icl::interval_set<PAddr, std::less, SurfaceInterval>;

@@ -2,17 +2,16 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/alignment.h"
-#include "common/archives.h"
-#include "common/common_types.h"
+#include "../../../../include/common/alignment.h"
+#include "../../../../include/common/archives.h"
+#include "../../../../include/common/common_types.h"
 #include "common/logging/log.h"
-#include "core/arm/arm_interface.h"
-#include "core/core.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/kernel/process.h"
-#include "core/hle/service/ldr_ro/cro_helper.h"
-#include "core/hle/service/ldr_ro/ldr_ro.h"
-
+#include "../../../../include/core/arm/arm_interface.h"
+#include "../../../../include/core/core.h"
+#include "../../../../include/core/hle/ipc_helpers.h"
+#include "../../../../include/core/hle/kernel/process.h"
+#include "../../../../include/core/hle/service/ldr_ro/cro_helper.h"
+#include "../../../../include/core/hle/service/ldr_ro/ldr_ro.h"
 SERVICE_CONSTRUCT_IMPL(Service::LDR::RO)
 SERIALIZE_EXPORT_IMPL(Service::LDR::RO)
 SERIALIZE_EXPORT_IMPL(Service::LDR::ClientSlot)

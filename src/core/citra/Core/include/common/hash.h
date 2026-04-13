@@ -6,9 +6,8 @@
 
 #include <cstddef>
 #include <cstring>
-#include "common/cityhash.h"
-#include "common/common_types.h"
-
+#include "cityhash.h"
+#include "common_types.h"
 namespace Common {
 
 /**

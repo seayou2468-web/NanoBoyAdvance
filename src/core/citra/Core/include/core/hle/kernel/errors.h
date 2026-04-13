@@ -4,8 +4,7 @@
 
 #pragma once
 
-#include "core/hle/result.h"
-
+#include "../result.h"
 namespace Kernel {
 namespace ErrCodes {
 enum {

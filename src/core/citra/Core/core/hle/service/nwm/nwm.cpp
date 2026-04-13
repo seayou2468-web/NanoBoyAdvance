@@ -2,16 +2,15 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "core/core.h"
-#include "core/hle/service/nwm/nwm.h"
-#include "core/hle/service/nwm/nwm_cec.h"
-#include "core/hle/service/nwm/nwm_ext.h"
-#include "core/hle/service/nwm/nwm_inf.h"
-#include "core/hle/service/nwm/nwm_sap.h"
-#include "core/hle/service/nwm/nwm_soc.h"
-#include "core/hle/service/nwm/nwm_tst.h"
-#include "core/hle/service/nwm/nwm_uds.h"
-
+#include "../../../../include/core/core.h"
+#include "../../../../include/core/hle/service/nwm/nwm.h"
+#include "../../../../include/core/hle/service/nwm/nwm_cec.h"
+#include "../../../../include/core/hle/service/nwm/nwm_ext.h"
+#include "../../../../include/core/hle/service/nwm/nwm_inf.h"
+#include "../../../../include/core/hle/service/nwm/nwm_sap.h"
+#include "../../../../include/core/hle/service/nwm/nwm_soc.h"
+#include "../../../../include/core/hle/service/nwm/nwm_tst.h"
+#include "../../../../include/core/hle/service/nwm/nwm_uds.h"
 namespace Service::NWM {
 
 void InstallInterfaces(Core::System& system) {

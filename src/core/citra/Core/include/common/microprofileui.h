@@ -4,8 +4,7 @@
 
 #pragma once
 
-#include "common/microprofile.h"
-
+#include "microprofile.h"
 // Customized Cytrus settings.
 // This file wraps the MicroProfile header so that these are consistent everywhere.
 #define MICROPROFILE_TEXT_WIDTH 6

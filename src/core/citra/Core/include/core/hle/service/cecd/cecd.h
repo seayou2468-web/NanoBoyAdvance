@@ -6,12 +6,11 @@
 
 #include <memory>
 #include <span>
-#include "common/bit_field.h"
-#include "common/common_funcs.h"
-#include "core/hle/kernel/event.h"
-#include "core/hle/service/fs/archive.h"
-#include "core/hle/service/service.h"
-
+#include "../../../../common/bit_field.h"
+#include "../../../../common/common_funcs.h"
+#include "../../kernel/event.h"
+#include "../fs/archive.h"
+#include "../service.h"
 namespace FileSys {
 class ArchiveBackend;
 class FileBackend;

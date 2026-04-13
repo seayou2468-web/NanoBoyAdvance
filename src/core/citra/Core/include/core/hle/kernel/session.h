@@ -6,8 +6,7 @@
 
 #include <memory>
 #include <boost/serialization/export.hpp>
-#include "core/hle/kernel/object.h"
-
+#include "object.h"
 namespace Kernel {
 
 class ClientSession;

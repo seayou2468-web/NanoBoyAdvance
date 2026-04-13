@@ -8,8 +8,7 @@
 #include <span>
 #include <boost/serialization/base_object.hpp>
 
-#include "video_core/pica/output_vertex.h"
-
+#include "output_vertex.h"
 namespace Pica {
 
 /// Handler type for receiving vertex outputs from vertex shader or geometry shader

@@ -3,13 +3,12 @@
 // Refer to the license.txt file included.
 
 #include <cryptopp/sha.h>
-#include "common/alignment.h"
-#include "common/file_util.h"
+#include "../../include/common/alignment.h"
+#include "../../include/common/file_util.h"
 #include "common/logging/log.h"
-#include "core/file_sys/cia_common.h"
-#include "core/file_sys/title_metadata.h"
-#include "core/loader/loader.h"
-
+#include "../../include/core/file_sys/cia_common.h"
+#include "../../include/core/file_sys/title_metadata.h"
+#include "../../include/core/loader/loader.h"
 namespace FileSys {
 
 Loader::ResultStatus TitleMetadata::Load(const std::string& file_path) {

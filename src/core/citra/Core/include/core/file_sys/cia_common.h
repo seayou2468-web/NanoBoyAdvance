@@ -4,9 +4,8 @@
 
 #pragma once
 
-#include "common/assert.h"
-#include "common/common_types.h"
-
+#include "../../common/assert.h"
+#include "../../common/common_types.h"
 namespace FileSys {
 
 enum TMDSignatureType : u32 {

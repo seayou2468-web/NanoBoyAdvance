@@ -4,8 +4,7 @@
 
 #pragma once
 
-#include "core/hle/service/cam/cam.h"
-
+#include "cam.h"
 namespace Service::CAM {
 
 class CAM_U final : public Module::Interface {

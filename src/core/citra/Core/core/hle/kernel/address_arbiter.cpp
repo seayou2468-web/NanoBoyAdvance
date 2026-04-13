@@ -7,16 +7,15 @@
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/vector.hpp>
-#include "common/archives.h"
-#include "common/common_types.h"
+#include "../../../include/common/archives.h"
+#include "../../../include/common/common_types.h"
 #include "common/logging/log.h"
-#include "core/hle/kernel/address_arbiter.h"
-#include "core/hle/kernel/errors.h"
-#include "core/hle/kernel/kernel.h"
-#include "core/hle/kernel/resource_limit.h"
-#include "core/hle/kernel/thread.h"
-#include "core/memory.h"
-
+#include "../../../include/core/hle/kernel/address_arbiter.h"
+#include "../../../include/core/hle/kernel/errors.h"
+#include "../../../include/core/hle/kernel/kernel.h"
+#include "../../../include/core/hle/kernel/resource_limit.h"
+#include "../../../include/core/hle/kernel/thread.h"
+#include "../../../include/core/memory.h"
 SERIALIZE_EXPORT_IMPL(Kernel::AddressArbiter)
 SERIALIZE_EXPORT_IMPL(Kernel::AddressArbiter::Callback)
 

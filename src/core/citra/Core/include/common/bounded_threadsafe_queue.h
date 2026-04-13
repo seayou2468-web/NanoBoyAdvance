@@ -11,8 +11,7 @@
 #include <mutex>
 #include <new>
 
-#include "common/polyfill_thread.h"
-
+#include "polyfill_thread.h"
 namespace Common {
 
 namespace detail {

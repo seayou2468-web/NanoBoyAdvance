@@ -4,10 +4,9 @@
 
 #pragma once
 
-#include "common/common_types.h"
-#include "core/frontend/framebuffer_layout.h"
-#include "video_core/rasterizer_interface.h"
-
+#include "../common/common_types.h"
+#include "../core/frontend/framebuffer_layout.h"
+#include "rasterizer_interface.h"
 namespace Frontend {
 class EmuWindow;
 }

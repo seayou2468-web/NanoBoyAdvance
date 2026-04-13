@@ -7,12 +7,11 @@
 #include <mutex>
 #include <thread>
 #include <tuple>
-#include "common/math_util.h"
-#include "common/quaternion.h"
-#include "common/thread.h"
-#include "common/vector_math.h"
-#include "input_common/motion_emu.h"
-
+#include "../include/common/math_util.h"
+#include "../include/common/quaternion.h"
+#include "../include/common/thread.h"
+#include "../include/common/vector_math.h"
+#include "../include/input_common/motion_emu.h"
 namespace InputCommon {
 
 // Implementation class of the motion emulation device

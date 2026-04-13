@@ -2,14 +2,13 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/alignment.h"
+#include "../../../../include/common/alignment.h"
 #include "common/logging/log.h"
-#include "common/scope_exit.h"
-#include "core/arm/arm_interface.h"
-#include "core/core.h"
-#include "core/hle/kernel/process.h"
-#include "core/hle/service/ldr_ro/cro_helper.h"
-
+#include "../../../../include/common/scope_exit.h"
+#include "../../../../include/core/arm/arm_interface.h"
+#include "../../../../include/core/core.h"
+#include "../../../../include/core/hle/kernel/process.h"
+#include "../../../../include/core/hle/service/ldr_ro/cro_helper.h"
 namespace Service::LDR {
 
 static const Result ERROR_BUFFER_TOO_SMALL = // 0xE0E12C1F

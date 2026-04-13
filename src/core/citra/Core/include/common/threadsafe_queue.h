@@ -13,8 +13,7 @@
 #include <mutex>
 #include <utility>
 
-#include "common/polyfill_thread.h"
-
+#include "polyfill_thread.h"
 namespace Common {
 template <typename T, bool with_stop_token = false>
 class SPSCQueue {

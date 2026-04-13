@@ -7,9 +7,8 @@
 #include <condition_variable>
 #include <memory>
 #include <span>
-#include "common/polyfill_thread.h"
-#include "common/threadsafe_queue.h"
-
+#include "../../common/polyfill_thread.h"
+#include "../../common/threadsafe_queue.h"
 namespace Core {
 class System;
 }

@@ -2,19 +2,18 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/arch.h"
-#include "common/archives.h"
-#include "common/microprofile.h"
-#include "common/scope_exit.h"
-#include "common/settings.h"
-#include "core/core.h"
-#include "core/memory.h"
+#include "../../include/common/arch.h"
+#include "../../include/common/archives.h"
+#include "../../include/common/microprofile.h"
+#include "../../include/common/scope_exit.h"
+#include "../../include/common/settings.h"
+#include "../../include/core/core.h"
+#include "../../include/core/memory.h"
 #include "video_core/debug_utils/debug_utils.h"
-#include "video_core/pica/pica_core.h"
-#include "video_core/pica/vertex_loader.h"
-#include "video_core/rasterizer_interface.h"
-#include "video_core/shader/shader.h"
-
+#include "../../include/video_core/pica/pica_core.h"
+#include "../../include/video_core/pica/vertex_loader.h"
+#include "../../include/video_core/rasterizer_interface.h"
+#include "../../include/video_core/shader/shader.h"
 namespace Pica {
 
 MICROPROFILE_DEFINE(GPU_Drawing, "GPU", "Drawing", MP_RGB(50, 50, 240));

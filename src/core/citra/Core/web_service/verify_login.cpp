@@ -3,10 +3,9 @@
 // Refer to the license.txt file included.
 
 #include "json.hpp"
-#include "common/web_result.h"
-#include "web_service/verify_login.h"
-#include "web_service/web_backend.h"
-
+#include "../include/common/web_result.h"
+#include "../include/web_service/verify_login.h"
+#include "../include/web_service/web_backend.h"
 namespace WebService {
 
 bool VerifyLogin(const std::string& host, const std::string& username, const std::string& token) {

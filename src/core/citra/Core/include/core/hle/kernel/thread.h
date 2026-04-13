@@ -11,14 +11,13 @@
 #include <vector>
 #include <boost/container/flat_set.hpp>
 #include <boost/serialization/export.hpp>
-#include "common/common_types.h"
-#include "common/thread_queue_list.h"
-#include "core/arm/arm_interface.h"
-#include "core/core_timing.h"
-#include "core/hle/kernel/object.h"
-#include "core/hle/kernel/wait_object.h"
-#include "core/hle/result.h"
-
+#include "../../../common/common_types.h"
+#include "../../../common/thread_queue_list.h"
+#include "../../arm/arm_interface.h"
+#include "../../core_timing.h"
+#include "object.h"
+#include "wait_object.h"
+#include "../result.h"
 namespace Kernel {
 
 class Mutex;

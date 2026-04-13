@@ -10,10 +10,9 @@
 #include <mutex>
 #include <set>
 #include <thread>
-#include "common/announce_multiplayer_room.h"
-#include "common/common_types.h"
-#include "common/thread.h"
-
+#include "../common/announce_multiplayer_room.h"
+#include "../common/common_types.h"
+#include "../common/thread.h"
 namespace Network {
 
 class Room;

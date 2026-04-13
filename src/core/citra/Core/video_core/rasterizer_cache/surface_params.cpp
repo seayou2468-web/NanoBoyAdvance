@@ -2,9 +2,8 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/alignment.h"
-#include "video_core/rasterizer_cache/surface_params.h"
-
+#include "../../include/common/alignment.h"
+#include "../../include/video_core/rasterizer_cache/surface_params.h"
 namespace VideoCore {
 
 bool SurfaceParams::ExactMatch(const SurfaceParams& other_surface) const {

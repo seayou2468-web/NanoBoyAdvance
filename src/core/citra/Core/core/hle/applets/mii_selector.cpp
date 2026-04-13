@@ -5,16 +5,15 @@
 #include <cstring>
 #include <string>
 #include <boost/crc.hpp>
-#include "common/assert.h"
+#include "../../../include/common/assert.h"
 #include "common/logging/log.h"
-#include "common/string_util.h"
-#include "core/core.h"
-#include "core/frontend/applets/mii_selector.h"
-#include "core/hle/applets/mii_selector.h"
-#include "core/hle/kernel/kernel.h"
-#include "core/hle/kernel/shared_memory.h"
-#include "core/hle/result.h"
-
+#include "../../../include/common/string_util.h"
+#include "../../../include/core/core.h"
+#include "../../../include/core/frontend/applets/mii_selector.h"
+#include "../../../include/core/hle/applets/mii_selector.h"
+#include "../../../include/core/hle/kernel/kernel.h"
+#include "../../../include/core/hle/kernel/shared_memory.h"
+#include "../../../include/core/hle/result.h"
 namespace HLE::Applets {
 
 Result MiiSelector::ReceiveParameterImpl(const Service::APT::MessageParameter& parameter) {

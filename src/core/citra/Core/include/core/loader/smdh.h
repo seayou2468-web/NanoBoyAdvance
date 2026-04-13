@@ -7,10 +7,9 @@
 #include <array>
 #include <span>
 #include <vector>
-#include "common/common_funcs.h"
-#include "common/common_types.h"
-#include "common/swap.h"
-
+#include "../../common/common_funcs.h"
+#include "../../common/common_types.h"
+#include "../../common/swap.h"
 namespace Loader {
 
 /**

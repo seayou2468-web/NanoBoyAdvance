@@ -2,11 +2,10 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/string_util.h"
-#include "core/core.h"
-#include "core/hle/applets/erreula.h"
-#include "core/hle/service/apt/apt.h"
-
+#include "../../../include/common/string_util.h"
+#include "../../../include/core/core.h"
+#include "../../../include/core/hle/applets/erreula.h"
+#include "../../../include/core/hle/service/apt/apt.h"
 namespace HLE::Applets {
 
 Result ErrEula::ReceiveParameterImpl(const Service::APT::MessageParameter& parameter) {

@@ -4,9 +4,8 @@
 
 #include <cstring>
 #include <boost/serialization/binary_object.hpp>
-#include "common/archives.h"
-#include "core/hle/kernel/config_mem.h"
-
+#include "../../../include/common/archives.h"
+#include "../../../include/core/hle/kernel/config_mem.h"
 SERIALIZE_EXPORT_IMPL(ConfigMem::Handler)
 
 namespace ConfigMem {

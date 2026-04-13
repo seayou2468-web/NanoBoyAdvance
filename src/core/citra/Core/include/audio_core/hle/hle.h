@@ -8,12 +8,11 @@
 #include <memory>
 #include <vector>
 #include <boost/serialization/export.hpp>
-#include "audio_core/audio_types.h"
-#include "audio_core/dsp_interface.h"
-#include "common/common_types.h"
-#include "core/hle/service/dsp/dsp_dsp.h"
-#include "core/memory.h"
-
+#include "../audio_types.h"
+#include "../dsp_interface.h"
+#include "../../common/common_types.h"
+#include "../../core/hle/service/dsp/dsp_dsp.h"
+#include "../../core/memory.h"
 namespace Core {
 class Timing;
 }

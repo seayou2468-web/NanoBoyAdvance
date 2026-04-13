@@ -7,12 +7,11 @@
 #include <memory>
 #include <string>
 #include <boost/serialization/export.hpp>
-#include "common/common_types.h"
-#include "core/hle/kernel/kernel.h"
-#include "core/hle/kernel/resource_limit.h"
-#include "core/hle/kernel/wait_object.h"
-#include "core/hle/result.h"
-
+#include "../../../common/common_types.h"
+#include "kernel.h"
+#include "resource_limit.h"
+#include "wait_object.h"
+#include "../result.h"
 namespace Kernel {
 
 class Thread;

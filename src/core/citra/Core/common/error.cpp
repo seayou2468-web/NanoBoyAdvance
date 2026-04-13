@@ -10,8 +10,7 @@
 #include <cstring>
 #endif
 
-#include "common/error.h"
-
+#include "../include/common/error.h"
 namespace Common {
 
 std::string NativeErrorToString(int e) {

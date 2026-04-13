@@ -7,8 +7,7 @@
 #include <functional>
 #include <span>
 #include <boost/serialization/vector.hpp>
-#include "common/common_types.h"
-
+#include "../common/common_types.h"
 namespace Service {
 namespace HID {
 struct AccelerometerDataEntry;

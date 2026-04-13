@@ -3,13 +3,12 @@
 // Refer to the license.txt file included.
 
 #include <memory>
-#include "core/core.h"
-#include "core/hle/service/ir/ir.h"
-#include "core/hle/service/ir/ir_rst.h"
-#include "core/hle/service/ir/ir_u.h"
-#include "core/hle/service/ir/ir_user.h"
-#include "core/hle/service/service.h"
-
+#include "../../../../include/core/core.h"
+#include "../../../../include/core/hle/service/ir/ir.h"
+#include "../../../../include/core/hle/service/ir/ir_rst.h"
+#include "../../../../include/core/hle/service/ir/ir_u.h"
+#include "../../../../include/core/hle/service/ir/ir_user.h"
+#include "../../../../include/core/hle/service/service.h"
 namespace Service::IR {
 
 void InstallInterfaces(Core::System& system) {

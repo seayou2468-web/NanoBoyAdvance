@@ -4,8 +4,8 @@
 
 #include <memory>
 
-#include "common/dynamic_library/dynamic_library.h"
-#include "common/dynamic_library/ffmpeg.h"
+#include "../../include/common/dynamic_library/dynamic_library.h"
+#include "../../include/common/dynamic_library/ffmpeg.h"
 #include "common/logging/log.h"
 
 namespace DynamicLibrary::FFmpeg {

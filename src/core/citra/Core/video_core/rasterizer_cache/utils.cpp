@@ -2,10 +2,9 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "video_core/rasterizer_cache/surface_params.h"
-#include "video_core/rasterizer_cache/texture_codec.h"
-#include "video_core/rasterizer_cache/utils.h"
-
+#include "../../include/video_core/rasterizer_cache/surface_params.h"
+#include "../../include/video_core/rasterizer_cache/texture_codec.h"
+#include "../../include/video_core/rasterizer_cache/utils.h"
 namespace VideoCore {
 
 u32 MipLevels(u32 width, u32 height, u32 max_level) {

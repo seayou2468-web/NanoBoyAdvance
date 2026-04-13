@@ -4,8 +4,7 @@
 
 #pragma once
 
-#include "core/hle/service/service.h"
-
+#include "../service.h"
 namespace Service::GSP {
 
 class GSP_LCD final : public ServiceFramework<GSP_LCD> {

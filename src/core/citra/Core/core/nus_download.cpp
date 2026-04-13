@@ -5,8 +5,7 @@
 #include <memory>
 #include <httplib.h>
 #include "common/logging/log.h"
-#include "core/nus_download.h"
-
+#include "../include/core/nus_download.h"
 namespace Core::NUS {
 
 std::optional<std::vector<u8>> Download(const std::string& path) {

@@ -12,12 +12,11 @@
 #include <set>
 #include <thread>
 #include <vector>
-#include "common/common_types.h"
-#include "common/dynamic_library/ffmpeg.h"
-#include "common/thread.h"
-#include "common/threadsafe_queue.h"
-#include "core/dumping/backend.h"
-
+#include "../../common/common_types.h"
+#include "../../common/dynamic_library/ffmpeg.h"
+#include "../../common/thread.h"
+#include "../../common/threadsafe_queue.h"
+#include "backend.h"
 namespace VideoCore {
 class RendererBase;
 }

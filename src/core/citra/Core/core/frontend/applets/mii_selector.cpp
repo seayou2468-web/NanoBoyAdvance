@@ -2,13 +2,12 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/file_util.h"
-#include "common/string_util.h"
-#include "core/file_sys/archive_extsavedata.h"
-#include "core/file_sys/file_backend.h"
-#include "core/frontend/applets/mii_selector.h"
-#include "core/hle/service/ptm/ptm.h"
-
+#include "../../../include/common/file_util.h"
+#include "../../../include/common/string_util.h"
+#include "../../../include/core/file_sys/archive_extsavedata.h"
+#include "../../../include/core/file_sys/file_backend.h"
+#include "../../../include/core/frontend/applets/mii_selector.h"
+#include "../../../include/core/hle/service/ptm/ptm.h"
 namespace Frontend {
 
 void MiiSelector::Finalize(u32 return_code, Mii::MiiData mii) {

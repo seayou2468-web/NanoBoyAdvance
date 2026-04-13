@@ -4,20 +4,19 @@
 
 #include <memory>
 #include <thread>
-#include "common/param_package.h"
-#include "input_common/analog_from_button.h"
+#include "../include/common/param_package.h"
+#include "../include/input_common/analog_from_button.h"
 #ifdef ENABLE_GCADAPTER
 #include "input_common/gcadapter/gc_adapter.h"
 #include "input_common/gcadapter/gc_poller.h"
 #endif
-#include "input_common/keyboard.h"
-#include "input_common/main.h"
-#include "input_common/motion_emu.h"
+#include "../include/input_common/keyboard.h"
+#include "../include/input_common/main.h"
+#include "../include/input_common/motion_emu.h"
 #include "input_common/sdl/sdl.h"
 #include "input_common/sdl/sdl_impl.h"
-#include "input_common/touch_from_button.h"
-#include "input_common/udp/udp.h"
-
+#include "../include/input_common/touch_from_button.h"
+#include "../include/input_common/udp/udp.h"
 namespace InputCommon {
 
 #ifdef ENABLE_GCADAPTER

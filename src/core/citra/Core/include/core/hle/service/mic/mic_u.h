@@ -6,8 +6,7 @@
 
 #include <memory>
 #include <boost/serialization/version.hpp>
-#include "core/hle/service/service.h"
-
+#include "../service.h"
 namespace Core {
 class System;
 }

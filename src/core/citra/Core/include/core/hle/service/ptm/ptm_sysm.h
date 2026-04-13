@@ -5,8 +5,7 @@
 #pragma once
 
 #include <memory>
-#include "core/hle/service/ptm/ptm.h"
-
+#include "ptm.h"
 namespace Service::PTM {
 
 class PTM_S_Common : public Module::Interface {

@@ -4,8 +4,7 @@
 
 #pragma once
 
-#include "common/math_util.h"
-
+#include "../../common/math_util.h"
 namespace Settings {
 enum class LayoutOption : u32;
 }

@@ -6,24 +6,23 @@
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/unordered_map.hpp>
-#include "common/archives.h"
-#include "common/common_types.h"
+#include "../../../../include/common/archives.h"
+#include "../../../../include/common/common_types.h"
 #include "common/logging/log.h"
-#include "core/core.h"
-#include "core/hle/ipc.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/kernel/client_port.h"
-#include "core/hle/kernel/client_session.h"
-#include "core/hle/kernel/errors.h"
-#include "core/hle/kernel/event.h"
-#include "core/hle/kernel/hle_ipc.h"
-#include "core/hle/kernel/resource_limit.h"
-#include "core/hle/kernel/semaphore.h"
-#include "core/hle/kernel/server_port.h"
-#include "core/hle/kernel/server_session.h"
-#include "core/hle/service/sm/sm.h"
-#include "core/hle/service/sm/srv.h"
-
+#include "../../../../include/core/core.h"
+#include "../../../../include/core/hle/ipc.h"
+#include "../../../../include/core/hle/ipc_helpers.h"
+#include "../../../../include/core/hle/kernel/client_port.h"
+#include "../../../../include/core/hle/kernel/client_session.h"
+#include "../../../../include/core/hle/kernel/errors.h"
+#include "../../../../include/core/hle/kernel/event.h"
+#include "../../../../include/core/hle/kernel/hle_ipc.h"
+#include "../../../../include/core/hle/kernel/resource_limit.h"
+#include "../../../../include/core/hle/kernel/semaphore.h"
+#include "../../../../include/core/hle/kernel/server_port.h"
+#include "../../../../include/core/hle/kernel/server_session.h"
+#include "../../../../include/core/hle/service/sm/sm.h"
+#include "../../../../include/core/hle/service/sm/srv.h"
 SERVICE_CONSTRUCT_IMPL(Service::SM::SRV)
 SERIALIZE_EXPORT_IMPL(Service::SM::SRV)
 

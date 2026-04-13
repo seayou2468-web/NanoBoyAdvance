@@ -11,10 +11,9 @@
 #include <string>
 #include <thread>
 #include <tuple>
-#include "common/common_types.h"
-#include "common/thread.h"
-#include "common/vector_math.h"
-
+#include "../../common/common_types.h"
+#include "../../common/thread.h"
+#include "../../common/vector_math.h"
 namespace InputCommon::CemuhookUDP {
 
 constexpr u16 DEFAULT_PORT = 26760;

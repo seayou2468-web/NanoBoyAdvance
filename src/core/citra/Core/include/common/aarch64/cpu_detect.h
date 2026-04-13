@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "common/arch.h"
+#include "../arch.h"
 #if CYTRUS_ARCH(arm64)
 
 #include <string>

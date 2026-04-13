@@ -4,10 +4,9 @@
 
 #pragma once
 
-#include "common/common_types.h"
-#include "common/vector_math.h"
-#include "video_core/pica/regs_texturing.h"
-
+#include "../../common/common_types.h"
+#include "../../common/vector_math.h"
+#include "../pica/regs_texturing.h"
 namespace Pica::Texture {
 
 /// Returns the byte size of a 8*8 tile of the specified texture format.

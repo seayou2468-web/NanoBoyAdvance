@@ -2,11 +2,10 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/assert.h"
+#include "../include/common/assert.h"
 #include "common/logging/log.h"
 #include "enet/enet.h"
-#include "network/network.h"
-
+#include "../include/network/network.h"
 namespace Network {
 
 static std::shared_ptr<RoomMember> g_room_member; ///< RoomMember (Client) for network games

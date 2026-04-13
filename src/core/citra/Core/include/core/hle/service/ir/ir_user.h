@@ -7,8 +7,7 @@
 #include <functional>
 #include <memory>
 #include <span>
-#include "core/hle/service/service.h"
-
+#include "../service.h"
 namespace Kernel {
 class Event;
 class SharedMemory;

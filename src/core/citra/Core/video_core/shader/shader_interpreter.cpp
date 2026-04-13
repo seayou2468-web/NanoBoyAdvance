@@ -8,16 +8,15 @@
 #include <boost/circular_buffer.hpp>
 #include <boost/container/static_vector.hpp>
 #include <nihstro/shader_bytecode.h>
-#include "common/assert.h"
-#include "common/common_types.h"
+#include "../../include/common/assert.h"
+#include "../../include/common/common_types.h"
 #include "common/logging/log.h"
-#include "common/microprofile.h"
-#include "common/vector_math.h"
-#include "video_core/pica/shader_setup.h"
-#include "video_core/pica/shader_unit.h"
-#include "video_core/pica_types.h"
-#include "video_core/shader/shader_interpreter.h"
-
+#include "../../include/common/microprofile.h"
+#include "../../include/common/vector_math.h"
+#include "../../include/video_core/pica/shader_setup.h"
+#include "../../include/video_core/pica/shader_unit.h"
+#include "../../include/video_core/pica_types.h"
+#include "../../include/video_core/shader/shader_interpreter.h"
 using nihstro::Instruction;
 using nihstro::OpCode;
 using nihstro::RegisterType;

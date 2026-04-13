@@ -7,8 +7,7 @@
 #include <array>
 #include <functional>
 #include <span>
-#include "common/common_types.h"
-
+#include "../../common/common_types.h"
 namespace Core::RPC {
 
 enum class PacketType : u32 {

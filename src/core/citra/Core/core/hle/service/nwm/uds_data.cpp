@@ -11,10 +11,9 @@
 #include <cryptopp/filters.h>
 #include <cryptopp/md5.h>
 #include <cryptopp/modes.h>
-#include "core/hle/service/nwm/nwm_uds.h"
-#include "core/hle/service/nwm/uds_data.h"
-#include "core/hw/aes/key.h"
-
+#include "../../../../include/core/hle/service/nwm/nwm_uds.h"
+#include "../../../../include/core/hle/service/nwm/uds_data.h"
+#include "../../../../include/core/hw/aes/key.h"
 namespace Service::NWM {
 
 using MacAddress = std::array<u8, 6>;

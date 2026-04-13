@@ -4,10 +4,9 @@
 
 #pragma once
 
-#include "common/hash.h"
-#include "video_core/pica/regs_internal.h"
-#include "video_core/shader/generator/profile.h"
-
+#include "../../../common/hash.h"
+#include "../../pica/regs_internal.h"
+#include "profile.h"
 namespace Pica::Shader {
 
 struct BlendConfig {

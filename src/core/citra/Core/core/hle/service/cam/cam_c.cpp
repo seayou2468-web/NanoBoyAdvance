@@ -2,10 +2,9 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/archives.h"
-#include "core/hle/service/cam/cam.h"
-#include "core/hle/service/cam/cam_c.h"
-
+#include "../../../../include/common/archives.h"
+#include "../../../../include/core/hle/service/cam/cam.h"
+#include "../../../../include/core/hle/service/cam/cam_c.h"
 namespace Service::CAM {
 
 CAM_C::CAM_C(std::shared_ptr<Module> cam) : Module::Interface(std::move(cam), "cam:c", 1) {

@@ -2,9 +2,8 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/archives.h"
-#include "core/hle/service/apt/ns_c.h"
-
+#include "../../../../include/common/archives.h"
+#include "../../../../include/core/hle/service/apt/ns_c.h"
 namespace Service::NS {
 
 NS_C::NS_C(std::shared_ptr<Service::APT::Module> apt)

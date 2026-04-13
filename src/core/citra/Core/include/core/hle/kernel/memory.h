@@ -7,9 +7,8 @@
 #include <optional>
 #include <boost/icl/interval_set.hpp>
 #include <boost/serialization/export.hpp>
-#include "common/common_types.h"
-#include "common/serialization/boost_interval_set.hpp"
-
+#include "../../../common/common_types.h"
+#include "../../../common/serialization/boost_interval_set.hpp"
 namespace Kernel {
 
 struct AddressMapping;

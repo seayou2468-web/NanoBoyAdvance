@@ -3,12 +3,11 @@
 // Refer to the license.txt file included.
 
 #include <fmt/format.h>
-#include "common/alignment.h"
-#include "common/settings.h"
-#include "core/core_timing.h"
-#include "core/hle/service/ir/extra_hid.h"
-#include "core/movie.h"
-
+#include "../../../../include/common/alignment.h"
+#include "../../../../include/common/settings.h"
+#include "../../../../include/core/core_timing.h"
+#include "../../../../include/core/hle/service/ir/extra_hid.h"
+#include "../../../../include/core/movie.h"
 namespace Service::IR {
 
 enum class RequestID : u8 {

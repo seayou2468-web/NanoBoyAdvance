@@ -5,10 +5,9 @@
 #pragma once
 
 #include <optional>
-#include "common/vector_math.h"
-#include "video_core/pica/packed_attribute.h"
-#include "video_core/pica_types.h"
-
+#include "../../common/vector_math.h"
+#include "packed_attribute.h"
+#include "../pica_types.h"
 namespace Pica {
 
 constexpr u32 MAX_PROGRAM_CODE_LENGTH = 4096;

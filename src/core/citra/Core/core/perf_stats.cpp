@@ -11,12 +11,11 @@
 #include <thread>
 #include <fmt/chrono.h>
 #include <fmt/format.h>
-#include "common/file_util.h"
-#include "common/settings.h"
-#include "core/core_timing.h"
-#include "core/perf_stats.h"
-#include "video_core/gpu.h"
-
+#include "../include/common/file_util.h"
+#include "../include/common/settings.h"
+#include "../include/core/core_timing.h"
+#include "../include/core/perf_stats.h"
+#include "../include/video_core/gpu.h"
 using namespace std::chrono_literals;
 using DoubleSecs = std::chrono::duration<double, std::chrono::seconds::period>;
 using std::chrono::duration_cast;

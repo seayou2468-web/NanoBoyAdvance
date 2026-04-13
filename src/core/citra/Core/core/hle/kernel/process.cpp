@@ -10,22 +10,21 @@
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/vector.hpp>
-#include "common/archives.h"
-#include "common/assert.h"
-#include "common/common_funcs.h"
+#include "../../../include/common/archives.h"
+#include "../../../include/common/assert.h"
+#include "../../../include/common/common_funcs.h"
 #include "common/logging/log.h"
-#include "common/serialization/boost_vector.hpp"
-#include "core/core.h"
-#include "core/hle/kernel/errors.h"
-#include "core/hle/kernel/memory.h"
-#include "core/hle/kernel/process.h"
-#include "core/hle/kernel/resource_limit.h"
-#include "core/hle/kernel/thread.h"
-#include "core/hle/kernel/vm_manager.h"
-#include "core/hle/service/plgldr/plgldr.h"
-#include "core/loader/loader.h"
-#include "core/memory.h"
-
+#include "../../../include/common/serialization/boost_vector.hpp"
+#include "../../../include/core/core.h"
+#include "../../../include/core/hle/kernel/errors.h"
+#include "../../../include/core/hle/kernel/memory.h"
+#include "../../../include/core/hle/kernel/process.h"
+#include "../../../include/core/hle/kernel/resource_limit.h"
+#include "../../../include/core/hle/kernel/thread.h"
+#include "../../../include/core/hle/kernel/vm_manager.h"
+#include "../../../include/core/hle/service/plgldr/plgldr.h"
+#include "../../../include/core/loader/loader.h"
+#include "../../../include/core/memory.h"
 SERIALIZE_EXPORT_IMPL(Kernel::AddressMapping)
 SERIALIZE_EXPORT_IMPL(Kernel::Process)
 SERIALIZE_EXPORT_IMPL(Kernel::CodeSet)

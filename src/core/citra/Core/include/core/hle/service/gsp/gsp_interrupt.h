@@ -5,8 +5,7 @@
 #pragma once
 
 #include <functional>
-#include "common/common_types.h"
-
+#include "../../../../common/common_types.h"
 namespace Service::GSP {
 
 /// GSP interrupt ID

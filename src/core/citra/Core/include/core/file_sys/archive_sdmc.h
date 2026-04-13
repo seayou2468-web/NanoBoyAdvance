@@ -9,9 +9,8 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
 #include <boost/serialization/string.hpp>
-#include "core/file_sys/archive_backend.h"
-#include "core/hle/result.h"
-
+#include "archive_backend.h"
+#include "../hle/result.h"
 namespace FileSys {
 
 /// Archive backend for SDMC archive

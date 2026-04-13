@@ -3,9 +3,8 @@
 // Refer to the license.txt file included.
 
 #include <thread>
-#include "common/assert.h"
-#include "common/detached_tasks.h"
-
+#include "../include/common/assert.h"
+#include "../include/common/detached_tasks.h"
 namespace Common {
 
 DetachedTasks* DetachedTasks::instance = nullptr;

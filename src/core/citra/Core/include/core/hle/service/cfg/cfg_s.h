@@ -4,8 +4,7 @@
 
 #pragma once
 
-#include "core/hle/service/cfg/cfg.h"
-
+#include "cfg.h"
 namespace Service::CFG {
 
 class CFG_S final : public Module::Interface {

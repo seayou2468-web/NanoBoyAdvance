@@ -9,8 +9,7 @@
 #include <deque>
 #include <boost/serialization/deque.hpp>
 #include <boost/serialization/split_member.hpp>
-#include "common/common_types.h"
-
+#include "common_types.h"
 namespace Common {
 
 template <class T, unsigned int N>

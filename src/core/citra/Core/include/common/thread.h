@@ -10,9 +10,8 @@
 #include <cstddef>
 #include <mutex>
 #include <thread>
-#include "common/common_types.h"
-#include "common/polyfill_thread.h"
-
+#include "common_types.h"
+#include "polyfill_thread.h"
 namespace Common {
 
 class Event {

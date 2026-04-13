@@ -2,9 +2,8 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/archives.h"
-#include "core/hle/service/cfg/cfg_i.h"
-
+#include "../../../../include/common/archives.h"
+#include "../../../../include/core/hle/service/cfg/cfg_i.h"
 SERIALIZE_EXPORT_IMPL(Service::CFG::CFG_I)
 
 namespace Service::CFG {

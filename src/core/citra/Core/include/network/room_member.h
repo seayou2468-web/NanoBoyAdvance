@@ -9,9 +9,8 @@
 #include <string>
 #include <vector>
 #include <boost/serialization/vector.hpp>
-#include "common/common_types.h"
-#include "network/room.h"
-
+#include "../common/common_types.h"
+#include "room.h"
 namespace Network {
 
 /// Information about the received WiFi packets.

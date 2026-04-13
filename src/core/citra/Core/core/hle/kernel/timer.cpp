@@ -4,17 +4,16 @@
 
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/unordered_map.hpp>
-#include "common/archives.h"
-#include "common/assert.h"
+#include "../../../include/common/archives.h"
+#include "../../../include/common/assert.h"
 #include "common/logging/log.h"
-#include "core/core.h"
-#include "core/hle/kernel/handle_table.h"
-#include "core/hle/kernel/object.h"
-#include "core/hle/kernel/process.h"
-#include "core/hle/kernel/resource_limit.h"
-#include "core/hle/kernel/thread.h"
-#include "core/hle/kernel/timer.h"
-
+#include "../../../include/core/core.h"
+#include "../../../include/core/hle/kernel/handle_table.h"
+#include "../../../include/core/hle/kernel/object.h"
+#include "../../../include/core/hle/kernel/process.h"
+#include "../../../include/core/hle/kernel/resource_limit.h"
+#include "../../../include/core/hle/kernel/thread.h"
+#include "../../../include/core/hle/kernel/timer.h"
 SERIALIZE_EXPORT_IMPL(Kernel::Timer)
 
 namespace Kernel {

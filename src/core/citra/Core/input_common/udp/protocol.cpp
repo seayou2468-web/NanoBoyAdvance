@@ -5,8 +5,7 @@
 #include <cstddef>
 #include <cstring>
 #include "common/logging/log.h"
-#include "input_common/udp/protocol.h"
-
+#include "../../include/input_common/udp/protocol.h"
 namespace InputCommon::CemuhookUDP {
 
 static constexpr std::size_t GetSizeOfResponseType(Type t) {

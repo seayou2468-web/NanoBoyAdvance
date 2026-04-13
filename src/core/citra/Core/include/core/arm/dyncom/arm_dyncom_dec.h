@@ -4,8 +4,7 @@
 
 #pragma once
 
-#include "common/common_types.h"
-
+#include "../../../common/common_types.h"
 enum class ARMDecodeStatus { SUCCESS, FAILURE };
 
 ARMDecodeStatus DecodeARMInstruction(u32 instr, int* idx);

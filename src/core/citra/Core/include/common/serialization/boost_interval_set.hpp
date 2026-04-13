@@ -6,8 +6,7 @@
 
 #include <boost/icl/interval_set.hpp>
 #include <boost/serialization/split_free.hpp>
-#include "common/serialization/boost_discrete_interval.hpp"
-
+#include "boost_discrete_interval.hpp"
 namespace boost::serialization {
 
 template <class Archive, class T>

@@ -6,8 +6,7 @@
 
 #include <optional>
 #include <vector>
-#include "common/common_types.h"
-
+#include "../common/common_types.h"
 namespace Core::NUS {
 
 std::optional<std::vector<u8>> Download(const std::string& path);

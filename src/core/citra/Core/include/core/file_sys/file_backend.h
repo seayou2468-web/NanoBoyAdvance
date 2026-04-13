@@ -8,8 +8,8 @@
 #include <cstddef>
 #include <memory>
 #include <boost/serialization/unique_ptr.hpp>
-#include "common/common_types.h"
-#include "core/hle/result.h"
+#include "../../common/common_types.h"
+#include "../hle/result.h"
 #include "delay_generator.h"
 
 namespace FileSys {

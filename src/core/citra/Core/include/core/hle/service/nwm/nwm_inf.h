@@ -4,8 +4,7 @@
 
 #pragma once
 
-#include "core/hle/service/service.h"
-
+#include "../service.h"
 namespace Service::NWM {
 
 class NWM_INF final : public ServiceFramework<NWM_INF> {

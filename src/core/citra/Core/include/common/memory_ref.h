@@ -10,9 +10,8 @@
 #include <boost/serialization/export.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/vector.hpp>
-#include "common/assert.h"
-#include "common/common_types.h"
-
+#include "assert.h"
+#include "common_types.h"
 /// Abstract host-side memory - for example a static buffer, or local vector
 class BackingMem {
 public:

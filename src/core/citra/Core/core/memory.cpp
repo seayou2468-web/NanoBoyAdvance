@@ -6,23 +6,22 @@
 #include <cstring>
 #include <boost/serialization/array.hpp>
 #include <boost/serialization/binary_object.hpp>
-#include "audio_core/dsp_interface.h"
-#include "common/archives.h"
-#include "common/assert.h"
-#include "common/atomic_ops.h"
-#include "common/common_types.h"
+#include "../include/audio_core/dsp_interface.h"
+#include "../include/common/archives.h"
+#include "../include/common/assert.h"
+#include "../include/common/atomic_ops.h"
+#include "../include/common/common_types.h"
 #include "common/logging/log.h"
-#include "common/settings.h"
-#include "common/swap.h"
-#include "core/arm/arm_interface.h"
-#include "core/core.h"
-#include "core/global.h"
-#include "core/hle/kernel/process.h"
-#include "core/hle/service/plgldr/plgldr.h"
-#include "core/memory.h"
-#include "video_core/gpu.h"
-#include "video_core/renderer_base.h"
-
+#include "../include/common/settings.h"
+#include "../include/common/swap.h"
+#include "../include/core/arm/arm_interface.h"
+#include "../include/core/core.h"
+#include "../include/core/global.h"
+#include "../include/core/hle/kernel/process.h"
+#include "../include/core/hle/service/plgldr/plgldr.h"
+#include "../include/core/memory.h"
+#include "../include/video_core/gpu.h"
+#include "../include/video_core/renderer_base.h"
 SERIALIZE_EXPORT_IMPL(Memory::MemorySystem::BackingMemImpl<Memory::Region::FCRAM>)
 SERIALIZE_EXPORT_IMPL(Memory::MemorySystem::BackingMemImpl<Memory::Region::VRAM>)
 SERIALIZE_EXPORT_IMPL(Memory::MemorySystem::BackingMemImpl<Memory::Region::DSP>)

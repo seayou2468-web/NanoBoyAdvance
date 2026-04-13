@@ -3,8 +3,7 @@
 // Refer to the license.txt file included.
 
 #include <cstring>
-#include "core/dumping/backend.h"
-
+#include "../../include/core/dumping/backend.h"
 namespace VideoDumper {
 
 VideoFrame::VideoFrame(std::size_t width_, std::size_t height_, u8* data_)
