@@ -78,10 +78,13 @@ CORE_OBJS := \
 MAIN_OBJ  := $(BUILD_DIR)/main.o
 LIBNES    := $(BUILD_DIR)/libquick_nes.a
 
-.PHONY: all clean dump-frames
+.PHONY: all clean dump-frames cytrus-guard
 
 all: $(APP)
 dump-frames: $(DUMP_TOOL)
+
+cytrus-guard:
+	python3 tools/cytrus_dependency_guard.py
 
 $(APP): $(MAIN_OBJ) $(CORE_OBJS) $(LIBNBA) $(LIBNES)
 	@mkdir -p $(dir $@)
