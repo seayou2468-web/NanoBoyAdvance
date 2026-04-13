@@ -84,6 +84,39 @@
 		<string>GameController</string>
 		<string>-framework</string>
 		<string>MetalKit</string>
+		<string>-framework</string>
+		<string>AudioUnit</string>
+		<string>-framework</string>
+		<string>libavcodec</string>
+		<string>-framework</string>
+		<string>libavfilter</string>
+		<string>-framework</string>
+		<string>libavformat</string>
+		<string>-framework</string>
+		<string>libavutil</string>
+		<string>-framework</string>
+		<string>libswresample</string>
+		<string>-framework</string>
+		<string>libswscale</string>
+		<string>-lGenericCodeGen</string>
+		<string>-lMachineIndependent</string>
+		<string>-lSPIRV</string>
+		<string>-lboost_context</string>
+		<string>-lboost_iostreams</string>
+		<string>-lboost_program_options</string>
+		<string>-lboost_serialization</string>
+		<string>-lcryptopp</string>
+		<string>-lenet</string>
+		<string>-lfaad</string>
+		<string>-lfmt</string>
+		<string>-lglslang</string>
+		<string>-lmbedtls</string>
+		<string>-lmbedx509</string>
+		<string>-lmcl</string>
+		<string>-lopus</string>
+		<string>-lsirit</string>
+		<string>-lsoundtouch</string>
+		<string>-lteakra</string>
 	</array>
 	<key>LDEMinimumVersion</key>
 	<string>26.2</string>

@@ -23,7 +23,7 @@ enum class InputType : u32 {
     Null = 1,
     Static = 2,
     Cubeb = 3,
-    OpenAL = 4,
+    Reserved = 4,
 };
 
 struct InputDetails {

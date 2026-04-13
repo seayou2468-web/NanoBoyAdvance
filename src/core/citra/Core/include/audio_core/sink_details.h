@@ -18,7 +18,7 @@ enum class SinkType : u32 {
     Auto = 0,
     Null = 1,
     Cubeb = 2,
-    OpenAL = 3,
+    CoreAudio = 3,
     SDL3 = 4,
 };
 
