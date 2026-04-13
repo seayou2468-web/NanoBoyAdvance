@@ -32,10 +32,6 @@ namespace AudioCore {
 class DspInterface;
 }
 
-namespace Core::RPC {
-class Server;
-}
-
 namespace Service {
 namespace SM {
 class ServiceManager;
@@ -50,10 +46,6 @@ class KernelSystem;
 struct New3dsHwCapabilities;
 enum class MemoryMode : u8;
 } // namespace Kernel
-
-namespace VideoDumper {
-class Backend;
-}
 
 namespace VideoCore {
 class CustomTexManager;
@@ -283,12 +275,6 @@ public:
 
     /// Video Dumper interface
 
-    void RegisterVideoDumper(std::shared_ptr<VideoDumper::Backend> video_dumper);
-
-    [[nodiscard]] std::shared_ptr<VideoDumper::Backend> GetVideoDumper() const {
-        return video_dumper;
-    }
-
     std::unique_ptr<PerfStats> perf_stats;
     FrameLimiter frame_limiter;
 
@@ -404,19 +390,11 @@ private:
     /// Cheats manager
     Cheats::CheatEngine cheat_engine;
 
-    /// Video dumper backend
-    std::shared_ptr<VideoDumper::Backend> video_dumper;
-
     /// Custom texture cache system
     std::unique_ptr<VideoCore::CustomTexManager> custom_tex_manager;
 
     /// Image interface
     std::shared_ptr<Frontend::ImageInterface> registered_image_interface;
-
-#ifdef ENABLE_SCRIPTING
-    /// RPC Server for scripting support
-    std::unique_ptr<RPC::Server> rpc_server;
-#endif
 
     std::unique_ptr<Service::FS::ArchiveManager> archive_manager;
 

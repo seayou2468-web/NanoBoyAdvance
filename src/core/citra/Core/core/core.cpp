@@ -16,14 +16,10 @@
 #include "../include/core/hle/service/cam/cam.h"
 #include "../include/core/hle/service/hid/hid.h"
 #include "../include/core/hle/service/ir/ir_user.h"
-#if CYTRUS_ARCH(x86_64) || CYTRUS_ARCH(arm64)
 #include "core/arm/dynarmic/arm_dynarmic.h"
-#endif
-#include "../include/core/arm/dyncom/arm_dyncom.h"
 #include "../include/core/cheats/cheats.h"
 #include "../include/core/core.h"
 #include "../include/core/core_timing.h"
-#include "../include/core/dumping/backend.h"
 #include "../include/core/frontend/image_interface.h"
 #include "core/gdbstub/gdbstub.h"
 #include "../include/core/global.h"
@@ -44,9 +40,6 @@
 #include "../include/core/hw/aes/key.h"
 #include "../include/core/loader/loader.h"
 #include "../include/core/movie.h"
-#ifdef ENABLE_SCRIPTING
-#include "../include/core/rpc/server.h"
-#endif
 #include "../include/core/telemetry_session.h"
 #include "../include/network/network.h"
 #include "../include/video_core/custom_textures/custom_tex_manager.h"
@@ -405,24 +398,9 @@ System::ResultStatus System::Init(Frontend::EmuWindow& emu_window,
 
     exclusive_monitor = MakeExclusiveMonitor(*memory, num_cores);
     cpu_cores.reserve(num_cores);
-    if (Settings::values.use_cpu_jit) {
-#if CYTRUS_ARCH(x86_64) || CYTRUS_ARCH(arm64)
-        for (u32 i = 0; i < num_cores; ++i) {
-            cpu_cores.push_back(std::make_shared<ARM_Dynarmic>(
-                *this, *memory, i, timing->GetTimer(i), *exclusive_monitor));
-        }
-#else
-        for (u32 i = 0; i < num_cores; ++i) {
-            cpu_cores.push_back(
-                std::make_shared<ARM_DynCom>(this, *memory, USER32MODE, i, timing->GetTimer(i)));
-        }
-        LOG_WARNING(Core, "CPU JIT requested, but Dynarmic not available");
-#endif
-    } else {
-        for (u32 i = 0; i < num_cores; ++i) {
-            cpu_cores.push_back(
-                std::make_shared<ARM_DynCom>(*this, *memory, USER32MODE, i, timing->GetTimer(i)));
-        }
+    for (u32 i = 0; i < num_cores; ++i) {
+        cpu_cores.push_back(
+            std::make_shared<ARM_Dynarmic>(*this, *memory, i, timing->GetTimer(i), *exclusive_monitor));
     }
     running_core = cpu_cores[0].get();
 
@@ -444,10 +422,6 @@ System::ResultStatus System::Init(Frontend::EmuWindow& emu_window,
     dsp_core->EnableStretching(Settings::values.enable_audio_stretching.GetValue());
 
     telemetry_session = std::make_unique<Core::TelemetrySession>();
-
-#ifdef ENABLE_SCRIPTING
-    rpc_server = std::make_unique<RPC::Server>(*this);
-#endif
 
     service_manager = std::make_unique<Service::SM::ServiceManager>(*this);
     archive_manager = std::make_unique<Service::FS::ArchiveManager>(*this);
@@ -536,10 +510,6 @@ const Cheats::CheatEngine& System::CheatEngine() const {
     return cheat_engine;
 }
 
-void System::RegisterVideoDumper(std::shared_ptr<VideoDumper::Backend> dumper) {
-    video_dumper = std::move(dumper);
-}
-
 VideoCore::CustomTexManager& System::CustomTexManager() {
     return *custom_tex_manager;
 }
@@ -591,9 +561,6 @@ void System::Shutdown(bool is_deserializing) {
     }
     custom_tex_manager.reset();
     telemetry_session.reset();
-#ifdef ENABLE_SCRIPTING
-    rpc_server.reset();
-#endif
     archive_manager.reset();
     service_manager.reset();
     dsp_core.reset();
@@ -601,10 +568,6 @@ void System::Shutdown(bool is_deserializing) {
     cpu_cores.clear();
     exclusive_monitor.reset();
     timing.reset();
-
-    if (video_dumper && video_dumper->IsDumping()) {
-        video_dumper->StopDumping();
-    }
 
     if (auto room_member = Network::GetRoomMember().lock()) {
         Network::GameInfo game_info{};

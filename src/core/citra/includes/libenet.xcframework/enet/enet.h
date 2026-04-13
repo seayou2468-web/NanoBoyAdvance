@@ -7,11 +7,7 @@
 
 #include <stdlib.h>
 
-#ifdef _WIN32
-#include "enet/win32.h"
-#else
 #include "enet/unix.h"
-#endif
 
 #include "enet/types.h"
 #include "enet/protocol.h"
@@ -612,4 +608,3 @@ extern size_t enet_protocol_command_size (enet_uint8);
 #endif
 
 #endif /* __ENET_ENET_H__ */
-

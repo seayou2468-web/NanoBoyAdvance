@@ -9,7 +9,6 @@
 #include "../include/common/assert.h"
 #include "../include/common/settings.h"
 #include "../include/core/core.h"
-#include "../include/core/dumping/backend.h"
 namespace AudioCore {
 
 DspInterface::DspInterface(Core::System& system_) : system(system_) {}
@@ -42,10 +41,6 @@ void DspInterface::OutputFrame(StereoFrame16 frame) {
 
     fifo.Push(frame.data(), frame.size());
 
-    auto video_dumper = system.GetVideoDumper();
-    if (video_dumper && video_dumper->IsDumping()) {
-        video_dumper->AddAudioFrame(std::move(frame));
-    }
 }
 
 void DspInterface::OutputSample(std::array<s16, 2> sample) {
@@ -55,10 +50,6 @@ void DspInterface::OutputSample(std::array<s16, 2> sample) {
 
     fifo.Push(&sample, 1);
 
-    auto video_dumper = system.GetVideoDumper();
-    if (video_dumper && video_dumper->IsDumping()) {
-        video_dumper->AddAudioSample(std::move(sample));
-    }
 }
 
 void DspInterface::OutputCallback(s16* buffer, std::size_t num_frames) {
