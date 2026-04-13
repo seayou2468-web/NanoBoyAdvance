@@ -6,12 +6,7 @@
 
 #include <array>
 #include <cstddef>
-#include <memory>
 #include "common/common_types.h"
-
-namespace soundtouch {
-class SoundTouch;
-}
 
 namespace AudioCore {
 
@@ -34,7 +29,7 @@ public:
     void Flush();
 
 private:
-    std::unique_ptr<soundtouch::SoundTouch> sound_touch;
+    unsigned int output_sample_rate = native_sample_rate;
     double stretch_ratio = 1.0;
 };
 

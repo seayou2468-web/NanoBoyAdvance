@@ -8,7 +8,6 @@
 #include <cstring>
 #include <string>
 #include <type_traits>
-#include <xxhash.h>
 #include "cityhash.h"
 #include "common/common_types.h"
 
@@ -17,7 +16,16 @@ namespace Common {
 namespace HashAlgo64 {
 struct XXH3 {
     static inline u64 hash(const void* data, std::size_t len) noexcept {
-        return XXH3_64bits(data, len);
+        // 64-bit FNV-1a fallback for iOS-only builds that do not ship xxHash.
+        constexpr u64 kOffsetBasis = 14695981039346656037ULL;
+        constexpr u64 kPrime = 1099511628211ULL;
+        const auto* bytes = static_cast<const u8*>(data);
+        u64 hash = kOffsetBasis;
+        for (std::size_t i = 0; i < len; ++i) {
+            hash ^= bytes[i];
+            hash *= kPrime;
+        }
+        return hash;
     }
 };
 

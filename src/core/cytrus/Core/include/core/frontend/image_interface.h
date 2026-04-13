@@ -7,10 +7,21 @@
 #include <span>
 #include <string>
 #include <vector>
-#include <dds_ktx.h>
 #include "common/common_types.h"
 
 namespace Frontend {
+
+enum class DDSFormat {
+    Invalid,
+    RGBA8,
+    BC1,
+    BC3,
+    BC5,
+    BC7,
+    ASTC4x4,
+    ASTC6x6,
+    ASTC8x6,
+};
 
 /**
  * Utility class that provides image decoding/encoding to the custom texture manager.
@@ -21,7 +32,7 @@ public:
     virtual ~ImageInterface() = default;
 
     virtual bool DecodePNG(std::vector<u8>& dst, u32& width, u32& height, std::span<const u8> src);
-    virtual bool DecodeDDS(std::vector<u8>& dst, u32& width, u32& height, ddsktx_format& format,
+    virtual bool DecodeDDS(std::vector<u8>& dst, u32& width, u32& height, DDSFormat& format,
                            std::span<const u8> src);
     virtual bool EncodePNG(const std::string& path, u32 width, u32 height, std::span<const u8> src);
 };

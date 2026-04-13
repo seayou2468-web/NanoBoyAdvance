@@ -15,11 +15,10 @@
 #define MICROPROFILE_CONTEXT_SWITCH_TRACE 0
 #define MICROPROFILE_PER_THREAD_BUFFER_SIZE (2048 << 13) // 16 MB
 
-#ifdef _WIN32
-// This isn't defined by the standard library in MSVC2015
-typedef void* HANDLE;
-#endif
-
-#include <microprofile.h>
-
 #define MP_RGB(r, g, b) ((r) << 16 | (g) << 8 | (b) << 0)
+
+// In-tree no-op replacement for external microprofile headers.
+#define MICROPROFILE_DEFINE(token, group, name, color) \
+    static constexpr int token = 0
+#define MICROPROFILE_DECLARE(token) static constexpr int token = 0
+#define MICROPROFILE_SCOPE(token) (void)(token)

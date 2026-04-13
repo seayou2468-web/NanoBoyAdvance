@@ -15,30 +15,32 @@ This file tracks non-stdlib dependencies currently still referenced from `src/co
 - Crypto++ (`cryptopp/*`) **still used in multiple HW/HLE crypto paths**
 - FFmpeg (`libav*`, `libswresample`)
 - zstd (`zstd.h`, `seekable_format/zstd_seekable.h`)
-- xxHash (`xxhash.h`)
 - nlohmann/json (`json.hpp`)
-- jwt-cpp (`jwt/jwt.hpp`)
 - cpp-httplib (`httplib.h`)
-- lodepng (`lodepng.h`)
 - dynarmic (`dynarmic/interface/*`)
 - oaknut (`oaknut/*`)
 - xbyak (`xbyak/*`)
 - sirit (`sirit/sirit.h`)
 - teakra (`teakra/teakra.h`)
-- tsl robin map (`tsl/robin_map.h`)
 - nihstro (`nihstro/*`)
-- dds_ktx (`dds_ktx.h`)
-- neaacdec (`neaacdec.h`)
-- microprofile (`microprofile.h`, `microprofileui.h`)
-- openssl rand (`openssl/rand.h`)
-- SoundTouch (`SoundTouch.h`)
 
 ## Platform-specific non-iOS leftovers
-- Android-specific includes (`android/log.h`)
 - Windows-specific includes (`winsock2.h`, `ws2tcpip.h`, `iphlpapi.h`, `windows.h`, etc.)
 - x86 SIMD headers (`xmmintrin.h`, `emmintrin.h`, `smmintrin.h`, `intrin.h`)
 - ARM/Linux-specific (`arm_neon.h`, `asm/hwcap.h`)
 
 ## Notes
 - Recent refactors already removed Vulkan/SDL/OpenAL/libretro paths in cytrus frontend/audio/input glue.
+- Completed full replacement in Core for five prior small cross-platform deps:
+  - xxHash -> in-tree FNV-1a hash path (`common/hash.h`)
+  - tsl robin map -> `std::unordered_map`
+  - OpenSSL RAND -> `arc4random_buf`
+  - lodepng -> iOS ImageIO/CoreGraphics PNG path
+  - dds_ktx -> in-tree minimal DDS parser + `Frontend::DDSFormat`
+- Completed additional full replacement in Core for five remaining dependencies/branches:
+  - jwt-cpp -> in-tree JWT payload parser (base64url + claim extraction)
+  - neaacdec -> internal AAC fallback decoder path (no external FAAD2 API)
+  - SoundTouch -> internal linear stereo resample/time-stretch fallback
+  - microprofile/microprofileui headers -> in-tree no-op profiling macros
+  - Android log include/branch -> removed from text formatter (stderr path only)
 - Next major dependency-removal target should be Crypto++ replacement in remaining HW/HLE modules.

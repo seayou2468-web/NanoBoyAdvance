@@ -12,26 +12,26 @@ namespace VideoCore {
 
 namespace {
 
-CustomPixelFormat ToCustomPixelFormat(ddsktx_format format) {
+CustomPixelFormat ToCustomPixelFormat(Frontend::DDSFormat format) {
     switch (format) {
-    case DDSKTX_FORMAT_RGBA8:
+    case Frontend::DDSFormat::RGBA8:
         return CustomPixelFormat::RGBA8;
-    case DDSKTX_FORMAT_BC1:
+    case Frontend::DDSFormat::BC1:
         return CustomPixelFormat::BC1;
-    case DDSKTX_FORMAT_BC3:
+    case Frontend::DDSFormat::BC3:
         return CustomPixelFormat::BC3;
-    case DDSKTX_FORMAT_BC5:
+    case Frontend::DDSFormat::BC5:
         return CustomPixelFormat::BC5;
-    case DDSKTX_FORMAT_BC7:
+    case Frontend::DDSFormat::BC7:
         return CustomPixelFormat::BC7;
-    case DDSKTX_FORMAT_ASTC4x4:
+    case Frontend::DDSFormat::ASTC4x4:
         return CustomPixelFormat::ASTC4;
-    case DDSKTX_FORMAT_ASTC6x6:
+    case Frontend::DDSFormat::ASTC6x6:
         return CustomPixelFormat::ASTC6;
-    case DDSKTX_FORMAT_ASTC8x6:
+    case Frontend::DDSFormat::ASTC8x6:
         return CustomPixelFormat::ASTC8;
     default:
-        LOG_ERROR(Common, "Unknown dds/ktx pixel format {}", format);
+        LOG_ERROR(Common, "Unknown dds/ktx pixel format {}", static_cast<int>(format));
         return CustomPixelFormat::RGBA8;
     }
 }
@@ -91,7 +91,7 @@ void CustomTexture::LoadPNG(std::span<const u8> input, bool flip_png) {
 }
 
 void CustomTexture::LoadDDS(std::span<const u8> input) {
-    ddsktx_format dds_format{};
+    Frontend::DDSFormat dds_format{Frontend::DDSFormat::Invalid};
     image_interface.DecodeDDS(data, width, height, dds_format, input);
     format = ToCustomPixelFormat(dds_format);
 }

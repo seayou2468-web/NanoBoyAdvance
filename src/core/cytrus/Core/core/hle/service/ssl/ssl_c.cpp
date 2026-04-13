@@ -2,7 +2,7 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include <openssl/rand.h>
+#include <cstdlib>
 #include "common/archives.h"
 #include "common/common_types.h"
 #include "core/core.h"
@@ -75,7 +75,7 @@ void InstallInterfaces(Core::System& system) {
 
 void GenerateRandomData(std::vector<u8>& out) {
     // Fill the output buffer with random data.
-    RAND_bytes(out.data(), static_cast<int>(out.size()));
+    arc4random_buf(out.data(), out.size());
 }
 
 } // namespace Service::SSL
