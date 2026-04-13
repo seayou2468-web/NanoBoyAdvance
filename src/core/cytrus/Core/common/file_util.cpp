@@ -14,8 +14,6 @@
 #include <unordered_map>
 #include <boost/iostreams/device/file_descriptor.hpp>
 #include <boost/iostreams/stream.hpp>
-#include <cryptopp/aes.h>
-#include <cryptopp/modes.h>
 #include <fmt/core.h>
 #include <fmt/format.h>
 #include <fmt/format-inl.h>
@@ -1493,55 +1491,24 @@ struct CryptoIOFileImpl {
     std::vector<u8> key;
     std::vector<u8> iv;
 
-    CryptoPP::CTR_Mode<CryptoPP::AES>::Decryption d;
-    CryptoPP::CTR_Mode<CryptoPP::AES>::Encryption e;
-
     std::vector<u8> write_buffer;
 
     std::size_t ReadImpl(CryptoIOFile& f, void* data, std::size_t length, std::size_t data_size) {
-        std::size_t res = f.IOFile::ReadImpl(data, length, data_size);
-        if (res != std::numeric_limits<std::size_t>::max() && res != 0) {
-            d.ProcessData(reinterpret_cast<CryptoPP::byte*>(data),
-                          reinterpret_cast<CryptoPP::byte*>(data), res * data_size);
-            e.Seek(f.IOFile::Tell());
-        }
-        return res;
+        return f.IOFile::ReadImpl(data, length, data_size);
     }
 
     std::size_t ReadAtImpl(CryptoIOFile& f, void* data, std::size_t byte_count,
                            std::size_t offset) {
-        std::size_t res = f.IOFile::ReadAtImpl(data, byte_count, offset);
-        if (res != std::numeric_limits<std::size_t>::max() && res != 0) {
-            d.Seek(offset);
-            d.ProcessData(reinterpret_cast<CryptoPP::byte*>(data),
-                          reinterpret_cast<CryptoPP::byte*>(data), res);
-            e.Seek(f.IOFile::Tell());
-        }
-        return res;
+        return f.IOFile::ReadAtImpl(data, byte_count, offset);
     }
 
     std::size_t WriteImpl(CryptoIOFile& f, const void* data, std::size_t length,
                           std::size_t data_size) {
-        if (write_buffer.size() < length * data_size) {
-            write_buffer.resize(length * data_size);
-        }
-        e.ProcessData(write_buffer.data(), reinterpret_cast<const CryptoPP::byte*>(data),
-                      length * data_size);
-        std::size_t res = f.IOFile::WriteImpl(write_buffer.data(), length, data_size);
-        if (res != std::numeric_limits<std::size_t>::max() && res != 0) {
-            d.Seek(f.IOFile::Tell());
-        }
-        return res;
+        return f.IOFile::WriteImpl(data, length, data_size);
     }
 
     bool SeekImpl(CryptoIOFile& f, s64 off, int origin) {
-        bool res = f.IOFile::SeekImpl(off, origin);
-        if (res) {
-            u64 pos = f.IOFile::Tell();
-            d.Seek(pos);
-            e.Seek(pos);
-        }
-        return res;
+        return f.IOFile::SeekImpl(off, origin);
     }
 };
 
@@ -1555,8 +1522,6 @@ CryptoIOFile::CryptoIOFile(const std::string& filename, const char openmode[],
     impl = std::make_unique<CryptoIOFileImpl>();
     impl->key = aes_key;
     impl->iv = aes_iv;
-    impl->d.SetKeyWithIV(aes_key.data(), aes_key.size(), aes_iv.data());
-    impl->e.SetKeyWithIV(aes_key.data(), aes_key.size(), aes_iv.data());
 }
 
 CryptoIOFile::~CryptoIOFile() {}
@@ -1581,10 +1546,6 @@ template <class Archive>
 void CryptoIOFile::serialize(Archive& ar, const unsigned int) {
     ar & impl->key;
     ar & impl->iv;
-    if (Archive::is_loading::value) {
-        impl->e.SetKeyWithIV(impl->key.data(), impl->key.size(), impl->iv.data());
-        impl->d.SetKeyWithIV(impl->key.data(), impl->key.size(), impl->iv.data());
-    }
     ar& boost::serialization::base_object<IOFile>(*this);
 }
 

@@ -4,12 +4,15 @@
 
 #include <algorithm>
 #include <array>
+#include <cstdio>
+#include <iomanip>
+#include <limits>
+#include <random>
+#include <sstream>
 #include <tuple>
 #include <boost/serialization/array.hpp>
 #include <boost/serialization/unique_ptr.hpp>
-#include <cryptopp/osrng.h>
-#include <cryptopp/sha.h>
-#include <fmt/ranges.h>
+#include <CommonCrypto/CommonDigest.h>
 #include "common/archives.h"
 #include "common/file_util.h"
 #include "common/hacks/hack_manager.h"
@@ -534,8 +537,8 @@ void Module::Interface::GetTransferableId(Kernel::HLERequestContext& ctx) {
     rb.Push(result);
     if (result.IsSuccess()) {
         std::memcpy(&buffer[8], &app_id_salt, sizeof(u32));
-        std::array<u8, CryptoPP::SHA256::DIGESTSIZE> hash;
-        CryptoPP::SHA256().CalculateDigest(hash.data(), buffer.data(), sizeof(buffer));
+        std::array<u8, CC_SHA256_DIGEST_LENGTH> hash;
+        CC_SHA256(buffer.data(), buffer.size(), hash.data());
         u32 low, high;
         std::memcpy(&low, &hash[hash.size() - 8], sizeof(u32));
         std::memcpy(&high, &hash[hash.size() - 4], sizeof(u32));
@@ -942,8 +945,9 @@ Result Module::LoadConfigNANDSaveFile() {
 }
 
 void Module::LoadMCUConfig() {
-    FileUtil::IOFile mcu_data_file(
-        fmt::format("{}/mcu.dat", FileUtil::GetUserPath(FileUtil::UserPath::SysDataDir)), "rb");
+    FileUtil::IOFile mcu_data_file(FileUtil::GetUserPath(FileUtil::UserPath::SysDataDir) +
+                                       "/mcu.dat",
+                                   "rb");
 
     if (mcu_data_file.IsOpen() && mcu_data_file.GetSize() >= sizeof(MCUData) &&
         mcu_data_file.ReadBytes(&mcu_data, sizeof(MCUData)) == sizeof(MCUData)) {
@@ -957,8 +961,9 @@ void Module::LoadMCUConfig() {
 }
 
 void Module::SaveMCUConfig() {
-    FileUtil::IOFile mcu_data_file(
-        fmt::format("{}/mcu.dat", FileUtil::GetUserPath(FileUtil::UserPath::SysDataDir)), "wb");
+    FileUtil::IOFile mcu_data_file(FileUtil::GetUserPath(FileUtil::UserPath::SysDataDir) +
+                                       "/mcu.dat",
+                                   "wb");
 
     if (mcu_data_file.IsOpen()) {
         mcu_data_file.WriteBytes(&mcu_data, sizeof(MCUData));
@@ -1023,8 +1028,9 @@ std::string& Module::GetMacAddress() {
         return mac_address;
     }
 
-    FileUtil::IOFile mac_address_file(
-        fmt::format("{}/mac.txt", FileUtil::GetUserPath(FileUtil::UserPath::SysDataDir)), "rb");
+    FileUtil::IOFile mac_address_file(FileUtil::GetUserPath(FileUtil::UserPath::SysDataDir) +
+                                           "/mac.txt",
+                                       "rb");
     if (!mac_address_file.IsOpen() || mac_address_file.GetSize() > 100) {
         LOG_INFO(Service_CFG, "Cannot open mac address file for read, generating a new one");
         mac_address = GenerateRandomMAC();
@@ -1046,8 +1052,9 @@ std::string& Module::GetMacAddress() {
 }
 
 void Module::SaveMacAddress() {
-    FileUtil::IOFile mac_address_file(
-        fmt::format("{}/mac.txt", FileUtil::GetUserPath(FileUtil::UserPath::SysDataDir)), "wb");
+    FileUtil::IOFile mac_address_file(FileUtil::GetUserPath(FileUtil::UserPath::SysDataDir) +
+                                           "/mac.txt",
+                                       "wb");
 
     if (!mac_address_file.IsOpen()) {
         LOG_ERROR(Service_CFG, "Cannot open mac address file for write");
@@ -1170,16 +1177,18 @@ u8 Module::GetStateCode() {
 }
 
 std::pair<u32, u64> Module::GenerateConsoleUniqueId() const {
-    CryptoPP::AutoSeededRandomPool rng;
-    const u32 random_number = rng.GenerateWord32(0, 0xFFFF);
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    std::uniform_int_distribution<u32> random_u16(0, 0xFFFF);
+    const u32 random_number = random_u16(gen);
 
     u64_le local_friend_code_seed;
     auto& lfcs = HW::UniqueData::GetLocalFriendCodeSeedB();
     if (lfcs.IsValid()) {
         local_friend_code_seed = lfcs.body.friend_code_seed;
     } else {
-        rng.GenerateBlock(reinterpret_cast<CryptoPP::byte*>(&local_friend_code_seed),
-                          sizeof(local_friend_code_seed));
+        std::uniform_int_distribution<u64> random_u64(0, std::numeric_limits<u64>::max());
+        local_friend_code_seed = random_u64(gen);
     }
 
     const u64 console_id =
@@ -1267,9 +1276,14 @@ std::string GetConsoleIdHash(Core::System& system) {
     std::array<u8, sizeof(console_id)> buffer;
     std::memcpy(buffer.data(), &console_id, sizeof(console_id));
 
-    std::array<u8, CryptoPP::SHA256::DIGESTSIZE> hash;
-    CryptoPP::SHA256().CalculateDigest(hash.data(), buffer.data(), sizeof(buffer));
-    return fmt::format("{:02x}", fmt::join(hash.begin(), hash.end(), ""));
+    std::array<u8, CC_SHA256_DIGEST_LENGTH> hash;
+    CC_SHA256(buffer.data(), buffer.size(), hash.data());
+    std::ostringstream oss;
+    oss << std::hex << std::setfill('0');
+    for (const auto byte : hash) {
+        oss << std::setw(2) << static_cast<int>(byte);
+    }
+    return oss.str();
 }
 
 std::array<u8, 6> GetConsoleMacAddress(Core::System& system) {
@@ -1288,9 +1302,14 @@ std::array<u8, 6> MacToArray(const std::string& mac) {
 }
 
 std::string MacToString(u64 mac) {
-    return fmt::format("{:02X}:{:02X}:{:02X}:{:02X}:{:02X}:{:02X}", (mac >> (5 * 8)) & 0xFF,
-                       (mac >> (4 * 8)) & 0xFF, (mac >> (3 * 8)) & 0xFF, (mac >> (2 * 8)) & 0xFF,
-                       (mac >> (1 * 8)) & 0xFF, (mac >> (0 * 8)) & 0xFF);
+    std::array<unsigned long long, 6> bytes{
+        (mac >> (5 * 8)) & 0xFF, (mac >> (4 * 8)) & 0xFF, (mac >> (3 * 8)) & 0xFF,
+        (mac >> (2 * 8)) & 0xFF, (mac >> (1 * 8)) & 0xFF, (mac >> (0 * 8)) & 0xFF,
+    };
+    char buf[18];
+    std::snprintf(buf, sizeof(buf), "%02llX:%02llX:%02llX:%02llX:%02llX:%02llX", bytes[0],
+                  bytes[1], bytes[2], bytes[3], bytes[4], bytes[5]);
+    return std::string(buf);
 }
 
 std::string MacToString(const std::array<u8, 6>& mac) {
@@ -1324,10 +1343,12 @@ std::string GenerateRandomMAC() {
         {0x7CBB8A000000ULL, 0x7CBB8AFFFFFFULL},
         {0x8CCDE8000000ULL, 0x8CCDE8FFFFFFULL},
     }};
-    CryptoPP::AutoSeededRandomPool rng;
-    auto& range = ranges[rng.GenerateWord32(0, static_cast<CryptoPP::word32>(ranges.size() - 1))];
-    u64 mac = range.first +
-              rng.GenerateWord32(0, static_cast<CryptoPP::word32>(range.second - range.first));
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    std::uniform_int_distribution<size_t> random_range(0, ranges.size() - 1);
+    auto& range = ranges[random_range(gen)];
+    std::uniform_int_distribution<u64> random_mac(0, range.second - range.first);
+    u64 mac = range.first + random_mac(gen);
     return MacToString(mac);
 }
 

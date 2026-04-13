@@ -18,13 +18,7 @@ enum class SinkType : u32 {
     Auto = 0,
     Null = 1,
     Cubeb = 2,
-    OpenAL = 3,
-    SDL2 = 4,
-    SDL3 = 5,
-    CoreAudio = 6,
-#ifdef HAVE_LIBRETRO
-    LibRetro = 7,
-#endif
+    CoreAudio = 3,
 };
 
 struct SinkDetails {

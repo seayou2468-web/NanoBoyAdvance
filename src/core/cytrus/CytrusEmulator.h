@@ -18,7 +18,6 @@
 #ifdef __cplusplus
 #include <atomic>
 #include <cstring>
-#include <dlfcn.h>
 #include <map>
 #include <memory>
 #include <mutex>
@@ -26,7 +25,6 @@
 
 #include "common/file_util.h"
 #include "common/string_util.h"
-#include "common/dynamic_library/dynamic_library.h"
 #include "common/scope_exit.h"
 #include "common/settings.h"
 #include "common/string_util.h"

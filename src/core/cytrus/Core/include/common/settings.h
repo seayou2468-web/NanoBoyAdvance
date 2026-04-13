@@ -499,17 +499,13 @@ struct Values {
 
     // Renderer
     SwitchableSetting<GraphicsAPI, true> graphics_api{
-#if defined(ENABLE_OPENGL)
-        GraphicsAPI::OpenGL,
-#elif defined(ENABLE_VULKAN)
-        GraphicsAPI::Vulkan,
-#elif defined(ENABLE_SOFTWARE_RENDERER)
+#if defined(ENABLE_SOFTWARE_RENDERER)
         GraphicsAPI::Software,
 #else
 // TODO: Add a null renderer backend for this, perhaps.
 #error "At least one renderer must be enabled."
 #endif
-        GraphicsAPI::Software, GraphicsAPI::Vulkan, Keys::graphics_api};
+        GraphicsAPI::Software, GraphicsAPI::Software, Keys::graphics_api};
     SwitchableSetting<u32> physical_device{0, Keys::physical_device};
     Setting<bool> use_gles{false, Keys::use_gles};
     Setting<bool> renderer_debug{false, Keys::renderer_debug};

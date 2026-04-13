@@ -7,7 +7,7 @@
 
 #import "Configuration.h"
 #import "CytrusEmulator.h"
-#import "EmulationWindow_Vulkan.h"
+#import "EmulationWindow_Software.h"
 #import "CameraFactory.h"
 #import "InputManager.h"
 #import "SoftwareKeyboard.h"
@@ -16,11 +16,7 @@
 
 #include <Metal.hpp>
 
-#define SDL_MAIN_HANDLED
-#import <SDL3/SDL_main.h>
-
-std::unique_ptr<EmulationWindow_Vulkan> top_window, bottom_window;
-std::shared_ptr<Common::DynamicLibrary> library;
+std::unique_ptr<EmulationWindow_Software> top_window, bottom_window;
 std::shared_ptr<Service::CFG::Module> cfg;
 
 CA::MetalLayer* top_layer;
@@ -40,18 +36,8 @@ static void TryShutdown() {
 @implementation CytrusEmulator
 -(CytrusEmulator *) init {
     if (self = [super init]) {
-        Common::Log::Initialize();
-        Common::Log::SetColorConsoleBackendEnabled(false);
-        Common::Log::Start();
-        
-        Common::Log::Filter filter;
-        filter.ParseFilterString(Settings::values.log_filter.GetValue());
-        Common::Log::SetGlobalFilter(filter);
-        
         pause_emulation.store(false);
         stop_run.store(false);
-        
-        SDL_SetMainReady();
     } return self;
 }
 
@@ -65,11 +51,11 @@ static void TryShutdown() {
 }
 
 -(void) allocate {
-    library = std::make_shared<Common::DynamicLibrary>(dlopen("@rpath/MoltenVK.framework/MoltenVK", RTLD_NOW));
+    // No external renderer driver is loaded here.
 }
 
 -(void) deallocate {
-    library.reset();
+    // No external renderer driver is loaded here.
 }
 
 -(void) top:(CAMetalLayer *)layer size:(CGSize)size {
@@ -100,9 +86,9 @@ static void TryShutdown() {
         Settings::values.aspect_ratio.SetValue(Settings::AspectRatio::Stretch);
         Settings::values.layout_option.SetValue(Settings::LayoutOption::SeparateWindows);
     }
-    top_window = std::make_unique<EmulationWindow_Vulkan>(top_layer, false, library, top_size);
+    top_window = std::make_unique<EmulationWindow_Software>(top_layer, false, top_size);
     if (bottom_layer)
-        bottom_window = std::make_unique<EmulationWindow_Vulkan>(bottom_layer, true, library, bottom_size);
+        bottom_window = std::make_unique<EmulationWindow_Software>(bottom_layer, true, bottom_size);
     
     u64 program_id{};
     FileUtil::SetCurrentRomPath([url.path UTF8String]);
@@ -112,7 +98,6 @@ static void TryShutdown() {
     }
     
     system.ApplySettings();
-    Settings::LogSettings();
     
     auto frontCamera = std::make_unique<Camera::iOSFrontCameraFactory>();
     auto leftRearCamera = std::make_unique<Camera::iOSLeftRearCameraFactory>();
@@ -404,11 +389,7 @@ static void TryShutdown() {
     Settings::values.camera_name[Service::CAM::OuterRightCamera] = "av_right_rear";
     
     // Core
-    if (@available(iOS 26, *)) {
-        Settings::values.use_cpu_jit.SetValue(false);
-    } else {
-        Settings::values.use_cpu_jit.SetValue(boolean(@"cytrus.v1.38.cpuJIT"));
-    }
+    Settings::values.use_cpu_jit.SetValue(false);
     Settings::values.cpu_clock_percentage.SetValue(signed32(@"cytrus.v1.38.cpuClockPercentage"));
     Settings::values.is_new_3ds.SetValue(boolean(@"cytrus.v1.38.new3DS"));
     Settings::values.lle_applets.SetValue(boolean(@"cytrus.v1.38.lleApplets"));
@@ -423,19 +404,16 @@ static void TryShutdown() {
     Settings::values.steps_per_hour.SetValue(unsigned16(@"cytrus.v1.38.stepsPerHour"));
     Settings::values.apply_region_free_patch.SetValue(boolean(@"cytrus.v1.38.applyRegionFreePatch"));
     // Renderer
+    Settings::values.graphics_api.SetValue(Settings::GraphicsAPI::Software);
     Settings::values.spirv_shader_gen.SetValue(boolean(@"cytrus.v1.38.spirvShaderGeneration"));
     Settings::values.disable_spirv_optimizer.SetValue(boolean(@"cytrus.v1.38.disableSpirvOptimizer"));
     Settings::values.async_shader_compilation.SetValue(boolean(@"cytrus.v1.38.useAsyncShaderCompilation"));
     Settings::values.async_presentation.SetValue(boolean(@"cytrus.v1.38.useAsyncPresentation"));
-    Settings::values.use_hw_shader.SetValue(boolean(@"cytrus.v1.38.useHardwareShaders"));
+    Settings::values.use_hw_shader.SetValue(false);
     Settings::values.use_disk_shader_cache.SetValue(boolean(@"cytrus.v1.38.useDiskShaderCache"));
     Settings::values.shaders_accurate_mul.SetValue(boolean(@"cytrus.v1.38.useShadersAccurateMul"));
     Settings::values.use_vsync.SetValue(boolean(@"cytrus.v1.38.useNewVSync"));
-    if (@available(iOS 26, *)) {
-        Settings::values.use_shader_jit.SetValue(false);
-    } else {
-        Settings::values.use_shader_jit.SetValue(boolean(@"cytrus.v1.38.useShaderJIT"));
-    }
+    Settings::values.use_shader_jit.SetValue(false);
     Settings::values.resolution_factor.SetValue(unsigned32(@"cytrus.v1.38.resolutionFactor"));
     Settings::values.texture_filter.SetValue(static_cast<Settings::TextureFilter>(unsigned32(@"cytrus.v1.38.textureFilter")));
     Settings::values.texture_sampling.SetValue(static_cast<Settings::TextureSampling>(unsigned32(@"cytrus.v1.38.textureSampling")));
@@ -471,38 +449,9 @@ static void TryShutdown() {
     Settings::values.enable_audio_stretching.SetValue(boolean(@"cytrus.v1.38.audioStretching"));
     Settings::values.enable_realtime_audio.SetValue(boolean(@"cytrus.v1.38.realtimeAudio"));
     Settings::values.volume.SetValue(_float(@"cytrus.v1.38.volume"));
-    Settings::values.output_type.SetValue(static_cast<AudioCore::SinkType>(unsigned32(@"cytrus.v1.38.outputType")));
-    Settings::values.input_type.SetValue(static_cast<AudioCore::InputType>(unsigned32(@"cytrus.v1.38.inputType")));
-    // Miscellaneous
-    std::string log_filter{"*:Info"};
-    switch ([defaults integerForKey:@"cytrus.v1.38.logLevel"]) {
-        case 0:
-            log_filter = std::string{"*:Trace"};
-            break;
-        case 1:
-            log_filter = std::string{"*:Debug"};
-            break;
-        case 2:
-            log_filter = std::string{"*:Info"};
-            break;
-        case 3:
-            log_filter = std::string{"*:Warning"};
-            break;
-        case 4:
-            log_filter = std::string{"*:Error"};
-            break;
-        case 5:
-            log_filter = std::string{"*:Critical"};
-            break;
-        default:
-            break;
-    }
-    Settings::values.log_filter.SetValue(log_filter);
+    Settings::values.output_type.SetValue(static_cast<AudioCore::SinkType>(0));
+    Settings::values.input_type.SetValue(static_cast<AudioCore::InputType>(0));
     NetSettings::values.web_api_url = string(@"cytrus.v1.38.webAPIURL");
-    
-    Common::Log::Filter filter;
-    filter.ParseFilterString(Settings::values.log_filter.GetValue());
-    Common::Log::SetGlobalFilter(filter);
     
     /*
      case systemLanguage = "cytrus.v1.38.systemLanguage"
