@@ -13,5 +13,5 @@ under `src/core/nanoboyadvance/`.
 
 ## Architecture note
 
-The frontend should connect through `src/core/emulator_core_c_api.*`.
+The frontend should connect through `src/core/api/emulator_core_c_api.*`.
 This layer remains core-specific implementation detail for the GBA core.

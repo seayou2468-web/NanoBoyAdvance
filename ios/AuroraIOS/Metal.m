@@ -434,6 +434,17 @@ static void AURFillIdentityLUT(float *lutData, NSUInteger width, NSUInteger heig
     rpd.colorAttachments[0].loadAction = MTLLoadActionDontCare;
     rpd.colorAttachments[0].storeAction = MTLStoreActionStore;
     
+    // Citra(3DS)向け調整: 高解像度入力ではポスト処理を軽くして安定描画を優先
+    const BOOL isCitraLikeFrame = (width >= 400 && height >= 240);
+    const BOOL useFastPipeline = (_upscaleMode == AURUpscaleModePerformance) ||
+                                 (_upscaleMode == AURUpscaleModeAuto && isCitraLikeFrame);
+
+    const float saturation = isCitraLikeFrame ? fminf(_userSaturation, 1.02f) : _userSaturation;
+    const float vibrance = isCitraLikeFrame ? fminf(_userVibrance, 0.12f) : _userVibrance;
+    const float contrast = isCitraLikeFrame ? fminf(_userContrast, 1.03f) : _userContrast;
+    const float sharpen = isCitraLikeFrame ? fminf(_userSharpen, 0.08f) : _userSharpen;
+    const float lutMix = isCitraLikeFrame ? fminf(_userLutMix, 0.10f) : _userLutMix;
+
     // パラメータ構築
     AURPostProcessParams params = {
         .sourceSize = {(float)width, (float)height},
@@ -444,18 +455,18 @@ static void AURFillIdentityLUT(float *lutData, NSUInteger width, NSUInteger heig
             (float)(sourceRect.size.width / width),
             (float)(sourceRect.size.height / height)
         },
-        .saturation = _userSaturation,
-        .vibrance = _userVibrance,
-        .contrast = _userContrast,
-        .sharpen = _userSharpen,
-        .lutMix = _userLutMix,
+        .saturation = saturation,
+        .vibrance = vibrance,
+        .contrast = contrast,
+        .sharpen = sharpen,
+        .lutMix = lutMix,
         ._pad = 0.0f
     };
     
     // レンダーコマンド
     id<MTLRenderCommandEncoder> re = [cb renderCommandEncoderWithDescriptor:rpd];
     if (re) {
-        [re setRenderPipelineState:_pipelineState];
+        [re setRenderPipelineState:useFastPipeline ? _fastPipelineState : _pipelineState];
         [re setFragmentTexture:_sourceTexture atIndex:0];
         [re setFragmentTexture:_colorLUT2D atIndex:1];
         [re setFragmentSamplerState:_samplerState atIndex:0];
