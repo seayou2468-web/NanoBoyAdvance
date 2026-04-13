@@ -395,13 +395,15 @@ void ARM::RestoreCPSR()
         CPSR = R_UND[2];
         break;
 
+    case 0x10:
     case 0x1F:
-        // System mode: no SPSR to restore from. Just ignore.
+        // User/System mode have no SPSR. Treat CPSR restore as a no-op.
+        // Some BIOSes execute this sequence while returning from helpers.
         return;
 
     default:
         printf("!! attempt to restore CPSR under bad mode %02X, %08X\n", CPSR&0x1F, R[15]);
-        break;
+        return;
     }
 
     CPSR |= 0x00000010;
@@ -520,14 +522,12 @@ void ARMv5::PrefetchAbort()
     CPSR |= 0x97;
     UpdateMode(oldcpsr, CPSR);
 
-    // this shouldn't happen, but if it does, we're stuck in some nasty endless loop
-    // so better take care of it
+    // Some BIOS/firmware combinations transiently switch MPU state while exceptions
+    // are being taken. Hard-stopping the whole core here turns that transient state
+    // into a permanent white-screen stall. Keep running and let the abort vector code
+    // handle recovery just like on hardware.
     if (!(PU_Map[ExceptionBase>>12] & 0x04))
-    {
-        printf("!!!!! EXCEPTION REGION NOT EXECUTABLE. THIS IS VERY BAD!!\n");
-        NDS::Stop();
-        return;
-    }
+        printf("!!!!! EXCEPTION REGION NOT EXECUTABLE. CONTINUING WITH ABORT VECTOR.\n");
 
     R_ABT[2] = oldcpsr;
     R[14] = R[15] + (oldcpsr & 0x20 ? 2 : 0);
