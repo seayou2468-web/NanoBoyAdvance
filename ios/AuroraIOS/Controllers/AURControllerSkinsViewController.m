@@ -1,6 +1,7 @@
 #import "AURControllerSkinsViewController.h"
 #import "../Views/AURControllerSkinTableViewCell.h"
 #import "../Managers/AURSkinManager.h"
+#import "../Models/AURDeltaSkin.h"
 
 @interface AURControllerSkinsViewController ()
 @property (nonatomic, strong) NSArray<AURControllerSkin *> *skins;
@@ -18,9 +19,22 @@
 - (void)updateDataSource {
     NSArray *allSkins = [[AURSkinManager sharedManager] allSkins];
     NSPredicate *predicate = [NSPredicate predicateWithBlock:^BOOL(AURControllerSkin *skin, NSDictionary *bindings) {
-        return [skin supportsTraits:self.traits];
+        if (![skin supportsTraits:self.traits]) {
+            return NO;
+        }
+        if ([skin isKindOfClass:[AURDeltaSkin class]]) {
+            AURDeltaSkin *deltaSkin = (AURDeltaSkin *)skin;
+            return [deltaSkin supportsCoreType:self.coreType];
+        }
+        return YES;
     }];
     self.skins = [allSkins filteredArrayUsingPredicate:predicate];
+
+    for (AURControllerSkin *skin in self.skins) {
+        if ([skin isKindOfClass:[AURDeltaSkin class]]) {
+            [(AURDeltaSkin *)skin applyLayoutForTraits:self.traits];
+        }
+    }
     [self.tableView reloadData];
 }
 

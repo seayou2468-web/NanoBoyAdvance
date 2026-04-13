@@ -168,6 +168,13 @@ int main(int argc, char** argv) {
         return 1;
       }
     }
+    if (const char* firmware = std::getenv("NDS_FIRMWARE_PATH"); firmware != nullptr && firmware[0] != '\0') {
+      if (!EmulatorCore_LoadBIOSFromPath(core, firmware)) {
+        std::cerr << "Failed to load firmware: " << EmulatorCore_GetLastError(core) << "\n";
+        EmulatorCore_Destroy(core);
+        return 1;
+      }
+    }
   }
 
   if (!EmulatorCore_LoadROMFromPath(core, rom_path.c_str())) {

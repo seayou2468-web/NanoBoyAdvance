@@ -1,11 +1,50 @@
 #import "AURSkinManager.h"
-#import "../External/miniz/miniz.h"
+#import <zlib.h>
 
 @interface AURSkinManager ()
 @property (nonatomic, strong) NSMutableArray *importedSkins;
 @end
 
 @implementation AURSkinManager
+
+static uint16_t AURReadU16LE(const uint8_t *p) {
+    return (uint16_t)p[0] | ((uint16_t)p[1] << 8);
+}
+
+static uint32_t AURReadU32LE(const uint8_t *p) {
+    return (uint32_t)p[0] | ((uint32_t)p[1] << 8) | ((uint32_t)p[2] << 16) | ((uint32_t)p[3] << 24);
+}
+
+static NSData *AURInflateRawDeflate(NSData *compressed, NSUInteger expectedSize) {
+    if (compressed.length == 0) return [NSData data];
+
+    z_stream stream = {0};
+    if (inflateInit2(&stream, -MAX_WBITS) != Z_OK) {
+        return nil;
+    }
+
+    NSMutableData *output = [NSMutableData dataWithLength:MAX(expectedSize, compressed.length * 3)];
+    stream.next_in = (Bytef *)compressed.bytes;
+    stream.avail_in = (uInt)compressed.length;
+
+    int status = Z_OK;
+    while (status == Z_OK) {
+        if (stream.total_out >= output.length) {
+            [output increaseLengthBy:MAX(compressed.length, 1024)];
+        }
+        stream.next_out = (Bytef *)output.mutableBytes + stream.total_out;
+        stream.avail_out = (uInt)(output.length - stream.total_out);
+        status = inflate(&stream, Z_SYNC_FLUSH);
+    }
+
+    NSData *result = nil;
+    if (status == Z_STREAM_END) {
+        [output setLength:stream.total_out];
+        result = output;
+    }
+    inflateEnd(&stream);
+    return result;
+}
 
 + (instancetype)sharedManager {
     static AURSkinManager *shared = nil;
@@ -54,7 +93,7 @@
         NSString *tempDir = [NSTemporaryDirectory() stringByAppendingPathComponent:[[NSUUID UUID] UUIDString]];
         [[NSFileManager defaultManager] createDirectoryAtPath:tempDir withIntermediateDirectories:YES attributes:nil error:nil];
 
-        // Use miniz to unzip .deltaskin (which is a ZIP)
+        // Use built-in zlib + Foundation path handling to unzip .deltaskin (ZIP container)
         BOOL unzipSuccess = [self unzipFileAtPath:url.path toDirectory:tempDir];
 
         if (unzipSuccess) {
@@ -86,42 +125,79 @@
 }
 
 - (BOOL)unzipFileAtPath:(NSString *)path toDirectory:(NSString *)dest {
-    mz_zip_archive zip_archive;
-    memset(&zip_archive, 0, sizeof(zip_archive));
-
-    if (!mz_zip_reader_init_file(&zip_archive, [path fileSystemRepresentation], 0)) {
+    NSData *zipData = [NSData dataWithContentsOfFile:path];
+    if (!zipData || zipData.length < 30) {
         return NO;
     }
 
-    mz_uint num_files = mz_zip_reader_get_num_files(&zip_archive);
-    for (mz_uint i = 0; i < num_files; i++) {
-        mz_zip_archive_file_stat file_stat;
-        if (!mz_zip_reader_file_stat(&zip_archive, i, &file_stat)) {
-            continue;
+    const uint8_t *bytes = zipData.bytes;
+    NSUInteger offset = 0;
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+
+    while (offset + 30 <= zipData.length) {
+        if (AURReadU32LE(bytes + offset) != 0x04034B50U) {
+            break;
         }
 
-        NSString *entryName = [NSString stringWithUTF8String:file_stat.m_filename];
-        if (entryName.length == 0 || [entryName hasPrefix:@"/"] || [entryName containsString:@".."]) {
-            mz_zip_reader_end(&zip_archive);
+        const uint16_t flags = AURReadU16LE(bytes + offset + 6);
+        const uint16_t method = AURReadU16LE(bytes + offset + 8);
+        const uint32_t compressedSize = AURReadU32LE(bytes + offset + 18);
+        const uint32_t uncompressedSize = AURReadU32LE(bytes + offset + 22);
+        const uint16_t nameLength = AURReadU16LE(bytes + offset + 26);
+        const uint16_t extraLength = AURReadU16LE(bytes + offset + 28);
+
+        if ((flags & 0x0008U) != 0U) {
+            // Data descriptor format is intentionally not supported in this lightweight extractor.
             return NO;
         }
 
-        if (mz_zip_reader_is_file_a_directory(&zip_archive, i)) {
-            NSString *dirPath = [dest stringByAppendingPathComponent:entryName];
-            [[NSFileManager defaultManager] createDirectoryAtPath:dirPath withIntermediateDirectories:YES attributes:nil error:nil];
-        } else {
-            NSString *filePath = [dest stringByAppendingPathComponent:entryName];
-            [[NSFileManager defaultManager] createDirectoryAtPath:[filePath stringByDeletingLastPathComponent] withIntermediateDirectories:YES attributes:nil error:nil];
+        NSUInteger headerSize = 30U + nameLength + extraLength;
+        if (offset + headerSize > zipData.length) {
+            return NO;
+        }
 
-            if (!mz_zip_reader_extract_to_file(&zip_archive, i, [filePath fileSystemRepresentation], 0)) {
-                mz_zip_reader_end(&zip_archive);
+        NSData *nameData = [NSData dataWithBytes:(bytes + offset + 30U) length:nameLength];
+        NSString *entryName = [[NSString alloc] initWithData:nameData encoding:NSUTF8StringEncoding];
+        if (entryName.length == 0 || [entryName hasPrefix:@"/"] || [entryName containsString:@".."]) {
+            return NO;
+        }
+
+        NSUInteger dataOffset = offset + headerSize;
+        NSUInteger dataEnd = dataOffset + compressedSize;
+        if (dataEnd > zipData.length) {
+            return NO;
+        }
+
+        NSString *destinationPath = [dest stringByAppendingPathComponent:entryName];
+        BOOL isDirectory = [entryName hasSuffix:@"/"];
+        if (isDirectory) {
+            [fileManager createDirectoryAtPath:destinationPath withIntermediateDirectories:YES attributes:nil error:nil];
+        } else {
+            [fileManager createDirectoryAtPath:[destinationPath stringByDeletingLastPathComponent] withIntermediateDirectories:YES attributes:nil error:nil];
+            NSData *compressed = [NSData dataWithBytes:(bytes + dataOffset) length:compressedSize];
+            NSData *output = nil;
+
+            if (method == 0) {
+                output = compressed;
+            } else if (method == 8) {
+                output = AURInflateRawDeflate(compressed, uncompressedSize);
+            } else {
+                return NO;
+            }
+
+            if (!output || output.length != uncompressedSize) {
+                return NO;
+            }
+
+            if (![output writeToFile:destinationPath atomically:YES]) {
                 return NO;
             }
         }
+
+        offset = dataEnd;
     }
 
-    mz_zip_reader_end(&zip_archive);
-    return YES;
+    return offset > 0;
 }
 
 - (NSArray<AURControllerSkin *> *)allSkins {
@@ -129,8 +205,23 @@
 }
 
 - (AURControllerSkin *)skinForCoreType:(EmulatorCoreType)coreType isLandscape:(BOOL)isLandscape {
-    for (AURControllerSkin *skin in self.importedSkins) {
-        return skin; // Simplified logic
+    AURControllerSkinTraits *traits = [[AURControllerSkinTraits alloc] init];
+    traits.device = (UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad) ? AURControllerSkinDeviceIPad : AURControllerSkinDeviceIPhone;
+    traits.displayType = AURControllerSkinDisplayTypeStandard;
+    traits.orientation = isLandscape ? AURControllerSkinOrientationLandscape : AURControllerSkinOrientationPortrait;
+
+    for (AURControllerSkin *candidate in self.importedSkins) {
+        if (![candidate supportsTraits:traits]) {
+            continue;
+        }
+        if ([candidate isKindOfClass:[AURDeltaSkin class]]) {
+            AURDeltaSkin *deltaSkin = (AURDeltaSkin *)candidate;
+            if (![deltaSkin supportsCoreType:coreType]) {
+                continue;
+            }
+            [deltaSkin applyLayoutForTraits:traits];
+        }
+        return candidate;
     }
     return [self defaultSkinForCore:coreType isLandscape:isLandscape];
 }

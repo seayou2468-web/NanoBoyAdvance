@@ -128,8 +128,12 @@
 }
 
 - (void)startEmulator {
+    [self stopEmulator];
     _core = EmulatorCore_Create(_coreType);
-    if (!_core) return;
+    if (!_core) {
+        NSLog(@"[AUR][Emu] Failed to create core: %d", (int)_coreType);
+        return;
+    }
 
     // Load BIOS files from DatabaseManager (persisted in Documents)
     if (_coreType == EMULATOR_CORE_TYPE_NDS) {
@@ -164,6 +168,7 @@
         [self.displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
     } else {
         NSLog(@"[AUR][Emu] ROM load failed (%@): %s", self.romURL.lastPathComponent, EmulatorCore_GetLastError(_core) ?: "unknown error");
+        [self stopEmulator];
     }
 }
 
@@ -178,7 +183,7 @@
 }
 
 - (void)gameLoop {
-    if (!_running) return;
+    if (!_running || !_core) return;
     EmulatorCore_StepFrame(_core);
     const char *stepError = EmulatorCore_GetLastError(_core);
     if (stepError && stepError[0] != '\0') {
@@ -221,9 +226,7 @@
 
 - (void)viewDidDisappear:(BOOL)animated {
     [super viewDidDisappear:animated];
-    if (self.isBeingDismissed || self.isMovingFromParentViewController) {
-        [self stopEmulator];
-    }
+    [self stopEmulator];
 }
 
 #pragma mark - AURControllerViewDelegate

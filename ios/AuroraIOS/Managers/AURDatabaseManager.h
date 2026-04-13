@@ -5,6 +5,7 @@
 + (instancetype)sharedManager;
 - (NSArray<AURGame *> *)gamesForCoreType:(EmulatorCoreType)coreType;
 - (void)addGame:(AURGame *)game;
+- (void)removeGame:(AURGame *)game removeROMFile:(BOOL)removeROMFile;
 - (void)setBIOSPath:(NSString *)path forCoreType:(EmulatorCoreType)coreType;
 - (void)setBIOSURL:(NSURL *)url forCoreType:(EmulatorCoreType)coreType;
 - (NSString *)BIOSPathForCoreType:(EmulatorCoreType)coreType;

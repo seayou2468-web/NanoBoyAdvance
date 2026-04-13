@@ -102,7 +102,52 @@
 }
 
 - (void)addGame:(AURGame *)game {
-    [self.allGames addObject:game];
+    if (!game || game.romPath.length == 0) {
+        return;
+    }
+
+    // 同一ROMパスの重複登録を防ぐ
+    NSUInteger existingIndex = [self.allGames indexOfObjectPassingTest:^BOOL(AURGame * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        return [obj.romPath isEqualToString:game.romPath];
+    }];
+    if (existingIndex != NSNotFound) {
+        self.allGames[existingIndex] = game;
+    } else {
+        [self.allGames addObject:game];
+    }
+    [self saveDatabase];
+}
+
+- (void)removeGame:(AURGame *)game removeROMFile:(BOOL)removeROMFile {
+    if (!game) {
+        return;
+    }
+
+    NSString *romPath = game.romPath;
+    [self.allGames removeObject:game];
+    [self saveDatabase];
+
+    if (!removeROMFile || romPath.length == 0) {
+        return;
+    }
+
+    NSError *error = nil;
+    if ([[NSFileManager defaultManager] fileExistsAtPath:romPath]) {
+        [[NSFileManager defaultManager] removeItemAtPath:romPath error:&error];
+        if (error) {
+            NSLog(@"[AUR][DB] Failed to delete ROM file at %@: %@", romPath, error.localizedDescription);
+        }
+    }
+}
+
+- (void)setBIOSPath:(NSString *)path forIdentifier:(NSString *)identifier {
+    NSNumber *key = [self biosStorageKeyForIdentifier:identifier];
+    if (!key) return;
+    if (path.length == 0) {
+        [self.biosPaths removeObjectForKey:key.stringValue];
+    } else {
+        self.biosPaths[key.stringValue] = path;
+    }
     [self saveDatabase];
 }
 
@@ -140,6 +185,11 @@
     // Legacy support
     NSString *identifier = (coreType == EMULATOR_CORE_TYPE_GBA) ? @"gba" : @"gb";
     [self setBIOSURL:url forIdentifier:identifier];
+}
+
+- (void)setBIOSPath:(NSString *)path forCoreType:(EmulatorCoreType)coreType {
+    NSString *identifier = (coreType == EMULATOR_CORE_TYPE_GBA) ? @"gba" : @"gb";
+    [self setBIOSPath:path forIdentifier:identifier];
 }
 
 - (NSString *)BIOSPathForCoreType:(EmulatorCoreType)coreType {

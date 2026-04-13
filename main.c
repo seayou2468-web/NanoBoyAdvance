@@ -58,6 +58,16 @@ int main(int argc, char** argv) {
         return 1;
       }
     }
+
+    const char* firmware = getenv("NDS_FIRMWARE_PATH");
+    if (firmware != NULL && firmware[0] != '\0') {
+      if (!EmulatorCore_LoadBIOSFromPath(core, firmware)) {
+        const char* err = EmulatorCore_GetLastError(core);
+        fprintf(stderr, "EmulatorCore_LoadBIOSFromPath firmware failed: %s\n", err ? err : "unknown");
+        EmulatorCore_Destroy(core);
+        return 1;
+      }
+    }
   }
 
   EmulatorVideoSpec video_spec = {0};

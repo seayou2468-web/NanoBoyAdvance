@@ -81,6 +81,11 @@
     [self reloadData];
 }
 
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    [self reloadData];
+}
+
 - (UICollectionViewCompositionalLayout *)_createLayout {
     return [[UICollectionViewCompositionalLayout alloc] initWithSectionProvider:^NSCollectionLayoutSection * _Nullable(NSInteger sectionIndex, id<NSCollectionLayoutEnvironment>  _Nonnull layoutEnvironment) {
         NSCollectionLayoutSize *itemSize = [NSCollectionLayoutSize sizeWithWidthDimension:[NSCollectionLayoutDimension fractionalWidthDimension:0.33] heightDimension:[NSCollectionLayoutDimension fractionalHeightDimension:1.0]];
@@ -155,7 +160,10 @@
             [self collectionView:collectionView didSelectItemAtIndexPath:indexPath];
         }];
         UIAction *rename = [UIAction actionWithTitle:@"Rename" image:[UIImage systemImageNamed:@"pencil"] identifier:nil handler:^(__kindof UIAction * _Nonnull action) {}];
-        UIAction *delete = [UIAction actionWithTitle:@"Delete" image:[UIImage systemImageNamed:@"trash"] identifier:nil handler:^(__kindof UIAction * _Nonnull action) {}];
+        UIAction *delete = [UIAction actionWithTitle:@"Delete" image:[UIImage systemImageNamed:@"trash"] identifier:nil handler:^(__kindof UIAction * _Nonnull action) {
+            [[AURDatabaseManager sharedManager] removeGame:game removeROMFile:YES];
+            [self reloadData];
+        }];
         delete.attributes = UIMenuElementAttributesDestructive;
 
         return [UIMenu menuWithTitle:game.title children:@[play, rename, delete]];
@@ -163,7 +171,17 @@
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+    if (self.presentedViewController != nil) {
+        return;
+    }
+
     AURGame *game = self.games[indexPath.item];
+    if (![[NSFileManager defaultManager] fileExistsAtPath:game.romPath]) {
+        [[AURDatabaseManager sharedManager] removeGame:game removeROMFile:NO];
+        [self reloadData];
+        return;
+    }
+
     NSURL *romURL = [NSURL fileURLWithPath:game.romPath];
     AUREmulatorViewController *emuVC = [[AUREmulatorViewController alloc] initWithROMURL:romURL coreType:game.coreType];
     emuVC.modalPresentationStyle = UIModalPresentationFullScreen;
