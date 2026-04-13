@@ -17,7 +17,7 @@
 #include <boost/serialization/unordered_map.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/weak_ptr.hpp>
-#include <httplib.h>
+#include "../../../../../../Dependencies/httplib/httplib.h"
 #include "../../../../common/thread.h"
 #include "../../ipc_helpers.h"
 #include "../../kernel/shared_memory.h"

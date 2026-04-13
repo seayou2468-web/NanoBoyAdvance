@@ -3,7 +3,7 @@
 // Refer to the license.txt file included.
 
 #include <vector>
-#include <AL/al.h>
+#include "../../includes/libopenal.xcframework/AL/al.h"
 #include <AL/alc.h>
 #include <AL/alext.h>
 #include "../include/audio_core/audio_types.h"

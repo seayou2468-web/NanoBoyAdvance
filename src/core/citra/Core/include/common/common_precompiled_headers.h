@@ -9,7 +9,7 @@
 #include <chrono>
 #include <memory>
 
-#include <fmt/format.h>
+#include "../../../includes/libfmt.xcframework/fmt/format.h"
 
 #include "assert.h"
 #include "common_types.h"

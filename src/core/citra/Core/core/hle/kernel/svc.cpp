@@ -4,7 +4,7 @@
 
 #include <algorithm>
 #include <array>
-#include <fmt/format.h>
+#include "../../../../includes/libfmt.xcframework/fmt/format.h"
 #include "../../../include/common/archives.h"
 #include "common/logging/log.h"
 #include "../../../include/common/microprofile.h"

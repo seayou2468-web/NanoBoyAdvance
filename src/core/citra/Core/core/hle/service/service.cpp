@@ -3,7 +3,7 @@
 // Refer to the license.txt file included.
 
 #include <algorithm>
-#include <fmt/format.h>
+#include "../../../../includes/libfmt.xcframework/fmt/format.h"
 #include "../../../include/common/assert.h"
 #include "common/logging/log.h"
 #include "../../../include/core/core.h"

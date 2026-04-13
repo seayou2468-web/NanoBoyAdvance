@@ -5,7 +5,7 @@
 #include <array>
 #include <atomic>
 #include <thread>
-#include <teakra/teakra.h>
+#include "../../../../melonds/teakra/include/teakra/teakra.h"
 #include "../../include/audio_core/lle/lle.h"
 #include "../../include/common/assert.h"
 #include "../../include/common/bit_field.h"

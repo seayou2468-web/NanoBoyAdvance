@@ -9,8 +9,8 @@
 #include <numeric>
 #include <sstream>
 #include <thread>
-#include <fmt/chrono.h>
-#include <fmt/format.h>
+#include "../../includes/libfmt.xcframework/fmt/chrono.h"
+#include "../../includes/libfmt.xcframework/fmt/format.h"
 #include "../include/common/file_util.h"
 #include "../include/common/settings.h"
 #include "../include/core/core_timing.h"

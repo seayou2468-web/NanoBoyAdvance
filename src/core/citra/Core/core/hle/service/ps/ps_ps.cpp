@@ -2,7 +2,7 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include <cryptopp/aes.h>
+#include "../../../../../includes/libcryptopp.xcframework/cryptopp/aes.h"
 #include <cryptopp/modes.h>
 #include "../../../../include/common/archives.h"
 #include "common/logging/log.h"

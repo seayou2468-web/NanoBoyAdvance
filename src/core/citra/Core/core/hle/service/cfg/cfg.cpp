@@ -7,9 +7,9 @@
 #include <tuple>
 #include <boost/serialization/array.hpp>
 #include <boost/serialization/unique_ptr.hpp>
-#include <cryptopp/osrng.h>
-#include <cryptopp/sha.h>
-#include <fmt/format.h>
+#include "../../../../../includes/libcryptopp.xcframework/cryptopp/osrng.h"
+#include "../../../../../includes/libcryptopp.xcframework/cryptopp/sha.h"
+#include "../../../../../includes/libfmt.xcframework/fmt/format.h"
 #include "../../../../include/common/archives.h"
 #include "../../../../include/common/file_util.h"
 #include "common/logging/log.h"

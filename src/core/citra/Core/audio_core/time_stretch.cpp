@@ -9,7 +9,7 @@
 #include <memory>
 #include <type_traits>
 #include <vector>
-#include <SoundTouch.h>
+#include "../../includes/libSoundTouch.xcframework/SoundTouch.h"
 
 #include "../include/audio_core/audio_types.h"
 #include "../include/audio_core/time_stretch.h"

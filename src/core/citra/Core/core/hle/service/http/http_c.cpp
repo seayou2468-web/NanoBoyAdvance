@@ -6,9 +6,9 @@
 #include <tuple>
 #include <unordered_map>
 #include <boost/algorithm/string/replace.hpp>
-#include <cryptopp/aes.h>
+#include "../../../../../includes/libcryptopp.xcframework/cryptopp/aes.h"
 #include <cryptopp/modes.h>
-#include <fmt/format.h>
+#include "../../../../../includes/libfmt.xcframework/fmt/format.h"
 #include "../../../../include/common/archives.h"
 #include "../../../../include/common/assert.h"
 #include "../../../../include/common/scope_exit.h"

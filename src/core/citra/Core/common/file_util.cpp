@@ -10,7 +10,7 @@
 #include <unordered_map>
 #include <boost/iostreams/device/file_descriptor.hpp>
 #include <boost/iostreams/stream.hpp>
-#include <fmt/format.h>
+#include "../../includes/libfmt.xcframework/fmt/format.h"
 #include "../include/common/assert.h"
 #include "../include/common/common_funcs.h"
 #include "../include/common/common_paths.h"

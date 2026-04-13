@@ -6,8 +6,8 @@
 #include <boost/serialization/unique_ptr.hpp>
 #include <cryptopp/base64.h>
 #include <cryptopp/hmac.h>
-#include <cryptopp/sha.h>
-#include <fmt/format.h>
+#include "../../../../../includes/libcryptopp.xcframework/cryptopp/sha.h"
+#include "../../../../../includes/libfmt.xcframework/fmt/format.h"
 #include "../../../../include/common/archives.h"
 #include "../../../../include/common/common_paths.h"
 #include "../../../../include/common/file_util.h"

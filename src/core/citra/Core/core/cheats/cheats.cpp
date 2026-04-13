@@ -4,7 +4,7 @@
 
 #include <fstream>
 #include <functional>
-#include <fmt/format.h>
+#include "../../../includes/libfmt.xcframework/fmt/format.h"
 #include "../../include/common/file_util.h"
 #include "../../include/core/cheats/cheats.h"
 #include "../../include/core/cheats/gateway_cheat.h"

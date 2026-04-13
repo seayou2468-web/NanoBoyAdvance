@@ -169,6 +169,8 @@ auto ROMLoader::CreateBackup(
   BackupType backup_type
 ) -> std::unique_ptr<Backup> {
   switch(backup_type) {
+    case BackupType::Detect:    return {};
+    case BackupType::None:      return {};
     case BackupType::SRAM:      return std::make_unique<SRAM>(save_path);
     case BackupType::FLASH_64:  return std::make_unique<FLASH>(save_path, FLASH::SIZE_64K);
     case BackupType::FLASH_128: return std::make_unique<FLASH>(save_path, FLASH::SIZE_128K);

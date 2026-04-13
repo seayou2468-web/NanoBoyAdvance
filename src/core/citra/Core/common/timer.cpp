@@ -3,7 +3,7 @@
 // Refer to the license.txt file included.
 
 #include <ctime>
-#include <fmt/format.h>
+#include "../../includes/libfmt.xcframework/fmt/format.h"
 #include "../include/common/common_types.h"
 #include "../include/common/timer.h"
 namespace Common {

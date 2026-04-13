@@ -3,7 +3,7 @@
 // Refer to the license.txt file included.
 
 #include <system_error>
-#include <jwt/jwt.hpp>
+#include "../../Dependencies/jwt/jwt.hpp"
 #include "common/logging/log.h"
 #include "../include/common/web_result.h"
 #include "../include/web_service/verify_user_jwt.h"

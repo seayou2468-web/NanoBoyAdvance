@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <memory>
 #include <vector>
-#include <fmt/format.h>
+#include "../../../includes/libfmt.xcframework/fmt/format.h"
 #include "../../include/common/archives.h"
 #include "../../include/common/common_types.h"
 #include "../../include/common/file_util.h"

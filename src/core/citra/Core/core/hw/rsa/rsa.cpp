@@ -3,11 +3,11 @@
 // Refer to the license.txt file included.
 
 #include <sstream>
-#include <cryptopp/hex.h>
+#include "../../../../includes/libcryptopp.xcframework/cryptopp/hex.h"
 #include <cryptopp/integer.h>
 #include <cryptopp/nbtheory.h>
-#include <cryptopp/sha.h>
-#include <fmt/format.h>
+#include "../../../../includes/libcryptopp.xcframework/cryptopp/sha.h"
+#include "../../../../includes/libfmt.xcframework/fmt/format.h"
 #include "../../../include/common/common_paths.h"
 #include "../../../include/common/file_util.h"
 #include "common/logging/log.h"

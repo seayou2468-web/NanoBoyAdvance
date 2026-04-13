@@ -3,7 +3,7 @@
 // Refer to the license.txt file included.
 
 #include <algorithm>
-#include <cryptopp/aes.h>
+#include "../../../includes/libcryptopp.xcframework/cryptopp/aes.h"
 #include <cryptopp/modes.h>
 #include "../../include/common/alignment.h"
 #include "../../include/core/file_sys/cia_common.h"

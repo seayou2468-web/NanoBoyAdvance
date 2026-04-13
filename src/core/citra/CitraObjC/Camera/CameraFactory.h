@@ -6,7 +6,7 @@
 //  Copyright © 2024 Jarrod Norwell. All rights reserved.
 //
 
-#include "core/frontend/camera/factory.h"
+#include "../../Core/include/core/frontend/camera/factory.h"
 
 #include "CameraInterface.h"
 

@@ -4,7 +4,7 @@
 
 #include <utility>
 #include <vector>
-#include <AL/al.h>
+#include "../../includes/libopenal.xcframework/AL/al.h"
 #include <AL/alc.h>
 #include "../include/audio_core/input.h"
 #include "../include/audio_core/openal_input.h"

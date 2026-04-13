@@ -2,7 +2,7 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include <cryptopp/sha.h>
+#include "../../../includes/libcryptopp.xcframework/cryptopp/sha.h"
 #include "../../include/common/alignment.h"
 #include "../../include/common/file_util.h"
 #include "common/logging/log.h"

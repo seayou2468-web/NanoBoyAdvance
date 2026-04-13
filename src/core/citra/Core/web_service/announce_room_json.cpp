@@ -3,7 +3,7 @@
 // Refer to the license.txt file included.
 
 #include <future>
-#include "json.hpp"
+#include "../../Dependencies/nlohmann/json.hpp"
 #include "../include/common/detached_tasks.h"
 #include "common/logging/log.h"
 #include "../include/web_service/announce_room_json.h"

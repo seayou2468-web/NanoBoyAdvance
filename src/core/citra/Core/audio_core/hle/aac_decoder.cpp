@@ -2,7 +2,7 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include <neaacdec.h>
+#include "../../../includes/libfaad.xcframework/neaacdec.h"
 #include "../../include/audio_core/hle/aac_decoder.h"
 namespace AudioCore::HLE {
 

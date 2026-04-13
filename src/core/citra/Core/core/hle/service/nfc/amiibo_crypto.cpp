@@ -7,10 +7,10 @@
 // Refer to the license.txt file included.
 
 #include <array>
-#include <cryptopp/aes.h>
+#include "../../../../../includes/libcryptopp.xcframework/cryptopp/aes.h"
 #include <cryptopp/hmac.h>
 #include <cryptopp/modes.h>
-#include <cryptopp/sha.h>
+#include "../../../../../includes/libcryptopp.xcframework/cryptopp/sha.h"
 
 #include "common/logging/log.h"
 #include "../../../../include/core/hle/service/nfc/amiibo_crypto.h"

@@ -5,9 +5,9 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstring>
-#include <cryptopp/aes.h>
+#include "../../../../../includes/libcryptopp.xcframework/cryptopp/aes.h"
 #include <cryptopp/modes.h>
-#include <fmt/format.h>
+#include "../../../../../includes/libfmt.xcframework/fmt/format.h"
 #include "../../../../include/common/alignment.h"
 #include "../../../../include/common/archives.h"
 #include "../../../../include/common/common_paths.h"

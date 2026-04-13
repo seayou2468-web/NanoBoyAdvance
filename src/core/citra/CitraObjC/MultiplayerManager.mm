@@ -11,7 +11,7 @@
 #include <iostream>
 #include <memory>
 
-#include "core/core.h"
+#include "../Core/include/core/core.h"
 #include "core/hle/service/cfg/cfg.h"
 #include "network/announce_multiplayer_session.h"
 #include "network/network.h"

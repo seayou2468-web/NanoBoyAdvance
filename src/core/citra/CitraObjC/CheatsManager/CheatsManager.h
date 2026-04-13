@@ -13,7 +13,7 @@
 #include <memory>
 #include <utility>
 
-#include "core/cheats/cheats.h"
+#include "../../Core/include/core/cheats/cheats.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN

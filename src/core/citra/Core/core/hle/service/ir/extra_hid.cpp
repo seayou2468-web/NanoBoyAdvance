@@ -2,7 +2,7 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include <fmt/format.h>
+#include "../../../../../includes/libfmt.xcframework/fmt/format.h"
 #include "../../../../include/common/alignment.h"
 #include "../../../../include/common/settings.h"
 #include "../../../../include/core/core_timing.h"

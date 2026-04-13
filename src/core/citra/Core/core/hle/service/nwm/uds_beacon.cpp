@@ -5,10 +5,10 @@
 #define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
 
 #include <cstring>
-#include <cryptopp/aes.h>
+#include "../../../../../includes/libcryptopp.xcframework/cryptopp/aes.h"
 #include <cryptopp/md5.h>
 #include <cryptopp/modes.h>
-#include <cryptopp/sha.h>
+#include "../../../../../includes/libcryptopp.xcframework/cryptopp/sha.h"
 #include "../../../../include/common/assert.h"
 #include "../../../../include/core/hle/service/nwm/nwm_uds.h"
 #include "../../../../include/core/hle/service/nwm/uds_beacon.h"

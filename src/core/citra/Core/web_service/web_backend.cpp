@@ -6,8 +6,8 @@
 #include <cstdlib>
 #include <mutex>
 #include <string>
-#include <fmt/format.h>
-#include <httplib.h>
+#include "../../includes/libfmt.xcframework/fmt/format.h"
+#include "../../Dependencies/httplib/httplib.h"
 #include "../include/common/common_types.h"
 #include "common/logging/log.h"
 #include "../include/common/web_result.h"

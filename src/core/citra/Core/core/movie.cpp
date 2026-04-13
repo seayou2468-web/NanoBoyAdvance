@@ -8,8 +8,8 @@
 #include <string>
 #include <vector>
 #include <boost/optional.hpp>
-#include <cryptopp/hex.h>
-#include <cryptopp/osrng.h>
+#include "../../includes/libcryptopp.xcframework/cryptopp/hex.h"
+#include "../../includes/libcryptopp.xcframework/cryptopp/osrng.h"
 #include "../include/common/archives.h"
 #include "../include/common/bit_field.h"
 #include "../include/common/file_util.h"

@@ -2,7 +2,7 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "json.hpp"
+#include "../../Dependencies/nlohmann/json.hpp"
 #include "../include/common/web_result.h"
 #include "../include/web_service/verify_login.h"
 #include "../include/web_service/web_backend.h"

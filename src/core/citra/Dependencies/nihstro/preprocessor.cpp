@@ -25,9 +25,9 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <nihstro/parser_assembly_private.h>
-#include <nihstro/preprocessor.h>
-#include <nihstro/source_tree.h>
+#include "parser_assembly_private.h"
+#include "preprocessor.h"
+#include "source_tree.h"
 
 #include <boost/spirit/include/qi.hpp>
 

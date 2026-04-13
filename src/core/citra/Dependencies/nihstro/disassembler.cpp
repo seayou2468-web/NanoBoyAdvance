@@ -36,9 +36,9 @@
 #include <map>
 #include <stdint.h>
 
-#include "nihstro/bit_field.h"
+#include "bit_field.h"
 #include "nihstro/shader_bytecode.h"
-#include "nihstro/parser_shbin.h"
+#include "parser_shbin.h"
 
 using namespace nihstro;
 

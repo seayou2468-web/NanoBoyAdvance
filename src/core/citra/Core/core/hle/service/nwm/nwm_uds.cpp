@@ -6,7 +6,7 @@
 #include <cstring>
 #include <boost/serialization/list.hpp>
 #include <boost/serialization/map.hpp>
-#include <cryptopp/osrng.h>
+#include "../../../../../includes/libcryptopp.xcframework/cryptopp/osrng.h"
 #include "../../../../include/common/archives.h"
 #include "../../../../include/common/common_types.h"
 #include "common/logging/log.h"

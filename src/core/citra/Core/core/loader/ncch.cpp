@@ -6,7 +6,7 @@
 #include <cstring>
 #include <memory>
 #include <vector>
-#include <fmt/format.h>
+#include "../../../includes/libfmt.xcframework/fmt/format.h"
 #include "../../include/common/literals.h"
 #include "common/logging/log.h"
 #include "../../include/common/settings.h"

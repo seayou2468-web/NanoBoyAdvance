@@ -5,7 +5,7 @@
 #include <array>
 #include <chrono>
 #include <boost/crc.hpp>
-#include <cryptopp/osrng.h>
+#include "../../../../../includes/libcryptopp.xcframework/cryptopp/osrng.h"
 
 #include "../../../../include/common/file_util.h"
 #include "common/logging/log.h"

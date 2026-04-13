@@ -3,7 +3,7 @@
 // Refer to the license.txt file included.
 
 #define DDSKTX_IMPLEMENT
-#include <dds-ktx.h>
+#include "../../../Dependencies/dds-ktx/dds-ktx.h"
 #include <lodepng.h>
 #include "../../include/common/file_util.h"
 #include "common/logging/log.h"

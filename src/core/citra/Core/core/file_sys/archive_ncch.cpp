@@ -6,7 +6,7 @@
 #include <memory>
 #include <utility>
 #include <vector>
-#include "bad_word_list.app.romfs.h"
+#include "../../../Dependencies/romfs/bad_word_list.app.romfs.h"
 #include "../../include/common/archives.h"
 #include "../../include/common/common_types.h"
 #include "../../include/common/file_util.h"

@@ -20,7 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include <boost/serialization/weak_ptr.hpp>
-#include <fmt/format.h>
+#include "../../../../../includes/libfmt.xcframework/fmt/format.h"
 #include "../../../../include/common/archives.h"
 #include "common/logging/log.h"
 #include "../../../../include/common/settings.h"

@@ -2,7 +2,7 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include <cryptopp/osrng.h>
+#include "../../includes/libcryptopp.xcframework/cryptopp/osrng.h"
 
 #include "../include/common/assert.h"
 #include "../include/common/common_types.h"

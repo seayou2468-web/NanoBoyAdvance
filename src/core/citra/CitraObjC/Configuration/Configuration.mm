@@ -9,11 +9,11 @@
 #include <memory>
 #include <sstream>
 #include <unordered_map>
-#include <inih/INIReader.h>
+#include "../../Dependencies/inih/INIReader.h"
 #include "common/file_util.h"
 #include "common/param_package.h"
 #include "common/settings.h"
-#include "core/core.h"
+#include "../../Core/include/core/core.h"
 #include "core/hle/service/cfg/cfg.h"
 #include "core/hle/service/service.h"
 #include "input_common/main.h"

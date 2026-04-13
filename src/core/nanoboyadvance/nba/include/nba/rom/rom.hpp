@@ -37,7 +37,7 @@ struct ROM {
       , gpio(std::move(gpio))
       , rom_mask(rom_mask) {
     if(backup != nullptr) {
-      if(typeid(*backup.get()) == typeid(EEPROM)) {
+      if(dynamic_cast<EEPROM*>(backup.get()) != nullptr) {
         backup_eeprom = std::move(backup);
 
         if(this->rom.size() >= 0x0100'0001) {

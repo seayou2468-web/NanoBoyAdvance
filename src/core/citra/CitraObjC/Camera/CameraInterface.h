@@ -6,7 +6,7 @@
 //  Copyright © 2024 Jarrod Norwell. All rights reserved.
 //
 
-#include "core/frontend/camera/interface.h"
+#include "../../Core/include/core/frontend/camera/interface.h"
 
 namespace Camera {
 class iOSRearCameraInterface : public CameraInterface {

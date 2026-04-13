@@ -644,7 +644,7 @@ void Write(u8 val, u32 hold)
         {
             char wfcfile[50] = {0};
             int inst = Platform::InstanceID();
-            if (inst > 0) snprintf(wfcfile, 49, "wfcsettings.bin", Platform::InstanceID());
+            if (inst > 0) snprintf(wfcfile, 49, "wfcsettings.%d.bin", inst);
             else          strncpy(wfcfile, "wfcsettings.bin", 49);
 
             FILE* f = Platform::OpenLocalFile(wfcfile, "wb");

@@ -11,7 +11,7 @@
 #include <memory>
 #include <string>
 
-#include "core/frontend/input.h"
+#include "../../Core/include/core/frontend/input.h"
 #endif
 
 namespace InputManager {

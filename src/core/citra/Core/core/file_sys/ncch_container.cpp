@@ -5,9 +5,9 @@
 #include <cstring>
 #include <memory>
 #include <span>
-#include <cryptopp/aes.h>
+#include "../../../includes/libcryptopp.xcframework/cryptopp/aes.h"
 #include <cryptopp/modes.h>
-#include <cryptopp/sha.h>
+#include "../../../includes/libcryptopp.xcframework/cryptopp/sha.h"
 #include "../../include/common/common_types.h"
 #include "common/logging/log.h"
 #include "../../include/core/core.h"

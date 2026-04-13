@@ -8,9 +8,9 @@
 
 #import "CheatsManager.h"
 
-#include "core/core.h"
+#include "../../Core/include/core/core.h"
 #include "core/cheats/cheat_base.h"
-#include "core/cheats/cheats.h"
+#include "../../Core/include/core/cheats/cheats.h"
 #include "core/cheats/gateway_cheat.h"
 
 @implementation Cheat

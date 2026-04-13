@@ -3,7 +3,7 @@
 // Refer to the license.txt file included.
 
 #include <memory>
-#include <httplib.h>
+#include "../../Dependencies/httplib/httplib.h"
 #include "common/logging/log.h"
 #include "../include/core/nus_download.h"
 namespace Core::NUS {

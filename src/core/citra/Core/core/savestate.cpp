@@ -4,8 +4,8 @@
 
 #include <chrono>
 #include <sstream>
-#include <cryptopp/hex.h>
-#include <fmt/format.h>
+#include "../../includes/libcryptopp.xcframework/cryptopp/hex.h"
+#include "../../includes/libfmt.xcframework/fmt/format.h"
 #include "../include/common/archives.h"
 #include "../include/common/file_util.h"
 #include "common/logging/log.h"

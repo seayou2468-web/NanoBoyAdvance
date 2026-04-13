@@ -2,7 +2,7 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "json.hpp"
+#include "../../../Dependencies/nlohmann/json.hpp"
 #include "../../include/common/file_util.h"
 #include "../../include/common/literals.h"
 #include "../../include/common/memory_detect.h"
