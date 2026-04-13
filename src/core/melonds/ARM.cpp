@@ -24,6 +24,23 @@
 #include "ARMInterpreter.h"
 #include "AREngine.h"
 
+#if defined(__APPLE__)
+#include <TargetConditionals.h>
+#endif
+
+#if defined(__APPLE__) && defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE
+#define MELONDS_IOS_OPT 1
+#else
+#define MELONDS_IOS_OPT 0
+#endif
+
+#if defined(__GNUC__) || defined(__clang__)
+#define MELONDS_LIKELY(x) __builtin_expect(!!(x), 1)
+#define MELONDS_UNLIKELY(x) __builtin_expect(!!(x), 0)
+#else
+#define MELONDS_LIKELY(x) (x)
+#define MELONDS_UNLIKELY(x) (x)
+#endif
 
 // instruction timing notes
 //
@@ -550,6 +567,9 @@ void ARMv5::DataAbort()
 
 void ARMv5::Execute()
 {
+    u64& timestamp = NDS::ARM9Timestamp;
+    const u64& target = NDS::ARM9Target;
+
     if (Halted)
     {
         if (Halted == 2)
@@ -564,58 +584,88 @@ void ARMv5::Execute()
         }
         else
         {
-            NDS::ARM9Timestamp = NDS::ARM9Target;
+            timestamp = target;
             return;
         }
     }
 
 
-    while (NDS::ARM9Timestamp < NDS::ARM9Target)
+    while (timestamp < target)
     {
-        for (int batch = 0; batch < 16 && NDS::ARM9Timestamp < NDS::ARM9Target; batch++)
+#if MELONDS_IOS_OPT
+        if (MELONDS_LIKELY(!(CPSR & 0x20))) // ARM
         {
-            if (__builtin_expect(CPSR & 0x20, 0)) // THUMB
-            {
-                // prefetch
-                R[15] += 2;
-                CurInstr = NextInstr[0];
-                NextInstr[0] = NextInstr[1];
-                if (R[15] & 0x2) { NextInstr[1] >>= 16; CodeCycles = 0; }
-                else             NextInstr[1] = CodeRead32(R[15], false);
+            // prefetch
+            R[15] += 4;
+            CurInstr = NextInstr[0];
+            NextInstr[0] = NextInstr[1];
+            NextInstr[1] = CodeRead32(R[15], false);
 
-                // actually execute
-                u32 icode = (CurInstr >> 6) & 0x3FF;
-                ARMInterpreter::THUMBInstrTable[icode](this);
+            // actually execute
+            if (CheckCondition(CurInstr >> 28))
+            {
+                u32 icode = ((CurInstr >> 4) & 0xF) | ((CurInstr >> 16) & 0xFF0);
+                ARMInterpreter::ARMInstrTable[icode](this);
+            }
+            else if ((CurInstr & 0xFE000000) == 0xFA000000)
+            {
+                ARMInterpreter::A_BLX_IMM(this);
             }
             else
-            {
-                // prefetch
-                R[15] += 4;
-                CurInstr = NextInstr[0];
-                NextInstr[0] = NextInstr[1];
-                NextInstr[1] = CodeRead32(R[15], false);
-
-                // actually execute
-                if (CheckCondition(CurInstr >> 28))
-                {
-                    u32 icode = ((CurInstr >> 4) & 0xF) | ((CurInstr >> 16) & 0xFF0);
-                    ARMInterpreter::ARMInstrTable[icode](this);
-                }
-                else if ((CurInstr & 0xFE000000) == 0xFA000000)
-                {
-                    ARMInterpreter::A_BLX_IMM(this);
-                }
-                else
-                    AddCycles_C();
-            }
-
-            if (__builtin_expect(Halted, 0)) break;
-            if (__builtin_expect(IRQ, 0)) { TriggerIRQ(); break; }
-
-            NDS::ARM9Timestamp += Cycles;
-            Cycles = 0;
+                AddCycles_C();
         }
-        if (__builtin_expect(Halted, 0)) break;
+        else // THUMB
+#else
+        if (CPSR & 0x20) // THUMB
+#endif
+        {
+            // prefetch
+            R[15] += 2;
+            CurInstr = NextInstr[0];
+            NextInstr[0] = NextInstr[1];
+            if (R[15] & 0x2) { NextInstr[1] >>= 16; CodeCycles = 0; }
+            else             NextInstr[1] = CodeRead32(R[15], false);
+
+            // actually execute
+            u32 icode = (CurInstr >> 6) & 0x3FF;
+            ARMInterpreter::THUMBInstrTable[icode](this);
+        }
+#if !MELONDS_IOS_OPT
+        else
+        {
+            // prefetch
+            R[15] += 4;
+            CurInstr = NextInstr[0];
+            NextInstr[0] = NextInstr[1];
+            NextInstr[1] = CodeRead32(R[15], false);
+
+            // actually execute
+            if (CheckCondition(CurInstr >> 28))
+            {
+                u32 icode = ((CurInstr >> 4) & 0xF) | ((CurInstr >> 16) & 0xFF0);
+                ARMInterpreter::ARMInstrTable[icode](this);
+            }
+            else if ((CurInstr & 0xFE000000) == 0xFA000000)
+            {
+                ARMInterpreter::A_BLX_IMM(this);
+            }
+            else
+                AddCycles_C();
+        }
+#endif
+
+        if (MELONDS_UNLIKELY(Halted))
+        {
+            if (Halted == 1 && timestamp < target)
+            {
+                timestamp = target;
+            }
+            break;
+        }
+        if (MELONDS_UNLIKELY(IRQ)) TriggerIRQ();
+
+        timestamp += Cycles;
+        Cycles = 0;
     }
 
     if (Halted == 2)
@@ -625,6 +675,9 @@ void ARMv5::Execute()
 
 void ARMv4::Execute()
 {
+    u64& timestamp = NDS::ARM7Timestamp;
+    const u64& target = NDS::ARM7Target;
+
     if (Halted)
     {
         if (Halted == 2)
@@ -639,54 +692,79 @@ void ARMv4::Execute()
         }
         else
         {
-            NDS::ARM7Timestamp = NDS::ARM7Target;
+            timestamp = target;
             return;
         }
     }
 
 
-    while (NDS::ARM7Timestamp < NDS::ARM7Target)
+    while (timestamp < target)
     {
-        for (int batch = 0; batch < 16 && NDS::ARM7Timestamp < NDS::ARM7Target; batch++)
+#if MELONDS_IOS_OPT
+        if (MELONDS_LIKELY(!(CPSR & 0x20))) // ARM
         {
-            if (__builtin_expect(CPSR & 0x20, 0)) // THUMB
-            {
-                // prefetch
-                R[15] += 2;
-                CurInstr = NextInstr[0];
-                NextInstr[0] = NextInstr[1];
-                if (R[15] & 0x2) { NextInstr[1] >>= 16; CodeCycles = 0; }
-                else             NextInstr[1] = CodeRead16(R[15]);
+            // prefetch
+            R[15] += 4;
+            CurInstr = NextInstr[0];
+            NextInstr[0] = NextInstr[1];
+            NextInstr[1] = CodeRead32(R[15]);
 
-                // actually execute
-                u32 icode = (CurInstr >> 6) & 0x3FF;
-                ARMInterpreter::THUMBInstrTable[icode](this);
+            // actually execute
+            if (CheckCondition(CurInstr >> 28))
+            {
+                u32 icode = ((CurInstr >> 4) & 0xF) | ((CurInstr >> 16) & 0xFF0);
+                ARMInterpreter::ARMInstrTable[icode](this);
             }
             else
-            {
-                // prefetch
-                R[15] += 4;
-                CurInstr = NextInstr[0];
-                NextInstr[0] = NextInstr[1];
-                NextInstr[1] = CodeRead32(R[15]);
-
-                // actually execute
-                if (CheckCondition(CurInstr >> 28))
-                {
-                    u32 icode = ((CurInstr >> 4) & 0xF) | ((CurInstr >> 16) & 0xFF0);
-                    ARMInterpreter::ARMInstrTable[icode](this);
-                }
-                else
-                    AddCycles_C();
-            }
-
-            if (__builtin_expect(Halted, 0)) break;
-            if (__builtin_expect(IRQ, 0)) { TriggerIRQ(); break; }
-
-            NDS::ARM7Timestamp += Cycles;
-            Cycles = 0;
+                AddCycles_C();
         }
-        if (__builtin_expect(Halted, 0)) break;
+        else // THUMB
+#else
+        if (CPSR & 0x20) // THUMB
+#endif
+        {
+            // prefetch
+            R[15] += 2;
+            CurInstr = NextInstr[0];
+            NextInstr[0] = NextInstr[1];
+            NextInstr[1] = CodeRead16(R[15]);
+
+            // actually execute
+            u32 icode = (CurInstr >> 6);
+            ARMInterpreter::THUMBInstrTable[icode](this);
+        }
+#if !MELONDS_IOS_OPT
+        else
+        {
+            // prefetch
+            R[15] += 4;
+            CurInstr = NextInstr[0];
+            NextInstr[0] = NextInstr[1];
+            NextInstr[1] = CodeRead32(R[15]);
+
+            // actually execute
+            if (CheckCondition(CurInstr >> 28))
+            {
+                u32 icode = ((CurInstr >> 4) & 0xF) | ((CurInstr >> 16) & 0xFF0);
+                ARMInterpreter::ARMInstrTable[icode](this);
+            }
+            else
+                AddCycles_C();
+        }
+#endif
+
+        if (MELONDS_UNLIKELY(Halted))
+        {
+            if (Halted == 1 && timestamp < target)
+            {
+                timestamp = target;
+            }
+            break;
+        }
+        if (MELONDS_UNLIKELY(IRQ)) TriggerIRQ();
+
+        timestamp += Cycles;
+        Cycles = 0;
     }
 
     if (Halted == 2)
