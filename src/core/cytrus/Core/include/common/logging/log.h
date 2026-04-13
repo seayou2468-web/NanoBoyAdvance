@@ -42,39 +42,15 @@ void FmtLogMessage(Class log_class, Level log_level, const char* filename, unsig
                       fmt::make_format_args(args...));
 }
 
+inline void Stop() {}
+
 } // namespace Common::Log
 
-// Define the fmt lib macros
-#define LOG_GENERIC(log_class, log_level, ...)                                                     \
-    Common::Log::FmtLogMessage(log_class, log_level, Common::Log::TrimSourcePath(__FILE__),        \
-                               __LINE__, __func__, __VA_ARGS__)
-
-#ifdef _DEBUG
-#define LOG_TRACE(log_class, ...)                                                                  \
-    Common::Log::FmtLogMessage(Common::Log::Class::log_class, Common::Log::Level::Trace,           \
-                               Common::Log::TrimSourcePath(__FILE__), __LINE__, __func__,          \
-                               __VA_ARGS__)
-#else
-#define LOG_TRACE(log_class, fmt, ...) (void(0))
-#endif
-
-#define LOG_DEBUG(log_class, ...)                                                                  \
-    Common::Log::FmtLogMessage(Common::Log::Class::log_class, Common::Log::Level::Debug,           \
-                               Common::Log::TrimSourcePath(__FILE__), __LINE__, __func__,          \
-                               __VA_ARGS__)
-#define LOG_INFO(log_class, ...)                                                                   \
-    Common::Log::FmtLogMessage(Common::Log::Class::log_class, Common::Log::Level::Info,            \
-                               Common::Log::TrimSourcePath(__FILE__), __LINE__, __func__,          \
-                               __VA_ARGS__)
-#define LOG_WARNING(log_class, ...)                                                                \
-    Common::Log::FmtLogMessage(Common::Log::Class::log_class, Common::Log::Level::Warning,         \
-                               Common::Log::TrimSourcePath(__FILE__), __LINE__, __func__,          \
-                               __VA_ARGS__)
-#define LOG_ERROR(log_class, ...)                                                                  \
-    Common::Log::FmtLogMessage(Common::Log::Class::log_class, Common::Log::Level::Error,           \
-                               Common::Log::TrimSourcePath(__FILE__), __LINE__, __func__,          \
-                               __VA_ARGS__)
-#define LOG_CRITICAL(log_class, ...)                                                               \
-    Common::Log::FmtLogMessage(Common::Log::Class::log_class, Common::Log::Level::Critical,        \
-                               Common::Log::TrimSourcePath(__FILE__), __LINE__, __func__,          \
-                               __VA_ARGS__)
+// Logging is disabled for this iOS-focused build.
+#define LOG_GENERIC(log_class, log_level, ...) (void(0))
+#define LOG_TRACE(log_class, ...) (void(0))
+#define LOG_DEBUG(log_class, ...) (void(0))
+#define LOG_INFO(log_class, ...) (void(0))
+#define LOG_WARNING(log_class, ...) (void(0))
+#define LOG_ERROR(log_class, ...) (void(0))
+#define LOG_CRITICAL(log_class, ...) (void(0))

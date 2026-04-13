@@ -57,7 +57,7 @@ struct PageTable {
      */
 
     // The reason for this rigmarole is to keep the 'raw' and 'refs' arrays in sync.
-    // We need 'raw' for dynarmic and 'refs' for serialization
+    // We need 'raw' for fast CPU memory access and 'refs' for serialization
     struct Pointers {
 
         struct Entry {

@@ -391,7 +391,6 @@ static void TryShutdown() {
     Settings::values.camera_name[Service::CAM::OuterRightCamera] = "av_rear_right";
     
     // Core
-    Settings::values.use_cpu_jit.SetValue(false);
     Settings::values.cpu_clock_percentage.SetValue(signed32(@"cytrus.v1.38.cpuClockPercentage"));
     Settings::values.is_new_3ds.SetValue(boolean(@"cytrus.v1.38.new3DS"));
     Settings::values.lle_applets.SetValue(boolean(@"cytrus.v1.38.lleApplets"));
@@ -415,7 +414,6 @@ static void TryShutdown() {
     Settings::values.use_disk_shader_cache.SetValue(boolean(@"cytrus.v1.38.useDiskShaderCache"));
     Settings::values.shaders_accurate_mul.SetValue(boolean(@"cytrus.v1.38.useShadersAccurateMul"));
     Settings::values.use_vsync.SetValue(boolean(@"cytrus.v1.38.useNewVSync"));
-    Settings::values.use_shader_jit.SetValue(false);
     Settings::values.resolution_factor.SetValue(unsigned32(@"cytrus.v1.38.resolutionFactor"));
     Settings::values.texture_filter.SetValue(static_cast<Settings::TextureFilter>(unsigned32(@"cytrus.v1.38.textureFilter")));
     Settings::values.texture_sampling.SetValue(static_cast<Settings::TextureSampling>(unsigned32(@"cytrus.v1.38.textureSampling")));

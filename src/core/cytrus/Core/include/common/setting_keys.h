@@ -15,7 +15,6 @@ namespace Keys {
 
 DEFINE_KEY(use_artic_base_controller)
 DEFINE_KEY(enable_gamemode)
-DEFINE_KEY(use_cpu_jit)
 DEFINE_KEY(cpu_clock_percentage)
 DEFINE_KEY(is_new_3ds)
 DEFINE_KEY(lle_applets)
@@ -48,7 +47,6 @@ DEFINE_KEY(use_disk_shader_cache)
 DEFINE_KEY(shaders_accurate_mul)
 DEFINE_KEY(use_vsync)
 DEFINE_KEY(use_display_refresh_rate_detection)
-DEFINE_KEY(use_shader_jit)
 DEFINE_KEY(resolution_factor)
 DEFINE_KEY(frame_limit)
 DEFINE_KEY(turbo_limit)
@@ -155,7 +153,6 @@ static const std::array keys_array = {
 
 "use_artic_base_controller",
 "enable_gamemode",
-"use_cpu_jit",
 "cpu_clock_percentage",
 "is_new_3ds",
 "lle_applets",
@@ -188,7 +185,6 @@ static const std::array keys_array = {
 "shaders_accurate_mul",
 "use_vsync",
 "use_display_refresh_rate_detection",
-"use_shader_jit",
 "resolution_factor",
 "frame_limit",
 "turbo_limit",
@@ -301,7 +297,6 @@ namespace HKeys {
 
 DEFINE_KEY(use_artic_base_controller)
 DEFINE_KEY(enable_gamemode)
-DEFINE_KEY(use_cpu_jit)
 DEFINE_KEY(cpu_clock_percentage)
 DEFINE_KEY(is_new_3ds)
 DEFINE_KEY(lle_applets)
@@ -334,7 +329,6 @@ DEFINE_KEY(use_disk_shader_cache)
 DEFINE_KEY(shaders_accurate_mul)
 DEFINE_KEY(use_vsync)
 DEFINE_KEY(use_display_refresh_rate_detection)
-DEFINE_KEY(use_shader_jit)
 DEFINE_KEY(resolution_factor)
 DEFINE_KEY(frame_limit)
 DEFINE_KEY(turbo_limit)

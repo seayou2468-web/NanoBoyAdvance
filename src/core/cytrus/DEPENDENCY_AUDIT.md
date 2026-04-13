@@ -11,15 +11,10 @@ This file tracks non-stdlib dependencies currently still referenced from `src/co
 
 ## Cross-platform third-party libraries
 - Boost (asio, serialization, hana, iostreams, container, regex, stacktrace, etc.)
-- fmt (`fmt/core.h`, `fmt/format.h`, `fmt/ranges.h`, ...)
 - Crypto++ (`cryptopp/*`) **still used in multiple HW/HLE crypto paths**
-- FFmpeg (`libav*`, `libswresample`)
 - zstd (`zstd.h`, `seekable_format/zstd_seekable.h`)
 - nlohmann/json (`json.hpp`)
 - cpp-httplib (`httplib.h`)
-- dynarmic (`dynarmic/interface/*`)
-- oaknut (`oaknut/*`)
-- xbyak (`xbyak/*`)
 - sirit (`sirit/sirit.h`)
 - teakra (`teakra/teakra.h`)
 - nihstro (`nihstro/*`)

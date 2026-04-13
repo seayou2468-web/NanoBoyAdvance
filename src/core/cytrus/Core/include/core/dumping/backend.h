@@ -22,12 +22,14 @@ public:
     u32 stride;
     std::vector<u8> data;
 
-    VideoFrame(std::size_t width_ = 0, std::size_t height_ = 0, u8* data_ = nullptr);
+    VideoFrame(std::size_t width_ = 0, std::size_t height_ = 0, u8* data_ = nullptr)
+        : width(width_), height(height_), stride(static_cast<u32>(width * 4)),
+          data(data_, data_ + width * height * 4) {}
 };
 
 class Backend {
 public:
-    virtual ~Backend();
+    virtual ~Backend() = default;
     virtual bool StartDumping(const std::string& path, const Layout::FramebufferLayout& layout) = 0;
     virtual void AddVideoFrame(VideoFrame frame) = 0;
     virtual void AddAudioFrame(AudioCore::StereoFrame16 frame) = 0;
@@ -39,7 +41,7 @@ public:
 
 class NullBackend : public Backend {
 public:
-    ~NullBackend() override;
+    ~NullBackend() override = default;
     bool StartDumping(const std::string& /*path*/,
                       const Layout::FramebufferLayout& /*layout*/) override {
         return false;

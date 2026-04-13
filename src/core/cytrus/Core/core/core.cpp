@@ -8,7 +8,6 @@
 #include "audio_core/dsp_interface.h"
 #include "audio_core/hle/hle.h"
 #include "audio_core/lle/lle.h"
-#include "common/arch.h"
 #include "common/logging/log.h"
 #include "common/settings.h"
 #include "core/arm/arm_interface.h"
@@ -16,9 +15,6 @@
 #include "core/hle/service/cam/cam.h"
 #include "core/hle/service/hid/hid.h"
 #include "core/hle/service/ir/ir_user.h"
-#if CITRA_ARCH(x86_64) || CITRA_ARCH(arm64)
-#include "core/arm/dynarmic/arm_dynarmic.h"
-#endif
 #include "core/arm/dyncom/arm_dyncom.h"
 #include "core/cheats/cheats.h"
 #include "core/core.h"
@@ -26,7 +22,6 @@
 #include "core/dumping/backend.h"
 #include "core/file_sys/ncch_container.h"
 #include "core/frontend/image_interface.h"
-#include "core/gdbstub/gdbstub.h"
 #include "core/global.h"
 #include "core/hle/kernel/ipc_debugger/recorder.h"
 #include "core/hle/kernel/kernel.h"
@@ -83,23 +78,6 @@ System::ResultStatus System::RunLoop(bool tight_loop) {
         return ResultStatus::ErrorNotInitialized;
     }
 
-    if (GDBStub::IsServerEnabled()) {
-        Kernel::Thread* thread = kernel->GetCurrentThreadManager().GetCurrentThread();
-        if (thread && running_core) {
-            running_core->SaveContext(thread->context);
-        }
-        GDBStub::HandlePacket(*this);
-
-        // If the loop is halted and we want to step, use a tiny (1) number of instructions to
-        // execute. Otherwise, get out of the loop function.
-        if (GDBStub::GetCpuHaltFlag()) {
-            if (GDBStub::GetCpuStepFlag()) {
-                tight_loop = false;
-            } else {
-                return ResultStatus::Success;
-            }
-        }
-    }
 
     Signal signal{Signal::None};
     u32 param{};
@@ -267,10 +245,6 @@ System::ResultStatus System::RunLoop(bool tight_loop) {
             }
             max_slice = cpu_core->GetTimer().GetTicks() - start_ticks;
         }
-    }
-
-    if (GDBStub::IsServerEnabled()) {
-        GDBStub::SetCpuStepFlag(false);
     }
 
     Reschedule();
@@ -522,24 +496,9 @@ System::ResultStatus System::Init(Frontend::EmuWindow& emu_window,
 
     exclusive_monitor = MakeExclusiveMonitor(*memory, num_cores);
     cpu_cores.reserve(num_cores);
-    if (Settings::values.use_cpu_jit) {
-#if CITRA_ARCH(x86_64) || CITRA_ARCH(arm64)
-        for (u32 i = 0; i < num_cores; ++i) {
-            cpu_cores.push_back(std::make_shared<ARM_Dynarmic>(
-                *this, *memory, i, timing->GetTimer(i), *exclusive_monitor));
-        }
-#else
-        for (u32 i = 0; i < num_cores; ++i) {
-            cpu_cores.push_back(
-                std::make_shared<ARM_DynCom>(*this, *memory, USER32MODE, i, timing->GetTimer(i)));
-        }
-        LOG_WARNING(Core, "CPU JIT requested, but Dynarmic not available");
-#endif
-    } else {
-        for (u32 i = 0; i < num_cores; ++i) {
-            cpu_cores.push_back(
-                std::make_shared<ARM_DynCom>(*this, *memory, USER32MODE, i, timing->GetTimer(i)));
-        }
+    for (u32 i = 0; i < num_cores; ++i) {
+        cpu_cores.push_back(
+            std::make_shared<ARM_DynCom>(*this, *memory, USER32MODE, i, timing->GetTimer(i)));
     }
     running_core = cpu_cores[0].get();
 
@@ -571,7 +530,6 @@ System::ResultStatus System::Init(Frontend::EmuWindow& emu_window,
     app_loader->ReadProgramId(loading_title_id);
     HW::AES::InitKeys();
     Service::Init(*this, loading_title_id, lle_modules, !app_loader->DoingInitialSetup());
-    GDBStub::DeferStart();
 
     if (!registered_image_interface) {
         registered_image_interface = std::make_shared<Frontend::ImageInterface>();
@@ -693,7 +651,6 @@ void System::Shutdown(bool is_deserializing) {
     gpu.reset();
     if (!is_deserializing) {
         lle_modules.clear();
-        GDBStub::Shutdown();
         perf_stats.reset();
         app_loader.reset();
     }
@@ -754,9 +711,6 @@ void System::Reset() {
 }
 
 void System::ApplySettings() {
-    GDBStub::SetServerPort(Settings::values.gdbstub_port.GetValue());
-    GDBStub::ToggleServer(Settings::values.use_gdbstub.GetValue());
-
     if (gpu) {
 #ifndef ANDROID
         gpu->Renderer().UpdateCurrentFramebufferLayout();

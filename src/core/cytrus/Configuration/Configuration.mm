@@ -11,13 +11,11 @@ Configuration::~Configuration() = default;
 
 void Configuration::ReadValues() {
     // Core
-    Settings::values.use_cpu_jit = false;
 
     // Renderer
     Settings::values.graphics_api = Settings::GraphicsAPI::Software;
     Settings::values.use_gles = false;
     Settings::values.use_hw_shader = false;
-    Settings::values.use_shader_jit = false;
     Settings::values.use_disk_shader_cache = false;
 
     // Input defaults (self-contained, non-SDL backends)

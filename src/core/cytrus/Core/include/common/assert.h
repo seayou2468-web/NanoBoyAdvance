@@ -6,7 +6,6 @@
 
 #include <cstdlib>
 #include "common/common_funcs.h"
-#include "common/logging/backend.h"
 #include "common/logging/log.h"
 
 // For asserts we'd like to keep all the junk executed when an assert happens away from the
