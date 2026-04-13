@@ -16,7 +16,7 @@
 #include "../include/core/hle/service/cam/cam.h"
 #include "../include/core/hle/service/hid/hid.h"
 #include "../include/core/hle/service/ir/ir_user.h"
-#include "core/arm/dynarmic/arm_dynarmic.h"
+#include "../include/core/arm/dyncom/arm_dyncom.h"
 #include "../include/core/cheats/cheats.h"
 #include "../include/core/core.h"
 #include "../include/core/core_timing.h"
@@ -400,7 +400,7 @@ System::ResultStatus System::Init(Frontend::EmuWindow& emu_window,
     cpu_cores.reserve(num_cores);
     for (u32 i = 0; i < num_cores; ++i) {
         cpu_cores.push_back(
-            std::make_shared<ARM_Dynarmic>(*this, *memory, i, timing->GetTimer(i), *exclusive_monitor));
+            std::make_shared<ARM_DynCom>(*this, *memory, USER32MODE, i, timing->GetTimer(i)));
     }
     running_core = cpu_cores[0].get();
 
