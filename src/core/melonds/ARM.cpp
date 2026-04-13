@@ -395,6 +395,10 @@ void ARM::RestoreCPSR()
         CPSR = R_UND[2];
         break;
 
+    case 0x1F:
+        // System mode: no SPSR to restore from. Just ignore.
+        return;
+
     default:
         printf("!! attempt to restore CPSR under bad mode %02X, %08X\n", CPSR&0x1F, R[15]);
         break;
