@@ -572,50 +572,53 @@ void ARMv5::Execute()
 
     while (NDS::ARM9Timestamp < NDS::ARM9Target)
     {
-        for (int batch = 0; batch < 16 && NDS::ARM9Timestamp < NDS::ARM9Target; batch++)
+        if (CPSR & 0x20) // THUMB
         {
-            if (__builtin_expect(CPSR & 0x20, 0)) // THUMB
-            {
-                // prefetch
-                R[15] += 2;
-                CurInstr = NextInstr[0];
-                NextInstr[0] = NextInstr[1];
-                if (R[15] & 0x2) { NextInstr[1] >>= 16; CodeCycles = 0; }
-                else             NextInstr[1] = CodeRead32(R[15], false);
+            // prefetch
+            R[15] += 2;
+            CurInstr = NextInstr[0];
+            NextInstr[0] = NextInstr[1];
+            if (R[15] & 0x2) { NextInstr[1] >>= 16; CodeCycles = 0; }
+            else             NextInstr[1] = CodeRead32(R[15], false);
 
-                // actually execute
-                u32 icode = (CurInstr >> 6) & 0x3FF;
-                ARMInterpreter::THUMBInstrTable[icode](this);
+            // actually execute
+            u32 icode = (CurInstr >> 6) & 0x3FF;
+            ARMInterpreter::THUMBInstrTable[icode](this);
+        }
+        else
+        {
+            // prefetch
+            R[15] += 4;
+            CurInstr = NextInstr[0];
+            NextInstr[0] = NextInstr[1];
+            NextInstr[1] = CodeRead32(R[15], false);
+
+            // actually execute
+            if (CheckCondition(CurInstr >> 28))
+            {
+                u32 icode = ((CurInstr >> 4) & 0xF) | ((CurInstr >> 16) & 0xFF0);
+                ARMInterpreter::ARMInstrTable[icode](this);
+            }
+            else if ((CurInstr & 0xFE000000) == 0xFA000000)
+            {
+                ARMInterpreter::A_BLX_IMM(this);
             }
             else
-            {
-                // prefetch
-                R[15] += 4;
-                CurInstr = NextInstr[0];
-                NextInstr[0] = NextInstr[1];
-                NextInstr[1] = CodeRead32(R[15], false);
-
-                // actually execute
-                if (CheckCondition(CurInstr >> 28))
-                {
-                    u32 icode = ((CurInstr >> 4) & 0xF) | ((CurInstr >> 16) & 0xFF0);
-                    ARMInterpreter::ARMInstrTable[icode](this);
-                }
-                else if ((CurInstr & 0xFE000000) == 0xFA000000)
-                {
-                    ARMInterpreter::A_BLX_IMM(this);
-                }
-                else
-                    AddCycles_C();
-            }
-
-            if (__builtin_expect(Halted, 0)) break;
-            if (__builtin_expect(IRQ, 0)) { TriggerIRQ(); break; }
-
-            NDS::ARM9Timestamp += Cycles;
-            Cycles = 0;
+                AddCycles_C();
         }
-        if (__builtin_expect(Halted, 0)) break;
+
+        if (Halted)
+        {
+            if (Halted == 1 && NDS::ARM9Timestamp < NDS::ARM9Target)
+            {
+                NDS::ARM9Timestamp = NDS::ARM9Target;
+            }
+            break;
+        }
+        if (IRQ) TriggerIRQ();
+
+        NDS::ARM9Timestamp += Cycles;
+        Cycles = 0;
     }
 
     if (Halted == 2)
@@ -647,46 +650,48 @@ void ARMv4::Execute()
 
     while (NDS::ARM7Timestamp < NDS::ARM7Target)
     {
-        for (int batch = 0; batch < 16 && NDS::ARM7Timestamp < NDS::ARM7Target; batch++)
+        if (CPSR & 0x20) // THUMB
         {
-            if (__builtin_expect(CPSR & 0x20, 0)) // THUMB
-            {
-                // prefetch
-                R[15] += 2;
-                CurInstr = NextInstr[0];
-                NextInstr[0] = NextInstr[1];
-                if (R[15] & 0x2) { NextInstr[1] >>= 16; CodeCycles = 0; }
-                else             NextInstr[1] = CodeRead16(R[15]);
+            // prefetch
+            R[15] += 2;
+            CurInstr = NextInstr[0];
+            NextInstr[0] = NextInstr[1];
+            NextInstr[1] = CodeRead16(R[15]);
 
-                // actually execute
-                u32 icode = (CurInstr >> 6) & 0x3FF;
-                ARMInterpreter::THUMBInstrTable[icode](this);
+            // actually execute
+            u32 icode = (CurInstr >> 6);
+            ARMInterpreter::THUMBInstrTable[icode](this);
+        }
+        else
+        {
+            // prefetch
+            R[15] += 4;
+            CurInstr = NextInstr[0];
+            NextInstr[0] = NextInstr[1];
+            NextInstr[1] = CodeRead32(R[15]);
+
+            // actually execute
+            if (CheckCondition(CurInstr >> 28))
+            {
+                u32 icode = ((CurInstr >> 4) & 0xF) | ((CurInstr >> 16) & 0xFF0);
+                ARMInterpreter::ARMInstrTable[icode](this);
             }
             else
-            {
-                // prefetch
-                R[15] += 4;
-                CurInstr = NextInstr[0];
-                NextInstr[0] = NextInstr[1];
-                NextInstr[1] = CodeRead32(R[15]);
-
-                // actually execute
-                if (CheckCondition(CurInstr >> 28))
-                {
-                    u32 icode = ((CurInstr >> 4) & 0xF) | ((CurInstr >> 16) & 0xFF0);
-                    ARMInterpreter::ARMInstrTable[icode](this);
-                }
-                else
-                    AddCycles_C();
-            }
-
-            if (__builtin_expect(Halted, 0)) break;
-            if (__builtin_expect(IRQ, 0)) { TriggerIRQ(); break; }
-
-            NDS::ARM7Timestamp += Cycles;
-            Cycles = 0;
+                AddCycles_C();
         }
-        if (__builtin_expect(Halted, 0)) break;
+
+        if (Halted)
+        {
+            if (Halted == 1 && NDS::ARM7Timestamp < NDS::ARM7Target)
+            {
+                NDS::ARM7Timestamp = NDS::ARM7Target;
+            }
+            break;
+        }
+        if (IRQ) TriggerIRQ();
+
+        NDS::ARM7Timestamp += Cycles;
+        Cycles = 0;
     }
 
     if (Halted == 2)
