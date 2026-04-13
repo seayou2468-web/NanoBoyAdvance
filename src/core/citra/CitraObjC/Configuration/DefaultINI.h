@@ -139,11 +139,11 @@ enable_realtime_audio=0
 volume=1.0
 
 # Which audio output type to use.
-# 0 (default): Auto-select, 1: No audio output, 2: Cubeb (if available), 3: AudioUnit, 4: Reserved
+# 0 (default): Auto-select, 1: No audio output, 2: Reserved, 3: AudioUnit, 4: Reserved
 output_type=3
 
 # Which audio input type to use.
-# 0 (default): Auto-select, 1: No audio input, 2: Static noise, 3: Cubeb (if available), 4: Reserved
+# 0 (default): Auto-select, 1: No audio input, 2: Static noise, 3: Reserved, 4: Reserved
 input_type=0
 
 [Data Storage]

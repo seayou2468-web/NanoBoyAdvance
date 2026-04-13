@@ -17,9 +17,9 @@ class Sink;
 enum class SinkType : u32 {
     Auto = 0,
     Null = 1,
-    Cubeb = 2,
+    Reserved = 2,
     CoreAudio = 3,
-    SDL3 = 4,
+    Reserved2 = 4,
 };
 
 struct SinkDetails {
