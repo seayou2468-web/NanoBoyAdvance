@@ -13,6 +13,10 @@
 
 namespace nba::core {
 
+#ifndef NBA_ENABLE_MGBA_LOG
+#define NBA_ENABLE_MGBA_LOG 1
+#endif
+
 auto Bus::Hardware::ReadByte(u32 address) ->  u8 {
   auto& apu_io = apu.mmio;
   auto& ppu_io = ppu.mmio;
@@ -632,11 +636,15 @@ void Bus::Hardware::WriteHalf(u32 address, u16 value) {
     }
 
     case MGBA_LOG_SEND: {
+#if NBA_ENABLE_MGBA_LOG
       if(mgba_log.enable && (value & 0x100) != 0) {
         std::printf("mGBA log: %s\n", mgba_log.message.data());
         std::fflush(stdout);
         mgba_log.message.fill(0);
       }
+#else
+      (void)value;
+#endif
       break;
     }
     case MGBA_LOG_ENABLE: {

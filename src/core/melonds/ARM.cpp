@@ -602,7 +602,8 @@ void ARMv5::Execute()
             NextInstr[1] = CodeRead32(R[15], false);
 
             // actually execute
-            if (CheckCondition(CurInstr >> 28))
+            const u32 cond = CurInstr >> 28;
+            if (MELONDS_LIKELY(cond == 0xE || CheckCondition(cond)))
             {
                 u32 icode = ((CurInstr >> 4) & 0xF) | ((CurInstr >> 16) & 0xFF0);
                 ARMInterpreter::ARMInstrTable[icode](this);
@@ -640,7 +641,8 @@ void ARMv5::Execute()
             NextInstr[1] = CodeRead32(R[15], false);
 
             // actually execute
-            if (CheckCondition(CurInstr >> 28))
+            const u32 cond = CurInstr >> 28;
+            if (MELONDS_LIKELY(cond == 0xE || CheckCondition(cond)))
             {
                 u32 icode = ((CurInstr >> 4) & 0xF) | ((CurInstr >> 16) & 0xFF0);
                 ARMInterpreter::ARMInstrTable[icode](this);
@@ -710,7 +712,8 @@ void ARMv4::Execute()
             NextInstr[1] = CodeRead32(R[15]);
 
             // actually execute
-            if (CheckCondition(CurInstr >> 28))
+            const u32 cond = CurInstr >> 28;
+            if (MELONDS_LIKELY(cond == 0xE || CheckCondition(cond)))
             {
                 u32 icode = ((CurInstr >> 4) & 0xF) | ((CurInstr >> 16) & 0xFF0);
                 ARMInterpreter::ARMInstrTable[icode](this);
@@ -743,7 +746,8 @@ void ARMv4::Execute()
             NextInstr[1] = CodeRead32(R[15]);
 
             // actually execute
-            if (CheckCondition(CurInstr >> 28))
+            const u32 cond = CurInstr >> 28;
+            if (MELONDS_LIKELY(cond == 0xE || CheckCondition(cond)))
             {
                 u32 icode = ((CurInstr >> 4) & 0xF) | ((CurInstr >> 16) & 0xFF0);
                 ARMInterpreter::ARMInstrTable[icode](this);

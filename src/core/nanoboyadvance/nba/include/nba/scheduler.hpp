@@ -247,8 +247,11 @@ private:
   static constexpr int RightChild(int n) { return n * 2 + 2; }
 
   void Step(u64 timestamp_next) {
-    while(heap[0]->timestamp <= timestamp_next && heap_size > 0) {
+    while(heap_size > 0) {
       auto event = heap[0];
+      if(event->timestamp > timestamp_next) {
+        break;
+      }
       timestamp_now = event->timestamp;
       callbacks[(int)event->event_class](event->user_data);
       Remove(event->handle);
@@ -256,7 +259,17 @@ private:
   }
 
   void Remove(int n) {
-    Swap(n, --heap_size);
+    const int last = --heap_size;
+    if(last < 0) {
+      heap_size = 0;
+      return;
+    }
+    if(n != last) {
+      Swap(n, last);
+    }
+    if(heap_size == 0) {
+      return;
+    }
 
     int p = Parent(n);
     if(n != 0 && heap[p]->key > heap[n]->key) {
@@ -279,17 +292,22 @@ private:
   }
 
   void Heapify(int n) {
-    int l = LeftChild(n);
-    int r = RightChild(n);
+    while(true) {
+      int smallest = n;
+      const int l = LeftChild(n);
+      const int r = RightChild(n);
 
-    if(l < heap_size && heap[l]->key < heap[n]->key) {
-      Swap(l, n);
-      Heapify(l);
-    }
-
-    if(r < heap_size && heap[r]->key < heap[n]->key) {
-      Swap(r, n);
-      Heapify(r);
+      if(l < heap_size && heap[l]->key < heap[smallest]->key) {
+        smallest = l;
+      }
+      if(r < heap_size && heap[r]->key < heap[smallest]->key) {
+        smallest = r;
+      }
+      if(smallest == n) {
+        break;
+      }
+      Swap(n, smallest);
+      n = smallest;
     }
   }
 

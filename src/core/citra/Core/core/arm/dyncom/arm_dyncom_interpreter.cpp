@@ -75,6 +75,13 @@ static bool CondPassed(const ARMul_State* cpu, unsigned int cond) {
     return false;
 }
 
+static inline bool CondPassedOrAL(const ARMul_State* cpu, unsigned int cond) {
+    if (cond == ConditionCode::AL) [[likely]] {
+        return true;
+    }
+    return CondPassed(cpu, cond);
+}
+
 static unsigned int DPO(Immediate)(ARMul_State* cpu, unsigned int sht_oper) {
     unsigned int immed_8 = BITS(sht_oper, 0, 7);
     unsigned int rotate_imm = BITS(sht_oper, 8, 11);
@@ -1662,7 +1669,7 @@ DISPATCH: {
     GOTO_NEXT_INST;
 }
 ADC_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         adc_inst* const inst_cream = (adc_inst*)inst_base->component;
 
         u32 rn_val = RN;
@@ -1696,7 +1703,7 @@ ADC_INST: {
     GOTO_NEXT_INST;
 }
 ADD_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         add_inst* const inst_cream = (add_inst*)inst_base->component;
 
         u32 rn_val = CHECK_READ_REG15_WA(cpu, inst_cream->Rn);
@@ -1728,7 +1735,7 @@ ADD_INST: {
     GOTO_NEXT_INST;
 }
 AND_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         and_inst* const inst_cream = (and_inst*)inst_base->component;
 
         u32 lop = RN;
@@ -1761,7 +1768,7 @@ AND_INST: {
     GOTO_NEXT_INST;
 }
 BBL_INST: {
-    if ((inst_base->cond == ConditionCode::AL) || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         bbl_inst* inst_cream = (bbl_inst*)inst_base->component;
         if (inst_cream->L) {
             LINK_RTN_ADDR;
@@ -1776,7 +1783,7 @@ BBL_INST: {
 }
 BIC_INST: {
     bic_inst* inst_cream = (bic_inst*)inst_base->component;
-    if ((inst_base->cond == ConditionCode::AL) || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         u32 lop = RN;
         if (inst_cream->Rn == 15) {
             lop += 2 * cpu->GetInstructionSize();
@@ -1805,7 +1812,7 @@ BIC_INST: {
     GOTO_NEXT_INST;
 }
 BKPT_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         bkpt_inst* const inst_cream = (bkpt_inst*)inst_base->component;
         LOG_DEBUG(Core_ARM11, "Breakpoint instruction hit. Immediate: {:#010X}", inst_cream->imm);
     }
@@ -1816,7 +1823,7 @@ BKPT_INST: {
 }
 BLX_INST: {
     blx_inst* inst_cream = (blx_inst*)inst_base->component;
-    if ((inst_base->cond == ConditionCode::AL) || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         unsigned int inst = inst_cream->inst;
         if (BITS(inst, 20, 27) == 0x12 && BITS(inst, 4, 7) == 0x3) {
             const u32 jump_address = cpu->Reg[inst_cream->val.Rm];
@@ -1851,7 +1858,7 @@ BXJ_INST: {
     //
     // This is sufficient for cytrus, as the CPU for the 3DS does not implement Jazelle.
 
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         bx_inst* const inst_cream = (bx_inst*)inst_base->component;
 
         u32 address = RM;
@@ -1871,7 +1878,7 @@ BXJ_INST: {
 }
 
 CDP_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         // Undefined instruction here
         cpu->NumInstrsToExecute = 0;
         return num_instrs;
@@ -1890,7 +1897,7 @@ CLREX_INST: {
     GOTO_NEXT_INST;
 }
 CLZ_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         clz_inst* inst_cream = (clz_inst*)inst_base->component;
         RD = clz(RM);
     }
@@ -1900,7 +1907,7 @@ CLZ_INST: {
     GOTO_NEXT_INST;
 }
 CMN_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         cmn_inst* const inst_cream = (cmn_inst*)inst_base->component;
 
         u32 rn_val = RN;
@@ -1922,7 +1929,7 @@ CMN_INST: {
     GOTO_NEXT_INST;
 }
 CMP_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         cmp_inst* const inst_cream = (cmp_inst*)inst_base->component;
 
         u32 rn_val = RN;
@@ -1975,7 +1982,7 @@ CPS_INST: {
     GOTO_NEXT_INST;
 }
 CPY_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         mov_inst* inst_cream = (mov_inst*)inst_base->component;
 
         RD = SHIFTER_OPERAND;
@@ -1990,7 +1997,7 @@ CPY_INST: {
     GOTO_NEXT_INST;
 }
 EOR_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         eor_inst* inst_cream = (eor_inst*)inst_base->component;
 
         u32 lop = RN;
@@ -2029,7 +2036,7 @@ LDC_INST: {
     GOTO_NEXT_INST;
 }
 LDM_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         ldst_inst* inst_cream = (ldst_inst*)inst_base->component;
         inst_cream->get_addr(cpu, inst_cream->inst, addr);
 
@@ -2100,7 +2107,7 @@ LDM_INST: {
     GOTO_NEXT_INST;
 }
 SXTH_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         sxth_inst* inst_cream = (sxth_inst*)inst_base->component;
 
         unsigned int operand2 = ROTATE_RIGHT_32(RM, 8 * inst_cream->rotate);
@@ -2158,7 +2165,7 @@ LDRCOND_INST: {
     GOTO_NEXT_INST;
 }
 UXTH_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         uxth_inst* inst_cream = (uxth_inst*)inst_base->component;
         RD = ROTATE_RIGHT_32(RM, 8 * inst_cream->rotate) & 0xffff;
     }
@@ -2168,7 +2175,7 @@ UXTH_INST: {
     GOTO_NEXT_INST;
 }
 UXTAH_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         uxtah_inst* inst_cream = (uxtah_inst*)inst_base->component;
         unsigned int operand2 = ROTATE_RIGHT_32(RM, 8 * inst_cream->rotate) & 0xffff;
 
@@ -2180,7 +2187,7 @@ UXTAH_INST: {
     GOTO_NEXT_INST;
 }
 LDRB_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         ldst_inst* inst_cream = (ldst_inst*)inst_base->component;
         inst_cream->get_addr(cpu, inst_cream->inst, addr);
 
@@ -2192,7 +2199,7 @@ LDRB_INST: {
     GOTO_NEXT_INST;
 }
 LDRBT_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         ldst_inst* inst_cream = (ldst_inst*)inst_base->component;
         inst_cream->get_addr(cpu, inst_cream->inst, addr);
 
@@ -2211,7 +2218,7 @@ LDRBT_INST: {
     GOTO_NEXT_INST;
 }
 LDRD_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         ldst_inst* inst_cream = (ldst_inst*)inst_base->component;
         // Should check if RD is even-numbered, Rd != 14, addr[0:1] == 0, (CP15_reg1_U == 1 ||
         // addr[2] == 0)
@@ -2231,7 +2238,7 @@ LDRD_INST: {
 }
 
 LDREX_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         generic_arm_inst* inst_cream = (generic_arm_inst*)inst_base->component;
         unsigned int read_addr = RN;
 
@@ -2245,7 +2252,7 @@ LDREX_INST: {
     GOTO_NEXT_INST;
 }
 LDREXB_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         generic_arm_inst* inst_cream = (generic_arm_inst*)inst_base->component;
         unsigned int read_addr = RN;
 
@@ -2259,7 +2266,7 @@ LDREXB_INST: {
     GOTO_NEXT_INST;
 }
 LDREXH_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         generic_arm_inst* inst_cream = (generic_arm_inst*)inst_base->component;
         unsigned int read_addr = RN;
 
@@ -2273,7 +2280,7 @@ LDREXH_INST: {
     GOTO_NEXT_INST;
 }
 LDREXD_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         generic_arm_inst* inst_cream = (generic_arm_inst*)inst_base->component;
         unsigned int read_addr = RN;
 
@@ -2288,7 +2295,7 @@ LDREXD_INST: {
     GOTO_NEXT_INST;
 }
 LDRH_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         ldst_inst* inst_cream = (ldst_inst*)inst_base->component;
         inst_cream->get_addr(cpu, inst_cream->inst, addr);
 
@@ -2300,7 +2307,7 @@ LDRH_INST: {
     GOTO_NEXT_INST;
 }
 LDRSB_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         ldst_inst* inst_cream = (ldst_inst*)inst_base->component;
         inst_cream->get_addr(cpu, inst_cream->inst, addr);
         unsigned int value = cpu->ReadMemory8(addr);
@@ -2315,7 +2322,7 @@ LDRSB_INST: {
     GOTO_NEXT_INST;
 }
 LDRSH_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         ldst_inst* inst_cream = (ldst_inst*)inst_base->component;
         inst_cream->get_addr(cpu, inst_cream->inst, addr);
 
@@ -2331,7 +2338,7 @@ LDRSH_INST: {
     GOTO_NEXT_INST;
 }
 LDRT_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         ldst_inst* inst_cream = (ldst_inst*)inst_base->component;
         inst_cream->get_addr(cpu, inst_cream->inst, addr);
 
@@ -2350,7 +2357,7 @@ LDRT_INST: {
     GOTO_NEXT_INST;
 }
 MCR_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         mcr_inst* inst_cream = (mcr_inst*)inst_base->component;
 
         unsigned int inst = inst_cream->inst;
@@ -2370,7 +2377,7 @@ MCR_INST: {
 MCRR_INST: {
     // Stubbed, as the MPCore doesn't have any registers that are accessible
     // through this instruction.
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         mcrr_inst* const inst_cream = (mcrr_inst*)inst_base->component;
 
         LOG_ERROR(Core_ARM11, "MCRR executed | Coprocessor: {}, CRm {}, opc1: {}, Rt: {}, Rt2: {}",
@@ -2385,7 +2392,7 @@ MCRR_INST: {
 }
 
 MLA_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         mla_inst* inst_cream = (mla_inst*)inst_base->component;
 
         u64 rm = RM;
@@ -2404,7 +2411,7 @@ MLA_INST: {
     GOTO_NEXT_INST;
 }
 MOV_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         mov_inst* inst_cream = (mov_inst*)inst_base->component;
 
         RD = SHIFTER_OPERAND;
@@ -2430,7 +2437,7 @@ MOV_INST: {
     GOTO_NEXT_INST;
 }
 MRC_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         mrc_inst* inst_cream = (mrc_inst*)inst_base->component;
 
         if (inst_cream->cp_num == 15) {
@@ -2453,7 +2460,7 @@ MRC_INST: {
 MRRC_INST: {
     // Stubbed, as the MPCore doesn't have any registers that are accessible
     // through this instruction.
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         mcrr_inst* const inst_cream = (mcrr_inst*)inst_base->component;
 
         LOG_ERROR(Core_ARM11, "MRRC executed | Coprocessor: {}, CRm {}, opc1: {}, Rt: {}, Rt2: {}",
@@ -2468,7 +2475,7 @@ MRRC_INST: {
 }
 
 MRS_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         mrs_inst* inst_cream = (mrs_inst*)inst_base->component;
 
         if (inst_cream->R) {
@@ -2484,7 +2491,7 @@ MRS_INST: {
     GOTO_NEXT_INST;
 }
 MSR_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         msr_inst* inst_cream = (msr_inst*)inst_base->component;
         const u32 UserMask = 0xf80f0200, PrivMask = 0x000001df, StateMask = 0x01000020;
         unsigned int inst = inst_cream->inst;
@@ -2527,7 +2534,7 @@ MSR_INST: {
     GOTO_NEXT_INST;
 }
 MUL_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         mul_inst* inst_cream = (mul_inst*)inst_base->component;
 
         u64 rm = RM;
@@ -2544,7 +2551,7 @@ MUL_INST: {
     GOTO_NEXT_INST;
 }
 MVN_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         mvn_inst* const inst_cream = (mvn_inst*)inst_base->component;
 
         RD = ~SHIFTER_OPERAND;
@@ -2571,7 +2578,7 @@ MVN_INST: {
     GOTO_NEXT_INST;
 }
 ORR_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         orr_inst* const inst_cream = (orr_inst*)inst_base->component;
 
         u32 lop = RN;
@@ -2612,7 +2619,7 @@ NOP_INST: {
 }
 
 PKHBT_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         pkh_inst* inst_cream = (pkh_inst*)inst_base->component;
         RD = (RN & 0xFFFF) | ((RM << inst_cream->imm) & 0xFFFF0000);
     }
@@ -2623,7 +2630,7 @@ PKHBT_INST: {
 }
 
 PKHTB_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         pkh_inst* inst_cream = (pkh_inst*)inst_base->component;
         int shift_imm = inst_cream->imm ? inst_cream->imm : 31;
         RD = ((static_cast<s32>(RM) >> shift_imm) & 0xFFFF) | (RN & 0xFFFF0000);
@@ -2647,7 +2654,7 @@ QADD_INST:
 QDADD_INST:
 QDSUB_INST:
 QSUB_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         generic_arm_inst* const inst_cream = (generic_arm_inst*)inst_base->component;
         const u8 op1 = inst_cream->op1;
         const u32 rm_val = RM;
@@ -2721,7 +2728,7 @@ QADDSUBX_INST:
 QSUB8_INST:
 QSUB16_INST:
 QSUBADDX_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         generic_arm_inst* const inst_cream = (generic_arm_inst*)inst_base->component;
         const u16 rm_lo = (RM & 0xFFFF);
         const u16 rm_hi = ((RM >> 16) & 0xFFFF);
@@ -2780,7 +2787,7 @@ REV_INST:
 REV16_INST:
 REVSH_INST: {
 
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         rev_inst* const inst_cream = (rev_inst*)inst_base->component;
 
         const u8 op1 = inst_cream->op1;
@@ -2825,7 +2832,7 @@ RFE_INST: {
 }
 
 RSB_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         rsb_inst* const inst_cream = (rsb_inst*)inst_base->component;
 
         u32 rn_val = RN;
@@ -2859,7 +2866,7 @@ RSB_INST: {
     GOTO_NEXT_INST;
 }
 RSC_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         rsc_inst* const inst_cream = (rsc_inst*)inst_base->component;
 
         u32 rn_val = RN;
@@ -2899,7 +2906,7 @@ SADD16_INST:
 SADDSUBX_INST:
 SSUBADDX_INST:
 SSUB16_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         generic_arm_inst* const inst_cream = (generic_arm_inst*)inst_base->component;
         const u8 op2 = inst_cream->op2;
 
@@ -3001,7 +3008,7 @@ SSUB16_INST: {
 }
 
 SBC_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         sbc_inst* const inst_cream = (sbc_inst*)inst_base->component;
 
         u32 rn_val = RN;
@@ -3036,7 +3043,7 @@ SBC_INST: {
 }
 
 SEL_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         generic_arm_inst* const inst_cream = (generic_arm_inst*)inst_base->component;
 
         const u32 to = RM;
@@ -3093,7 +3100,7 @@ SETEND_INST: {
 
 SEV_INST: {
     // Stubbed, as SEV is a hint instruction.
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         LOG_TRACE(Core_ARM11, "SEV executed.");
     }
 
@@ -3109,7 +3116,7 @@ SHADDSUBX_INST:
 SHSUB8_INST:
 SHSUB16_INST:
 SHSUBADDX_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         generic_arm_inst* const inst_cream = (generic_arm_inst*)inst_base->component;
 
         const u8 op2 = inst_cream->op2;
@@ -3175,7 +3182,7 @@ SHSUBADDX_INST: {
 }
 
 SMLA_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         smla_inst* inst_cream = (smla_inst*)inst_base->component;
         s32 operand1, operand2;
         if (inst_cream->x == 0)
@@ -3204,7 +3211,7 @@ SMLAD_INST:
 SMLSD_INST:
 SMUAD_INST:
 SMUSD_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         smlad_inst* const inst_cream = (smlad_inst*)inst_base->component;
         const u8 op2 = inst_cream->op2;
 
@@ -3260,7 +3267,7 @@ SMUSD_INST: {
 }
 
 SMLAL_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         umlal_inst* inst_cream = (umlal_inst*)inst_base->component;
         long long int rm = RM;
         long long int rs = RS;
@@ -3288,7 +3295,7 @@ SMLAL_INST: {
 }
 
 SMLALXY_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         smlalxy_inst* const inst_cream = (smlalxy_inst*)inst_base->component;
 
         u64 operand1 = RN;
@@ -3317,7 +3324,7 @@ SMLALXY_INST: {
 }
 
 SMLAW_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         smlad_inst* const inst_cream = (smlad_inst*)inst_base->component;
 
         const u32 rm_val = RM;
@@ -3342,7 +3349,7 @@ SMLAW_INST: {
 
 SMLALD_INST:
 SMLSLD_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         smlald_inst* const inst_cream = (smlald_inst*)inst_base->component;
 
         const bool do_swap = (inst_cream->swap == 1);
@@ -3380,7 +3387,7 @@ SMLSLD_INST: {
 SMMLA_INST:
 SMMLS_INST:
 SMMUL_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         smlad_inst* const inst_cream = (smlad_inst*)inst_base->component;
 
         const u32 rm_val = RM;
@@ -3413,7 +3420,7 @@ SMMUL_INST: {
 }
 
 SMUL_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         smul_inst* inst_cream = (smul_inst*)inst_base->component;
         u32 operand1, operand2;
         if (inst_cream->x == 0)
@@ -3433,7 +3440,7 @@ SMUL_INST: {
     GOTO_NEXT_INST;
 }
 SMULL_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         umull_inst* inst_cream = (umull_inst*)inst_base->component;
         s64 rm = RM;
         s64 rs = RS;
@@ -3459,7 +3466,7 @@ SMULL_INST: {
 }
 
 SMULW_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         smlad_inst* const inst_cream = (smlad_inst*)inst_base->component;
 
         s16 rm = (inst_cream->m == 1) ? ((RM >> 16) & 0xFFFF) : (RM & 0xFFFF);
@@ -3490,7 +3497,7 @@ SRS_INST: {
 }
 
 SSAT_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         ssat_inst* const inst_cream = (ssat_inst*)inst_base->component;
 
         u8 shift_type = inst_cream->shift_type;
@@ -3522,7 +3529,7 @@ SSAT_INST: {
 }
 
 SSAT16_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         ssat_inst* const inst_cream = (ssat_inst*)inst_base->component;
         const u8 saturate_to = inst_cream->sat_imm;
 
@@ -3551,7 +3558,7 @@ STC_INST: {
     GOTO_NEXT_INST;
 }
 STM_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         ldst_inst* inst_cream = (ldst_inst*)inst_base->component;
         unsigned int inst = inst_cream->inst;
 
@@ -3609,7 +3616,7 @@ STM_INST: {
     GOTO_NEXT_INST;
 }
 SXTB_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         sxtb_inst* inst_cream = (sxtb_inst*)inst_base->component;
 
         unsigned int operand2 = ROTATE_RIGHT_32(RM, 8 * inst_cream->rotate);
@@ -3626,7 +3633,7 @@ SXTB_INST: {
     GOTO_NEXT_INST;
 }
 STR_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         ldst_inst* inst_cream = (ldst_inst*)inst_base->component;
         inst_cream->get_addr(cpu, inst_cream->inst, addr);
 
@@ -3644,7 +3651,7 @@ STR_INST: {
     GOTO_NEXT_INST;
 }
 UXTB_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         uxtb_inst* inst_cream = (uxtb_inst*)inst_base->component;
         RD = ROTATE_RIGHT_32(RM, 8 * inst_cream->rotate) & 0xff;
     }
@@ -3654,7 +3661,7 @@ UXTB_INST: {
     GOTO_NEXT_INST;
 }
 UXTAB_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         uxtab_inst* inst_cream = (uxtab_inst*)inst_base->component;
 
         unsigned int operand2 = ROTATE_RIGHT_32(RM, 8 * inst_cream->rotate) & 0xff;
@@ -3666,7 +3673,7 @@ UXTAB_INST: {
     GOTO_NEXT_INST;
 }
 STRB_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         ldst_inst* inst_cream = (ldst_inst*)inst_base->component;
         inst_cream->get_addr(cpu, inst_cream->inst, addr);
         unsigned int value = cpu->Reg[BITS(inst_cream->inst, 12, 15)] & 0xff;
@@ -3678,7 +3685,7 @@ STRB_INST: {
     GOTO_NEXT_INST;
 }
 STRBT_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         ldst_inst* inst_cream = (ldst_inst*)inst_base->component;
         inst_cream->get_addr(cpu, inst_cream->inst, addr);
 
@@ -3695,7 +3702,7 @@ STRBT_INST: {
     GOTO_NEXT_INST;
 }
 STRD_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         ldst_inst* inst_cream = (ldst_inst*)inst_base->component;
         inst_cream->get_addr(cpu, inst_cream->inst, addr);
 
@@ -3710,7 +3717,7 @@ STRD_INST: {
     GOTO_NEXT_INST;
 }
 STREX_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         generic_arm_inst* inst_cream = (generic_arm_inst*)inst_base->component;
         unsigned int write_addr = cpu->Reg[inst_cream->Rn];
 
@@ -3729,7 +3736,7 @@ STREX_INST: {
     GOTO_NEXT_INST;
 }
 STREXB_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         generic_arm_inst* inst_cream = (generic_arm_inst*)inst_base->component;
         unsigned int write_addr = cpu->Reg[inst_cream->Rn];
 
@@ -3748,7 +3755,7 @@ STREXB_INST: {
     GOTO_NEXT_INST;
 }
 STREXD_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         generic_arm_inst* inst_cream = (generic_arm_inst*)inst_base->component;
         unsigned int write_addr = cpu->Reg[inst_cream->Rn];
 
@@ -3777,7 +3784,7 @@ STREXD_INST: {
     GOTO_NEXT_INST;
 }
 STREXH_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         generic_arm_inst* inst_cream = (generic_arm_inst*)inst_base->component;
         unsigned int write_addr = cpu->Reg[inst_cream->Rn];
 
@@ -3796,7 +3803,7 @@ STREXH_INST: {
     GOTO_NEXT_INST;
 }
 STRH_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         ldst_inst* inst_cream = (ldst_inst*)inst_base->component;
         inst_cream->get_addr(cpu, inst_cream->inst, addr);
 
@@ -3809,7 +3816,7 @@ STRH_INST: {
     GOTO_NEXT_INST;
 }
 STRT_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         ldst_inst* inst_cream = (ldst_inst*)inst_base->component;
         inst_cream->get_addr(cpu, inst_cream->inst, addr);
 
@@ -3830,7 +3837,7 @@ STRT_INST: {
     GOTO_NEXT_INST;
 }
 SUB_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         sub_inst* const inst_cream = (sub_inst*)inst_base->component;
 
         u32 rn_val = CHECK_READ_REG15_WA(cpu, inst_cream->Rn);
@@ -3862,7 +3869,7 @@ SUB_INST: {
     GOTO_NEXT_INST;
 }
 SWI_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         swi_inst* const inst_cream = (swi_inst*)inst_base->component;
         cpu->system.GetRunningCore().GetTimer().AddTicks(num_instrs);
         cpu->NumInstrsToExecute =
@@ -3879,7 +3886,7 @@ SWI_INST: {
     GOTO_NEXT_INST;
 }
 SWP_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         swp_inst* inst_cream = (swp_inst*)inst_base->component;
 
         addr = RN;
@@ -3894,7 +3901,7 @@ SWP_INST: {
     GOTO_NEXT_INST;
 }
 SWPB_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         swp_inst* inst_cream = (swp_inst*)inst_base->component;
         addr = RN;
         unsigned int value = cpu->ReadMemory8(addr);
@@ -3907,7 +3914,7 @@ SWPB_INST: {
     GOTO_NEXT_INST;
 }
 SXTAB_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         sxtab_inst* inst_cream = (sxtab_inst*)inst_base->component;
 
         unsigned int operand2 = ROTATE_RIGHT_32(RM, 8 * inst_cream->rotate) & 0xff;
@@ -3924,7 +3931,7 @@ SXTAB_INST: {
 
 SXTAB16_INST:
 SXTB16_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         sxtab_inst* const inst_cream = (sxtab_inst*)inst_base->component;
 
         const u8 rotation = inst_cream->rotate * 8;
@@ -3955,7 +3962,7 @@ SXTB16_INST: {
 }
 
 SXTAH_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         sxtah_inst* inst_cream = (sxtah_inst*)inst_base->component;
 
         unsigned int operand2 = ROTATE_RIGHT_32(RM, 8 * inst_cream->rotate) & 0xffff;
@@ -3970,7 +3977,7 @@ SXTAH_INST: {
 }
 
 TEQ_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         teq_inst* const inst_cream = (teq_inst*)inst_base->component;
 
         u32 lop = RN;
@@ -3991,7 +3998,7 @@ TEQ_INST: {
     GOTO_NEXT_INST;
 }
 TST_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         tst_inst* const inst_cream = (tst_inst*)inst_base->component;
 
         u32 lop = RN;
@@ -4018,7 +4025,7 @@ UADDSUBX_INST:
 USUB8_INST:
 USUB16_INST:
 USUBADDX_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         generic_arm_inst* const inst_cream = (generic_arm_inst*)inst_base->component;
 
         const u8 op2 = inst_cream->op2;
@@ -4188,7 +4195,7 @@ UHADDSUBX_INST:
 UHSUBADDX_INST:
 UHSUB8_INST:
 UHSUB16_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         generic_arm_inst* const inst_cream = (generic_arm_inst*)inst_base->component;
         const u32 rm_val = RM;
         const u32 rn_val = RN;
@@ -4261,7 +4268,7 @@ UHSUB16_INST: {
 }
 
 UMAAL_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         umaal_inst* const inst_cream = (umaal_inst*)inst_base->component;
         const u64 rm = RM;
         const u64 rn = RN;
@@ -4278,7 +4285,7 @@ UMAAL_INST: {
     GOTO_NEXT_INST;
 }
 UMLAL_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         umlal_inst* inst_cream = (umlal_inst*)inst_base->component;
         unsigned long long int rm = RM;
         unsigned long long int rs = RS;
@@ -4300,7 +4307,7 @@ UMLAL_INST: {
     GOTO_NEXT_INST;
 }
 UMULL_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         umull_inst* inst_cream = (umull_inst*)inst_base->component;
         unsigned long long int rm = RM;
         unsigned long long int rs = RS;
@@ -4368,7 +4375,7 @@ UQADDSUBX_INST:
 UQSUB8_INST:
 UQSUB16_INST:
 UQSUBADDX_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         generic_arm_inst* const inst_cream = (generic_arm_inst*)inst_base->component;
 
         const u8 op2 = inst_cream->op2;
@@ -4424,7 +4431,7 @@ UQSUBADDX_INST: {
 
 USAD8_INST:
 USADA8_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         generic_arm_inst* inst_cream = (generic_arm_inst*)inst_base->component;
 
         const u8 ra_idx = inst_cream->Ra;
@@ -4455,7 +4462,7 @@ USADA8_INST: {
 }
 
 USAT_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         ssat_inst* const inst_cream = (ssat_inst*)inst_base->component;
 
         u8 shift_type = inst_cream->shift_type;
@@ -4487,7 +4494,7 @@ USAT_INST: {
 }
 
 USAT16_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         ssat_inst* const inst_cream = (ssat_inst*)inst_base->component;
         const u8 saturate_to = inst_cream->sat_imm;
 
@@ -4509,7 +4516,7 @@ USAT16_INST: {
 
 UXTAB16_INST:
 UXTB16_INST: {
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         uxtab_inst* const inst_cream = (uxtab_inst*)inst_base->component;
 
         const u8 rn_idx = inst_cream->Rn;
@@ -4539,7 +4546,7 @@ UXTB16_INST: {
 
 WFE_INST: {
     // Stubbed, as WFE is a hint instruction.
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         LOG_TRACE(Core_ARM11, "WFE executed.");
     }
 
@@ -4551,7 +4558,7 @@ WFE_INST: {
 
 WFI_INST: {
     // Stubbed, as WFI is a hint instruction.
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         LOG_TRACE(Core_ARM11, "WFI executed.");
     }
 
@@ -4563,7 +4570,7 @@ WFI_INST: {
 
 YIELD_INST: {
     // Stubbed, as YIELD is a hint instruction.
-    if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
+    if (CondPassedOrAL(cpu, inst_base->cond)) {
         LOG_TRACE(Core_ARM11, "YIELD executed.");
     }
 

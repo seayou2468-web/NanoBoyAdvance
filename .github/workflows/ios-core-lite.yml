@@ -1,0 +1,52 @@
+name: iOS Core Lite Build
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  build-ios-core:
+    runs-on: macos-latest
+    env:
+      IOS_TARGET: "26.0"
+      XCODE_REQUIRED: "26.1.1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode 26.1.1 when available
+        shell: bash
+        run: |
+          set -euo pipefail
+          CANDIDATE="/Applications/Xcode_${XCODE_REQUIRED}.app/Contents/Developer"
+          if [[ -d "$CANDIDATE" ]]; then
+            sudo xcode-select -s "$CANDIDATE"
+          else
+            echo "::warning::Xcode ${XCODE_REQUIRED} was not preinstalled on this runner. Using default Xcode."
+          fi
+          xcodebuild -version
+
+      - name: Build NanoBoyAdvance interpreter core (iOS SDK)
+        shell: bash
+        run: |
+          set -euo pipefail
+          SDK_PATH="$(xcrun --sdk iphoneos --show-sdk-path)"
+          CC_BIN="$(xcrun --sdk iphoneos -f clang)"
+          CXX_BIN="$(xcrun --sdk iphoneos -f clang++)"
+          AR_BIN="$(xcrun --sdk iphoneos -f ar)"
+
+          make clean
+          make ios-libnba \
+            BUILD_DIR=build-ios \
+            CC="$CC_BIN" \
+            CXX="$CXX_BIN" \
+            AR="$AR_BIN" \
+            CFLAGS="-O3 -flto -ffast-math -std=c11 -Wall -Wextra -Wpedantic -target arm64-apple-ios${IOS_TARGET} -isysroot ${SDK_PATH}" \
+            CXXFLAGS="-O3 -flto -ffast-math -std=c++20 -Wall -Wextra -Wpedantic -ffunction-sections -fdata-sections -DMELONDS_VERSION=\"nba\" -Isrc/core/melonds/teakra/include -target arm64-apple-ios${IOS_TARGET} -isysroot ${SDK_PATH}" \
+            CORE_DEFINES="-DCORE_ENABLE_GBA=1 -DCORE_ENABLE_NES=0 -DCORE_ENABLE_GB=0 -DCORE_ENABLE_NDS=1 -DCORE_ENABLE_3DS=1 -DCITRA_LITE_DISABLE_STATE_CHEATS=1"
+
+      - name: Upload iOS core artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-core-lite
+          path: build-ios/libnba.a
