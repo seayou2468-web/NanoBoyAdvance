@@ -17,9 +17,7 @@
 #ifdef USER_DIR
 #define EMU_DATA_DIR USER_DIR
 #else
-#ifdef _WIN32
-#define EMU_DATA_DIR "Cytrus"
-#elif defined(__APPLE__)
+#if defined(__APPLE__)
 #include <TargetConditionals.h>
 #if TARGET_OS_IPHONE
 #define APPLE_EMU_DATA_DIR "Documents" DIR_SEP "3DS"//Manic修改
