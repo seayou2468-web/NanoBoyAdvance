@@ -537,8 +537,6 @@ struct Values {
     bool record_frame_times;
     std::unordered_map<std::string, bool> lle_modules;
     Setting<bool> delay_start_for_lle_modules{true, "delay_start_for_lle_modules"};
-    Setting<bool> use_gdbstub{false, "use_gdbstub"};
-    Setting<u16> gdbstub_port{24689, "gdbstub_port"};
 
     // Miscellaneous
     Setting<std::string> log_filter{"*:Info", "log_filter"};

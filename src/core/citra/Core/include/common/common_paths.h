@@ -42,7 +42,6 @@
 #define SDMC_DIR "sdmc"
 #define NAND_DIR "nand"
 #define SYSDATA_DIR "sysdata"
-#define LOG_DIR "log"
 #define CHEATS_DIR "cheats"
 #define DLL_DIR "external_dlls"
 #define SHADER_DIR "shaders"
@@ -53,12 +52,8 @@
 
 // Filenames
 // Files in the directory returned by GetUserPath(UserPath::LogDir)
-#define LOG_FILE "manic_log.txt"//Manic修改
-
 // Files in the directory returned by GetUserPath(UserPath::ConfigDir)
 #define EMU_CONFIG "emu.ini"
-#define DEBUGGER_CONFIG "debugger.ini"
-#define LOGGER_CONFIG "logger.ini"
 
 // Sys files
 #define SHARED_FONT "shared_font.bin"

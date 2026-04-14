@@ -252,8 +252,6 @@ void Configuration::ReadValues() {
     Settings::values.log_filter = "*:Critical";
     Settings::values.record_frame_times = false;
     Settings::values.renderer_debug = false;
-    Settings::values.use_gdbstub = false;
-    Settings::values.gdbstub_port = 0;
 
     // Web Service
     NetSettings::values.enable_telemetry =

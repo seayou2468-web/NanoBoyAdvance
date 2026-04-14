@@ -21,7 +21,6 @@
 #include "../include/core/core.h"
 #include "../include/core/core_timing.h"
 #include "../include/core/frontend/image_interface.h"
-#include "core/gdbstub/gdbstub.h"
 #include "../include/core/global.h"
 #include "../include/core/hle/kernel/kernel.h"
 #include "../include/core/hle/kernel/process.h"
@@ -74,23 +73,6 @@ System::ResultStatus System::RunLoop(bool tight_loop) {
         return ResultStatus::ErrorNotInitialized;
     }
 
-    if (GDBStub::IsServerEnabled()) {
-        Kernel::Thread* thread = kernel->GetCurrentThreadManager().GetCurrentThread();
-        if (thread && running_core) {
-            running_core->SaveContext(thread->context);
-        }
-        GDBStub::HandlePacket(*this);
-
-        // If the loop is halted and we want to step, use a tiny (1) number of instructions to
-        // execute. Otherwise, get out of the loop function.
-        if (GDBStub::GetCpuHaltFlag()) {
-            if (GDBStub::GetCpuStepFlag()) {
-                tight_loop = false;
-            } else {
-                return ResultStatus::Success;
-            }
-        }
-    }
 
     Signal signal{Signal::None};
     u32 param{};
@@ -222,9 +204,6 @@ System::ResultStatus System::RunLoop(bool tight_loop) {
         }
     }
 
-    if (GDBStub::IsServerEnabled()) {
-        GDBStub::SetCpuStepFlag(false);
-    }
 
     Reschedule();
 
@@ -428,7 +407,6 @@ System::ResultStatus System::Init(Frontend::EmuWindow& emu_window,
 
     HW::AES::InitKeys();
     Service::Init(*this);
-    GDBStub::DeferStart();
 
     if (!registered_image_interface) {
         registered_image_interface = std::make_shared<Frontend::ImageInterface>();
@@ -555,7 +533,6 @@ void System::Shutdown(bool is_deserializing) {
 
     gpu.reset();
     if (!is_deserializing) {
-        GDBStub::Shutdown();
         perf_stats.reset();
         app_loader.reset();
     }
@@ -610,8 +587,6 @@ void System::Reset() {
 }
 
 void System::ApplySettings() {
-    GDBStub::SetServerPort(Settings::values.gdbstub_port.GetValue());
-    GDBStub::ToggleServer(Settings::values.use_gdbstub.GetValue());
 
     if (gpu) {
 #ifndef ANDROID
