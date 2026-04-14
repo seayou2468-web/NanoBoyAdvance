@@ -24,11 +24,6 @@ enum class ScreenId : u32 {
 };
 
 struct RendererSettings {
-    // Screenshot
-    std::atomic_bool screenshot_requested{false};
-    void* screenshot_bits{};
-    std::function<void(bool)> screenshot_complete_callback;
-    Layout::FramebufferLayout screenshot_framebuffer_layout;
     // Renderer
     std::atomic_bool bg_color_update_requested{false};
     std::atomic_bool shader_update_requested{false};
@@ -98,10 +93,8 @@ public:
         return settings;
     }
 
-    /// Returns true if a screenshot is being processed
+    /// Screenshot is disabled for this build.
     [[nodiscard]] bool IsScreenshotPending() const;
-
-    /// Request a screenshot of the next frame
     void RequestScreenshot(void* data, std::function<void(bool)> callback,
                            const Layout::FramebufferLayout& layout);
 
