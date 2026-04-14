@@ -162,7 +162,7 @@ System::ResultStatus System::RunLoop(bool tight_loop) {
         }
     }
 
-    // jit sometimes overshoot by a few ticks which might lead to a minimal desync in the cores.
+    // The CPU core can overshoot by a few ticks which might lead to a minimal desync in cores.
     // This small difference shouldn't make it necessary to sync the cores and would only cost
     // performance. Thus we don't sync delays below min_delay
     static constexpr s64 min_delay = 100;

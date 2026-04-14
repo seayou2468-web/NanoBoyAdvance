@@ -129,8 +129,6 @@ void TelemetrySession::AddInitialInfo(Loader::AppLoader& app_loader) {
              static_cast<int>(Settings::values.output_type.GetValue()));
     AddField(Telemetry::FieldType::UserConfig, "Audio_EnableAudioStretching",
              Settings::values.enable_audio_stretching.GetValue());
-    AddField(Telemetry::FieldType::UserConfig, "Core_UseCpuJit",
-             Settings::values.use_cpu_jit.GetValue());
     AddField(Telemetry::FieldType::UserConfig, "Renderer_ResolutionFactor",
              Settings::values.resolution_factor.GetValue());
     AddField(Telemetry::FieldType::UserConfig, "Renderer_FrameLimit",
@@ -141,8 +139,6 @@ void TelemetrySession::AddInitialInfo(Loader::AppLoader& app_loader) {
              Settings::values.use_hw_shader.GetValue());
     AddField(Telemetry::FieldType::UserConfig, "Renderer_ShadersAccurateMul",
              Settings::values.shaders_accurate_mul.GetValue());
-    AddField(Telemetry::FieldType::UserConfig, "Renderer_UseShaderJit",
-             Settings::values.use_shader_jit.GetValue());
     AddField(Telemetry::FieldType::UserConfig, "Renderer_UseVsync",
              Settings::values.use_vsync_new.GetValue());
     AddField(Telemetry::FieldType::UserConfig, "Renderer_FilterMode",

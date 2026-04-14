@@ -126,7 +126,6 @@ void Configuration::ReadValues() {
                                                  InputCommon::CemuhookUDP::DEFAULT_PORT));
 
     // Core execution mode is fixed to interpreter-only.
-    Settings::values.use_cpu_jit = false;
     ReadSetting("Core", Settings::values.cpu_clock_percentage);
 
     // Renderer
@@ -148,7 +147,6 @@ void Configuration::ReadValues() {
     // Software-only renderer policy for iOS bridge.
     Settings::values.graphics_api = Settings::GraphicsAPI::Software;
     Settings::values.use_hw_shader = false;
-    Settings::values.use_shader_jit = false;
     Settings::values.async_shader_compilation = false;
     Settings::values.spirv_shader_gen = false;
     Settings::values.use_disk_shader_cache = false;
