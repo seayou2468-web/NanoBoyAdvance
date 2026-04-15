@@ -32,6 +32,11 @@ public:
     /// Releases (dunno if this is the "right" word) the GLFW context from the caller thread
     virtual void DoneCurrent() = 0;
 
+    /// Returns a platform-native rendering layer when available (ex: CAMetalLayer* on Apple).
+    virtual void* GetNativeLayer() const {
+        return nullptr;
+    }
+
     Config GetConfig() const { 
         return m_config;
     }

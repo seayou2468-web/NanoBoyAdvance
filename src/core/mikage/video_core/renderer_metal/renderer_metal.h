@@ -12,6 +12,8 @@ public:
     void ShutDown() override;
 
 private:
+    bool InitializeMetalResources();
+    void PresentFrame() override;
+
     bool m_metal_available;
 };
-

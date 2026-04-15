@@ -1,5 +1,6 @@
 #pragma once
 
+#include <chrono>
 #include <vector>
 
 #include "common/common.h"
@@ -9,7 +10,7 @@
 class RendererSoftware : virtual public RendererBase {
 public:
     RendererSoftware();
-    ~RendererSoftware();
+    ~RendererSoftware() override;
 
     void SwapBuffers() override;
     void SetWindow(EmuWindow* window) override;
@@ -22,8 +23,18 @@ public:
 
 private:
     void UploadFramebuffers();
+    void UpdateFramerate();
+
+protected:
+    virtual void PresentFrame();
+    const std::vector<u8>& GetFrameBufferRGBA() const {
+        return m_framebuffer_rgba;
+    }
 
     EmuWindow* m_render_window;
-    std::vector<u8> m_framebuffer_rgba;
-};
 
+private:
+    std::vector<u8> m_framebuffer_rgba;
+    std::chrono::steady_clock::time_point m_last_fps_tick;
+    int m_frames_since_tick;
+};
