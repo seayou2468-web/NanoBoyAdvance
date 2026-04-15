@@ -5,6 +5,7 @@
 #include "../common/common_types.h"
 #include "../common/file_util.h"
 #include <array>
+#include <cstddef>
 #include <cstring>
 #include <vector>
 
@@ -156,9 +157,11 @@ constexpr u32 kNCSDPartitionTableOffset = 0x120;
 constexpr u32 kNCSDPartitionCount = 8;
 constexpr u32 kNCCHExeFSOffsetOffset = 0x1A0;
 constexpr u32 kNCCHExeFSSizeOffset = 0x1A4;
-constexpr u32 kExeFSHeaderSize = 0x200;
 constexpr u32 kNCCHExHeaderOffset = 0x200;
+constexpr u32 kNCCHExHeaderFlagsOffset = 0x0D;
+constexpr u32 kExeFSHeaderSize = 0x200;
 constexpr u32 kExHeaderTextAddressOffset = 0x10;
+constexpr size_t kExeFSEntryCount = 8;
 
 constexpr u32 MakeMagic(char a, char b, char c, char d) {
     return static_cast<u32>(a) |
@@ -173,11 +176,108 @@ struct ExeFSEntry {
     u32 size;
 };
 
+struct CIAHeader {
+    u32 header_size;
+    u16 type;
+    u16 version;
+    u32 cert_chain_size;
+    u32 ticket_size;
+    u32 tmd_size;
+    u32 meta_size;
+    u64 content_size;
+};
+
+u64 AlignUp64(u64 value, u64 alignment) {
+    if (alignment == 0) {
+        return value;
+    }
+    const u64 remainder = value % alignment;
+    if (remainder == 0) {
+        return value;
+    }
+    return value + (alignment - remainder);
+}
+
+size_t LZSSGetDecompressedSize(const std::vector<u8>& buffer) {
+    if (buffer.size() < sizeof(u32)) {
+        return 0;
+    }
+    u32 offset_size = 0;
+    std::memcpy(&offset_size, buffer.data() + buffer.size() - sizeof(u32), sizeof(u32));
+    return static_cast<size_t>(offset_size) + buffer.size();
+}
+
+bool LZSSDecompress(const std::vector<u8>& compressed, std::vector<u8>& decompressed) {
+    if (compressed.size() < 8 || decompressed.empty()) {
+        return false;
+    }
+
+    const u8* footer = compressed.data() + compressed.size() - 8;
+    u32 buffer_top_and_bottom = 0;
+    std::memcpy(&buffer_top_and_bottom, footer, sizeof(u32));
+
+    size_t out = decompressed.size();
+    size_t index = compressed.size() - ((buffer_top_and_bottom >> 24) & 0xFF);
+    const size_t stop_index = compressed.size() - (buffer_top_and_bottom & 0xFFFFFF);
+
+    if (index > compressed.size() || stop_index > compressed.size()) {
+        return false;
+    }
+
+    std::memset(decompressed.data(), 0, decompressed.size());
+    std::memcpy(decompressed.data(), compressed.data(), compressed.size());
+
+    while (index > stop_index) {
+        u8 control = compressed[--index];
+        for (unsigned i = 0; i < 8; i++) {
+            if (index <= stop_index || index == 0 || out == 0) {
+                break;
+            }
+
+            if ((control & 0x80) != 0) {
+                if (index < 2) {
+                    return false;
+                }
+                index -= 2;
+
+                u32 segment_offset = compressed[index] | (compressed[index + 1] << 8);
+                u32 segment_size = ((segment_offset >> 12) & 15) + 3;
+                segment_offset = (segment_offset & 0x0FFF) + 2;
+
+                if (out < segment_size) {
+                    return false;
+                }
+
+                for (unsigned j = 0; j < segment_size; j++) {
+                    if (out + segment_offset >= decompressed.size()) {
+                        return false;
+                    }
+                    decompressed[--out] = decompressed[out + segment_offset];
+                }
+            } else {
+                if (out < 1 || index < 1) {
+                    return false;
+                }
+                decompressed[--out] = compressed[--index];
+            }
+            control <<= 1;
+        }
+    }
+    return true;
+}
+
 bool ReadU32At(File::IOFile& file, u64 offset, u32& out) {
     if (!file.Seek(static_cast<s64>(offset), SEEK_SET)) {
         return false;
     }
     return file.ReadArray<u32>(&out, 1);
+}
+
+bool ReadCIAHeader(File::IOFile& file, CIAHeader& out_header) {
+    if (!file.Seek(0, SEEK_SET)) {
+        return false;
+    }
+    return file.ReadBytes(&out_header, sizeof(out_header));
 }
 
 bool LoadCodeFromNCCH(File::IOFile& file, u64 ncch_offset, std::string* error_string) {
@@ -196,7 +296,7 @@ bool LoadCodeFromNCCH(File::IOFile& file, u64 ncch_offset, std::string* error_st
 
     const u64 exefs_offset = ncch_offset + static_cast<u64>(exefs_offset_units) * kMediaUnitSize;
     const u64 exefs_size_bytes = static_cast<u64>(exefs_size_units) * kMediaUnitSize;
-    std::array<ExeFSEntry, 10> entries{};
+    std::array<ExeFSEntry, kExeFSEntryCount> entries{};
     if (!file.Seek(static_cast<s64>(exefs_offset), SEEK_SET) ||
         !file.ReadBytes(entries.data(), sizeof(entries))) {
         if (error_string) *error_string = "Failed to read ExeFS header";
@@ -230,6 +330,20 @@ bool LoadCodeFromNCCH(File::IOFile& file, u64 ncch_offset, std::string* error_st
         !file.ReadBytes(code.data(), code.size())) {
         if (error_string) *error_string = "Failed to read ExeFS .code data";
         return false;
+    }
+
+    u8 exheader_flag = 0;
+    const bool has_flags =
+        file.Seek(static_cast<s64>(ncch_offset + kNCCHExHeaderOffset + kNCCHExHeaderFlagsOffset), SEEK_SET) &&
+        file.ReadBytes(&exheader_flag, sizeof(exheader_flag));
+    const bool is_compressed_code = has_flags && ((exheader_flag & 0x1) != 0);
+    if (is_compressed_code) {
+        std::vector<u8> decompressed(LZSSGetDecompressedSize(code));
+        if (decompressed.empty() || !LZSSDecompress(code, decompressed)) {
+            if (error_string) *error_string = "Failed to decompress ExeFS .code section";
+            return false;
+        }
+        code = std::move(decompressed);
     }
 
     u32 entry_point = 0x00100000;
@@ -297,6 +411,39 @@ bool LoadCCI(const std::string& filename, std::string* error_string) {
     }
     if (error_string) *error_string = "NCSD executable NCCH partition not found";
     return false;
+}
+
+bool LoadCIA(const std::string& filename, std::string* error_string) {
+    File::IOFile file(filename, "rb");
+    if (!file.IsOpen()) {
+        if (error_string) *error_string = "Failed to open CIA file";
+        return false;
+    }
+
+    CIAHeader cia{};
+    if (!ReadCIAHeader(file, cia)) {
+        if (error_string) *error_string = "Failed to read CIA header";
+        return false;
+    }
+
+    if (cia.header_size < sizeof(CIAHeader) || cia.content_size == 0) {
+        if (error_string) *error_string = "Invalid CIA header";
+        return false;
+    }
+
+    u64 section_offset = AlignUp64(cia.header_size, 64);
+    section_offset += AlignUp64(cia.cert_chain_size, 64);
+    section_offset += AlignUp64(cia.ticket_size, 64);
+    section_offset += AlignUp64(cia.tmd_size, 64);
+
+    u32 magic = 0;
+    if (!ReadU32At(file, section_offset + 0x100, magic) ||
+        magic != MakeMagic('N', 'C', 'C', 'H')) {
+        if (error_string) *error_string = "CIA first content is not a bootable NCCH";
+        return false;
+    }
+
+    return LoadCodeFromNCCH(file, section_offset, error_string);
 }
 
 FileType GuessFromExtension(const std::string& filename) {
@@ -444,6 +591,8 @@ bool LoadFile(std::string &filename, std::string *error_string) {
         return LoadCXI(filename, error_string);
 
     case FILETYPE_CTR_CIA:
+        return LoadCIA(filename, error_string);
+
     case FILETYPE_THREEDSX:
         *error_string = "CIA/3DSX loader is not integrated yet";
         break;

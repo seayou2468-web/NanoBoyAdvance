@@ -7,6 +7,7 @@
 #include "../core_adapter.hpp"
 
 #include <algorithm>
+#include <cctype>
 #include <cstring>
 #include <exception>
 #include <filesystem>
@@ -72,6 +73,40 @@ bool EnsureInitialized(MikageRuntime* runtime, std::string& last_error) {
   }
 }
 
+int DecodeHexNibble(char c) {
+  if (c >= '0' && c <= '9') return c - '0';
+  c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+  if (c >= 'a' && c <= 'f') return 10 + (c - 'a');
+  return -1;
+}
+
+std::string DecodeFileUrlPath(std::string path) {
+  std::string decoded;
+  decoded.reserve(path.size());
+  for (size_t i = 0; i < path.size(); ++i) {
+    if (path[i] == '%' && (i + 2) < path.size()) {
+      const int hi = DecodeHexNibble(path[i + 1]);
+      const int lo = DecodeHexNibble(path[i + 2]);
+      if (hi >= 0 && lo >= 0) {
+        decoded.push_back(static_cast<char>((hi << 4) | lo));
+        i += 2;
+        continue;
+      }
+    }
+    decoded.push_back(path[i]);
+  }
+  return decoded;
+}
+
+void ResetSystemForFreshBoot(MikageRuntime* runtime) {
+  if (!runtime || !runtime->initialized) {
+    return;
+  }
+  System::Shutdown();
+  runtime->initialized = false;
+  runtime->rom_loaded = false;
+}
+
 bool LoadRomFromPath(void* opaque_runtime, const char* rom_path, std::string& last_error) {
   auto* runtime = static_cast<MikageRuntime*>(opaque_runtime);
   if (!runtime || !rom_path || rom_path[0] == '\0') {
@@ -82,6 +117,10 @@ bool LoadRomFromPath(void* opaque_runtime, const char* rom_path, std::string& la
   std::string path = rom_path;
   if (path.rfind("file://", 0) == 0) {
     path = path.substr(7);
+    if (path.rfind("localhost/", 0) == 0) {
+      path = path.substr(std::strlen("localhost"));
+    }
+    path = DecodeFileUrlPath(path);
   }
 
   const std::filesystem::path fs_path(path);
@@ -89,6 +128,10 @@ bool LoadRomFromPath(void* opaque_runtime, const char* rom_path, std::string& la
   if (!std::filesystem::exists(fs_path, ec) || !std::filesystem::is_regular_file(fs_path, ec)) {
     last_error = "3DS ROM path does not exist or is not a file";
     return false;
+  }
+
+  if (runtime->rom_loaded) {
+    ResetSystemForFreshBoot(runtime);
   }
 
   if (!EnsureInitialized(runtime, last_error)) {
