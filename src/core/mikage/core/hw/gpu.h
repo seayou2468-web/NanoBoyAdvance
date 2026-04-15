@@ -8,6 +8,26 @@
 
 namespace GPU {
 
+enum class PixelFormat : u32 {
+    RGBA8 = 0,
+    RGB8 = 1,
+    RGB565 = 2,
+    RGB5A1 = 3,
+    RGBA4 = 4,
+};
+
+struct FramebufferConfig {
+    u32 left_address_1 = 0;
+    u32 left_address_2 = 0;
+    u32 right_address_1 = 0;
+    u32 right_address_2 = 0;
+    u32 stride_bytes = 0;
+    u32 width = 0;
+    u32 height = 0;
+    PixelFormat format = PixelFormat::RGB8;
+    u32 active_fb = 0;
+};
+
 struct Registers {
     enum Id : u32 {
         FramebufferTopLeft1     = 0x1EF00468,   // Main LCD, first framebuffer for 3D left
@@ -36,6 +56,9 @@ struct Registers {
     u32 command_list_size;
     u32 command_list_address;
     u32 command_processing_enabled;
+
+    FramebufferConfig top_config;
+    FramebufferConfig bottom_config;
 };
 
 extern Registers g_regs;
@@ -86,6 +109,12 @@ void SetFramebufferLocation(const FramebufferLocation mode);
  * @return Returns const pointer to raw framebuffer
  */
 const u8* GetFramebufferPointer(const u32 address);
+
+/// Gets top-screen software scanout configuration.
+const FramebufferConfig& GetTopFramebufferConfig();
+
+/// Gets bottom-screen software scanout configuration.
+const FramebufferConfig& GetBottomFramebufferConfig();
 
 /**
  * Gets the location of the framebuffers

@@ -4,6 +4,9 @@
 
 #include "../common/common_types.h"
 #include "../common/file_util.h"
+#include <array>
+#include <cstring>
+#include <vector>
 
 #include "loader.h"
 #include "system.h"
@@ -146,6 +149,196 @@ bool Load_BIN(std::string &filename) {
 
 namespace Loader {
 
+namespace {
+
+constexpr u32 kMediaUnitSize = 0x200;
+constexpr u32 kNCSDPartitionTableOffset = 0x120;
+constexpr u32 kNCCHExeFSOffsetOffset = 0x1A0;
+constexpr u32 kNCCHExeFSSizeOffset = 0x1A4;
+constexpr u32 kExeFSHeaderSize = 0x200;
+
+constexpr u32 MakeMagic(char a, char b, char c, char d) {
+    return static_cast<u32>(a) |
+           (static_cast<u32>(b) << 8) |
+           (static_cast<u32>(c) << 16) |
+           (static_cast<u32>(d) << 24);
+}
+
+struct ExeFSEntry {
+    char name[8];
+    u32 offset;
+    u32 size;
+};
+
+bool ReadU32At(File::IOFile& file, u64 offset, u32& out) {
+    if (!file.Seek(static_cast<s64>(offset), SEEK_SET)) {
+        return false;
+    }
+    return file.ReadArray<u32>(&out, 1);
+}
+
+bool LoadCodeFromNCCH(File::IOFile& file, u64 ncch_offset, std::string* error_string) {
+    u32 exefs_offset_units = 0;
+    u32 exefs_size_units = 0;
+    if (!ReadU32At(file, ncch_offset + kNCCHExeFSOffsetOffset, exefs_offset_units) ||
+        !ReadU32At(file, ncch_offset + kNCCHExeFSSizeOffset, exefs_size_units)) {
+        if (error_string) *error_string = "Failed to read NCCH ExeFS metadata";
+        return false;
+    }
+
+    if (exefs_offset_units == 0 || exefs_size_units == 0) {
+        if (error_string) *error_string = "NCCH ExeFS section is missing";
+        return false;
+    }
+
+    const u64 exefs_offset = ncch_offset + static_cast<u64>(exefs_offset_units) * kMediaUnitSize;
+    std::array<ExeFSEntry, 10> entries{};
+    if (!file.Seek(static_cast<s64>(exefs_offset), SEEK_SET) ||
+        !file.ReadBytes(entries.data(), sizeof(entries))) {
+        if (error_string) *error_string = "Failed to read ExeFS header";
+        return false;
+    }
+
+    ExeFSEntry code_entry{};
+    bool found_code = false;
+    for (const auto& entry : entries) {
+        if (std::strncmp(entry.name, ".code", 5) == 0) {
+            code_entry = entry;
+            found_code = true;
+            break;
+        }
+    }
+    if (!found_code) {
+        if (error_string) *error_string = "ExeFS .code section not found (possibly encrypted)";
+        return false;
+    }
+
+    const u64 code_file_offset = exefs_offset + kExeFSHeaderSize + static_cast<u64>(code_entry.offset);
+    std::vector<u8> code(static_cast<size_t>(code_entry.size));
+    if (!file.Seek(static_cast<s64>(code_file_offset), SEEK_SET) ||
+        !file.ReadBytes(code.data(), code.size())) {
+        if (error_string) *error_string = "Failed to read ExeFS .code data";
+        return false;
+    }
+
+    constexpr u32 kLegacyEntryPoint = 0x00100000;
+    u8* dst = Memory::GetPointer(kLegacyEntryPoint);
+    if (!dst) {
+        if (error_string) *error_string = "Failed to map load destination for NCCH code";
+        return false;
+    }
+
+    std::memcpy(dst, code.data(), code.size());
+    Kernel::LoadExec(kLegacyEntryPoint);
+    return true;
+}
+
+bool LoadCXI(const std::string& filename, std::string* error_string) {
+    File::IOFile file(filename, "rb");
+    if (!file.IsOpen()) {
+        if (error_string) *error_string = "Failed to open CXI file";
+        return false;
+    }
+    return LoadCodeFromNCCH(file, 0, error_string);
+}
+
+bool LoadCCI(const std::string& filename, std::string* error_string) {
+    File::IOFile file(filename, "rb");
+    if (!file.IsOpen()) {
+        if (error_string) *error_string = "Failed to open CCI file";
+        return false;
+    }
+
+    std::array<u32, 16> partition_entries{};
+    if (!file.Seek(kNCSDPartitionTableOffset, SEEK_SET) ||
+        !file.ReadArray<u32>(partition_entries.data(), partition_entries.size())) {
+        if (error_string) *error_string = "Failed to read NCSD partition table";
+        return false;
+    }
+
+    const u32 first_partition_offset_units = partition_entries[0];
+    if (first_partition_offset_units == 0) {
+        if (error_string) *error_string = "NCSD has no first partition";
+        return false;
+    }
+
+    const u64 ncch_offset = static_cast<u64>(first_partition_offset_units) * kMediaUnitSize;
+    return LoadCodeFromNCCH(file, ncch_offset, error_string);
+}
+
+FileType GuessFromExtension(const std::string& filename) {
+    if (filename.size() < 4) {
+        return FILETYPE_UNKNOWN;
+    }
+    std::string extension;
+    const size_t dot = filename.find_last_of('.');
+    if (dot != std::string::npos) {
+        extension = filename.substr(dot);
+    }
+
+    if (!strcasecmp(extension.c_str(), ".elf") || !strcasecmp(extension.c_str(), ".axf")) {
+        return FILETYPE_CTR_ELF;
+    }
+    if (!strcasecmp(extension.c_str(), ".bin")) {
+        return FILETYPE_CTR_BIN;
+    }
+    if (!strcasecmp(extension.c_str(), ".dat")) {
+        return FILETYPE_LAUNCHER_DAT;
+    }
+    if (!strcasecmp(extension.c_str(), ".3dsx")) {
+        return FILETYPE_THREEDSX;
+    }
+    if (!strcasecmp(extension.c_str(), ".3ds") || !strcasecmp(extension.c_str(), ".cci")) {
+        return FILETYPE_CTR_CCI;
+    }
+    if (!strcasecmp(extension.c_str(), ".cxi") || !strcasecmp(extension.c_str(), ".app")) {
+        return FILETYPE_CTR_CXI;
+    }
+    if (!strcasecmp(extension.c_str(), ".cia")) {
+        return FILETYPE_CTR_CIA;
+    }
+    if (!strcasecmp(extension.c_str(), ".zip")) {
+        return FILETYPE_ARCHIVE_ZIP;
+    }
+    if (!strcasecmp(extension.c_str(), ".rar") ||
+        !strcasecmp(extension.c_str(), ".r00") ||
+        !strcasecmp(extension.c_str(), ".r01")) {
+        return FILETYPE_ARCHIVE_RAR;
+    }
+    return FILETYPE_UNKNOWN;
+}
+
+FileType IdentifyByMagic(const std::string& filename) {
+    File::IOFile file(filename, "rb");
+    if (!file.IsOpen()) {
+        return FILETYPE_ERROR;
+    }
+
+    u32 magic = 0;
+    if (!file.Seek(0x100, SEEK_SET) || !file.ReadArray<u32>(&magic, 1)) {
+        return FILETYPE_ERROR;
+    }
+    if (magic == MakeMagic('N', 'C', 'S', 'D')) {
+        return FILETYPE_CTR_CCI;
+    }
+    if (magic == MakeMagic('N', 'C', 'C', 'H')) {
+        return FILETYPE_CTR_CXI;
+    }
+
+    if (!file.Seek(0, SEEK_SET) || !file.ReadArray<u32>(&magic, 1)) {
+        return FILETYPE_ERROR;
+    }
+    if (magic == MakeMagic('3', 'D', 'S', 'X')) {
+        return FILETYPE_THREEDSX;
+    }
+    if (magic == MakeMagic(0x20, 0x20, 0x00, 0x00) || magic == MakeMagic(0x7F, 'E', 'L', 'F')) {
+        return FILETYPE_CTR_ELF;
+    }
+    return FILETYPE_UNKNOWN;
+}
+
+} // namespace
+
 bool IsBootableDirectory() {
     ERROR_LOG(TIME, "Unimplemented function!");
     return true;
@@ -162,7 +355,6 @@ FileType IdentifyFile(std::string &filename) {
         ERROR_LOG(LOADER, "invalid filename %s", filename.c_str());
         return FILETYPE_ERROR;
     }
-    std::string extension = filename.size() >= 5 ? filename.substr(filename.size() - 4) : "";
 
     if (File::IsDirectory(filename)) {
         if (IsBootableDirectory()) {
@@ -172,31 +364,20 @@ FileType IdentifyFile(std::string &filename) {
             return FILETYPE_NORMAL_DIRECTORY;
         }
     }
-    else if (!strcasecmp(extension.c_str(), ".elf")) {
-        return FILETYPE_CTR_ELF; // TODO(bunnei): Do some filetype checking :p
+
+    const FileType guessed = GuessFromExtension(filename);
+    FileType identified = IdentifyByMagic(filename);
+    if (identified == FILETYPE_ERROR) {
+        identified = FILETYPE_UNKNOWN;
     }
-    else if (!strcasecmp(extension.c_str(), ".axf")) {
-        return FILETYPE_CTR_ELF; // TODO(bunnei): Do some filetype checking :p
+
+    if (identified == FILETYPE_UNKNOWN) {
+        return guessed;
     }
-    else if (!strcasecmp(extension.c_str(), ".bin")) {
-        return FILETYPE_CTR_BIN;
+    if (guessed != FILETYPE_UNKNOWN && guessed != identified && guessed != FILETYPE_CTR_CIA) {
+        WARN_LOG(LOADER, "File extension/type mismatch: ext=%d magic=%d", guessed, identified);
     }
-    else if (!strcasecmp(extension.c_str(), ".dat")) {
-        return FILETYPE_LAUNCHER_DAT;
-    }
-    else if (!strcasecmp(extension.c_str(), ".zip")) {
-        return FILETYPE_ARCHIVE_ZIP;
-    }
-    else if (!strcasecmp(extension.c_str(), ".rar")) {
-        return FILETYPE_ARCHIVE_RAR;
-    }
-    else if (!strcasecmp(extension.c_str(), ".r00")) {
-        return FILETYPE_ARCHIVE_RAR;
-    }
-    else if (!strcasecmp(extension.c_str(), ".r01")) {
-        return FILETYPE_ARCHIVE_RAR;
-    }
-    return FILETYPE_UNKNOWN;
+    return identified;
 }
 
 /**
@@ -222,6 +403,17 @@ bool LoadFile(std::string &filename, std::string *error_string) {
 
     case FILETYPE_DIRECTORY_CXI:
         return LoadDirectory_CXI(filename);
+
+    case FILETYPE_CTR_CCI:
+        return LoadCCI(filename, error_string);
+
+    case FILETYPE_CTR_CXI:
+        return LoadCXI(filename, error_string);
+
+    case FILETYPE_CTR_CIA:
+    case FILETYPE_THREEDSX:
+        *error_string = "CIA/3DSX loader is not integrated yet";
+        break;
 
     case FILETYPE_ERROR:
         ERROR_LOG(LOADER, "Could not read file");

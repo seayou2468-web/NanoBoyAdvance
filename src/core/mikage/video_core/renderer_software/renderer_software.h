@@ -5,6 +5,7 @@
 
 #include "../../common/common.h"
 #include "../../common/emu_window.h"
+#include "../../core/hw/gpu.h"
 #include "../renderer_base.h"
 
 class RendererSoftware : virtual public RendererBase {
@@ -21,15 +22,6 @@ public:
         return m_framebuffer_rgba;
     }
 
-public:
-    enum class PixelFormat {
-        RGBA8,
-        RGB8,
-        RGB565,
-        RGB5A1,
-        RGBA4,
-    };
-
 private:
     struct ScreenInfo {
         size_t width = 0;
@@ -43,7 +35,7 @@ private:
                             size_t width,
                             size_t height,
                             size_t pixel_stride,
-                            PixelFormat format);
+                            GPU::PixelFormat format);
 
     void UploadFramebuffers();
     void UpdateFramerate();

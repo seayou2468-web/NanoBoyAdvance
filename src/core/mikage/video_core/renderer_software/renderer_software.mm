@@ -52,31 +52,31 @@ inline RGBA DecodeRGBA4(const uint8_t* pixel) {
     return RGBA{r, g, b, a};
 }
 
-inline int BytesPerPixel(RendererSoftware::PixelFormat format) {
+inline int BytesPerPixel(GPU::PixelFormat format) {
     switch (format) {
-        case RendererSoftware::PixelFormat::RGBA8:
+        case GPU::PixelFormat::RGBA8:
             return 4;
-        case RendererSoftware::PixelFormat::RGB8:
+        case GPU::PixelFormat::RGB8:
             return 3;
-        case RendererSoftware::PixelFormat::RGB565:
-        case RendererSoftware::PixelFormat::RGB5A1:
-        case RendererSoftware::PixelFormat::RGBA4:
+        case GPU::PixelFormat::RGB565:
+        case GPU::PixelFormat::RGB5A1:
+        case GPU::PixelFormat::RGBA4:
             return 2;
     }
     return 3;
 }
 
-inline RGBA DecodePixel(RendererSoftware::PixelFormat format, const uint8_t* pixel) {
+inline RGBA DecodePixel(GPU::PixelFormat format, const uint8_t* pixel) {
     switch (format) {
-        case RendererSoftware::PixelFormat::RGBA8:
+        case GPU::PixelFormat::RGBA8:
             return DecodeRGBA8(pixel);
-        case RendererSoftware::PixelFormat::RGB8:
+        case GPU::PixelFormat::RGB8:
             return DecodeRGB8(pixel);
-        case RendererSoftware::PixelFormat::RGB565:
+        case GPU::PixelFormat::RGB565:
             return DecodeRGB565(pixel);
-        case RendererSoftware::PixelFormat::RGB5A1:
+        case GPU::PixelFormat::RGB5A1:
             return DecodeRGB5A1(pixel);
-        case RendererSoftware::PixelFormat::RGBA4:
+        case GPU::PixelFormat::RGBA4:
             return DecodeRGBA4(pixel);
     }
     return RGBA{0, 0, 0, 0xFF};
@@ -122,7 +122,7 @@ void RendererSoftware::LoadFBToScreenInfo(ScreenInfo& info,
                                           size_t width,
                                           size_t height,
                                           size_t pixel_stride,
-                                          RendererSoftware::PixelFormat format) {
+                                          GPU::PixelFormat format) {
     info.width = width;
     info.height = height;
     info.pixels.resize(width * height * 4);
@@ -149,37 +149,45 @@ void RendererSoftware::LoadFBToScreenInfo(ScreenInfo& info,
 }
 
 void RendererSoftware::PrepareRenderTarget() {
-    constexpr size_t top_width = static_cast<size_t>(VideoCore::kScreenTopWidth);
-    constexpr size_t top_height = static_cast<size_t>(VideoCore::kScreenTopHeight);
-    constexpr size_t bottom_width = static_cast<size_t>(VideoCore::kScreenBottomWidth);
-    constexpr size_t bottom_height = static_cast<size_t>(VideoCore::kScreenBottomHeight);
+    const GPU::FramebufferConfig& top = GPU::GetTopFramebufferConfig();
+    const GPU::FramebufferConfig& bottom = GPU::GetBottomFramebufferConfig();
+    const size_t top_width = top.width ? static_cast<size_t>(top.width) : static_cast<size_t>(VideoCore::kScreenTopWidth);
+    const size_t top_height = top.height ? static_cast<size_t>(top.height) : static_cast<size_t>(VideoCore::kScreenTopHeight);
+    const size_t bottom_width = bottom.width ? static_cast<size_t>(bottom.width) : static_cast<size_t>(VideoCore::kScreenBottomWidth);
+    const size_t bottom_height = bottom.height ? static_cast<size_t>(bottom.height) : static_cast<size_t>(VideoCore::kScreenBottomHeight);
+    const size_t top_bpp = static_cast<size_t>(BytesPerPixel(top.format));
+    const size_t bottom_bpp = static_cast<size_t>(BytesPerPixel(bottom.format));
+    const size_t top_stride = top.stride_bytes ? static_cast<size_t>(top.stride_bytes / top_bpp) : top_width;
+    const size_t bottom_stride = bottom.stride_bytes ? static_cast<size_t>(bottom.stride_bytes / bottom_bpp) : bottom_width;
 
-    // The legacy Mikage GPU path currently exposes framebuffers as RGB8 scanout buffers.
-    constexpr RendererSoftware::PixelFormat scanout_format = RendererSoftware::PixelFormat::RGB8;
+    const u32 top_left_address = top.active_fb == 0 ? top.left_address_1 : top.left_address_2;
+    const u32 top_right_address = top.active_fb == 0 ? top.right_address_1 : top.right_address_2;
+    const u32 bottom_left_address = bottom.active_fb == 0 ? bottom.left_address_1 : bottom.left_address_2;
+    const u32 top_right_or_left = top_right_address ? top_right_address : top_left_address;
 
     LoadFBToScreenInfo(
         m_screen_infos[0],
-        GPU::GetFramebufferPointer(GPU::g_regs.framebuffer_top_left_1),
+        GPU::GetFramebufferPointer(top_left_address),
         top_width,
         top_height,
-        top_width,
-        scanout_format);
+        top_stride,
+        top.format);
 
     LoadFBToScreenInfo(
         m_screen_infos[1],
-        GPU::GetFramebufferPointer(GPU::g_regs.framebuffer_top_right_1),
+        GPU::GetFramebufferPointer(top_right_or_left),
         top_width,
         top_height,
-        top_width,
-        scanout_format);
+        top_stride,
+        top.format);
 
     LoadFBToScreenInfo(
         m_screen_infos[2],
-        GPU::GetFramebufferPointer(GPU::g_regs.framebuffer_sub_left_1),
+        GPU::GetFramebufferPointer(bottom_left_address),
         bottom_width,
         bottom_height,
-        bottom_width,
-        scanout_format);
+        bottom_stride,
+        bottom.format);
 }
 
 void RendererSoftware::UploadFramebuffers() {
@@ -192,7 +200,8 @@ void RendererSoftware::UploadFramebuffers() {
     std::fill(m_framebuffer_rgba.begin(), m_framebuffer_rgba.end(), 0);
 
     if (!m_screen_infos[0].pixels.empty()) {
-        std::memcpy(m_framebuffer_rgba.data(), m_screen_infos[0].pixels.data(), m_screen_infos[0].pixels.size());
+        const size_t top_copy = std::min(m_framebuffer_rgba.size(), m_screen_infos[0].pixels.size());
+        std::memcpy(m_framebuffer_rgba.data(), m_screen_infos[0].pixels.data(), top_copy);
     }
 
     const size_t bottom_offset_y = top_height;
@@ -200,10 +209,12 @@ void RendererSoftware::UploadFramebuffers() {
     uint8_t* const bottom_dst = m_framebuffer_rgba.data() + ((bottom_offset_y * top_width + horizontal_offset) * 4);
 
     if (!m_screen_infos[2].pixels.empty()) {
-        for (size_t row = 0; row < m_screen_infos[2].height; ++row) {
+        const size_t bottom_rows = std::min(m_screen_infos[2].height, static_cast<size_t>(VideoCore::kScreenBottomHeight));
+        const size_t bottom_copy_width = std::min(m_screen_infos[2].width, bottom_width);
+        for (size_t row = 0; row < bottom_rows; ++row) {
             const uint8_t* src = m_screen_infos[2].pixels.data() + row * m_screen_infos[2].width * 4;
             uint8_t* dst = bottom_dst + row * top_width * 4;
-            std::memcpy(dst, src, m_screen_infos[2].width * 4);
+            std::memcpy(dst, src, bottom_copy_width * 4);
         }
     } else {
         FillOpaqueBlack(bottom_dst, bottom_width, VideoCore::kScreenBottomHeight, top_width);

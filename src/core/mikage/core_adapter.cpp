@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <cstring>
 #include <exception>
+#include <filesystem>
 #include <string>
 #include <vector>
 
@@ -78,12 +79,23 @@ bool LoadRomFromPath(void* opaque_runtime, const char* rom_path, std::string& la
     return false;
   }
 
+  std::string path = rom_path;
+  if (path.rfind("file://", 0) == 0) {
+    path = path.substr(7);
+  }
+
+  const std::filesystem::path fs_path(path);
+  std::error_code ec;
+  if (!std::filesystem::exists(fs_path, ec) || !std::filesystem::is_regular_file(fs_path, ec)) {
+    last_error = "3DS ROM path does not exist or is not a file";
+    return false;
+  }
+
   if (!EnsureInitialized(runtime, last_error)) {
     return false;
   }
 
   try {
-    std::string path = rom_path;
     if (!Loader::LoadFile(path, &last_error)) {
       if (last_error.empty()) {
         last_error = "Failed to load 3DS ROM";

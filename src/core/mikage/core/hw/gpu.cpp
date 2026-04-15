@@ -52,6 +52,26 @@ void SetFramebufferLocation(const FramebufferLocation mode) {
     case FRAMEBUFFER_LOCATION_UNKNOWN:
         break;
     }
+
+    g_regs.top_config.left_address_1 = g_regs.framebuffer_top_left_1;
+    g_regs.top_config.left_address_2 = g_regs.framebuffer_top_left_2;
+    g_regs.top_config.right_address_1 = g_regs.framebuffer_top_right_1;
+    g_regs.top_config.right_address_2 = g_regs.framebuffer_top_right_2;
+    g_regs.top_config.width = TOP_WIDTH;
+    g_regs.top_config.height = TOP_HEIGHT;
+    g_regs.top_config.format = PixelFormat::RGB8;
+    g_regs.top_config.stride_bytes = TOP_WIDTH * 3;
+    g_regs.top_config.active_fb = 0;
+
+    g_regs.bottom_config.left_address_1 = g_regs.framebuffer_sub_left_1;
+    g_regs.bottom_config.left_address_2 = g_regs.framebuffer_sub_right_1;
+    g_regs.bottom_config.right_address_1 = g_regs.framebuffer_sub_left_1;
+    g_regs.bottom_config.right_address_2 = g_regs.framebuffer_sub_right_1;
+    g_regs.bottom_config.width = BOTTOM_WIDTH;
+    g_regs.bottom_config.height = TOP_HEIGHT;
+    g_regs.bottom_config.format = PixelFormat::RGB8;
+    g_regs.bottom_config.stride_bytes = BOTTOM_WIDTH * 3;
+    g_regs.bottom_config.active_fb = 0;
 }
 
 /**
@@ -86,6 +106,14 @@ const u8* GetFramebufferPointer(const u32 address) {
     return NULL;
 }
 
+const FramebufferConfig& GetTopFramebufferConfig() {
+    return g_regs.top_config;
+}
+
+const FramebufferConfig& GetBottomFramebufferConfig() {
+    return g_regs.bottom_config;
+}
+
 template <typename T>
 inline void Read(T &var, const u32 addr) {
     switch (addr) {
@@ -109,8 +137,16 @@ inline void Read(T &var, const u32 addr) {
         var = g_regs.framebuffer_sub_left_1;
         break;
 
+    case Registers::FramebufferSubLeft2:
+        var = g_regs.framebuffer_sub_left_2;
+        break;
+
     case Registers::FramebufferSubRight1:
         var = g_regs.framebuffer_sub_right_1;
+        break;
+
+    case Registers::FramebufferSubRight2:
+        var = g_regs.framebuffer_sub_right_2;
         break;
 
     case Registers::CommandListSize:
@@ -133,7 +169,81 @@ inline void Read(T &var, const u32 addr) {
 
 template <typename T>
 inline void Write(u32 addr, const T data) {
+    const bool is_word_write = sizeof(T) == sizeof(u32);
+
     switch (static_cast<Registers::Id>(addr)) {
+    case Registers::FramebufferTopLeft1:
+        if (!is_word_write) {
+            WARN_LOG(GPU, "Ignoring non-32-bit write to FramebufferTopLeft1");
+            break;
+        }
+        g_regs.framebuffer_top_left_1 = static_cast<u32>(data);
+        g_regs.top_config.left_address_1 = g_regs.framebuffer_top_left_1;
+        break;
+
+    case Registers::FramebufferTopLeft2:
+        if (!is_word_write) {
+            WARN_LOG(GPU, "Ignoring non-32-bit write to FramebufferTopLeft2");
+            break;
+        }
+        g_regs.framebuffer_top_left_2 = static_cast<u32>(data);
+        g_regs.top_config.left_address_2 = g_regs.framebuffer_top_left_2;
+        break;
+
+    case Registers::FramebufferTopRight1:
+        if (!is_word_write) {
+            WARN_LOG(GPU, "Ignoring non-32-bit write to FramebufferTopRight1");
+            break;
+        }
+        g_regs.framebuffer_top_right_1 = static_cast<u32>(data);
+        g_regs.top_config.right_address_1 = g_regs.framebuffer_top_right_1;
+        break;
+
+    case Registers::FramebufferTopRight2:
+        if (!is_word_write) {
+            WARN_LOG(GPU, "Ignoring non-32-bit write to FramebufferTopRight2");
+            break;
+        }
+        g_regs.framebuffer_top_right_2 = static_cast<u32>(data);
+        g_regs.top_config.right_address_2 = g_regs.framebuffer_top_right_2;
+        break;
+
+    case Registers::FramebufferSubLeft1:
+        if (!is_word_write) {
+            WARN_LOG(GPU, "Ignoring non-32-bit write to FramebufferSubLeft1");
+            break;
+        }
+        g_regs.framebuffer_sub_left_1 = static_cast<u32>(data);
+        g_regs.bottom_config.left_address_1 = g_regs.framebuffer_sub_left_1;
+        break;
+
+    case Registers::FramebufferSubLeft2:
+        if (!is_word_write) {
+            WARN_LOG(GPU, "Ignoring non-32-bit write to FramebufferSubLeft2");
+            break;
+        }
+        g_regs.framebuffer_sub_left_2 = static_cast<u32>(data);
+        g_regs.bottom_config.left_address_2 = g_regs.framebuffer_sub_left_2;
+        break;
+
+    case Registers::FramebufferSubRight1:
+        if (!is_word_write) {
+            WARN_LOG(GPU, "Ignoring non-32-bit write to FramebufferSubRight1");
+            break;
+        }
+        g_regs.framebuffer_sub_right_1 = static_cast<u32>(data);
+        g_regs.bottom_config.right_address_1 = g_regs.framebuffer_sub_right_1;
+        break;
+
+    case Registers::FramebufferSubRight2:
+        if (!is_word_write) {
+            WARN_LOG(GPU, "Ignoring non-32-bit write to FramebufferSubRight2");
+            break;
+        }
+        g_regs.framebuffer_sub_right_2 = static_cast<u32>(data);
+        g_regs.bottom_config.right_address_2 = g_regs.framebuffer_sub_right_2;
+        break;
+
     case Registers::CommandListSize:
         g_regs.command_list_size = data;
         break;
