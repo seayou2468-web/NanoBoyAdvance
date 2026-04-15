@@ -1,3 +1,9 @@
+#if !defined(NBA_ENABLE_MIKAGE_ADAPTER_IMPLEMENTATION)
+#define NBA_ENABLE_MIKAGE_ADAPTER_IMPLEMENTATION 0
+#endif
+
+#if NBA_ENABLE_MIKAGE_ADAPTER_IMPLEMENTATION
+
 #include "../core_adapter.hpp"
 
 #include <algorithm>
@@ -174,3 +180,5 @@ const CoreAdapter kMikageAdapter = {
 };
 
 }  // namespace core
+
+#endif  // NBA_ENABLE_MIKAGE_ADAPTER_IMPLEMENTATION
