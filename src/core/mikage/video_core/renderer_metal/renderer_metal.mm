@@ -53,7 +53,7 @@ void RendererMetal::Init() {
     if (m_metal_available) {
         NOTICE_LOG(RENDER, "Metal renderer initialized (iOS SDK)");
     } else {
-        WARNING_LOG(RENDER, "Metal device unavailable. Falling back to software path.");
+        WARN_LOG(RENDER, "Metal device unavailable. Falling back to software path.");
     }
 #else
     m_metal_available = false;
@@ -80,9 +80,9 @@ void RendererMetal::PresentFrame() {
         return;
     }
 
-    CAMetalLayer* metal_layer = nullptr;
+    CAMetalLayer* metal_layer = nil;
     if (m_render_window != nullptr) {
-        metal_layer = static_cast<CAMetalLayer*>(m_render_window->GetNativeLayer());
+        metal_layer = (__bridge CAMetalLayer*)m_render_window->GetNativeLayer();
     }
 
     if (metal_layer != nil) {

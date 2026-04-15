@@ -48,7 +48,11 @@ template<> struct CompileTimeAssert<true> {};
     #elif defined _M_GENERIC
         #define Crash() { exit(1); }
     #else
-        #define Crash() {asm ("int $3");}
+        #if defined(__i386__) || defined(__x86_64__)
+        #define Crash() {__builtin_trap();}
+    #else
+        #define Crash() {__builtin_trap();}
+    #endif
     #endif
     #define ARRAYSIZE(A) (sizeof(A)/sizeof((A)[0]))
 // GCC 4.8 defines all the rotate functions now

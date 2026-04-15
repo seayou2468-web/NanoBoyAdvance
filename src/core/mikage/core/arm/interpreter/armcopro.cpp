@@ -754,7 +754,7 @@ ARMul_CoProInit (ARMul_State * state)
 void
 ARMul_CoProExit (ARMul_State * state)
 {
-	register unsigned i;
+	unsigned i;
 
 	for (i = 0; i < 16; i++)
 		if (state->CPExit[i])

@@ -302,7 +302,7 @@ Handle SetupMainThread(s32 priority, int stack_size) {
 void Reschedule() {
     Thread* prev = GetCurrentThread();
     Thread* next = NextThread();
-    if (next > 0) {
+    if (next != nullptr) {
         SwitchContext(next);
 
         // Hack - automatically change previous thread (which would have been in "wait" state) to
