@@ -183,7 +183,7 @@ void Update() {
 }
 
 /// Initialize hardware
-void Init() {
+void InitHardware() {
     g_last_ticks = Core::g_app_core->GetTicks();
     SetFramebufferLocation(FRAMEBUFFER_LOCATION_FCRAM);
     NOTICE_LOG(GPU, "initialized OK");

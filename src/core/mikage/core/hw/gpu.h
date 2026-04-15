@@ -102,7 +102,8 @@ inline void Write(u32 addr, const T data);
 void Update();
 
 /// Initialize hardware
-void Init();
+void InitHardware();
+inline void Init() { InitHardware(); }
 
 /// Shutdown hardware
 void Shutdown();

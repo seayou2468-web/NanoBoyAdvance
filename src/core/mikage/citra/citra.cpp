@@ -15,7 +15,7 @@
 #include "citra.h"
 
 /// Application entry point
-int __cdecl main(int argc, char **argv) {
+int __cdecl citra_main(int argc, char **argv) {
     std::string program_dir = File::GetCurrentDir();
 
     LogManager::Init();
