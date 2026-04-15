@@ -153,9 +153,12 @@ namespace {
 
 constexpr u32 kMediaUnitSize = 0x200;
 constexpr u32 kNCSDPartitionTableOffset = 0x120;
+constexpr u32 kNCSDPartitionCount = 8;
 constexpr u32 kNCCHExeFSOffsetOffset = 0x1A0;
 constexpr u32 kNCCHExeFSSizeOffset = 0x1A4;
 constexpr u32 kExeFSHeaderSize = 0x200;
+constexpr u32 kNCCHExHeaderOffset = 0x200;
+constexpr u32 kExHeaderTextAddressOffset = 0x10;
 
 constexpr u32 MakeMagic(char a, char b, char c, char d) {
     return static_cast<u32>(a) |
@@ -221,15 +224,21 @@ bool LoadCodeFromNCCH(File::IOFile& file, u64 ncch_offset, std::string* error_st
         return false;
     }
 
-    constexpr u32 kLegacyEntryPoint = 0x00100000;
-    u8* dst = Memory::GetPointer(kLegacyEntryPoint);
+    u32 entry_point = 0x00100000;
+    ReadU32At(file, ncch_offset + kNCCHExHeaderOffset + kExHeaderTextAddressOffset, entry_point);
+    u8* dst = Memory::GetPointer(entry_point);
     if (!dst) {
-        if (error_string) *error_string = "Failed to map load destination for NCCH code";
-        return false;
+        // Fallback to legacy load address used by older Mikage paths.
+        entry_point = 0x00100000;
+        dst = Memory::GetPointer(entry_point);
+        if (!dst) {
+            if (error_string) *error_string = "Failed to map load destination for NCCH code";
+            return false;
+        }
     }
 
     std::memcpy(dst, code.data(), code.size());
-    Kernel::LoadExec(kLegacyEntryPoint);
+    Kernel::LoadExec(entry_point);
     return true;
 }
 
@@ -256,14 +265,22 @@ bool LoadCCI(const std::string& filename, std::string* error_string) {
         return false;
     }
 
-    const u32 first_partition_offset_units = partition_entries[0];
-    if (first_partition_offset_units == 0) {
-        if (error_string) *error_string = "NCSD has no first partition";
-        return false;
+    for (u32 partition = 0; partition < kNCSDPartitionCount; ++partition) {
+        const u32 partition_offset_units = partition_entries[partition * 2];
+        if (partition_offset_units == 0) {
+            continue;
+        }
+        const u64 ncch_offset = static_cast<u64>(partition_offset_units) * kMediaUnitSize;
+        u32 magic = 0;
+        if (!ReadU32At(file, ncch_offset + 0x100, magic)) {
+            continue;
+        }
+        if (magic == MakeMagic('N', 'C', 'C', 'H')) {
+            return LoadCodeFromNCCH(file, ncch_offset, error_string);
+        }
     }
-
-    const u64 ncch_offset = static_cast<u64>(first_partition_offset_units) * kMediaUnitSize;
-    return LoadCodeFromNCCH(file, ncch_offset, error_string);
+    if (error_string) *error_string = "NCSD executable NCCH partition not found";
+    return false;
 }
 
 FileType GuessFromExtension(const std::string& filename) {
