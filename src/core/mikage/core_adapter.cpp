@@ -162,7 +162,7 @@ bool ApplyCheatCode(void*, const char*, std::string& last_error) {
 
 namespace core {
 
-extern const CoreAdapter kMikageAdapter = {
+const CoreAdapter kMikageAdapter = {
     .name = "mikage",
     .type = EMULATOR_CORE_TYPE_3DS,
     .create_runtime = &CreateRuntime,
@@ -178,6 +178,10 @@ extern const CoreAdapter kMikageAdapter = {
     .load_state_from_buffer = &LoadStateFromBuffer,
     .apply_cheat_code = &ApplyCheatCode,
 };
+
+const CoreAdapter* GetMikageAdapter() {
+  return &kMikageAdapter;
+}
 
 }  // namespace core
 
