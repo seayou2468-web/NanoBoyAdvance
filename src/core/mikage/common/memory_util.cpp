@@ -15,7 +15,7 @@
 #include <stdio.h>
 #endif
 
-#if !defined(_WIN32) && defined(__x86_64__) && !defined(MAP_32BIT)
+#if !defined(_WIN32) && defined(__aarch64__) && !defined(MAP_32BIT)
 #include <unistd.h>
 #define PAGE_MASK     (getpagesize() - 1)
 #define round_page(x) ((((unsigned long)(x)) + PAGE_MASK) & ~(PAGE_MASK))
@@ -30,7 +30,7 @@ void* AllocateExecutableMemory(size_t size, bool low)
     void* ptr = VirtualAlloc(0, size, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
 #else
     static char *map_hint = 0;
-#if defined(__x86_64__) && !defined(MAP_32BIT)
+#if defined(__aarch64__) && !defined(MAP_32BIT)
     // This OS has no flag to enforce allocation below the 4 GB boundary,
     // but if we hint that we want a low address it is very likely we will
     // get one.
@@ -42,7 +42,7 @@ void* AllocateExecutableMemory(size_t size, bool low)
 #endif
     void* ptr = mmap(map_hint, size, PROT_READ | PROT_WRITE | PROT_EXEC,
         MAP_ANON | MAP_PRIVATE
-#if defined(__x86_64__) && defined(MAP_32BIT)
+#if defined(__aarch64__) && defined(MAP_32BIT)
         | (low ? MAP_32BIT : 0)
 #endif
         , -1, 0);
@@ -61,7 +61,7 @@ void* AllocateExecutableMemory(size_t size, bool low)
 #endif    
         PanicAlert("Failed to allocate executable memory");
     }
-#if !defined(_WIN32) && defined(__x86_64__) && !defined(MAP_32BIT)
+#if !defined(_WIN32) && defined(__aarch64__) && !defined(MAP_32BIT)
     else
     {
         if (low)
@@ -73,7 +73,7 @@ void* AllocateExecutableMemory(size_t size, bool low)
     }
 #endif
 
-#if defined(_M_X64)
+#if defined(IOS_ARM64)
     if ((u64)ptr >= 0x80000000 && low == true)
         PanicAlert("Executable memory ended up above 2GB!");
 #endif

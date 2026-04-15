@@ -95,7 +95,7 @@ u32 HashEctor(const u8* ptr, int length)
 }
 
 
-#ifdef _M_X64
+#if 1
 
 //-----------------------------------------------------------------------------
 // Block read - if your platform needs to do endian-swapping or can only
@@ -279,180 +279,6 @@ u64 GetHashHiresTexture(const u8 *src, int len, u32 samples)
 
     return h;
 } 
-#else
-// Portable iOS fallback (x86 SSE path removed)
-u64 GetCRC32(const u8 *src, int len, u32 samples)
-{
-    (void)samples;
-    return static_cast<u64>(HashAdler32(src, static_cast<size_t>(len)));
-}
-
-//-----------------------------------------------------------------------------
-// Block read - if your platform needs to do endian-swapping or can only
-// handle aligned reads, do the conversion here
-
-inline u32 getblock(const u32 * p, int i)
-{
-    return p[i];
-}
-
-//----------
-// Finalization mix - force all bits of a hash block to avalanche
-
-// avalanches all bits to within 0.25% bias
-
-inline u32 fmix32(u32 h)
-{
-    h ^= h >> 16;
-    h *= 0x85ebca6b;
-    h ^= h >> 13;
-    h *= 0xc2b2ae35;
-    h ^= h >> 16;
-
-    return h;
-}
-
-inline void bmix32(u32 & h1, u32 & h2, u32 & k1, u32 & k2, u32 & c1, u32 & c2)
-{
-    k1 *= c1; 
-    k1  = _rotl(k1,11); 
-    k1 *= c2;
-    h1 ^= k1;
-    h1 += h2;
-
-    h2 = _rotl(h2,17);
-
-    k2 *= c2; 
-    k2  = _rotl(k2,11);
-    k2 *= c1;
-    h2 ^= k2;
-    h2 += h1;
-
-    h1 = h1*3+0x52dce729;
-    h2 = h2*3+0x38495ab5;
-
-    c1 = c1*5+0x7b7d159c;
-    c2 = c2*5+0x6bce6396;
-}
-
-//----------
-
-u64 GetMurmurHash3(const u8* src, int len, u32 samples)
-{
-    const u8 * data = (const u8*)src;
-    u32 out[2];
-    const int nblocks = len / 8;
-    u32 Step = (len / 4);
-    if(samples == 0) samples = max(Step, 1u);
-    Step = Step / samples;
-    if(Step < 1) Step = 1;
-
-    u32 h1 = 0x8de1c3ac;
-    u32 h2 = 0xbab98226;
-
-    u32 c1 = 0x95543787;
-    u32 c2 = 0x2ad7eb25;
-
-    //----------
-    // body
-
-    const u32 * blocks = (const u32 *)(data + nblocks*8);
-
-    for(int i = -nblocks; i < 0; i+=Step)
-    {
-        u32 k1 = getblock(blocks,i*2+0);
-        u32 k2 = getblock(blocks,i*2+1);
-
-        bmix32(h1,h2,k1,k2,c1,c2);
-    }
-
-    //----------
-    // tail
-    
-    const u8 * tail = (const u8*)(data + nblocks*8);
-
-    u32 k1 = 0;
-    u32 k2 = 0;
-
-    switch(len & 7)
-    {
-    case 7: k2 ^= tail[6] << 16;
-    case 6: k2 ^= tail[5] << 8;
-    case 5: k2 ^= tail[4] << 0;
-    case 4: k1 ^= tail[3] << 24;
-    case 3: k1 ^= tail[2] << 16;
-    case 2: k1 ^= tail[1] << 8;
-    case 1: k1 ^= tail[0] << 0;
-            bmix32(h1,h2,k1,k2,c1,c2);
-    };
-
-    //----------
-    // finalization
-
-    h2 ^= len;
-
-    h1 += h2;
-    h2 += h1;
-
-    h1 = fmix32(h1);
-    h2 = fmix32(h2);
-
-    h1 += h2;
-    h2 += h1;
-
-    out[0] = h1;
-    out[1] = h2;
-    
-    return *((u64 *)&out);
-}
-
-/*
- * FIXME: The old 32-bit version of this hash made different hashes than the
- * 64-bit version. Until someone can make a new version of the 32-bit one that
- * makes identical hashes, this is just a c/p of the 64-bit one.
- */
-u64 GetHashHiresTexture(const u8 *src, int len, u32 samples)
-{
-    const u64 m = 0xc6a4a7935bd1e995ULL;
-    u64 h = len * m;
-    const int r = 47;
-    u32 Step = (len / 8);
-    const u64 *data = (const u64 *)src;
-    const u64 *end = data + Step;
-    if(samples == 0) samples = max(Step, 1u);
-    Step = Step / samples;
-    if(Step < 1) Step = 1;
-    while(data < end)
-    {
-        u64 k = data[0];
-        data+=Step;
-        k *= m; 
-        k ^= k >> r; 
-        k *= m;
-        h ^= k;
-        h *= m; 
-    }
-
-    const u8 * data2 = (const u8*)end;
-
-    switch(len & 7)
-    {
-    case 7: h ^= u64(data2[6]) << 48;
-    case 6: h ^= u64(data2[5]) << 40;
-    case 5: h ^= u64(data2[4]) << 32;
-    case 4: h ^= u64(data2[3]) << 24;
-    case 3: h ^= u64(data2[2]) << 16;
-    case 2: h ^= u64(data2[1]) << 8;
-    case 1: h ^= u64(data2[0]);
-            h *= m;
-    };
- 
-    h ^= h >> r;
-    h *= m;
-    h ^= h >> r;
-
-    return h;
-}
 #endif
 
 u64 GetHash64(const u8 *src, int len, u32 samples)
@@ -467,15 +293,8 @@ void SetHash64Function(bool useHiresTextures)
     {
         ptrHashFunction = &GetHashHiresTexture;
     }
-#if _M_SSE >= 0x402
-    else if (cpu_info.bSSE4_2 && !useHiresTextures) // sse crc32 version
-    {
-        ptrHashFunction = &GetCRC32;
-    }
-#endif
     else
     {
         ptrHashFunction = &GetMurmurHash3;
     }
 }
-

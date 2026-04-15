@@ -342,18 +342,6 @@ ARMul_Reset (ARMul_State * state)
 * address of the last instruction that is executed.                         *
 \***************************************************************************/
 
-//teawater add DBCT_TEST_SPEED 2005.10.04---------------------------------------
-#ifdef DBCT_TEST_SPEED
-static ARMul_State	*dbct_test_speed_state = NULL;
-static void
-dbct_test_speed_sig(int signo)
-{
-	printf("\n0x%llx %llu\n", dbct_test_speed_state->instr_count, dbct_test_speed_state->instr_count);
-	skyeye_exit(0);
-}
-#endif	//DBCT_TEST_SPEED
-//AJ2D--------------------------------------------------------------------------
-
 ARMword
 ARMul_DoProg (ARMul_State * state)
 {
@@ -364,49 +352,6 @@ ARMul_DoProg (ARMul_State * state)
 	 * moved to "device/uart/skyeye_uart_stdio.c".
 	 */
 
-//teawater add DBCT_TEST_SPEED 2005.10.04---------------------------------------
-#ifdef DBCT_TEST_SPEED
-	{
-		if (!dbct_test_speed_state) {
-			//init timer
-			struct itimerval	value;
-			struct sigaction	act;
-
-			dbct_test_speed_state = state;
-			state->instr_count = 0;
-			act.sa_handler = dbct_test_speed_sig;
-			act.sa_flags = SA_RESTART;
-			//cygwin don't support ITIMER_VIRTUAL or ITIMER_PROF
-#ifndef __CYGWIN__
-			if (sigaction(SIGVTALRM, &act, NULL) == -1) {
-#else
-			if (sigaction(SIGALRM, &act, NULL) == -1) {
-#endif	//__CYGWIN__
-				fprintf(stderr, "init timer error.\n");
-				skyeye_exit(-1);
-			}
-			if (skyeye_config.dbct_test_speed_sec) {
-				value.it_value.tv_sec = skyeye_config.dbct_test_speed_sec;
-			}
-			else {
-				value.it_value.tv_sec = DBCT_TEST_SPEED_SEC;
-			}
-			printf("dbct_test_speed_sec = %ld\n", value.it_value.tv_sec);
-			value.it_value.tv_usec = 0;
-			value.it_interval.tv_sec = 0; 
-			value.it_interval.tv_usec = 0;
-#ifndef __CYGWIN__
-			if (setitimer(ITIMER_VIRTUAL, &value, NULL) == -1) {
-#else
-			if (setitimer(ITIMER_REAL, &value, NULL) == -1) {
-#endif	//__CYGWIN__
-				fprintf(stderr, "init timer error.\n");
-				skyeye_exit(-1);
-			}
-		}
-	}
-#endif	//DBCT_TEST_SPEED
-//AJ2D--------------------------------------------------------------------------
 	state->Emulate = RUN;
 	while (state->Emulate != STOP) {
 		state->Emulate = RUN;
@@ -451,23 +396,7 @@ ARMul_DoInstr (ARMul_State * state)
 
 	/*ywc 2005-03-31 */
 	if (state->prog32Sig && ARMul_MODE32BIT) {
-#ifdef DBCT
-		if (skyeye_config.no_dbct) {
-			pc = ARMul_Emulate32 (state);
-		}
-		else {
-//teawater add compile switch for DBCT GDB RSP function 2005.10.21--------------
-#ifndef DBCT_GDBRSP
-			printf("DBCT GDBRSP function switch is off.\n");
-			printf("To use this function, open \"#define DBCT_GDBRSP\" in arch/arm/common/armdefs.h & recompile skyeye.\n");
-			skyeye_exit(-1);
-#endif	//DBCT_GDBRSP
-//AJ2D--------------------------------------------------------------------------
-			pc = ARMul_Emulate32_dbct (state);
-		}
-#else
 		pc = ARMul_Emulate32 (state);
-#endif
 	}
 
 	else {

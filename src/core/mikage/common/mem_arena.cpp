@@ -226,7 +226,7 @@ void MemArena::ReleaseView(void* view, size_t size)
 #ifndef __SYMBIAN32__
 u8* MemArena::Find4GBBase()
 {
-#ifdef _M_X64
+#ifdef IOS_ARM64
 #ifdef _WIN32
     // 64 bit
     u8* base = (u8*)VirtualAlloc(0, 0xE1000000, MEM_RESERVE, PAGE_READWRITE);
@@ -329,7 +329,7 @@ static bool Memory_TryBase(u8 *base, const MemoryView *views, int num_views, u32
             if (!*view.out_ptr_low)
                 goto bail;
         }
-#ifdef _M_X64
+#ifdef IOS_ARM64
         *view.out_ptr = (u8*)arena->CreateView(
             position, view.size, base + view.virtual_address);
 #else
@@ -366,7 +366,7 @@ bail:
         }
         if (*views[j].out_ptr)
         {
-#ifdef _M_X64
+#ifdef IOS_ARM64
             arena->ReleaseView(*views[j].out_ptr, views[j].size);
 #else
             if (!(views[j].flags & MV_MIRROR_PREVIOUS))
@@ -399,7 +399,7 @@ u8 *MemoryMap_Setup(const MemoryView *views, int num_views, u32 flags, MemArena 
 #endif
 
     // Now, create views in high memory where there's plenty of space.
-#ifdef _M_X64
+#ifdef IOS_ARM64
     u8 *base = MemArena::Find4GBBase();
     // This really shouldn't fail - in 64-bit, there will always be enough
     // address space.

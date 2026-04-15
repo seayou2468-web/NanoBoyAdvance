@@ -40,10 +40,8 @@ void Init(EmuWindow* emu_window) {
 
 #if defined(__APPLE__)
     g_renderer = new RendererMetal();
-#elif defined(__linux__)
-    g_renderer = new RendererSoftware();
 #else
-#error "Mikage video core only supports iOS and Linux render backends."
+#error "Mikage video core now targets iOS render backend only."
 #endif
 
     g_renderer->SetWindow(g_emu_window);

@@ -4755,8 +4755,8 @@ static volatile uint32_t save_T1;
 static volatile uint32_t save_T2;
 
 #ifdef MODE32
-#ifdef DBCT
-//teawater change for debug function 2005.07.09---------------------------------
+#if 0
+// legacy dbct/x86 path removed
 ARMword
 ARMul_Emulate32_dbct (ARMul_State * state)
 {

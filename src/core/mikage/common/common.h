@@ -121,6 +121,13 @@ private:
 // wxWidgets does not have a true dummy macro for this.
 #define _trans(a) a
 
+#if defined(__aarch64__) || defined(__arm64__)
+#define IOS_ARM64 1
+#else
+#define IOS_ARM64 0
+#endif
+#define IOS_X86_REMOVED 0
+
 #define _M_SSE 0x0
 
 // Host communication.

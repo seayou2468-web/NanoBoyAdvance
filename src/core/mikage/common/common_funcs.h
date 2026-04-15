@@ -128,7 +128,7 @@ inline u64 _rotr64(u64 x, unsigned int shift){
     #define fstat64 _fstat64
     #define fileno _fileno
 
-    #if _M_IX86
+    #if IOS_X86_REMOVED
         #define Crash() {__asm int 3}
     #else
 extern "C" {
