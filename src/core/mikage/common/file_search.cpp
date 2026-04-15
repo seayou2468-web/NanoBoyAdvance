@@ -5,12 +5,8 @@
 
 #include "common/common.h"
 #include "common/common_paths.h"
-#ifndef _WIN32
 #include <sys/types.h>
 #include <dirent.h>
-#else
-#include <windows.h>
-#endif
 
 #include <string>
 #include <algorithm>
@@ -34,32 +30,6 @@ CFileSearch::CFileSearch(const CFileSearch::XStringVector& _rSearchStrings, cons
 
 void CFileSearch::FindFiles(const std::string& _searchString, const std::string& _strPath)
 {
-    std::string GCMSearchPath;
-    BuildCompleteFilename(GCMSearchPath, _strPath, _searchString);
-#ifdef _WIN32
-    WIN32_FIND_DATA findData;
-    HANDLE FindFirst = FindFirstFile(UTF8ToTStr(GCMSearchPath).c_str(), &findData);
-
-    if (FindFirst != INVALID_HANDLE_VALUE)
-    {
-        bool bkeepLooping = true;
-
-        while (bkeepLooping)
-        {            
-            if (findData.cFileName[0] != '.')
-            {
-                std::string strFilename;
-                BuildCompleteFilename(strFilename, _strPath, TStrToUTF8(findData.cFileName));
-                m_FileNames.push_back(strFilename);
-            }
-
-            bkeepLooping = FindNextFile(FindFirst, &findData) ? true : false;
-        }
-    }
-    FindClose(FindFirst);
-
-
-#else
     // TODO: super lame/broken
 
     auto end_match(_searchString);
@@ -96,7 +66,6 @@ void CFileSearch::FindFiles(const std::string& _searchString, const std::string&
     }
 
     closedir(dir);
-#endif
 }
 
 const CFileSearch::XStringVector& CFileSearch::GetFileNames() const

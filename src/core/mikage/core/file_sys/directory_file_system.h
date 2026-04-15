@@ -95,7 +95,7 @@ private:
 	std::string basePath;
 	IHandleAllocator *hAlloc;
 
-	// In case of Windows: Translate slashes, etc.
+	// Normalize to local filesystem path.
 	std::string GetLocalPath(std::string localpath);
 };
 

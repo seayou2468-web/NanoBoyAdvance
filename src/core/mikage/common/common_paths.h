@@ -18,29 +18,20 @@
 
 // The user data dir
 #define ROOT_DIR "."
-#ifdef _WIN32
-    #define USERDATA_DIR "user"
-    #define EMU_DATA_DIR "emu"
+#define USERDATA_DIR "user"
+#ifdef USER_DIR
+    #define EMU_DATA_DIR USER_DIR
 #else
-    #define USERDATA_DIR "user"
-    #ifdef USER_DIR
-        #define EMU_DATA_DIR USER_DIR
-    #else
-        #define EMU_DATA_DIR ".emu"
-    #endif
+    #define EMU_DATA_DIR ".emu"
 #endif
 
 // Shared data dirs (Sys and shared User for linux)
-#ifdef _WIN32
-    #define SYSDATA_DIR "sys"
+#ifdef DATA_DIR
+    #define SYSDATA_DIR DATA_DIR "sys"
+    #define SHARED_USER_DIR  DATA_DIR USERDATA_DIR DIR_SEP
 #else
-    #ifdef DATA_DIR
-        #define SYSDATA_DIR DATA_DIR "sys"
-        #define SHARED_USER_DIR  DATA_DIR USERDATA_DIR DIR_SEP
-    #else
-        #define SYSDATA_DIR "sys"
-        #define SHARED_USER_DIR  ROOT_DIR DIR_SEP USERDATA_DIR DIR_SEP
-    #endif
+    #define SYSDATA_DIR "sys"
+    #define SHARED_USER_DIR  ROOT_DIR DIR_SEP USERDATA_DIR DIR_SEP
 #endif
 
 // Dirs in both User and Sys
