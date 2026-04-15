@@ -21,7 +21,30 @@ public:
         return m_framebuffer_rgba;
     }
 
+public:
+    enum class PixelFormat {
+        RGBA8,
+        RGB8,
+        RGB565,
+        RGB5A1,
+        RGBA4,
+    };
+
 private:
+    struct ScreenInfo {
+        size_t width = 0;
+        size_t height = 0;
+        std::vector<u8> pixels;
+    };
+
+    void PrepareRenderTarget();
+    void LoadFBToScreenInfo(ScreenInfo& info,
+                            const uint8_t* framebuffer_data,
+                            size_t width,
+                            size_t height,
+                            size_t pixel_stride,
+                            PixelFormat format);
+
     void UploadFramebuffers();
     void UpdateFramerate();
 
@@ -35,6 +58,7 @@ protected:
 
 private:
     std::vector<u8> m_framebuffer_rgba;
+    ScreenInfo m_screen_infos[3];
     std::chrono::steady_clock::time_point m_last_fps_tick;
     int m_frames_since_tick;
 };

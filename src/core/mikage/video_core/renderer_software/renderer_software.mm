@@ -1,17 +1,87 @@
 #include "renderer_software.h"
 
 #include <algorithm>
+#include <array>
+#include <cstring>
 
 #include "../../common/log.h"
 #include "../../core/hw/gpu.h"
 #include "../video_core.h"
 
-extern "C" void MikageConvertBGR24ToRGBA8888Flipped(const uint8_t* src,
-                                                      uint8_t* dst,
-                                                      size_t width,
-                                                      size_t height,
-                                                      size_t dst_stride_pixels);
 namespace {
+
+
+struct RGBA {
+    uint8_t r;
+    uint8_t g;
+    uint8_t b;
+    uint8_t a;
+};
+
+inline RGBA DecodeRGBA8(const uint8_t* pixel) {
+    return RGBA{pixel[0], pixel[1], pixel[2], pixel[3]};
+}
+
+inline RGBA DecodeRGB8(const uint8_t* pixel) {
+    return RGBA{pixel[0], pixel[1], pixel[2], 0xFF};
+}
+
+inline RGBA DecodeRGB565(const uint8_t* pixel) {
+    const uint16_t v = static_cast<uint16_t>(pixel[0] | (pixel[1] << 8));
+    const uint8_t r = static_cast<uint8_t>(((v >> 11) & 0x1F) * 255 / 31);
+    const uint8_t g = static_cast<uint8_t>(((v >> 5) & 0x3F) * 255 / 63);
+    const uint8_t b = static_cast<uint8_t>((v & 0x1F) * 255 / 31);
+    return RGBA{r, g, b, 0xFF};
+}
+
+inline RGBA DecodeRGB5A1(const uint8_t* pixel) {
+    const uint16_t v = static_cast<uint16_t>(pixel[0] | (pixel[1] << 8));
+    const uint8_t r = static_cast<uint8_t>(((v >> 11) & 0x1F) * 255 / 31);
+    const uint8_t g = static_cast<uint8_t>(((v >> 6) & 0x1F) * 255 / 31);
+    const uint8_t b = static_cast<uint8_t>(((v >> 1) & 0x1F) * 255 / 31);
+    const uint8_t a = (v & 0x1) ? 0xFF : 0x00;
+    return RGBA{r, g, b, a};
+}
+
+inline RGBA DecodeRGBA4(const uint8_t* pixel) {
+    const uint16_t v = static_cast<uint16_t>(pixel[0] | (pixel[1] << 8));
+    const uint8_t r = static_cast<uint8_t>(((v >> 12) & 0xF) * 17);
+    const uint8_t g = static_cast<uint8_t>(((v >> 8) & 0xF) * 17);
+    const uint8_t b = static_cast<uint8_t>(((v >> 4) & 0xF) * 17);
+    const uint8_t a = static_cast<uint8_t>((v & 0xF) * 17);
+    return RGBA{r, g, b, a};
+}
+
+inline int BytesPerPixel(RendererSoftware::PixelFormat format) {
+    switch (format) {
+        case RendererSoftware::PixelFormat::RGBA8:
+            return 4;
+        case RendererSoftware::PixelFormat::RGB8:
+            return 3;
+        case RendererSoftware::PixelFormat::RGB565:
+        case RendererSoftware::PixelFormat::RGB5A1:
+        case RendererSoftware::PixelFormat::RGBA4:
+            return 2;
+    }
+    return 3;
+}
+
+inline RGBA DecodePixel(RendererSoftware::PixelFormat format, const uint8_t* pixel) {
+    switch (format) {
+        case RendererSoftware::PixelFormat::RGBA8:
+            return DecodeRGBA8(pixel);
+        case RendererSoftware::PixelFormat::RGB8:
+            return DecodeRGB8(pixel);
+        case RendererSoftware::PixelFormat::RGB565:
+            return DecodeRGB565(pixel);
+        case RendererSoftware::PixelFormat::RGB5A1:
+            return DecodeRGB5A1(pixel);
+        case RendererSoftware::PixelFormat::RGBA4:
+            return DecodeRGBA4(pixel);
+    }
+    return RGBA{0, 0, 0, 0xFF};
+}
+
 void FillOpaqueBlack(uint8_t* dst, size_t width, size_t height, size_t dst_stride_pixels) {
     for (size_t y = 0; y < height; ++y) {
         uint8_t* row = dst + (y * dst_stride_pixels * 4);
@@ -23,7 +93,8 @@ void FillOpaqueBlack(uint8_t* dst, size_t width, size_t height, size_t dst_strid
         }
     }
 }
-} // namespace
+
+}  // namespace
 
 RendererSoftware::RendererSoftware() : m_render_window(nullptr), m_frames_since_tick(0) {
     m_framebuffer_rgba.resize(static_cast<size_t>(VideoCore::kScreenTopWidth) *
@@ -46,32 +117,96 @@ void RendererSoftware::Init() {
     NOTICE_LOG(RENDER, "Software renderer initialized");
 }
 
-void RendererSoftware::UploadFramebuffers() {
+void RendererSoftware::LoadFBToScreenInfo(ScreenInfo& info,
+                                          const uint8_t* framebuffer_data,
+                                          size_t width,
+                                          size_t height,
+                                          size_t pixel_stride,
+                                          RendererSoftware::PixelFormat format) {
+    info.width = width;
+    info.height = height;
+    info.pixels.resize(width * height * 4);
+
+    if (framebuffer_data == nullptr) {
+        FillOpaqueBlack(info.pixels.data(), width, height, width);
+        return;
+    }
+
+    const size_t bpp = static_cast<size_t>(BytesPerPixel(format));
+    // Cytrus software renderer flips scanout from GPU memory to display coordinates.
+    for (size_t y = 0; y < height; ++y) {
+        for (size_t x = 0; x < width; ++x) {
+            const size_t src_x = width - 1 - x;
+            const uint8_t* src_pixel = framebuffer_data + (y * pixel_stride + src_x) * bpp;
+            const RGBA decoded = DecodePixel(format, src_pixel);
+            const size_t out_coord = (x * height + y) * 4;
+            info.pixels[out_coord + 0] = decoded.r;
+            info.pixels[out_coord + 1] = decoded.g;
+            info.pixels[out_coord + 2] = decoded.b;
+            info.pixels[out_coord + 3] = decoded.a;
+        }
+    }
+}
+
+void RendererSoftware::PrepareRenderTarget() {
     constexpr size_t top_width = static_cast<size_t>(VideoCore::kScreenTopWidth);
     constexpr size_t top_height = static_cast<size_t>(VideoCore::kScreenTopHeight);
     constexpr size_t bottom_width = static_cast<size_t>(VideoCore::kScreenBottomWidth);
     constexpr size_t bottom_height = static_cast<size_t>(VideoCore::kScreenBottomHeight);
 
-    u8* dst = m_framebuffer_rgba.data();
+    // The legacy Mikage GPU path currently exposes framebuffers as RGB8 scanout buffers.
+    constexpr RendererSoftware::PixelFormat scanout_format = RendererSoftware::PixelFormat::RGB8;
+
+    LoadFBToScreenInfo(
+        m_screen_infos[0],
+        GPU::GetFramebufferPointer(GPU::g_regs.framebuffer_top_left_1),
+        top_width,
+        top_height,
+        top_width,
+        scanout_format);
+
+    LoadFBToScreenInfo(
+        m_screen_infos[1],
+        GPU::GetFramebufferPointer(GPU::g_regs.framebuffer_top_right_1),
+        top_width,
+        top_height,
+        top_width,
+        scanout_format);
+
+    LoadFBToScreenInfo(
+        m_screen_infos[2],
+        GPU::GetFramebufferPointer(GPU::g_regs.framebuffer_sub_left_1),
+        bottom_width,
+        bottom_height,
+        bottom_width,
+        scanout_format);
+}
+
+void RendererSoftware::UploadFramebuffers() {
+    PrepareRenderTarget();
+
+    constexpr size_t top_width = static_cast<size_t>(VideoCore::kScreenTopWidth);
+    constexpr size_t top_height = static_cast<size_t>(VideoCore::kScreenTopHeight);
+    constexpr size_t bottom_width = static_cast<size_t>(VideoCore::kScreenBottomWidth);
+
     std::fill(m_framebuffer_rgba.begin(), m_framebuffer_rgba.end(), 0);
-    if (const uint8_t* top_src = GPU::GetFramebufferPointer(GPU::g_regs.framebuffer_top_left_1)) {
-        MikageConvertBGR24ToRGBA8888Flipped(top_src, dst, top_width, top_height, top_width);
-    } else {
-        FillOpaqueBlack(dst, top_width, top_height, top_width);
+
+    if (!m_screen_infos[0].pixels.empty()) {
+        std::memcpy(m_framebuffer_rgba.data(), m_screen_infos[0].pixels.data(), m_screen_infos[0].pixels.size());
     }
 
     const size_t bottom_offset_y = top_height;
     const size_t horizontal_offset = (top_width - bottom_width) / 2;
-    uint8_t* const bottom_dst = dst + ((bottom_offset_y * top_width + horizontal_offset) * 4);
-    if (const uint8_t* bottom_src = GPU::GetFramebufferPointer(GPU::g_regs.framebuffer_sub_left_1)) {
-        MikageConvertBGR24ToRGBA8888Flipped(
-            bottom_src,
-            bottom_dst,
-            bottom_width,
-            bottom_height,
-            top_width);
+    uint8_t* const bottom_dst = m_framebuffer_rgba.data() + ((bottom_offset_y * top_width + horizontal_offset) * 4);
+
+    if (!m_screen_infos[2].pixels.empty()) {
+        for (size_t row = 0; row < m_screen_infos[2].height; ++row) {
+            const uint8_t* src = m_screen_infos[2].pixels.data() + row * m_screen_infos[2].width * 4;
+            uint8_t* dst = bottom_dst + row * top_width * 4;
+            std::memcpy(dst, src, m_screen_infos[2].width * 4);
+        }
     } else {
-        FillOpaqueBlack(bottom_dst, bottom_width, bottom_height, top_width);
+        FillOpaqueBlack(bottom_dst, bottom_width, VideoCore::kScreenBottomHeight, top_width);
     }
 }
 
