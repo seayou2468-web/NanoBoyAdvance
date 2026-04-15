@@ -10,6 +10,7 @@ extern const CoreAdapter kGBAAdapter;
 extern const CoreAdapter kQuickNesAdapter;
 extern const CoreAdapter kSameBoyAdapter;
 extern const CoreAdapter kMelonDSAdapter;
+
 const CoreAdapter* FindCoreAdapter(EmulatorCoreType type) {
   switch (type) {
     case EMULATOR_CORE_TYPE_GBA:

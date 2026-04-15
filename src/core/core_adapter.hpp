@@ -28,5 +28,6 @@ struct CoreAdapter {
 };
 
 const CoreAdapter* FindCoreAdapter(EmulatorCoreType type);
+const CoreAdapter* GetMikageAdapter();
 
 }  // namespace core

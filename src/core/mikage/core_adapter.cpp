@@ -179,10 +179,18 @@ const CoreAdapter kMikageAdapter = {
     .apply_cheat_code = &ApplyCheatCode,
 };
 
-const CoreAdapter* GetMikageAdapter() {
-  return &kMikageAdapter;
-}
-
 }  // namespace core
 
 #endif  // NBA_ENABLE_MIKAGE_ADAPTER_IMPLEMENTATION
+
+namespace core {
+
+const CoreAdapter* GetMikageAdapter() {
+#if NBA_ENABLE_MIKAGE_ADAPTER_IMPLEMENTATION
+  return &kMikageAdapter;
+#else
+  return nullptr;
+#endif
+}
+
+}  // namespace core
