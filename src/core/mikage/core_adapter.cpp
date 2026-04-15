@@ -8,6 +8,7 @@
 
 #include <algorithm>
 #include <cstring>
+#include <exception>
 #include <string>
 #include <vector>
 
@@ -81,11 +82,22 @@ bool LoadRomFromPath(void* opaque_runtime, const char* rom_path, std::string& la
     return false;
   }
 
-  std::string path = rom_path;
-  if (!Loader::LoadFile(path, &last_error)) {
-    if (last_error.empty()) {
-      last_error = "Failed to load 3DS ROM";
+  try {
+    std::string path = rom_path;
+    if (!Loader::LoadFile(path, &last_error)) {
+      if (last_error.empty()) {
+        last_error = "Failed to load 3DS ROM";
+      }
+      runtime->rom_loaded = false;
+      return false;
     }
+  } catch (const std::exception& ex) {
+    last_error = ex.what();
+    runtime->rom_loaded = false;
+    return false;
+  } catch (...) {
+    last_error = "Unexpected exception while loading 3DS ROM";
+    runtime->rom_loaded = false;
     return false;
   }
 
@@ -104,17 +116,25 @@ void StepFrame(void* opaque_runtime, std::string& last_error) {
     return;
   }
 
-  System::RunLoopFor(20000);
+  try {
+    System::RunLoopFor(20000);
 
-  auto* software_renderer = dynamic_cast<RendererSoftware*>(VideoCore::g_renderer);
-  if (!software_renderer) {
-    last_error = "3DS renderer backend unavailable";
-    return;
+    auto* software_renderer = dynamic_cast<RendererSoftware*>(VideoCore::g_renderer);
+    if (!software_renderer) {
+      // Keep the ROM running even if a non-software renderer is active.
+      return;
+    }
+
+    const auto& framebuffer = software_renderer->Framebuffer();
+    const size_t copy_bytes = std::min(framebuffer.size(), runtime->rgba_frame.size() * sizeof(uint32_t));
+    std::memcpy(runtime->rgba_frame.data(), framebuffer.data(), copy_bytes);
+  } catch (const std::exception& ex) {
+    last_error = ex.what();
+    runtime->rom_loaded = false;
+  } catch (...) {
+    last_error = "Unexpected exception while stepping 3DS frame";
+    runtime->rom_loaded = false;
   }
-
-  const auto& framebuffer = software_renderer->Framebuffer();
-  const size_t copy_bytes = std::min(framebuffer.size(), runtime->rgba_frame.size() * sizeof(uint32_t));
-  std::memcpy(runtime->rgba_frame.data(), framebuffer.data(), copy_bytes);
 }
 
 void SetKeyStatus(void*, int, bool) {
