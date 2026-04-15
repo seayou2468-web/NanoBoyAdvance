@@ -13,6 +13,10 @@
 #include "video_core/renderer_metal/renderer_metal.h"
 #include "video_core/renderer_software/renderer_software.h"
 
+#if defined(__APPLE__)
+#include <TargetConditionals.h>
+#endif
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Video Core namespace
 
@@ -36,8 +40,10 @@ void Init(EmuWindow* emu_window) {
 
 #if defined(__APPLE__)
     g_renderer = new RendererMetal();
-#else
+#elif defined(__linux__)
     g_renderer = new RendererSoftware();
+#else
+#error "Mikage video core only supports iOS and Linux render backends."
 #endif
 
     g_renderer->SetWindow(g_emu_window);

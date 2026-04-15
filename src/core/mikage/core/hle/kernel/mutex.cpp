@@ -5,10 +5,10 @@
 #include <map>
 #include <vector>
 
-#include "common/common.h"
+#include "../../../common/common.h"
 
-#include "core/hle/kernel/kernel.h"
-#include "core/hle/kernel/thread.h"
+#include "kernel.h"
+#include "thread.h"
 
 namespace Kernel {
 

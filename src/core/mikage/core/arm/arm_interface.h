@@ -4,10 +4,10 @@
 
 #pragma once
 
-#include "common/common.h"
-#include "common/common_types.h"
+#include "../../common/common.h"
+#include "../../common/common_types.h"
 
-#include "core/hle/svc.h"
+#include "../hle/svc.h"
 
 /// Generic ARM11 CPU interface
 class ARM_Interface : NonCopyable {

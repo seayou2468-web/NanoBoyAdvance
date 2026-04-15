@@ -16,10 +16,10 @@
     Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.  */
 
 
-#include "core/arm/interpreter/armdefs.h"
-#include "core/arm/interpreter/armos.h"
-#include "core/arm/interpreter/armemu.h"
-#include "core/arm/interpreter/vfp/vfp.h"
+#include "armdefs.h"
+#include "armos.h"
+#include "armemu.h"
+#include "./vfp/vfp.h"
 
 //chy 2005-07-08
 //#include "ansidecl.h"

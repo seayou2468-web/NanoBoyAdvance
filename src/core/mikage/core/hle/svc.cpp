@@ -5,18 +5,18 @@
 #include <map>
 #include <string>
 
-#include "common/symbols.h"
+#include "../../common/symbols.h"
 
-#include "core/mem_map.h"
+#include "../mem_map.h"
 
-#include "core/hle/kernel/kernel.h"
-#include "core/hle/kernel/mutex.h"
-#include "core/hle/kernel/thread.h"
+#include "./kernel/kernel.h"
+#include "./kernel/mutex.h"
+#include "./kernel/thread.h"
 
-#include "core/hle/function_wrappers.h"
-#include "core/hle/svc.h"
-#include "core/hle/service/service.h"
-#include "core/hle/kernel/thread.h"
+#include "function_wrappers.h"
+#include "svc.h"
+#include "./service/service.h"
+#include "./kernel/thread.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Namespace SVC

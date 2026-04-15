@@ -2,19 +2,19 @@
 // Licensed under GPLv2
 // Refer to the license.txt file included.
 
-#include "common/common.h"
-#include "common/log.h"
-#include "common/string_util.h"
+#include "../../../common/common.h"
+#include "../../../common/log.h"
+#include "../../../common/string_util.h"
 
-#include "core/hle/hle.h"
+#include "../hle.h"
 
-#include "core/hle/service/service.h"
-#include "core/hle/service/apt.h"
-#include "core/hle/service/gsp.h"
-#include "core/hle/service/hid.h"
-#include "core/hle/service/srv.h"
+#include "service.h"
+#include "apt.h"
+#include "gsp.h"
+#include "hid.h"
+#include "srv.h"
 
-#include "core/hle/kernel/kernel.h"
+#include "../kernel/kernel.h"
 
 namespace Service {
 

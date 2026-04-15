@@ -1,6 +1,6 @@
 #include <assert.h>
 
-#include "core/arm/interpreter/armdefs.h"
+#include "../armdefs.h"
 
 ARMword tlb_masks[] = {
 	0x00000000,		/* TLB_INVALID */

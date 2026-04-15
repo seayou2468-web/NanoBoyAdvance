@@ -9,7 +9,7 @@
 // bootrom. Because we're not emulating this, and essentially just "stubbing" the functionality, I'm
 // putting this as a subset of HLE for now.
 
-#include "common/common_types.h"
+#include "../../common/common_types.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

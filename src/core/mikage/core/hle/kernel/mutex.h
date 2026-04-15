@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include "common/common_types.h"
+#include "../../../common/common_types.h"
 
-#include "core/hle/kernel/kernel.h"
+#include "kernel.h"
 
 namespace Kernel {
 

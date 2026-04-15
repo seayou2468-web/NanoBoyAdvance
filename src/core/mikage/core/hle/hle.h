@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "common/common_types.h"
-#include "core/core.h"
+#include "../../common/common_types.h"
+#include "../core.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

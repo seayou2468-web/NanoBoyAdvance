@@ -17,9 +17,9 @@
 
 #pragma once
 
-#include "common/common_types.h"
-#include "core/mem_map.h"
-#include "core/hle/hle.h"
+#include "../../common/common_types.h"
+#include "../mem_map.h"
+#include "hle.h"
 
 // For easy parameter parsing and return value processing.
 

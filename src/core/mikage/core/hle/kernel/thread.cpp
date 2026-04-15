@@ -9,15 +9,15 @@
 #include <map>
 #include <string>
 
-#include "common/common.h"
-#include "common/thread_queue_list.h"
+#include "../../../common/common.h"
+#include "../../../common/thread_queue_list.h"
 
-#include "core/core.h"
-#include "core/mem_map.h"
-#include "core/hle/hle.h"
-#include "core/hle/svc.h"
-#include "core/hle/kernel/kernel.h"
-#include "core/hle/kernel/thread.h"
+#include "../../core.h"
+#include "../../mem_map.h"
+#include "../hle.h"
+#include "../svc.h"
+#include "kernel.h"
+#include "thread.h"
 
 namespace Kernel {
 

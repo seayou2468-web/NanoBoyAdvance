@@ -1,4 +1,4 @@
-#include "core/arm/interpreter/armdefs.h"
+#include "../armdefs.h"
 
 /* mmu cache init
  *

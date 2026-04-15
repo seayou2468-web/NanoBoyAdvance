@@ -21,7 +21,7 @@
 #include <assert.h>
 #include <string.h>
 
-#include "core/arm/interpreter/armdefs.h"
+#include "../armdefs.h"
 
 /**
  *  The interface of read data from bus

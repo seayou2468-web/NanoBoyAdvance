@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "core/arm/disassembler/arm_disasm.h"
+#include "arm_disasm.h"
 
 static const char *cond_names[] = {
     "eq",

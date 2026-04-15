@@ -3,11 +3,11 @@
 // Refer to the license.txt file included.
 
 
-#include "common/common.h"
+#include "../../../common/common.h"
 
-#include "core/hle/hle.h"
-#include "core/hle/kernel/mutex.h"
-#include "core/hle/service/apt.h"
+#include "../hle.h"
+#include "../kernel/mutex.h"
+#include "apt.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Namespace APT_U

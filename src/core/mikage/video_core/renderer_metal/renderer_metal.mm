@@ -4,6 +4,7 @@
 #include "video_core/video_core.h"
 
 #if defined(__APPLE__)
+#import <TargetConditionals.h>
 #import <Metal/Metal.h>
 #import <QuartzCore/CAMetalLayer.h>
 #endif

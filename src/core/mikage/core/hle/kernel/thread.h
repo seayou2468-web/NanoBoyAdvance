@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "common/common_types.h"
-#include "core/hle/kernel/kernel.h"
+#include "../../../common/common_types.h"
+#include "kernel.h"
 
 enum ThreadPriority {
     THREADPRIO_HIGHEST      = 0,    ///< Highest thread priority

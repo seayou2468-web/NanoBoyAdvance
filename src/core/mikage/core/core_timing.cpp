@@ -5,13 +5,13 @@
 #include <vector>
 #include <cstdio>
 
-#include "common/msg_handler.h"
-#include "common/std_mutex.h"
-#include "common/atomic.h"
-#include "common/chunk_file.h"
+#include "../common/msg_handler.h"
+#include "../common/std_mutex.h"
+#include "../common/atomic.h"
+#include "../common/chunk_file.h"
 
-#include "core/core_timing.h"
-#include "core/core.h"
+#include "core_timing.h"
+#include "core.h"
 
 int g_clock_rate_arm11 = 268123480;
 
@@ -175,9 +175,9 @@ void Shutdown()
 
 u64 GetTicks()
 {
-    ERROR_LOG(TIME, "Unimplemented function!");
-    return 0;
-    //return (u64)globalTimer + slicelength - currentMIPS->downcount;
+    return static_cast<u64>(globalTimer);
+    // Legacy implementation used a downcounter based scheduler state.
+    // The current interpreter path advances globalTimer explicitly.
 }
 
 u64 GetIdleTicks()
@@ -509,29 +509,15 @@ void MoveEvents()
 
 void Advance()
 {
-    ERROR_LOG(TIME, "Unimplemented function!");
-    //int cyclesExecuted = slicelength - currentMIPS->downcount;
-    //globalTimer += cyclesExecuted;
-    //currentMIPS->downcount = slicelength;
+    constexpr int cyclesExecuted = 1;
+    globalTimer += cyclesExecuted;
 
-    //if (Common::AtomicLoadAcquire(hasTsEvents))
-    //	MoveEvents();
-    //ProcessFifoWaitEvents();
+    if (Common::AtomicLoadAcquire(hasTsEvents))
+        MoveEvents();
+    ProcessFifoWaitEvents();
 
-    //if (!first)
-    //{
-    //	// WARN_LOG(TIMER, "WARNING - no events in queue. Setting currentMIPS->downcount to 10000");
-    //	currentMIPS->downcount += 10000;
-    //}
-    //else
-    //{
-    //	slicelength = (int)(first->time - globalTimer);
-    //	if (slicelength > MAX_SLICE_LENGTH)
-    //		slicelength = MAX_SLICE_LENGTH;
-    //	currentMIPS->downcount = slicelength;
-    //}
-    //if (advanceCallback)
-    //	advanceCallback(cyclesExecuted);
+    if (advanceCallback)
+        advanceCallback(cyclesExecuted);
 }
 
 void LogPendingEvents()
@@ -546,31 +532,24 @@ void LogPendingEvents()
 
 void Idle(int maxIdle)
 {
-    ERROR_LOG(TIME, "Unimplemented function!");
-    //int cyclesDown = currentMIPS->downcount;
-    //if (maxIdle != 0 && cyclesDown > maxIdle)
-    //	cyclesDown = maxIdle;
+    int cyclesDown = (maxIdle > 0) ? maxIdle : 1;
+    if (first && cyclesDown > 0)
+    {
+        const s64 cyclesNextEvent = first->time - globalTimer;
+        if (cyclesNextEvent <= 0)
+            cyclesDown = 0;
+        else if (cyclesNextEvent < cyclesDown)
+            cyclesDown = static_cast<int>(cyclesNextEvent);
+    }
 
-    //if (first && cyclesDown > 0)
-    //{
-    //	int cyclesExecuted = slicelength - currentMIPS->downcount;
-    //	int cyclesNextEvent = (int) (first->time - globalTimer);
+    if (cyclesDown > 0) {
+        idledCycles += cyclesDown;
+        globalTimer += cyclesDown;
+    }
 
-    //	if (cyclesNextEvent < cyclesExecuted + cyclesDown)
-    //	{
-    //		cyclesDown = cyclesNextEvent - cyclesExecuted;
-    //		// Now, now... no time machines, please.
-    //		if (cyclesDown < 0)
-    //			cyclesDown = 0;
-    //	}
-    //}
-
-    //INFO_LOG(TIME, "Idle for %i cycles! (%f ms)", cyclesDown, cyclesDown / (float)(g_clock_rate_arm11 * 0.001f));
-
-    //idledCycles += cyclesDown;
-    //currentMIPS->downcount -= cyclesDown;
-    //if (currentMIPS->downcount == 0)
-    //	currentMIPS->downcount = -1;
+    if (Common::AtomicLoadAcquire(hasTsEvents))
+        MoveEvents();
+    ProcessFifoWaitEvents();
 }
 
 std::string GetScheduledEventsSummary()

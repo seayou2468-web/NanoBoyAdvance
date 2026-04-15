@@ -9,11 +9,11 @@
 #include <map>
 #include <string>
 
-#include "common/common.h"
-#include "core/mem_map.h"
+#include "../../../common/common.h"
+#include "../../mem_map.h"
 
-#include "core/hle/kernel/kernel.h"
-#include "core/hle/svc.h"
+#include "../kernel/kernel.h"
+#include "../svc.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Namespace Service

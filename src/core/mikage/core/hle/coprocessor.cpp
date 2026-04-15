@@ -2,10 +2,10 @@
 // Licensed under GPLv2
 // Refer to the license.txt file included.  
 
-#include "core/hle/coprocessor.h"
-#include "core/hle/hle.h"
-#include "core/mem_map.h"
-#include "core/core.h"
+#include "coprocessor.h"
+#include "hle.h"
+#include "../mem_map.h"
+#include "../core.h"
 
 namespace HLE {
 

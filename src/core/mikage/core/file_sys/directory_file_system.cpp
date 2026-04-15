@@ -15,11 +15,11 @@
 // Official git repository and contact information can be found at
 // https://github.com/hrydgard/ppsspp and http://www.ppsspp.org/.
 
-#include "common/chunk_file.h"
-#include "common/file_util.h"
-#include "common/utf8.h"
+#include "../../common/chunk_file.h"
+#include "../../common/file_util.h"
+#include "../../common/utf8.h"
 
-#include "core/file_sys/directory_file_system.h"
+#include "directory_file_system.h"
 
 #include <dirent.h>
 #include <unistd.h>

@@ -32,29 +32,23 @@
 
 /// Enumeration for defining the supported platforms
 #define PLATFORM_NULL 0
-#define PLATFORM_WINDOWS 1
-#define PLATFORM_MACOSX 2
-#define PLATFORM_LINUX 3
-#define PLATFORM_ANDROID 4
-#define PLATFORM_IOS 5
+#define PLATFORM_LINUX 1
+#define PLATFORM_IOS 2
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Platform detection
 
 #ifndef EMU_PLATFORM
 
-#if defined( __WIN32__ ) || defined( _WIN32 )
-#define EMU_PLATFORM PLATFORM_WINDOWS
-
-#elif defined( __APPLE__ ) || defined( __APPLE_CC__ )
-#define EMU_PLATFORM PLATFORM_MAXOSX
-
-#elif defined(__linux__)
+#if defined(__linux__)
 #define EMU_PLATFORM PLATFORM_LINUX
 
-#else // Assume linux otherwise
-#define EMU_PLATFORM PLATFORM_LINUX
+#elif defined(__APPLE__) || defined(__APPLE_CC__)
+#include <TargetConditionals.h>
+#define EMU_PLATFORM PLATFORM_IOS
 
+#else
+#error "Mikage common only supports iOS and Linux."
 #endif
 
 #endif
@@ -68,21 +62,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Compiler-Specific Definitions
 
-#if EMU_PLATFORM == PLATFORM_WINDOWS
-
-#include <time.h>
-
-#define NOMINMAX
-#define EMU_FASTCALL __fastcall
-
-inline struct tm* localtime_r(const time_t *clock, struct tm *result) {
-    if (localtime_s(result, clock) == 0)
-        return result;
-    return NULL;
-}
-
-#else
-
 #define EMU_FASTCALL __attribute__((fastcall))
 #define __stdcall
 #define __cdecl
@@ -91,11 +70,6 @@ inline struct tm* localtime_r(const time_t *clock, struct tm *result) {
 #define BOOL bool
 #define DWORD u32
 
-#endif
-
-#if EMU_PLATFORM != PLATFORM_WINDOWS
-
-// TODO: Hacks..
 #include <limits.h>
 #define MAX_PATH PATH_MAX
 
@@ -107,8 +81,6 @@ inline struct tm* localtime_r(const time_t *clock, struct tm *result) {
 #define _tzset tzset
 
 typedef void EXCEPTION_POINTERS;
-
-#endif
 
 #define GCC_VERSION_AVAILABLE(major, minor) (defined(__GNUC__) &&  (__GNUC__ > (major) || \
     (__GNUC__ == (major) && __GNUC_MINOR__ >= (minor))))

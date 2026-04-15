@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include <errno.h>
 
-#include "common/platform.h"
+#include "../../../common/platform.h"
 
 //teawater add for arm2x86 2005.02.14-------------------------------------------
 // koodailar remove it for mingw 2005.12.18----------------
@@ -30,7 +30,7 @@
 //#include "portable/mman.h"
 
 #include "arm_regformat.h"
-#include "common/platform.h"
+#include "../../../common/platform.h"
 #include "skyeye_defs.h"
 
 //AJ2D--------------------------------------------------------------------------
@@ -80,7 +80,7 @@
 //teawater add DBCT_TEST_SPEED 2005.10.04---------------------------------------
 #include <signal.h>
 
-#include "common/platform.h"
+#include "../../../common/platform.h"
 
 #if EMU_PLATFORM == PLATFORM_LINUX
 #include <sys/time.h>
@@ -854,18 +854,18 @@ pascal void SpinCursor (short increment);    /* copied from CursorCtl.h */
 #define VBIT_SHIFT    28
 #ifdef DBCT
 //teawater change for local tb branch directly jump 2005.10.18------------------
-#include "dbct/list.h"
-#include "dbct/arm2x86.h"
-#include "dbct/arm2x86_dp.h"
-#include "dbct/arm2x86_movl.h"
-#include "dbct/arm2x86_psr.h"
-#include "dbct/arm2x86_shift.h"
-#include "dbct/arm2x86_mem.h"
-#include "dbct/arm2x86_mul.h"
-#include "dbct/arm2x86_test.h"
-#include "dbct/arm2x86_other.h"
-#include "dbct/arm2x86_coproc.h"
-#include "dbct/tb.h"
+#include "./dbct/list.h"
+#include "./dbct/arm2x86.h"
+#include "./dbct/arm2x86_dp.h"
+#include "./dbct/arm2x86_movl.h"
+#include "./dbct/arm2x86_psr.h"
+#include "./dbct/arm2x86_shift.h"
+#include "./dbct/arm2x86_mem.h"
+#include "./dbct/arm2x86_mul.h"
+#include "./dbct/arm2x86_test.h"
+#include "./dbct/arm2x86_other.h"
+#include "./dbct/arm2x86_coproc.h"
+#include "./dbct/tb.h"
 #endif
 //AJ2D--------------------------------------------------------------------------
 //AJ2D--------------------------------------------------------------------------

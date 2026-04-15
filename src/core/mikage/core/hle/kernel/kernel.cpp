@@ -6,11 +6,11 @@
 
 #include <string.h>
 
-#include "common/common.h"
+#include "../../../common/common.h"
 
-#include "core/core.h"
-#include "core/hle/kernel/kernel.h"
-#include "core/hle/kernel/thread.h"
+#include "../../core.h"
+#include "kernel.h"
+#include "thread.h"
 
 namespace Kernel {
 

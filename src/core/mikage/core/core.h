@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "core/arm/arm_interface.h"
-#include "core/arm/interpreter/armdefs.h"
+#include "./arm/arm_interface.h"
+#include "./arm/interpreter/armdefs.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

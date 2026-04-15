@@ -16,7 +16,7 @@
     Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA. */
 
 
-#include "common/platform.h"
+#include "../../../common/platform.h"
 
 #if EMU_PLATFORM == PLATFORM_LINUX || EMU_PLATFORM == PLATFORM_BSD
 #include <unistd.h>
@@ -24,8 +24,8 @@
 
 #include <math.h>
 
-#include "core/arm/interpreter/armdefs.h"
-#include "core/arm/interpreter/armemu.h"
+#include "armdefs.h"
+#include "armemu.h"
 
 /***************************************************************************\
 *                 Definitions for the emulator architecture                 *

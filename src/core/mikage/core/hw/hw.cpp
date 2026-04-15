@@ -2,12 +2,12 @@
 // Licensed under GPLv2
 // Refer to the license.txt file included.
 
-#include "common/common_types.h"
-#include "common/log.h"
+#include "../../common/common_types.h"
+#include "../../common/log.h"
 
-#include "core/hw/hw.h"
-#include "core/hw/gpu.h"
-#include "core/hw/ndma.h"
+#include "hw.h"
+#include "gpu.h"
+#include "ndma.h"
 
 namespace HW {
 

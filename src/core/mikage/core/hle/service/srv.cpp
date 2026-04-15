@@ -2,9 +2,9 @@
 // Licensed under GPLv2
 // Refer to the license.txt file included.
 
-#include "core/hle/hle.h"
-#include "core/hle/service/srv.h"
-#include "core/hle/service/service.h"
+#include "../hle.h"
+#include "srv.h"
+#include "service.h"
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

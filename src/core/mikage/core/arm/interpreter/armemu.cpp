@@ -16,7 +16,7 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.  */
 
-#include "core/hle/hle.h"
+#include "../../hle/hle.h"
 
 #include "arm_regformat.h"
 #include "armdefs.h"
@@ -296,8 +296,8 @@ extern int (*ui_loop_hook) (int);
 /*ywc 2005-03-31*/
 //teawater add for arm2x86 2005.02.17-------------------------------------------
 #ifdef DBCT
-#include "dbct/tb.h"
-#include "dbct/arm2x86_self.h"
+#include "./dbct/tb.h"
+#include "./dbct/arm2x86_self.h"
 #endif
 //AJ2D--------------------------------------------------------------------------
 

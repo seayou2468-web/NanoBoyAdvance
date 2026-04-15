@@ -2,17 +2,17 @@
 // Licensed under GPLv2
 // Refer to the license.txt file included.
 
-#include "common/common_types.h"
-#include "common/log.h"
-#include "common/symbols.h"
+#include "../common/common_types.h"
+#include "../common/log.h"
+#include "../common/symbols.h"
 
-#include "core/core.h"
-#include "core/mem_map.h"
-#include "core/hw/hw.h"
-#include "core/arm/disassembler/arm_disasm.h"
-#include "core/arm/interpreter/arm_interpreter.h"
+#include "core.h"
+#include "mem_map.h"
+#include "./hw/hw.h"
+#include "./arm/disassembler/arm_disasm.h"
+#include "./arm/interpreter/arm_interpreter.h"
 
-#include "core/hle/kernel/thread.h"
+#include "./hle/kernel/thread.h"
 
 namespace Core {
 

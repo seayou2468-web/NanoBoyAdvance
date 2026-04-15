@@ -15,11 +15,11 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA. */
 
-#include "core/arm/interpreter/armdefs.h"
-#include "core/arm/interpreter/armemu.h"
-#include "core/arm/interpreter/skyeye_defs.h"
-#include "core/hle/coprocessor.h"
-#include "core/arm/disassembler/arm_disasm.h"
+#include "armdefs.h"
+#include "armemu.h"
+#include "skyeye_defs.h"
+#include "../../hle/coprocessor.h"
+#include "../disassembler/arm_disasm.h"
 
 unsigned xscale_cp15_cp_access_allowed (ARMul_State * state, unsigned reg,
                                         unsigned cpnum);

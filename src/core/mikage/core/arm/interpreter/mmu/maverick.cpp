@@ -18,8 +18,8 @@
 
 #include <assert.h>
 
-#include "core/arm/interpreter/armdefs.h"
-#include "core/arm/interpreter/armemu.h"
+#include "../armdefs.h"
+#include "../armemu.h"
 
 
 /*#define CIRRUS_DEBUG 1	*/

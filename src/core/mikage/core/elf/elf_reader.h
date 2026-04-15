@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "core/elf/elf_types.h"
+#include "elf_types.h"
 
 enum KnownElfTypes
 {

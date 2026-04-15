@@ -11,6 +11,19 @@ extern "C" void MikageConvertBGR24ToRGBA8888Flipped(const uint8_t* src,
                                                       size_t width,
                                                       size_t height,
                                                       size_t dst_stride_pixels);
+namespace {
+void FillOpaqueBlack(uint8_t* dst, size_t width, size_t height, size_t dst_stride_pixels) {
+    for (size_t y = 0; y < height; ++y) {
+        uint8_t* row = dst + (y * dst_stride_pixels * 4);
+        for (size_t x = 0; x < width; ++x) {
+            row[x * 4 + 0] = 0;
+            row[x * 4 + 1] = 0;
+            row[x * 4 + 2] = 0;
+            row[x * 4 + 3] = 0xFF;
+        }
+    }
+}
+} // namespace
 
 RendererSoftware::RendererSoftware() : m_render_window(nullptr), m_frames_since_tick(0) {
     m_framebuffer_rgba.resize(static_cast<size_t>(VideoCore::kScreenTopWidth) *
@@ -41,21 +54,25 @@ void RendererSoftware::UploadFramebuffers() {
 
     u8* dst = m_framebuffer_rgba.data();
     std::fill(m_framebuffer_rgba.begin(), m_framebuffer_rgba.end(), 0);
-    MikageConvertBGR24ToRGBA8888Flipped(
-        GPU::GetFramebufferPointer(GPU::g_regs.framebuffer_top_left_1),
-        dst,
-        top_width,
-        top_height,
-        top_width);
+    if (const uint8_t* top_src = GPU::GetFramebufferPointer(GPU::g_regs.framebuffer_top_left_1)) {
+        MikageConvertBGR24ToRGBA8888Flipped(top_src, dst, top_width, top_height, top_width);
+    } else {
+        FillOpaqueBlack(dst, top_width, top_height, top_width);
+    }
 
     const size_t bottom_offset_y = top_height;
     const size_t horizontal_offset = (top_width - bottom_width) / 2;
-    MikageConvertBGR24ToRGBA8888Flipped(
-        GPU::GetFramebufferPointer(GPU::g_regs.framebuffer_sub_left_1),
-        dst + ((bottom_offset_y * top_width + horizontal_offset) * 4),
-        bottom_width,
-        bottom_height,
-        top_width);
+    uint8_t* const bottom_dst = dst + ((bottom_offset_y * top_width + horizontal_offset) * 4);
+    if (const uint8_t* bottom_src = GPU::GetFramebufferPointer(GPU::g_regs.framebuffer_sub_left_1)) {
+        MikageConvertBGR24ToRGBA8888Flipped(
+            bottom_src,
+            bottom_dst,
+            bottom_width,
+            bottom_height,
+            top_width);
+    } else {
+        FillOpaqueBlack(bottom_dst, bottom_width, bottom_height, top_width);
+    }
 }
 
 void RendererSoftware::UpdateFramerate() {

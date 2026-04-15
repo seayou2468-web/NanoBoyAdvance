@@ -3,16 +3,16 @@
 // Refer to the license.txt file included.
 
 
-#include "common/log.h"
-#include "common/bit_field.h"
+#include "../../../common/log.h"
+#include "../../../common/bit_field.h"
 
-#include "core/mem_map.h"
-#include "core/hle/hle.h"
-#include "core/hle/service/gsp.h"
+#include "../../mem_map.h"
+#include "../hle.h"
+#include "gsp.h"
 
-#include "core/hw/gpu.h"
+#include "../../hw/gpu.h"
 
-#include "video_core/gpu_debugger.h"
+#include "../../../video_core/gpu_debugger.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

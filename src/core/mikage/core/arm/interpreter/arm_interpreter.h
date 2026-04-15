@@ -4,11 +4,11 @@
 
 #pragma once
 
-#include "common/common.h"
+#include "../../../common/common.h"
 
-#include "core/arm/arm_interface.h"
-#include "core/arm/interpreter/armdefs.h"
-#include "core/arm/interpreter/armemu.h"
+#include "../arm_interface.h"
+#include "armdefs.h"
+#include "armemu.h"
 
 class ARM_Interpreter : virtual public ARM_Interface {
 public:

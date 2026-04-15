@@ -2,15 +2,15 @@
 // Licensed under GPLv2
 // Refer to the license.txt file included.
 
-#include "common/common_types.h"
-#include "common/log.h"
+#include "../../common/common_types.h"
+#include "../../common/log.h"
 
-#include "core/core.h"
-#include "core/mem_map.h"
-#include "core/hle/kernel/thread.h"
-#include "core/hw/gpu.h"
+#include "../core.h"
+#include "../mem_map.h"
+#include "../hle/kernel/thread.h"
+#include "gpu.h"
 
-#include "video_core/video_core.h"
+#include "../../video_core/video_core.h"
 
 
 namespace GPU {

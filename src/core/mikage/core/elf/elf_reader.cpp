@@ -4,11 +4,11 @@
 
 #include <string>
 
-#include "common/common.h"
+#include "../../common/common.h"
 
-#include "common/symbols.h"
-#include "core/mem_map.h"
-#include "core/elf/elf_reader.h"
+#include "../../common/symbols.h"
+#include "../mem_map.h"
+#include "elf_reader.h"
 
 //void bswap(Elf32_Word &w) {w = Common::swap32(w);}
 //void bswap(Elf32_Half &w) {w = Common::swap16(w);}
