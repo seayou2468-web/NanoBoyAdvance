@@ -20,9 +20,6 @@ bool LoadDirectory_CXI(std::string &filename) {
     std::string full_path = filename;
     std::string path, file, extension;
     SplitPath(ReplaceAll(full_path, "\\", "/"), &path, &file, &extension);
-#if EMU_PLATFORM == PLATFORM_WINDOWS
-    path = ReplaceAll(path, "/", "\\");
-#endif
     DirectoryFileSystem *fs = new DirectoryFileSystem(&System::g_ctr_file_system, path);
     System::g_ctr_file_system.Mount("fs:", fs);
 
@@ -41,9 +38,6 @@ bool Load_ELF(std::string &filename) {
     std::string full_path = filename;
     std::string path, file, extension;
     SplitPath(ReplaceAll(full_path, "\\", "/"), &path, &file, &extension);
-#if EMU_PLATFORM == PLATFORM_WINDOWS
-    path = ReplaceAll(path, "/", "\\");
-#endif
     File::IOFile f(filename, "rb");
 
     if (f.IsOpen()) {
@@ -73,9 +67,6 @@ bool Load_DAT(std::string &filename) {
     std::string full_path = filename;
     std::string path, file, extension;
     SplitPath(ReplaceAll(full_path, "\\", "/"), &path, &file, &extension);
-#if EMU_PLATFORM == PLATFORM_WINDOWS
-    path = ReplaceAll(path, "/", "\\");
-#endif
     File::IOFile f(filename, "rb");
 
     if (f.IsOpen()) {
@@ -121,9 +112,6 @@ bool Load_BIN(std::string &filename) {
     std::string full_path = filename;
     std::string path, file, extension;
     SplitPath(ReplaceAll(full_path, "\\", "/"), &path, &file, &extension);
-#if EMU_PLATFORM == PLATFORM_WINDOWS
-    path = ReplaceAll(path, "/", "\\");
-#endif
     File::IOFile f(filename, "rb");
 
     if (f.IsOpen()) {
@@ -241,19 +229,11 @@ bool LoadFile(std::string &filename, std::string *error_string) {
         break;
 
     case FILETYPE_ARCHIVE_RAR:
-#ifdef WIN32
-        *error_string = "RAR file detected (Require WINRAR)";
-#else
         *error_string = "RAR file detected (Require UnRAR)";
-#endif
         break;
 
     case FILETYPE_ARCHIVE_ZIP:
-#ifdef WIN32
-        *error_string = "ZIP file detected (Require WINRAR)";
-#else
         *error_string = "ZIP file detected (Require UnRAR)";
-#endif
         break;
 
     case FILETYPE_NORMAL_DIRECTORY:

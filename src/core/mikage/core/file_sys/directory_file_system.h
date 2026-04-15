@@ -17,15 +17,9 @@
 
 #pragma once
 
-// TODO: Remove the Windows-specific code, FILE is fine there too.
-
 #include <map>
 
 #include "core/file_sys/file_sys.h"
-
-#ifdef _WIN32
-typedef void * HANDLE;
-#endif
 
 #if defined(__APPLE__)
 
@@ -38,9 +32,6 @@ typedef void * HANDLE;
 // creating a filesytem), so assume the worst:
 #define HOST_IS_CASE_SENSITIVE 1
 #endif
-
-#elif defined(_WIN32) || defined(__SYMBIAN32__)
-#define HOST_IS_CASE_SENSITIVE 0
 
 #else  // Android, Linux, BSD (and the rest?)
 #define HOST_IS_CASE_SENSITIVE 1
@@ -59,18 +50,10 @@ bool FixPathCase(std::string& basePath, std::string &path, FixPathCaseBehavior b
 
 struct DirectoryFileHandle
 {
-#ifdef _WIN32
-	HANDLE hFile;
-#else
 	FILE* hFile;
-#endif
 	DirectoryFileHandle()
 	{
-#ifdef _WIN32
-		hFile = (HANDLE)-1;
-#else
 		hFile = 0;
-#endif
 	}
 
 	std::string GetLocalPath(std::string& basePath, std::string localpath);

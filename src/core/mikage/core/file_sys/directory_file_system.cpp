@@ -21,15 +21,10 @@
 
 #include "core/file_sys/directory_file_system.h"
 
-#if EMU_PLATFORM == PLATFORM_WINDOWS
-#include <windows.h>
-#include <sys/stat.h>
-#else
 #include <dirent.h>
 #include <unistd.h>
 #include <sys/stat.h>
 #include <ctype.h>
-#endif
 
 #if HOST_IS_CASE_SENSITIVE
 static bool FixFilenameCase(const std::string &path, std::string &filename)
@@ -138,13 +133,6 @@ std::string DirectoryFileHandle::GetLocalPath(std::string& basePath, std::string
 
 	if (localpath[0] == '/')
 		localpath.erase(0,1);
-	//Convert slashes
-#ifdef _WIN32
-	for (size_t i = 0; i < localpath.size(); i++) {
-		if (localpath[i] == '/')
-			localpath[i] = '\\';
-	}
-#endif
 	return basePath + localpath;
 }
 
@@ -164,28 +152,6 @@ bool DirectoryFileHandle::Open(std::string& basePath, std::string& fileName, Fil
 	INFO_LOG(FILESYS,"Actually opening %s", fullName.c_str());
 
 	//TODO: tests, should append seek to end of file? seeking in a file opened for append?
-#ifdef _WIN32
-	// Convert parameters to Windows permissions and access
-	DWORD desired = 0;
-	DWORD sharemode = 0;
-	DWORD openmode = 0;
-	if (access & FILEACCESS_READ) {
-		desired   |= GENERIC_READ;
-		sharemode |= FILE_SHARE_READ;
-	}
-	if (access & FILEACCESS_WRITE) {
-		desired   |= GENERIC_WRITE;
-		sharemode |= FILE_SHARE_WRITE;
-	}
-	if (access & FILEACCESS_CREATE) {
-		openmode = OPEN_ALWAYS;
-	} else {
-		openmode = OPEN_EXISTING;
-	}
-	//Let's do it!
-	hFile = CreateFile(ConvertUTF8ToWString(fullName).c_str(), desired, sharemode, 0, openmode, 0, 0);
-	bool success = hFile != INVALID_HANDLE_VALUE;
-#else
 	// Convert flags in access parameter to fopen access mode
 	const char *mode = NULL;
 	if (access & FILEACCESS_APPEND) {
@@ -211,7 +177,6 @@ bool DirectoryFileHandle::Open(std::string& basePath, std::string& fileName, Fil
 
 	hFile = fopen(fullName.c_str(), mode);
 	bool success = hFile != 0;
-#endif
 
 #if HOST_IS_CASE_SENSITIVE
 	if (!success &&
@@ -227,13 +192,8 @@ bool DirectoryFileHandle::Open(std::string& basePath, std::string& fileName, Fil
 		DEBUG_LOG(FILESYS, "Case may have been incorrect, second try opening %s (%s)", fullNameC, fileName.c_str());
 
 		// And try again with the correct case this time
-#ifdef _WIN32
-		hFile = CreateFile(fullNameC, desired, sharemode, 0, openmode, 0, 0);
-		success = hFile != INVALID_HANDLE_VALUE;
-#else
 		hFile = fopen(fullNameC, mode);
 		success = hFile != 0;
-#endif
 	}
 #endif
 
@@ -242,38 +202,16 @@ bool DirectoryFileHandle::Open(std::string& basePath, std::string& fileName, Fil
 
 size_t DirectoryFileHandle::Read(u8* pointer, s64 size)
 {
-	size_t bytesRead = 0;
-#ifdef _WIN32
-	::ReadFile(hFile, (LPVOID)pointer, (DWORD)size, (LPDWORD)&bytesRead, 0);
-#else
-	bytesRead = fread(pointer, 1, size, hFile);
-#endif
-	return bytesRead;
+	return fread(pointer, 1, size, hFile);
 }
 
 size_t DirectoryFileHandle::Write(const u8* pointer, s64 size)
 {
-	size_t bytesWritten = 0;
-#ifdef _WIN32
-	::WriteFile(hFile, (LPVOID)pointer, (DWORD)size, (LPDWORD)&bytesWritten, 0);
-#else
-	bytesWritten = fwrite(pointer, 1, size, hFile);
-#endif
-	return bytesWritten;
+	return fwrite(pointer, 1, size, hFile);
 }
 
 size_t DirectoryFileHandle::Seek(s32 position, FileMove type)
 {
-#ifdef _WIN32
-	DWORD moveMethod = 0;
-	switch (type) {
-	case FILEMOVE_BEGIN:    moveMethod = FILE_BEGIN;    break;
-	case FILEMOVE_CURRENT:  moveMethod = FILE_CURRENT;  break;
-	case FILEMOVE_END:      moveMethod = FILE_END;      break;
-	}
-	DWORD newPos = SetFilePointer(hFile, (LONG)position, 0, moveMethod);
-	return newPos;
-#else
 	int moveMethod = 0;
 	switch (type) {
 	case FILEMOVE_BEGIN:    moveMethod = SEEK_SET;  break;
@@ -282,18 +220,12 @@ size_t DirectoryFileHandle::Seek(s32 position, FileMove type)
 	}
 	fseek(hFile, position, moveMethod);
 	return ftell(hFile);
-#endif
 }
 
 void DirectoryFileHandle::Close()
 {
-#ifdef _WIN32
-	if (hFile != (HANDLE)-1)
-		CloseHandle(hFile);
-#else
 	if (hFile != 0)
 		fclose(hFile);
-#endif
 }
 
 DirectoryFileSystem::DirectoryFileSystem(IHandleAllocator *_hAlloc, std::string _basePath) : basePath(_basePath) {
@@ -313,13 +245,6 @@ std::string DirectoryFileSystem::GetLocalPath(std::string localpath) {
 
 	if (localpath[0] == '/')
 		localpath.erase(0,1);
-	//Convert slashes
-#ifdef _WIN32
-	for (size_t i = 0; i < localpath.size(); i++) {
-		if (localpath[i] == '/')
-			localpath[i] = '\\';
-	}
-#endif
 	return basePath + localpath;
 }
 
@@ -354,11 +279,6 @@ bool DirectoryFileSystem::RmDir(const std::string &dirname) {
 	fullName = GetLocalPath(fullName);
 #endif
 
-/*#ifdef _WIN32
-	return RemoveDirectory(fullName.c_str()) == TRUE;
-#else
-	return 0 == rmdir(fullName.c_str());
-#endif*/
 	return File::DeleteDirRecursively(fullName);
 }
 
@@ -390,11 +310,7 @@ int DirectoryFileSystem::RenameFile(const std::string &from, const std::string &
 	fullTo = GetLocalPath(fullTo);
 	const char * fullToC = fullTo.c_str();
 
-#ifdef _WIN32
-	bool retValue = (MoveFile(ConvertUTF8ToWString(fullFrom).c_str(), ConvertUTF8ToWString(fullToC).c_str()) == TRUE);
-#else
 	bool retValue = (0 == rename(fullFrom.c_str(), fullToC));
-#endif
 
 #if HOST_IS_CASE_SENSITIVE
 	if (! retValue)
@@ -405,11 +321,7 @@ int DirectoryFileSystem::RenameFile(const std::string &from, const std::string &
 			return -1;  // or go on and attempt (for a better error code than just false?)
 		fullFrom = GetLocalPath(fullFrom);
 
-#ifdef _WIN32
-		retValue = (MoveFile(fullFrom.c_str(), fullToC) == TRUE);
-#else
 		retValue = (0 == rename(fullFrom.c_str(), fullToC));
-#endif
 	}
 #endif
 
@@ -419,11 +331,7 @@ int DirectoryFileSystem::RenameFile(const std::string &from, const std::string &
 
 bool DirectoryFileSystem::RemoveFile(const std::string &filename) {
 	std::string fullName = GetLocalPath(filename);
-#ifdef _WIN32
-	bool retValue = (::DeleteFileA(fullName.c_str()) == TRUE);
-#else
 	bool retValue = (0 == unlink(fullName.c_str()));
-#endif
 
 #if HOST_IS_CASE_SENSITIVE
 	if (! retValue)
@@ -434,11 +342,7 @@ bool DirectoryFileSystem::RemoveFile(const std::string &filename) {
 			return false;  // or go on and attempt (for a better error code than just false?)
 		fullName = GetLocalPath(fullName);
 
-#ifdef _WIN32
-		retValue = (::DeleteFileA(fullName.c_str()) == TRUE);
-#else
 		retValue = (0 == unlink(fullName.c_str()));
-#endif
 	}
 #endif
 
@@ -450,19 +354,10 @@ u32 DirectoryFileSystem::OpenFile(std::string filename, FileAccess access, const
 	bool success = entry.hFile.Open(basePath,filename,access);
 
 	if (!success) {
-#ifdef _WIN32
-		ERROR_LOG(FILESYS, "DirectoryFileSystem::OpenFile: FAILED, %i - access = %i", GetLastError(), (int)access);
-#else
 		ERROR_LOG(FILESYS, "DirectoryFileSystem::OpenFile: FAILED, access = %i", (int)access);
-#endif
 		//wwwwaaaaahh!!
 		return 0;
 	} else {
-#ifdef _WIN32
-		if (access & FILEACCESS_APPEND)
-			entry.hFile.Seek(0,FILEMOVE_END);
-#endif
-
 		u32 newHandle = hAlloc->GetNewHandle();
 		entries[newHandle] = entry;
 
@@ -546,13 +441,8 @@ FileInfo DirectoryFileSystem::GetFileInfo(std::string filename) {
 
 	if (x.type != FILETYPE_DIRECTORY)
 	{
-#ifdef _WIN32
-		struct _stat64i32 s;
-		_wstat64i32(ConvertUTF8ToWString(fullName).c_str(), &s);
-#else
 		struct stat s;
 		stat(fullName.c_str(), &s);
-#endif
 
 		x.size = File::GetSize(fullName);
 		x.access = s.st_mode & 0x1FF;
@@ -569,59 +459,8 @@ bool DirectoryFileSystem::GetHostPath(const std::string &inpath, std::string &ou
 	return true;
 }
 
-#ifdef _WIN32
-#define FILETIME_FROM_UNIX_EPOCH_US 11644473600000000ULL
-
-static void tmFromFiletime(tm &dest, FILETIME &src)
-{
-	u64 from_1601_us = (((u64) src.dwHighDateTime << 32ULL) + (u64) src.dwLowDateTime) / 10ULL;
-	u64 from_1970_us = from_1601_us - FILETIME_FROM_UNIX_EPOCH_US;
-
-	time_t t = (time_t) (from_1970_us / 1000000UL);
-	localtime_r(&t, &dest);
-}
-#endif
-
 std::vector<FileInfo> DirectoryFileSystem::GetDirListing(std::string path) {
 	std::vector<FileInfo> myVector;
-#ifdef _WIN32
-	WIN32_FIND_DATA findData;
-	HANDLE hFind;
-
-	std::string w32path = GetLocalPath(path) + "\\*.*";
-
-	hFind = FindFirstFile(ConvertUTF8ToWString(w32path).c_str(), &findData);
-
-	if (hFind == INVALID_HANDLE_VALUE) {
-		return myVector; //the empty list
-	}
-
-	while (true) {
-		FileInfo entry;
-		if (findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-			entry.type = FILETYPE_DIRECTORY;
-		else
-			entry.type = FILETYPE_NORMAL;
-
-		// TODO: Make this more correct?
-		entry.access = entry.type == FILETYPE_NORMAL ? 0666 : 0777;
-		// TODO: is this just for .. or all subdirectories? Need to add a directory to the test
-		// to find out. Also why so different than the old test results?
-		if (!wcscmp(findData.cFileName, L"..") )
-			entry.size = 4096;
-		else
-			entry.size = findData.nFileSizeLow | ((u64)findData.nFileSizeHigh<<32);
-		entry.name = ConvertWStringToUTF8(findData.cFileName);
-		tmFromFiletime(entry.atime, findData.ftLastAccessTime);
-		tmFromFiletime(entry.ctime, findData.ftCreationTime);
-		tmFromFiletime(entry.mtime, findData.ftLastWriteTime);
-		myVector.push_back(entry);
-
-		int retval = FindNextFile(hFind, &findData);
-		if (!retval)
-			break;
-	}
-#else
 	dirent *dirp;
 	std::string localPath = GetLocalPath(path);
 	DIR *dp = opendir(localPath.c_str());
@@ -657,7 +496,6 @@ std::vector<FileInfo> DirectoryFileSystem::GetDirListing(std::string path) {
 		myVector.push_back(entry);
 	}
 	closedir(dp);
-#endif
 	return myVector;
 }
 

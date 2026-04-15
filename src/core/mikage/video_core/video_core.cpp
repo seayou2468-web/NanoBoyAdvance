@@ -10,7 +10,8 @@
 
 #include "video_core/video_core.h"
 #include "video_core/renderer_base.h"
-#include "video_core/renderer_opengl/renderer_opengl.h"
+#include "video_core/renderer_metal/renderer_metal.h"
+#include "video_core/renderer_software/renderer_software.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Video Core namespace
@@ -30,12 +31,15 @@ void Start() {
 
 /// Initialize the video core
 void Init(EmuWindow* emu_window) {
-    // Known problem with GLEW prevents contexts above 2.x on OSX unless glewExperimental is enabled.
-    glewExperimental = GL_TRUE;
-
     g_emu_window = emu_window;
     g_emu_window->MakeCurrent();
-    g_renderer = new RendererOpenGL();
+
+#if defined(__APPLE__)
+    g_renderer = new RendererMetal();
+#else
+    g_renderer = new RendererSoftware();
+#endif
+
     g_renderer->SetWindow(g_emu_window);
     g_renderer->Init();
 
@@ -47,6 +51,7 @@ void Init(EmuWindow* emu_window) {
 /// Shutdown the video core
 void Shutdown() {
     delete g_renderer;
+    g_renderer = NULL;
     NOTICE_LOG(VIDEO, "shutdown OK");
 }
 
