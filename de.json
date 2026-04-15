@@ -1,0 +1,2140 @@
+{
+  "debugObjects" : {
+    "Projects\/1DF1D119-EBAF-49A1-A741-6957981537E9\/ios\/AuroraIOS\/Controllers\/AURControllerSkinsViewController.m" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "severity" : 2,
+          "line" : 4,
+          "column" : 10,
+          "message" : "'..\/..\/..\/..\/src\/core\/emulator_core_c_api.h' file not found"
+        }
+      ],
+      "title" : "Projects\/1DF1D119-EBAF-49A1-A741-6957981537E9\/ios\/AuroraIOS\/Controllers\/AURControllerSkinsViewController.m"
+    },
+    "Projects\/1DF1D119-EBAF-49A1-A741-6957981537E9\/ios\/AuroraIOS\/Metal.m" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "message" : "assigning retained object to unsafe_unretained variable; object will be released after assignment",
+          "line" : 83,
+          "severity" : 1,
+          "column" : 24
+        },
+        {
+          "message" : "'mainScreen' is deprecated: first deprecated in iOS 26.0 - Use a UIScreen instance found through context instead (i.e, view.window.windowScene.screen), or for properties like UIScreen.scale with trait equivalents, use a traitCollection found through context.",
+          "line" : 322,
+          "severity" : 1,
+          "column" : 41
+        },
+        {
+          "message" : "property 'mainScreen' is declared deprecated here",
+          "line" : 57,
+          "severity" : 0,
+          "column" : 49
+        },
+        {
+          "message" : "'mainScreen' has been explicitly marked deprecated here",
+          "line" : 57,
+          "severity" : 0,
+          "column" : 49
+        }
+      ],
+      "title" : "Projects\/1DF1D119-EBAF-49A1-A741-6957981537E9\/ios\/AuroraIOS\/Metal.m"
+    },
+    "Projects\/1DF1D119-EBAF-49A1-A741-6957981537E9\/src\/core\/mikage\/core\/file_sys\/meta_file_system.cpp" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/1DF1D119-EBAF-49A1-A741-6957981537E9\/src\/core\/mikage\/core\/file_sys\/meta_file_system.cpp",
+      "debugItems" : [
+        {
+          "message" : "unrecognized instruction mnemonic, did you mean: bit, cnt, hint, ins, not?",
+          "column" : 2,
+          "line" : 189,
+          "severity" : 2
+        },
+        {
+          "message" : "expanded from macro '_assert_msg_'",
+          "column" : 49,
+          "line" : 150,
+          "severity" : 0
+        },
+        {
+          "message" : "expanded from macro 'Crash'",
+          "column" : 31,
+          "line" : 47,
+          "severity" : 0
+        },
+        {
+          "message" : "instantiated into assembly here",
+          "column" : 2,
+          "line" : 1,
+          "severity" : 0
+        },
+        {
+          "message" : "unrecognized instruction mnemonic, did you mean: bit, cnt, hint, ins, not?",
+          "column" : 2,
+          "line" : 349,
+          "severity" : 2
+        },
+        {
+          "message" : "expanded from macro '_assert_msg_'",
+          "column" : 49,
+          "line" : 150,
+          "severity" : 0
+        },
+        {
+          "message" : "expanded from macro 'Crash'",
+          "column" : 31,
+          "line" : 47,
+          "severity" : 0
+        },
+        {
+          "message" : "instantiated into assembly here",
+          "column" : 2,
+          "line" : 1,
+          "severity" : 0
+        },
+        {
+          "message" : "unrecognized instruction mnemonic, did you mean: bit, cnt, hint, ins, not?",
+          "column" : 57,
+          "line" : 207,
+          "severity" : 2
+        },
+        {
+          "message" : "expanded from macro '_dbg_assert_msg_'",
+          "column" : 40,
+          "line" : 126,
+          "severity" : 0
+        },
+        {
+          "message" : "expanded from macro 'Crash'",
+          "column" : 31,
+          "line" : 47,
+          "severity" : 0
+        },
+        {
+          "message" : "instantiated into assembly here",
+          "column" : 2,
+          "line" : 1,
+          "severity" : 0
+        },
+        {
+          "message" : "unrecognized instruction mnemonic, did you mean: bit, cnt, hint, ins, not?",
+          "column" : 57,
+          "line" : 220,
+          "severity" : 2
+        },
+        {
+          "message" : "expanded from macro '_dbg_assert_msg_'",
+          "column" : 40,
+          "line" : 126,
+          "severity" : 0
+        },
+        {
+          "message" : "expanded from macro 'Crash'",
+          "column" : 31,
+          "line" : 47,
+          "severity" : 0
+        },
+        {
+          "message" : "instantiated into assembly here",
+          "column" : 2,
+          "line" : 1,
+          "severity" : 0
+        },
+        {
+          "message" : "unrecognized instruction mnemonic, did you mean: bit, cnt, hint, ins, not?",
+          "column" : 27,
+          "line" : 519,
+          "severity" : 2
+        },
+        {
+          "message" : "expanded from macro '_dbg_assert_msg_'",
+          "column" : 40,
+          "line" : 126,
+          "severity" : 0
+        },
+        {
+          "message" : "expanded from macro 'Crash'",
+          "column" : 31,
+          "line" : 47,
+          "severity" : 0
+        },
+        {
+          "message" : "instantiated into assembly here",
+          "column" : 2,
+          "line" : 1,
+          "severity" : 0
+        }
+      ]
+    },
+    "Projects\/1DF1D119-EBAF-49A1-A741-6957981537E9\/src\/core\/mikage\/core\/core_timing.cpp" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "severity" : 2,
+          "line" : 207,
+          "column" : 57,
+          "message" : "unrecognized instruction mnemonic, did you mean: bit, cnt, hint, ins, not?"
+        },
+        {
+          "severity" : 0,
+          "line" : 126,
+          "column" : 40,
+          "message" : "expanded from macro '_dbg_assert_msg_'"
+        },
+        {
+          "severity" : 0,
+          "line" : 47,
+          "column" : 31,
+          "message" : "expanded from macro 'Crash'"
+        },
+        {
+          "severity" : 0,
+          "line" : 1,
+          "column" : 2,
+          "message" : "instantiated into assembly here"
+        },
+        {
+          "severity" : 2,
+          "line" : 220,
+          "column" : 57,
+          "message" : "unrecognized instruction mnemonic, did you mean: bit, cnt, hint, ins, not?"
+        },
+        {
+          "severity" : 0,
+          "line" : 126,
+          "column" : 40,
+          "message" : "expanded from macro '_dbg_assert_msg_'"
+        },
+        {
+          "severity" : 0,
+          "line" : 47,
+          "column" : 31,
+          "message" : "expanded from macro 'Crash'"
+        },
+        {
+          "severity" : 0,
+          "line" : 1,
+          "column" : 2,
+          "message" : "instantiated into assembly here"
+        }
+      ],
+      "title" : "Projects\/1DF1D119-EBAF-49A1-A741-6957981537E9\/src\/core\/mikage\/core\/core_timing.cpp"
+    },
+    "Projects\/1DF1D119-EBAF-49A1-A741-6957981537E9\/src\/core\/mikage\/core\/arm\/interpreter\/armos.cpp" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/1DF1D119-EBAF-49A1-A741-6957981537E9\/src\/core\/mikage\/core\/arm\/interpreter\/armos.cpp",
+      "debugItems" : [
+        {
+          "line" : 592,
+          "message" : "unrecognized instruction mnemonic, did you mean: bit, cnt, hint, ins, not?",
+          "severity" : 2,
+          "column" : 3
+        },
+        {
+          "line" : 126,
+          "message" : "expanded from macro '_dbg_assert_msg_'",
+          "severity" : 0,
+          "column" : 40
+        },
+        {
+          "line" : 47,
+          "message" : "expanded from macro 'Crash'",
+          "severity" : 0,
+          "column" : 31
+        },
+        {
+          "line" : 1,
+          "message" : "instantiated into assembly here",
+          "severity" : 0,
+          "column" : 2
+        }
+      ]
+    },
+    "Projects\/1DF1D119-EBAF-49A1-A741-6957981537E9\/src\/core\/mikage\/core\/hle\/kernel\/mutex.cpp" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/1DF1D119-EBAF-49A1-A741-6957981537E9\/src\/core\/mikage\/core\/hle\/kernel\/mutex.cpp",
+      "debugItems" : [
+        {
+          "line" : 97,
+          "severity" : 2,
+          "column" : 9,
+          "message" : "unrecognized instruction mnemonic, did you mean: bit, cnt, hint, ins, not?"
+        },
+        {
+          "line" : 121,
+          "severity" : 0,
+          "column" : 59,
+          "message" : "expanded from macro '_dbg_assert_'"
+        },
+        {
+          "line" : 47,
+          "severity" : 0,
+          "column" : 31,
+          "message" : "expanded from macro 'Crash'"
+        },
+        {
+          "line" : 1,
+          "severity" : 0,
+          "column" : 2,
+          "message" : "instantiated into assembly here"
+        }
+      ]
+    },
+    "Projects\/1DF1D119-EBAF-49A1-A741-6957981537E9\/src\/core\/mikage\/core\/arm\/interpreter\/vfp\/vfpsingle.cpp" : {
+      "title" : "Projects\/1DF1D119-EBAF-49A1-A741-6957981537E9\/src\/core\/mikage\/core\/arm\/interpreter\/vfp\/vfpsingle.cpp",
+      "debugItems" : [
+        {
+          "message" : "ISO C++11 does not allow conversion from string literal to 'char *'",
+          "severity" : 1,
+          "column" : 68,
+          "line" : 961
+        },
+        {
+          "message" : "ISO C++11 does not allow conversion from string literal to 'char *'",
+          "severity" : 1,
+          "column" : 79,
+          "line" : 970
+        },
+        {
+          "message" : "ISO C++11 does not allow conversion from string literal to 'char *'",
+          "severity" : 1,
+          "column" : 79,
+          "line" : 979
+        },
+        {
+          "message" : "ISO C++11 does not allow conversion from string literal to 'char *'",
+          "severity" : 1,
+          "column" : 94,
+          "line" : 988
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/1DF1D119-EBAF-49A1-A741-6957981537E9\/src\/core\/mikage\/video_core\/renderer_metal\/renderer_metal.mm" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "severity" : 2,
+          "message" : "redeclaration of C++ built-in type 'bool'",
+          "column" : 18,
+          "line" : 85
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro 'BOOL'",
+          "column" : 14,
+          "line" : 64
+        },
+        {
+          "severity" : 2,
+          "message" : "use of undeclared identifier 'RENDER'",
+          "column" : 21,
+          "line" : 56
+        },
+        {
+          "severity" : 2,
+          "message" : "cast of C pointer type 'void *' to Objective-C pointer type 'CAMetalLayer *' requires a bridged cast",
+          "column" : 23,
+          "line" : 85
+        },
+        {
+          "severity" : 0,
+          "message" : "use __bridge with C-style cast to convert directly (no change in ownership)",
+          "column" : 34,
+          "line" : 85
+        },
+        {
+          "severity" : 0,
+          "message" : "use CFBridgingRelease call to transfer ownership of a +1 'void *' into ARC",
+          "column" : 67,
+          "line" : 85
+        }
+      ],
+      "title" : "Projects\/1DF1D119-EBAF-49A1-A741-6957981537E9\/src\/core\/mikage\/video_core\/renderer_metal\/renderer_metal.mm"
+    },
+    "Projects\/1DF1D119-EBAF-49A1-A741-6957981537E9\/ios\/AuroraIOS\/Controllers\/AURPreferredControllerSkinsViewController.m" : {
+      "title" : "Projects\/1DF1D119-EBAF-49A1-A741-6957981537E9\/ios\/AuroraIOS\/Controllers\/AURPreferredControllerSkinsViewController.m",
+      "debugItems" : [
+        {
+          "severity" : 2,
+          "line" : 4,
+          "message" : "'..\/..\/..\/..\/src\/core\/emulator_core_c_api.h' file not found",
+          "column" : 10
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/1DF1D119-EBAF-49A1-A741-6957981537E9\/src\/core\/mikage\/core\/mem_map_funcs.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "unrecognized instruction mnemonic, did you mean: bit, cnt, hint, ins, not?",
+          "severity" : 2,
+          "column" : 9,
+          "line" : 139
+        },
+        {
+          "message" : "expanded from macro '_assert_msg_'",
+          "severity" : 0,
+          "column" : 49,
+          "line" : 150
+        },
+        {
+          "message" : "expanded from macro 'Crash'",
+          "severity" : 0,
+          "column" : 31,
+          "line" : 47
+        },
+        {
+          "message" : "instantiated into assembly here",
+          "severity" : 0,
+          "column" : 2,
+          "line" : 1
+        },
+        {
+          "message" : "unrecognized instruction mnemonic, did you mean: bit, cnt, hint, ins, not?",
+          "severity" : 2,
+          "column" : 9,
+          "line" : 139
+        },
+        {
+          "message" : "expanded from macro '_assert_msg_'",
+          "severity" : 0,
+          "column" : 49,
+          "line" : 150
+        },
+        {
+          "message" : "expanded from macro 'Crash'",
+          "severity" : 0,
+          "column" : 31,
+          "line" : 47
+        },
+        {
+          "message" : "instantiated into assembly here",
+          "severity" : 0,
+          "column" : 2,
+          "line" : 1
+        },
+        {
+          "message" : "unrecognized instruction mnemonic, did you mean: bit, cnt, hint, ins, not?",
+          "severity" : 2,
+          "column" : 9,
+          "line" : 139
+        },
+        {
+          "message" : "expanded from macro '_assert_msg_'",
+          "severity" : 0,
+          "column" : 49,
+          "line" : 150
+        },
+        {
+          "message" : "expanded from macro 'Crash'",
+          "severity" : 0,
+          "column" : 31,
+          "line" : 47
+        },
+        {
+          "message" : "instantiated into assembly here",
+          "severity" : 0,
+          "column" : 2,
+          "line" : 1
+        },
+        {
+          "message" : "unrecognized instruction mnemonic, did you mean: bit, cnt, hint, ins, not?",
+          "severity" : 2,
+          "column" : 9,
+          "line" : 139
+        },
+        {
+          "message" : "expanded from macro '_assert_msg_'",
+          "severity" : 0,
+          "column" : 49,
+          "line" : 150
+        },
+        {
+          "message" : "expanded from macro 'Crash'",
+          "severity" : 0,
+          "column" : 31,
+          "line" : 47
+        },
+        {
+          "message" : "instantiated into assembly here",
+          "severity" : 0,
+          "column" : 2,
+          "line" : 1
+        }
+      ],
+      "title" : "Projects\/1DF1D119-EBAF-49A1-A741-6957981537E9\/src\/core\/mikage\/core\/mem_map_funcs.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/1DF1D119-EBAF-49A1-A741-6957981537E9\/src\/core\/mikage\/core\/arm\/interpreter\/vfp\/vfpdouble.cpp" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "severity" : 1,
+          "line" : 934,
+          "column" : 69,
+          "message" : "ISO C++11 does not allow conversion from string literal to 'char *'"
+        },
+        {
+          "severity" : 1,
+          "line" : 943,
+          "column" : 80,
+          "message" : "ISO C++11 does not allow conversion from string literal to 'char *'"
+        },
+        {
+          "severity" : 1,
+          "line" : 952,
+          "column" : 80,
+          "message" : "ISO C++11 does not allow conversion from string literal to 'char *'"
+        },
+        {
+          "severity" : 1,
+          "line" : 961,
+          "column" : 95,
+          "message" : "ISO C++11 does not allow conversion from string literal to 'char *'"
+        }
+      ],
+      "title" : "Projects\/1DF1D119-EBAF-49A1-A741-6957981537E9\/src\/core\/mikage\/core\/arm\/interpreter\/vfp\/vfpdouble.cpp"
+    },
+    "Projects\/1DF1D119-EBAF-49A1-A741-6957981537E9\/src\/core\/mikage\/core\/arm\/disassembler\/arm_disasm.cpp" : {
+      "title" : "Projects\/1DF1D119-EBAF-49A1-A741-6957981537E9\/src\/core\/mikage\/core\/arm\/disassembler\/arm_disasm.cpp",
+      "debugItems" : [
+        {
+          "column" : 13,
+          "line" : 147,
+          "message" : "'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.",
+          "severity" : 1
+        },
+        {
+          "column" : 1,
+          "line" : 278,
+          "message" : "'sprintf' has been explicitly marked deprecated here",
+          "severity" : 0
+        },
+        {
+          "severity" : 0,
+          "column" : 48,
+          "message" : "expanded from macro '__deprecated_msg'",
+          "line" : 227
+        },
+        {
+          "severity" : 1,
+          "column" : 13,
+          "message" : "'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.",
+          "line" : 150
+        },
+        {
+          "severity" : 0,
+          "column" : 1,
+          "message" : "'sprintf' has been explicitly marked deprecated here",
+          "line" : 278
+        },
+        {
+          "severity" : 0,
+          "column" : 48,
+          "message" : "expanded from macro '__deprecated_msg'",
+          "line" : 227
+        },
+        {
+          "severity" : 1,
+          "column" : 13,
+          "message" : "'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.",
+          "line" : 180
+        },
+        {
+          "severity" : 0,
+          "column" : 1,
+          "message" : "'sprintf' has been explicitly marked deprecated here",
+          "line" : 278
+        },
+        {
+          "severity" : 0,
+          "column" : 48,
+          "message" : "expanded from macro '__deprecated_msg'",
+          "line" : 227
+        },
+        {
+          "severity" : 1,
+          "column" : 13,
+          "message" : "'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.",
+          "line" : 185
+        },
+        {
+          "severity" : 0,
+          "column" : 1,
+          "message" : "'sprintf' has been explicitly marked deprecated here",
+          "line" : 278
+        },
+        {
+          "severity" : 0,
+          "column" : 48,
+          "message" : "expanded from macro '__deprecated_msg'",
+          "line" : 227
+        },
+        {
+          "severity" : 1,
+          "column" : 13,
+          "message" : "'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.",
+          "line" : 218
+        },
+        {
+          "severity" : 0,
+          "column" : 1,
+          "message" : "'sprintf' has been explicitly marked deprecated here",
+          "line" : 278
+        },
+        {
+          "severity" : 0,
+          "column" : 48,
+          "message" : "expanded from macro '__deprecated_msg'",
+          "line" : 227
+        },
+        {
+          "severity" : 1,
+          "column" : 13,
+          "message" : "'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.",
+          "line" : 231
+        },
+        {
+          "severity" : 0,
+          "column" : 1,
+          "message" : "'sprintf' has been explicitly marked deprecated here",
+          "line" : 278
+        },
+        {
+          "severity" : 0,
+          "column" : 48,
+          "message" : "expanded from macro '__deprecated_msg'",
+          "line" : 227
+        },
+        {
+          "severity" : 1,
+          "column" : 9,
+          "message" : "'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.",
+          "line" : 272
+        },
+        {
+          "severity" : 0,
+          "column" : 1,
+          "message" : "'sprintf' has been explicitly marked deprecated here",
+          "line" : 278
+        },
+        {
+          "severity" : 0,
+          "column" : 48,
+          "message" : "expanded from macro '__deprecated_msg'",
+          "line" : 227
+        },
+        {
+          "severity" : 1,
+          "column" : 9,
+          "message" : "'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.",
+          "line" : 279
+        },
+        {
+          "severity" : 0,
+          "column" : 1,
+          "message" : "'sprintf' has been explicitly marked deprecated here",
+          "line" : 278
+        },
+        {
+          "severity" : 0,
+          "column" : 48,
+          "message" : "expanded from macro '__deprecated_msg'",
+          "line" : 227
+        },
+        {
+          "severity" : 1,
+          "column" : 9,
+          "message" : "'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.",
+          "line" : 287
+        },
+        {
+          "severity" : 0,
+          "column" : 1,
+          "message" : "'sprintf' has been explicitly marked deprecated here",
+          "line" : 278
+        },
+        {
+          "severity" : 0,
+          "column" : 48,
+          "message" : "expanded from macro '__deprecated_msg'",
+          "line" : 227
+        },
+        {
+          "severity" : 1,
+          "column" : 9,
+          "message" : "'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.",
+          "line" : 303
+        },
+        {
+          "severity" : 0,
+          "column" : 1,
+          "message" : "'sprintf' has been explicitly marked deprecated here",
+          "line" : 278
+        },
+        {
+          "severity" : 0,
+          "column" : 48,
+          "message" : "expanded from macro '__deprecated_msg'",
+          "line" : 227
+        },
+        {
+          "severity" : 1,
+          "column" : 9,
+          "message" : "'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.",
+          "line" : 310
+        },
+        {
+          "severity" : 0,
+          "column" : 1,
+          "message" : "'sprintf' has been explicitly marked deprecated here",
+          "line" : 278
+        },
+        {
+          "severity" : 0,
+          "column" : 48,
+          "message" : "expanded from macro '__deprecated_msg'",
+          "line" : 227
+        },
+        {
+          "severity" : 1,
+          "column" : 13,
+          "message" : "'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.",
+          "line" : 317
+        },
+        {
+          "severity" : 0,
+          "column" : 1,
+          "message" : "'sprintf' has been explicitly marked deprecated here",
+          "line" : 278
+        },
+        {
+          "severity" : 0,
+          "column" : 48,
+          "message" : "expanded from macro '__deprecated_msg'",
+          "line" : 227
+        },
+        {
+          "severity" : 1,
+          "column" : 5,
+          "message" : "'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.",
+          "line" : 323
+        },
+        {
+          "severity" : 0,
+          "column" : 1,
+          "message" : "'sprintf' has been explicitly marked deprecated here",
+          "line" : 278
+        },
+        {
+          "severity" : 0,
+          "line" : 227,
+          "message" : "expanded from macro '__deprecated_msg'",
+          "column" : 48
+        },
+        {
+          "severity" : 1,
+          "line" : 342,
+          "message" : "'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.",
+          "column" : 5
+        },
+        {
+          "severity" : 0,
+          "line" : 278,
+          "message" : "'sprintf' has been explicitly marked deprecated here",
+          "column" : 1
+        },
+        {
+          "severity" : 0,
+          "line" : 227,
+          "message" : "expanded from macro '__deprecated_msg'",
+          "column" : 48
+        },
+        {
+          "severity" : 1,
+          "line" : 350,
+          "message" : "'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.",
+          "column" : 5
+        },
+        {
+          "severity" : 0,
+          "line" : 278,
+          "message" : "'sprintf' has been explicitly marked deprecated here",
+          "column" : 1
+        },
+        {
+          "severity" : 0,
+          "line" : 227,
+          "message" : "expanded from macro '__deprecated_msg'",
+          "column" : 48
+        },
+        {
+          "severity" : 1,
+          "line" : 357,
+          "message" : "'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.",
+          "column" : 5
+        },
+        {
+          "severity" : 0,
+          "line" : 278,
+          "message" : "'sprintf' has been explicitly marked deprecated here",
+          "column" : 1
+        },
+        {
+          "severity" : 0,
+          "line" : 227,
+          "message" : "expanded from macro '__deprecated_msg'",
+          "column" : 48
+        },
+        {
+          "severity" : 1,
+          "line" : 366,
+          "message" : "'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.",
+          "column" : 5
+        },
+        {
+          "severity" : 0,
+          "line" : 278,
+          "message" : "'sprintf' has been explicitly marked deprecated here",
+          "column" : 1
+        },
+        {
+          "severity" : 0,
+          "line" : 227,
+          "message" : "expanded from macro '__deprecated_msg'",
+          "column" : 48
+        },
+        {
+          "severity" : 1,
+          "line" : 396,
+          "message" : "'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.",
+          "column" : 13
+        },
+        {
+          "severity" : 0,
+          "line" : 278,
+          "message" : "'sprintf' has been explicitly marked deprecated here",
+          "column" : 1
+        },
+        {
+          "severity" : 0,
+          "line" : 227,
+          "message" : "expanded from macro '__deprecated_msg'",
+          "column" : 48
+        },
+        {
+          "severity" : 1,
+          "line" : 417,
+          "message" : "'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.",
+          "column" : 5
+        },
+        {
+          "severity" : 0,
+          "line" : 278,
+          "message" : "'sprintf' has been explicitly marked deprecated here",
+          "column" : 1
+        },
+        {
+          "severity" : 0,
+          "line" : 227,
+          "message" : "expanded from macro '__deprecated_msg'",
+          "column" : 48
+        },
+        {
+          "severity" : 1,
+          "line" : 454,
+          "message" : "'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.",
+          "column" : 17
+        },
+        {
+          "severity" : 0,
+          "line" : 278,
+          "message" : "'sprintf' has been explicitly marked deprecated here",
+          "column" : 1
+        },
+        {
+          "severity" : 0,
+          "line" : 227,
+          "message" : "expanded from macro '__deprecated_msg'",
+          "column" : 48
+        },
+        {
+          "severity" : 1,
+          "line" : 457,
+          "message" : "'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.",
+          "column" : 17
+        },
+        {
+          "severity" : 0,
+          "line" : 278,
+          "message" : "'sprintf' has been explicitly marked deprecated here",
+          "column" : 1
+        },
+        {
+          "severity" : 0,
+          "line" : 227,
+          "message" : "expanded from macro '__deprecated_msg'",
+          "column" : 48
+        },
+        {
+          "severity" : 1,
+          "line" : 464,
+          "message" : "'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.",
+          "column" : 13
+        },
+        {
+          "severity" : 0,
+          "line" : 278,
+          "message" : "'sprintf' has been explicitly marked deprecated here",
+          "column" : 1
+        },
+        {
+          "severity" : 0,
+          "line" : 227,
+          "message" : "expanded from macro '__deprecated_msg'",
+          "column" : 48
+        },
+        {
+          "severity" : 1,
+          "line" : 479,
+          "message" : "'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.",
+          "column" : 17
+        },
+        {
+          "severity" : 0,
+          "line" : 278,
+          "message" : "'sprintf' has been explicitly marked deprecated here",
+          "column" : 1
+        },
+        {
+          "severity" : 0,
+          "line" : 227,
+          "message" : "expanded from macro '__deprecated_msg'",
+          "column" : 48
+        },
+        {
+          "severity" : 1,
+          "line" : 484,
+          "message" : "'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.",
+          "column" : 17
+        },
+        {
+          "severity" : 0,
+          "line" : 278,
+          "message" : "'sprintf' has been explicitly marked deprecated here",
+          "column" : 1
+        },
+        {
+          "severity" : 0,
+          "line" : 227,
+          "message" : "expanded from macro '__deprecated_msg'",
+          "column" : 48
+        },
+        {
+          "severity" : 1,
+          "line" : 490,
+          "message" : "'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.",
+          "column" : 9
+        },
+        {
+          "severity" : 0,
+          "line" : 278,
+          "message" : "'sprintf' has been explicitly marked deprecated here",
+          "column" : 1
+        },
+        {
+          "message" : "expanded from macro '__deprecated_msg'",
+          "line" : 227,
+          "column" : 48,
+          "severity" : 0
+        },
+        {
+          "message" : "'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.",
+          "line" : 502,
+          "column" : 13,
+          "severity" : 1
+        },
+        {
+          "message" : "'sprintf' has been explicitly marked deprecated here",
+          "line" : 278,
+          "column" : 1,
+          "severity" : 0
+        },
+        {
+          "message" : "expanded from macro '__deprecated_msg'",
+          "line" : 227,
+          "column" : 48,
+          "severity" : 0
+        },
+        {
+          "message" : "'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.",
+          "line" : 507,
+          "column" : 13,
+          "severity" : 1
+        },
+        {
+          "message" : "'sprintf' has been explicitly marked deprecated here",
+          "line" : 278,
+          "column" : 1,
+          "severity" : 0
+        },
+        {
+          "message" : "expanded from macro '__deprecated_msg'",
+          "line" : 227,
+          "column" : 48,
+          "severity" : 0
+        },
+        {
+          "message" : "'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.",
+          "line" : 514,
+          "column" : 5,
+          "severity" : 1
+        },
+        {
+          "message" : "'sprintf' has been explicitly marked deprecated here",
+          "line" : 278,
+          "column" : 1,
+          "severity" : 0
+        },
+        {
+          "message" : "expanded from macro '__deprecated_msg'",
+          "line" : 227,
+          "column" : 48,
+          "severity" : 0
+        },
+        {
+          "message" : "'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.",
+          "line" : 556,
+          "column" : 17,
+          "severity" : 1
+        },
+        {
+          "message" : "'sprintf' has been explicitly marked deprecated here",
+          "line" : 278,
+          "column" : 1,
+          "severity" : 0
+        },
+        {
+          "message" : "expanded from macro '__deprecated_msg'",
+          "line" : 227,
+          "column" : 48,
+          "severity" : 0
+        },
+        {
+          "message" : "'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.",
+          "line" : 558,
+          "column" : 17,
+          "severity" : 1
+        },
+        {
+          "message" : "'sprintf' has been explicitly marked deprecated here",
+          "line" : 278,
+          "column" : 1,
+          "severity" : 0
+        },
+        {
+          "message" : "expanded from macro '__deprecated_msg'",
+          "line" : 227,
+          "column" : 48,
+          "severity" : 0
+        },
+        {
+          "message" : "'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.",
+          "line" : 562,
+          "column" : 13,
+          "severity" : 1
+        },
+        {
+          "message" : "'sprintf' has been explicitly marked deprecated here",
+          "line" : 278,
+          "column" : 1,
+          "severity" : 0
+        },
+        {
+          "message" : "expanded from macro '__deprecated_msg'",
+          "line" : 227,
+          "column" : 48,
+          "severity" : 0
+        },
+        {
+          "message" : "'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.",
+          "line" : 569,
+          "column" : 9,
+          "severity" : 1
+        },
+        {
+          "message" : "'sprintf' has been explicitly marked deprecated here",
+          "line" : 278,
+          "column" : 1,
+          "severity" : 0
+        },
+        {
+          "message" : "expanded from macro '__deprecated_msg'",
+          "line" : 227,
+          "column" : 48,
+          "severity" : 0
+        },
+        {
+          "message" : "'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.",
+          "line" : 572,
+          "column" : 9,
+          "severity" : 1
+        },
+        {
+          "message" : "'sprintf' has been explicitly marked deprecated here",
+          "line" : 278,
+          "column" : 1,
+          "severity" : 0
+        },
+        {
+          "message" : "expanded from macro '__deprecated_msg'",
+          "line" : 227,
+          "column" : 48,
+          "severity" : 0
+        },
+        {
+          "message" : "'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.",
+          "line" : 588,
+          "column" : 5,
+          "severity" : 1
+        },
+        {
+          "message" : "'sprintf' has been explicitly marked deprecated here",
+          "line" : 278,
+          "column" : 1,
+          "severity" : 0
+        },
+        {
+          "message" : "expanded from macro '__deprecated_msg'",
+          "line" : 227,
+          "column" : 48,
+          "severity" : 0
+        },
+        {
+          "message" : "'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.",
+          "line" : 603,
+          "column" : 5,
+          "severity" : 1
+        },
+        {
+          "message" : "'sprintf' has been explicitly marked deprecated here",
+          "line" : 278,
+          "column" : 1,
+          "severity" : 0
+        },
+        {
+          "message" : "expanded from macro '__deprecated_msg'",
+          "line" : 227,
+          "column" : 48,
+          "severity" : 0
+        },
+        {
+          "message" : "'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.",
+          "line" : 618,
+          "column" : 5,
+          "severity" : 1
+        },
+        {
+          "message" : "'sprintf' has been explicitly marked deprecated here",
+          "line" : 278,
+          "column" : 1,
+          "severity" : 0
+        },
+        {
+          "message" : "expanded from macro '__deprecated_msg'",
+          "line" : 227,
+          "column" : 48,
+          "severity" : 0
+        },
+        {
+          "message" : "'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.",
+          "line" : 632,
+          "column" : 5,
+          "severity" : 1
+        },
+        {
+          "message" : "'sprintf' has been explicitly marked deprecated here",
+          "line" : 278,
+          "column" : 1,
+          "severity" : 0
+        },
+        {
+          "message" : "expanded from macro '__deprecated_msg'",
+          "line" : 227,
+          "severity" : 0,
+          "column" : 48
+        },
+        {
+          "message" : "'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.",
+          "line" : 643,
+          "severity" : 1,
+          "column" : 5
+        },
+        {
+          "message" : "'sprintf' has been explicitly marked deprecated here",
+          "line" : 278,
+          "severity" : 0,
+          "column" : 1
+        },
+        {
+          "message" : "expanded from macro '__deprecated_msg'",
+          "line" : 227,
+          "severity" : 0,
+          "column" : 48
+        },
+        {
+          "message" : "'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.",
+          "line" : 671,
+          "severity" : 1,
+          "column" : 9
+        },
+        {
+          "message" : "'sprintf' has been explicitly marked deprecated here",
+          "line" : 278,
+          "severity" : 0,
+          "column" : 1
+        },
+        {
+          "message" : "expanded from macro '__deprecated_msg'",
+          "line" : 227,
+          "severity" : 0,
+          "column" : 48
+        },
+        {
+          "message" : "'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.",
+          "line" : 678,
+          "severity" : 1,
+          "column" : 5
+        },
+        {
+          "message" : "'sprintf' has been explicitly marked deprecated here",
+          "line" : 278,
+          "severity" : 0,
+          "column" : 1
+        },
+        {
+          "message" : "expanded from macro '__deprecated_msg'",
+          "line" : 227,
+          "severity" : 0,
+          "column" : 48
+        },
+        {
+          "message" : "'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.",
+          "line" : 695,
+          "severity" : 1,
+          "column" : 9
+        },
+        {
+          "message" : "'sprintf' has been explicitly marked deprecated here",
+          "line" : 278,
+          "severity" : 0,
+          "column" : 1
+        },
+        {
+          "message" : "expanded from macro '__deprecated_msg'",
+          "line" : 227,
+          "severity" : 0,
+          "column" : 48
+        },
+        {
+          "message" : "'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.",
+          "line" : 701,
+          "severity" : 1,
+          "column" : 9
+        },
+        {
+          "message" : "'sprintf' has been explicitly marked deprecated here",
+          "line" : 278,
+          "severity" : 0,
+          "column" : 1
+        },
+        {
+          "message" : "expanded from macro '__deprecated_msg'",
+          "line" : 227,
+          "severity" : 0,
+          "column" : 48
+        },
+        {
+          "message" : "'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.",
+          "line" : 703,
+          "severity" : 1,
+          "column" : 9
+        },
+        {
+          "message" : "'sprintf' has been explicitly marked deprecated here",
+          "line" : 278,
+          "severity" : 0,
+          "column" : 1
+        },
+        {
+          "message" : "expanded from macro '__deprecated_msg'",
+          "line" : 227,
+          "severity" : 0,
+          "column" : 48
+        },
+        {
+          "message" : "'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.",
+          "line" : 713,
+          "severity" : 1,
+          "column" : 5
+        },
+        {
+          "message" : "'sprintf' has been explicitly marked deprecated here",
+          "line" : 278,
+          "severity" : 0,
+          "column" : 1
+        },
+        {
+          "message" : "expanded from macro '__deprecated_msg'",
+          "line" : 227,
+          "severity" : 0,
+          "column" : 48
+        },
+        {
+          "message" : "'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead.",
+          "line" : 725,
+          "severity" : 1,
+          "column" : 5
+        },
+        {
+          "message" : "'sprintf' has been explicitly marked deprecated here",
+          "line" : 278,
+          "severity" : 0,
+          "column" : 1
+        },
+        {
+          "message" : "expanded from macro '__deprecated_msg'",
+          "line" : 227,
+          "severity" : 0,
+          "column" : 48
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/1DF1D119-EBAF-49A1-A741-6957981537E9\/src\/core\/mikage\/core\/hle\/config_mem.cpp" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "severity" : 1,
+          "message" : "implicit conversion from 'int' to 'unsigned short' changes value from 67108864 to 0",
+          "column" : 15,
+          "line" : 43
+        },
+        {
+          "severity" : 0,
+          "message" : "in instantiation of function template specialization 'ConfigMem::Read<unsigned short>' requested here",
+          "column" : 15,
+          "line" : 66
+        },
+        {
+          "severity" : 1,
+          "message" : "implicit conversion from 'int' to 'unsigned short' changes value from 46137344 to 0",
+          "column" : 26,
+          "line" : 49
+        },
+        {
+          "severity" : 1,
+          "message" : "implicit conversion from 'int' to 'unsigned short' changes value from 20971520 to 0",
+          "column" : 15,
+          "line" : 54
+        },
+        {
+          "severity" : 1,
+          "message" : "implicit conversion from 'int' to 'unsigned char' changes value from 67108864 to 0",
+          "column" : 15,
+          "line" : 43
+        },
+        {
+          "severity" : 0,
+          "message" : "in instantiation of function template specialization 'ConfigMem::Read<unsigned char>' requested here",
+          "column" : 15,
+          "line" : 67
+        },
+        {
+          "severity" : 1,
+          "message" : "implicit conversion from 'int' to 'unsigned char' changes value from 46137344 to 0",
+          "column" : 26,
+          "line" : 49
+        },
+        {
+          "severity" : 1,
+          "message" : "implicit conversion from 'int' to 'unsigned char' changes value from 20971520 to 0",
+          "column" : 15,
+          "line" : 54
+        }
+      ],
+      "title" : "Projects\/1DF1D119-EBAF-49A1-A741-6957981537E9\/src\/core\/mikage\/core\/hle\/config_mem.cpp"
+    },
+    "Projects\/1DF1D119-EBAF-49A1-A741-6957981537E9\/ios\/AuroraIOS\/Models\/AURDeltaSkin.m" : {
+      "title" : "Projects\/1DF1D119-EBAF-49A1-A741-6957981537E9\/ios\/AuroraIOS\/Models\/AURDeltaSkin.m",
+      "debugItems" : [
+        {
+          "message" : "'..\/..\/..\/..\/src\/core\/emulator_core_c_api.h' file not found",
+          "column" : 10,
+          "line" : 4,
+          "severity" : 2
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Internal" : {
+      "type" : {
+        "DebugMessage" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "severity" : 2,
+          "message" : "Failed to compile source code",
+          "column" : 0,
+          "line" : 0
+        }
+      ],
+      "title" : "Internal"
+    },
+    "Projects\/1DF1D119-EBAF-49A1-A741-6957981537E9\/src\/core\/mikage\/core\/hle\/kernel\/thread.cpp" : {
+      "title" : "Projects\/1DF1D119-EBAF-49A1-A741-6957981537E9\/src\/core\/mikage\/core\/hle\/kernel\/thread.cpp",
+      "debugItems" : [
+        {
+          "column" : 14,
+          "message" : "ordered comparison between pointer and zero ('Thread *' and 'int')",
+          "line" : 305,
+          "severity" : 2
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/1DF1D119-EBAF-49A1-A741-6957981537E9\/ios\/AuroraIOS\/Controllers\/AUREmulatorViewController.mm" : {
+      "title" : "Projects\/1DF1D119-EBAF-49A1-A741-6957981537E9\/ios\/AuroraIOS\/Controllers\/AUREmulatorViewController.mm",
+      "debugItems" : [
+        {
+          "severity" : 2,
+          "message" : "'..\/..\/..\/..\/src\/core\/emulator_core_c_api.h' file not found",
+          "column" : 10,
+          "line" : 4
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/1DF1D119-EBAF-49A1-A741-6957981537E9\/src\/core\/mikage\/core\/hw\/gpu.cpp" : {
+      "title" : "Projects\/1DF1D119-EBAF-49A1-A741-6957981537E9\/src\/core\/mikage\/core\/hw\/gpu.cpp",
+      "debugItems" : [
+        {
+          "line" : 29,
+          "message" : "enumeration value 'FRAMEBUFFER_LOCATION_UNKNOWN' not handled in switch",
+          "column" : 13,
+          "severity" : 1
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/1DF1D119-EBAF-49A1-A741-6957981537E9\/src\/core\/mikage\/core\/hle\/service\/service.cpp" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "severity" : 2,
+          "message" : "unrecognized instruction mnemonic, did you mean: bit, cnt, hint, ins, not?",
+          "line" : 97,
+          "column" : 9
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro '_dbg_assert_'",
+          "line" : 121,
+          "column" : 59
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro 'Crash'",
+          "line" : 47,
+          "column" : 31
+        },
+        {
+          "severity" : 0,
+          "message" : "instantiated into assembly here",
+          "line" : 1,
+          "column" : 2
+        }
+      ],
+      "title" : "Projects\/1DF1D119-EBAF-49A1-A741-6957981537E9\/src\/core\/mikage\/core\/hle\/service\/service.cpp"
+    },
+    "Projects\/1DF1D119-EBAF-49A1-A741-6957981537E9\/src\/core\/mikage\/core\/hle\/kernel\/kernel.cpp" : {
+      "title" : "Projects\/1DF1D119-EBAF-49A1-A741-6957981537E9\/src\/core\/mikage\/core\/hle\/kernel\/kernel.cpp",
+      "debugItems" : [
+        {
+          "severity" : 2,
+          "message" : "unrecognized instruction mnemonic, did you mean: bit, cnt, hint, ins, not?",
+          "column" : 5,
+          "line" : 64
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro '_dbg_assert_msg_'",
+          "column" : 40,
+          "line" : 126
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro 'Crash'",
+          "column" : 31,
+          "line" : 47
+        },
+        {
+          "severity" : 0,
+          "message" : "instantiated into assembly here",
+          "column" : 2,
+          "line" : 1
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/1DF1D119-EBAF-49A1-A741-6957981537E9\/ios\/AuroraIOS\/Controllers\/AURInGameMenuViewController.m" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "message" : "'contentEdgeInsets' is deprecated: first deprecated in iOS 15.0 - This property is ignored when using UIButtonConfiguration",
+          "severity" : 1,
+          "line" : 51,
+          "column" : 12
+        },
+        {
+          "message" : "'contentEdgeInsets' has been explicitly marked deprecated here",
+          "severity" : 0,
+          "line" : 162,
+          "column" : 35
+        },
+        {
+          "message" : "'imageEdgeInsets' is deprecated: first deprecated in iOS 15.0 - This property is ignored when using UIButtonConfiguration",
+          "severity" : 1,
+          "line" : 52,
+          "column" : 12
+        },
+        {
+          "message" : "'imageEdgeInsets' has been explicitly marked deprecated here",
+          "severity" : 0,
+          "line" : 164,
+          "column" : 35
+        }
+      ],
+      "title" : "Projects\/1DF1D119-EBAF-49A1-A741-6957981537E9\/ios\/AuroraIOS\/Controllers\/AURInGameMenuViewController.m"
+    },
+    "Projects\/1DF1D119-EBAF-49A1-A741-6957981537E9\/src\/core\/mikage\/core\/arm\/interpreter\/armsupp.cpp" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "column" : 2,
+          "severity" : 2,
+          "message" : "unrecognized instruction mnemonic, did you mean: bit, cnt, hint, ins, not?",
+          "line" : 910
+        },
+        {
+          "column" : 40,
+          "severity" : 0,
+          "message" : "expanded from macro '_dbg_assert_msg_'",
+          "line" : 126
+        },
+        {
+          "column" : 31,
+          "severity" : 0,
+          "message" : "expanded from macro 'Crash'",
+          "line" : 47
+        },
+        {
+          "column" : 2,
+          "severity" : 0,
+          "message" : "instantiated into assembly here",
+          "line" : 1
+        }
+      ],
+      "title" : "Projects\/1DF1D119-EBAF-49A1-A741-6957981537E9\/src\/core\/mikage\/core\/arm\/interpreter\/armsupp.cpp"
+    },
+    "Projects\/1DF1D119-EBAF-49A1-A741-6957981537E9\/src\/core\/mikage\/core\/arm\/interpreter\/arminit.cpp" : {
+      "debugItems" : [
+        {
+          "column" : 4,
+          "severity" : 2,
+          "line" : 365,
+          "message" : "unrecognized instruction mnemonic, did you mean: bit, cnt, hint, ins, not?"
+        },
+        {
+          "column" : 40,
+          "severity" : 0,
+          "line" : 126,
+          "message" : "expanded from macro '_dbg_assert_msg_'"
+        },
+        {
+          "column" : 31,
+          "severity" : 0,
+          "line" : 47,
+          "message" : "expanded from macro 'Crash'"
+        },
+        {
+          "column" : 2,
+          "severity" : 0,
+          "line" : 1,
+          "message" : "instantiated into assembly here"
+        },
+        {
+          "column" : 3,
+          "severity" : 2,
+          "line" : 403,
+          "message" : "unrecognized instruction mnemonic, did you mean: bit, cnt, hint, ins, not?"
+        },
+        {
+          "column" : 40,
+          "severity" : 0,
+          "line" : 126,
+          "message" : "expanded from macro '_dbg_assert_msg_'"
+        },
+        {
+          "line" : 47,
+          "severity" : 0,
+          "column" : 31,
+          "message" : "expanded from macro 'Crash'"
+        },
+        {
+          "line" : 1,
+          "severity" : 0,
+          "column" : 2,
+          "message" : "instantiated into assembly here"
+        }
+      ],
+      "title" : "Projects\/1DF1D119-EBAF-49A1-A741-6957981537E9\/src\/core\/mikage\/core\/arm\/interpreter\/arminit.cpp",
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/1DF1D119-EBAF-49A1-A741-6957981537E9\/ios\/AuroraIOS\/Controllers\/AURSettingsViewController.m" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "message" : "'..\/..\/..\/..\/src\/core\/emulator_core_c_api.h' file not found",
+          "severity" : 2,
+          "line" : 4,
+          "column" : 10
+        }
+      ],
+      "title" : "Projects\/1DF1D119-EBAF-49A1-A741-6957981537E9\/ios\/AuroraIOS\/Controllers\/AURSettingsViewController.m"
+    },
+    "Projects\/1DF1D119-EBAF-49A1-A741-6957981537E9\/src\/core\/mikage\/core\/arm\/interpreter\/armcopro.cpp" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/1DF1D119-EBAF-49A1-A741-6957981537E9\/src\/core\/mikage\/core\/arm\/interpreter\/armcopro.cpp",
+      "debugItems" : [
+        {
+          "severity" : 2,
+          "message" : "ISO C++17 does not allow 'register' storage class specifier",
+          "line" : 757,
+          "column" : 2
+        }
+      ]
+    },
+    "Projects\/1DF1D119-EBAF-49A1-A741-6957981537E9\/ios\/AuroraIOS\/Managers\/AURSkinManager.m" : {
+      "title" : "Projects\/1DF1D119-EBAF-49A1-A741-6957981537E9\/ios\/AuroraIOS\/Managers\/AURSkinManager.m",
+      "debugItems" : [
+        {
+          "column" : 10,
+          "line" : 4,
+          "severity" : 2,
+          "message" : "'..\/..\/..\/..\/src\/core\/emulator_core_c_api.h' file not found"
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      }
+    },
+    "Projects\/1DF1D119-EBAF-49A1-A741-6957981537E9\/src\/core\/mikage\/core\/arm\/interpreter\/armemu.cpp" : {
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "debugItems" : [
+        {
+          "line" : 932,
+          "severity" : 2,
+          "column" : 17,
+          "message" : "unrecognized instruction mnemonic, did you mean: bit, cnt, hint, ins, not?"
+        },
+        {
+          "line" : 150,
+          "severity" : 0,
+          "column" : 49,
+          "message" : "expanded from macro '_assert_msg_'"
+        },
+        {
+          "line" : 47,
+          "severity" : 0,
+          "column" : 31,
+          "message" : "expanded from macro 'Crash'"
+        },
+        {
+          "line" : 1,
+          "severity" : 0,
+          "column" : 2,
+          "message" : "instantiated into assembly here"
+        },
+        {
+          "line" : 936,
+          "severity" : 2,
+          "column" : 17,
+          "message" : "unrecognized instruction mnemonic, did you mean: bit, cnt, hint, ins, not?"
+        },
+        {
+          "line" : 150,
+          "severity" : 0,
+          "column" : 49,
+          "message" : "expanded from macro '_assert_msg_'"
+        },
+        {
+          "line" : 47,
+          "severity" : 0,
+          "column" : 31,
+          "message" : "expanded from macro 'Crash'"
+        },
+        {
+          "line" : 1,
+          "severity" : 0,
+          "column" : 2,
+          "message" : "instantiated into assembly here"
+        },
+        {
+          "line" : 971,
+          "column" : 29,
+          "severity" : 2,
+          "message" : "unrecognized instruction mnemonic, did you mean: bit, cnt, hint, ins, not?"
+        },
+        {
+          "line" : 150,
+          "column" : 49,
+          "severity" : 0,
+          "message" : "expanded from macro '_assert_msg_'"
+        },
+        {
+          "column" : 31,
+          "severity" : 0,
+          "line" : 47,
+          "message" : "expanded from macro 'Crash'"
+        },
+        {
+          "column" : 2,
+          "severity" : 0,
+          "line" : 1,
+          "message" : "instantiated into assembly here"
+        },
+        {
+          "column" : 21,
+          "severity" : 2,
+          "line" : 990,
+          "message" : "unrecognized instruction mnemonic, did you mean: bit, cnt, hint, ins, not?"
+        },
+        {
+          "column" : 49,
+          "severity" : 0,
+          "line" : 150,
+          "message" : "expanded from macro '_assert_msg_'"
+        },
+        {
+          "column" : 31,
+          "severity" : 0,
+          "line" : 47,
+          "message" : "expanded from macro 'Crash'"
+        },
+        {
+          "column" : 2,
+          "severity" : 0,
+          "line" : 1,
+          "message" : "instantiated into assembly here"
+        },
+        {
+          "column" : 21,
+          "severity" : 2,
+          "line" : 1027,
+          "message" : "unrecognized instruction mnemonic, did you mean: bit, cnt, hint, ins, not?"
+        },
+        {
+          "column" : 49,
+          "severity" : 0,
+          "line" : 150,
+          "message" : "expanded from macro '_assert_msg_'"
+        },
+        {
+          "column" : 31,
+          "severity" : 0,
+          "line" : 47,
+          "message" : "expanded from macro 'Crash'"
+        },
+        {
+          "column" : 2,
+          "severity" : 0,
+          "line" : 1,
+          "message" : "instantiated into assembly here"
+        },
+        {
+          "column" : 21,
+          "severity" : 2,
+          "line" : 1046,
+          "message" : "unrecognized instruction mnemonic, did you mean: bit, cnt, hint, ins, not?"
+        },
+        {
+          "column" : 49,
+          "severity" : 0,
+          "line" : 150,
+          "message" : "expanded from macro '_assert_msg_'"
+        },
+        {
+          "column" : 31,
+          "severity" : 0,
+          "line" : 47,
+          "message" : "expanded from macro 'Crash'"
+        },
+        {
+          "column" : 2,
+          "severity" : 0,
+          "line" : 1,
+          "message" : "instantiated into assembly here"
+        },
+        {
+          "column" : 21,
+          "severity" : 2,
+          "line" : 1050,
+          "message" : "unrecognized instruction mnemonic, did you mean: bit, cnt, hint, ins, not?"
+        },
+        {
+          "column" : 49,
+          "severity" : 0,
+          "line" : 150,
+          "message" : "expanded from macro '_assert_msg_'"
+        },
+        {
+          "column" : 31,
+          "severity" : 0,
+          "line" : 47,
+          "message" : "expanded from macro 'Crash'"
+        },
+        {
+          "column" : 2,
+          "severity" : 0,
+          "line" : 1,
+          "message" : "instantiated into assembly here"
+        },
+        {
+          "column" : 25,
+          "severity" : 2,
+          "line" : 1252,
+          "message" : "unrecognized instruction mnemonic, did you mean: bit, cnt, hint, ins, not?"
+        },
+        {
+          "column" : 49,
+          "severity" : 0,
+          "line" : 150,
+          "message" : "expanded from macro '_assert_msg_'"
+        },
+        {
+          "column" : 31,
+          "severity" : 0,
+          "line" : 47,
+          "message" : "expanded from macro 'Crash'"
+        },
+        {
+          "column" : 2,
+          "severity" : 0,
+          "line" : 1,
+          "message" : "instantiated into assembly here"
+        },
+        {
+          "column" : 25,
+          "severity" : 2,
+          "line" : 1295,
+          "message" : "unrecognized instruction mnemonic, did you mean: bit, cnt, hint, ins, not?"
+        },
+        {
+          "column" : 49,
+          "severity" : 0,
+          "line" : 150,
+          "message" : "expanded from macro '_assert_msg_'"
+        },
+        {
+          "column" : 31,
+          "severity" : 0,
+          "line" : 47,
+          "message" : "expanded from macro 'Crash'"
+        },
+        {
+          "column" : 2,
+          "severity" : 0,
+          "line" : 1,
+          "message" : "instantiated into assembly here"
+        },
+        {
+          "column" : 25,
+          "severity" : 2,
+          "line" : 1325,
+          "message" : "unrecognized instruction mnemonic, did you mean: bit, cnt, hint, ins, not?"
+        },
+        {
+          "column" : 49,
+          "severity" : 0,
+          "line" : 150,
+          "message" : "expanded from macro '_assert_msg_'"
+        },
+        {
+          "column" : 31,
+          "severity" : 0,
+          "line" : 47,
+          "message" : "expanded from macro 'Crash'"
+        },
+        {
+          "column" : 2,
+          "severity" : 0,
+          "line" : 1,
+          "message" : "instantiated into assembly here"
+        },
+        {
+          "column" : 25,
+          "severity" : 2,
+          "line" : 1343,
+          "message" : "unrecognized instruction mnemonic, did you mean: bit, cnt, hint, ins, not?"
+        },
+        {
+          "column" : 49,
+          "severity" : 0,
+          "line" : 150,
+          "message" : "expanded from macro '_assert_msg_'"
+        },
+        {
+          "column" : 31,
+          "severity" : 0,
+          "line" : 47,
+          "message" : "expanded from macro 'Crash'"
+        },
+        {
+          "column" : 2,
+          "severity" : 0,
+          "line" : 1,
+          "message" : "instantiated into assembly here"
+        },
+        {
+          "column" : 25,
+          "severity" : 2,
+          "line" : 1362,
+          "message" : "unrecognized instruction mnemonic, did you mean: bit, cnt, hint, ins, not?"
+        },
+        {
+          "column" : 49,
+          "severity" : 0,
+          "line" : 150,
+          "message" : "expanded from macro '_assert_msg_'"
+        },
+        {
+          "severity" : 0,
+          "line" : 47,
+          "column" : 31,
+          "message" : "expanded from macro 'Crash'"
+        },
+        {
+          "severity" : 0,
+          "line" : 1,
+          "column" : 2,
+          "message" : "instantiated into assembly here"
+        },
+        {
+          "severity" : 2,
+          "line" : 1373,
+          "column" : 25,
+          "message" : "unrecognized instruction mnemonic, did you mean: bit, cnt, hint, ins, not?"
+        },
+        {
+          "severity" : 0,
+          "line" : 150,
+          "column" : 49,
+          "message" : "expanded from macro '_assert_msg_'"
+        },
+        {
+          "severity" : 0,
+          "line" : 47,
+          "column" : 31,
+          "message" : "expanded from macro 'Crash'"
+        },
+        {
+          "severity" : 0,
+          "line" : 1,
+          "column" : 2,
+          "message" : "instantiated into assembly here"
+        },
+        {
+          "severity" : 2,
+          "line" : 4351,
+          "column" : 29,
+          "message" : "unrecognized instruction mnemonic, did you mean: bit, cnt, hint, ins, not?"
+        },
+        {
+          "severity" : 0,
+          "line" : 150,
+          "column" : 49,
+          "message" : "expanded from macro '_assert_msg_'"
+        },
+        {
+          "severity" : 0,
+          "line" : 47,
+          "column" : 31,
+          "message" : "expanded from macro 'Crash'"
+        },
+        {
+          "severity" : 0,
+          "line" : 1,
+          "column" : 2,
+          "message" : "instantiated into assembly here"
+        },
+        {
+          "severity" : 2,
+          "line" : 4399,
+          "column" : 29,
+          "message" : "unrecognized instruction mnemonic, did you mean: bit, cnt, hint, ins, not?"
+        },
+        {
+          "severity" : 0,
+          "line" : 150,
+          "column" : 49,
+          "message" : "expanded from macro '_assert_msg_'"
+        },
+        {
+          "severity" : 0,
+          "line" : 47,
+          "column" : 31,
+          "message" : "expanded from macro 'Crash'"
+        },
+        {
+          "severity" : 0,
+          "line" : 1,
+          "column" : 2,
+          "message" : "instantiated into assembly here"
+        },
+        {
+          "severity" : 2,
+          "line" : 4445,
+          "column" : 29,
+          "message" : "unrecognized instruction mnemonic, did you mean: bit, cnt, hint, ins, not?"
+        },
+        {
+          "severity" : 0,
+          "line" : 150,
+          "column" : 49,
+          "message" : "expanded from macro '_assert_msg_'"
+        },
+        {
+          "severity" : 0,
+          "line" : 47,
+          "column" : 31,
+          "message" : "expanded from macro 'Crash'"
+        },
+        {
+          "severity" : 0,
+          "line" : 1,
+          "column" : 2,
+          "message" : "instantiated into assembly here"
+        }
+      ],
+      "title" : "Projects\/1DF1D119-EBAF-49A1-A741-6957981537E9\/src\/core\/mikage\/core\/arm\/interpreter\/armemu.cpp"
+    }
+  }
+}
