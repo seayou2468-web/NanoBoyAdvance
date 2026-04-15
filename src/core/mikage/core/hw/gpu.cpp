@@ -48,6 +48,9 @@ void SetFramebufferLocation(const FramebufferLocation mode) {
         g_regs.framebuffer_sub_right_1  = PADDR_VRAM_SUB_FRAME2;
         //g_regs.framebufferr_sub_right_2 = unknown;
         break;
+
+    case FRAMEBUFFER_LOCATION_UNKNOWN:
+        break;
     }
 }
 

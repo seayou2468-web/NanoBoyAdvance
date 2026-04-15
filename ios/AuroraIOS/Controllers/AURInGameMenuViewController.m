@@ -48,8 +48,15 @@
     button.backgroundColor = [UIColor colorWithWhite:1.0 alpha:0.1];
     button.layer.cornerRadius = 12;
     button.titleLabel.font = [UIFont systemFontOfSize:18 weight:UIFontWeightBold];
-    button.contentEdgeInsets = UIEdgeInsetsMake(15, 20, 15, 20);
-    button.imageEdgeInsets = UIEdgeInsetsMake(0, 0, 0, 10);
+    if (@available(iOS 15.0, *)) {
+        UIButtonConfiguration *config = button.configuration ?: [UIButtonConfiguration plainButtonConfiguration];
+        config.contentInsets = NSDirectionalEdgeInsetsMake(15, 20, 15, 20);
+        config.imagePadding = 10.0;
+        button.configuration = config;
+    } else {
+        button.contentEdgeInsets = UIEdgeInsetsMake(15, 20, 15, 20);
+        button.imageEdgeInsets = UIEdgeInsetsMake(0, 0, 0, 10);
+    }
 
     [button addTarget:self action:@selector(buttonTapped:) forControlEvents:UIControlEventTouchUpInside];
     [self.stackView addArrangedSubview:button];

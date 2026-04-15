@@ -35,23 +35,23 @@ inline void Read(T &var, const u32 addr) {
 
     // Bit 0 set for Retail
     case UNITINFO:
-        var = 0x00000001;
+        var = static_cast<T>(0x00000001);
         break;
 
     // Set app memory size to 64MB?
     case APPMEMALLOC:
-        var = 0x04000000;
+        var = static_cast<T>(0x04000000);
         break;
 
     // Unknown - normally set to: 0x08000000 - (APPMEMALLOC + *0x1FF80048)
     // (Total FCRAM size - APPMEMALLOC - *0x1FF80048)
     case 0x1FF80044:
-        var = 0x08000000 - (0x04000000 + 0x1400000);
+        var = static_cast<T>(0x08000000 - (0x04000000 + 0x1400000));
         break;
 
     // Unknown - normally set to: 0x1400000 (20MB)
     case 0x1FF80048:
-        var = 0x1400000;
+        var = static_cast<T>(0x1400000);
         break;
 
     default:

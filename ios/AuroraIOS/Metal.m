@@ -37,7 +37,7 @@ typedef struct {
 @property (nonatomic, assign) NSUInteger                 frameHeight;
 @property (nonatomic, assign) NSUInteger                 frameBytesPerRow;
 @property (nonatomic, assign) CGRect                     sourceRect;
-@property (nonatomic, assign) dispatch_semaphore_t       inFlightSemaphore;
+@property (nonatomic, strong) dispatch_semaphore_t       inFlightSemaphore;
 @property (nonatomic, assign) AURFramePixelFormat        framePixelFormat;
 @end
 
@@ -319,7 +319,7 @@ static inline float AURClamp01f(float v) {
     if (!layer || !self.window) return;
     
     CGFloat scale = self.window.screen.nativeScale;
-    if (scale == 0.0) scale = [UIScreen mainScreen].nativeScale;
+    if (scale == 0.0) scale = self.traitCollection.displayScale;
     
     CGSize size = self.bounds.size;
     if (size.width > 0.0 && size.height > 0.0) {
