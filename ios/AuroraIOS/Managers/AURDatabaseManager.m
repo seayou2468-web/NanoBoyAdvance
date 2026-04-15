@@ -158,6 +158,9 @@
     if ([identifier isEqualToString:@"gba"]) return @(EMULATOR_CORE_TYPE_GBA);
     if ([identifier isEqualToString:@"gb"]) return @1004; // Use 1004 for GB
     if ([identifier isEqualToString:@"gbc"]) return @1005; // Use 1005 for GBC
+    if ([identifier isEqualToString:@"3ds_boot9"]) return @2001;
+    if ([identifier isEqualToString:@"3ds_boot11"]) return @2002;
+    if ([identifier isEqualToString:@"3ds_firmware"]) return @2003;
     return nil;
 }
 
@@ -183,17 +186,23 @@
 
 - (void)setBIOSURL:(NSURL *)url forCoreType:(EmulatorCoreType)coreType {
     // Legacy support
-    NSString *identifier = (coreType == EMULATOR_CORE_TYPE_GBA) ? @"gba" : @"gb";
+    NSString *identifier = @"gb";
+    if (coreType == EMULATOR_CORE_TYPE_GBA) identifier = @"gba";
+    else if (coreType == EMULATOR_CORE_TYPE_3DS) identifier = @"3ds_boot9";
     [self setBIOSURL:url forIdentifier:identifier];
 }
 
 - (void)setBIOSPath:(NSString *)path forCoreType:(EmulatorCoreType)coreType {
-    NSString *identifier = (coreType == EMULATOR_CORE_TYPE_GBA) ? @"gba" : @"gb";
+    NSString *identifier = @"gb";
+    if (coreType == EMULATOR_CORE_TYPE_GBA) identifier = @"gba";
+    else if (coreType == EMULATOR_CORE_TYPE_3DS) identifier = @"3ds_boot9";
     [self setBIOSPath:path forIdentifier:identifier];
 }
 
 - (NSString *)BIOSPathForCoreType:(EmulatorCoreType)coreType {
-    NSString *identifier = (coreType == EMULATOR_CORE_TYPE_GBA) ? @"gba" : @"gb";
+    NSString *identifier = @"gb";
+    if (coreType == EMULATOR_CORE_TYPE_GBA) identifier = @"gba";
+    else if (coreType == EMULATOR_CORE_TYPE_3DS) identifier = @"3ds_boot9";
     return [self BIOSPathForIdentifier:identifier];
 }
 

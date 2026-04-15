@@ -111,11 +111,12 @@
             [self.controllerView.bottomAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.bottomAnchor]
         ]];
     } else {
+        CGFloat aspectMultiplier = (_coreType == EMULATOR_CORE_TYPE_3DS) ? (480.0 / 400.0) : (160.0 / 240.0);
         [NSLayoutConstraint activateConstraints:@[
             [self.imageView.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor constant:20.0],
             [self.imageView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor constant:20.0],
             [self.imageView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor constant:-20.0],
-            [self.imageView.heightAnchor constraintEqualToAnchor:self.imageView.widthAnchor multiplier:(160.0 / 240.0)],
+            [self.imageView.heightAnchor constraintEqualToAnchor:self.imageView.widthAnchor multiplier:aspectMultiplier],
 
             [self.controllerView.topAnchor constraintEqualToAnchor:self.imageView.bottomAnchor],
             [self.controllerView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
@@ -143,6 +144,13 @@
         if (arm9) { if (!EmulatorCore_LoadBIOSFromPath(_core, arm9.UTF8String)) NSLog(@"[AUR][Emu] Failed to load ARM9 BIOS at %@", arm9); }
         if (arm7) EmulatorCore_LoadBIOSFromPath(_core, arm7.UTF8String);
         if (firm) EmulatorCore_LoadBIOSFromPath(_core, firm.UTF8String);
+    } else if (_coreType == EMULATOR_CORE_TYPE_3DS) {
+        NSString *boot9 = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"3ds_boot9"];
+        NSString *boot11 = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"3ds_boot11"];
+        NSString *firmware = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"3ds_firmware"];
+        if (boot9) EmulatorCore_LoadBIOSFromPath(_core, boot9.UTF8String);
+        if (boot11) EmulatorCore_LoadBIOSFromPath(_core, boot11.UTF8String);
+        if (firmware) EmulatorCore_LoadBIOSFromPath(_core, firmware.UTF8String);
     } else if (_coreType == EMULATOR_CORE_TYPE_GBA) {
         NSString *gba = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"gba"];
         if (gba) EmulatorCore_LoadBIOSFromPath(_core, gba.UTF8String);
