@@ -871,8 +871,8 @@ bool ProcessTX(TXSlot* slot, int num)
                 IOPORT(W_TXSeqNo) = (IOPORT(W_TXSeqNo) + 1) & 0x0FFF;
             }
 
-            if ((num != 5) && (RAM[slot->Addr+4] > 0))
-                printf("SLOT %d RETRY COUNTER %d\n", RAM[slot->Addr+4]);
+	            if ((num != 5) && (RAM[slot->Addr+4] > 0))
+	                printf("SLOT %d RETRY COUNTER %d\n", num, RAM[slot->Addr+4]);
 
             // set TX addr
             IOPORT(W_RXTXAddr) = slot->Addr >> 1;
@@ -909,7 +909,7 @@ bool ProcessTX(TXSlot* slot, int num)
                 if ((framectl & 0x00FF) == 0x0010)
                 {
                     u16 aid = *(u16*)&RAM[slot->Addr + 0xC + 24 + 4];
-                    if (aid) printf("[HOST] syncing client %04X, sync=%016llX\n", aid, USTimestamp);
+                    if (aid) printf("[HOST] syncing client %04X, sync=%016lX\n", aid, (unsigned long)USTimestamp);
                 }
                 else if ((framectl & 0x00FF) == 0x00C0)
                 {
@@ -1515,7 +1515,7 @@ bool CheckRX(int type) // 0=regular 1=MP replies 2=MP host frames
 
         if (aid)
         {
-            printf("[CLIENT %01X] host sync=%016llX\n", aid&0xF, timestamp);
+            printf("[CLIENT %01X] host sync=%016lX\n", aid&0xF, (unsigned long)timestamp);
 
             IsMPClient = true;
             USTimestamp = timestamp;

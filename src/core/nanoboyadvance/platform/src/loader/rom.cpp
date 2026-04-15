@@ -175,6 +175,10 @@ auto ROMLoader::CreateBackup(
     case BackupType::EEPROM_4:  return std::make_unique<EEPROM>(save_path, EEPROM::SIZE_4K, core->GetScheduler());
     case BackupType::EEPROM_64: return std::make_unique<EEPROM>(save_path, EEPROM::SIZE_64K, core->GetScheduler());
     case BackupType::EEPROM_DETECT: return std::make_unique<EEPROM>(save_path, EEPROM::DETECT, core->GetScheduler());
+    case BackupType::Detect:
+    case BackupType::None:
+    default:
+      break;
   }
 
   return {};

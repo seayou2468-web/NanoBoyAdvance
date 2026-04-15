@@ -29,6 +29,9 @@
 
 #include "fatfs/ff.h"
 
+#if defined(__clang__)
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#endif
 
 namespace DSi_NAND
 {

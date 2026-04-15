@@ -428,6 +428,9 @@ void DMA::OnChannelWritten(Channel& channel, bool enable_old) {
 
 void DMA::AddChannelToDMASet(Channel& channel) {
   switch(channel.time) {
+    case Channel::Immediate: {
+      break;
+    }
     case Channel::HBlank: {
       hblank_set.set(channel.id, true);
       break;
@@ -440,6 +443,9 @@ void DMA::AddChannelToDMASet(Channel& channel) {
       if(channel.id == 3) {
         video_set.set(3, true);
       }
+      break;
+    }
+    default: {
       break;
     }
   }

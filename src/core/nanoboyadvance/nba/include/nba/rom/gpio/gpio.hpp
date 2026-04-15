@@ -12,8 +12,6 @@
 #include "../../integer.hpp"
 #include "../../save_state.hpp"
 #include <memory>
-#include <typeindex>
-#include <unordered_map>
 #include <vector>
 
 namespace nba {
@@ -28,10 +26,10 @@ struct GPIO {
 
   template<typename T>
   auto Get() -> T* {
-    auto match = device_map.find(std::type_index{typeid(T)});
-
-    if(match != device_map.end()) {
-      return (T*)match->second;
+    for(auto const& device : devices) {
+      if(auto* casted = dynamic_cast<T*>(device.get())) {
+        return casted;
+      }
     }
     return nullptr;
   }
@@ -59,8 +57,6 @@ private:
   u8 port_data;
 
   std::vector<std::shared_ptr<GPIODevice>> devices;
-
-  std::unordered_map<std::type_index, GPIODevice*> device_map;
 };
 
 } // namespace nba

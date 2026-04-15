@@ -54,7 +54,9 @@ typedef signed long long    s64;    ///< 64-bit signed int
 
 // For using windows lock code
 #define TCHAR char
+#ifndef LONG
 #define LONG int
+#endif
 
 #endif // _WIN32
 

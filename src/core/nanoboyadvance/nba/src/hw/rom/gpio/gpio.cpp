@@ -23,7 +23,6 @@ void GPIO::Reset() {
 
 void GPIO::Attach(std::shared_ptr<GPIODevice> device) {
   devices.push_back(device);
-  device_map[std::type_index{typeid(*device)}] = device.get();
 }
 
 auto GPIO::Read(u32 address) -> u8 {

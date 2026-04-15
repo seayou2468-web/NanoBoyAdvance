@@ -427,14 +427,14 @@ u32 ScanDirectoryTree(const std::string &directory, FSTEntry& parentEntry)
         FSTEntry entry;
         const std::string virtualName(TStrToUTF8(ffd.cFileName));
 #else
-    struct dirent dirent, *result = NULL;
+    struct dirent* result = NULL;
 
     DIR *dirp = opendir(directory.c_str());
     if (!dirp)
         return 0;
 
     // non windows loop
-    while (!readdir_r(dirp, &dirent, &result) && result)
+    while ((result = readdir(dirp)) != NULL)
     {
         FSTEntry entry;
         const std::string virtualName(result->d_name);
@@ -495,13 +495,13 @@ bool DeleteDirRecursively(const std::string &directory)
     {
         const std::string virtualName(TStrToUTF8(ffd.cFileName));
 #else
-    struct dirent dirent, *result = NULL;
+    struct dirent* result = NULL;
     DIR *dirp = opendir(directory.c_str());
     if (!dirp)
         return false;
 
     // non windows loop
-    while (!readdir_r(dirp, &dirent, &result) && result)
+    while ((result = readdir(dirp)) != NULL)
     {
         const std::string virtualName = result->d_name;
 #endif
@@ -556,11 +556,11 @@ void CopyDir(const std::string &source_path, const std::string &dest_path)
     if (!File::Exists(source_path)) return;
     if (!File::Exists(dest_path)) File::CreateFullPath(dest_path);
 
-    struct dirent dirent, *result = NULL;
+    struct dirent* result = NULL;
     DIR *dirp = opendir(source_path.c_str());
     if (!dirp) return;
 
-    while (!readdir_r(dirp, &dirent, &result) && result)
+    while ((result = readdir(dirp)) != NULL)
     {
         const std::string virtualName(result->d_name);
         // check for "." and ".."
@@ -594,7 +594,7 @@ std::string GetCurrentDir()
 
         ERROR_LOG(COMMON, "GetCurrentDirectory failed: %s",
                 GetLastErrorMsg());
-        return NULL;
+        return "";
     }
     std::string strDir = dir;
     free(dir);

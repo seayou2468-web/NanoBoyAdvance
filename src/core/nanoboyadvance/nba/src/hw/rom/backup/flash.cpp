@@ -118,6 +118,14 @@ void FLASH::HandleCommand(u32 address, u8 value) {
         }
         break;
       }
+      case ERASE_SECTOR: {
+        phase = 0;
+        break;
+      }
+      default: {
+        phase = 0;
+        break;
+      }
     }
   } else if(enable_erase && (address & ~0xF000) == 0x0E000000 && static_cast<Command>(value) == ERASE_SECTOR) {
     u32 base = address & 0xF000;

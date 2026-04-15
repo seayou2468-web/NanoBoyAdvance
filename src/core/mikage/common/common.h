@@ -12,6 +12,18 @@
 #include <stdio.h>
 #include <string.h>
 
+#if defined(__clang__)
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#pragma clang diagnostic ignored "-Wformat"
+#pragma clang diagnostic ignored "-Wformat-extra-args"
+#pragma clang diagnostic ignored "-Wswitch-enum"
+#pragma clang diagnostic ignored "-Wundefined-inline"
+#pragma clang diagnostic ignored "-Wcomma"
+#pragma clang diagnostic ignored "-Wunused-value"
+#pragma clang diagnostic ignored "-Wdangling-else"
+#pragma clang diagnostic ignored "-Wparentheses-equality"
+#endif
+
 // Force enable logging in the right modes. For some reason, something had changed
 // so that debugfast no longer logged.
 #if defined(_DEBUG) || defined(DEBUGFAST)
@@ -97,7 +109,9 @@ private:
 // Windows compatibility
 #ifndef _WIN32
 #include <limits.h>
+#ifndef MAX_PATH
 #define MAX_PATH PATH_MAX
+#endif
 #define __forceinline inline __attribute__((always_inline))
 #define MEMORY_ALIGNED16(x) __attribute__((aligned(16))) x
 #define MEMORY_ALIGNED32(x) __attribute__((aligned(32))) x

@@ -42,7 +42,15 @@ namespace Symbols
     }
     const std::string& GetName(u32 _address)
     {
-        return GetSymbol(_address).name;
+        static const std::string empty_name;
+
+        TSymbolsMap::const_iterator found_symbol_itr = g_symbols.find(_address);
+        if (found_symbol_itr != g_symbols.end())
+        {
+            return found_symbol_itr->second.name;
+        }
+
+        return empty_name;
     }
     
     void Remove(u32 _address)

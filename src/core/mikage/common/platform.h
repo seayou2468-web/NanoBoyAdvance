@@ -58,12 +58,16 @@
 #define __stdcall
 #define __cdecl
 
+#ifndef LONG
 #define LONG long
+#endif
 #define BOOL bool
 #define DWORD u32
 
 #include <limits.h>
+#ifndef MAX_PATH
 #define MAX_PATH PATH_MAX
+#endif
 
 #include <strings.h>
 #define stricmp(str1, str2) strcasecmp(str1, str2)

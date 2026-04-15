@@ -41,8 +41,6 @@ static bool FixFilenameCase(const std::string &path, std::string &filename)
 
 	//TODO: lookup filename in cache for "path"
 
-	struct dirent_large { struct dirent entry; char padding[FILENAME_MAX+1]; } diren;
-	struct dirent_large;
 	struct dirent *result = NULL;
 
 	DIR *dirp = opendir(path.c_str());
@@ -51,7 +49,7 @@ static bool FixFilenameCase(const std::string &path, std::string &filename)
 
 	bool retValue = false;
 
-	while (!readdir_r(dirp, (dirent*) &diren, &result) && result)
+	while ((result = readdir(dirp)) != NULL)
 	{
 		if (strlen(result->d_name) != filenameSize)
 			continue;

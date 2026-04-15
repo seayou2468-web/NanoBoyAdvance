@@ -41,6 +41,10 @@
 #include "DSi_Camera.h"
 #include "DSi_DSP.h"
 
+#if defined(__clang__)
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 
 namespace NDS
 {

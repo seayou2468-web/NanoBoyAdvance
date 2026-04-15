@@ -203,6 +203,9 @@ void PPU::DrawMergeImpl(int cycles) {
           const bool have_dst = mmio.bldcnt.targets[0][layers[0]];
 
           switch(mmio.bldcnt.sfx) {
+            case BlendControl::SFX_NONE: {
+              break;
+            }
             case BlendControl::SFX_BLEND: {
               if(have_dst && have_src) {
                 // @todo: make it clear what the meaning of 0x8000'0000 is.
@@ -224,6 +227,9 @@ void PPU::DrawMergeImpl(int cycles) {
               if(have_dst) {
                 colors[0] = Darken(colors[0], mmio.evy);
               }
+              break;
+            }
+            default: {
               break;
             }
           }

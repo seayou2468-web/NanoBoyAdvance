@@ -85,6 +85,9 @@ void RTC::Write(int value) {
           TransmitBufferSIO();
           break;
         }
+        case State::Complete: {
+          break;
+        }
       }
     }
   }
@@ -202,6 +205,9 @@ void RTC::ReadRegister() {
       buffer[0] = ConvertDecimalToBCD(time->tm_hour);
       buffer[1] = ConvertDecimalToBCD(time->tm_min);
       buffer[2] = ConvertDecimalToBCD(time->tm_sec);
+      break;
+    }
+    default: {
       break;
     }
   }
