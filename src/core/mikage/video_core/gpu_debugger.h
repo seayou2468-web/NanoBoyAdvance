@@ -8,9 +8,9 @@
 #include <functional>
 #include <vector>
 
-#include "common/log.h"
+#include "../common/log.h"
 
-#include "core/hle/service/gsp.h"
+#include "../core/hle/service/gsp.h"
 #include "pica.h"
 
 class GraphicsDebugger

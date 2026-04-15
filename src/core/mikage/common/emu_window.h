@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "common/common.h"
-#include "common/scm_rev.h"
+#include "common.h"
+#include "scm_rev.h"
 
 // Abstraction class used to provide an interface between emulation code and the frontend (e.g. SDL, 
 //  QGLWidget, GLFW, etc...)

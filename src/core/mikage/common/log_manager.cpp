@@ -4,11 +4,11 @@
 
 #include <algorithm>
 
-#include "common/log_manager.h"
-#include "common/console_listener.h"
-#include "common/timer.h"
-#include "common/thread.h"
-#include "common/file_util.h"
+#include "log_manager.h"
+#include "console_listener.h"
+#include "timer.h"
+#include "thread.h"
+#include "file_util.h"
 
 void GenericLog(LogTypes::LOG_LEVELS level, LogTypes::LOG_TYPE type, 
         const char *file, int line, const char* fmt, ...)

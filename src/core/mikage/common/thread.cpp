@@ -2,8 +2,8 @@
 // Licensed under GPLv2
 // Refer to the license.txt file included.
 
-#include "common/thread.h"
-#include "common/common.h"
+#include "thread.h"
+#include "common.h"
 
 #include <unistd.h>
 

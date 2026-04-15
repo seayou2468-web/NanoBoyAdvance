@@ -17,8 +17,8 @@
 
 #include <string>
 
-#include "common/memory_util.h"
-#include "common/mem_arena.h"
+#include "memory_util.h"
+#include "mem_arena.h"
 
 #ifndef _WIN32
 #include <sys/stat.h>

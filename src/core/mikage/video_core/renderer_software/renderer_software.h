@@ -3,9 +3,9 @@
 #include <chrono>
 #include <vector>
 
-#include "common/common.h"
-#include "common/emu_window.h"
-#include "video_core/renderer_base.h"
+#include "../../common/common.h"
+#include "../../common/emu_window.h"
+#include "../renderer_base.h"
 
 class RendererSoftware : virtual public RendererBase {
 public:

@@ -2,16 +2,16 @@
 // Licensed under GPLv2
 // Refer to the license.txt file included.
 
-#include "common/common.h"
-#include "common/emu_window.h"
-#include "common/log.h"
+#include "../common/common.h"
+#include "../common/emu_window.h"
+#include "../common/log.h"
 
-#include "core/core.h"
+#include "../core/core.h"
 
-#include "video_core/video_core.h"
-#include "video_core/renderer_base.h"
-#include "video_core/renderer_metal/renderer_metal.h"
-#include "video_core/renderer_software/renderer_software.h"
+#include "video_core.h"
+#include "renderer_base.h"
+#include "./renderer_metal/renderer_metal.h"
+#include "./renderer_software/renderer_software.h"
 
 #if defined(__APPLE__)
 #include <TargetConditionals.h>

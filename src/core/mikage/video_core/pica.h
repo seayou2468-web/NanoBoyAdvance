@@ -7,9 +7,9 @@
 #include <initializer_list>
 #include <map>
 
-#include "common/bit_field.h"
-#include "common/common_types.h"
-#include "common/register_set.h"
+#include "../common/bit_field.h"
+#include "../common/common_types.h"
+#include "../common/register_set.h"
 
 namespace Pica {
 

@@ -2,17 +2,17 @@
 // Licensed under GPLv2
 // Refer to the license.txt file included.
 
-#include "common/common.h"
-#include "common/log_manager.h"
-#include "common/file_util.h"
+#include "../common/common.h"
+#include "../common/log_manager.h"
+#include "../common/file_util.h"
 
-#include "core/system.h"
-#include "core/core.h"
-#include "core/loader.h"
+#include "../core/system.h"
+#include "../core/core.h"
+#include "../core/loader.h"
 
-#include "citra/emu_window/emu_window_glfw.h"
+#include "./emu_window/emu_window_glfw.h"
 
-#include "citra/citra.h"
+#include "citra.h"
 
 /// Application entry point
 int __cdecl main(int argc, char **argv) {

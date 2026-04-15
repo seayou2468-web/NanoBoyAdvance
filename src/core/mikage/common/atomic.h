@@ -6,6 +6,6 @@
 #define _ATOMIC_H_
 
 // GCC-compatible compiler assumed!
-#include "common/atomic_gcc.h"
+#include "atomic_gcc.h"
 
 #endif

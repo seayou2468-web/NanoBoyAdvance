@@ -5,7 +5,7 @@
 // a simple lockless thread-safe,
 // single reader, single writer queue
 
-#include "common/atomic.h"
+#include "atomic.h"
 
 namespace Common
 {

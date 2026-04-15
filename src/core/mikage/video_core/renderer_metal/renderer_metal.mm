@@ -1,7 +1,7 @@
-#include "video_core/renderer_metal/renderer_metal.h"
+#include "renderer_metal.h"
 
-#include "common/log.h"
-#include "video_core/video_core.h"
+#include "../../common/log.h"
+#include "../video_core.h"
 
 #if defined(__APPLE__)
 #import <TargetConditionals.h>

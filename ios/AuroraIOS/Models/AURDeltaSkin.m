@@ -191,7 +191,7 @@ static NSSet<NSNumber *> *AURCoreTypesFromMetadata(NSDictionary *json) {
     skin.supportedCoreTypes = AURCoreTypesFromMetadata(json);
 
     NSMutableDictionary<NSString *, NSDictionary *> *layoutByTraitKey = [NSMutableDictionary dictionary];
-    AURControllerSkinConfigurations supportedConfigurations = 0;
+    __block AURControllerSkinConfigurations supportedConfigurations = 0;
 
     NSDictionary *representations = [json[@"representations"] isKindOfClass:[NSDictionary class]] ? json[@"representations"] : nil;
     if (representations.count > 0) {

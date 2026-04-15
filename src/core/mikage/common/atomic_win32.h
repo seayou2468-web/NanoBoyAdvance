@@ -5,7 +5,7 @@
 #ifndef _ATOMIC_WIN32_H_
 #define _ATOMIC_WIN32_H_
 
-#include "common/common.h"
+#include "common.h"
 #include <intrin.h>
 #include <Windows.h>
 

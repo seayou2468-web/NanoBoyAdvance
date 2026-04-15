@@ -1,10 +1,10 @@
-#include "video_core/renderer_software/renderer_software.h"
+#include "renderer_software.h"
 
 #include <algorithm>
 
-#include "common/log.h"
-#include "core/hw/gpu.h"
-#include "video_core/video_core.h"
+#include "../../common/log.h"
+#include "../../core/hw/gpu.h"
+#include "../video_core.h"
 
 extern "C" void MikageConvertBGR24ToRGBA8888Flipped(const uint8_t* src,
                                                       uint8_t* dst,

@@ -6,7 +6,7 @@
 #ifndef _LINEAR_DISKCACHE
 #define _LINEAR_DISKCACHE
 
-#include "common/common.h"
+#include "common.h"
 #include <fstream>
 
 // defined in Version.cpp

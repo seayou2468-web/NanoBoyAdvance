@@ -6,7 +6,7 @@
 #ifndef _MATH_UTIL_H_
 #define _MATH_UTIL_H_
 
-#include "common/common.h"
+#include "common.h"
 
 #include <vector>
 

@@ -3,16 +3,16 @@
 // Refer to the license.txt file included.
 
 
-#include "common/common.h"
-#include "common/common_paths.h"
+#include "common.h"
+#include "common_paths.h"
 #include <sys/types.h>
 #include <dirent.h>
 
 #include <string>
 #include <algorithm>
 
-#include "common/file_search.h"
-#include "common/string_util.h"
+#include "file_search.h"
+#include "string_util.h"
 
 
 CFileSearch::CFileSearch(const CFileSearch::XStringVector& _rSearchStrings, const CFileSearch::XStringVector& _rDirectories)

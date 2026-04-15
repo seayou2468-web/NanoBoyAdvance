@@ -12,7 +12,7 @@
 #include <sstream>
 #include <iomanip>
 
-#include "common/common.h"
+#include "common.h"
 
 /// Make a string lowercase
 void LowerStr(char* str);

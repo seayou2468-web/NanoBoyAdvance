@@ -39,12 +39,12 @@ private:
 };
 #endif
 
-#include "common/log.h"
-#include "common/common_types.h"
-#include "common/msg_handler.h"
-#include "common/common_funcs.h"
-#include "common/common_paths.h"
-#include "common/platform.h"
+#include "log.h"
+#include "common_types.h"
+#include "msg_handler.h"
+#include "common_funcs.h"
+#include "common_paths.h"
+#include "platform.h"
 
 #ifdef __APPLE__
 // The Darwin ABI requires that stack frames be aligned to 16-byte boundaries.
@@ -98,9 +98,9 @@ private:
 #ifndef _WIN32
 #include <limits.h>
 #define MAX_PATH PATH_MAX
-#ifdef _LP64
+#if defined(__x86_64__) || defined(_M_X64)
 #define _M_X64 1
-#else
+#elif defined(__i386__) || defined(_M_IX86)
 #define _M_IX86 1
 #endif
 #define __forceinline inline __attribute__((always_inline))

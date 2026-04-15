@@ -8,7 +8,7 @@
 #include <vector>
 #include <string>
 
-#include "common/common.h"
+#include "common.h"
 
 class DebugInterface;
 
