@@ -3,6 +3,7 @@
 #import <QuartzCore/CAMetalLayer.h>
 #include <string.h>
 #include <stdlib.h>
+#include <math.h>
 #import <simd/simd.h>
 
 typedef struct {
@@ -58,6 +59,10 @@ static void AURFillIdentityLUT(float *lutData, NSUInteger width, NSUInteger heig
             }
         }
     }
+}
+
+static inline float AURClamp01f(float v) {
+    return fmaxf(0.0f, fminf(1.0f, v));
 }
 
 + (Class)layerClass {
@@ -370,16 +375,21 @@ static void AURFillIdentityLUT(float *lutData, NSUInteger width, NSUInteger heig
         return;
     }
     
+    [self _updateDrawableSize];
     [self ensureResourcesWithWidth:width height:height];
-    
-    CAMetalLayer *layer = (CAMetalLayer *)self.layer;
-    id<CAMetalDrawable> drawable = [layer nextDrawable];
-    if (!drawable) {
+    if (!_frameBuffer || !_sourceTexture || !_pipelineState || !_samplerState) {
         return;
     }
     
     // フレームレート制限（最大3フレーム）
     if (dispatch_semaphore_wait(_inFlightSemaphore, DISPATCH_TIME_NOW) != 0) {
+        return;
+    }
+    
+    CAMetalLayer *layer = (CAMetalLayer *)self.layer;
+    id<CAMetalDrawable> drawable = [layer nextDrawable];
+    if (!drawable) {
+        dispatch_semaphore_signal(_inFlightSemaphore);
         return;
     }
     
@@ -439,10 +449,10 @@ static void AURFillIdentityLUT(float *lutData, NSUInteger width, NSUInteger heig
         .sourceSize = {(float)width, (float)height},
         .outputSize = {(float)layer.drawableSize.width, (float)layer.drawableSize.height},
         .sourceRect = {
-            (float)(sourceRect.origin.x / width),
-            (float)(sourceRect.origin.y / height),
-            (float)(sourceRect.size.width / width),
-            (float)(sourceRect.size.height / height)
+            AURClamp01f((float)(sourceRect.origin.x / width)),
+            AURClamp01f((float)(sourceRect.origin.y / height)),
+            AURClamp01f((float)(sourceRect.size.width / width)),
+            AURClamp01f((float)(sourceRect.size.height / height))
         },
         .saturation = _userSaturation,
         .vibrance = _userVibrance,
@@ -455,7 +465,11 @@ static void AURFillIdentityLUT(float *lutData, NSUInteger width, NSUInteger heig
     // レンダーコマンド
     id<MTLRenderCommandEncoder> re = [cb renderCommandEncoderWithDescriptor:rpd];
     if (re) {
-        [re setRenderPipelineState:_pipelineState];
+        id<MTLRenderPipelineState> pipeline = _pipelineState;
+        if (_upscaleMode == AURUpscaleModePerformance && _fastPipelineState) {
+            pipeline = _fastPipelineState;
+        }
+        [re setRenderPipelineState:pipeline];
         [re setFragmentTexture:_sourceTexture atIndex:0];
         [re setFragmentTexture:_colorLUT2D atIndex:1];
         [re setFragmentSamplerState:_samplerState atIndex:0];
