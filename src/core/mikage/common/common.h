@@ -98,11 +98,6 @@ private:
 #ifndef _WIN32
 #include <limits.h>
 #define MAX_PATH PATH_MAX
-#if defined(__x86_64__) || defined(_M_X64)
-#define _M_X64 1
-#elif defined(__i386__) || defined(_M_IX86)
-#define _M_IX86 1
-#endif
 #define __forceinline inline __attribute__((always_inline))
 #define MEMORY_ALIGNED16(x) __attribute__((aligned(16))) x
 #define MEMORY_ALIGNED32(x) __attribute__((aligned(32))) x
@@ -126,21 +121,7 @@ private:
 // wxWidgets does not have a true dummy macro for this.
 #define _trans(a) a
 
-#if defined _M_GENERIC
-#  define _M_SSE 0x0
-#elif defined __GNUC__
-# if defined __SSE4_2__
-#  define _M_SSE 0x402
-# elif defined __SSE4_1__
-#  define _M_SSE 0x401
-# elif defined __SSSE3__
-#  define _M_SSE 0x301
-# elif defined __SSE3__
-#  define _M_SSE 0x300
-# endif
-#elif (_MSC_VER >= 1500) || __INTEL_COMPILER // Visual Studio 2008
-#  define _M_SSE 0x402
-#endif
+#define _M_SSE 0x0
 
 // Host communication.
 enum HOST_COMM

@@ -25,7 +25,6 @@
 #pragma once 
 
 #include <math.h>
-#include <xmmintrin.h> // data_types__m128.cpp
 
 #ifdef _WIN32
 
@@ -97,7 +96,7 @@ union t128 {
         t64 ps0;            ///< 64-bit paired single 0
         t64 ps1;            ///< 64-bit paired single 1
     };
-    __m128  a;              ///< 128-bit floating point (__m128 maps to the XMM[0-7] registers)
+    u8 _u8[16];
 };
 
 namespace common {

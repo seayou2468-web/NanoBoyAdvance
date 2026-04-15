@@ -18,9 +18,7 @@
 
 #include "../../../common/platform.h"
 
-#if EMU_PLATFORM == PLATFORM_LINUX || EMU_PLATFORM == PLATFORM_BSD
 #include <unistd.h>
-#endif
 
 #include <math.h>
 
@@ -334,16 +332,7 @@ ARMul_Reset (ARMul_State * state)
 	state->tea_break_ok = 0;
 	state->tea_break_addr = 0;
 	state->tea_pc = 0;
-#ifdef DBCT
-	if (!skyeye_config.no_dbct) {
-		//teawater add for arm2x86 2005.02.14-------------------------------------------
-		if (arm2x86_init (state)) {
-			printf ("SKYEYE: arm2x86_init error\n");
-			skyeye_exit (-1);
-		}
-		//AJ2D--------------------------------------------------------------------------
-	}
-#endif
+    // x86 DBCT/arm2x86 initialization path removed for iOS-only builds.
 }
 
 
@@ -424,16 +413,7 @@ ARMul_DoProg (ARMul_State * state)
 
 		/*ywc 2005-03-31 */
 		if (state->prog32Sig && ARMul_MODE32BIT) {
-#ifdef DBCT
-			if (skyeye_config.no_dbct) {
-				pc = ARMul_Emulate32 (state);
-			}
-			else {
-				pc = ARMul_Emulate32_dbct (state);
-			}
-#else
 			pc = ARMul_Emulate32 (state);
-#endif
 		}
 
 		else {

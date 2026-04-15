@@ -41,9 +41,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#if EMU_PLATFORM == PLATFORM_LINUX
 #include <unistd.h>
-#endif
 #include <errno.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -82,12 +80,13 @@
 
 #include "../../../common/platform.h"
 
-#if EMU_PLATFORM == PLATFORM_LINUX
 #include <sys/time.h>
-#endif
 
 //#define DBCT_TEST_SPEED
 #define DBCT_TEST_SPEED_SEC    10
+// iOS-only build target: explicitly disable legacy x86 DBCT codepaths.
+#undef DBCT
+#undef DBCT_TEST_SPEED
 //AJ2D--------------------------------------------------------------------------
 
 //teawater add compile switch for DBCT GDB RSP function 2005.10.21--------------
@@ -852,21 +851,7 @@ pascal void SpinCursor (short increment);    /* copied from CursorCtl.h */
 #define ZBIT_SHIFT    30
 #define CBIT_SHIFT    29
 #define VBIT_SHIFT    28
-#ifdef DBCT
-//teawater change for local tb branch directly jump 2005.10.18------------------
-#include "./dbct/list.h"
-#include "./dbct/arm2x86.h"
-#include "./dbct/arm2x86_dp.h"
-#include "./dbct/arm2x86_movl.h"
-#include "./dbct/arm2x86_psr.h"
-#include "./dbct/arm2x86_shift.h"
-#include "./dbct/arm2x86_mem.h"
-#include "./dbct/arm2x86_mul.h"
-#include "./dbct/arm2x86_test.h"
-#include "./dbct/arm2x86_other.h"
-#include "./dbct/arm2x86_coproc.h"
-#include "./dbct/tb.h"
-#endif
+// x86 DBCT/arm2x86 path intentionally removed for iOS-only builds.
 //AJ2D--------------------------------------------------------------------------
 //AJ2D--------------------------------------------------------------------------
 #define SKYEYE_OUTREGS(fd) { fprintf ((fd), "R %x,%x,%x,%x,%x,%x,%x,%x,%x,%x,%x,%x,%x,%x,%x,%x,C %x,S %x,%x,%x,%x,%x,%x,%x,M %x,B %x,E %x,I %x,P %x,T %x,L %x,D %x,",\

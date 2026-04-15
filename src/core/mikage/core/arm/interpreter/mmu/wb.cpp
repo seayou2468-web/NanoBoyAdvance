@@ -114,11 +114,7 @@ mmu_wb_write_bytes (ARMul_State * state, wb_s * wb_t, ARMword pa,
 		wb_t->used++;
 	};
 //teawater add for set_dirty fflash cache function 2005.07.18-------------------
-#ifdef DBCT
-	if (!skyeye_config.no_dbct) {
-		tb_setdirty (state, pa, NULL);
-	}
-#endif
+    // x86 DBCT dirty-page tracking removed for iOS-only builds.
 //AJ2D--------------------------------------------------------------------------
 }
 

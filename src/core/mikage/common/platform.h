@@ -32,32 +32,24 @@
 
 /// Enumeration for defining the supported platforms
 #define PLATFORM_NULL 0
-#define PLATFORM_LINUX 1
-#define PLATFORM_IOS 2
+#define PLATFORM_IOS 1
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Platform detection
 
 #ifndef EMU_PLATFORM
 
-#if defined(__linux__)
-#define EMU_PLATFORM PLATFORM_LINUX
-
-#elif defined(__APPLE__) || defined(__APPLE_CC__)
+#if defined(__APPLE__) || defined(__APPLE_CC__)
 #include <TargetConditionals.h>
 #define EMU_PLATFORM PLATFORM_IOS
 
 #else
-#error "Mikage common only supports iOS and Linux."
+#error "Mikage common now targets iOS SDK only."
 #endif
 
 #endif
 
-#if defined(__x86_64__) || defined(_M_X64) || defined(__alpha__) || defined(__ia64__)
-#define EMU_ARCHITECTURE_X64
-#else
-#define EMU_ARCHITECTURE_X86
-#endif
+#define EMU_ARCHITECTURE_ARM64
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Compiler-Specific Definitions

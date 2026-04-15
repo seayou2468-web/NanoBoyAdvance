@@ -294,12 +294,7 @@ extern int (*ui_loop_hook) (int);
 }
 
 /*ywc 2005-03-31*/
-//teawater add for arm2x86 2005.02.17-------------------------------------------
-#ifdef DBCT
-#include "./dbct/tb.h"
-#include "./dbct/arm2x86_self.h"
-#endif
-//AJ2D--------------------------------------------------------------------------
+// x86 DBCT/arm2x86 include path removed for iOS-only builds.
 
 //Diff register
 unsigned int mirror_register_file[39];

@@ -4,10 +4,6 @@
 
 
 #include "hash.h"
-#if _M_SSE >= 0x402
-#include "cpu_detect.h"
-#include <nmmintrin.h>
-#endif
 
 static u64 (*ptrHashFunction)(const u8 *src, int len, u32 samples) = &GetMurmurHash3;
 
@@ -228,25 +224,9 @@ u64 GetMurmurHash3(const u8 *src, int len, u32 samples)
 // CRC32 hash using the SSE4.2 instruction
 u64 GetCRC32(const u8 *src, int len, u32 samples)
 {
-#if _M_SSE >= 0x402
-    u64 h = len;
-    u32 Step = (len / 8);
-    const u64 *data = (const u64 *)src;
-    const u64 *end = data + Step;
-    if(samples == 0) samples = max(Step, 1u);
-    Step = Step / samples;
-    if(Step < 1) Step = 1;
-    while(data < end)
-    {
-        h = _mm_crc32_u64(h, data[0]);
-        data += Step;
-    }
-
-    const u8 *data2 = (const u8*)end;
-    return _mm_crc32_u64(h, u64(data2[0]));
-#else
-    return 0;
-#endif
+    (void)samples;
+    // iOS-only build: keep a portable fallback and remove SSE4.2 dependency.
+    return static_cast<u64>(HashAdler32(src, static_cast<size_t>(len)));
 }
 
 
@@ -300,28 +280,11 @@ u64 GetHashHiresTexture(const u8 *src, int len, u32 samples)
     return h;
 } 
 #else
-// CRC32 hash using the SSE4.2 instruction
+// Portable iOS fallback (x86 SSE path removed)
 u64 GetCRC32(const u8 *src, int len, u32 samples)
 {
-#if _M_SSE >= 0x402
-    u32 h = len;
-    u32 Step = (len/4);
-    const u32 *data = (const u32 *)src;
-    const u32 *end = data + Step;
-    if(samples == 0) samples = max(Step, 1u);
-    Step  = Step / samples;
-    if(Step < 1) Step = 1;
-    while(data < end)
-    {
-        h = _mm_crc32_u32(h, data[0]);
-        data += Step;
-    }
-
-    const u8 *data2 = (const u8*)end;
-    return (u64)_mm_crc32_u32(h, u32(data2[0]));
-#else
-    return 0;
-#endif
+    (void)samples;
+    return static_cast<u64>(HashAdler32(src, static_cast<size_t>(len)));
 }
 
 //-----------------------------------------------------------------------------
@@ -515,6 +478,4 @@ void SetHash64Function(bool useHiresTextures)
         ptrHashFunction = &GetMurmurHash3;
     }
 }
-
-
 
