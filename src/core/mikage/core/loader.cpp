@@ -195,6 +195,7 @@ bool LoadCodeFromNCCH(File::IOFile& file, u64 ncch_offset, std::string* error_st
     }
 
     const u64 exefs_offset = ncch_offset + static_cast<u64>(exefs_offset_units) * kMediaUnitSize;
+    const u64 exefs_size_bytes = static_cast<u64>(exefs_size_units) * kMediaUnitSize;
     std::array<ExeFSEntry, 10> entries{};
     if (!file.Seek(static_cast<s64>(exefs_offset), SEEK_SET) ||
         !file.ReadBytes(entries.data(), sizeof(entries))) {
@@ -216,6 +217,13 @@ bool LoadCodeFromNCCH(File::IOFile& file, u64 ncch_offset, std::string* error_st
         return false;
     }
 
+    if (code_entry.offset > exefs_size_bytes || code_entry.size > exefs_size_bytes ||
+        static_cast<u64>(code_entry.offset) + static_cast<u64>(code_entry.size) >
+            (exefs_size_bytes > kExeFSHeaderSize ? exefs_size_bytes - kExeFSHeaderSize : 0)) {
+        if (error_string) *error_string = "ExeFS .code section has invalid bounds";
+        return false;
+    }
+
     const u64 code_file_offset = exefs_offset + kExeFSHeaderSize + static_cast<u64>(code_entry.offset);
     std::vector<u8> code(static_cast<size_t>(code_entry.size));
     if (!file.Seek(static_cast<s64>(code_file_offset), SEEK_SET) ||
@@ -226,6 +234,14 @@ bool LoadCodeFromNCCH(File::IOFile& file, u64 ncch_offset, std::string* error_st
 
     u32 entry_point = 0x00100000;
     ReadU32At(file, ncch_offset + kNCCHExHeaderOffset + kExHeaderTextAddressOffset, entry_point);
+    const bool entry_in_exefs_region =
+        entry_point >= Memory::EXEFS_CODE_VADDR && entry_point < Memory::EXEFS_CODE_VADDR_END;
+    if (!entry_in_exefs_region ||
+        static_cast<u64>(entry_point - Memory::EXEFS_CODE_VADDR) + static_cast<u64>(code.size()) >
+            static_cast<u64>(Memory::EXEFS_CODE_SIZE)) {
+        entry_point = 0x00100000;
+    }
+
     u8* dst = Memory::GetPointer(entry_point);
     if (!dst) {
         // Fallback to legacy load address used by older Mikage paths.
