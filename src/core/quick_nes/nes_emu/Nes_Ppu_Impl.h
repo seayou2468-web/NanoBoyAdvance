@@ -6,6 +6,12 @@
 #ifndef NES_PPU_IMPL_H
 #define NES_PPU_IMPL_H
 
+#if defined(__clang__)
+#pragma clang diagnostic ignored "-Wdeprecated-enum-enum-conversion"
+#elif defined(__GNUC__)
+#pragma GCC diagnostic ignored "-Wdeprecated-enum-enum-conversion"
+#endif
+
 #include "nes_data.h"
 class Nes_State_;
 

@@ -6,6 +6,12 @@
 #ifndef NES_DATA_H
 #define NES_DATA_H
 
+#if defined(__clang__)
+#pragma clang diagnostic ignored "-Wmultichar"
+#elif defined(__GNUC__)
+#pragma GCC diagnostic ignored "-Wmultichar"
+#endif
+
 #include "blargg_common.h"
 #include "apu_state.h"
 

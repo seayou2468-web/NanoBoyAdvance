@@ -6,6 +6,12 @@
 #ifndef NES_NAMCO_APU_H
 #define NES_NAMCO_APU_H
 
+#if defined(__clang__)
+#pragma clang diagnostic ignored "-Wdeprecated-enum-float-conversion"
+#elif defined(__GNUC__)
+#pragma GCC diagnostic ignored "-Wdeprecated-enum-float-conversion"
+#endif
+
 #include "Nes_Apu.h"
 
 struct namco_state_t;

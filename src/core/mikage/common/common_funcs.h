@@ -22,8 +22,12 @@ template<> struct CompileTimeAssert<true> {};
 #define b32(x)  (b16(x) | (b16(x) >>16) )
 #define ROUND_UP_POW2(x)    (b32(x - 1) + 1)
 
+#ifndef MIN
 #define MIN(a, b)   ((a)<(b)?(a):(b))
+#endif
+#ifndef MAX
 #define MAX(a, b)   ((a)>(b)?(a):(b))
+#endif
 
 #define CLAMP(x, min, max)  (((x) > max) ? max : (((x) < min) ? min : (x)))
 
