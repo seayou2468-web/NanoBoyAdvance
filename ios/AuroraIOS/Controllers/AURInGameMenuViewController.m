@@ -54,8 +54,11 @@
         config.imagePadding = 10.0;
         button.configuration = config;
     } else {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
         button.contentEdgeInsets = UIEdgeInsetsMake(15, 20, 15, 20);
         button.imageEdgeInsets = UIEdgeInsetsMake(0, 0, 0, 10);
+#pragma clang diagnostic pop
     }
 
     [button addTarget:self action:@selector(buttonTapped:) forControlEvents:UIControlEventTouchUpInside];
