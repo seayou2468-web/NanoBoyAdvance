@@ -10,7 +10,7 @@
 #include "../core/core.h"
 #include "../core/loader.h"
 
-#include "./emu_window/emu_window_glfw.h"
+#include "./emu_window/emu_window_ios.h"
 
 #include "citra.h"
 
@@ -20,7 +20,7 @@ int __cdecl main(int argc, char **argv) {
 
     LogManager::Init();
 
-    EmuWindow_GLFW* emu_window = new EmuWindow_GLFW;
+    EmuWindow_IOS* emu_window = new EmuWindow_IOS;
 
     System::Init(emu_window);
 

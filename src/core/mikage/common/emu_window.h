@@ -7,8 +7,8 @@
 #include "common.h"
 #include "scm_rev.h"
 
-// Abstraction class used to provide an interface between emulation code and the frontend (e.g. SDL, 
-//  QGLWidget, GLFW, etc...)
+// Abstraction class used to provide an interface between emulation code and the frontend (e.g. SDL,
+//  iOS UIKit/Metal views, etc...)
 class EmuWindow
 {
 
@@ -29,7 +29,7 @@ public:
     /// Makes the graphics context current for the caller thread
     virtual void MakeCurrent() = 0;
 
-    /// Releases (dunno if this is the "right" word) the GLFW context from the caller thread
+    /// Releases the graphics context from the caller thread
     virtual void DoneCurrent() = 0;
 
     /// Returns a platform-native rendering layer when available (ex: CAMetalLayer* on Apple).
