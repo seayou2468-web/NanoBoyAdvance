@@ -1,0 +1,62 @@
+// Copyright 2014 Citra Emulator Project
+// Licensed under GPLv2
+// Refer to the license.txt file included.
+
+#include "../common/common.h"
+#include "../common/emu_window.h"
+#include "../common/log.h"
+
+#include "../core/core.h"
+
+#include "video_core.h"
+#include "renderer_base.h"
+#include "./renderer_metal/renderer_metal.h"
+#include "./renderer_software/renderer_software.h"
+
+#if defined(__APPLE__)
+#include <TargetConditionals.h>
+#endif
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Video Core namespace
+
+namespace VideoCore {
+
+EmuWindow*      g_emu_window    = NULL;     ///< Frontend emulator window
+RendererBase*   g_renderer      = NULL;     ///< Renderer plugin
+int             g_current_frame = 0;
+
+/// Start the video core
+void Start() {
+    if (g_emu_window == NULL) {
+        ERROR_LOG(VIDEO, "VideoCore::Start called without calling Init()!");
+    }
+}
+
+/// Initialize the video core
+void Init(EmuWindow* emu_window) {
+    g_emu_window = emu_window;
+    g_emu_window->MakeCurrent();
+
+#if defined(__APPLE__)
+    g_renderer = new RendererMetal();
+#else
+#error "Mikage video core now targets iOS render backend only."
+#endif
+
+    g_renderer->SetWindow(g_emu_window);
+    g_renderer->Init();
+
+    g_current_frame = 0;
+
+    NOTICE_LOG(VIDEO, "initialized OK");
+}
+
+/// Shutdown the video core
+void Shutdown() {
+    delete g_renderer;
+    g_renderer = NULL;
+    NOTICE_LOG(VIDEO, "shutdown OK");
+}
+
+} // namespace

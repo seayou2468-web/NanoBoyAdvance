@@ -1,0 +1,254 @@
+#include "runtime.hpp"
+
+#include <algorithm>
+#include <cstring>
+#include <filesystem>
+#include <fstream>
+#include <limits>
+#include <mutex>
+#include <vector>
+
+#include "GPU.h"
+#include "NDS.h"
+#include "Platform.h"
+
+namespace core::melonds {
+namespace {
+
+constexpr size_t kFramePixels = 256U * 384U;
+constexpr uint32_t kScreenWidth = 256U;
+constexpr uint32_t kScreenHeight = 192U;
+constexpr uint32_t kCombinedWidth = kScreenWidth * 2U;
+
+std::mutex g_core_lock;
+bool g_in_use = false;
+bool g_core_initialized = false;
+
+bool ReadBinaryFile(const char* path, std::vector<uint8_t>& out, std::string& last_error) {
+  if (path == nullptr || path[0] == '\0') {
+    last_error = "file path is empty";
+    return false;
+  }
+
+  std::ifstream stream(path, std::ios::binary | std::ios::ate);
+  if (!stream.is_open()) {
+    last_error = "failed to open file";
+    return false;
+  }
+
+  const std::streamsize size = stream.tellg();
+  if (size <= 0) {
+    last_error = "file is empty";
+    return false;
+  }
+
+  stream.seekg(0, std::ios::beg);
+  out.resize(static_cast<size_t>(size));
+  if (!stream.read(reinterpret_cast<char*>(out.data()), size)) {
+    last_error = "failed to read file";
+    return false;
+  }
+  return true;
+}
+
+void ClearFrame(Runtime& runtime) {
+  std::fill(runtime.frame_rgba.begin(), runtime.frame_rgba.end(), 0xFF000000U);
+}
+
+bool CopyFramebuffer(Runtime& runtime, std::string& last_error) {
+  const int front = GPU::FrontBuffer;
+  if (front < 0 || front > 1) {
+    last_error = "invalid GPU front buffer index";
+    return false;
+  }
+
+  const uint32_t* top = GPU::Framebuffer[front][0];
+  const uint32_t* bottom = GPU::Framebuffer[front][1];
+  if (top == nullptr || bottom == nullptr) {
+    last_error = "GPU framebuffer is not available";
+    return false;
+  }
+
+  for (size_t y = 0; y < kScreenHeight; ++y) {
+    uint32_t* row = runtime.frame_rgba.data() + (y * kCombinedWidth);
+    std::memcpy(row, top + (y * kScreenWidth), kScreenWidth * sizeof(uint32_t));
+    std::memcpy(row + kScreenWidth, bottom + (y * kScreenWidth), kScreenWidth * sizeof(uint32_t));
+  }
+  return true;
+}
+
+}  // namespace
+
+std::unique_ptr<Runtime> CreateRuntime() {
+  std::lock_guard<std::mutex> guard(g_core_lock);
+  if (g_in_use) {
+    return nullptr;
+  }
+
+  if (!g_core_initialized) {
+    Platform::Init(0, nullptr);
+    Platform::SetConfigBool(Platform::ExternalBIOSEnable, true);
+    Platform::SetConfigInt(Platform::AudioBitrate, 2);
+
+    NDS::SetConsoleType(0);
+    if (!NDS::Init()) {
+      Platform::DeInit();
+      return nullptr;
+    }
+
+    GPU::InitRenderer(0);
+    GPU::RenderSettings render_settings{};
+    render_settings.Soft_Threaded = false;
+    render_settings.GL_ScaleFactor = 1;
+    render_settings.GL_BetterPolygons = false;
+    GPU::SetRenderSettings(0, render_settings);
+    g_core_initialized = true;
+  }
+
+  auto runtime = std::make_unique<Runtime>();
+  runtime->initialized = true;
+  ClearFrame(*runtime);
+  g_in_use = true;
+  return runtime;
+}
+
+bool LoadBIOSFromPath(Runtime& runtime, const char* bios_path, std::string& last_error) {
+  if (!runtime.initialized) {
+    last_error = "melonDS runtime is not initialized";
+    return false;
+  }
+
+  std::vector<uint8_t> data;
+  if (!ReadBinaryFile(bios_path, data, last_error)) {
+    return false;
+  }
+
+  const std::string resolved_path = std::filesystem::absolute(std::filesystem::path(bios_path)).string();
+  if (data.size() == 0x1000U) {
+    runtime.bios9_data = std::move(data);
+    runtime.bios9_path = resolved_path;
+    return true;
+  }
+  if (data.size() == 0x4000U) {
+    runtime.bios7_data = std::move(data);
+    runtime.bios7_path = resolved_path;
+    return true;
+  }
+  if (data.size() == 0x20000U || data.size() == 0x40000U || data.size() == 0x80000U) {
+    runtime.firmware_data = std::move(data);
+    runtime.firmware_path = resolved_path;
+    return true;
+  }
+
+  last_error = "unsupported BIOS/Firmware size";
+  return false;
+}
+
+bool LoadROMFromPath(Runtime& runtime, const char* rom_path, std::string& last_error) {
+  std::vector<uint8_t> rom_data;
+  if (!ReadBinaryFile(rom_path, rom_data, last_error)) {
+    return false;
+  }
+  return LoadROMFromMemory(runtime, rom_data.data(), rom_data.size(), last_error);
+}
+
+bool LoadROMFromMemory(Runtime& runtime, const void* rom_data, size_t rom_size, std::string& last_error) {
+  if (!runtime.initialized) {
+    last_error = "melonDS runtime is not initialized";
+    return false;
+  }
+  if (rom_data == nullptr || rom_size == 0 || rom_size > static_cast<size_t>(std::numeric_limits<uint32_t>::max())) {
+    last_error = "invalid ROM image";
+    return false;
+  }
+
+  runtime.rom_data.assign(static_cast<const uint8_t*>(rom_data), static_cast<const uint8_t*>(rom_data) + rom_size);
+
+  const bool has_external_bios = !runtime.bios9_data.empty() && !runtime.bios7_data.empty();
+  Platform::SetConfigBool(Platform::ExternalBIOSEnable, has_external_bios);
+  if (has_external_bios) {
+    Platform::SetConfigString(Platform::BIOS9Path, runtime.bios9_path);
+    Platform::SetConfigString(Platform::BIOS7Path, runtime.bios7_path);
+    if (!runtime.firmware_path.empty()) {
+      Platform::SetConfigString(Platform::FirmwarePath, runtime.firmware_path);
+    }
+  }
+
+  NDS::LoadBIOS();
+  runtime.rom_loaded = NDS::LoadCart(runtime.rom_data.data(), static_cast<uint32_t>(runtime.rom_data.size()), nullptr, 0);
+  if (!runtime.rom_loaded) {
+    last_error = "melonDS failed to load NDS cart";
+    return false;
+  }
+  if (NDS::NeedsDirectBoot()) {
+    NDS::SetupDirectBoot("game.nds");
+  }
+  NDS::Start();
+  last_error.clear();
+  return true;
+}
+
+void StepFrame(Runtime& runtime, std::string& last_error) {
+  if (!runtime.rom_loaded) {
+    last_error = "melonDS ROM is not loaded";
+    return;
+  }
+
+  uint32_t key_mask = 0x000003FFU;
+  const std::array<uint32_t, 10> key_bits = {1U, 2U, 8U, 4U, 64U, 128U, 32U, 16U, 512U, 256U};
+  for (size_t i = 0; i < key_bits.size(); ++i) {
+    if (runtime.key_state[i]) {
+      key_mask &= ~key_bits[i];
+    }
+  }
+  NDS::SetKeyMask(key_mask);
+
+  NDS::RunFrame();
+  if (!CopyFramebuffer(runtime, last_error)) {
+    return;
+  }
+  runtime.frame_counter++;
+  last_error.clear();
+}
+
+void SetKeyStatus(Runtime& runtime, int key, bool pressed) {
+  if (key < 0 || static_cast<size_t>(key) >= runtime.key_state.size()) {
+    return;
+  }
+  runtime.key_state[static_cast<size_t>(key)] = pressed;
+}
+
+const uint32_t* GetFrameBufferRGBA(Runtime& runtime, size_t* pixel_count) {
+  if (pixel_count != nullptr) {
+    *pixel_count = kFramePixels;
+  }
+  return runtime.frame_rgba.data();
+}
+
+bool SaveStateToBuffer(Runtime&, void*, size_t, size_t*, std::string& last_error) {
+  last_error = "melonDS state buffer API is not implemented yet";
+  return false;
+}
+
+bool LoadStateFromBuffer(Runtime&, const void*, size_t, std::string& last_error) {
+  last_error = "melonDS state buffer API is not implemented yet";
+  return false;
+}
+
+bool ApplyCheatCode(Runtime&, const char*, std::string& last_error) {
+  last_error = "melonDS cheat API is not implemented yet";
+  return false;
+}
+
+void ReleaseRuntime() {
+  std::lock_guard<std::mutex> guard(g_core_lock);
+  if (g_core_initialized) {
+    NDS::Stop();
+    NDS::DeInit();
+    Platform::DeInit();
+    g_core_initialized = false;
+  }
+  g_in_use = false;
+}
+
+}  // namespace core::melonds
