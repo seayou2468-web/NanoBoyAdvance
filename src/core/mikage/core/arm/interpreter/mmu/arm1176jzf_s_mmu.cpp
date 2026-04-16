@@ -780,7 +780,7 @@ finished_write:
     if(state->icounter > state->debug_icounter){
         if(state->CurrWrite >= 17 ){
             printf("Wrong write array, 0x%x",  state->CurrWrite);
-            exit(-1);
+            return NO_FAULT;
         }
         uint32 record_data = data;
         if(datatype == ARM_BYTE_TYPE)

@@ -190,7 +190,8 @@ ARMul_NewState (ARMul_State *state)
 #endif
 	if (state->EventPtr == NULL) {
 		printf ("SKYEYE: ARMul_NewState malloc state->EventPtr error\n");
-		exit(-1);
+		static struct EventNode* fallback_event_list[EVENTLISTSIZE] = {};
+		state->EventPtr = fallback_event_list;
 	}
 	for (i = 0; i < EVENTLISTSIZE; i++)
 		*(state->EventPtr + i) = NULL;

@@ -5248,8 +5248,9 @@ WriteSR15 (ARMul_State * state, ARMword src)
 #else
 #ifdef MODET
     if (TFLAG)
-        /* ARMul_R15Altered would have to support it.  */
-        abort ();
+        /* Avoid process abort on Thumb-state SR write in 26-bit path.
+           Keep PC halfword-aligned and continue emulation. */
+        src &= 0xfffffffe;
     else
 #endif
         src &= 0xfffffffc;

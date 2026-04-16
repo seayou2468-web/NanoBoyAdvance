@@ -163,18 +163,21 @@ VFPSTC (ARMul_State * state, unsigned type, ARMword instr, ARMword * value)
 	/* VSTM */
 	if ( (P|U|D|W) == 0 )
 	{
-		DEBUG_LOG(ARM11, "In %s, UNDEFINED\n", __FUNCTION__); exit(-1);
+		DEBUG_LOG(ARM11, "In %s, UNDEFINED\n", __FUNCTION__);
+		return ARMul_CANT;
 	}
 	if (CoProc == 10 || CoProc == 11)
 	{
 		#if 1
 		if (P == 0 && U == 0 && W == 0)
 		{
-			DEBUG_LOG(ARM11, "VSTM Related encodings\n"); exit(-1);
+			DEBUG_LOG(ARM11, "VSTM Related encodings\n");
+			return ARMul_CANT;
 		}
 		if (P == U && W == 1)
 		{
-			DEBUG_LOG(ARM11, "UNDEFINED\n"); exit(-1);
+			DEBUG_LOG(ARM11, "UNDEFINED\n");
+			return ARMul_CANT;
 		}
 		#endif
 
@@ -205,7 +208,8 @@ VFPLDC (ARMul_State * state, unsigned type, ARMword instr, ARMword value)
 	
 	if ( (P|U|D|W) == 0 )
 	{
-		DEBUG_LOG(ARM11, "In %s, UNDEFINED\n", __FUNCTION__); exit(-1);
+		DEBUG_LOG(ARM11, "In %s, UNDEFINED\n", __FUNCTION__);
+		return ARMul_CANT;
 	}
 	if (CoProc == 10 || CoProc == 11)
 	{
@@ -339,7 +343,7 @@ void vfp_raise_exceptions(ARMul_State* state, u32 exceptions, u32 inst, u32 fpsc
 
 	if (exceptions == VFP_EXCEPTION_ERROR) {
 		DEBUG_LOG(ARM11, "unhandled bounce %x\n", inst);
-		exit(-1);
+		state->VFP[VFP_OFFSET(VFP_FPSCR)] |= FPSCR_IOC;
 		return;
 	}
 

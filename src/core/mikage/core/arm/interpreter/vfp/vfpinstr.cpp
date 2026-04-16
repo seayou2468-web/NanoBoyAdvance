@@ -2942,7 +2942,7 @@ int DYNCOM_TRANS(vfpinstr)(cpu_t *cpu, uint32_t instr, BasicBlock *bb, addr_t pc
 	DBG("VMSR :");
 	if(RD == 15) {
 		printf("in %s is not implementation.\n", __FUNCTION__);
-		exit(-1);
+		return -1;
 	}
 	
 	Value *data = NULL;
@@ -5115,7 +5115,7 @@ int DYNCOM_TRANS(vfpinstr)(cpu_t *cpu, uint32_t instr, BasicBlock *bb, addr_t pc
 #undef VFPLABEL_INST
 
 #define VFP_DEBUG_TRANSLATE DBG("in func %s, %x\n", __FUNCTION__, inst);
-#define VFP_DEBUG_UNIMPLEMENTED(x) printf("in func %s, " #x " unimplemented\n", __FUNCTION__); exit(-1);
+#define VFP_DEBUG_UNIMPLEMENTED(x) printf("in func %s, " #x " unimplemented\n", __FUNCTION__);
 #define VFP_DEBUG_UNTESTED(x) printf("in func %s, " #x " untested\n", __FUNCTION__);
 
 #define CHECK_VFP_ENABLED	

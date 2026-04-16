@@ -328,7 +328,11 @@ ARMul_SwitchMode (ARMul_State * state, ARMword oldmode, ARMword newmode)
 				state->RegBank[DUMMYBANK][i] = 0;
 			break;
 		default:
-			abort ();
+			/* Avoid hard-crashing the process on unexpected bank values.
+			   Fall back to DUMMYBANK save semantics and continue. */
+			for (i = 8; i < 15; i++)
+				state->RegBank[DUMMYBANK][i] = 0;
+			break;
 		}
 
 		/* Restore the new registers.  */
@@ -354,7 +358,11 @@ ARMul_SwitchMode (ARMul_State * state, ARMword oldmode, ARMword newmode)
 				state->Reg[i] = 0;
 			break;
 		default:
-			abort ();
+			/* Avoid hard-crashing the process on unexpected bank values.
+			   Fall back to DUMMYBANK restore semantics and continue. */
+			for (i = 8; i < 15; i++)
+				state->Reg[i] = 0;
+			break;
 		}
 	}
 
