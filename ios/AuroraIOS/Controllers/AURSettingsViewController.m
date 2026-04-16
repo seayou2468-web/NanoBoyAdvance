@@ -31,8 +31,8 @@
     NSString *ndsArm9Bios = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"nds_arm9"].lastPathComponent ?: @"Required (4KB)";
     NSString *ndsArm7Bios = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"nds_arm7"].lastPathComponent ?: @"Required (16KB)";
     NSString *ndsFirmware = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"nds_firmware"].lastPathComponent ?: @"Optional";
-    NSString *threeDsBoot9 = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"3ds_boot9"].lastPathComponent ?: @"Required";
-    NSString *threeDsBoot11 = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"3ds_boot11"].lastPathComponent ?: @"Required";
+    NSString *threeDsBoot9 = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"3ds_boot9"].lastPathComponent ?: @"Optional";
+    NSString *threeDsBoot11 = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"3ds_boot11"].lastPathComponent ?: @"Optional";
     NSString *threeDsFirmware = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"3ds_firmware"].lastPathComponent ?: @"Optional";
 
     self.sections = @[

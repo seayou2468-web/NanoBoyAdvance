@@ -145,7 +145,9 @@
         if ([ext isEqualToString:@"gba"]) game.coreType = EMULATOR_CORE_TYPE_GBA;
         else if ([ext isEqualToString:@"nes"]) game.coreType = EMULATOR_CORE_TYPE_NES;
         else if ([ext isEqualToString:@"nds"]) game.coreType = EMULATOR_CORE_TYPE_NDS;
-        else if ([ext isEqualToString:@"3ds"] || [ext isEqualToString:@"cci"] || [ext isEqualToString:@"cxi"] || [ext isEqualToString:@"elf"] || [ext isEqualToString:@"axf"] || [ext isEqualToString:@"bin"]) game.coreType = EMULATOR_CORE_TYPE_3DS;
+        else if ([ext isEqualToString:@"3ds"] || [ext isEqualToString:@"cci"] || [ext isEqualToString:@"cxi"] ||
+                 [ext isEqualToString:@"cia"] || [ext isEqualToString:@"3dsx"] || [ext isEqualToString:@"app"] ||
+                 [ext isEqualToString:@"elf"] || [ext isEqualToString:@"axf"] || [ext isEqualToString:@"bin"]) game.coreType = EMULATOR_CORE_TYPE_3DS;
         else game.coreType = EMULATOR_CORE_TYPE_GB;
 
         [[AURDatabaseManager sharedManager] addGame:game];

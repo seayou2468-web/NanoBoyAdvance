@@ -151,6 +151,9 @@
         if (boot9) EmulatorCore_LoadBIOSFromPath(_core, boot9.UTF8String);
         if (boot11) EmulatorCore_LoadBIOSFromPath(_core, boot11.UTF8String);
         if (firmware) EmulatorCore_LoadBIOSFromPath(_core, firmware.UTF8String);
+        if (!boot9 && !boot11 && !firmware) {
+            NSLog(@"[AUR][Emu] 3DS BIOS/Firmware not set. Attempting HLE boot without external firmware.");
+        }
     } else if (_coreType == EMULATOR_CORE_TYPE_GBA) {
         NSString *gba = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"gba"];
         if (gba) EmulatorCore_LoadBIOSFromPath(_core, gba.UTF8String);
