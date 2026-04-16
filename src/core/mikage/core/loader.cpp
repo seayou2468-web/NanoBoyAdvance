@@ -9,7 +9,13 @@
 #include <cctype>
 #include <cstddef>
 #include <cstring>
+#include <filesystem>
+#include <fstream>
 #include <vector>
+
+#if defined(__APPLE__)
+#include <CommonCrypto/CommonCryptor.h>
+#endif
 
 #include "loader.h"
 #include "system.h"
@@ -312,6 +318,163 @@ bool ReadCIAHeader(File::IOFile& file, CIAHeader& out_header) {
     return file.ReadBytes(&out_header, sizeof(out_header));
 }
 
+u32 ReadU32LE(const u8* p) {
+    return static_cast<u32>(p[0]) | (static_cast<u32>(p[1]) << 8) |
+           (static_cast<u32>(p[2]) << 16) | (static_cast<u32>(p[3]) << 24);
+}
+
+bool IsReadableNCCHHeader(const std::vector<u8>& header) {
+    if (header.size() < 0x200) {
+        return false;
+    }
+    const u32 magic = ReadU32LE(header.data() + 0x100);
+    if (magic == MakeMagic('N', 'C', 'S', 'D') || magic == MakeMagic('N', 'C', 'C', 'H')) {
+        return true;
+    }
+    if (std::memcmp(header.data(), "NDHT", 4) == 0 || std::memcmp(header.data(), "dlplay", 6) == 0 ||
+        std::memcmp(header.data() + 128, "NARC", 4) == 0 || std::memcmp(header.data(), "DS INTERNET", 11) == 0) {
+        return true;
+    }
+    return false;
+}
+
+bool HexToDigest(const std::string& line, std::array<u8, 32>& out_digest) {
+    if (line.size() != 64) {
+        return false;
+    }
+    auto hex_value = [](char c) -> int {
+        if (c >= '0' && c <= '9') return c - '0';
+        c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+        if (c >= 'a' && c <= 'f') return 10 + (c - 'a');
+        return -1;
+    };
+    for (size_t i = 0; i < 32; ++i) {
+        const int hi = hex_value(line[i * 2]);
+        const int lo = hex_value(line[i * 2 + 1]);
+        if (hi < 0 || lo < 0) {
+            return false;
+        }
+        out_digest[i] = static_cast<u8>((hi << 4) | lo);
+    }
+    return true;
+}
+
+std::vector<std::string> LoadAzaharDigestLines(const std::filesystem::path& source_path) {
+    std::vector<std::string> lines;
+    std::vector<std::filesystem::path> candidates;
+    std::filesystem::path dir = source_path.parent_path();
+    for (int depth = 0; depth < 5 && !dir.empty(); ++depth) {
+        candidates.push_back(dir / "digests.txt");
+        candidates.push_back(dir / "sysdata" / "digests.txt");
+        dir = dir.parent_path();
+    }
+
+    for (const auto& path : candidates) {
+        std::ifstream in(path);
+        if (!in.is_open()) {
+            continue;
+        }
+        std::string line;
+        while (std::getline(in, line)) {
+            if (!line.empty() && line.front() != '#') {
+                lines.push_back(line);
+            }
+        }
+        if (!lines.empty()) {
+            break;
+        }
+    }
+    return lines;
+}
+
+bool AESCTRTransform(const std::vector<u8>& input, const std::array<u8, 16>& key,
+                     const std::array<u8, 16>& ctr, std::vector<u8>& output) {
+#if defined(__APPLE__)
+    output.resize(input.size());
+    CCCryptorRef cryptor = nullptr;
+    CCCryptorStatus status = CCCryptorCreateWithMode(kCCEncrypt, kCCModeCTR, kCCAlgorithmAES, ccNoPadding,
+                                                     ctr.data(), key.data(), key.size(), nullptr, 0, 0,
+                                                     kCCModeOptionCTR_BE, &cryptor);
+    if (status != kCCSuccess || cryptor == nullptr) {
+        return false;
+    }
+    size_t moved = 0;
+    status = CCCryptorUpdate(cryptor, input.data(), input.size(), output.data(), output.size(), &moved);
+    CCCryptorRelease(cryptor);
+    if (status != kCCSuccess || moved != input.size()) {
+        return false;
+    }
+    return true;
+#else
+    (void)input;
+    (void)key;
+    (void)ctr;
+    (void)output;
+    return false;
+#endif
+}
+
+bool TryDecryptAzaharEncryptedFileToTemp(const std::string& filename, std::string& out_temp_path,
+                                         std::string* error_string) {
+    File::IOFile file(filename, "rb");
+    if (!file.IsOpen()) {
+        return false;
+    }
+    const u64 file_size = file.GetSize();
+    if (file_size < 0x200 || file_size > (512ULL * 1024ULL * 1024ULL)) {
+        return false;
+    }
+
+    std::vector<u8> encrypted(static_cast<size_t>(file_size));
+    if (!file.ReadBytes(encrypted.data(), encrypted.size())) {
+        return false;
+    }
+    if (IsReadableNCCHHeader(encrypted)) {
+        return false;
+    }
+
+    const auto digest_lines = LoadAzaharDigestLines(std::filesystem::path(filename));
+    for (const std::string& line : digest_lines) {
+        std::array<u8, 32> digest{};
+        if (!HexToDigest(line, digest)) {
+            continue;
+        }
+        std::array<u8, 16> key{};
+        std::array<u8, 16> ctr{};
+        std::memcpy(key.data(), digest.data(), 16);
+        std::memcpy(ctr.data(), digest.data() + 16, 12);
+
+        std::vector<u8> decrypted;
+        if (!AESCTRTransform(encrypted, key, ctr, decrypted)) {
+            continue;
+        }
+        if (!IsReadableNCCHHeader(decrypted)) {
+            continue;
+        }
+
+        const std::filesystem::path source_path(filename);
+        const std::filesystem::path tmp_path =
+            std::filesystem::temp_directory_path() /
+            (source_path.filename().string() + ".azahar.decrypted");
+        std::ofstream out(tmp_path, std::ios::binary | std::ios::trunc);
+        if (!out.is_open()) {
+            break;
+        }
+        out.write(reinterpret_cast<const char*>(decrypted.data()),
+                  static_cast<std::streamsize>(decrypted.size()));
+        if (!out.good()) {
+            break;
+        }
+        out_temp_path = tmp_path.string();
+        return true;
+    }
+
+    if (error_string) {
+        *error_string = "Encrypted ROM detected, but no valid Azahar digest key could decrypt it";
+    }
+    return false;
+}
+
 u32 Translate3DSXAddr(u32 addr, const THREEDSXLoadInfo& info, const u32 offsets[2]) {
     if (addr < offsets[0]) {
         return info.seg_addrs[0] + addr;
@@ -548,77 +711,122 @@ bool LoadCodeFromNCCH(File::IOFile& file, u64 ncch_offset, std::string* error_st
 }
 
 bool LoadCXI(const std::string& filename, std::string* error_string) {
-    File::IOFile file(filename, "rb");
-    if (!file.IsOpen()) {
-        if (error_string) *error_string = "Failed to open CXI file";
+    auto load_impl = [&](const std::string& path) -> bool {
+        File::IOFile file(path, "rb");
+        if (!file.IsOpen()) {
+            if (error_string) *error_string = "Failed to open CXI file";
+            return false;
+        }
+        return LoadCodeFromNCCH(file, 0, error_string);
+    };
+
+    if (load_impl(filename)) {
+        return true;
+    }
+
+    std::string temp_path;
+    if (!TryDecryptAzaharEncryptedFileToTemp(filename, temp_path, error_string)) {
         return false;
     }
-    return LoadCodeFromNCCH(file, 0, error_string);
+    const bool result = load_impl(temp_path);
+    std::error_code ec;
+    std::filesystem::remove(temp_path, ec);
+    return result;
 }
 
 bool LoadCCI(const std::string& filename, std::string* error_string) {
-    File::IOFile file(filename, "rb");
-    if (!file.IsOpen()) {
-        if (error_string) *error_string = "Failed to open CCI file";
+    auto load_impl = [&](const std::string& path) -> bool {
+        File::IOFile file(path, "rb");
+        if (!file.IsOpen()) {
+            if (error_string) *error_string = "Failed to open CCI file";
+            return false;
+        }
+
+        std::array<u32, 16> partition_entries{};
+        if (!file.Seek(kNCSDPartitionTableOffset, SEEK_SET) ||
+            !file.ReadArray<u32>(partition_entries.data(), partition_entries.size())) {
+            if (error_string) *error_string = "Failed to read NCSD partition table";
+            return false;
+        }
+
+        for (u32 partition = 0; partition < kNCSDPartitionCount; ++partition) {
+            const u32 partition_offset_units = partition_entries[partition * 2];
+            if (partition_offset_units == 0) {
+                continue;
+            }
+            const u64 ncch_offset = static_cast<u64>(partition_offset_units) * kMediaUnitSize;
+            u32 magic = 0;
+            if (!ReadU32At(file, ncch_offset + 0x100, magic)) {
+                continue;
+            }
+            if (magic == MakeMagic('N', 'C', 'C', 'H')) {
+                return LoadCodeFromNCCH(file, ncch_offset, error_string);
+            }
+        }
+        if (error_string) *error_string = "NCSD executable NCCH partition not found";
         return false;
+    };
+
+    if (load_impl(filename)) {
+        return true;
     }
 
-    std::array<u32, 16> partition_entries{};
-    if (!file.Seek(kNCSDPartitionTableOffset, SEEK_SET) ||
-        !file.ReadArray<u32>(partition_entries.data(), partition_entries.size())) {
-        if (error_string) *error_string = "Failed to read NCSD partition table";
+    std::string temp_path;
+    if (!TryDecryptAzaharEncryptedFileToTemp(filename, temp_path, error_string)) {
         return false;
     }
-
-    for (u32 partition = 0; partition < kNCSDPartitionCount; ++partition) {
-        const u32 partition_offset_units = partition_entries[partition * 2];
-        if (partition_offset_units == 0) {
-            continue;
-        }
-        const u64 ncch_offset = static_cast<u64>(partition_offset_units) * kMediaUnitSize;
-        u32 magic = 0;
-        if (!ReadU32At(file, ncch_offset + 0x100, magic)) {
-            continue;
-        }
-        if (magic == MakeMagic('N', 'C', 'C', 'H')) {
-            return LoadCodeFromNCCH(file, ncch_offset, error_string);
-        }
-    }
-    if (error_string) *error_string = "NCSD executable NCCH partition not found";
-    return false;
+    const bool result = load_impl(temp_path);
+    std::error_code ec;
+    std::filesystem::remove(temp_path, ec);
+    return result;
 }
 
 bool LoadCIA(const std::string& filename, std::string* error_string) {
-    File::IOFile file(filename, "rb");
-    if (!file.IsOpen()) {
-        if (error_string) *error_string = "Failed to open CIA file";
-        return false;
+    auto load_impl = [&](const std::string& path) -> bool {
+        File::IOFile file(path, "rb");
+        if (!file.IsOpen()) {
+            if (error_string) *error_string = "Failed to open CIA file";
+            return false;
+        }
+
+        CIAHeader cia{};
+        if (!ReadCIAHeader(file, cia)) {
+            if (error_string) *error_string = "Failed to read CIA header";
+            return false;
+        }
+
+        if (cia.header_size < sizeof(CIAHeader) || cia.content_size == 0) {
+            if (error_string) *error_string = "Invalid CIA header";
+            return false;
+        }
+
+        u64 section_offset = AlignUp64(cia.header_size, 64);
+        section_offset += AlignUp64(cia.cert_chain_size, 64);
+        section_offset += AlignUp64(cia.ticket_size, 64);
+        section_offset += AlignUp64(cia.tmd_size, 64);
+
+        u32 magic = 0;
+        if (!ReadU32At(file, section_offset + 0x100, magic) ||
+            magic != MakeMagic('N', 'C', 'C', 'H')) {
+            if (error_string) *error_string = "CIA first content is not a bootable NCCH";
+            return false;
+        }
+
+        return LoadCodeFromNCCH(file, section_offset, error_string);
+    };
+
+    if (load_impl(filename)) {
+        return true;
     }
 
-    CIAHeader cia{};
-    if (!ReadCIAHeader(file, cia)) {
-        if (error_string) *error_string = "Failed to read CIA header";
+    std::string temp_path;
+    if (!TryDecryptAzaharEncryptedFileToTemp(filename, temp_path, error_string)) {
         return false;
     }
-
-    if (cia.header_size < sizeof(CIAHeader) || cia.content_size == 0) {
-        if (error_string) *error_string = "Invalid CIA header";
-        return false;
-    }
-
-    u64 section_offset = AlignUp64(cia.header_size, 64);
-    section_offset += AlignUp64(cia.cert_chain_size, 64);
-    section_offset += AlignUp64(cia.ticket_size, 64);
-    section_offset += AlignUp64(cia.tmd_size, 64);
-
-    u32 magic = 0;
-    if (!ReadU32At(file, section_offset + 0x100, magic) ||
-        magic != MakeMagic('N', 'C', 'C', 'H')) {
-        if (error_string) *error_string = "CIA first content is not a bootable NCCH";
-        return false;
-    }
-
-    return LoadCodeFromNCCH(file, section_offset, error_string);
+    const bool result = load_impl(temp_path);
+    std::error_code ec;
+    std::filesystem::remove(temp_path, ec);
+    return result;
 }
 
 bool LoadTHREEDSX(const std::string& filename, std::string* error_string) {
