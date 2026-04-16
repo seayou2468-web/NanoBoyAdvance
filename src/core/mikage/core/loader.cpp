@@ -12,6 +12,7 @@
 #include <filesystem>
 #include <fstream>
 #include <optional>
+#include <string>
 #include <unordered_map>
 #include <vector>
 
@@ -359,6 +360,102 @@ std::optional<std::filesystem::path> FindNearbyFile(const std::filesystem::path&
 }
 
 using SeedMap = std::unordered_map<u64, std::array<u8, 16>>;
+using AESKeyMap = std::unordered_map<std::string, std::array<u8, 16>>;
+
+std::string ToLowerASCII(std::string value) {
+    for (char& c : value) {
+        if (c >= 'A' && c <= 'Z') {
+            c = static_cast<char>(c - 'A' + 'a');
+        }
+    }
+    return value;
+}
+
+void TrimInPlace(std::string& value) {
+    const auto begin = value.find_first_not_of(" \t\r\n");
+    if (begin == std::string::npos) {
+        value.clear();
+        return;
+    }
+    const auto end = value.find_last_not_of(" \t\r\n");
+    value = value.substr(begin, end - begin + 1);
+}
+
+std::optional<std::array<u8, 16>> ParseHex128(std::string hex_value) {
+    TrimInPlace(hex_value);
+    if (hex_value.rfind("0x", 0) == 0 || hex_value.rfind("0X", 0) == 0) {
+        hex_value = hex_value.substr(2);
+    }
+    if (hex_value.size() != 32) {
+        return std::nullopt;
+    }
+    auto hex_to_nibble = [](char c) -> int {
+        if (c >= '0' && c <= '9') return c - '0';
+        if (c >= 'a' && c <= 'f') return c - 'a' + 10;
+        if (c >= 'A' && c <= 'F') return c - 'A' + 10;
+        return -1;
+    };
+    std::array<u8, 16> out{};
+    for (size_t i = 0; i < out.size(); ++i) {
+        const int hi = hex_to_nibble(hex_value[i * 2]);
+        const int lo = hex_to_nibble(hex_value[i * 2 + 1]);
+        if (hi < 0 || lo < 0) {
+            return std::nullopt;
+        }
+        out[i] = static_cast<u8>((hi << 4) | lo);
+    }
+    return out;
+}
+
+AESKeyMap LoadAESKeys(const std::filesystem::path& aes_keys_path) {
+    AESKeyMap keys;
+    std::ifstream in(aes_keys_path);
+    if (!in.is_open()) {
+        return keys;
+    }
+    std::string line;
+    while (std::getline(in, line)) {
+        const auto comment = line.find('#');
+        if (comment != std::string::npos) {
+            line.resize(comment);
+        }
+        TrimInPlace(line);
+        if (line.empty()) {
+            continue;
+        }
+        const auto eq = line.find('=');
+        if (eq == std::string::npos) {
+            continue;
+        }
+        std::string key = line.substr(0, eq);
+        std::string value = line.substr(eq + 1);
+        TrimInPlace(key);
+        if (key.empty()) {
+            continue;
+        }
+        auto parsed = ParseHex128(value);
+        if (!parsed.has_value()) {
+            continue;
+        }
+        keys[ToLowerASCII(key)] = *parsed;
+    }
+    return keys;
+}
+
+std::optional<std::string> GetNCCHSecondarySlotKeyName(u8 secondary_key_slot) {
+    switch (secondary_key_slot) {
+    case 0:
+        return "slot0x2ckeyx";
+    case 1:
+        return "slot0x25keyx";
+    case 10:
+        return "slot0x18keyx";
+    case 11:
+        return "slot0x1bkeyx";
+    default:
+        return std::nullopt;
+    }
+}
 
 SeedMap LoadSeedDB(const std::filesystem::path& seeddb_path) {
     SeedMap seeds;
@@ -418,21 +515,6 @@ std::array<u8, 16> Rol128(const std::array<u8, 16>& in, int bits) {
         }
     }
     return out;
-}
-
-std::optional<std::array<u8, 16>> LoadBoot9KeyX2C(const std::filesystem::path& boot9_path) {
-    File::IOFile file(boot9_path.string(), "rb");
-    if (!file.IsOpen() || file.GetSize() != 65536) {
-        return std::nullopt;
-    }
-    if (!file.Seek(55760, SEEK_SET)) {
-        return std::nullopt;
-    }
-    std::array<u8, 16> keyx{};
-    if (!file.ReadBytes(keyx.data(), keyx.size())) {
-        return std::nullopt;
-    }
-    return keyx;
 }
 
 std::optional<std::array<u8, 16>> ComputeSecondaryKey(
@@ -534,14 +616,28 @@ bool TryDecryptAzaharEncryptedFileToTemp(const std::string& filename, std::strin
         return false;
     }
 
-    auto boot9 = FindNearbyFile(std::filesystem::path(filename), "boot9.bin");
-    if (!boot9.has_value()) {
-        if (error_string) *error_string = "Encrypted ROM requires boot9.bin";
+    auto aes_keys = FindNearbyFile(std::filesystem::path(filename), "aes_keys.txt");
+    if (!aes_keys.has_value()) {
+        if (error_string) *error_string = "Encrypted ROM requires aes_keys.txt";
         return false;
     }
-    auto keyx2c = LoadBoot9KeyX2C(*boot9);
-    if (!keyx2c.has_value()) {
-        if (error_string) *error_string = "Failed to load key material from boot9.bin";
+    const AESKeyMap key_map = LoadAESKeys(*aes_keys);
+    auto key_name = GetNCCHSecondarySlotKeyName(ncch->secondary_key_slot);
+    if (!fixed_key && !key_name.has_value()) {
+        if (error_string) *error_string = "Unsupported NCCH secondary key slot in header";
+        return false;
+    }
+    std::optional<std::array<u8, 16>> keyx;
+    if (!fixed_key) {
+        const auto it = key_map.find(*key_name);
+        if (it == key_map.end()) {
+            if (error_string) *error_string = "Required NCCH KeyX missing in aes_keys.txt";
+            return false;
+        }
+        keyx = it->second;
+    }
+    if (!fixed_key && !keyx.has_value()) {
+        if (error_string) *error_string = "Failed to load key material from aes_keys.txt";
         return false;
     }
     SeedMap seeds;
@@ -557,7 +653,7 @@ bool TryDecryptAzaharEncryptedFileToTemp(const std::string& filename, std::strin
     std::array<u8, 16> signature_keyy{};
     std::memcpy(signature_keyy.data(), ncch->signature, 16);
     auto secondary = fixed_key ? std::optional<std::array<u8, 16>>(std::array<u8, 16>{})
-                               : ComputeSecondaryKey(*keyx2c, signature_keyy, seed_crypto,
+                               : ComputeSecondaryKey(*keyx, signature_keyy, seed_crypto,
                                                      ncch->program_id, seeds);
     if (!secondary.has_value()) {
         if (error_string) *error_string = "Failed to derive NCCH AES key (seed/key mismatch)";
