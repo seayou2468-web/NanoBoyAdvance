@@ -7,6 +7,7 @@
 #include "common/swap.h"
 #include "core/arm/skyeye_common/armstate.h"
 #include "core/arm/skyeye_common/vfp/vfp.h"
+#include "core/core.h"
 #include "core/memory.h"
 
 ARMul_State::ARMul_State(Core::System& system_, Memory::MemorySystem& memory_,
@@ -600,7 +601,20 @@ void ARMul_State::WriteCP15Register(u32 value, u32 crn, u32 opcode_1, u32 crm, u
 }
 
 void ARMul_State::ServeBreak() {
-    // Mikage migration stage: keep Cytrus breakpoint bookkeeping inert until
-    // debugger/thread-manager plumbing is wired into this ARMul_State backend.
-    last_bkpt_hit = false;
+    if (!GDBStub::IsServerEnabled()) {
+        return;
+    }
+
+    if (last_bkpt_hit && last_bkpt.type == GDBStub::BreakpointType::Execute) {
+        DEBUG_ASSERT(Reg[15] == last_bkpt.address);
+    }
+
+    Kernel::Thread* thread = system.Kernel().GetCurrentThreadManager().GetCurrentThread();
+    system.GetRunningCore().SaveContext(thread->context);
+
+    if (last_bkpt_hit || GDBStub::IsMemoryBreak() || GDBStub::GetCpuStepFlag()) {
+        last_bkpt_hit = false;
+        GDBStub::Break();
+        GDBStub::SendTrap(thread, 5);
+    }
 }
