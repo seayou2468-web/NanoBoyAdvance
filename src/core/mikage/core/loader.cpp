@@ -9,9 +9,6 @@
 #include <cctype>
 #include <cstddef>
 #include <cstring>
-#include <filesystem>
-#include <functional>
-#include <fstream>
 #include <vector>
 
 #include "loader.h"
@@ -167,7 +164,6 @@ constexpr u32 kNCCHExHeaderFlagsOffset = 0x0D;
 constexpr u32 kExeFSHeaderSize = 0x200;
 constexpr u32 kExHeaderTextAddressOffset = 0x10;
 constexpr size_t kExeFSEntryCount = 8;
-constexpr u32 kZipLocalHeaderSignature = 0x04034B50;
 constexpr size_t kThreeDSXRelocBufferSize = 512;
 constexpr unsigned int kThreeDSXSegmentCount = 3;
 
@@ -316,21 +312,6 @@ bool ReadCIAHeader(File::IOFile& file, CIAHeader& out_header) {
     return file.ReadBytes(&out_header, sizeof(out_header));
 }
 
-u16 ReadU16LE(const u8* p) {
-    return static_cast<u16>(p[0]) | (static_cast<u16>(p[1]) << 8);
-}
-
-u32 ReadU32LE(const u8* p) {
-    return static_cast<u32>(p[0]) | (static_cast<u32>(p[1]) << 8) |
-           (static_cast<u32>(p[2]) << 16) | (static_cast<u32>(p[3]) << 24);
-}
-
-bool IsSupportedLoadExtension(const std::string& extension) {
-    return extension == ".3ds" || extension == ".cci" || extension == ".cxi" ||
-           extension == ".cia" || extension == ".3dsx" || extension == ".elf" ||
-           extension == ".axf" || extension == ".bin" || extension == ".dat";
-}
-
 u32 Translate3DSXAddr(u32 addr, const THREEDSXLoadInfo& info, const u32 offsets[2]) {
     if (addr < offsets[0]) {
         return info.seg_addrs[0] + addr;
@@ -472,119 +453,6 @@ bool Load3DSXFromIOFile(File::IOFile& file, std::string* error_string) {
     std::memcpy(dst, program_image.data(), program_image.size());
     Kernel::LoadExec(info.seg_addrs[0]);
     return true;
-}
-
-bool ExtractSupportedZipEntry(const std::string& zip_path,
-                              std::vector<u8>& out_data,
-                              std::string& out_entry_name,
-                              std::string* error_string) {
-    File::IOFile file(zip_path, "rb");
-    if (!file.IsOpen()) {
-        if (error_string) *error_string = "Failed to open ZIP file";
-        return false;
-    }
-    const u64 file_size = file.GetSize();
-    if (file_size == 0 || file_size > (64ULL * 1024ULL * 1024ULL)) {
-        if (error_string) *error_string = "ZIP file is empty or too large";
-        return false;
-    }
-
-    std::vector<u8> zip(static_cast<size_t>(file_size));
-    if (!file.ReadBytes(zip.data(), zip.size())) {
-        if (error_string) *error_string = "Failed to read ZIP file";
-        return false;
-    }
-
-    size_t offset = 0;
-    while (offset + 30 <= zip.size()) {
-        const u8* hdr = zip.data() + offset;
-        if (ReadU32LE(hdr) != kZipLocalHeaderSignature) {
-            break;
-        }
-
-        const u16 flags = ReadU16LE(hdr + 6);
-        const u16 method = ReadU16LE(hdr + 8);
-        const u32 compressed_size = ReadU32LE(hdr + 18);
-        const u32 uncompressed_size = ReadU32LE(hdr + 22);
-        const u16 name_len = ReadU16LE(hdr + 26);
-        const u16 extra_len = ReadU16LE(hdr + 28);
-        const size_t header_size = 30 + static_cast<size_t>(name_len) + static_cast<size_t>(extra_len);
-        if (offset + header_size > zip.size()) {
-            if (error_string) *error_string = "Invalid ZIP local header";
-            return false;
-        }
-
-        const std::string entry_name(reinterpret_cast<const char*>(hdr + 30), name_len);
-        const size_t data_offset = offset + header_size;
-        if ((flags & 0x0008) != 0) {
-            if (error_string) *error_string = "ZIP data descriptor entries are not supported";
-            return false;
-        }
-        if (data_offset + compressed_size > zip.size()) {
-            if (error_string) *error_string = "ZIP entry exceeds archive size";
-            return false;
-        }
-
-        std::string path, file_name, extension;
-        SplitPath(entry_name, &path, &file_name, &extension);
-        std::transform(extension.begin(), extension.end(), extension.begin(), [](unsigned char c) {
-            return static_cast<char>(std::tolower(c));
-        });
-
-        if (method == 0 && compressed_size == uncompressed_size && IsSupportedLoadExtension(extension)) {
-            out_data.assign(zip.begin() + static_cast<std::ptrdiff_t>(data_offset),
-                            zip.begin() + static_cast<std::ptrdiff_t>(data_offset + compressed_size));
-            out_entry_name = entry_name;
-            return true;
-        }
-
-        offset = data_offset + compressed_size;
-    }
-
-    if (error_string) *error_string = "ZIP archive has no supported stored 3DS entry";
-    return false;
-}
-
-bool LoadZIP(const std::string& filename, std::string* error_string) {
-    std::vector<u8> payload;
-    std::string entry_name;
-    if (!ExtractSupportedZipEntry(filename, payload, entry_name, error_string)) {
-        return false;
-    }
-
-    std::string path, file_name, extension;
-    SplitPath(entry_name, &path, &file_name, &extension);
-    std::transform(extension.begin(), extension.end(), extension.begin(), [](unsigned char c) {
-        return static_cast<char>(std::tolower(c));
-    });
-
-    const std::filesystem::path temp_dir = std::filesystem::temp_directory_path();
-    const std::filesystem::path temp_file =
-        temp_dir / ("mikage_zip_entry_" + std::to_string(static_cast<unsigned long long>(std::hash<std::string>{}(entry_name + filename))) + extension);
-    {
-        std::ofstream out(temp_file, std::ios::binary | std::ios::trunc);
-        if (!out.is_open() || payload.empty()) {
-            if (error_string) *error_string = "Failed to prepare temporary ZIP extraction file";
-            return false;
-        }
-        out.write(reinterpret_cast<const char*>(payload.data()), static_cast<std::streamsize>(payload.size()));
-        if (!out.good()) {
-            if (error_string) *error_string = "Failed to write temporary ZIP extraction file";
-            return false;
-        }
-    }
-
-    std::string temp_filename = temp_file.string();
-    bool result = false;
-    if (extension == ".3dsx") {
-        File::IOFile file(temp_filename, "rb");
-        result = file.IsOpen() && Load3DSXFromIOFile(file, error_string);
-    } else {
-        result = LoadFile(temp_filename, error_string);
-    }
-    std::error_code ec;
-    std::filesystem::remove(temp_file, ec);
-    return result;
 }
 
 bool LoadCodeFromNCCH(File::IOFile& file, u64 ncch_offset, std::string* error_string) {
@@ -922,7 +790,8 @@ bool LoadFile(std::string &filename, std::string *error_string) {
         break;
 
     case FILETYPE_ARCHIVE_ZIP:
-        return LoadZIP(filename, error_string);
+        *error_string = "ZIP file is not supported in core loader (frontend must extract first)";
+        break;
 
     case FILETYPE_NORMAL_DIRECTORY:
         ERROR_LOG(LOADER, "Just a directory.");

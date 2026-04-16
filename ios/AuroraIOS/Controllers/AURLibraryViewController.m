@@ -6,13 +6,48 @@
 #import "../Managers/AURDatabaseManager.h"
 #import "../Managers/AURBoxArtManager.h"
 #import "../Models/AURGame.h"
+#import "../External/miniz/miniz.h"
 #import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
+
+static BOOL AURCoreTypeForExtension(NSString *ext, EmulatorCoreType *outType) {
+    if (ext == nil || outType == nil) {
+        return NO;
+    }
+    NSString *lower = ext.lowercaseString;
+    if ([lower isEqualToString:@"gba"]) {
+        *outType = EMULATOR_CORE_TYPE_GBA;
+        return YES;
+    }
+    if ([lower isEqualToString:@"nes"]) {
+        *outType = EMULATOR_CORE_TYPE_NES;
+        return YES;
+    }
+    if ([lower isEqualToString:@"gb"] || [lower isEqualToString:@"gbc"]) {
+        *outType = EMULATOR_CORE_TYPE_GB;
+        return YES;
+    }
+    if ([lower isEqualToString:@"nds"]) {
+        *outType = EMULATOR_CORE_TYPE_NDS;
+        return YES;
+    }
+    if ([lower isEqualToString:@"3ds"] || [lower isEqualToString:@"cci"] || [lower isEqualToString:@"cxi"] ||
+        [lower isEqualToString:@"cia"] || [lower isEqualToString:@"3dsx"] || [lower isEqualToString:@"app"] ||
+        [lower isEqualToString:@"elf"] || [lower isEqualToString:@"axf"] || [lower isEqualToString:@"bin"]) {
+        *outType = EMULATOR_CORE_TYPE_3DS;
+        return YES;
+    }
+    return NO;
+}
 
 @interface AURLibraryViewController () <UICollectionViewDelegate, UICollectionViewDataSource, UIDocumentPickerDelegate>
 @property (nonatomic, strong) UICollectionView *collectionView;
 @property (nonatomic, strong) UISegmentedControl *segmentedControl;
 @property (nonatomic, strong) NSArray<AURGame *> *games;
 @property (nonatomic, strong) AURBackgroundView *backgroundView;
+- (BOOL)extractFirstROMFromZipURL:(NSURL *)zipURL
+                     extractedURL:(NSURL * _Nullable * _Nonnull)outURL
+                         coreType:(EmulatorCoreType *)outCoreType
+                            title:(NSString * _Nullable * _Nonnull)outTitle;
 @end
 
 @implementation AURLibraryViewController
@@ -138,22 +173,108 @@
     NSURL *url = urls.firstObject;
     if (url) {
         AURGame *game = [[AURGame alloc] init];
-        game.title = [[url lastPathComponent] stringByDeletingPathExtension];
-        game.romPath = [url path];
-
         NSString *ext = [[url pathExtension] lowercaseString];
-        if ([ext isEqualToString:@"gba"]) game.coreType = EMULATOR_CORE_TYPE_GBA;
-        else if ([ext isEqualToString:@"nes"]) game.coreType = EMULATOR_CORE_TYPE_NES;
-        else if ([ext isEqualToString:@"nds"]) game.coreType = EMULATOR_CORE_TYPE_NDS;
-        else if ([ext isEqualToString:@"3ds"] || [ext isEqualToString:@"cci"] || [ext isEqualToString:@"cxi"] ||
-                 [ext isEqualToString:@"cia"] || [ext isEqualToString:@"3dsx"] || [ext isEqualToString:@"app"] ||
-                 [ext isEqualToString:@"elf"] || [ext isEqualToString:@"axf"] || [ext isEqualToString:@"bin"] ||
-                 [ext isEqualToString:@"zip"]) game.coreType = EMULATOR_CORE_TYPE_3DS;
-        else game.coreType = EMULATOR_CORE_TYPE_GB;
+        if ([ext isEqualToString:@"zip"]) {
+            NSURL *extractedURL = nil;
+            EmulatorCoreType extractedType = EMULATOR_CORE_TYPE_GB;
+            NSString *extractedTitle = nil;
+            if ([self extractFirstROMFromZipURL:url extractedURL:&extractedURL coreType:&extractedType title:&extractedTitle]) {
+                game.romPath = extractedURL.path;
+                game.coreType = extractedType;
+                game.title = extractedTitle ?: [[extractedURL lastPathComponent] stringByDeletingPathExtension];
+            } else {
+                return;
+            }
+        } else {
+            EmulatorCoreType detectedType = EMULATOR_CORE_TYPE_GB;
+            if (!AURCoreTypeForExtension(ext, &detectedType)) {
+                detectedType = EMULATOR_CORE_TYPE_GB;
+            }
+            game.coreType = detectedType;
+            game.romPath = [url path];
+            game.title = [[url lastPathComponent] stringByDeletingPathExtension];
+        }
 
         [[AURDatabaseManager sharedManager] addGame:game];
         [self reloadData];
     }
+}
+
+- (BOOL)extractFirstROMFromZipURL:(NSURL *)zipURL
+                     extractedURL:(NSURL * _Nullable * _Nonnull)outURL
+                         coreType:(EmulatorCoreType *)outCoreType
+                            title:(NSString * _Nullable * _Nonnull)outTitle {
+    if (!zipURL || !outURL || !outCoreType || !outTitle) {
+        return NO;
+    }
+
+    *outURL = nil;
+    *outTitle = nil;
+
+    NSData *zipData = [NSData dataWithContentsOfFile:zipURL.path];
+    if (!zipData || zipData.length == 0) {
+        return NO;
+    }
+
+    mz_zip_archive archive;
+    memset(&archive, 0, sizeof(archive));
+    if (!mz_zip_reader_init_mem(&archive, zipData.bytes, zipData.length, 0)) {
+        return NO;
+    }
+
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSString *documents = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES).firstObject;
+    NSString *importDir = [[documents stringByAppendingPathComponent:@"ROMs/Imported"] stringByAppendingPathComponent:zipURL.lastPathComponent.stringByDeletingPathExtension];
+    [fileManager createDirectoryAtPath:importDir withIntermediateDirectories:YES attributes:nil error:nil];
+
+    BOOL success = NO;
+    mz_uint fileCount = mz_zip_reader_get_num_files(&archive);
+    for (mz_uint i = 0; i < fileCount; i++) {
+        mz_zip_archive_file_stat stat;
+        if (!mz_zip_reader_file_stat(&archive, i, &stat)) {
+            continue;
+        }
+        if (mz_zip_reader_is_file_a_directory(&archive, i)) {
+            continue;
+        }
+
+        NSString *entryName = [NSString stringWithUTF8String:stat.m_filename];
+        if (entryName.length == 0) {
+            continue;
+        }
+
+        NSString *entryFileName = entryName.lastPathComponent;
+        NSString *entryExt = entryFileName.pathExtension.lowercaseString;
+        EmulatorCoreType type = EMULATOR_CORE_TYPE_GB;
+        if (!AURCoreTypeForExtension(entryExt, &type)) {
+            continue;
+        }
+
+        size_t extractedSize = 0;
+        void *extractedData = mz_zip_reader_extract_to_heap(&archive, i, &extractedSize, 0);
+        if (!extractedData || extractedSize == 0) {
+            if (extractedData) {
+                mz_free(extractedData);
+            }
+            continue;
+        }
+
+        NSString *safeName = entryFileName.length > 0 ? entryFileName : [NSString stringWithFormat:@"entry_%u.%@", i, entryExt];
+        NSString *destinationPath = [importDir stringByAppendingPathComponent:safeName];
+        NSData *payload = [NSData dataWithBytesNoCopy:extractedData length:extractedSize freeWhenDone:YES];
+        if (![payload writeToFile:destinationPath atomically:YES]) {
+            continue;
+        }
+
+        *outCoreType = type;
+        *outURL = [NSURL fileURLWithPath:destinationPath];
+        *outTitle = [safeName stringByDeletingPathExtension];
+        success = YES;
+        break;
+    }
+
+    mz_zip_reader_end(&archive);
+    return success;
 }
 
 #pragma mark - UICollectionViewDelegate
