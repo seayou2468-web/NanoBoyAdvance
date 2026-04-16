@@ -11,10 +11,13 @@
 #include <cstring>
 #include <filesystem>
 #include <fstream>
+#include <optional>
+#include <unordered_map>
 #include <vector>
 
 #if defined(__APPLE__)
 #include <CommonCrypto/CommonCryptor.h>
+#include <CommonCrypto/CommonDigest.h>
 #endif
 
 #include "loader.h"
@@ -338,53 +341,124 @@ bool IsReadableNCCHHeader(const std::vector<u8>& header) {
     return false;
 }
 
-bool HexToDigest(const std::string& line, std::array<u8, 32>& out_digest) {
-    if (line.size() != 64) {
-        return false;
-    }
-    auto hex_value = [](char c) -> int {
-        if (c >= '0' && c <= '9') return c - '0';
-        c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
-        if (c >= 'a' && c <= 'f') return 10 + (c - 'a');
-        return -1;
-    };
-    for (size_t i = 0; i < 32; ++i) {
-        const int hi = hex_value(line[i * 2]);
-        const int lo = hex_value(line[i * 2 + 1]);
-        if (hi < 0 || lo < 0) {
-            return false;
-        }
-        out_digest[i] = static_cast<u8>((hi << 4) | lo);
-    }
-    return true;
-}
-
-std::vector<std::string> LoadAzaharDigestLines(const std::filesystem::path& source_path) {
-    std::vector<std::string> lines;
-    std::vector<std::filesystem::path> candidates;
+std::optional<std::filesystem::path> FindNearbyFile(const std::filesystem::path& source_path,
+                                                     const std::string& filename) {
     std::filesystem::path dir = source_path.parent_path();
-    for (int depth = 0; depth < 5 && !dir.empty(); ++depth) {
-        candidates.push_back(dir / "digests.txt");
-        candidates.push_back(dir / "sysdata" / "digests.txt");
+    for (int depth = 0; depth < 6 && !dir.empty(); ++depth) {
+        const auto direct = dir / filename;
+        if (std::filesystem::exists(direct)) {
+            return direct;
+        }
+        const auto sysdata = dir / "sysdata" / filename;
+        if (std::filesystem::exists(sysdata)) {
+            return sysdata;
+        }
         dir = dir.parent_path();
     }
+    return std::nullopt;
+}
 
-    for (const auto& path : candidates) {
-        std::ifstream in(path);
-        if (!in.is_open()) {
-            continue;
-        }
-        std::string line;
-        while (std::getline(in, line)) {
-            if (!line.empty() && line.front() != '#') {
-                lines.push_back(line);
-            }
-        }
-        if (!lines.empty()) {
+using SeedMap = std::unordered_map<u64, std::array<u8, 16>>;
+
+SeedMap LoadSeedDB(const std::filesystem::path& seeddb_path) {
+    SeedMap seeds;
+    File::IOFile file(seeddb_path.string(), "rb");
+    if (!file.IsOpen()) {
+        return seeds;
+    }
+    u32 count = 0;
+    if (!file.ReadBytes(&count, sizeof(count))) {
+        return seeds;
+    }
+    if (!file.Seek(12, SEEK_CUR)) {
+        return seeds;
+    }
+    for (u32 i = 0; i < count; ++i) {
+        u64 title_id = 0;
+        std::array<u8, 16> seed{};
+        u8 reserved[8]{};
+        if (!file.ReadBytes(&title_id, sizeof(title_id)) ||
+            !file.ReadBytes(seed.data(), seed.size()) ||
+            !file.ReadBytes(reserved, sizeof(reserved))) {
             break;
         }
+        seeds[title_id] = seed;
     }
-    return lines;
+    return seeds;
+}
+
+std::array<u8, 16> Xor128(const std::array<u8, 16>& a, const std::array<u8, 16>& b) {
+    std::array<u8, 16> out{};
+    for (size_t i = 0; i < 16; ++i) out[i] = a[i] ^ b[i];
+    return out;
+}
+
+std::array<u8, 16> Add128(const std::array<u8, 16>& a, const std::array<u8, 16>& b) {
+    std::array<u8, 16> out{};
+    int carry = 0;
+    for (int i = 15; i >= 0; --i) {
+        const int sum = a[static_cast<size_t>(i)] + b[static_cast<size_t>(i)] + carry;
+        out[static_cast<size_t>(i)] = static_cast<u8>(sum & 0xFF);
+        carry = (sum >> 8) & 1;
+    }
+    return out;
+}
+
+std::array<u8, 16> Rol128(const std::array<u8, 16>& in, int bits) {
+    std::array<u8, 16> out{};
+    bits %= 128;
+    for (int i = 0; i < 128; ++i) {
+        const int src = (i - bits + 128) % 128;
+        const int src_byte = src / 8;
+        const int src_bit = 7 - (src % 8);
+        const int dst_byte = i / 8;
+        const int dst_bit = 7 - (i % 8);
+        if ((in[static_cast<size_t>(src_byte)] >> src_bit) & 1) {
+            out[static_cast<size_t>(dst_byte)] |= static_cast<u8>(1 << dst_bit);
+        }
+    }
+    return out;
+}
+
+std::optional<std::array<u8, 16>> LoadBoot9KeyX2C(const std::filesystem::path& boot9_path) {
+    File::IOFile file(boot9_path.string(), "rb");
+    if (!file.IsOpen() || file.GetSize() != 65536) {
+        return std::nullopt;
+    }
+    if (!file.Seek(55760, SEEK_SET)) {
+        return std::nullopt;
+    }
+    std::array<u8, 16> keyx{};
+    if (!file.ReadBytes(keyx.data(), keyx.size())) {
+        return std::nullopt;
+    }
+    return keyx;
+}
+
+std::optional<std::array<u8, 16>> ComputeSecondaryKey(
+    const std::array<u8, 16>& keyx_2c, const std::array<u8, 16>& signature_keyy,
+    bool seed_crypto, u64 program_id, const SeedMap& seeds) {
+    std::array<u8, 16> keyy = signature_keyy;
+    if (seed_crypto) {
+        auto it = seeds.find(program_id);
+        if (it == seeds.end()) {
+            return std::nullopt;
+        }
+#if defined(__APPLE__)
+        std::array<u8, 32> buffer{};
+        std::memcpy(buffer.data(), signature_keyy.data(), 16);
+        std::memcpy(buffer.data() + 16, it->second.data(), 16);
+        std::array<u8, CC_SHA256_DIGEST_LENGTH> sha{};
+        CC_SHA256(buffer.data(), static_cast<CC_LONG>(buffer.size()), sha.data());
+        std::memcpy(keyy.data(), sha.data(), keyy.size());
+#else
+        return std::nullopt;
+#endif
+    }
+    const std::array<u8, 16> generator_constant{
+        0x1F, 0xF9, 0xE9, 0xAA, 0xC5, 0xFE, 0x04, 0x08,
+        0x02, 0x45, 0x91, 0xDC, 0x5D, 0x52, 0x76, 0x8A};
+    return Rol128(Add128(Xor128(Rol128(keyx_2c, 2), keyy), generator_constant), 87);
 }
 
 bool AESCTRTransform(const std::vector<u8>& input, const std::array<u8, 16>& key,
@@ -433,46 +507,92 @@ bool TryDecryptAzaharEncryptedFileToTemp(const std::string& filename, std::strin
         return false;
     }
 
-    const auto digest_lines = LoadAzaharDigestLines(std::filesystem::path(filename));
-    for (const std::string& line : digest_lines) {
-        std::array<u8, 32> digest{};
-        if (!HexToDigest(line, digest)) {
-            continue;
-        }
-        std::array<u8, 16> key{};
-        std::array<u8, 16> ctr{};
-        std::memcpy(key.data(), digest.data(), 16);
-        std::memcpy(ctr.data(), digest.data() + 16, 12);
+    struct NCCHMiniHeader {
+        u8 signature[0x100];
+        u32 magic;
+        u32 content_size;
+        u8 partition_id[8];
+        u8 reserved0[0x70];
+        u64 program_id;
+        u8 reserved1[0x75];
+        u8 secondary_key_slot;
+        u8 platform;
+        u8 content_type;
+        u8 content_unit_size;
+        u8 flags;
+    };
+    static_assert(sizeof(NCCHMiniHeader) >= 0x18A, "NCCHMiniHeader size mismatch");
 
-        std::vector<u8> decrypted;
-        if (!AESCTRTransform(encrypted, key, ctr, decrypted)) {
-            continue;
-        }
-        if (!IsReadableNCCHHeader(decrypted)) {
-            continue;
-        }
-
-        const std::filesystem::path source_path(filename);
-        const std::filesystem::path tmp_path =
-            std::filesystem::temp_directory_path() /
-            (source_path.filename().string() + ".azahar.decrypted");
-        std::ofstream out(tmp_path, std::ios::binary | std::ios::trunc);
-        if (!out.is_open()) {
-            break;
-        }
-        out.write(reinterpret_cast<const char*>(decrypted.data()),
-                  static_cast<std::streamsize>(decrypted.size()));
-        if (!out.good()) {
-            break;
-        }
-        out_temp_path = tmp_path.string();
-        return true;
+    if (encrypted.size() < sizeof(NCCHMiniHeader)) {
+        return false;
+    }
+    const NCCHMiniHeader* ncch = reinterpret_cast<const NCCHMiniHeader*>(encrypted.data());
+    const bool no_crypto = (ncch->flags & (1 << 2)) != 0;
+    const bool fixed_key = (ncch->flags & (1 << 0)) != 0;
+    const bool seed_crypto = (ncch->flags & (1 << 5)) != 0;
+    if (no_crypto) {
+        return false;
     }
 
-    if (error_string) {
-        *error_string = "Encrypted ROM detected, but no valid Azahar digest key could decrypt it";
+    auto boot9 = FindNearbyFile(std::filesystem::path(filename), "boot9.bin");
+    if (!boot9.has_value()) {
+        if (error_string) *error_string = "Encrypted ROM requires boot9.bin";
+        return false;
     }
-    return false;
+    auto keyx2c = LoadBoot9KeyX2C(*boot9);
+    if (!keyx2c.has_value()) {
+        if (error_string) *error_string = "Failed to load key material from boot9.bin";
+        return false;
+    }
+    SeedMap seeds;
+    if (seed_crypto) {
+        auto seeddb = FindNearbyFile(std::filesystem::path(filename), "seeddb.bin");
+        if (!seeddb.has_value()) {
+            if (error_string) *error_string = "Encrypted seed ROM requires seeddb.bin";
+            return false;
+        }
+        seeds = LoadSeedDB(*seeddb);
+    }
+
+    std::array<u8, 16> signature_keyy{};
+    std::memcpy(signature_keyy.data(), ncch->signature, 16);
+    auto secondary = fixed_key ? std::optional<std::array<u8, 16>>(std::array<u8, 16>{})
+                               : ComputeSecondaryKey(*keyx2c, signature_keyy, seed_crypto,
+                                                     ncch->program_id, seeds);
+    if (!secondary.has_value()) {
+        if (error_string) *error_string = "Failed to derive NCCH AES key (seed/key mismatch)";
+        return false;
+    }
+
+    std::array<u8, 16> ctr{};
+    std::reverse_copy(ncch->partition_id, ncch->partition_id + 8, ctr.begin());
+    ctr[8] = 2;  // ExeFS stream for NCCH v0/v2
+
+    std::vector<u8> decrypted;
+    if (!AESCTRTransform(encrypted, *secondary, ctr, decrypted)) {
+        if (error_string) *error_string = "Failed AES-CTR transform for encrypted ROM";
+        return false;
+    }
+    if (!IsReadableNCCHHeader(decrypted)) {
+        if (error_string) *error_string = "Decrypted output did not match NCCH/NCSD header";
+        return false;
+    }
+
+    const std::filesystem::path source_path(filename);
+    const std::filesystem::path tmp_path =
+        std::filesystem::temp_directory_path() /
+        (source_path.filename().string() + ".azahar.decrypted");
+    std::ofstream out(tmp_path, std::ios::binary | std::ios::trunc);
+    if (!out.is_open()) {
+        return false;
+    }
+    out.write(reinterpret_cast<const char*>(decrypted.data()),
+              static_cast<std::streamsize>(decrypted.size()));
+    if (!out.good()) {
+        return false;
+    }
+    out_temp_path = tmp_path.string();
+    return true;
 }
 
 u32 Translate3DSXAddr(u32 addr, const THREEDSXLoadInfo& info, const u32 offsets[2]) {
