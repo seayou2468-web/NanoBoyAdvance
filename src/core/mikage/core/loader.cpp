@@ -4,9 +4,14 @@
 
 #include "../common/common_types.h"
 #include "../common/file_util.h"
+#include <algorithm>
 #include <array>
+#include <cctype>
 #include <cstddef>
 #include <cstring>
+#include <filesystem>
+#include <functional>
+#include <fstream>
 #include <vector>
 
 #include "loader.h"
@@ -162,6 +167,9 @@ constexpr u32 kNCCHExHeaderFlagsOffset = 0x0D;
 constexpr u32 kExeFSHeaderSize = 0x200;
 constexpr u32 kExHeaderTextAddressOffset = 0x10;
 constexpr size_t kExeFSEntryCount = 8;
+constexpr u32 kZipLocalHeaderSignature = 0x04034B50;
+constexpr size_t kThreeDSXRelocBufferSize = 512;
+constexpr unsigned int kThreeDSXSegmentCount = 3;
 
 constexpr u32 MakeMagic(char a, char b, char c, char d) {
     return static_cast<u32>(a) |
@@ -185,6 +193,34 @@ struct CIAHeader {
     u32 tmd_size;
     u32 meta_size;
     u64 content_size;
+};
+
+#pragma pack(push, 1)
+struct THREEDSXHeader {
+    u32 magic;
+    u16 header_size;
+    u16 reloc_hdr_size;
+    u32 format_ver;
+    u32 flags;
+    u32 code_seg_size;
+    u32 rodata_seg_size;
+    u32 data_seg_size;
+    u32 bss_size;
+    u32 smdh_offset;
+    u32 smdh_size;
+    u32 fs_offset;
+};
+
+struct THREEDSXReloc {
+    u16 skip;
+    u16 patch;
+};
+#pragma pack(pop)
+
+struct THREEDSXLoadInfo {
+    u32 seg_addrs[kThreeDSXSegmentCount];
+    u32 seg_sizes[kThreeDSXSegmentCount];
+    u8* seg_ptrs[kThreeDSXSegmentCount];
 };
 
 u64 AlignUp64(u64 value, u64 alignment) {
@@ -278,6 +314,277 @@ bool ReadCIAHeader(File::IOFile& file, CIAHeader& out_header) {
         return false;
     }
     return file.ReadBytes(&out_header, sizeof(out_header));
+}
+
+u16 ReadU16LE(const u8* p) {
+    return static_cast<u16>(p[0]) | (static_cast<u16>(p[1]) << 8);
+}
+
+u32 ReadU32LE(const u8* p) {
+    return static_cast<u32>(p[0]) | (static_cast<u32>(p[1]) << 8) |
+           (static_cast<u32>(p[2]) << 16) | (static_cast<u32>(p[3]) << 24);
+}
+
+bool IsSupportedLoadExtension(const std::string& extension) {
+    return extension == ".3ds" || extension == ".cci" || extension == ".cxi" ||
+           extension == ".cia" || extension == ".3dsx" || extension == ".elf" ||
+           extension == ".axf" || extension == ".bin" || extension == ".dat";
+}
+
+u32 Translate3DSXAddr(u32 addr, const THREEDSXLoadInfo& info, const u32 offsets[2]) {
+    if (addr < offsets[0]) {
+        return info.seg_addrs[0] + addr;
+    }
+    if (addr < offsets[1]) {
+        return info.seg_addrs[1] + addr - offsets[0];
+    }
+    return info.seg_addrs[2] + addr - offsets[1];
+}
+
+bool Load3DSXFromIOFile(File::IOFile& file, std::string* error_string) {
+    if (!file.Seek(0, SEEK_SET)) {
+        if (error_string) *error_string = "Failed to seek 3DSX file";
+        return false;
+    }
+
+    THREEDSXHeader hdr{};
+    if (!file.ReadBytes(&hdr, sizeof(hdr))) {
+        if (error_string) *error_string = "Failed to read 3DSX header";
+        return false;
+    }
+    if (hdr.magic != MakeMagic('3', 'D', 'S', 'X')) {
+        if (error_string) *error_string = "Invalid 3DSX magic";
+        return false;
+    }
+    if (hdr.header_size < sizeof(THREEDSXHeader)) {
+        if (error_string) *error_string = "Invalid 3DSX header size";
+        return false;
+    }
+    if (hdr.data_seg_size < hdr.bss_size) {
+        if (error_string) *error_string = "Invalid 3DSX data/bss layout";
+        return false;
+    }
+
+    THREEDSXLoadInfo info{};
+    info.seg_sizes[0] = (hdr.code_seg_size + 0xFFF) & ~0xFFF;
+    info.seg_sizes[1] = (hdr.rodata_seg_size + 0xFFF) & ~0xFFF;
+    info.seg_sizes[2] = (hdr.data_seg_size + 0xFFF) & ~0xFFF;
+    if (info.seg_sizes[0] < hdr.code_seg_size || info.seg_sizes[1] < hdr.rodata_seg_size ||
+        info.seg_sizes[2] < hdr.data_seg_size) {
+        if (error_string) *error_string = "3DSX segment size overflow";
+        return false;
+    }
+
+    const u32 offsets[2] = {info.seg_sizes[0], info.seg_sizes[0] + info.seg_sizes[1]};
+    const u32 reloc_table_count = hdr.reloc_hdr_size / sizeof(u32);
+
+    std::vector<u8> program_image(static_cast<size_t>(info.seg_sizes[0]) + info.seg_sizes[1] + info.seg_sizes[2]);
+    info.seg_addrs[0] = 0x00100000;
+    info.seg_addrs[1] = info.seg_addrs[0] + info.seg_sizes[0];
+    info.seg_addrs[2] = info.seg_addrs[1] + info.seg_sizes[1];
+    info.seg_ptrs[0] = program_image.data();
+    info.seg_ptrs[1] = info.seg_ptrs[0] + info.seg_sizes[0];
+    info.seg_ptrs[2] = info.seg_ptrs[1] + info.seg_sizes[1];
+
+    if (!file.Seek(hdr.header_size, SEEK_SET)) {
+        if (error_string) *error_string = "Failed to seek 3DSX relocation header";
+        return false;
+    }
+
+    std::vector<u32> relocs(reloc_table_count * kThreeDSXSegmentCount);
+    for (unsigned seg = 0; seg < kThreeDSXSegmentCount; ++seg) {
+        if (!file.ReadBytes(&relocs[seg * reloc_table_count], reloc_table_count * sizeof(u32))) {
+            if (error_string) *error_string = "Failed to read 3DSX relocation metadata";
+            return false;
+        }
+    }
+
+    if (!file.ReadBytes(info.seg_ptrs[0], hdr.code_seg_size) ||
+        !file.ReadBytes(info.seg_ptrs[1], hdr.rodata_seg_size) ||
+        !file.ReadBytes(info.seg_ptrs[2], hdr.data_seg_size - hdr.bss_size)) {
+        if (error_string) *error_string = "Failed to read 3DSX segment data";
+        return false;
+    }
+
+    std::memset(info.seg_ptrs[2] + hdr.data_seg_size - hdr.bss_size, 0, hdr.bss_size);
+
+    for (unsigned seg = 0; seg < kThreeDSXSegmentCount; ++seg) {
+        for (u32 table = 0; table < reloc_table_count; ++table) {
+            u32 reloc_count = relocs[seg * reloc_table_count + table];
+            if (table >= 2) {
+                if (!file.Seek(static_cast<s64>(reloc_count * sizeof(THREEDSXReloc)), SEEK_CUR)) {
+                    if (error_string) *error_string = "Failed to skip unsupported 3DSX relocation table";
+                    return false;
+                }
+                continue;
+            }
+
+            u32* pos = reinterpret_cast<u32*>(info.seg_ptrs[seg]);
+            const u32* end_pos = pos + (info.seg_sizes[seg] / 4);
+            THREEDSXReloc reloc_buffer[kThreeDSXRelocBufferSize];
+            while (reloc_count) {
+                const u32 chunk = std::min<u32>(kThreeDSXRelocBufferSize, reloc_count);
+                reloc_count -= chunk;
+                if (!file.ReadBytes(reloc_buffer, chunk * sizeof(THREEDSXReloc))) {
+                    if (error_string) *error_string = "Failed to read 3DSX relocation table";
+                    return false;
+                }
+
+                for (u32 i = 0; i < chunk && pos < end_pos; ++i) {
+                    pos += reloc_buffer[i].skip;
+                    s32 patches = reloc_buffer[i].patch;
+                    while (patches > 0 && pos < end_pos) {
+                        const u32 in_addr = info.seg_addrs[0] +
+                                            static_cast<u32>(reinterpret_cast<u8*>(pos) - program_image.data());
+                        const u32 original = *pos;
+                        const u32 subtype = original >> 28;
+                        const u32 addr = Translate3DSXAddr(original & 0x0FFFFFFF, info, offsets);
+                        if (table == 0) {
+                            if (subtype != 0) {
+                                if (error_string) *error_string = "Invalid 3DSX absolute relocation subtype";
+                                return false;
+                            }
+                            *pos = addr;
+                        } else {
+                            const u32 relative = addr - in_addr;
+                            if (subtype == 0) {
+                                *pos = relative;
+                            } else if (subtype == 1) {
+                                *pos = relative & ~(1U << 31);
+                            } else {
+                                if (error_string) *error_string = "Invalid 3DSX relative relocation subtype";
+                                return false;
+                            }
+                        }
+                        ++pos;
+                        --patches;
+                    }
+                }
+            }
+        }
+    }
+
+    u8* dst = Memory::GetPointer(info.seg_addrs[0]);
+    if (!dst) {
+        if (error_string) *error_string = "Failed to map 3DSX destination memory";
+        return false;
+    }
+    std::memcpy(dst, program_image.data(), program_image.size());
+    Kernel::LoadExec(info.seg_addrs[0]);
+    return true;
+}
+
+bool ExtractSupportedZipEntry(const std::string& zip_path,
+                              std::vector<u8>& out_data,
+                              std::string& out_entry_name,
+                              std::string* error_string) {
+    File::IOFile file(zip_path, "rb");
+    if (!file.IsOpen()) {
+        if (error_string) *error_string = "Failed to open ZIP file";
+        return false;
+    }
+    const u64 file_size = file.GetSize();
+    if (file_size == 0 || file_size > (64ULL * 1024ULL * 1024ULL)) {
+        if (error_string) *error_string = "ZIP file is empty or too large";
+        return false;
+    }
+
+    std::vector<u8> zip(static_cast<size_t>(file_size));
+    if (!file.ReadBytes(zip.data(), zip.size())) {
+        if (error_string) *error_string = "Failed to read ZIP file";
+        return false;
+    }
+
+    size_t offset = 0;
+    while (offset + 30 <= zip.size()) {
+        const u8* hdr = zip.data() + offset;
+        if (ReadU32LE(hdr) != kZipLocalHeaderSignature) {
+            break;
+        }
+
+        const u16 flags = ReadU16LE(hdr + 6);
+        const u16 method = ReadU16LE(hdr + 8);
+        const u32 compressed_size = ReadU32LE(hdr + 18);
+        const u32 uncompressed_size = ReadU32LE(hdr + 22);
+        const u16 name_len = ReadU16LE(hdr + 26);
+        const u16 extra_len = ReadU16LE(hdr + 28);
+        const size_t header_size = 30 + static_cast<size_t>(name_len) + static_cast<size_t>(extra_len);
+        if (offset + header_size > zip.size()) {
+            if (error_string) *error_string = "Invalid ZIP local header";
+            return false;
+        }
+
+        const std::string entry_name(reinterpret_cast<const char*>(hdr + 30), name_len);
+        const size_t data_offset = offset + header_size;
+        if ((flags & 0x0008) != 0) {
+            if (error_string) *error_string = "ZIP data descriptor entries are not supported";
+            return false;
+        }
+        if (data_offset + compressed_size > zip.size()) {
+            if (error_string) *error_string = "ZIP entry exceeds archive size";
+            return false;
+        }
+
+        std::string path, file_name, extension;
+        SplitPath(entry_name, &path, &file_name, &extension);
+        std::transform(extension.begin(), extension.end(), extension.begin(), [](unsigned char c) {
+            return static_cast<char>(std::tolower(c));
+        });
+
+        if (method == 0 && compressed_size == uncompressed_size && IsSupportedLoadExtension(extension)) {
+            out_data.assign(zip.begin() + static_cast<std::ptrdiff_t>(data_offset),
+                            zip.begin() + static_cast<std::ptrdiff_t>(data_offset + compressed_size));
+            out_entry_name = entry_name;
+            return true;
+        }
+
+        offset = data_offset + compressed_size;
+    }
+
+    if (error_string) *error_string = "ZIP archive has no supported stored 3DS entry";
+    return false;
+}
+
+bool LoadZIP(const std::string& filename, std::string* error_string) {
+    std::vector<u8> payload;
+    std::string entry_name;
+    if (!ExtractSupportedZipEntry(filename, payload, entry_name, error_string)) {
+        return false;
+    }
+
+    std::string path, file_name, extension;
+    SplitPath(entry_name, &path, &file_name, &extension);
+    std::transform(extension.begin(), extension.end(), extension.begin(), [](unsigned char c) {
+        return static_cast<char>(std::tolower(c));
+    });
+
+    const std::filesystem::path temp_dir = std::filesystem::temp_directory_path();
+    const std::filesystem::path temp_file =
+        temp_dir / ("mikage_zip_entry_" + std::to_string(static_cast<unsigned long long>(std::hash<std::string>{}(entry_name + filename))) + extension);
+    {
+        std::ofstream out(temp_file, std::ios::binary | std::ios::trunc);
+        if (!out.is_open() || payload.empty()) {
+            if (error_string) *error_string = "Failed to prepare temporary ZIP extraction file";
+            return false;
+        }
+        out.write(reinterpret_cast<const char*>(payload.data()), static_cast<std::streamsize>(payload.size()));
+        if (!out.good()) {
+            if (error_string) *error_string = "Failed to write temporary ZIP extraction file";
+            return false;
+        }
+    }
+
+    std::string temp_filename = temp_file.string();
+    bool result = false;
+    if (extension == ".3dsx") {
+        File::IOFile file(temp_filename, "rb");
+        result = file.IsOpen() && Load3DSXFromIOFile(file, error_string);
+    } else {
+        result = LoadFile(temp_filename, error_string);
+    }
+    std::error_code ec;
+    std::filesystem::remove(temp_file, ec);
+    return result;
 }
 
 bool LoadCodeFromNCCH(File::IOFile& file, u64 ncch_offset, std::string* error_string) {
@@ -446,6 +753,15 @@ bool LoadCIA(const std::string& filename, std::string* error_string) {
     return LoadCodeFromNCCH(file, section_offset, error_string);
 }
 
+bool LoadTHREEDSX(const std::string& filename, std::string* error_string) {
+    File::IOFile file(filename, "rb");
+    if (!file.IsOpen()) {
+        if (error_string) *error_string = "Failed to open 3DSX file";
+        return false;
+    }
+    return Load3DSXFromIOFile(file, error_string);
+}
+
 FileType GuessFromExtension(const std::string& filename) {
     if (filename.size() < 4) {
         return FILETYPE_UNKNOWN;
@@ -594,8 +910,7 @@ bool LoadFile(std::string &filename, std::string *error_string) {
         return LoadCIA(filename, error_string);
 
     case FILETYPE_THREEDSX:
-        *error_string = "CIA/3DSX loader is not integrated yet";
-        break;
+        return LoadTHREEDSX(filename, error_string);
 
     case FILETYPE_ERROR:
         ERROR_LOG(LOADER, "Could not read file");
@@ -603,12 +918,11 @@ bool LoadFile(std::string &filename, std::string *error_string) {
         break;
 
     case FILETYPE_ARCHIVE_RAR:
-        *error_string = "RAR file detected (Require UnRAR)";
+        *error_string = "RAR file is not supported";
         break;
 
     case FILETYPE_ARCHIVE_ZIP:
-        *error_string = "ZIP file detected (Require UnRAR)";
-        break;
+        return LoadZIP(filename, error_string);
 
     case FILETYPE_NORMAL_DIRECTORY:
         ERROR_LOG(LOADER, "Just a directory.");
