@@ -1,38 +1,47 @@
 // Copyright 2014 Citra Emulator Project
-// Licensed under GPLv2
-// Refer to the license.txt file included.  
+// Licensed under GPLv2 or any later version
+// Refer to the license.txt file included.
 
 #include "arm_interpreter.h"
+#include "../../../common/common_types.h"
+#include "../../memory.h"
+#include "cytrus_cpu_bridge.hpp"
 
-const static cpu_config_t s_arm11_cpu_info = {
-    "armv6", "arm11", 0x0007b000, 0x0007f000, NONCACHE
-};
-
-ARM_Interpreter::ARM_Interpreter()  {
-    state = new ARMul_State;
-
-    ARMul_EmulateInit();
-    ARMul_NewState(state);
-
-    state->abort_model = 0;
-    state->cpu = (cpu_config_t*)&s_arm11_cpu_info;
-    state->bigendSig = LOW;
-
-    ARMul_SelectProcessor(state, ARM_v6_Prop | ARM_v5_Prop | ARM_v5e_Prop);
-    state->lateabtSig = LOW;
-    mmu_init(state);
-
-    // Reset the core to initial state
-    ARMul_Reset(state);
-    state->NextInstr = 0;
-    state->Emulate = 3;
-
-    state->pc = state->Reg[15] = 0x00000000;
-    state->Reg[13] = 0x10000000; // Set stack pointer to the top of the stack
+// Constructor: Initialize with placeholders - System will be provided later
+ARM_Interpreter::ARM_Interpreter() : state(nullptr) {
+    // Initialization is deferred until System reference is available via InitializeWithSystem()
+    // This maintains backwards compatibility with existing code
 }
 
+// Destructor
 ARM_Interpreter::~ARM_Interpreter() {
-    delete state;
+    if (state) {
+        delete state;
+        state = nullptr;
+    }
+}
+
+// Initialize the interpreter with System and Memory references
+void ARM_Interpreter::InitializeWithSystem(Core::System& system, Memory::MemorySystem& memory) {
+    if (state) {
+        delete state;
+    }
+    
+    try {
+        // Create new Cytrus-compatible ARMul_State with System and Memory integration
+        const uint32_t USER32MODE = 16;
+        state = new ARMul_State(system, memory, USER32MODE);
+        
+        // Configure for ARM11
+        state->Emulate = 3;  // RUN mode
+        state->Reset();
+        
+        // Set up default stack pointer
+        state->Reg[13] = 0x10000000;
+    } catch (...) {
+        // Fallback: if initialization fails, state remains nullptr
+        state = nullptr;
+    }
 }
 
 /**
@@ -40,15 +49,17 @@ ARM_Interpreter::~ARM_Interpreter() {
  * @param addr Address to set PC to
  */
 void ARM_Interpreter::SetPC(u32 pc) {
-    state->pc = state->Reg[15] = pc;
+    if (!state) return;
+    state->Reg[15] = pc;
 }
 
-/*
+/**
  * Get the current Program Counter
  * @return Returns current PC
  */
 u32 ARM_Interpreter::GetPC() const {
-    return state->pc;
+    if (!state) return 0;
+    return state->Reg[15];
 }
 
 /**
@@ -57,6 +68,7 @@ u32 ARM_Interpreter::GetPC() const {
  * @return Returns the value in the register
  */
 u32 ARM_Interpreter::GetReg(int index) const {
+    if (!state || index < 0 || index > 15) return 0;
     return state->Reg[index];
 }
 
@@ -66,6 +78,7 @@ u32 ARM_Interpreter::GetReg(int index) const {
  * @param value Value to set register to
  */
 void ARM_Interpreter::SetReg(int index, u32 value) {
+    if (!state || index < 0 || index > 15) return;
     state->Reg[index] = value;
 }
 
@@ -74,6 +87,7 @@ void ARM_Interpreter::SetReg(int index, u32 value) {
  * @return Returns the value of the CPSR register
  */
 u32 ARM_Interpreter::GetCPSR() const {
+    if (!state) return 0;
     return state->Cpsr;
 }
 
@@ -82,6 +96,7 @@ u32 ARM_Interpreter::GetCPSR() const {
  * @param cpsr Value to set CPSR to
  */
 void ARM_Interpreter::SetCPSR(u32 cpsr) {
+    if (!state) return;
     state->Cpsr = cpsr;
 }
 
@@ -90,53 +105,197 @@ void ARM_Interpreter::SetCPSR(u32 cpsr) {
  * @return Returns number of clock ticks
  */
 u64 ARM_Interpreter::GetTicks() const {
-    return ARMul_Time(state);
+    if (!state) return 0;
+    return state->NumInstrs;
+}
+
+/**
+ * Get a CP15 coprocessor register
+ */
+u32 ARM_Interpreter::GetCP15Register(u32 crn, u32 crm, u32 opcode_1, u32 opcode_2) const {
+    if (!state) return 0;
+    return state->ReadCP15Register(crn, opcode_1, crm, opcode_2);
+}
+
+/**
+ * Set a CP15 coprocessor register
+ */
+void ARM_Interpreter::SetCP15Register(u32 crn, u32 crm, u32 opcode_1, u32 opcode_2, u32 value) {
+    if (!state) return;
+    state->WriteCP15Register(value, crn, opcode_1, crm, opcode_2);
+}
+
+/**
+ * Get a VFP register
+ */
+u32 ARM_Interpreter::GetVFPRegister(int index) const {
+    if (!state || index < 0 || index >= 64) return 0;
+    return state->ExtReg[index];
+}
+
+/**
+ * Set a VFP register
+ */
+void ARM_Interpreter::SetVFPRegister(int index, u32 value) {
+    if (!state || index < 0 || index >= 64) return;
+    state->ExtReg[index] = value;
+}
+
+/**
+ * Get VFP status and control register (FPSCR)
+ */
+u32 ARM_Interpreter::GetVFPSystemReg() const {
+    if (!state) return 0;
+    return state->VFP[1];  // FPSCR is at index 1
+}
+
+/**
+ * Set VFP status and control register (FPSCR)
+ */
+void ARM_Interpreter::SetVFPSystemReg(u32 value) {
+    if (!state) return;
+    state->VFP[1] = value;  // FPSCR is at index 1
+}
+
+/**
+ * Get the privilege mode
+ */
+u32 ARM_Interpreter::GetPrivilegeMode() const {
+    if (!state) return 16;  // USER32MODE
+    return state->Mode;
+}
+
+/**
+ * Set the privilege mode
+ */
+void ARM_Interpreter::SetPrivilegeMode(u32 mode) {
+    if (!state) return;
+    state->ChangePrivilegeMode(mode);
+}
+
+/**
+ * Get Thumb flag state
+ */
+u32 ARM_Interpreter::GetThumbFlag() const {
+    if (!state) return 0;
+    return state->TFlag;
+}
+
+/**
+ * Set Thumb flag state
+ */
+void ARM_Interpreter::SetThumbFlag(u32 value) {
+    if (!state) return;
+    state->TFlag = (value != 0) ? 1 : 0;
 }
 
 /**
  * Executes the given number of instructions
- * @param num_instructions Number of instructions to executes
+ * @param num_instructions Number of instructions to execute
  */
 void ARM_Interpreter::ExecuteInstructions(int num_instructions) {
+    if (!state) return;
+    
     state->NumInstrsToExecute = num_instructions;
-    ARMul_Emulate32(state);
+    
+    // Call the interpreter main loop
+    unsigned int ticks_executed = InterpreterMainLoop(state);
+    
+    // Update instruction count and accumulate ticks
+    state->NumInstrs += ticks_executed;
 }
 
 /**
  * Saves the current CPU context
  * @param ctx Thread context to save
- * @todo Do we need to save Reg[15] and NextInstr?
  */
 void ARM_Interpreter::SaveContext(ThreadContext& ctx) {
-    memcpy(ctx.cpu_registers, state->Reg, sizeof(ctx.cpu_registers));
-    memcpy(ctx.fpu_registers, state->ExtReg, sizeof(ctx.fpu_registers));
-
-    ctx.sp = state->Reg[13];
-    ctx.lr = state->Reg[14];
-    ctx.pc = state->pc;
+    if (!state) return;
+    
+    // Save general purpose registers
+    for (int i = 0; i < 16; i++) {
+        ctx.cpu_registers[i] = state->Reg[i];
+    }
+    
+    // Save status registers
     ctx.cpsr = state->Cpsr;
-
-    ctx.fpscr = state->VFP[1];
-    ctx.fpexc = state->VFP[2];
+    for (int i = 0; i < 7; i++) {
+        ctx.spsr[i] = state->Spsr[i];
+    }
+    
+    // Save VFP registers
+    for (int i = 0; i < 32; i++) {
+        ctx.fpu_registers[i] = state->ExtReg[i];
+    }
+    ctx.fpscr = state->VFP[1];  // FPSCR
+    ctx.fpexc = state->VFP[2];  // FPEXC
+    ctx.fpsid = state->VFP[0];  // FPSID
+    
+    // Save extended registers (remaining 32 for 64-bit VFP total)
+    for (int i = 0; i < 64; i++) {
+        ctx.ext_registers[i] = state->ExtReg[i];
+    }
+    
+    // Save CP15 registers
+    for (int i = 0; i < 64; i++) {
+        ctx.cp15_registers[i] = state->CP15[i];
+    }
+    
+    // Save mode and flags
+    ctx.mode = state->Mode;
+    ctx.bank = state->Bank;
+    ctx.n_flag = state->NFlag;
+    ctx.z_flag = state->ZFlag;
+    ctx.c_flag = state->CFlag;
+    ctx.v_flag = state->VFlag;
+    ctx.q_flag = state->shifter_carry_out;
+    ctx.j_flag = (state->Cpsr >> 24) & 1;
+    ctx.t_flag = state->TFlag;
 }
 
 /**
  * Loads a CPU context
  * @param ctx Thread context to load
- * @param Do we need to load Reg[15] and NextInstr?
  */
 void ARM_Interpreter::LoadContext(const ThreadContext& ctx) {
-    memcpy(state->Reg, ctx.cpu_registers, sizeof(ctx.cpu_registers));
-    memcpy(state->ExtReg, ctx.fpu_registers, sizeof(ctx.fpu_registers));
-
-    state->Reg[13] = ctx.sp;
-    state->Reg[14] = ctx.lr;
-    state->pc = ctx.pc;
+    if (!state) return;
+    
+    // Load general purpose registers
+    for (int i = 0; i < 16; i++) {
+        state->Reg[i] = ctx.cpu_registers[i];
+    }
+    
+    // Load status registers
     state->Cpsr = ctx.cpsr;
-
-    state->VFP[1] = ctx.fpscr;
-    state->VFP[2] = ctx.fpexc;
-
-    state->Reg[15] = ctx.pc;
-    state->NextInstr = RESUME;
+    for (int i = 0; i < 7; i++) {
+        state->Spsr[i] = ctx.spsr[i];
+    }
+    
+    // Load VFP registers
+    for (int i = 0; i < 32; i++) {
+        state->ExtReg[i] = ctx.fpu_registers[i];
+    }
+    state->VFP[1] = ctx.fpscr;  // FPSCR
+    state->VFP[2] = ctx.fpexc;  // FPEXC
+    state->VFP[0] = ctx.fpsid;  // FPSID
+    
+    // Load extended registers
+    for (int i = 0; i < 64; i++) {
+        state->ExtReg[i] = ctx.ext_registers[i];
+    }
+    
+    // Load CP15 registers
+    for (int i = 0; i < 64; i++) {
+        state->CP15[i] = ctx.cp15_registers[i];
+    }
+    
+    // Load mode and flags
+    state->Mode = ctx.mode;
+    state->Bank = ctx.bank;
+    state->NFlag = ctx.n_flag;
+    state->ZFlag = ctx.z_flag;
+    state->CFlag = ctx.c_flag;
+    state->VFlag = ctx.v_flag;
+    state->shifter_carry_out = ctx.q_flag;
+    state->TFlag = ctx.t_flag;
 }

@@ -86,4 +86,7 @@ void Shutdown() {
     NOTICE_LOG(MEMMAP, "shutdown OK");
 }
 
+// Global memory system instance for CPU integration (Cytrus compatibility)
+MemorySystem g_memory_system;
+
 } // namespace

@@ -25,4 +25,12 @@ public:
     }
 };
 
+// Global memory system instance for CPU access
+extern MemorySystem g_memory_system;
+
+// Get the global memory system
+inline MemorySystem& GetMemorySystem() {
+    return g_memory_system;
+}
+
 } // namespace Memory
