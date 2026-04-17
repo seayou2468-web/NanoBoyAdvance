@@ -1,10 +1,10 @@
 #include <cstdlib>
-#include "common/assert.h"
-#include "common/common_types.h"
-#include "core/arm/dyncom/arm_dyncom_trans.h"
-#include "core/arm/skyeye_common/armstate.h"
-#include "core/arm/skyeye_common/armsupp.h"
-#include "core/arm/skyeye_common/vfp/vfp.h"
+#include "../../../compat/common/assert.h"
+#include "../../../compat/common/common_types.h"
+#include "dyncom/arm_dyncom_trans.h"
+#include "skyeye_common/armstate.h"
+#include "skyeye_common/armsupp.h"
+#include "skyeye_common/vfp/vfp.h"
 
 char trans_cache_buf[TRANS_CACHE_SIZE];
 size_t trans_cache_buf_top = 0;

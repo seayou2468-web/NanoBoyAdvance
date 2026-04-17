@@ -20,12 +20,12 @@
 
 /* Note: this file handles interface with arm core and vfp registers */
 
-#include "common/common_funcs.h"
-#include "common/common_types.h"
-#include "common/logging/log.h"
-#include "core/arm/skyeye_common/armstate.h"
-#include "core/arm/skyeye_common/vfp/asm_vfp.h"
-#include "core/arm/skyeye_common/vfp/vfp.h"
+#include "../../../../compat/common/common_funcs.h"
+#include "../../../../compat/common/common_types.h"
+#include "../../../../compat/common/logging/log.h"
+#include "skyeye_common/armstate.h"
+#include "skyeye_common/vfp/asm_vfp.h"
+#include "skyeye_common/vfp/vfp.h"
 
 void VFPInit(ARMul_State* state) {
     state->VFP[VFP_FPSID] = VFP_FPSID_IMPLMEN << 24 | VFP_FPSID_SW << 23 | VFP_FPSID_SUBARCH << 16 |

@@ -4,12 +4,15 @@
 
 #pragma once
 
-#include "../common/common_types.h"
+#include "../common/compat/common/common_types.h"
 #include "arm/arm_interface.h"
+#include "arm/arm_dyncom.h"
 #include "loader/rom_manager.h"
 #include "hw/hw.h"
 #include "hle/kernel/kernel.h"
 #include "gpu/pica200.h"
+#include "../common/compat/core/memory.h"
+#include "../common/compat/core/core_timing.h"
 #include <memory>
 
 namespace Core {
@@ -56,6 +59,8 @@ public:
 private:
     // Core components
     std::unique_ptr<ARM_Interface> cpu_core;
+    std::unique_ptr<Memory::MemorySystem> memory_system;
+    std::shared_ptr<Core::Timing::Timer> timer;
     std::unique_ptr<Loader::ROMManager> rom_manager;
     std::unique_ptr<HW::Hardware> hardware;
     std::unique_ptr<HLE::Kernel::Kernel> kernel;

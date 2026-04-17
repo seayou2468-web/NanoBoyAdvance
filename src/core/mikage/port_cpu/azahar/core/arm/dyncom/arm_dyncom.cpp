@@ -9,8 +9,8 @@
 #include "core/arm/dyncom/arm_dyncom_interpreter.h"
 #include "core/arm/dyncom/arm_dyncom_trans.h"
 #include "core/arm/skyeye_common/armstate.h"
-#include "core/core.h"
-#include "core/core_timing.h"
+#include "../../../compat/core/core.h"
+#include "../../../compat/core/core_timing.h"
 
 namespace Core {
 

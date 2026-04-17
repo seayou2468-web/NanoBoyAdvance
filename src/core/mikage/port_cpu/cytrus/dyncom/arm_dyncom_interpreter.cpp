@@ -6,22 +6,22 @@
 
 #include <algorithm>
 #include <cstdio>
-#include "common/common_types.h"
-#include "common/logging/log.h"
-#include "common/microprofile.h"
-#include "core/arm/dyncom/arm_dyncom_dec.h"
-#include "core/arm/dyncom/arm_dyncom_interpreter.h"
-#include "core/arm/dyncom/arm_dyncom_run.h"
-#include "core/arm/dyncom/arm_dyncom_thumb.h"
-#include "core/arm/dyncom/arm_dyncom_trans.h"
-#include "core/arm/skyeye_common/armstate.h"
-#include "core/arm/skyeye_common/armsupp.h"
-#include "core/arm/skyeye_common/vfp/vfp.h"
-#include "core/core.h"
-#include "core/core_timing.h"
-#include "core/gdbstub/gdbstub.h"
-#include "core/hle/kernel/svc.h"
-#include "core/memory.h"
+#include "../../../compat/common/common_types.h"
+#include "../../../compat/common/logging/log.h"
+#include "../../../compat/common/microprofile.h"
+#include "dyncom/arm_dyncom_dec.h"
+#include "dyncom/arm_dyncom_interpreter.h"
+#include "dyncom/arm_dyncom_run.h"
+#include "dyncom/arm_dyncom_thumb.h"
+#include "dyncom/arm_dyncom_trans.h"
+#include "skyeye_common/armstate.h"
+#include "skyeye_common/armsupp.h"
+#include "skyeye_common/vfp/vfp.h"
+#include "../../../compat/core/core.h"
+#include "../../../compat/core/core_timing.h"
+#include "../../../compat/core/gdbstub/gdbstub.h"
+#include "../../../compat/core/hle/kernel/svc.h"
+#include "../../../compat/core/memory.h"
 
 #define RM BITS(sht_oper, 0, 3)
 #define RS BITS(sht_oper, 8, 11)

@@ -3,7 +3,8 @@
 // Refer to the license.txt file included.
 
 #include "emulator.h"
-#include "../common/log.h"
+#include "../common/compat/common/logging/log.h"
+#include "../common/compat/core/core.h"
 #include <cstring>
 
 namespace Core {
@@ -71,16 +72,43 @@ bool Emulator::InitializeMemory() {
 }
 
 bool Emulator::InitializeCPU() {
-    NOTICE_LOG(CORE, "Initializing ARM11 CPU core");
+    LOG_DEBUG(Core_ARM11, "Initializing ARM11 DynCom CPU core (JIT-free)");
     
-    // Create ARM interpreter core
-    cpu_core = std::make_unique<ARM_Interpreter>();
-    if (!cpu_core) {
-        ERROR_LOG(CORE, "Failed to create ARM interpreter");
+    // Create memory system for CPU
+    memory_system = std::make_unique<Memory::MemorySystem>();
+    if (!memory_system) {
+        LOG_ERROR(Core_ARM11, "Failed to create memory system");
         return false;
     }
     
-    NOTICE_LOG(CORE, "ARM11 CPU core initialized");
+    // Create timing system for CPU
+    timer = std::make_shared<Core::Timing::Timer>();
+    if (!timer) {
+        LOG_ERROR(Core_ARM11, "Failed to create timer");
+        return false;
+    }
+    
+    // Create ARM DynCom core (JIT-free interpreter)
+    try {
+        Core::System sys;  // Pass minimal system reference
+        cpu_core = std::make_unique<Core::ARM_DynCom>(
+            sys,                              // System reference
+            *memory_system,                   // Memory system
+            PrivilegeMode::USER32MODE,        // Initial privilege
+            0,                                // CPU ID
+            timer                             // Timing reference
+        );
+    } catch (const std::exception& e) {
+        LOG_ERROR(Core_ARM11, "Failed to create ARM DynCom: %s", e.what());
+        return false;
+    }
+    
+    if (!cpu_core) {
+        LOG_ERROR(Core_ARM11, "Failed to create ARM DynCom core");
+        return false;
+    }
+    
+    LOG_DEBUG(Core_ARM11, "ARM11 DynCom CPU core initialized (no JIT)");
     return true;
 }
 
