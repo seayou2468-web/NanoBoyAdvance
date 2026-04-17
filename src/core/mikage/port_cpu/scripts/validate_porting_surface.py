@@ -15,12 +15,12 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[5]
 
 PAIRS = {
-    "src/core/mikage/core/arm/interpreter/armsupp.cpp": "src/core/mikage/cytrus_cpu/core/arm/skyeye_common/armsupp.cpp",
-    "src/core/mikage/core/arm/interpreter/vfp/vfp.cpp": "src/core/mikage/cytrus_cpu/core/arm/skyeye_common/vfp/vfp.cpp",
-    "src/core/mikage/core/arm/interpreter/vfp/vfpdouble.cpp": "src/core/mikage/cytrus_cpu/core/arm/skyeye_common/vfp/vfpdouble.cpp",
-    "src/core/mikage/core/arm/interpreter/vfp/vfpsingle.cpp": "src/core/mikage/cytrus_cpu/core/arm/skyeye_common/vfp/vfpsingle.cpp",
-    "src/core/mikage/core/arm/interpreter/vfp/vfpinstr.cpp": "src/core/mikage/cytrus_cpu/core/arm/skyeye_common/vfp/vfpinstr.cpp",
-    "src/core/mikage/core/arm/interpreter/arm_regformat.h": "src/core/mikage/cytrus_cpu/include/core/arm/skyeye_common/arm_regformat.h",
+    "src/core/mikage/core/arm/interpreter/armsupp.cpp": "src/core/mikage/port_cpu/cytrus/skyeye_common/armsupp.cpp",
+    "src/core/mikage/core/arm/interpreter/vfp/vfp.cpp": "src/core/mikage/port_cpu/cytrus/skyeye_common/vfp/vfp.cpp",
+    "src/core/mikage/core/arm/interpreter/vfp/vfpdouble.cpp": "src/core/mikage/port_cpu/cytrus/skyeye_common/vfp/vfpdouble.cpp",
+    "src/core/mikage/core/arm/interpreter/vfp/vfpsingle.cpp": "src/core/mikage/port_cpu/cytrus/skyeye_common/vfp/vfpsingle.cpp",
+    "src/core/mikage/core/arm/interpreter/vfp/vfpinstr.cpp": "src/core/mikage/port_cpu/cytrus/skyeye_common/vfp/vfpinstr.cpp",
+    "src/core/mikage/core/arm/interpreter/arm_regformat.h": "src/core/mikage/port_cpu/cytrus/skyeye_common/arm_regformat.h",
 }
 
 

@@ -21,8 +21,22 @@ See:
 Run:
 
 ```bash
-python3 src/core/mikage/cytrus_cpu/scripts/validate_porting_surface.py
+python3 src/core/mikage/port_cpu/scripts/validate_porting_surface.py
 ```
 
 The script returns a non-zero exit code while there is still CPU-surface drift,
 which is expected until full cutover is complete.
+
+## Surface sync helper
+To copy the non-JIT paired files from the vendored Cytrus snapshot into
+Mikage's active interpreter path, run:
+
+```bash
+python3 src/core/mikage/port_cpu/scripts/sync_nonjit_cpu_surface.py
+```
+
+For CI-only drift checks (without writing files), run:
+
+```bash
+python3 src/core/mikage/port_cpu/scripts/sync_nonjit_cpu_surface.py --check
+```

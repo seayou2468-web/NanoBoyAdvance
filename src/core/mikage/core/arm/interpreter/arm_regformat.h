@@ -1,7 +1,6 @@
 #pragma once
 
-// General ARM register/state slots used by the legacy Skyeye interpreter state dump.
-enum arm_regno {
+enum {
     R0 = 0,
     R1,
     R2,
@@ -55,7 +54,7 @@ enum arm_regno {
     MAX_REG_NUM,
 };
 
-// VFP system registers (aligned with Cytrus import).
+// VFP system registers
 enum VFPSystemRegister {
     VFP_FPSID,
     VFP_FPSCR,
@@ -66,10 +65,10 @@ enum VFPSystemRegister {
     VFP_MVFR1,
 
     // Not an actual register.
-    VFP_SYSTEM_REGISTER_COUNT,
+    // All VFP system registers should be defined above this.
+    VFP_SYSTEM_REGISTER_COUNT
 };
 
-// CP15 register slots (aligned with Cytrus import).
 enum CP15Register {
     // c0 - Information registers
     CP15_MAIN_ID,
@@ -162,9 +161,9 @@ enum CP15Register {
     // c13 - Thread related registers
     CP15_PID,
     CP15_CONTEXT_ID,
-    CP15_THREAD_UPRW,
-    CP15_THREAD_URO,
-    CP15_THREAD_PRW,
+    CP15_THREAD_UPRW, // Thread ID register - User/Privileged Read/Write
+    CP15_THREAD_URO,  // Thread ID register - User Read Only (Privileged R/W)
+    CP15_THREAD_PRW,  // Thread ID register - Privileged R/W only.
 
     // c15 - Performance and TLB lockdown registers
     CP15_PERFORMANCE_MONITOR_CONTROL,
@@ -183,10 +182,11 @@ enum CP15Register {
     CP15_TLB_FAULT_STATUS,
 
     // Not an actual register.
+    // All registers should be defined above this.
     CP15_REGISTER_COUNT,
 };
 
-// Legacy compatibility aliases used by pre-port Mikage code.
+// Legacy compatibility aliases retained during staged porting.
 constexpr int CP15_BASE = CP15_MAIN_ID;
 constexpr int CP15_C0 = CP15_MAIN_ID;
 constexpr int CP15_C0_C0 = CP15_MAIN_ID;
@@ -197,5 +197,4 @@ constexpr int CP15_C2_C0 = CP15_TRANSLATION_BASE_TABLE_0;
 constexpr int CP15_TRANSLATION_BASE = CP15_TRANSLATION_BASE_TABLE_0;
 
 constexpr int VFP_BASE = VFP_FPSID;
-
 #define VFP_OFFSET(x) (x - VFP_BASE)

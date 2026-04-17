@@ -341,14 +341,11 @@ void vfp_put_double(arm_core_t* state, uint64_t val, unsigned int reg)
  */
 void vfp_raise_exceptions(ARMul_State* state, u32 exceptions, u32 inst, u32 fpscr)
 {
-	int si_code = 0;
-
 	vfpdebug("VFP: raising exceptions %08x\n", exceptions);
 
 	if (exceptions == VFP_EXCEPTION_ERROR) {
-		DEBUG_LOG(ARM11, "unhandled bounce %x\n", inst);
-		state->VFP[VFP_OFFSET(VFP_FPSCR)] |= FPSCR_IOC;
-		return;
+		ERROR_LOG(ARM11, "unhandled bounce %x", inst);
+		Crash();
 	}
 
 	/*
