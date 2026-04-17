@@ -14,6 +14,7 @@
 #include <cstdint>
 #include <cstring>
 #include <array>
+#include <unordered_map>
 
 // Include Mikage types
 namespace Core {
@@ -221,8 +222,3 @@ inline unsigned int InterpreterMainLoop(ARMul_State* state) {
     
     return executed;
 }
-
-// Include for unordered_map
-#include <unordered_map>
-
-#endif // CYTRUS_CPU_BRIDGE_HPP

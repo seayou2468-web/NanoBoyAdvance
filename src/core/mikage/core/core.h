@@ -12,7 +12,6 @@
 namespace Core {
 
 class System; // Cytrus CPU migration shim forward declaration.
-class ARM_Interpreter; // Forward declare for System integration
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

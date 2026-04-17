@@ -22,6 +22,14 @@ ARM_Disasm*     g_disasm    = NULL; ///< ARM disassembler
 ARM_Interface*  g_app_core  = NULL; ///< ARM11 application core
 ARM_Interface*  g_sys_core  = NULL; ///< ARM11 system (OS) core
 std::unique_ptr<Core::System> g_legacy_system; ///< Owned System for legacy Init()
+bool g_memory_initialized = false;
+
+static void EnsureMemoryInitialized() {
+    if (!g_memory_initialized) {
+        Memory::Init();
+        g_memory_initialized = true;
+    }
+}
 
 // Forward reference to Memory system
 class System;
@@ -59,11 +67,12 @@ void Stop() {
 int Init() {
     NOTICE_LOG(MASTER_LOG, "Initializing core (legacy compatibility mode)");
 
+    EnsureMemoryInitialized();
     g_disasm = new ARM_Disasm();
     g_legacy_system = std::make_unique<Core::System>();
 
-    auto* app_core = new ARM_Interpreter();
-    auto* sys_core = new ARM_Interpreter();
+    auto* app_core = new ::ARM_Interpreter();
+    auto* sys_core = new ::ARM_Interpreter();
 
     Memory::MemorySystem& memory_system = Memory::GetMemorySystem();
     app_core->InitializeWithSystem(*g_legacy_system, memory_system);
@@ -83,7 +92,7 @@ int Init() {
  * @param system Reference to the System instance containing Memory and Timer
  */
 int InitWithSystem(class System& system) {
-    NOTICE_LOG(MASTER_LOG, "Initializing core with Cytrus DynCom CPU (System-aware mode)");
+    NOTICE_LOG(MASTER_LOG, "Initializing core with ARM interpreter CPU (System-aware mode)");
 
     if (g_app_core || g_sys_core) {
         NOTICE_LOG(MASTER_LOG, "Warning: Core already initialized, cleaning up");
@@ -92,11 +101,12 @@ int InitWithSystem(class System& system) {
         if (g_sys_core) delete g_sys_core;
     }
 
+    EnsureMemoryInitialized();
     g_disasm = new ARM_Disasm();
     
     // Create new ARM_Interpreter instances
-    ARM_Interpreter* app_core = new ARM_Interpreter();
-    ARM_Interpreter* sys_core = new ARM_Interpreter();
+    ::ARM_Interpreter* app_core = new ::ARM_Interpreter();
+    ::ARM_Interpreter* sys_core = new ::ARM_Interpreter();
     
     // Initialize with System and Memory for full DynCom CPU support
     // Get Memory system reference from system
@@ -108,7 +118,7 @@ int InitWithSystem(class System& system) {
     g_app_core = app_core;
     g_sys_core = sys_core;
 
-    NOTICE_LOG(MASTER_LOG, "Core initialized OK (Cytrus DynCom mode with full CPU support)");
+    NOTICE_LOG(MASTER_LOG, "Core initialized OK (ARM interpreter mode with full CPU support)");
     return 0;
 }
 
@@ -117,6 +127,10 @@ void Shutdown() {
     if (g_app_core) delete g_app_core;
     if (g_sys_core) delete g_sys_core;
     g_legacy_system.reset();
+    if (g_memory_initialized) {
+        Memory::Shutdown();
+        g_memory_initialized = false;
+    }
 
     NOTICE_LOG(MASTER_LOG, "Core shutdown OK");
 }
