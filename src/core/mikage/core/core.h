@@ -5,7 +5,7 @@
 #pragma once
 
 #include "./arm/arm_interface.h"
-#include "./arm/interpreter/armdefs.h"
+#include "./arm/interpreter/armstate.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -16,8 +16,8 @@ class ARM_Interpreter; // Forward declare for System integration
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-extern ARM_Interface*   g_app_core;     ///< ARM11 application core
-extern ARM_Interface*   g_sys_core;     ///< ARM11 system (OS) core
+extern Core::ARM_Interface*   g_app_core;     ///< ARM11 application core
+extern Core::ARM_Interface*   g_sys_core;     ///< ARM11 system (OS) core
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

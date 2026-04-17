@@ -4,12 +4,12 @@
 
 #pragma once
 
-#include "../../common/common_types.h"
-#include "../arm/interpreter/arm_interpreter.h"
+#include "common/common_types.h"
+#include "core/arm/interpreter/arm_interpreter.h"
 #include <map>
 #include <functional>
 
-namespace HLE {
+namespace Hle {
 namespace Kernel {
 
 // ============================================================================
@@ -45,14 +45,14 @@ class Timer;
 
 struct SVCContext {
     // ARM calling convention: arguments in R0-R3, result in R0
-    u32& r0;  // Argument 0 / Return value
-    u32& r1;  // Argument 1 / Return value (pairs for 64-bit)
-    u32& r2;  // Argument 2
-    u32& r3;  // Argument 3
+    u32 r0;  // Argument 0 / Return value
+    u32 r1;  // Argument 1 / Return value (pairs for 64-bit)
+    u32 r2;  // Argument 2
+    u32 r3;  // Argument 3
     
-    ARM_Interpreter& cpu;
+    Core::ARM_Interface& cpu;
     
-    SVCContext(ARM_Interpreter& c) : 
+    SVCContext(Core::ARM_Interface& c) :
         r0(c.GetReg(0)), r1(c.GetReg(1)), r2(c.GetReg(2)), r3(c.GetReg(3)), cpu(c) {}
     
     // Helper: Set 64-bit return value (in R0:R1)
@@ -129,7 +129,7 @@ public:
     
     // Dispatch an SVC (System Call) request
     // SVC number is in R12 (IP) or passed as parameter
-    ResultCode Dispatch(u32 svc_id, ARM_Interpreter& cpu);
+    ResultCode Dispatch(u32 svc_id, Core::ARM_Interface& cpu);
     
     // Register a custom SVC handler
     using SVCHandler = std::function<ResultCode(SVCContext&)>;
@@ -145,9 +145,9 @@ private:
 extern SVCDispatcher g_svc_dispatcher;
 
 // Convenience function to dispatch SVC from CPU
-inline ResultCode DispatchSVC(u32 svc_id, ARM_Interpreter& cpu) {
+inline ResultCode DispatchSVC(u32 svc_id, Core::ARM_Interface& cpu) {
     return g_svc_dispatcher.Dispatch(svc_id, cpu);
 }
 
 } // namespace Kernel
-} // namespace HLE
+} // namespace Hle

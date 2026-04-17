@@ -2,13 +2,9 @@ CC       := cc
 CXX      := c++
 AR       := ar
 CFLAGS   := -O3 -flto -ffast-math -std=c11 -Wall -Wextra -Wpedantic
-CXXFLAGS := -O3 -flto -ffast-math -std=c++20 -Wall -Wextra -Wpedantic -ffunction-sections -fdata-sections -DMELONDS_VERSION=\"nba\" -Isrc/core/melonds/teakra/include
-SDL_CFLAGS := $(shell pkg-config --cflags sdl2 2>/dev/null)
-SDL_LIBS   := $(shell pkg-config --libs sdl2 2>/dev/null)
-
-ifeq ($(strip $(SDL_LIBS)),)
-$(error SDL2 development files were not found. Install libsdl2-dev/pkg-config.)
-endif
+CXXFLAGS := -O3 -std=c++20 -Isrc/core/mikage
+SDL_CFLAGS :=
+SDL_LIBS :=
 
 BUILD_DIR := build
 APP       := $(BUILD_DIR)/nanoboyadvance-linux
@@ -141,3 +137,26 @@ $(BUILD_DIR)/%.o: %.c
 
 clean:
 	rm -rf $(BUILD_DIR)
+
+MIKAGE_SRCS := \
+	src/core/mikage/common/settings.cpp \
+	src/core/mikage/core/arm/interpreter/arm_interpreter.cpp \
+	src/core/mikage/core/arm/interpreter/exclusive_monitor.cpp \
+	src/core/mikage/core/arm/interpreter/skyeye_common/armstate.cpp \
+	src/core/mikage/core/arm/interpreter/skyeye_common/armsupp.cpp \
+	src/core/mikage/core/arm/interpreter/skyeye_common/vfp/vfp.cpp \
+	src/core/mikage/core/arm/interpreter/skyeye_common/vfp/vfpdouble.cpp \
+	src/core/mikage/core/arm/interpreter/skyeye_common/vfp/vfpinstr.cpp \
+	src/core/mikage/core/arm/interpreter/skyeye_common/vfp/vfpsingle.cpp \
+	src/core/mikage/core/arm/interpreter/dyncom/arm_dyncom_dec.cpp \
+	src/core/mikage/core/arm/interpreter/dyncom/arm_dyncom_interpreter.cpp \
+	src/core/mikage/core/arm/interpreter/dyncom/arm_dyncom_thumb.cpp \
+	src/core/mikage/core/arm/interpreter/dyncom/arm_dyncom_trans.cpp \
+	src/core/mikage/core/core.cpp \
+	src/core/mikage/core/system.cpp \
+	src/core/mikage/video_core/video_core.cpp \
+	src/core/mikage/video_core/utils.cpp
+
+MIKAGE_OBJS := $(patsubst %.cpp,$(BUILD_DIR)/%.o,$(MIKAGE_SRCS))
+
+	$(CXX) -o $@ $^

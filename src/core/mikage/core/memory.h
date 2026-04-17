@@ -1,3 +1,4 @@
+#include <memory>
 #pragma once
 
 #include "./mem_map.h"
@@ -54,7 +55,7 @@ public:
     };
     
     VirtualMemoryManager() : page_table(0x100000) {  // 4GB / 4KB = 1M pages
-        page_table.fill(MemoryPage{nullptr, MemoryType::Unmapped, MemoryPermission::None, 0, false});
+        std::fill(page_table.begin(), page_table.end(), MemoryPage{nullptr, MemoryType::Unmapped, MemoryPermission::None, 0, false});
     }
     
     // Map a virtual address to physical memory

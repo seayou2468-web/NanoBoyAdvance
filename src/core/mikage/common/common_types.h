@@ -45,6 +45,7 @@ typedef signed __int64      s64;    ///< 64-bit signed int
 typedef unsigned char       u8;     ///< 8-bit unsigned byte
 typedef unsigned short      u16;    ///< 16-bit unsigned short
 typedef unsigned int        u32;    ///< 32-bit unsigned word
+typedef u32 VAddr;
 typedef unsigned long long  u64;    ///< 64-bit unsigned int
 
 typedef signed char         s8;     ///< 8-bit signed byte

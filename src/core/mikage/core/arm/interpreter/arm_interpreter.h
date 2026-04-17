@@ -20,6 +20,7 @@ class MemorySystem;
 
 struct ThreadContext;
 
+namespace Core {
 class ARM_Interpreter : virtual public ARM_Interface {
 public:
 
@@ -151,3 +152,4 @@ private:
     ARMul_State* state;
 
 };
+}

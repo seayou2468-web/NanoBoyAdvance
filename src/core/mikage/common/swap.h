@@ -1,3 +1,4 @@
+#include "common_types.h"
 // Copyright (c) 2012- PPSSPP Project / Dolphin Project.
 
 // This program is free software: you can redistribute it and/or modify
