@@ -208,7 +208,13 @@ private:
     std::unique_ptr<VirtualMemoryManager> vm_manager;
     
     bool CheckAccess(u32 addr, MemoryPermission required_perm) const {
-        return vm_manager->IsAccessible(addr, required_perm);
+        // 既存コア互換: VMマップ未構成時は従来どおりアクセスを通す。
+        // 明示的にマップされたページのみ権限制御を適用する。
+        const auto perm = vm_manager->GetPagePermission(addr);
+        if (!perm.has_value()) {
+            return true;
+        }
+        return (static_cast<u32>(*perm) & static_cast<u32>(required_perm)) != 0;
     }
 };
 

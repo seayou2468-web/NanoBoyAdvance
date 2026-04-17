@@ -4,8 +4,7 @@
 
 #include "arm_interpreter.h"
 #include "../../../common/common_types.h"
-#include "../../memory.h"
-#include "cytrus_cpu_bridge.hpp"
+#include "armemu.h"
 
 // Constructor: Initialize with placeholders - System will be provided later
 ARM_Interpreter::ARM_Interpreter() : state(nullptr) {
@@ -23,25 +22,31 @@ ARM_Interpreter::~ARM_Interpreter() {
 
 // Initialize the interpreter with System and Memory references
 void ARM_Interpreter::InitializeWithSystem(Core::System& system, Memory::MemorySystem& memory) {
+    (void)system;
+    (void)memory;
+
     if (state) {
         delete state;
-    }
-    
-    try {
-        // Create new Cytrus-compatible ARMul_State with System and Memory integration
-        const uint32_t USER32MODE = 16;
-        state = new ARMul_State(system, memory, USER32MODE);
-        
-        // Configure for ARM11
-        state->Emulate = 3;  // RUN mode
-        state->Reset();
-        
-        // Set up default stack pointer
-        state->Reg[13] = 0x10000000;
-    } catch (...) {
-        // Fallback: if initialization fails, state remains nullptr
         state = nullptr;
     }
+
+    static bool emulator_initialized = false;
+    if (!emulator_initialized) {
+        ARMul_EmulateInit();
+        emulator_initialized = true;
+    }
+
+    state = ARMul_NewState(new ARMul_State());
+    if (!state) {
+        return;
+    }
+
+    // ARM11 MPCore: ARMv6ベースで初期化（JITなし実CPUパス）
+    ARMul_SelectProcessor(state, ARM_v6_Prop);
+    ARMul_Reset(state);
+
+    // 既存コードとの互換を保つため初期スタックを設定
+    state->Reg[13] = 0x10000000;
 }
 
 /**
@@ -114,7 +119,12 @@ u64 ARM_Interpreter::GetTicks() const {
  */
 u32 ARM_Interpreter::GetCP15Register(u32 crn, u32 crm, u32 opcode_1, u32 opcode_2) const {
     if (!state) return 0;
-    return state->ReadCP15Register(crn, opcode_1, crm, opcode_2);
+    (void)crm;
+    const u32 index = (crn << 4) | (opcode_1 << 2) | opcode_2;
+    if (index < CP15_REGISTER_COUNT) {
+        return state->CP15[index];
+    }
+    return 0;
 }
 
 /**
@@ -122,7 +132,11 @@ u32 ARM_Interpreter::GetCP15Register(u32 crn, u32 crm, u32 opcode_1, u32 opcode_
  */
 void ARM_Interpreter::SetCP15Register(u32 crn, u32 crm, u32 opcode_1, u32 opcode_2, u32 value) {
     if (!state) return;
-    state->WriteCP15Register(value, crn, opcode_1, crm, opcode_2);
+    (void)crm;
+    const u32 index = (crn << 4) | (opcode_1 << 2) | opcode_2;
+    if (index < CP15_REGISTER_COUNT) {
+        state->CP15[index] = value;
+    }
 }
 
 /**
@@ -170,7 +184,7 @@ u32 ARM_Interpreter::GetPrivilegeMode() const {
  */
 void ARM_Interpreter::SetPrivilegeMode(u32 mode) {
     if (!state) return;
-    state->ChangePrivilegeMode(mode);
+    state->Mode = ARMul_SwitchMode(state, state->Mode, mode);
 }
 
 /**
@@ -195,14 +209,10 @@ void ARM_Interpreter::SetThumbFlag(u32 value) {
  */
 void ARM_Interpreter::ExecuteInstructions(int num_instructions) {
     if (!state) return;
-    
-    state->NumInstrsToExecute = num_instructions;
-    
-    // Call the interpreter main loop
-    unsigned int ticks_executed = InterpreterMainLoop(state);
-    
-    // Update instruction count and accumulate ticks
-    state->NumInstrs += ticks_executed;
+
+    for (int i = 0; i < num_instructions; ++i) {
+        ARMul_DoInstr(state);
+    }
 }
 
 /**
