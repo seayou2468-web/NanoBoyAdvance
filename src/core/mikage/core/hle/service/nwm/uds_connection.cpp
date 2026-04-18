@@ -2,7 +2,7 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include <fmt/format.h>
+#include "common/string_util.h"
 #include "core/hle/service/nwm/nwm_uds.h"
 #include "core/hle/service/nwm/uds_connection.h"
 
@@ -47,7 +47,7 @@ static std::vector<u8> GenerateSSIDTag(u32 network_id) {
 
     std::memcpy(buffer.data(), &tag_header, sizeof(tag_header));
 
-    std::string network_name = fmt::format("{0:08X}", network_id);
+    std::string network_name = StringFromFormat("%08X", network_id);
 
     std::memcpy(buffer.data() + sizeof(tag_header), network_name.c_str(), SSIDSize);
 

@@ -5,11 +5,11 @@
 #include <algorithm>
 #include <memory>
 #include <vector>
-#include <fmt/format.h>
 #include "common/archives.h"
 #include "common/common_types.h"
 #include "common/file_util.h"
 #include "common/logging/log.h"
+#include "common/string_util.h"
 #include "core/file_sys/archive_artic.h"
 #include "core/file_sys/archive_extsavedata.h"
 #include "core/file_sys/disk_archive.h"
@@ -186,21 +186,24 @@ std::string GetExtSaveDataPath(std::string_view mount_point, const Path& path) {
     ExtSaveDataArchivePath path_data;
     std::memcpy(&path_data, vec_data.data(), sizeof(path_data));
 
-    return fmt::format("{}{:08X}/{:08X}/", mount_point, path_data.save_high, path_data.save_low);
+    return StringFromFormat("%s%08X/%08X/", std::string(mount_point).c_str(), path_data.save_high,
+                            path_data.save_low);
 }
 
 std::string GetExtDataContainerPath(std::string_view mount_point, bool shared) {
     if (shared) {
-        return fmt::format("{}data/{}/extdata/", mount_point, SYSTEM_ID);
+        return StringFromFormat("%sdata/%s/extdata/", std::string(mount_point).c_str(), SYSTEM_ID);
     }
-    return fmt::format("{}Nintendo 3DS/{}/{}/extdata/", mount_point, SYSTEM_ID, SDCARD_ID);
+    return StringFromFormat("%sNintendo 3DS/%s/%s/extdata/", std::string(mount_point).c_str(),
+                            SYSTEM_ID, SDCARD_ID);
 }
 
 std::string GetExtDataPathFromId(std::string_view mount_point, u64 extdata_id) {
     const u32 high = static_cast<u32>(extdata_id >> 32);
     const u32 low = static_cast<u32>(extdata_id & 0xFFFFFFFF);
 
-    return fmt::format("{}{:08x}/{:08x}/", GetExtDataContainerPath(mount_point, false), high, low);
+    return StringFromFormat("%s%08x/%08x/", GetExtDataContainerPath(mount_point, false).c_str(),
+                            high, low);
 }
 
 Path ConstructExtDataBinaryPath(u32 media_type, u32 high, u32 low) {

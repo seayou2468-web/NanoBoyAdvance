@@ -2,9 +2,10 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include <cryptopp/sha.h>
+#include <CommonCrypto/CommonDigest.h>
 #include "common/common_paths.h"
 #include "common/logging/log.h"
+#include "common/string_util.h"
 #include "core/file_sys/archive_systemsavedata.h"
 #include "core/file_sys/certificate.h"
 #include "core/file_sys/otp.h"
@@ -172,7 +173,8 @@ SecureDataLoadStatus LoadOTP() {
     } else {
         memcpy(issuer.data(), issuer_ret, strlen(issuer_ret));
     }
-    std::string name_str = fmt::format("CT{:08X}-{:02X}", otp.GetDeviceID(), otp.GetSystemType());
+    std::string name_str =
+        StringFromFormat("CT%08X-%02X", otp.GetDeviceID(), otp.GetSystemType());
     std::array<u8, 0x40> name = {0};
     memcpy(name.data(), name_str.data(), name_str.size());
 
@@ -301,14 +303,14 @@ std::unique_ptr<FileUtil::IOFile> OpenUniqueCryptoFile(const std::string& filena
     hash_data.device_id = otp.GetDeviceID();
     hash_data.id = static_cast<u32>(id);
 
-    CryptoPP::SHA256 hash;
-    u8 digest[CryptoPP::SHA256::DIGESTSIZE];
-    hash.CalculateDigest(digest, reinterpret_cast<CryptoPP::byte*>(&hash_data), sizeof(hash_data));
+    std::array<u8, CC_SHA256_DIGEST_LENGTH> digest;
+    CC_SHA256(reinterpret_cast<const u8*>(&hash_data), static_cast<CC_LONG>(sizeof(hash_data)),
+              digest.data());
 
     std::vector<u8> key(0x10);
     std::vector<u8> ctr(0x10);
-    memcpy(key.data(), digest, 0x10);
-    memcpy(ctr.data(), digest + 0x10, 12);
+    memcpy(key.data(), digest.data(), 0x10);
+    memcpy(ctr.data(), digest.data() + 0x10, 12);
 
     return std::make_unique<FileUtil::CryptoIOFile>(filename, openmode, key, ctr, flags);
 }

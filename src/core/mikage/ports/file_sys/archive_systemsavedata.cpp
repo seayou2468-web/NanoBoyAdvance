@@ -6,10 +6,10 @@
 #include <cstring>
 #include <memory>
 #include <vector>
-#include <fmt/format.h>
 #include "common/archives.h"
 #include "common/common_types.h"
 #include "common/file_util.h"
+#include "common/string_util.h"
 #include "core/file_sys/archive_artic.h"
 #include "core/file_sys/archive_systemsavedata.h"
 #include "core/file_sys/errors.h"
@@ -26,11 +26,11 @@ std::string GetSystemSaveDataPath(std::string_view mount_point, const Path& path
     u32 save_high;
     std::memcpy(&save_low, &vec_data[4], sizeof(u32));
     std::memcpy(&save_high, &vec_data[0], sizeof(u32));
-    return fmt::format("{}{:08X}/{:08X}/", mount_point, save_low, save_high);
+    return Common::StringFromFormat("%.*s%08X/%08X/", static_cast<int>(mount_point.size()), mount_point.data(), save_low, save_high);
 }
 
 std::string GetSystemSaveDataContainerPath(std::string_view mount_point) {
-    return fmt::format("{}data/{}/sysdata/", mount_point, SYSTEM_ID);
+    return Common::StringFromFormat("%.*sdata/%s/sysdata/", static_cast<int>(mount_point.size()), mount_point.data(), SYSTEM_ID);
 }
 
 Path ConstructSystemSaveDataBinaryPath(u32 high, u32 low) {

@@ -4,11 +4,10 @@
 
 #include <atomic>
 #include <tuple>
+#include <string_view>
 #include <unordered_map>
-#include <boost/algorithm/string/replace.hpp>
 #include <cryptopp/aes.h>
 #include <cryptopp/modes.h>
-#include <fmt/format.h>
 #include "common/archives.h"
 #include "common/assert.h"
 #include "common/scope_exit.h"
@@ -27,6 +26,20 @@ SERIALIZE_EXPORT_IMPL(Service::HTTP::HTTP_C)
 SERIALIZE_EXPORT_IMPL(Service::HTTP::SessionData)
 
 namespace Service::HTTP {
+
+namespace {
+void ReplaceAllInPlace(std::string& target, std::string_view from, std::string_view to) {
+    if (from.empty()) {
+        return;
+    }
+
+    std::size_t pos = 0;
+    while ((pos = target.find(from, pos)) != std::string::npos) {
+        target.replace(pos, from.size(), to);
+        pos += to.size();
+    }
+}
+} // namespace
 
 #include "ctr-common-1-cert.h"
 #include "ctr-common-1-key.h"
@@ -184,9 +197,9 @@ static void SerializeChunkedAsciiPostData(httplib::DataSink& sink, const Context
             sink.os << "&";
         }
 
-        query =
-            fmt::format("{}={}", it->first, httplib::detail::encode_query_param(it->second.value));
-        boost::replace_all(query, "*", "%2A");
+        query = StringFromFormat("%s=%s", it->first.c_str(),
+                                 httplib::detail::encode_query_param(it->second.value).c_str());
+        ReplaceAllInPlace(query, "*", "%2A");
         sink.os << query;
     }
 }
@@ -263,7 +276,7 @@ void Context::ParseAsciiPostData() {
     }
 
     post_data_raw = httplib::detail::params_to_query_str(ascii_form);
-    boost::replace_all(post_data_raw, "*", "%2A");
+    ReplaceAllInPlace(post_data_raw, "*", "%2A");
 }
 
 std::string Context::ParseMultipartFormData() {
@@ -353,7 +366,7 @@ void Context::MakeRequest() {
 
         if (post_data_type == PostDataType::Raw && chunked_content_length > 0) {
             pending_headers.push_back(Context::RequestHeader(
-                "Content-Length", fmt::format("{}", chunked_content_length)));
+                "Content-Length", StringFromFormat("%zu", chunked_content_length)));
         }
 
         request.content_length_ = 0;
@@ -1481,12 +1494,12 @@ void HTTP_C::GetResponseDataImpl(Kernel::HLERequestContext& ctx, bool timeout) {
             // httplib does not keep the raw HTTP header data, so we need to reconstruct it.
             // Sadly, the order of headers is lost, but for now it's good enough.
             std::string hdr =
-                fmt::format("{} {} {}\r\n", http_context.response.version,
-                            http_context.response.status, http_context.response.reason);
+                StringFromFormat("%s %d %s\r\n", http_context.response.version.c_str(),
+                                 http_context.response.status, http_context.response.reason.c_str());
             out.insert(out.end(), hdr.begin(), hdr.end());
 
             for (auto& h : headers) {
-                hdr = fmt::format("{}: {}\r\n", h.first, h.second);
+                hdr = StringFromFormat("%s: %s\r\n", h.first.c_str(), h.second.c_str());
                 out.insert(out.end(), hdr.begin(), hdr.end());
             }
 

@@ -176,14 +176,16 @@ void CustomTexManager::PrepareDumping(u64 title_id) {
     // If a pack exists in the load folder that uses the old hash, dump textures using the old hash.
     // This occurs either if a configuration file doesn't exist or that file sets the old hash.
     const std::string load_path =
-        fmt::format("{}textures/{:016X}/", GetUserPath(FileUtil::UserPath::LoadDir), title_id);
+        StringFromFormat("%stextures/%016llX/", GetUserPath(FileUtil::UserPath::LoadDir).c_str(),
+                         static_cast<unsigned long long>(title_id));
     if (FileUtil::Exists(load_path) && !ReadConfig(title_id, true)) {
         use_new_hash = false;
     }
 
     // Write template config file
     const std::string dump_path =
-        fmt::format("{}textures/{:016X}/", GetUserPath(FileUtil::UserPath::DumpDir), title_id);
+        StringFromFormat("%stextures/%016llX/", GetUserPath(FileUtil::UserPath::DumpDir).c_str(),
+                         static_cast<unsigned long long>(title_id));
     const std::string pack_config = dump_path + "pack.json";
     if (FileUtil::Exists(pack_config)) {
         return;
@@ -246,15 +248,18 @@ void CustomTexManager::DumpTexture(const SurfaceParams& params, u32 level, std::
     const u32 height = params.height;
     const PixelFormat format = params.pixel_format;
 
-    std::string dump_path = fmt::format(
-        "{}textures/{:016X}/", FileUtil::GetUserPath(FileUtil::UserPath::DumpDir), program_id);
+    std::string dump_path =
+        StringFromFormat("%stextures/%016llX/",
+                         FileUtil::GetUserPath(FileUtil::UserPath::DumpDir).c_str(),
+                         static_cast<unsigned long long>(program_id));
     if (!FileUtil::CreateFullPath(dump_path)) {
         LOG_ERROR(Render, "Unable to create {}", dump_path);
         return;
     }
 
-    dump_path +=
-        fmt::format("tex1_{}x{}_{:016X}_{}_mip{}.png", width, height, data_hash, format, level);
+    dump_path += StringFromFormat("tex1_%ux%u_%016llX_%u_mip%u.png", width, height,
+                                  static_cast<unsigned long long>(data_hash),
+                                  static_cast<unsigned>(format), level);
     if (dumped_textures.contains(data_hash) || FileUtil::Exists(dump_path)) {
         return;
     }
@@ -314,7 +319,8 @@ bool CustomTexManager::Decode(Material* material, std::function<bool()>&& upload
 
 bool CustomTexManager::ReadConfig(u64 title_id, bool options_only) {
     const std::string load_path =
-        fmt::format("{}textures/{:016X}/", GetUserPath(FileUtil::UserPath::LoadDir), title_id);
+        StringFromFormat("%stextures/%016llX/", GetUserPath(FileUtil::UserPath::LoadDir).c_str(),
+                         static_cast<unsigned long long>(title_id));
     if (!FileUtil::Exists(load_path)) {
         FileUtil::CreateFullPath(load_path);
     }
@@ -373,7 +379,8 @@ bool CustomTexManager::ReadConfig(u64 title_id, bool options_only) {
 
 std::vector<FileUtil::FSTEntry> CustomTexManager::GetTextures(u64 title_id) {
     const std::string load_path =
-        fmt::format("{}textures/{:016X}/", GetUserPath(FileUtil::UserPath::LoadDir), title_id);
+        StringFromFormat("%stextures/%016llX/", GetUserPath(FileUtil::UserPath::LoadDir).c_str(),
+                         static_cast<unsigned long long>(title_id));
     if (!FileUtil::Exists(load_path)) {
         FileUtil::CreateFullPath(load_path);
     }

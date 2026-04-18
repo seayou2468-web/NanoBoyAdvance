@@ -3,10 +3,7 @@
 // Refer to the license.txt file included.
 
 #include <string_view>
-#include <fmt/core.h>
-#include <fmt/format.h>
-#include <fmt/format-inl.h>
-
+#include "common/string_util.h"
 #include "video_core/pica/regs_rasterizer.h"
 #include "video_core/shader/generator/glsl_shader_decompiler.h"
 #include "video_core/shader/generator/glsl_shader_gen.h"
@@ -59,9 +56,9 @@ static std::string GetVertexInterfaceDeclaration(bool is_output, bool use_clip_p
 
     const auto append_variable = [&](std::string_view var, int location) {
         if (separable_shader) {
-            out += fmt::format("layout (location={}) ", location);
+            out += StringFromFormat("layout (location=%d) ", location);
         }
-        out += fmt::format("{}{};\n", is_output ? "out " : "in ", var);
+        out += StringFromFormat("%s%s;\n", is_output ? "out " : "in ", std::string(var).c_str());
     };
 
     append_variable("vec4 primary_color", ATTRIBUTE_COLOR);
@@ -97,17 +94,17 @@ std::string GenerateTrivialVertexShader(bool use_clip_planes, bool separable_sha
         out += "#extension GL_ARB_separate_shader_objects : enable\n";
     }
 
-    out +=
-        fmt::format("layout(location = {}) in vec4 vert_position;\n"
-                    "layout(location = {}) in vec4 vert_color;\n"
-                    "layout(location = {}) in vec2 vert_texcoord0;\n"
-                    "layout(location = {}) in vec2 vert_texcoord1;\n"
-                    "layout(location = {}) in vec2 vert_texcoord2;\n"
-                    "layout(location = {}) in float vert_texcoord0_w;\n"
-                    "layout(location = {}) in vec4 vert_normquat;\n"
-                    "layout(location = {}) in vec3 vert_view;\n",
-                    ATTRIBUTE_POSITION, ATTRIBUTE_COLOR, ATTRIBUTE_TEXCOORD0, ATTRIBUTE_TEXCOORD1,
-                    ATTRIBUTE_TEXCOORD2, ATTRIBUTE_TEXCOORD0_W, ATTRIBUTE_NORMQUAT, ATTRIBUTE_VIEW);
+    out += StringFromFormat(
+        "layout(location = %u) in vec4 vert_position;\n"
+        "layout(location = %u) in vec4 vert_color;\n"
+        "layout(location = %u) in vec2 vert_texcoord0;\n"
+        "layout(location = %u) in vec2 vert_texcoord1;\n"
+        "layout(location = %u) in vec2 vert_texcoord2;\n"
+        "layout(location = %u) in float vert_texcoord0_w;\n"
+        "layout(location = %u) in vec4 vert_normquat;\n"
+        "layout(location = %u) in vec3 vert_view;\n",
+        ATTRIBUTE_POSITION, ATTRIBUTE_COLOR, ATTRIBUTE_TEXCOORD0, ATTRIBUTE_TEXCOORD1,
+        ATTRIBUTE_TEXCOORD2, ATTRIBUTE_TEXCOORD0_W, ATTRIBUTE_NORMQUAT, ATTRIBUTE_VIEW);
 
     out += GetVertexInterfaceDeclaration(true, use_clip_planes, separable_shader);
     out += VSUniformBlockDef;
@@ -170,13 +167,13 @@ std::string GenerateVertexShader(const ShaderSetup& setup, const PicaVSConfig& c
     const auto get_input_reg = [&used_regs](u32 reg) {
         ASSERT(reg < 16);
         used_regs[reg] = true;
-        return fmt::format("vs_in_reg{}", reg);
+        return StringFromFormat("vs_in_reg%u", reg);
     };
 
     const auto get_output_reg = [&](u32 reg) -> std::string {
         ASSERT(reg < 16);
         if (config.state.output_map[reg] < config.state.num_outputs) {
-            return fmt::format("vs_out_attr{}", config.state.output_map[reg]);
+            return StringFromFormat("vs_out_attr%u", config.state.output_map[reg]);
         }
         return "";
     };
@@ -194,9 +191,9 @@ std::string GenerateVertexShader(const ShaderSetup& setup, const PicaVSConfig& c
         if (used_regs[i]) {
             const auto flags = extra.load_flags[i];
             const std::string_view prefix = MakeLoadPrefix(flags);
-            out +=
-                fmt::format("layout(location = {0}) in {1}vec4 vs_in_typed_reg{0};\n", i, prefix);
-            out += fmt::format("vec4 vs_in_reg{0};\n", i);
+            out += StringFromFormat("layout(location = %zu) in %svec4 vs_in_typed_reg%zu;\n", i,
+                                    std::string(prefix).c_str(), i);
+            out += StringFromFormat("vec4 vs_in_reg%zu;\n", i);
         }
     }
     out += '\n';
@@ -204,10 +201,10 @@ std::string GenerateVertexShader(const ShaderSetup& setup, const PicaVSConfig& c
     if (extra.use_geometry_shader) {
         // output attributes declaration
         for (u32 i = 0; i < config.state.num_outputs; ++i) {
-            if (separable_shader) {
-                out += fmt::format("layout(location = {}) ", i);
-            }
-            out += fmt::format("out vec4 vs_out_attr{};\n", i);
+                if (separable_shader) {
+                out += StringFromFormat("layout(location = %u) ", i);
+                }
+            out += StringFromFormat("out vec4 vs_out_attr%u;\n", i);
         }
         out += "void EmitVtx() {}\n";
     } else {
@@ -215,7 +212,7 @@ std::string GenerateVertexShader(const ShaderSetup& setup, const PicaVSConfig& c
 
         // output attributes declaration
         for (u32 i = 0; i < config.state.num_outputs; ++i) {
-            out += fmt::format("vec4 vs_out_attr{};\n", i);
+            out += StringFromFormat("vec4 vs_out_attr%u;\n", i);
         }
 
         const auto semantic_maps = config.state.gs_state.GetSemanticMaps();
@@ -226,7 +223,7 @@ std::string GenerateVertexShader(const ShaderSetup& setup, const PicaVSConfig& c
             const u32 attrib = semantic_maps[slot].attribute_index;
             const u32 comp = semantic_maps[slot].component_index;
             if (attrib < state.gs_state.gs_output_attributes_count) {
-                return fmt::format("vs_out_attr{}.{}", attrib, "xyzw"[comp]);
+                return StringFromFormat("vs_out_attr%u.%c", attrib, "xyzw"[comp]);
             }
             return "1.0";
         };
@@ -284,14 +281,14 @@ std::string GenerateVertexShader(const ShaderSetup& setup, const PicaVSConfig& c
     out += "\nvoid main() {\n";
     for (std::size_t i = 0; i < used_regs.size(); ++i) {
         if (used_regs[i]) {
-            out += fmt::format("vs_in_reg{0} = vec4(vs_in_typed_reg{0});\n", i);
+            out += StringFromFormat("vs_in_reg%zu = vec4(vs_in_typed_reg%zu);\n", i, i);
             if (True(extra.load_flags[i] & AttribLoadFlags::ZeroW)) {
-                out += fmt::format("vs_in_reg{0}.w = 0;\n", i);
+                out += StringFromFormat("vs_in_reg%zu.w = 0;\n", i);
             }
         }
     }
     for (u32 i = 0; i < config.state.num_outputs; ++i) {
-        out += fmt::format("    vs_out_attr{} = vec4(0.0, 0.0, 0.0, 1.0);\n", i);
+        out += StringFromFormat("    vs_out_attr%u = vec4(0.0, 0.0, 0.0, 1.0);\n", i);
     }
     out += "\n    exec_shader();\n    EmitVtx();\n}\n\n";
 
@@ -309,15 +306,15 @@ static std::string GetGSCommonSource(const PicaGSConfigState& state,
     out += '\n';
     for (u32 i = 0; i < state.vs_output_attributes_count; ++i) {
         if (extra.separable_shader) {
-            out += fmt::format("layout(location = {}) ", i);
+            out += StringFromFormat("layout(location = %u) ", i);
         }
-        out += fmt::format("in vec4 vs_out_attr{}[];\n", i);
+        out += StringFromFormat("in vec4 vs_out_attr%u[];\n", i);
     }
 
     out += R"(
 struct Vertex {
 )";
-    out += fmt::format("    vec4 attributes[{}];\n", state.gs_output_attributes_count);
+    out += StringFromFormat("    vec4 attributes[%u];\n", state.gs_output_attributes_count);
     out += "};\n\n";
 
     const auto semantic_maps = state.GetSemanticMaps();
@@ -328,7 +325,7 @@ struct Vertex {
         const u32 attrib = semantic_maps[slot].attribute_index;
         const u32 comp = semantic_maps[slot].component_index;
         if (attrib < state.gs_output_attributes_count) {
-            return fmt::format("vtx.attributes[{}].{}", attrib, "xyzw"[comp]);
+            return StringFromFormat("vtx.attributes[%u].%c", attrib, "xyzw"[comp]);
         }
         return "1.0";
     };
@@ -421,10 +418,10 @@ void main() {
     Vertex prim_buffer[3];
 )";
     for (u32 vtx = 0; vtx < 3; ++vtx) {
-        out += fmt::format("    prim_buffer[{}].attributes = vec4[{}](", vtx,
-                           config.state.gs_output_attributes_count);
+        out += StringFromFormat("    prim_buffer[%u].attributes = vec4[%u](", vtx,
+                                config.state.gs_output_attributes_count);
         for (u32 i = 0; i < config.state.vs_output_attributes_count; ++i) {
-            out += fmt::format("{}vs_out_attr{}[{}]", i == 0 ? "" : ", ", i, vtx);
+            out += StringFromFormat("%svs_out_attr%u[%u]", i == 0 ? "" : ", ", i, vtx);
         }
         out += ");\n";
     }

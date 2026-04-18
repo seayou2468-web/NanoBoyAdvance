@@ -3,10 +3,10 @@
 // Refer to the license.txt file included.
 
 #include <algorithm>
-#include <fmt/format.h>
 #include "common/assert.h"
 #include "common/hacks/hack_manager.h"
 #include "common/logging/log.h"
+#include "common/string_util.h"
 #include "core/core.h"
 #include "core/hle/ipc.h"
 #include "core/hle/kernel/client_port.h"
@@ -119,9 +119,11 @@ const std::array<ServiceModuleInfo, 41> service_module_map{
     // Number of params == bits 0-5 + bits 6-11
     int num_params = (cmd_buff[0] & 0x3F) + ((cmd_buff[0] >> 6) & 0x3F);
 
-    std::string function_string = fmt::format("function '{}': port={}", name, port_name);
+    std::string function_string =
+        StringFromFormat("function '%s': port=%s", std::string(name).c_str(),
+                         std::string(port_name).c_str());
     for (int i = 1; i <= num_params; ++i) {
-        function_string += fmt::format(", cmd_buff[{}]={:#X}", i, cmd_buff[i]);
+        function_string += StringFromFormat(", cmd_buff[%d]=0x%X", i, cmd_buff[i]);
     }
     return function_string;
 }
@@ -155,14 +157,15 @@ void ServiceFrameworkBase::RegisterHandlersBase(const FunctionInfoBase* function
 void ServiceFrameworkBase::ReportUnimplementedFunction(u32* cmd_buf, const FunctionInfoBase* info) {
     IPC::Header header{cmd_buf[0]};
     int num_params = header.normal_params_size + header.translate_params_size;
-    std::string function_name = info == nullptr ? fmt::format("{:#08x}", cmd_buf[0]) : info->name;
+    std::string function_name = info == nullptr ? StringFromFormat("0x%08x", cmd_buf[0])
+                                                 : std::string(info->name);
 
-    std::string result =
-        fmt::format("function '{}': port='{}' cmd_buf={{[0]={:#x} (0x{:04X}, {}, {})",
-                    function_name, service_name, header.raw, header.command_id.Value(),
-                    header.normal_params_size.Value(), header.translate_params_size.Value());
+    std::string result = StringFromFormat(
+        "function '%s': port='%s' cmd_buf={[0]=0x%x (0x%04X, %u, %u)", function_name.c_str(),
+        service_name, header.raw, header.command_id.Value(), header.normal_params_size.Value(),
+        header.translate_params_size.Value());
     for (int i = 1; i <= num_params; ++i) {
-        result += fmt::format(", [{}]={:#x}", i, cmd_buf[i]);
+        result += StringFromFormat(", [%d]=0x%x", i, cmd_buf[i]);
     }
 
     result.push_back('}');

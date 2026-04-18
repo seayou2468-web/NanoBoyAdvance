@@ -5,16 +5,16 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstring>
+#include <CommonCrypto/CommonDigest.h>
 #include <cryptopp/aes.h>
 #include <cryptopp/modes.h>
-#include <fmt/format.h>
-#include <openssl/rand.h>
 #include "common/alignment.h"
 #include "common/archives.h"
 #include "common/common_paths.h"
 #include "common/file_util.h"
 #include "common/hacks/hack_manager.h"
 #include "common/logging/log.h"
+#include "common/secure_random.h"
 #include "common/string_util.h"
 #include "common/zstd_compression.h"
 #include "core/core.h"
@@ -169,9 +169,8 @@ void NCCHCryptoFile::Write(const u8* buffer, std::size_t length) {
                         std::array<u8, 32> input;
                         std::memcpy(input.data(), key_y_primary.data(), key_y_primary.size());
                         std::memcpy(input.data() + key_y_primary.size(), seed.data(), seed.size());
-                        CryptoPP::SHA256 sha;
-                        std::array<u8, CryptoPP::SHA256::DIGESTSIZE> hash;
-                        sha.CalculateDigest(hash.data(), input.data(), input.size());
+                        std::array<u8, CC_SHA256_DIGEST_LENGTH> hash;
+                        CC_SHA256(input.data(), static_cast<CC_LONG>(input.size()), hash.data());
                         std::memcpy(key_y_secondary.data(), hash.data(), key_y_secondary.size());
                     }
                 }
@@ -1229,11 +1228,14 @@ Service::FS::MediaType GetTitleMediaType(u64 titleId) {
 }
 
 std::string GetTicketDirectory() {
-    return fmt::format("{}/dbs/ticket.db/", FileUtil::GetUserPath(FileUtil::UserPath::NANDDir));
+    return StringFromFormat("%s/dbs/ticket.db/",
+                            FileUtil::GetUserPath(FileUtil::UserPath::NANDDir).c_str());
 }
 
 std::string GetTicketPath(u64 title_id, u64 ticket_id) {
-    return GetTicketDirectory() + fmt::format("{:016X}.{:016X}.tik", title_id, ticket_id);
+    return GetTicketDirectory() +
+           StringFromFormat("%016llX.%016llX.tik", static_cast<unsigned long long>(title_id),
+                            static_cast<unsigned long long>(ticket_id));
 }
 
 std::string GetTitleMetadataPath(Service::FS::MediaType media_type, u64 tid, bool update) {
@@ -1271,7 +1273,7 @@ std::string GetTitleMetadataPath(Service::FS::MediaType media_type, u64 tid, boo
     if (base_id == update_id)
         update_id++;
 
-    return content_path + fmt::format("{:08x}.tmd", (update ? update_id : base_id));
+    return content_path + StringFromFormat("%08x.tmd", (update ? update_id : base_id));
 }
 
 std::string GetTitleContentPath(Service::FS::MediaType media_type, u64 tid, std::size_t index,
@@ -1310,7 +1312,7 @@ std::string GetTitleContentPath(Service::FS::MediaType media_type, u64 tid, std:
         }
     }
 
-    return fmt::format("{}{:08x}.app", content_path, content_id);
+    return StringFromFormat("%s%08x.app", content_path.c_str(), content_id);
 }
 
 std::string GetTitlePath(Service::FS::MediaType media_type, u64 tid) {
@@ -1320,7 +1322,7 @@ std::string GetTitlePath(Service::FS::MediaType media_type, u64 tid) {
     u32 low = static_cast<u32>(tid & 0xFFFFFFFF);
 
     if (media_type == Service::FS::MediaType::NAND || media_type == Service::FS::MediaType::SDMC)
-        return fmt::format("{}{:08x}/{:08x}/", GetMediaTitlePath(media_type), high, low);
+        return StringFromFormat("%s%08x/%08x/", GetMediaTitlePath(media_type).c_str(), high, low);
 
     if (media_type == Service::FS::MediaType::GameCard) {
         // TODO(B3N30): check if TID matches
@@ -1335,13 +1337,14 @@ std::string GetTitlePath(Service::FS::MediaType media_type, u64 tid) {
 
 std::string GetMediaTitlePath(Service::FS::MediaType media_type) {
     if (media_type == Service::FS::MediaType::NAND)
-        return fmt::format("{}{}/title/", FileUtil::GetUserPath(FileUtil::UserPath::NANDDir),
-                           SYSTEM_ID);
+        return StringFromFormat("%s%s/title/",
+                                FileUtil::GetUserPath(FileUtil::UserPath::NANDDir).c_str(),
+                                SYSTEM_ID);
 
     if (media_type == Service::FS::MediaType::SDMC)
-        return fmt::format("{}Nintendo 3DS/{}/{}/title/",
-                           FileUtil::GetUserPath(FileUtil::UserPath::SDMCDir), SYSTEM_ID,
-                           SDCARD_ID);
+        return StringFromFormat("%sNintendo 3DS/%s/%s/title/",
+                                FileUtil::GetUserPath(FileUtil::UserPath::SDMCDir).c_str(),
+                                SYSTEM_ID, SDCARD_ID);
 
     if (media_type == Service::FS::MediaType::GameCard) {
         // TODO(B3N30): check if TID matchess
@@ -4468,10 +4471,11 @@ void Module::Interface::Sign(Kernel::HLERequestContext& ctx) {
     }
 
     FileSys::Certificate ap_cert;
-    std::string new_issuer_str =
-        fmt::format("{}-{}", reinterpret_cast<const char*>(ct_cert.GetIssuer().data()),
-                    reinterpret_cast<const char*>(ct_cert.GetName().data()));
-    std::string new_name_str = fmt::format("AP{:016x}", title_id);
+    std::string new_issuer_str = StringFromFormat(
+        "%s-%s", reinterpret_cast<const char*>(ct_cert.GetIssuer().data()),
+        reinterpret_cast<const char*>(ct_cert.GetName().data()));
+    std::string new_name_str =
+        StringFromFormat("AP%016llx", static_cast<unsigned long long>(title_id));
 
     std::array<u8, 0x40> new_issuer = {0};
     std::array<u8, 0x40> new_name = {0};
@@ -4947,8 +4951,11 @@ void Module::Interface::ExportTicketWrapped(Kernel::HLERequestContext& ctx) {
     std::vector<u8> key(0x10);
     std::vector<u8> iv(0x10);
 
-    RAND_bytes(key.data(), static_cast<int>(key.size()));
-    RAND_bytes(iv.data(), static_cast<int>(iv.size()));
+    if (!Common::FillSecureRandom(std::span<u8>(key.data(), key.size())) ||
+        !Common::FillSecureRandom(std::span<u8>(iv.data(), iv.size()))) {
+        LOG_ERROR(Service_AM, "Failed to generate secure random bytes");
+        return ResultUnknown;
+    }
 
     CryptoPP::CBC_Mode<CryptoPP::AES>::Encryption e(key.data(), key.size(), iv.data());
     e.ProcessData(ticket_data.data(), ticket_data.data(), ticket_data.size());

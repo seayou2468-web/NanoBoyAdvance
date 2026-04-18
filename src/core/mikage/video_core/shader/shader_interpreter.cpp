@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <cmath>
 #include <numeric>
-#include <boost/circular_buffer.hpp>
+#include <vector>
 #include <nihstro/shader_bytecode.h>
 #include "common/assert.h"
 #include "common/common_types.h"
@@ -46,13 +46,20 @@ struct LoopStackElement {
 template <bool Debug>
 static void RunInterpreter(const ShaderSetup& setup, ShaderUnit& state,
                            DebugData<Debug>& debug_data, unsigned entry_point) {
-    boost::circular_buffer<IfStackElement> if_stack(8);
-    boost::circular_buffer<CallStackElement> call_stack(4);
-    boost::circular_buffer<LoopStackElement> loop_stack(4);
+    std::vector<IfStackElement> if_stack;
+    std::vector<CallStackElement> call_stack;
+    std::vector<LoopStackElement> loop_stack;
+    constexpr std::size_t IF_STACK_LIMIT = 8;
+    constexpr std::size_t CALL_STACK_LIMIT = 4;
+    constexpr std::size_t LOOP_STACK_LIMIT = 4;
+    if_stack.reserve(IF_STACK_LIMIT);
+    call_stack.reserve(CALL_STACK_LIMIT);
+    loop_stack.reserve(LOOP_STACK_LIMIT);
     u32 program_counter = entry_point;
 
     const auto do_if = [&](Instruction instr, bool condition) {
         if (condition) {
+            ASSERT_MSG(if_stack.size() < IF_STACK_LIMIT, "Shader IF stack overflow");
             if_stack.push_back({
                 .else_address = instr.flow_control.dest_offset,
                 .end_address = instr.flow_control.dest_offset + instr.flow_control.num_instructions,
@@ -63,6 +70,7 @@ static void RunInterpreter(const ShaderSetup& setup, ShaderUnit& state,
     };
 
     const auto do_call = [&](Instruction instr) {
+        ASSERT_MSG(call_stack.size() < CALL_STACK_LIMIT, "Shader CALL stack overflow");
         call_stack.push_back({
             .end_address = instr.flow_control.dest_offset + instr.flow_control.num_instructions,
             .return_address = program_counter + 1,
@@ -72,6 +80,7 @@ static void RunInterpreter(const ShaderSetup& setup, ShaderUnit& state,
 
     const auto do_loop = [&](Instruction instr, const Common::Vec4<u8>& loop_param) {
         const u8 previous_aL = static_cast<u8>(state.address_registers[2]);
+        ASSERT_MSG(loop_stack.size() < LOOP_STACK_LIMIT, "Shader LOOP stack overflow");
         loop_stack.push_back({
             .entry_address = program_counter + 1,
             .end_address = instr.flow_control.dest_offset + 1,

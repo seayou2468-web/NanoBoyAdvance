@@ -9,9 +9,10 @@
 #include <span>
 #include <cryptopp/aes.h>
 #include <cryptopp/modes.h>
-#include <cryptopp/sha.h>
+#include <CommonCrypto/CommonDigest.h>
 #include "common/common_types.h"
 #include "common/logging/log.h"
+#include "common/string_util.h"
 #include "common/zstd_compression.h"
 #include "core/core.h"
 #include "core/file_sys/layered_fs.h"
@@ -298,9 +299,8 @@ Loader::ResultStatus NCCHContainer::Load() {
                         std::array<u8, 32> input;
                         std::memcpy(input.data(), key_y_primary.data(), key_y_primary.size());
                         std::memcpy(input.data() + key_y_primary.size(), seed.data(), seed.size());
-                        CryptoPP::SHA256 sha;
-                        std::array<u8, CryptoPP::SHA256::DIGESTSIZE> hash;
-                        sha.CalculateDigest(hash.data(), input.data(), input.size());
+                        std::array<u8, CC_SHA256_DIGEST_LENGTH> hash;
+                        CC_SHA256(input.data(), static_cast<CC_LONG>(input.size()), hash.data());
                         std::memcpy(key_y_secondary.data(), hash.data(), key_y_secondary.size());
                     }
                 }
@@ -441,9 +441,9 @@ Loader::ResultStatus NCCHContainer::Load() {
                 }
             }
 
-            const auto mods_path =
-                fmt::format("{}mods/{:016X}/", FileUtil::GetUserPath(FileUtil::UserPath::LoadDir),
-                            GetModId(ncch_header.program_id));
+            const auto mods_path = StringFromFormat(
+                "%smods/%016llX/", FileUtil::GetUserPath(FileUtil::UserPath::LoadDir).c_str(),
+                static_cast<unsigned long long>(GetModId(ncch_header.program_id)));
             const std::array<std::string, 2> exheader_override_paths{{
                 mods_path + "exheader.bin",
                 filepath + ".exheader",
@@ -692,22 +692,22 @@ Loader::ResultStatus NCCHContainer::ApplyCodePatch(std::vector<u8>& code) const 
         bool (*patch_fn)(const std::vector<u8>& patch, std::vector<u8>& code);
     };
 
-    const auto mods_path =
-        fmt::format("{}mods/{:016X}/", FileUtil::GetUserPath(FileUtil::UserPath::LoadDir),
-                    GetModId(ncch_header.program_id));
+    const auto mods_path = StringFromFormat(
+        "%smods/%016llX/", FileUtil::GetUserPath(FileUtil::UserPath::LoadDir).c_str(),
+        static_cast<unsigned long long>(GetModId(ncch_header.program_id)));
 
     constexpr u32 system_module_tid_high = 0x00040130;
 
     std::string luma_ips_location;
     if ((static_cast<u32>(ncch_header.program_id >> 32) & system_module_tid_high) ==
         system_module_tid_high) {
-        luma_ips_location =
-            fmt::format("{}luma/sysmodules/{:016X}.ips",
-                        FileUtil::GetUserPath(FileUtil::UserPath::SDMCDir), ncch_header.program_id);
+        luma_ips_location = StringFromFormat(
+            "%sluma/sysmodules/%016llX.ips", FileUtil::GetUserPath(FileUtil::UserPath::SDMCDir).c_str(),
+            static_cast<unsigned long long>(ncch_header.program_id));
     } else {
-        luma_ips_location =
-            fmt::format("{}luma/titles/{:016X}/code.ips",
-                        FileUtil::GetUserPath(FileUtil::UserPath::SDMCDir), ncch_header.program_id);
+        luma_ips_location = StringFromFormat(
+            "%sluma/titles/%016llX/code.ips", FileUtil::GetUserPath(FileUtil::UserPath::SDMCDir).c_str(),
+            static_cast<unsigned long long>(ncch_header.program_id));
     }
     const std::array<PatchLocation, 7> patch_paths{{
         {mods_path + "exefs/code.ips", Patch::ApplyIpsPatch},
@@ -753,9 +753,9 @@ Loader::ResultStatus NCCHContainer::LoadOverrideExeFSSection(const char* name,
     else
         return Loader::ResultStatus::Error;
 
-    const auto mods_path =
-        fmt::format("{}mods/{:016X}/", FileUtil::GetUserPath(FileUtil::UserPath::LoadDir),
-                    GetModId(ncch_header.program_id));
+    const auto mods_path = StringFromFormat(
+        "%smods/%016llX/", FileUtil::GetUserPath(FileUtil::UserPath::LoadDir).c_str(),
+        static_cast<unsigned long long>(GetModId(ncch_header.program_id)));
     const std::array<std::string, 3> override_paths{{
         mods_path + "exefs/" + override_name,
         mods_path + override_name,
@@ -829,9 +829,9 @@ Loader::ResultStatus NCCHContainer::ReadRomFS(std::shared_ptr<RomFSReader>& romf
     }
 #endif
 
-    const auto path =
-        fmt::format("{}mods/{:016X}/", FileUtil::GetUserPath(FileUtil::UserPath::LoadDir),
-                    GetModId(ncch_header.program_id));
+    const auto path = StringFromFormat(
+        "%smods/%016llX/", FileUtil::GetUserPath(FileUtil::UserPath::LoadDir).c_str(),
+        static_cast<unsigned long long>(GetModId(ncch_header.program_id)));
     if (!is_proto && use_layered_fs &&
         (FileUtil::Exists(path + "romfs/") || FileUtil::Exists(path + "romfs_ext/"))) {
 

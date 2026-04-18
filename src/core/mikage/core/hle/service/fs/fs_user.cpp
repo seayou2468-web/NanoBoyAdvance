@@ -5,7 +5,7 @@
 #include <cryptopp/aes.h>
 #include <cryptopp/cmac.h>
 #include <cryptopp/modes.h>
-#include <cryptopp/sha.h>
+#include <CommonCrypto/CommonDigest.h>
 #include "common/archives.h"
 #include "common/assert.h"
 #include "common/common_types.h"
@@ -1147,9 +1147,8 @@ void FS_USER::ExportIntegrityVerificationSeed(Kernel::HLERequestContext& ctx) {
     auto movable_cmac = HW::AES::GetMovableKey(true);
     auto movable_key = HW::AES::GetMovableKey(false);
 
-    CryptoPP::SHA256 hash;
-    std::array<u8, CryptoPP::SHA256::DIGESTSIZE> movable_digest;
-    hash.CalculateDigest(movable_digest.data(), movable.data(), hashed_movable_size);
+    std::array<u8, CC_SHA256_DIGEST_LENGTH> movable_digest;
+    CC_SHA256(movable.data(), static_cast<CC_LONG>(hashed_movable_size), movable_digest.data());
 
     CryptoPP::CMAC<CryptoPP::AES> cmac(movable_cmac.data(), movable_cmac.size());
     std::array<u8, CryptoPP::AES::BLOCKSIZE> cmac_hash;

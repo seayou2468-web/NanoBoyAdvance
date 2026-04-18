@@ -5,12 +5,12 @@
 #include <algorithm>
 #include <array>
 #include <chrono>
-#include <fmt/format.h>
 #include "common/archives.h"
 #include "common/logging/log.h"
 #include "common/microprofile.h"
 #include "common/scm_rev.h"
 #include "common/settings.h"
+#include "common/string_util.h"
 #include "core/arm/arm_interface.h"
 #include "core/core.h"
 #include "core/core_timing.h"
@@ -1308,7 +1308,8 @@ Result SVC::CreateThread(Handle* out_handle, u32 entry_point, u32 arg, VAddr sta
     }
 
     // Create thread.
-    const std::string name = fmt::format("{}-{:08X}", current_process->codeset->name, entry_point);
+    const std::string name =
+        StringFromFormat("%s-%08X", current_process->codeset->name.c_str(), entry_point);
     CASCADE_RESULT(std::shared_ptr<Thread> thread,
                    kernel.CreateThread(name, entry_point, priority, arg, processor_id, stack_top,
                                        current_process));
@@ -1381,7 +1382,7 @@ Result SVC::CreateMutex(Handle* out_handle, u32 initial_locked) {
 
     // Create mutex.
     const auto mutex = kernel.CreateMutex(initial_locked != 0);
-    mutex->name = fmt::format("mutex-{:08x}", system.GetRunningCore().GetReg(14));
+    mutex->name = StringFromFormat("mutex-%08x", system.GetRunningCore().GetReg(14));
     mutex->resource_limit = resource_limit;
     return current_process->handle_table.Create(out_handle, std::move(mutex));
 }
@@ -1448,7 +1449,7 @@ Result SVC::CreateSemaphore(Handle* out_handle, s32 initial_count, s32 max_count
     // Create semaphore
     CASCADE_RESULT(std::shared_ptr<Semaphore> semaphore,
                    kernel.CreateSemaphore(initial_count, max_count));
-    semaphore->name = fmt::format("semaphore-{:08x}", system.GetRunningCore().GetReg(14));
+    semaphore->name = StringFromFormat("semaphore-%08x", system.GetRunningCore().GetReg(14));
     semaphore->resource_limit = resource_limit;
     return current_process->handle_table.Create(out_handle, std::move(semaphore));
 }
@@ -1544,7 +1545,7 @@ Result SVC::CreateEvent(Handle* out_handle, u32 reset_type) {
     }
 
     // Create event.
-    const auto name = fmt::format("event-{:08x}", system.GetRunningCore().GetReg(14));
+    const auto name = StringFromFormat("event-%08x", system.GetRunningCore().GetReg(14));
     const auto event = kernel.CreateEvent(static_cast<ResetType>(reset_type), name);
     event->resource_limit = resource_limit;
     return current_process->handle_table.Create(out_handle, std::move(event));
@@ -1588,7 +1589,7 @@ Result SVC::CreateTimer(Handle* out_handle, u32 reset_type) {
     }
 
     // Create timer.
-    const auto name = fmt::format("timer-{:08x}", system.GetRunningCore().GetReg(14));
+    const auto name = StringFromFormat("timer-%08x", system.GetRunningCore().GetReg(14));
     const auto timer = kernel.CreateTimer(static_cast<ResetType>(reset_type), name);
     timer->resource_limit = resource_limit;
     return current_process->handle_table.Create(out_handle, std::move(timer));

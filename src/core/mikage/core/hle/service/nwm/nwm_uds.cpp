@@ -6,7 +6,6 @@
 #include <cstring>
 #include <boost/serialization/list.hpp>
 #include <boost/serialization/map.hpp>
-#include <cryptopp/osrng.h>
 #include "common/archives.h"
 #include "common/common_types.h"
 #include "common/hacks/hack_manager.h"

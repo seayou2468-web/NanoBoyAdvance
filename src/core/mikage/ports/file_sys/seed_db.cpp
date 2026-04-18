@@ -4,8 +4,8 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include <fmt/format.h>
 #include "common/file_util.h"
+#include "common/string_util.h"
 #include "common/logging/log.h"
 #include "core/file_sys/seed_db.h"
 
@@ -53,7 +53,7 @@ bool SeedDB::Load() {
     seeds.clear();
 	initSeeds(seeds);
     const std::string path{
-        fmt::format("{}/seeddb.bin", FileUtil::GetUserPath(FileUtil::UserPath::SysDataDir))};
+        Common::StringFromFormat("%s/seeddb.bin", FileUtil::GetUserPath(FileUtil::UserPath::SysDataDir).c_str())};
     if (!FileUtil::Exists(path)) {
         if (!FileUtil::CreateFullPath(path)) {
             LOG_ERROR(Service_FS, "Failed to create seed database");
@@ -103,7 +103,7 @@ bool SeedDB::Load() {
 
 bool SeedDB::Save() {
     const std::string path{
-        fmt::format("{}/seeddb.bin", FileUtil::GetUserPath(FileUtil::UserPath::SysDataDir))};
+        Common::StringFromFormat("%s/seeddb.bin", FileUtil::GetUserPath(FileUtil::UserPath::SysDataDir).c_str())};
     if (!FileUtil::CreateFullPath(path)) {
         LOG_ERROR(Service_FS, "Failed to create seed database");
         return false;

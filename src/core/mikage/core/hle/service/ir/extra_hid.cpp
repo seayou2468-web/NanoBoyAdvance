@@ -2,7 +2,8 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include <fmt/ranges.h>
+#include <iomanip>
+#include <sstream>
 #include "common/alignment.h"
 #include "common/settings.h"
 #include "core/core_timing.h"
@@ -11,6 +12,18 @@
 #include "core/movie.h"
 
 namespace Service::IR {
+
+static std::string FormatBytesHex(std::span<const u8> data) {
+    std::ostringstream oss;
+    oss << std::hex << std::setfill('0');
+    for (std::size_t i = 0; i < data.size(); ++i) {
+        if (i != 0) {
+            oss << ' ';
+        }
+        oss << std::setw(2) << static_cast<unsigned>(data[i]);
+    }
+    return oss.str();
+}
 
 enum class RequestID : u8 {
     /**
@@ -167,7 +180,7 @@ void ExtraHID::OnDisconnect() {
 void ExtraHID::HandleConfigureHIDPollingRequest(std::span<const u8> request) {
     if (request.size() != 3) {
         LOG_ERROR(Service_IR, "Wrong request size ({}): {}", request.size(),
-                  fmt::format("{:02x}", fmt::join(request, " ")));
+                  FormatBytesHex(request));
         return;
     }
 
@@ -189,7 +202,7 @@ void ExtraHID::HandleReadCalibrationDataRequest(std::span<const u8> request_buf)
 
     if (request_buf.size() != sizeof(ReadCalibrationDataRequest)) {
         LOG_ERROR(Service_IR, "Wrong request size ({}): {}", request_buf.size(),
-                  fmt::format("{:02x}", fmt::join(request_buf, " ")));
+                  FormatBytesHex(request_buf));
         return;
     }
 
@@ -222,7 +235,7 @@ void ExtraHID::OnReceive(std::span<const u8> data) {
         HandleReadCalibrationDataRequest(data);
         break;
     default:
-        LOG_ERROR(Service_IR, "Unknown request: {}", fmt::format("{:02x}", fmt::join(data, " ")));
+        LOG_ERROR(Service_IR, "Unknown request: {}", FormatBytesHex(data));
         break;
     }
 }

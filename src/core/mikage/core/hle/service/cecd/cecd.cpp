@@ -2,12 +2,12 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
+#include <algorithm>
+#include <array>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/unique_ptr.hpp>
 #include <cryptopp/base64.h>
-#include <cryptopp/hmac.h>
-#include <cryptopp/sha.h>
-#include <fmt/format.h>
+#include <CommonCrypto/CommonHMAC.h>
 #include "common/archives.h"
 #include "common/common_paths.h"
 #include "common/file_util.h"
@@ -304,14 +304,15 @@ void Module::Interface::ReadMessageWithHMAC(Kernel::HLERequestContext& ctx) {
         std::memcpy(message_body.data(), buffer.data() + msg_header.header_size,
                     msg_header.body_size);
 
-        using namespace CryptoPP;
-        SecByteBlock key(0x20);
+        std::array<u8, CC_SHA256_DIGEST_LENGTH> key{};
         hmac_key_buffer.Read(key.data(), 0, key.size());
 
-        HMAC<SHA256> hmac(key, key.size());
+        std::array<u8, CC_SHA256_DIGEST_LENGTH> calculated_hmac{};
+        CCHmac(kCCHmacAlgSHA256, key.data(), key.size(), message_body.data(),
+               message_body.size(), calculated_hmac.data());
 
         const bool verify_hmac =
-            hmac.VerifyDigest(hmac_digest.data(), message_body.data(), message_body.size());
+            std::equal(calculated_hmac.begin(), calculated_hmac.end(), hmac_digest.begin());
 
         if (verify_hmac)
             LOG_DEBUG(Service_CECD, "Verification succeeded");
@@ -514,12 +515,11 @@ void Module::Interface::WriteMessageWithHMAC(Kernel::HLERequestContext& ctx) {
         std::memcpy(message_body.data(), buffer.data() + msg_header.header_size,
                     msg_header.body_size);
 
-        using namespace CryptoPP;
-        SecByteBlock key(hmac_size);
+        std::array<u8, CC_SHA256_DIGEST_LENGTH> key{};
         hmac_key_buffer.Read(key.data(), 0, hmac_size);
 
-        HMAC<SHA256> hmac(key, hmac_size);
-        hmac.CalculateDigest(hmac_digest.data(), message_body.data(), msg_header.body_size);
+        CCHmac(kCCHmacAlgSHA256, key.data(), key.size(), message_body.data(), msg_header.body_size,
+               hmac_digest.data());
         std::memcpy(buffer.data() + hmac_offset, hmac_digest.data(), hmac_size);
 
         [[maybe_unused]] const u32 bytes_written =
@@ -875,30 +875,31 @@ std::string Module::GetCecDataPathTypeAsString(const CecDataPathType type, const
     case CecDataPathType::MboxList:
         return "/CEC/MBoxList____";
     case CecDataPathType::MboxInfo:
-        return fmt::format("/CEC/{:08x}/MBoxInfo____", program_id);
+        return StringFromFormat("/CEC/%08x/MBoxInfo____", program_id);
     case CecDataPathType::InboxInfo:
-        return fmt::format("/CEC/{:08x}/InBox___/BoxInfo_____", program_id);
+        return StringFromFormat("/CEC/%08x/InBox___/BoxInfo_____", program_id);
     case CecDataPathType::OutboxInfo:
-        return fmt::format("/CEC/{:08x}/OutBox__/BoxInfo_____", program_id);
+        return StringFromFormat("/CEC/%08x/OutBox__/BoxInfo_____", program_id);
     case CecDataPathType::OutboxIndex:
-        return fmt::format("/CEC/{:08x}/OutBox__/OBIndex_____", program_id);
+        return StringFromFormat("/CEC/%08x/OutBox__/OBIndex_____", program_id);
     case CecDataPathType::InboxMsg:
-        return fmt::format("/CEC/{:08x}/InBox___/_{}", program_id, EncodeBase64(msg_id));
+        return StringFromFormat("/CEC/%08x/InBox___/_%s", program_id, EncodeBase64(msg_id).c_str());
     case CecDataPathType::OutboxMsg:
-        return fmt::format("/CEC/{:08x}/OutBox__/_{}", program_id, EncodeBase64(msg_id));
+        return StringFromFormat("/CEC/%08x/OutBox__/_%s", program_id, EncodeBase64(msg_id).c_str());
     case CecDataPathType::RootDir:
         return "/CEC";
     case CecDataPathType::MboxDir:
-        return fmt::format("/CEC/{:08x}", program_id);
+        return StringFromFormat("/CEC/%08x", program_id);
     case CecDataPathType::InboxDir:
-        return fmt::format("/CEC/{:08x}/InBox___", program_id);
+        return StringFromFormat("/CEC/%08x/InBox___", program_id);
     case CecDataPathType::OutboxDir:
-        return fmt::format("/CEC/{:08x}/OutBox__", program_id);
+        return StringFromFormat("/CEC/%08x/OutBox__", program_id);
     case CecDataPathType::MboxData:
     case CecDataPathType::MboxIcon:
     case CecDataPathType::MboxTitle:
     default:
-        return fmt::format("/CEC/{:08x}/MBoxData.{:03}", program_id, static_cast<u32>(type) - 100);
+        return StringFromFormat("/CEC/%08x/MBoxData.%03u", program_id,
+                                static_cast<u32>(type) - 100);
     }
 }
 
@@ -1000,7 +1001,7 @@ void Module::CheckAndUpdateFile(const CecDataPathType path_type, const u32 ncch_
             std::memset(name_buffer.data(), 0, name_size);
 
             if (ncch_program_id != 0) {
-                std::string name = fmt::format("{:08x}", ncch_program_id);
+                std::string name = StringFromFormat("%08x", ncch_program_id);
                 std::memcpy(name_buffer.data(), name.data(), name.size());
 
                 bool already_activated = false;

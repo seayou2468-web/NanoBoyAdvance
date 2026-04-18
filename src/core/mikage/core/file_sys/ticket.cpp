@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <cryptopp/aes.h>
 #include <cryptopp/modes.h>
-#include <cryptopp/sha.h>
+#include <CommonCrypto/CommonDigest.h>
 #include "common/alignment.h"
 #include "core/file_sys/certificate.h"
 #include "core/file_sys/otp.h"
@@ -46,12 +46,11 @@ Loader::ResultStatus Ticket::DoTitlekeyFixup() {
         return Loader::ResultStatus::Error;
     }
 
-    CryptoPP::SHA1 hash;
-    u8 digest[CryptoPP::SHA1::DIGESTSIZE];
-    hash.CalculateDigest(digest, agreement.data(), agreement.size());
+    std::array<u8, CC_SHA1_DIGEST_LENGTH> digest{};
+    CC_SHA1(agreement.data(), static_cast<CC_LONG>(agreement.size()), digest.data());
 
     std::vector<u8> key(0x10);
-    memcpy(key.data(), digest, key.size());
+    memcpy(key.data(), digest.data(), key.size());
 
     std::vector<u8> iv(0x10);
     *reinterpret_cast<u64_be*>(iv.data()) = ticket_body.ticket_id;

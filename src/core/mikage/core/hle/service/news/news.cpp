@@ -3,7 +3,6 @@
 // Refer to the license.txt file included.
 
 #include <algorithm>
-#include <fmt/format.h>
 #include "common/archives.h"
 #include "common/assert.h"
 #include "common/file_util.h"
@@ -459,7 +458,7 @@ ResultVal<std::size_t> Module::GetNotificationMessage(const u32 notification_ind
         return ErrorInvalidHeader;
     }
 
-    std::string message_file = fmt::format("/news{:03d}.txt", notification_id);
+    std::string message_file = StringFromFormat("/news%03d.txt", notification_id);
     const auto result = LoadFileFromSavedata(message_file, message);
     if (result.Failed()) {
         return result.Code();
@@ -483,7 +482,7 @@ ResultVal<std::size_t> Module::GetNotificationImage(const u32 notification_index
         return ErrorInvalidHeader;
     }
 
-    std::string image_file = fmt::format("/news{:03d}.mpo", notification_id);
+    std::string image_file = StringFromFormat("/news%03d.mpo", notification_id);
     const auto result = LoadFileFromSavedata(image_file, image);
     if (result.Failed()) {
         return result.Code();
@@ -529,7 +528,7 @@ Result Module::SetNotificationMessage(const u32 notification_index, std::span<co
     }
 
     const u32 notification_id = notification_ids[notification_index];
-    const std::string message_file = fmt::format("/news{:03d}.txt", notification_id);
+    const std::string message_file = StringFromFormat("/news%03d.txt", notification_id);
     return SaveFileToSavedata(message_file, message);
 }
 
@@ -539,7 +538,7 @@ Result Module::SetNotificationImage(const u32 notification_index, std::span<cons
     }
 
     const u32 notification_id = notification_ids[notification_index];
-    const std::string image_file = fmt::format("/news{:03d}.mpo", notification_id);
+    const std::string image_file = StringFromFormat("/news%03d.mpo", notification_id);
     return SaveFileToSavedata(image_file, image);
 }
 
@@ -620,13 +619,13 @@ Result Module::DeleteNotification(const u32 notification_id) {
     // Cleanup images and messages for invalid notifications
     for (u32 i = 0; i < MAX_NOTIFICATIONS; ++i) {
         if (!db.notifications[i].IsValid()) {
-            const std::string image_file = fmt::format("/news{:03d}.mpo", i);
+            const std::string image_file = StringFromFormat("/news%03d.mpo", i);
             auto result = news_system_save_data_archive->DeleteFile(image_file);
             if (R_FAILED(result) && result != FileSys::ResultFileNotFound) {
                 return result;
             }
 
-            const std::string message_file = fmt::format("/news{:03d}.txt", i);
+            const std::string message_file = StringFromFormat("/news%03d.txt", i);
             result = news_system_save_data_archive->DeleteFile(message_file);
             if (R_FAILED(result) && result != FileSys::ResultFileNotFound) {
                 return result;

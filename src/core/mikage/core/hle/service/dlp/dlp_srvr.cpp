@@ -116,7 +116,7 @@ bool DLP_SRVR::CacheContentFileInMemory(u32 process_id) {
     romfs->Close();
 
     u64 dlp_child_tid = (title_info->program_id & 0xFFFFFFFF) | DLP_CHILD_TID_HIGH;
-    auto filename = fmt::format("{:016x}.cia", dlp_child_tid);
+    auto filename = StringFromFormat("%016llx.cia", static_cast<unsigned long long>(dlp_child_tid));
 
     LOG_INFO(Service_DLP, "Loading romfs file: {}", filename.c_str());
 

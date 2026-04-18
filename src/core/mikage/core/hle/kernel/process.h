@@ -10,7 +10,6 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include <boost/container/static_vector.hpp>
 #include <boost/serialization/export.hpp>
 #include "common/bit_field.h"
 #include "common/common_types.h"
@@ -153,7 +152,8 @@ public:
     unsigned int handle_table_size = 0x200;
     /// Special memory ranges mapped into this processes address space. This is used to give
     /// processes access to specific I/O regions and device memory.
-    boost::container::static_vector<AddressMapping, 8> address_mappings;
+    static constexpr std::size_t MAX_ADDRESS_MAPPINGS = 8;
+    std::vector<AddressMapping> address_mappings;
     ProcessFlags flags;
     bool no_thread_restrictions = false;
     /// Kernel compatibility version for this process

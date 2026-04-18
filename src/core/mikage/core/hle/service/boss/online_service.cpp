@@ -431,7 +431,7 @@ ResultVal<std::size_t> OnlineService::ReadNsData(const u32 ns_data_id, const u64
         return ResultUnknown;
     }
 
-    FileSys::Path file_path = fmt::format("/{}", entry->filename);
+    FileSys::Path file_path = StringFromFormat("/%s", entry->filename.c_str());
     FileSys::Mode mode{};
     mode.read_flag.Assign(1);
     auto file_result = boss_archive->OpenFile(file_path, mode);

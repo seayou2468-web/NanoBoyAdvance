@@ -14,7 +14,8 @@
 namespace Service::DLP {
 
 DLP_Clt_Base::DLP_Clt_Base(Core::System& s, std::string unique_string_id) : DLP_Base(s) {
-    std::string unique_scan_event_id = fmt::format("DLP::{}::BeaconScanCallback", unique_string_id);
+    std::string unique_scan_event_id =
+        StringFromFormat("DLP::%s::BeaconScanCallback", unique_string_id.c_str());
     beacon_scan_event = system.CoreTiming().RegisterEvent(
         unique_scan_event_id, [this](std::uintptr_t user_data, s64 cycles_late) {
             BeaconScanCallback(user_data, cycles_late);

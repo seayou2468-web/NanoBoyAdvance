@@ -4,7 +4,7 @@
 
 #include <cryptopp/aes.h>
 #include <cryptopp/modes.h>
-#include <cryptopp/sha.h>
+#include <CommonCrypto/CommonDigest.h>
 #include "common/file_util.h"
 #include "common/logging/log.h"
 #include "core/file_sys/otp.h"
@@ -41,10 +41,9 @@ Loader::ResultStatus OTP::Load(const std::string& file_path, std::span<const u8>
     }
 
     // Verify OTP hash
-    CryptoPP::SHA256 hash;
-    std::array<u8, CryptoPP::SHA256::DIGESTSIZE> digest;
-    hash.CalculateDigest(digest.data(), reinterpret_cast<u8*>(&temp_otp.body),
-                         sizeof(temp_otp.body));
+    std::array<u8, CC_SHA256_DIGEST_LENGTH> digest;
+    CC_SHA256(reinterpret_cast<const u8*>(&temp_otp.body),
+              static_cast<CC_LONG>(sizeof(temp_otp.body)), digest.data());
     if (temp_otp.hash != digest) {
         LOG_ERROR(HW_AES, "OTP is corrupted");
         return Loader::ResultStatus::Error;

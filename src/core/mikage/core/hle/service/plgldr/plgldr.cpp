@@ -22,10 +22,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include <boost/serialization/weak_ptr.hpp>
-#include <fmt/format.h>
 #include "common/archives.h"
 #include "common/logging/log.h"
 #include "common/settings.h"
+#include "common/string_util.h"
 #include "core/core.h"
 #include "core/file_sys/plugin_3gx.h"
 #include "core/hle/ipc_helpers.h"
@@ -128,8 +128,9 @@ void PLG_LDR::OnProcessRun(Kernel::Process& process, Kernel::KernelSystem& kerne
     } else {
         const std::string plugin_root =
             FileUtil::GetUserPath(FileUtil::UserPath::SDMCDir) + "luma/plugins/";
-        const std::string plugin_tid =
-            plugin_root + fmt::format("{:016X}", process.codeset->program_id);
+        const std::string plugin_tid = plugin_root +
+                                       StringFromFormat("%016llX", static_cast<unsigned long long>(
+                                                                     process.codeset->program_id));
         FileUtil::FSTEntry entry;
         FileUtil::ScanDirectoryTree(plugin_tid, entry);
         for (const auto& child : entry.children) {
@@ -179,7 +180,7 @@ ResultVal<Kernel::Handle> PLG_LDR::GetMemoryChangedHandle(Kernel::KernelSystem& 
 
     std::shared_ptr<Kernel::Event> evt =
         kernel.CreateEvent(Kernel::ResetType::OneShot,
-                           fmt::format("event-{:08x}", system.GetRunningCore().GetReg(14)));
+                           StringFromFormat("event-%08x", system.GetRunningCore().GetReg(14)));
     R_TRY(kernel.GetCurrentProcess()->handle_table.Create(
         std::addressof(plgldr_context.memory_changed_handle), std::move(evt)));
     return plgldr_context.memory_changed_handle;

@@ -3,13 +3,14 @@
 // Refer to the license.txt file included.
 
 #include <memory>
+#include <iomanip>
+#include <sstream>
 #include <vector>
-#include <boost/crc.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/unique_ptr.hpp>
-#include <fmt/ranges.h>
 #include "common/archives.h"
+#include "common/crc.h"
 #include "common/swap.h"
 #include "core/core.h"
 #include "core/hle/ipc_helpers.h"
@@ -22,6 +23,18 @@ SERIALIZE_EXPORT_IMPL(Service::IR::IR_USER)
 SERVICE_CONSTRUCT_IMPL(Service::IR::IR_USER)
 
 namespace Service::IR {
+
+static std::string FormatBytesHex(std::span<const u8> data) {
+    std::ostringstream oss;
+    oss << std::hex << std::setfill('0');
+    for (std::size_t i = 0; i < data.size(); ++i) {
+        if (i != 0) {
+            oss << ' ';
+        }
+        oss << std::setw(2) << static_cast<unsigned>(data[i]);
+    }
+    return oss.str();
+}
 
 template <class Archive>
 void IR_USER::serialize(Archive& ar, const unsigned int) {
@@ -229,7 +242,7 @@ private:
 
 /// Wraps the payload into packet and puts it to the receive buffer
 void IR_USER::PutToReceive(std::span<const u8> payload) {
-    LOG_TRACE(Service_IR, "called, data={}", fmt::format("{:02x}", fmt::join(payload, " ")));
+    LOG_TRACE(Service_IR, "called, data={}", FormatBytesHex(payload));
     std::size_t size = payload.size();
 
     std::vector<u8> packet;
@@ -265,7 +278,7 @@ void IR_USER::PutToReceive(std::span<const u8> payload) {
     packet.insert(packet.end(), payload.begin(), payload.end());
 
     // calculates CRC and puts to the end
-    packet.push_back(boost::crc<8, 0x07, 0, 0, false, false>(packet.data(), packet.size()));
+    packet.push_back(Common::Crc8_07(packet.data(), packet.size(), 0));
 
     if (receive_buffer->Put(packet)) {
         receive_event->Signal();
@@ -407,7 +420,7 @@ void IR_USER::SendIrNop(Kernel::HLERequestContext& ctx) {
                        ErrorSummary::InvalidState, ErrorLevel::Status));
     }
 
-    LOG_TRACE(Service_IR, "called, data={}", fmt::format("{:02x}", fmt::join(buffer, " ")));
+    LOG_TRACE(Service_IR, "called, data={}", FormatBytesHex(buffer));
 }
 
 void IR_USER::ReleaseReceivedData(Kernel::HLERequestContext& ctx) {

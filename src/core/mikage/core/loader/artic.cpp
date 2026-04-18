@@ -6,7 +6,6 @@
 #include <cstring>
 #include <memory>
 #include <vector>
-#include <fmt/format.h>
 #include "common/literals.h"
 #include "common/logging/log.h"
 #include "common/settings.h"
@@ -397,7 +396,8 @@ ResultStatus Apploader_Artic::Load(std::shared_ptr<Kernel::Process>& process) {
         return result;
     }
 
-    std::string program_id{fmt::format("{:016X}", ncch_program_id)};
+    std::string program_id{
+        StringFromFormat("%016llX", static_cast<unsigned long long>(ncch_program_id))};
 
     LOG_INFO(Loader, "Program ID: {}", program_id);
 

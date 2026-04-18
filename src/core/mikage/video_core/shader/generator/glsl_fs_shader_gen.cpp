@@ -2,6 +2,7 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
+#include <format>
 #include "video_core/shader/generator/glsl_fs_shader_gen.h"
 
 namespace Pica::Shader::Generator::GLSL {
@@ -253,7 +254,7 @@ std::string FragmentModule::GetSource(Pica::TexturingRegs::TevStageConfig::Sourc
     case Source::PreviousBuffer:
         return "combiner_buffer";
     case Source::Constant:
-        return fmt::format("const_color[{}]", tev_index);
+        return std::format("const_color[{}]", tev_index);
     case Source::Previous:
         return "combiner_output";
     default:
@@ -273,34 +274,34 @@ void FragmentModule::AppendColorModifier(
         GetSource(force_source3 ? stage.color_source3.Value() : source, tev_index);
     switch (modifier) {
     case ColorModifier::SourceColor:
-        out += fmt::format("{}.rgb", color_source);
+        out += std::format("{}.rgb", color_source);
         break;
     case ColorModifier::OneMinusSourceColor:
-        out += fmt::format("vec3(1.0) - {}.rgb", color_source);
+        out += std::format("vec3(1.0) - {}.rgb", color_source);
         break;
     case ColorModifier::SourceAlpha:
-        out += fmt::format("{}.aaa", color_source);
+        out += std::format("{}.aaa", color_source);
         break;
     case ColorModifier::OneMinusSourceAlpha:
-        out += fmt::format("vec3(1.0) - {}.aaa", color_source);
+        out += std::format("vec3(1.0) - {}.aaa", color_source);
         break;
     case ColorModifier::SourceRed:
-        out += fmt::format("{}.rrr", color_source);
+        out += std::format("{}.rrr", color_source);
         break;
     case ColorModifier::OneMinusSourceRed:
-        out += fmt::format("vec3(1.0) - {}.rrr", color_source);
+        out += std::format("vec3(1.0) - {}.rrr", color_source);
         break;
     case ColorModifier::SourceGreen:
-        out += fmt::format("{}.ggg", color_source);
+        out += std::format("{}.ggg", color_source);
         break;
     case ColorModifier::OneMinusSourceGreen:
-        out += fmt::format("vec3(1.0) - {}.ggg", color_source);
+        out += std::format("vec3(1.0) - {}.ggg", color_source);
         break;
     case ColorModifier::SourceBlue:
-        out += fmt::format("{}.bbb", color_source);
+        out += std::format("{}.bbb", color_source);
         break;
     case ColorModifier::OneMinusSourceBlue:
-        out += fmt::format("vec3(1.0) - {}.bbb", color_source);
+        out += std::format("vec3(1.0) - {}.bbb", color_source);
         break;
     default:
         out += "vec3(0.0)";
@@ -320,28 +321,28 @@ void FragmentModule::AppendAlphaModifier(
         GetSource(force_source3 ? stage.alpha_source3.Value() : source, tev_index);
     switch (modifier) {
     case AlphaModifier::SourceAlpha:
-        out += fmt::format("{}.a", alpha_source);
+        out += std::format("{}.a", alpha_source);
         break;
     case AlphaModifier::OneMinusSourceAlpha:
-        out += fmt::format("1.0 - {}.a", alpha_source);
+        out += std::format("1.0 - {}.a", alpha_source);
         break;
     case AlphaModifier::SourceRed:
-        out += fmt::format("{}.r", alpha_source);
+        out += std::format("{}.r", alpha_source);
         break;
     case AlphaModifier::OneMinusSourceRed:
-        out += fmt::format("1.0 - {}.r", alpha_source);
+        out += std::format("1.0 - {}.r", alpha_source);
         break;
     case AlphaModifier::SourceGreen:
-        out += fmt::format("{}.g", alpha_source);
+        out += std::format("{}.g", alpha_source);
         break;
     case AlphaModifier::OneMinusSourceGreen:
-        out += fmt::format("1.0 - {}.g", alpha_source);
+        out += std::format("1.0 - {}.g", alpha_source);
         break;
     case AlphaModifier::SourceBlue:
-        out += fmt::format("{}.b", alpha_source);
+        out += std::format("{}.b", alpha_source);
         break;
     case AlphaModifier::OneMinusSourceBlue:
-        out += fmt::format("1.0 - {}.b", alpha_source);
+        out += std::format("1.0 - {}.b", alpha_source);
         break;
     default:
         out += "0.0";
@@ -378,7 +379,7 @@ void FragmentModule::AppendColorCombiner(Pica::TexturingRegs::TevStageConfig::Op
             return "vec3(0.0)";
         }
     };
-    out += fmt::format("clamp({}, vec3(0.0), vec3(1.0))", get_combiner());
+    out += std::format("clamp({}, vec3(0.0), vec3(1.0))", get_combiner());
 }
 
 void FragmentModule::AppendAlphaCombiner(Pica::TexturingRegs::TevStageConfig::Operation operation) {
@@ -406,7 +407,7 @@ void FragmentModule::AppendAlphaCombiner(Pica::TexturingRegs::TevStageConfig::Op
             return "0.0";
         }
     };
-    out += fmt::format("clamp({}, 0.0, 1.0)", get_combiner());
+    out += std::format("clamp({}, 0.0, 1.0)", get_combiner());
 }
 
 void FragmentModule::WriteAlphaTestCondition(FramebufferRegs::CompareFunc func) {
@@ -425,7 +426,7 @@ void FragmentModule::WriteAlphaTestCondition(FramebufferRegs::CompareFunc func) 
         case CompareFunc::GreaterThanOrEqual: {
             static constexpr std::array op{"!=", "==", ">=", ">", "<=", "<"};
             const auto index = static_cast<u32>(func) - static_cast<u32>(CompareFunc::Equal);
-            return fmt::format("int(combiner_output.a * 255.0) {} alphatest_ref", op[index]);
+            return std::format("int(combiner_output.a * 255.0) {} alphatest_ref", op[index]);
         }
         default:
             LOG_CRITICAL(Render, "Unknown alpha test condition {}", func);
@@ -433,7 +434,7 @@ void FragmentModule::WriteAlphaTestCondition(FramebufferRegs::CompareFunc func) 
             break;
         }
     };
-    out += fmt::format("if ({}) discard;\n", get_cond());
+    out += std::format("if ({}) discard;\n", get_cond());
 }
 
 void FragmentModule::WriteTevStage(u32 index) {
@@ -447,13 +448,13 @@ void FragmentModule::WriteTevStage(u32 index) {
         AppendColorModifier(stage.color_modifier3, stage.color_source3, index);
 
         // Round the output of each TEV stage to maintain the PICA's 8 bits of precision
-        out += fmt::format(";\nvec3 color_output_{} = byteround(", index);
+        out += std::format(";\nvec3 color_output_{} = byteround(", index);
         AppendColorCombiner(stage.color_op);
         out += ");\n";
 
         if (stage.color_op == Pica::TexturingRegs::TevStageConfig::Operation::Dot3_RGBA) {
             // result of Dot3_RGBA operation is also placed to the alpha component
-            out += fmt::format("float alpha_output_{0} = color_output_{0}[0];\n", index);
+            out += std::format("float alpha_output_{0} = color_output_{0}[0];\n", index);
         } else {
             out += "alpha_results_1 = ";
             AppendAlphaModifier(stage.alpha_modifier1, stage.alpha_source1, index);
@@ -462,12 +463,12 @@ void FragmentModule::WriteTevStage(u32 index) {
             out += ";\nalpha_results_3 = ";
             AppendAlphaModifier(stage.alpha_modifier3, stage.alpha_source3, index);
 
-            out += fmt::format(";\nfloat alpha_output_{} = byteround(", index);
+            out += std::format(";\nfloat alpha_output_{} = byteround(", index);
             AppendAlphaCombiner(stage.alpha_op);
             out += ");\n";
         }
 
-        out += fmt::format("combiner_output = vec4("
+        out += std::format("combiner_output = vec4("
                            "clamp(color_output_{} * {}.0, vec3(0.0), vec3(1.0)), "
                            "clamp(alpha_output_{} * {}.0, 0.0, 1.0));\n",
                            index, stage.GetColorMultiplier(), index, stage.GetAlphaMultiplier());
@@ -503,25 +504,25 @@ void FragmentModule::WriteLighting() {
 
     // Compute fragment normals and tangents
     const auto perturbation = [&] {
-        return fmt::format("2.0 * (sampleTexUnit{}()).rgb - 1.0", lighting.bump_selector.Value());
+        return std::format("2.0 * (sampleTexUnit{}()).rgb - 1.0", lighting.bump_selector.Value());
     };
 
     if (user.use_custom_normal) {
-        const auto texel = fmt::format("2.0 * (texture(tex_normal, texcoord0)).rgb - 1.0");
-        out += fmt::format("vec3 surface_normal = {};\n", texel);
+        const auto texel = std::format("2.0 * (texture(tex_normal, texcoord0)).rgb - 1.0");
+        out += std::format("vec3 surface_normal = {};\n", texel);
         out += "vec3 surface_tangent = vec3(1.0, 0.0, 0.0);\n";
     } else {
         switch (lighting.bump_mode) {
         case LightingRegs::LightingBumpMode::NormalMap: {
             // Bump mapping is enabled using a normal map
-            out += fmt::format("vec3 surface_normal = {};\n", perturbation());
+            out += std::format("vec3 surface_normal = {};\n", perturbation());
 
             // Recompute Z-component of perturbation if 'renorm' is enabled, this provides a higher
             // precision result
             if (lighting.bump_renorm) {
                 constexpr std::string_view val = "(1.0 - (surface_normal.x*surface_normal.x + "
                                                  "surface_normal.y*surface_normal.y))";
-                out += fmt::format("surface_normal.z = sqrt(max({}, 0.0));\n", val);
+                out += std::format("surface_normal.z = sqrt(max({}, 0.0));\n", val);
             }
 
             // The tangent vector is not perturbed by the normal map and is just a unit vector.
@@ -530,7 +531,7 @@ void FragmentModule::WriteLighting() {
         }
         case LightingRegs::LightingBumpMode::TangentMap: {
             // Bump mapping is enabled using a tangent map
-            out += fmt::format("vec3 surface_tangent = {};\n", perturbation());
+            out += std::format("vec3 surface_tangent = {};\n", perturbation());
             // Mathematically, recomputing Z-component of the tangent vector won't affect the
             // relevant computation below, which is also confirmed on 3DS. So we don't bother
             // recomputing here even if 'renorm' is enabled.
@@ -565,11 +566,11 @@ void FragmentModule::WriteLighting() {
 
     if (lighting.enable_shadow) {
         std::string shadow_texture =
-            fmt::format("sampleTexUnit{}()", lighting.shadow_selector.Value());
+            std::format("sampleTexUnit{}()", lighting.shadow_selector.Value());
         if (lighting.shadow_invert) {
-            out += fmt::format("vec4 shadow = vec4(1.0) - {};\n", shadow_texture);
+            out += std::format("vec4 shadow = vec4(1.0) - {};\n", shadow_texture);
         } else {
-            out += fmt::format("vec4 shadow = {};\n", shadow_texture);
+            out += std::format("vec4 shadow = {};\n", shadow_texture);
         }
     } else {
         out += "vec4 shadow = vec4(1.0);\n";
@@ -605,7 +606,7 @@ void FragmentModule::WriteLighting() {
                     "normalize(half_vector) - normal * dot(normal, normalize(half_vector))";
                 // Note: the half angle vector projection is confirmed not normalized before the dot
                 // product. The result is in fact not cos(phi) as the name suggested.
-                index = fmt::format("dot({}, tangent)", half_angle_proj);
+                index = std::format("dot({}, tangent)", half_angle_proj);
             } else {
                 index = "0.0";
             }
@@ -622,30 +623,30 @@ void FragmentModule::WriteLighting() {
         if (abs) {
             // LUT index is in the range of (0.0, 1.0)
             index = lighting.lights[light_num].two_sided_diffuse
-                        ? fmt::format("abs({})", index)
-                        : fmt::format("max({}, 0.0)", index);
-            return fmt::format("LookupLightingLUTUnsigned({}, {})", sampler_index, index);
+                        ? std::format("abs({})", index)
+                        : std::format("max({}, 0.0)", index);
+            return std::format("LookupLightingLUTUnsigned({}, {})", sampler_index, index);
         } else {
             // LUT index is in the range of (-1.0, 1.0)
-            return fmt::format("LookupLightingLUTSigned({}, {})", sampler_index, index);
+            return std::format("LookupLightingLUTSigned({}, {})", sampler_index, index);
         }
     };
 
     // Write the code to emulate each enabled light
     for (u32 light_index = 0; light_index < lighting.src_num; ++light_index) {
         const auto& light_config = lighting.lights[light_index];
-        const std::string light_src = fmt::format("light_src[{}]", light_config.num.Value());
+        const std::string light_src = std::format("light_src[{}]", light_config.num.Value());
 
         // Compute light vector (directional or positional)
         if (light_config.directional) {
-            out += fmt::format("light_vector = {}.position;\n", light_src);
+            out += std::format("light_vector = {}.position;\n", light_src);
         } else {
-            out += fmt::format("light_vector = {}.position + view;\n", light_src);
+            out += std::format("light_vector = {}.position + view;\n", light_src);
         }
-        out += fmt::format("light_distance = length(light_vector);\n", light_src);
-        out += fmt::format("light_vector = normalize(light_vector);\n", light_src);
+        out += std::format("light_distance = length(light_vector);\n", light_src);
+        out += std::format("light_vector = normalize(light_vector);\n", light_src);
 
-        out += fmt::format("spot_dir = {}.spot_direction;\n", light_src);
+        out += std::format("spot_dir = {}.spot_direction;\n", light_src);
         out += "half_vector = normalize(view) + light_vector;\n";
 
         // Compute dot product of light_vector and normal, adjust if lighting is one-sided or
@@ -667,17 +668,17 @@ void FragmentModule::WriteLighting() {
             const std::string value =
                 get_lut_value(LightingRegs::SpotlightAttenuationSampler(light_config.num),
                               light_config.num, lighting.lut_sp.type, lighting.lut_sp.abs_input);
-            spot_atten = fmt::format("({:#} * {})", lighting.lut_sp.GetScale(), value);
+            spot_atten = std::format("({:#} * {})", lighting.lut_sp.GetScale(), value);
         }
 
         // If enabled, compute distance attenuation value
         std::string dist_atten = "1.0";
         if (light_config.dist_atten_enable) {
-            const std::string index = fmt::format("clamp({}.dist_atten_scale * light_distance "
+            const std::string index = std::format("clamp({}.dist_atten_scale * light_distance "
                                                   "+ {}.dist_atten_bias, 0.0, 1.0)",
                                                   light_src, light_src, light_src);
             const auto sampler = LightingRegs::DistanceAttenuationSampler(light_config.num);
-            dist_atten = fmt::format("LookupLightingLUTUnsigned({}, {})", sampler, index);
+            dist_atten = std::format("LookupLightingLUTUnsigned({}, {})", sampler, index);
         }
 
         if (light_config.geometric_factor_0 || light_config.geometric_factor_1) {
@@ -695,11 +696,11 @@ void FragmentModule::WriteLighting() {
             const std::string value =
                 get_lut_value(LightingRegs::LightingSampler::Distribution0, light_config.num,
                               lighting.lut_d0.type, lighting.lut_d0.abs_input);
-            d0_lut_value = fmt::format("({:#} * {})", lighting.lut_d0.GetScale(), value);
+            d0_lut_value = std::format("({:#} * {})", lighting.lut_d0.GetScale(), value);
         }
-        std::string specular_0 = fmt::format("({} * {}.specular_0)", d0_lut_value, light_src);
+        std::string specular_0 = std::format("({} * {}.specular_0)", d0_lut_value, light_src);
         if (light_config.geometric_factor_0) {
-            specular_0 = fmt::format("({} * geo_factor)", specular_0);
+            specular_0 = std::format("({} * geo_factor)", specular_0);
         }
 
         // If enabled, lookup ReflectRed value, otherwise, 1.0 is used
@@ -709,8 +710,8 @@ void FragmentModule::WriteLighting() {
             std::string value =
                 get_lut_value(LightingRegs::LightingSampler::ReflectRed, light_config.num,
                               lighting.lut_rr.type, lighting.lut_rr.abs_input);
-            value = fmt::format("({:#} * {})", lighting.lut_rr.GetScale(), value);
-            out += fmt::format("refl_value.r = {};\n", value);
+            value = std::format("({:#} * {})", lighting.lut_rr.GetScale(), value);
+            out += std::format("refl_value.r = {};\n", value);
         } else {
             out += "refl_value.r = 1.0;\n";
         }
@@ -722,8 +723,8 @@ void FragmentModule::WriteLighting() {
             std::string value =
                 get_lut_value(LightingRegs::LightingSampler::ReflectGreen, light_config.num,
                               lighting.lut_rg.type, lighting.lut_rg.abs_input);
-            value = fmt::format("({:#} * {})", lighting.lut_rg.GetScale(), value);
-            out += fmt::format("refl_value.g = {};\n", value);
+            value = std::format("({:#} * {})", lighting.lut_rg.GetScale(), value);
+            out += std::format("refl_value.g = {};\n", value);
         } else {
             out += "refl_value.g = refl_value.r;\n";
         }
@@ -735,8 +736,8 @@ void FragmentModule::WriteLighting() {
             std::string value =
                 get_lut_value(LightingRegs::LightingSampler::ReflectBlue, light_config.num,
                               lighting.lut_rb.type, lighting.lut_rb.abs_input);
-            value = fmt::format("({:#} * {})", lighting.lut_rb.GetScale(), value);
-            out += fmt::format("refl_value.b = {};\n", value);
+            value = std::format("({:#} * {})", lighting.lut_rb.GetScale(), value);
+            out += std::format("refl_value.b = {};\n", value);
         } else {
             out += "refl_value.b = refl_value.r;\n";
         }
@@ -750,12 +751,12 @@ void FragmentModule::WriteLighting() {
             const std::string value =
                 get_lut_value(LightingRegs::LightingSampler::Distribution1, light_config.num,
                               lighting.lut_d1.type, lighting.lut_d1.abs_input);
-            d1_lut_value = fmt::format("({:#} * {})", lighting.lut_d1.GetScale(), value);
+            d1_lut_value = std::format("({:#} * {})", lighting.lut_d1.GetScale(), value);
         }
         std::string specular_1 =
-            fmt::format("({} * refl_value * {}.specular_1)", d1_lut_value, light_src);
+            std::format("({} * refl_value * {}.specular_1)", d1_lut_value, light_src);
         if (light_config.geometric_factor_1) {
-            specular_1 = fmt::format("({} * geo_factor)", specular_1);
+            specular_1 = std::format("({} * geo_factor)", specular_1);
         }
 
         // Fresnel
@@ -767,16 +768,16 @@ void FragmentModule::WriteLighting() {
             std::string value =
                 get_lut_value(LightingRegs::LightingSampler::Fresnel, light_config.num,
                               lighting.lut_fr.type, lighting.lut_fr.abs_input);
-            value = fmt::format("({:#} * {})", lighting.lut_fr.GetScale(), value);
+            value = std::format("({:#} * {})", lighting.lut_fr.GetScale(), value);
 
             // Enabled for diffuse lighting alpha component
             if (lighting.enable_primary_alpha) {
-                out += fmt::format("diffuse_sum.a = {};\n", value);
+                out += std::format("diffuse_sum.a = {};\n", value);
             }
 
             // Enabled for the specular lighting alpha component
             if (lighting.enable_secondary_alpha) {
-                out += fmt::format("specular_sum.a = {};\n", value);
+                out += std::format("specular_sum.a = {};\n", value);
             }
         }
 
@@ -787,12 +788,12 @@ void FragmentModule::WriteLighting() {
         const auto shadow_secondary = shadow_secondary_enable ? " * shadow.rgb" : "";
 
         // Compute primary fragment color (diffuse lighting) function
-        out += fmt::format(
+        out += std::format(
             "diffuse_sum.rgb += (({}.diffuse * dot_product{}) + {}.ambient) * {} * {};\n",
             light_src, shadow_primary, light_src, dist_atten, spot_atten);
 
         // Compute secondary fragment color (specular lighting) function
-        out += fmt::format("specular_sum.rgb += ({} + {}) * clamp_highlights * {} * {}{};\n",
+        out += std::format("specular_sum.rgb += ({} + {}) * clamp_highlights * {} * {}{};\n",
                            specular_0, specular_1, dist_atten, spot_atten, shadow_secondary);
     }
 
@@ -942,7 +943,7 @@ void FragmentModule::WriteBlending() {
     };
 
     if (config.framebuffer.rgb_blend.eq != Pica::FramebufferRegs::BlendEquation::Add) {
-        out += fmt::format(
+        out += std::format(
             "combiner_output.rgb = {}(source_color.rgb * ({}).rgb, dest_color.rgb * ({}).rgb);\n",
             get_func(config.framebuffer.rgb_blend.eq),
             get_factor(config.framebuffer.rgb_blend.src_factor),
@@ -950,7 +951,7 @@ void FragmentModule::WriteBlending() {
     }
     if (config.framebuffer.alpha_blend.eq != Pica::FramebufferRegs::BlendEquation::Add) {
         out +=
-            fmt::format("combiner_output.a = {}(source_color.a * ({}).a, dest_color.a * ({}).a);\n",
+            std::format("combiner_output.a = {}(source_color.a * ({}).a, dest_color.a * ({}).a);\n",
                         get_func(config.framebuffer.alpha_blend.eq),
                         get_factor(config.framebuffer.alpha_blend.src_factor),
                         get_factor(config.framebuffer.alpha_blend.dst_factor));
@@ -965,10 +966,10 @@ void FragmentModule::AppendProcTexShiftOffset(std::string_view v, ProcTexShift m
         out += "0.0";
         break;
     case ProcTexShift::Odd:
-        out += fmt::format("{} * float((int({}) / 2) % 2)", offset, v);
+        out += std::format("{} * float((int({}) / 2) % 2)", offset, v);
         break;
     case ProcTexShift::Even:
-        out += fmt::format("{} * float(((int({}) + 1) / 2) % 2)", offset, v);
+        out += std::format("{} * float(((int({}) + 1) / 2) % 2)", offset, v);
         break;
     default:
         LOG_CRITICAL(HW_GPU, "Unknown shift mode {}", mode);
@@ -980,23 +981,23 @@ void FragmentModule::AppendProcTexShiftOffset(std::string_view v, ProcTexShift m
 void FragmentModule::AppendProcTexClamp(std::string_view var, ProcTexClamp mode) {
     switch (mode) {
     case ProcTexClamp::ToZero:
-        out += fmt::format("{0} = {0} > 1.0 ? 0 : {0};\n", var);
+        out += std::format("{0} = {0} > 1.0 ? 0 : {0};\n", var);
         break;
     case ProcTexClamp::ToEdge:
-        out += fmt::format("{0} = min({0}, 1.0);\n", var);
+        out += std::format("{0} = min({0}, 1.0);\n", var);
         break;
     case ProcTexClamp::SymmetricalRepeat:
-        out += fmt::format("{0} = fract({0});\n", var);
+        out += std::format("{0} = fract({0});\n", var);
         break;
     case ProcTexClamp::MirroredRepeat:
-        out += fmt::format("{0} = int({0}) % 2 == 0 ? fract({0}) : 1.0 - fract({0});\n", var);
+        out += std::format("{0} = int({0}) % 2 == 0 ? fract({0}) : 1.0 - fract({0});\n", var);
         break;
     case ProcTexClamp::Pulse:
-        out += fmt::format("{0} = {0} > 0.5 ? 1.0 : 0.0;\n", var);
+        out += std::format("{0} = {0} > 0.5 ? 1.0 : 0.0;\n", var);
         break;
     default:
         LOG_CRITICAL(HW_GPU, "Unknown clamp mode {}", mode);
-        out += fmt::format("{0} = min({0}, 1.0);\n", var);
+        out += std::format("{0} = min({0}, 1.0);\n", var);
         break;
     }
 }
@@ -1029,7 +1030,7 @@ void FragmentModule::AppendProcTexCombineAndMap(ProcTexCombiner combiner, std::s
             return "0.0";
         }
     }();
-    out += fmt::format("ProcTexLookupLUT({}, {})", offset, combined);
+    out += std::format("ProcTexLookupLUT({}, {})", offset, combined);
 }
 
 void FragmentModule::DefineProcTexSampler() {
@@ -1093,9 +1094,9 @@ float ProcTexNoiseCoef(vec2 x) {
     }
 
     out += "vec4 SampleProcTexColor(float lut_coord, int level) {\n";
-    out += fmt::format("int lut_width = {} >> level;\n", config.proctex.lut_width);
+    out += std::format("int lut_width = {} >> level;\n", config.proctex.lut_width);
     // Offsets for level 4-7 seem to be hardcoded
-    out += fmt::format("int lut_offsets[8] = int[]({}, {}, {}, {}, 0xF0, 0xF8, 0xFC, 0xFE);\n",
+    out += std::format("int lut_offsets[8] = int[]({}, {}, {}, {}, 0xF0, 0xF8, 0xFC, 0xFE);\n",
                        config.proctex.lut_offset0, config.proctex.lut_offset1,
                        config.proctex.lut_offset2, config.proctex.lut_offset3);
     out += "int lut_offset = lut_offsets[level];\n";
@@ -1126,7 +1127,7 @@ float ProcTexNoiseCoef(vec2 x) {
 
     out += "vec4 ProcTex() {\n";
     if (config.proctex.coord < 3) {
-        out += fmt::format("vec2 uv = abs(texcoord{});\n", config.proctex.coord.Value());
+        out += std::format("vec2 uv = abs(texcoord{});\n", config.proctex.coord.Value());
     } else {
         LOG_CRITICAL(Render, "Unexpected proctex.coord >= 3");
         out += "vec2 uv = abs(texcoord0);\n";
@@ -1138,10 +1139,10 @@ float ProcTexNoiseCoef(vec2 x) {
     // Note: this is different from the one normal 2D textures use.
     out += "vec2 duv = max(abs(dFdx(uv)), abs(dFdy(uv)));\n";
     // unlike normal texture, the bias is inside the log2
-    out += fmt::format("float lod = log2(abs(float({}) * proctex_bias) * (duv.x + duv.y));\n",
+    out += std::format("float lod = log2(abs(float({}) * proctex_bias) * (duv.x + duv.y));\n",
                        config.proctex.lut_width);
     out += "if (proctex_bias == 0.0) lod = 0.0;\n";
-    out += fmt::format("lod = clamp(lod, {:#}, {:#});\n",
+    out += std::format("lod = clamp(lod, {:#}, {:#});\n",
                        std::max(0.0f, static_cast<f32>(config.proctex.lod_min)),
                        std::min(7.0f, static_cast<f32>(config.proctex.lod_max)));
 
@@ -1260,9 +1261,9 @@ void FragmentModule::DefineExtensions() {
 void FragmentModule::DefineInterface() {
     const auto define_input = [&](std::string_view var, Semantic location) {
         if (profile.has_separable_shaders) {
-            out += fmt::format("layout (location = {}) ", location);
+            out += std::format("layout (location = {}) ", location);
         }
-        out += fmt::format("in {};\n", var);
+        out += std::format("in {};\n", var);
     };
 
     // Input attributes
@@ -1305,7 +1306,7 @@ void FragmentModule::DefineBindingsVK() {
     for (u32 i = 0; i < 3; i++) {
         const auto sampler = i == 0 ? sampler_tex0 : "sampler2D";
         const auto num_descriptors = i == 0 && texture_type == TextureType::ShadowCube ? "[6]" : "";
-        out += fmt::format("layout(set = 1, binding = {0}) uniform {1} tex{0}{2};\n", i, sampler,
+        out += std::format("layout(set = 1, binding = {0}) uniform {1} tex{0}{2};\n", i, sampler,
                            num_descriptors);
     }
 
@@ -1330,7 +1331,7 @@ void FragmentModule::DefineBindingsGL() {
     for (u32 i = 0; i < 3; i++) {
         const auto sampler =
             i == 0 && texture_type == TextureType::TextureCube ? "samplerCube" : "sampler2D";
-        out += fmt::format("layout(binding = {0}) uniform {1} tex{0};\n", i, sampler);
+        out += std::format("layout(binding = {0}) uniform {1} tex{0};\n", i, sampler);
     }
 
     // Utility textures
@@ -1345,7 +1346,7 @@ void FragmentModule::DefineBindingsGL() {
     if (texture_type == TextureType::Shadow2D || texture_type == TextureType::ShadowCube) {
         static constexpr std::array postfixes = {"px", "nx", "py", "ny", "pz", "nz"};
         for (u32 i = 0; i < postfixes.size(); i++) {
-            out += fmt::format(
+            out += std::format(
                 "layout(binding = {}, r32ui) uniform readonly uimage2D shadow_texture_{};\n", i,
                 postfixes[i]);
         }
@@ -1670,7 +1671,7 @@ vec4 shadowTextureCube(vec2 uv, float w) {
 }
 
 void FragmentModule::DefineTexUnitSampler(u32 texture_unit) {
-    out += fmt::format("vec4 sampleTexUnit{}() {{\n", texture_unit);
+    out += std::format("vec4 sampleTexUnit{}() {{\n", texture_unit);
     if (texture_unit == 0 &&
         config.texture.texture0_type == TexturingRegs::TextureConfig::Disabled) {
         out += "return vec4(0.0);\n}";
@@ -1681,7 +1682,7 @@ void FragmentModule::DefineTexUnitSampler(u32 texture_unit) {
         const u32 texcoord_num =
             texture_unit == 2 && config.texture.texture2_use_coord1 ? 1 : texture_unit;
         if (config.texture.texture_border_color[texture_unit].enable_s) {
-            out += fmt::format(R"(
+            out += std::format(R"(
                 if (texcoord{}.x < 0 || texcoord{}.x > 1) {{
                     return tex_border_color[{}];
                 }}
@@ -1689,7 +1690,7 @@ void FragmentModule::DefineTexUnitSampler(u32 texture_unit) {
                                texcoord_num, texcoord_num, texture_unit);
         }
         if (config.texture.texture_border_color[texture_unit].enable_t) {
-            out += fmt::format(R"(
+            out += std::format(R"(
                 if (texcoord{}.y < 0 || texcoord{}.y > 1) {{
                     return tex_border_color[{}];
                 }}

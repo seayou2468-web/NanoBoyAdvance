@@ -2,14 +2,12 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
+#include <format>
 #include <map>
 #include <set>
 #include <string>
 #include <tuple>
 #include <utility>
-#include <fmt/core.h>
-#include <fmt/format.h>
-#include <fmt/format-inl.h>
 #include <nihstro/shader_bytecode.h>
 #include "common/assert.h"
 #include "common/common_types.h"
@@ -207,8 +205,8 @@ public:
     // printing the character '{' is desirable. Ditto for }} and '}',
     // etc).
     template <typename... Args>
-    void AddLine(fmt::format_string<Args...> text, Args&&... args) {
-        AddExpression(fmt::format(text, std::forward<Args>(args)...));
+    void AddLine(std::format_string<Args...> text, Args&&... args) {
+        AddExpression(std::format(text, std::forward<Args>(args)...));
         AddNewLine();
     }
 
@@ -312,9 +310,9 @@ private:
             } else if (!flow_control.refx.Value() && !flow_control.refy.Value()) {
                 bvec = "not(conditional_code)";
             } else {
-                bvec = fmt::format("bvec2({}, {})", result_x, result_y);
+                bvec = std::format("bvec2({}, {})", result_x, result_y);
             }
-            return fmt::format("{}({})", and_or, bvec);
+            return std::format("{}({})", and_or, bvec);
         }
         default:
             UNREACHABLE();
@@ -331,13 +329,13 @@ private:
         case RegisterType::Input:
             return inputreg_getter(index);
         case RegisterType::Temporary:
-            return fmt::format("reg_tmp{}", index);
+            return std::format("reg_tmp{}", index);
         case RegisterType::FloatUniform:
             if (address_register_index != 0) {
-                return fmt::format("get_offset_register({}, address_registers.{})", index,
+                return std::format("get_offset_register({}, address_registers.{})", index,
                                    "xyz"[address_register_index - 1]);
             }
-            return fmt::format("uniforms.f[{}]", index);
+            return std::format("uniforms.f[{}]", index);
         default:
             UNREACHABLE();
             return "";
@@ -352,7 +350,7 @@ private:
         case RegisterType::Output:
             return outputreg_getter(index);
         case RegisterType::Temporary:
-            return fmt::format("reg_tmp{}", index);
+            return std::format("reg_tmp{}", index);
         default:
             UNREACHABLE();
             return "";
@@ -361,7 +359,7 @@ private:
 
     /// Generates code representing a bool uniform
     std::string GetUniformBool(u32 index, bool invert_test = false) const {
-        return fmt::format("(uniforms.b & {}u) {} 0u", 1 << index, invert_test ? "==" : "!=");
+        return std::format("(uniforms.b & {}u) {} 0u", 1 << index, invert_test ? "==" : "!=");
     }
 
     /**
@@ -405,15 +403,15 @@ private:
         DEBUG_ASSERT(value_num_components >= dest_num_components || value_num_components == 1);
 
         const std::string dest =
-            fmt::format("{}{}", reg, dest_num_components != 1 ? dest_mask_swizzle : "");
+            std::format("{}{}", reg, dest_num_components != 1 ? dest_mask_swizzle : "");
 
         std::string src{value};
         if (value_num_components == 1) {
             if (dest_mask_num_components != 1) {
-                src = fmt::format("vec{}({})", dest_mask_num_components, value);
+                src = std::format("vec{}({})", dest_mask_num_components, value);
             }
         } else if (value_num_components != dest_mask_num_components) {
-            src = fmt::format("({}){}", value, dest_mask_swizzle);
+            src = std::format("({}){}", value, dest_mask_swizzle);
         }
 
         shader.AddLine("{} = {};", dest, src);
@@ -456,31 +454,31 @@ private:
 
             switch (instr.opcode.Value().EffectiveOpCode()) {
             case OpCode::Id::ADD: {
-                SetDest(swizzle, dest_reg, fmt::format("{} + {}", src1, src2), 4, 4);
+                SetDest(swizzle, dest_reg, std::format("{} + {}", src1, src2), 4, 4);
                 break;
             }
 
             case OpCode::Id::MUL: {
                 if (sanitize_mul) {
-                    SetDest(swizzle, dest_reg, fmt::format("sanitize_mul({}, {})", src1, src2), 4,
+                    SetDest(swizzle, dest_reg, std::format("sanitize_mul({}, {})", src1, src2), 4,
                             4);
                 } else {
-                    SetDest(swizzle, dest_reg, fmt::format("{} * {}", src1, src2), 4, 4);
+                    SetDest(swizzle, dest_reg, std::format("{} * {}", src1, src2), 4, 4);
                 }
                 break;
             }
 
             case OpCode::Id::FLR: {
-                SetDest(swizzle, dest_reg, fmt::format("floor({})", src1), 4, 4);
+                SetDest(swizzle, dest_reg, std::format("floor({})", src1), 4, 4);
                 break;
             }
 
             case OpCode::Id::MAX: {
                 if (sanitize_mul) {
                     SetDest(swizzle, dest_reg,
-                            fmt::format("mix({1}, {0}, greaterThan({0}, {1}))", src1, src2), 4, 4);
+                            std::format("mix({1}, {0}, greaterThan({0}, {1}))", src1, src2), 4, 4);
                 } else {
-                    SetDest(swizzle, dest_reg, fmt::format("max({}, {})", src1, src2), 4, 4);
+                    SetDest(swizzle, dest_reg, std::format("max({}, {})", src1, src2), 4, 4);
                 }
                 break;
             }
@@ -488,9 +486,9 @@ private:
             case OpCode::Id::MIN: {
                 if (sanitize_mul) {
                     SetDest(swizzle, dest_reg,
-                            fmt::format("mix({1}, {0}, lessThan({0}, {1}))", src1, src2), 4, 4);
+                            std::format("mix({1}, {0}, lessThan({0}, {1}))", src1, src2), 4, 4);
                 } else {
-                    SetDest(swizzle, dest_reg, fmt::format("min({}, {})", src1, src2), 4, 4);
+                    SetDest(swizzle, dest_reg, std::format("min({}, {})", src1, src2), 4, 4);
                 }
                 break;
             }
@@ -503,20 +501,20 @@ private:
                 std::string dot;
                 if (opcode == OpCode::Id::DP3) {
                     if (sanitize_mul) {
-                        dot = fmt::format("dot(vec3(sanitize_mul({}, {})), vec3(1.0))", src1, src2);
+                        dot = std::format("dot(vec3(sanitize_mul({}, {})), vec3(1.0))", src1, src2);
                     } else {
-                        dot = fmt::format("dot(vec3({}), vec3({}))", src1, src2);
+                        dot = std::format("dot(vec3({}), vec3({}))", src1, src2);
                     }
                 } else {
                     if (sanitize_mul) {
                         const std::string src1_ =
                             (opcode == OpCode::Id::DPH || opcode == OpCode::Id::DPHI)
-                                ? fmt::format("vec4({}.xyz, 1.0)", src1)
+                                ? std::format("vec4({}.xyz, 1.0)", src1)
                                 : std::move(src1);
 
-                        dot = fmt::format("dot(sanitize_mul({}, {}), vec4(1.0))", src1_, src2);
+                        dot = std::format("dot(sanitize_mul({}, {}), vec4(1.0))", src1_, src2);
                     } else {
-                        dot = fmt::format("dot({}, {})", src1, src2);
+                        dot = std::format("dot({}, {})", src1, src2);
                     }
                 }
 
@@ -530,7 +528,7 @@ private:
                     // workaround to cheaply avoid NaN. Fixes graphical issues in Ocarina of Time.
                     shader.AddLine("if ({}.x != 0.0)", src1);
                 }
-                SetDest(swizzle, dest_reg, fmt::format("(1.0 / {}.x)", src1), 4, 1);
+                SetDest(swizzle, dest_reg, std::format("(1.0 / {}.x)", src1), 4, 1);
                 break;
             }
 
@@ -540,12 +538,12 @@ private:
                     // workaround to cheaply avoid NaN. Fixes graphical issues in Ocarina of Time.
                     shader.AddLine("if ({}.x > 0.0)", src1);
                 }
-                SetDest(swizzle, dest_reg, fmt::format("inversesqrt({}.x)", src1), 4, 1);
+                SetDest(swizzle, dest_reg, std::format("inversesqrt({}.x)", src1), 4, 1);
                 break;
             }
 
             case OpCode::Id::MOVA: {
-                SetDest(swizzle, "address_registers", fmt::format("ivec2({})", src1), 2, 2);
+                SetDest(swizzle, "address_registers", std::format("ivec2({})", src1), 2, 2);
                 break;
             }
 
@@ -557,13 +555,13 @@ private:
             case OpCode::Id::SGE:
             case OpCode::Id::SGEI: {
                 SetDest(swizzle, dest_reg,
-                        fmt::format("vec4(greaterThanEqual({}, {}))", src1, src2), 4, 4);
+                        std::format("vec4(greaterThanEqual({}, {}))", src1, src2), 4, 4);
                 break;
             }
 
             case OpCode::Id::SLT:
             case OpCode::Id::SLTI: {
-                SetDest(swizzle, dest_reg, fmt::format("vec4(lessThan({}, {}))", src1, src2), 4, 4);
+                SetDest(swizzle, dest_reg, std::format("vec4(lessThan({}, {}))", src1, src2), 4, 4);
                 break;
             }
 
@@ -598,12 +596,12 @@ private:
             }
 
             case OpCode::Id::EX2: {
-                SetDest(swizzle, dest_reg, fmt::format("exp2({}.x)", src1), 4, 1);
+                SetDest(swizzle, dest_reg, std::format("exp2({}.x)", src1), 4, 1);
                 break;
             }
 
             case OpCode::Id::LG2: {
-                SetDest(swizzle, dest_reg, fmt::format("log2({}.x)", src1), 4, 1);
+                SetDest(swizzle, dest_reg, std::format("log2({}.x)", src1), 4, 1);
                 break;
             }
 
@@ -647,9 +645,9 @@ private:
 
                 if (sanitize_mul) {
                     SetDest(swizzle, dest_reg,
-                            fmt::format("sanitize_mul({}, {}) + {}", src1, src2, src3), 4, 4);
+                            std::format("sanitize_mul({}, {}) + {}", src1, src2, src3), 4, 4);
                 } else {
-                    SetDest(swizzle, dest_reg, fmt::format("{} * {} + {}", src1, src2, src3), 4, 4);
+                    SetDest(swizzle, dest_reg, std::format("{} * {} + {}", src1, src2, src3), 4, 4);
                 }
             } else {
                 LOG_ERROR(HW_GPU, "Unhandled multiply-add instruction: 0x{:02x} ({}): 0x{:08x}",
@@ -767,11 +765,11 @@ private:
 
             case OpCode::Id::LOOP: {
                 const std::string int_uniform =
-                    fmt::format("uniforms.i[{}]", instr.flow_control.int_uniform_id.Value());
+                    std::format("uniforms.i[{}]", instr.flow_control.int_uniform_id.Value());
 
                 shader.AddLine("address_registers.z = int({}.y);", int_uniform);
 
-                const std::string loop_var = fmt::format("loop{}", offset);
+                const std::string loop_var = std::format("loop{}", offset);
                 shader.AddLine(
                     "for (uint {} = 0u; {} <= {}.x; address_registers.z += int({}.z), ++{}) {{",
                     loop_var, loop_var, int_uniform, int_uniform, loop_var);

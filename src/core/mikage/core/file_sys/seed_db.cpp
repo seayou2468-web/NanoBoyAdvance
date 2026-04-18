@@ -4,9 +4,9 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include <fmt/format.h>
 #include "common/file_util.h"
 #include "common/logging/log.h"
+#include "common/string_util.h"
 #include "core/file_sys/seed_db.h"
 
 namespace FileSys {
@@ -23,37 +23,11 @@ static std::array<u8, 16> hexToBin(const std::string& hex) {
 	
     return bytes;
 }
-/*
-bool areArraysIdentical(std::array<u8, 16> ar1, std::array<u8, 16> ar2)
-{
-	for(int i=0; i<ar1.size(); i++)
-	{
-		if(ar1[i] != ar2[i])
-			return false;
-	}
-	
-	return true;
-}
-
-template<std::size_t SIZE>
-std::string binToHex(std::array<u8, SIZE> bin)
-{
-	std::string res = "";
-	
-	for(int i=0; i<bin.size(); i++)
-	{
-		std::string s = fmt::format("{:02x}", bin[i]);
-		res += s;
-	}
-	
-	return res;
-}
-*/
 bool SeedDB::Load() {
     seeds.clear();
 	initSeeds(seeds);
-    const std::string path{
-        fmt::format("{}/seeddb.bin", FileUtil::GetUserPath(FileUtil::UserPath::SysDataDir))};
+    const std::string path{StringFromFormat(
+        "%s/seeddb.bin", FileUtil::GetUserPath(FileUtil::UserPath::SysDataDir).c_str())};
     if (!FileUtil::Exists(path)) {
         if (!FileUtil::CreateFullPath(path)) {
             LOG_ERROR(Service_FS, "Failed to create seed database");
@@ -102,8 +76,8 @@ bool SeedDB::Load() {
 }
 
 bool SeedDB::Save() {
-    const std::string path{
-        fmt::format("{}/seeddb.bin", FileUtil::GetUserPath(FileUtil::UserPath::SysDataDir))};
+    const std::string path{StringFromFormat(
+        "%s/seeddb.bin", FileUtil::GetUserPath(FileUtil::UserPath::SysDataDir).c_str())};
     if (!FileUtil::CreateFullPath(path)) {
         LOG_ERROR(Service_FS, "Failed to create seed database");
         return false;

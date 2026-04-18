@@ -50,8 +50,7 @@ void Process::serialize(Archive& ar, const unsigned int) {
     ar & resource_limit;
     ar & svc_access_mask;
     ar & handle_table_size;
-    ar&(boost::container::vector<AddressMapping, boost::container::dtl::static_storage_allocator<
-                                                     AddressMapping, 8, 0, true>>&)address_mappings;
+    ar & address_mappings;
     ar & flags.raw;
     ar & no_thread_restrictions;
     ar & kernel_version;
@@ -131,6 +130,14 @@ void KernelSystem::TerminateProcess(std::shared_ptr<Process> process) {
 }
 
 void Process::ParseKernelCaps(const u32* kernel_caps, std::size_t len) {
+    const auto append_address_mapping = [this](AddressMapping mapping) {
+        if (address_mappings.size() >= Process::MAX_ADDRESS_MAPPINGS) {
+            LOG_WARNING(Loader, "Too many ExHeader address mappings. Extra mappings are ignored.");
+            return;
+        }
+        address_mappings.push_back(mapping);
+    };
+
     for (std::size_t i = 0; i < len; ++i) {
         u32 descriptor = kernel_caps[i];
         u32 type = descriptor >> 20;
@@ -179,7 +186,7 @@ void Process::ParseKernelCaps(const u32* kernel_caps, std::size_t len) {
             mapping.read_only = (descriptor & (1 << 20)) != 0;
             mapping.unk_flag = (end_desc & (1 << 20)) != 0;
 
-            address_mappings.push_back(mapping);
+            append_address_mapping(mapping);
         } else if ((type & 0xFFF) == 0xFFE) { // 0x000F
             // Mapped memory page
             AddressMapping mapping;
@@ -188,7 +195,7 @@ void Process::ParseKernelCaps(const u32* kernel_caps, std::size_t len) {
             mapping.read_only = false;
             mapping.unk_flag = false;
 
-            address_mappings.push_back(mapping);
+            append_address_mapping(mapping);
         } else if ((type & 0xFE0) == 0xFC0) { // 0x01FF
             // Kernel version
             kernel_version = descriptor & 0xFFFF;
@@ -630,6 +637,7 @@ void Process::FreeAllMemory() {
 
 Kernel::Process::Process(KernelSystem& kernel)
     : Object(kernel), handle_table(kernel), vm_manager(kernel.memory, *this), kernel(kernel) {
+    address_mappings.reserve(Process::MAX_ADDRESS_MAPPINGS);
     kernel.memory.RegisterPageTable(vm_manager.page_table);
 }
 Kernel::Process::~Process() {

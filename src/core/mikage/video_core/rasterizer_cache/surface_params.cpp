@@ -3,6 +3,7 @@
 // Refer to the license.txt file included.
 
 #include "common/alignment.h"
+#include "common/string_util.h"
 #include "video_core/rasterizer_cache/surface_params.h"
 
 namespace VideoCore {
@@ -222,9 +223,9 @@ u32 SurfaceParams::LevelOf(PAddr level_addr) const {
 std::string SurfaceParams::DebugName(bool scaled, bool custom) const noexcept {
     const u32 scaled_width = scaled ? GetScaledWidth() : width;
     const u32 scaled_height = scaled ? GetScaledHeight() : height;
-    return fmt::format("Surface: {}x{} {} {} levels from {:#x} to {:#x} ({}{})", scaled_width,
-                       scaled_height, PixelFormatAsString(pixel_format), levels, addr, end,
-                       custom ? "custom," : "", scaled ? "scaled" : "unscaled");
+    return StringFromFormat("Surface: %ux%u %s %u levels from 0x%x to 0x%x (%s%s)", scaled_width,
+                            scaled_height, PixelFormatAsString(pixel_format), levels, addr, end,
+                            custom ? "custom," : "", scaled ? "scaled" : "unscaled");
 }
 
 bool SurfaceParams::operator==(const SurfaceParams& other) const noexcept {

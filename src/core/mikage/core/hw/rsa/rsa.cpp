@@ -8,12 +8,12 @@
 #include <cryptopp/nbtheory.h>
 #include <cryptopp/sha.h>
 #include "common/common_paths.h"
+#include "common/cryptopp_rng.h"
 #include "common/file_util.h"
 #include "common/logging/log.h"
 #include "common/string_util.h"
 #include "core/hw/aes/key.h"
 #include "core/hw/rsa/rsa.h"
-#include "cryptopp/osrng.h"
 #include "cryptopp/rsa.h"
 
 namespace HW::RSA {
@@ -49,7 +49,7 @@ std::vector<u8> RsaSlot::Sign(std::span<const u8> message) const {
                            CryptoPP::Integer(private_d.data(), private_d.size()));
 
     CryptoPP::RSASS<CryptoPP::PKCS1v15, CryptoPP::SHA256>::Signer signer(private_key);
-    CryptoPP::AutoSeededRandomPool prng;
+    Common::CryptoPPRandom prng;
     std::vector<u8> ret(signer.SignatureLength());
 
     signer.SignMessage(prng, message.data(), message.size(), ret.data());

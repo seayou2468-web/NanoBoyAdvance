@@ -14,6 +14,7 @@
 #include "common/logging/log.h"
 #include "common/serialization/boost_flat_set.h"
 #include "common/settings.h"
+#include "common/string_util.h"
 #include "core/arm/arm_interface.h"
 #include "core/arm/skyeye_common/armstate.h"
 #include "core/core.h"
@@ -477,7 +478,7 @@ std::shared_ptr<Thread> SetupMainThread(KernelSystem& kernel, u32 entry_point, u
 
     // Initialize new "main" thread
     auto thread_res = kernel.CreateThread(
-        fmt::format("{}-main", owner_process->codeset->name), entry_point, priority, 0,
+        StringFromFormat("%s-main", owner_process->codeset->name.c_str()), entry_point, priority, 0,
         owner_process->ideal_processor, Memory::HEAP_VADDR_END, owner_process, sleep_time_ns == 0);
 
     std::shared_ptr<Thread> thread = std::move(thread_res).Unwrap();
@@ -546,7 +547,8 @@ void CpuLimiterMulti::Initialize(bool is_single) {
     // registering an event twice with the same name. Once CpuLimiterSingle
     // is implemented we can remove it.
     tick_event = kernel.timing.RegisterEvent(
-        fmt::format("Kernel::{}::tick_event", is_single ? "CpuLimiterSingle" : "CpuLimiterMulti"),
+        StringFromFormat("Kernel::%s::tick_event", is_single ? "CpuLimiterSingle"
+                                                             : "CpuLimiterMulti"),
         [this](u64, s64 cycles_late) { this->OnTick(cycles_late); });
 }
 
