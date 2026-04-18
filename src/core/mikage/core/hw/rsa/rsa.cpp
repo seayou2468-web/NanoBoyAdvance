@@ -3,13 +3,10 @@
 // Refer to the license.txt file included.
 
 #include <sstream>
-#include <boost/iostreams/device/file_descriptor.hpp>
-#include <boost/iostreams/stream.hpp>
 #include <cryptopp/hex.h>
 #include <cryptopp/integer.h>
 #include <cryptopp/nbtheory.h>
 #include <cryptopp/sha.h>
-#include <fmt/format.h>
 #include "common/common_paths.h"
 #include "common/file_util.h"
 #include "common/logging/log.h"
