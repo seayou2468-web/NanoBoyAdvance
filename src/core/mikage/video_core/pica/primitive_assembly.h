@@ -6,8 +6,7 @@
 
 #include <array>
 #include <functional>
-#include <boost/serialization/access.hpp>
-#include <boost/serialization/array.hpp>
+#include "common/serialization/boost_all_serialization.h"
 #include "video_core/pica/output_vertex.h"
 #include "video_core/pica/regs_pipeline.h"
 

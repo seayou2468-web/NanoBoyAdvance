@@ -8,8 +8,16 @@
 
 #include <utility>
 #include <concepts>
+#include <set>
+#include <functional>
 
 namespace boost::icl {
+
+template <typename T>
+using right_open_interval = std::pair<T, T>;
+
+template <typename T, typename Compare = std::less<T>, typename Interval = right_open_interval<T>>
+using interval_set = std::set<Interval>;
 
 // Minimal interval type support
 template<typename T>

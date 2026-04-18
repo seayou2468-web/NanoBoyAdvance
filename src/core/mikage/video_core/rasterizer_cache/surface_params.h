@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <boost/icl/right_open_interval.hpp>
+#include "common/boost_icl_compat.h"
 #include "common/math_util.h"
 #include "video_core/custom_textures/custom_format.h"
 #include "video_core/rasterizer_cache/pixel_format.h"

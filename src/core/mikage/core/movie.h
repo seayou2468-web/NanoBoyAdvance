@@ -6,7 +6,7 @@
 
 #include <functional>
 #include <span>
-#include <boost/serialization/vector.hpp>
+#include "common/serialization/boost_all_serialization.h"
 #include "common/common_types.h"
 
 namespace Service {

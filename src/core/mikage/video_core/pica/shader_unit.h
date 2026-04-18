@@ -6,7 +6,7 @@
 
 #include <functional>
 #include <span>
-#include <boost/serialization/base_object.hpp>
+#include "common/serialization/boost_all_serialization.h"
 
 #include "video_core/pica/output_vertex.h"
 

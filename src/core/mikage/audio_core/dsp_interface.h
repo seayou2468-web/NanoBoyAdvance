@@ -6,7 +6,7 @@
 
 #include <memory>
 #include <span>
-#include <boost/serialization/access.hpp>
+#include "common/serialization/boost_all_serialization.h"
 #include "audio_core/audio_types.h"
 #include "audio_core/time_stretch.h"
 #include "common/common_types.h"

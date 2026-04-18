@@ -5,7 +5,7 @@
 #pragma once
 
 #include <memory>
-#include <boost/serialization/export.hpp>
+#include "common/serialization/boost_all_serialization.h"
 #include "video_core/pica/shader_unit.h"
 
 namespace Pica {

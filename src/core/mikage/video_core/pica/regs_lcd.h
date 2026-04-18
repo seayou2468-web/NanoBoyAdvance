@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <boost/serialization/access.hpp>
+#include "common/serialization/boost_all_serialization.h"
 
 #include "common/bit_field.h"
 #include "common/common_funcs.h"
