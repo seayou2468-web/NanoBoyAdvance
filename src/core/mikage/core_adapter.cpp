@@ -16,7 +16,6 @@
 #include <fstream>
 #include <string>
 #include <vector>
-#include <unistd.h>
 
 #include "./common/log_manager.h"
 #include "./citra/emu_window/emu_window_ios.h"

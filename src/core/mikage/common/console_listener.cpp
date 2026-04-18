@@ -2,102 +2,87 @@
 // Licensed under GPLv2
 // Refer to the license.txt file included.
 
-#include <algorithm>  // min
-#include <string> // System: To be able to add strings with "+"
-#include <stdio.h>
-#include <math.h>
-#ifdef _WIN32
-#include <windows.h>
-#include <array>
-#else
-#include <stdarg.h>
-#endif
+#include <cstdio>
+#include <cstring>
+#include <algorithm>
 
 #include "common.h"
-#include "log_manager.h" // Common
-#include "console_listener.h" // Common
+#include "log_manager.h"
+#include "console_listener.h"
 
-ConsoleListener::ConsoleListener()
-{
-#ifdef _WIN32
-    hConsole = NULL;
-    bUseColor = true;
-#else
-    bUseColor = isatty(fileno(stdout));
+// iOS-compatible implementation: console logging via os/log.h
+#ifdef __APPLE__
+#include <os/log.h>
 #endif
-}
 
-ConsoleListener::~ConsoleListener()
-{
+ConsoleListener::ConsoleListener() : bUseColor(false) {}
+
+ConsoleListener::~ConsoleListener() {
     Close();
 }
 
-// 100, 100, "Dolphin Log Console"
-// Open console window - width and height is the size of console window
-// Name is the window title
-void ConsoleListener::Open(bool Hidden, int Width, int Height, const char *Title)
-{
-#ifdef _WIN32
-    if (!GetConsoleWindow())
-    {
-        // Open the console window and create the window handle for GetStdHandle()
-        AllocConsole();
-        // Hide
-        if (Hidden) ShowWindow(GetConsoleWindow(), SW_HIDE);
-        // Save the window handle that AllocConsole() created
-        hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-        // Set the console window title
-        SetConsoleTitle(UTF8ToTStr(Title).c_str());
-        // Set letter space
-        LetterSpace(80, 4000);
-        //MoveWindow(GetConsoleWindow(), 200,200, 800,800, true);
-    }
-    else
-    {
-        hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-    }
-#endif
+void ConsoleListener::Open(bool Hidden, int Width, int Height, const char* Title) {
+    // No-op for iOS: console output handled by system logging
 }
 
-void ConsoleListener::UpdateHandle()
-{
-#ifdef _WIN32
-    hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-#endif
+void ConsoleListener::UpdateHandle() {
+    // No-op for iOS
 }
 
-// Close the console window and close the eventual file handle
-void ConsoleListener::Close()
-{
-#ifdef _WIN32
-    if (hConsole == NULL)
+void ConsoleListener::Close() {
+    // No-op for iOS
+}
+
+bool ConsoleListener::IsOpen() {
+    return true;  // Always "open" for iOS (logs go to system log)
+}
+
+void ConsoleListener::LetterSpace(int Width, int Height) {
+    // No-op for iOS
+}
+
+void ConsoleListener::BufferWidthHeight(int BufferWidth, int BufferHeight, int ScreenWidth, int ScreenHeight, bool BufferFirst) {
+    // No-op for iOS
+}
+
+void ConsoleListener::PixelSpace(int Left, int Top, int Width, int Height, bool) {
+    // No-op for iOS
+}
+
+void ConsoleListener::Log(LogTypes::LOG_LEVELS Level, const char* Text) {
+    if (!Text || !*Text)
         return;
-    FreeConsole();
-    hConsole = NULL;
+
+#ifdef __APPLE__
+    os_log_type_t log_type = OS_LOG_TYPE_DEFAULT;
+    switch (Level) {
+        case LogTypes::LOG_LEVELS::LNOTICE:
+        case LogTypes::LOG_LEVELS::LINFO:
+            log_type = OS_LOG_TYPE_INFO;
+            break;
+        case LogTypes::LOG_LEVELS::LWARNING:
+            log_type = OS_LOG_TYPE_DEFAULT;
+            break;
+        case LogTypes::LOG_LEVELS::LERROR:
+            log_type = OS_LOG_TYPE_ERROR;
+            break;
+        case LogTypes::LOG_LEVELS::LCRITICAL:
+            log_type = OS_LOG_TYPE_FAULT;
+            break;
+        default:
+            log_type = OS_LOG_TYPE_DEBUG;
+            break;
+    }
+    os_log_with_type(OS_LOG_DEFAULT, log_type, "%{public}s", Text);
 #else
-    fflush(NULL);
+    fprintf(stdout, "%s", Text);
+    fflush(stdout);
 #endif
 }
 
-bool ConsoleListener::IsOpen()
-{
-#ifdef _WIN32
-    return (hConsole != NULL);
-#else
-    return true;
-#endif
+void ConsoleListener::ClearScreen(bool Cursor) {
+    // No-op for iOS
 }
-
-/*
-  LetterSpace: SetConsoleScreenBufferSize and SetConsoleWindowInfo are
-    dependent on each other, that's the reason for the additional checks.  
-*/
-void ConsoleListener::BufferWidthHeight(int BufferWidth, int BufferHeight, int ScreenWidth, int ScreenHeight, bool BufferFirst)
-{
-#ifdef _WIN32
-    BOOL SB, SW;
-    if (BufferFirst)
-    {
         // Change screen buffer size
         COORD Co = {BufferWidth, BufferHeight};
         SB = SetConsoleScreenBufferSize(hConsole, Co);

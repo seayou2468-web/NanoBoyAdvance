@@ -83,11 +83,8 @@ LogManager::LogManager()
         m_Log[i]->SetEnable(true);
         m_Log[i]->AddListener(m_fileLog);
         m_Log[i]->AddListener(m_consoleLog);
-#ifdef _MSC_VER
-        if (IsDebuggerPresent())
-            m_Log[i]->AddListener(m_debuggerLog);
-#endif
-    }
+
+}
 }
 
 LogManager::~LogManager()
@@ -191,7 +188,5 @@ void FileLogListener::Log(LogTypes::LOG_LEVELS, const char *msg)
 
 void DebuggerLogListener::Log(LogTypes::LOG_LEVELS, const char *msg)
 {
-#if _MSC_VER
-    ::OutputDebugStringA(msg);
-#endif
+
 }

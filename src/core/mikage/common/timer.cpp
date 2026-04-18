@@ -5,11 +5,8 @@
 #include <time.h>
 
 #ifdef _WIN32
-#include <Windows.h>
 #include <mmsystem.h>
-#include <sys/timeb.h>
 #else
-#include <sys/time.h>
 #endif
 
 #include "common.h"

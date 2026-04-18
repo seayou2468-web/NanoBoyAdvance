@@ -32,8 +32,6 @@ fun, and definign VAILDATE will define SWI 1 to enter SVC mode, and SWI
 #ifndef __USE_LARGEFILE64
 #define __USE_LARGEFILE64               /* When use 64 bit large file need define it! for stat64*/
 #endif
-#include <fcntl.h>
-#include <sys/stat.h>
 
 
 #ifndef O_RDONLY
@@ -54,7 +52,6 @@ fun, and definign VAILDATE will define SWI 1 to enter SVC mode, and SWI
 #endif
 
 #ifdef HAVE_UNISTD_H
-#include <unistd.h>		/* For SEEK_SET etc */
 #endif
 
 #ifdef __riscos

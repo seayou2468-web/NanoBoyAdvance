@@ -7,7 +7,6 @@
 #define _MEMORYUTIL_H
 
 #ifndef _WIN32
-#include <sys/mman.h>
 #endif
 #include <string>
 

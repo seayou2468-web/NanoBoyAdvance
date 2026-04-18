@@ -5,7 +5,6 @@
 #include "thread.h"
 #include "common.h"
 
-#include <unistd.h>
 
 #ifdef __APPLE__
 #include <mach/mach.h>

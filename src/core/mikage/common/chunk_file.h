@@ -43,7 +43,8 @@
 
 #include "common.h"
 #include "file_util.h"
-//#include "../ext/snappy/snappy-c.h"
+// Note: Snappy compression support has been removed.
+// Use uncompressed serialization for compatibility.
 
 #if defined(IOS) || defined(MACGNUSTD)
 namespace std {
@@ -100,12 +101,8 @@ class PointerWrap
 {
     // This makes it a compile error if you forget to define DoState() on non-POD.
     // Which also can be a problem, for example struct tm is non-POD on linux, for whatever reason...
-#ifdef _MSC_VER
-    template<typename T, bool isPOD = std::is_pod<T>::value, bool isPointer = std::is_pointer<T>::value>
-#else
-    template<typename T, bool isPOD = __is_pod(T), bool isPointer = std::is_pointer<T>::value>
-#endif
-    struct DoHelper
+
+struct DoHelper
     {
         static void DoArray(PointerWrap *p, T *x, int count)
         {
@@ -737,15 +734,10 @@ public:
         u8 *ptr = buffer;
         u8 *buf = buffer;
         if (header.Compress) {
-            u8 *uncomp_buffer = new u8[header.UncompressedSize];
-            size_t uncomp_size = header.UncompressedSize;
-            snappy_uncompress((const char *)buffer, sz, (char *)uncomp_buffer, &uncomp_size);
-            if ((int)uncomp_size != header.UncompressedSize) {
-                ERROR_LOG(COMMON,"Size mismatch: file: %i  calc: %i", (int)header.UncompressedSize, (int)uncomp_size);
-            }
-            ptr = uncomp_buffer;
-            buf = uncomp_buffer;
+            // Compression support removed - snappy library dependency eliminated
+            ERROR_LOG(COMMON, "ChunkReader: Compressed saves are not supported. Use uncompressed format.");
             delete [] buffer;
+            return ERROR_BAD_FILE;
         }
 
         PointerWrap p(&ptr, PointerWrap::MODE_READ);
@@ -788,45 +780,25 @@ public:
 
         // Create header
         SChunkHeader header;
-        header.Compress = compress ? 1 : 0;
+        header.Compress = 0;  // Compression support removed - always save uncompressed
         header.Revision = _Revision;
         header.ExpectedSize = (int)sz;
         header.UncompressedSize = (int)sz;
         strncpy(header.GitVersion, _VersionString, 32);
         header.GitVersion[31] = '\0';
 
-        // Write to file
-        if (compress) {
-            size_t comp_len = snappy_max_compressed_length(sz);
-            u8 *compressed_buffer = new u8[comp_len];
-            snappy_compress((const char *)buffer, sz, (char *)compressed_buffer, &comp_len);
-            delete [] buffer;
-            header.ExpectedSize = (int)comp_len;
-            if (!pFile.WriteArray(&header, 1))
-            {
-                ERROR_LOG(COMMON,"ChunkReader: Failed writing header");
-                return ERROR_BAD_FILE;
-            }
-            if (!pFile.WriteBytes(&compressed_buffer[0], comp_len)) {
-                ERROR_LOG(COMMON,"ChunkReader: Failed writing compressed data");
-                return ERROR_BAD_FILE;
-            }    else {
-                INFO_LOG(COMMON, "Savestate: Compressed %i bytes into %i", (int)sz, (int)comp_len);
-            }
-            delete [] compressed_buffer;
-        } else {
-            if (!pFile.WriteArray(&header, 1))
-            {
-                ERROR_LOG(COMMON,"ChunkReader: Failed writing header");
-                return ERROR_BAD_FILE;
-            }
-            if (!pFile.WriteBytes(&buffer[0], sz))
-            {
-                ERROR_LOG(COMMON,"ChunkReader: Failed writing data");
-                return ERROR_BAD_FILE;
-            }
-            delete [] buffer;
+        // Write to file (uncompressed)
+        if (!pFile.WriteArray(&header, 1))
+        {
+            ERROR_LOG(COMMON,"ChunkReader: Failed writing header");
+            return ERROR_BAD_FILE;
         }
+        if (!pFile.WriteBytes(&buffer[0], sz))
+        {
+            ERROR_LOG(COMMON,"ChunkReader: Failed writing data");
+            return ERROR_BAD_FILE;
+        }
+        delete [] buffer;
         
         INFO_LOG(COMMON,"ChunkReader: Done writing %s", 
                  _rFilename.c_str());

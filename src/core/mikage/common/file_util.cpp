@@ -8,20 +8,9 @@
 #include "file_util.h"
 #include "string_util.h"
 
-#ifdef _WIN32
-#include <windows.h>
-#include <shlobj.h>        // for SHGetFolderPath
-#include <shellapi.h>
-#include <commdlg.h>    // for GetSaveFileName
-#include <io.h>
-#include <direct.h>        // getcwd
-#else
 #include <sys/param.h>
-#include <sys/types.h>
-#include <dirent.h>
 #include <errno.h>
 #include <stdlib.h>
-#endif
 
 #if defined(__APPLE__)
 #include <CoreFoundation/CFString.h>
@@ -30,8 +19,6 @@
 #endif
 
 #include <algorithm>
-#include <sys/stat.h>
-
 #include "string_util.h"
 
 #ifndef S_ISDIR
@@ -70,11 +57,8 @@ bool Exists(const std::string &filename)
     std::string copy(filename);
     StripTailDirSlashes(copy);
 
-#ifdef _WIN32
-    int result = _tstat64(UTF8ToTStr(copy).c_str(), &file_info);
-#else
+    // iOS-compatible: use standard stat64
     int result = stat64(copy.c_str(), &file_info);
-#endif
 
     return (result == 0);
 }
@@ -87,11 +71,8 @@ bool IsDirectory(const std::string &filename)
     std::string copy(filename);
     StripTailDirSlashes(copy);
 
-#ifdef _WIN32
-    int result = _tstat64(UTF8ToTStr(copy).c_str(), &file_info);
-#else
+    // iOS-compatible: use standard stat64
     int result = stat64(copy.c_str(), &file_info);
-#endif
 
     if (result < 0) {
         WARN_LOG(COMMON, "IsDirectory: stat failed on %s: %s", 

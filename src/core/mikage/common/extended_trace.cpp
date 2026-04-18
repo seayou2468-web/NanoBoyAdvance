@@ -1,53 +1,31 @@
 // --------------------------------------------------------------------------------------
 //
-// Written by Zoltan Csizmadia, zoltan_csizmadia@yahoo.com
-// For companies(Austin,TX): If you would like to get my resume, send an email.
-//
-// The source is free, but if you want to use it, mention my name and e-mail address
-//
-// History:
-//    1.0      Initial version                  Zoltan Csizmadia
-//    1.1      WhineCube version                Masken
-//    1.2      Dolphin version                  Masken
+// iOS-compatible stub for extended trace functionality
+// Original Windows-specific stack trace implementation removed
 //
 // --------------------------------------------------------------------------------------
 
-#if defined(WIN32)
-
-#include <windows.h>
 #include <stdio.h>
+#include <stdarg.h>
+#include <cstring>
 #include "extended_trace.h"
-#include "string_util.h"
-using namespace std;
 
-#include <tchar.h>
-#include <ImageHlp.h>
-
-#define BUFFERSIZE   0x200
-#pragma warning(disable:4996)
-
-// Unicode safe char* -> TCHAR* conversion
-void PCSTR2LPTSTR( PCSTR lpszIn, LPTSTR lpszOut )
-{
-#if defined(UNICODE)||defined(_UNICODE)
-    ULONG index = 0; 
-    PCSTR lpAct = lpszIn;
-
-    for( ; ; lpAct++ )
-    {
-        lpszOut[index++] = (TCHAR)(*lpAct);
-        if ( *lpAct == 0 )
-            break;
-    } 
-#else
-    // This is trivial :)
-    strcpy( lpszOut, lpszIn );
-#endif
+// iOS-compatible stub implementations
+void etfprintf(FILE* file, const char* format, ...) {
+    if (!file)
+        return;
+    
+    va_list args;
+    va_start(args, format);
+    vfprintf(file, format, args);
+    va_end(args);
 }
 
-// Let's figure out the path for the symbol files
-// Search path= ".;%_NT_SYMBOL_PATH%;%_NT_ALTERNATE_SYMBOL_PATH%;%SYSTEMROOT%;%SYSTEMROOT%\System32;" + lpszIniPath
-// Note: There is no size check for lpszSymbolPath!
+void etfprint(FILE* file, const std::string& text) {
+    if (!file)
+        return;
+    fprintf(file, "%s", text.c_str());
+}
 static void InitSymbolPath( PSTR lpszSymbolPath, PCSTR lpszIniPath )
 {
     CHAR lpszPath[BUFFERSIZE];

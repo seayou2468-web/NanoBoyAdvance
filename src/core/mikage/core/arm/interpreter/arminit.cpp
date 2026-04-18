@@ -18,7 +18,6 @@
 
 #include "../../../common/platform.h"
 
-#include <unistd.h>
 
 #include <cstdio>
 #include <cstdlib>

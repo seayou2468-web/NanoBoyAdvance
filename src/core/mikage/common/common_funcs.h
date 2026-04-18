@@ -5,12 +5,12 @@
 #ifndef _COMMONFUNCS_H_
 #define _COMMONFUNCS_H_
 
-#ifdef _WIN32
-#define SLEEP(x) Sleep(x)
-#else
-#include <unistd.h>
-#define SLEEP(x) usleep(x*1000)
-#endif
+#include <future>
+#include <thread>
+#include <chrono>
+
+// iOS-compatible SLEEP macro using std::this_thread
+#define SLEEP(x) std::this_thread::sleep_for(std::chrono::milliseconds(x))
 
 template <bool> struct CompileTimeAssert;
 template<> struct CompileTimeAssert<true> {};

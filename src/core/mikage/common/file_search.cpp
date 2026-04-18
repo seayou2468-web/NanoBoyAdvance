@@ -5,8 +5,6 @@
 
 #include "common.h"
 #include "common_paths.h"
-#include <sys/types.h>
-#include <dirent.h>
 
 #include <string>
 #include <algorithm>

@@ -19,7 +19,6 @@
 #define _MEMARENA_H_
 
 #ifdef _WIN32
-#include <windows.h>
 #endif
 
 #ifdef __SYMBIAN32__

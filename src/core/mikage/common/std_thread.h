@@ -36,14 +36,6 @@
 // WIN32
 
 #define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-
-#if defined(_MSC_VER) && defined(_MT)
-// When linking with LIBCMT (the multithreaded C library), Microsoft recommends
-// using _beginthreadex instead of CreateThread.
-#define USE_BEGINTHREADEX
-#include <process.h>
-#endif
 
 #ifdef USE_BEGINTHREADEX
 #define THREAD_ID unsigned
@@ -57,13 +49,11 @@
 #else
 // PTHREAD
 
-#include <unistd.h>
 
 #ifndef _POSIX_THREADS
 #error unsupported platform (no pthreads?)
 #endif
 
-#include <pthread.h>
 
 #define THREAD_ID pthread_t
 #define THREAD_HANDLE pthread_t

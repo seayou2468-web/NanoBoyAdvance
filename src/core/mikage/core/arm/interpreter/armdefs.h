@@ -37,14 +37,10 @@
 
 //teawater add for arm2x86 2005.07.03-------------------------------------------
 
-#include <sys/types.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 #include <errno.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 
 //#include <memory_space.h>
 //AJ2D--------------------------------------------------------------------------
@@ -80,7 +76,6 @@
 
 #include "../../../common/platform.h"
 
-#include <sys/time.h>
 
 //#define DBCT_TEST_SPEED
 #define DBCT_TEST_SPEED_SEC    10

@@ -25,29 +25,18 @@
 #pragma once 
 
 #include <math.h>
+#include <cstdint>
 
-#ifdef _WIN32
+// iOS-compatible type definitions
+typedef uint8_t         u8;     ///< 8-bit unsigned byte
+typedef uint16_t        u16;    ///< 16-bit unsigned short
+typedef uint32_t        u32;    ///< 32-bit unsigned word
+typedef uint64_t        u64;    ///< 64-bit unsigned int
 
-#include <tchar.h>
-
-typedef unsigned __int8     u8;     ///< 8-bit unsigned byte
-typedef unsigned __int16    u16;    ///< 16-bit unsigned short
-typedef unsigned __int32    u32;    ///< 32-bit unsigned word
-typedef unsigned __int64    u64;    ///< 64-bit unsigned int
-
-typedef signed __int8       s8;     ///< 8-bit signed byte
-typedef signed __int16      s16;    ///< 16-bit signed short
-typedef signed __int32      s32;    ///< 32-bit signed word
-typedef signed __int64      s64;    ///< 64-bit signed int
-
-#else
-
-typedef unsigned char       u8;     ///< 8-bit unsigned byte
-typedef unsigned short      u16;    ///< 16-bit unsigned short
-typedef unsigned int        u32;    ///< 32-bit unsigned word
-typedef unsigned long long  u64;    ///< 64-bit unsigned int
-
-typedef signed char         s8;     ///< 8-bit signed byte
+typedef int8_t          s8;     ///< 8-bit signed byte
+typedef int16_t         s16;    ///< 16-bit signed short
+typedef int32_t         s32;    ///< 32-bit signed word
+typedef int64_t         s64;    ///< 64-bit signed int
 typedef signed short        s16;    ///< 16-bit signed short
 typedef signed int          s32;    ///< 32-bit signed word
 typedef signed long long    s64;    ///< 64-bit signed int

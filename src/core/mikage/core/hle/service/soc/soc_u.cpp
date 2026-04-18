@@ -22,8 +22,6 @@
 #include "network/socket_manager.h"
 
 #ifdef _WIN32
-#include <winsock2.h>
-#include <ws2tcpip.h>
 
 // MinGW does not define several errno constants
 #ifndef _MSC_VER
@@ -36,16 +34,8 @@
 #endif // _MSC_VER
 #else
 #include <cerrno>
-#include <arpa/inet.h>
-#include <fcntl.h>
 #include <ifaddrs.h>
-#include <netdb.h>
-#include <netinet/in.h>
 #include <netinet/tcp.h>
-#include <poll.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <unistd.h>
 #endif
 
 #ifdef _WIN32

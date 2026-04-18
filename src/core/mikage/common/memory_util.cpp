@@ -8,7 +8,6 @@
 #include "string_util.h"
 
 #ifdef _WIN32
-#include <windows.h>
 #include <psapi.h>
 #else
 #include <errno.h>
@@ -16,7 +15,6 @@
 #endif
 
 #if !defined(_WIN32) && defined(__aarch64__) && !defined(MAP_32BIT)
-#include <unistd.h>
 #define PAGE_MASK     (getpagesize() - 1)
 #define round_page(x) ((((unsigned long)(x)) + PAGE_MASK) & ~(PAGE_MASK))
 #endif

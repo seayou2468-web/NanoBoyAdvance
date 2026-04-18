@@ -119,9 +119,9 @@ SurfaceParams SurfaceParams::FromInterval(SurfaceInterval interval) const {
 
     const PAddr start = mipmap_offsets[level];
     PAddr aligned_start =
-        start + Common::AlignDown(boost::icl::first(interval) - start, stride_tiled_bytes);
+        start + Common::AlignDown(interval.lower() - start, stride_tiled_bytes);
     PAddr aligned_end =
-        start + Common::AlignUp(boost::icl::last_next(interval) - start, stride_tiled_bytes);
+        start + Common::AlignUp(interval.upper() - start, stride_tiled_bytes);
 
     if (aligned_end - aligned_start > stride_tiled_bytes) {
         params.addr = aligned_start;
@@ -132,9 +132,9 @@ SurfaceParams SurfaceParams::FromInterval(SurfaceInterval interval) const {
         const u32 tiled_alignment = BytesInPixels(is_tiled ? 8 * 8 : 1);
 
         aligned_start =
-            start + Common::AlignDown(boost::icl::first(interval) - start, tiled_alignment);
+            start + Common::AlignDown(interval.lower() - start, tiled_alignment);
         aligned_end =
-            start + Common::AlignUp(boost::icl::last_next(interval) - start, tiled_alignment);
+            start + Common::AlignUp(interval.upper() - start, tiled_alignment);
 
         params.addr = aligned_start;
         params.width = PixelsInBytes(aligned_end - aligned_start) / tiled_size;

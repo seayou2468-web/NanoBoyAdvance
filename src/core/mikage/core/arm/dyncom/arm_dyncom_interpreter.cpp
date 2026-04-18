@@ -948,9 +948,6 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
 #define INC_PC(l) ptr += sizeof(arm_inst) + l
 #define INC_PC_STUB ptr += sizeof(arm_inst)
 
-#ifdef ANDROID
-#define GDB_BP_CHECK
-#else
 #define GDB_BP_CHECK                                                                               \
     cpu->Cpsr &= ~(1 << 5);                                                                        \
     cpu->Cpsr |= cpu->TFlag << 5;                                                                  \
@@ -962,8 +959,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
             cpu->RecordBreak(breakpoint_data);                                                     \
             goto END;                                                                              \
         }                                                                                          \
-    }
-#endif
+    }
 
 // GCC and Clang have a C++ extension to support a lookup table of labels. Otherwise, fallback to a
 // clunky switch statement.
