@@ -3,11 +3,13 @@
 // Refer to the license.txt file included.
 
 #include <sstream>
+#include <cryptopp/eccrypto.h>
+#include <cryptopp/oids.h>
 #include "common/assert.h"
 #include "common/common_paths.h"
-#include "common/cryptopp_rng.h"
 #include "common/file_util.h"
 #include "common/logging/log.h"
+#include "common/secure_random.h"
 #include "common/string_util.h"
 #include "core/hw/aes/key.h"
 #include "core/hw/ecc.h"
@@ -16,16 +18,36 @@ namespace HW::ECC {
 
 PublicKey root_public;
 
-CryptoPPInteger PrivateKey::AsCryptoPPInteger() const {
-    return CryptoPP::Integer(x.data(), x.size(), CryptoPP::Integer::UNSIGNED,
+namespace {
+
+using CryptoPPInteger = CryptoPP::Integer;
+using CryptoPPPoint = CryptoPP::EC2N::Point;
+using CryptoPPECCPrivateKey = CryptoPP::ECDSA<CryptoPP::EC2N, CryptoPP::SHA256>::PrivateKey;
+using CryptoPPECCPublicKey = CryptoPP::ECDSA<CryptoPP::EC2N, CryptoPP::SHA256>::PublicKey;
+
+class CryptoPPRandom final : public CryptoPP::RandomNumberGenerator {
+public:
+    ~CryptoPPRandom() override = default;
+
+    std::string AlgorithmName() const override {
+        return "HW::ECC::CryptoPPRandom";
+    }
+
+    void GenerateBlock(byte* output, size_t size) override {
+        Common::FillSecureRandom(std::span<std::uint8_t>(output, size));
+    }
+};
+
+CryptoPPInteger AsCryptoPPInteger(const PrivateKey& private_key) {
+    return CryptoPP::Integer(private_key.x.data(), private_key.x.size(), CryptoPP::Integer::UNSIGNED,
                              CryptoPP::BIG_ENDIAN_ORDER);
 }
 
-CryptoPPECCPrivateKey PrivateKey::AsCryptoPPPrivateKey() const {
+CryptoPPECCPrivateKey AsCryptoPPPrivateKey(const PrivateKey& private_key) {
     CryptoPPECCPrivateKey private_key_cpp;
-    Common::CryptoPPRandom prng;
+    CryptoPPRandom prng;
 
-    private_key_cpp.Initialize(CryptoPP::ASN1::sect233r1(), AsCryptoPPInteger());
+    private_key_cpp.Initialize(CryptoPP::ASN1::sect233r1(), AsCryptoPPInteger(private_key));
     if (!private_key_cpp.Validate(prng, 3)) {
         LOG_ERROR(HW, "Failed to verify ECC private key");
     }
@@ -33,17 +55,31 @@ CryptoPPECCPrivateKey PrivateKey::AsCryptoPPPrivateKey() const {
     return private_key_cpp;
 }
 
-CryptoPPPoint PublicKey::AsCryptoPPPoint() const {
-    return CryptoPP::EC2N::Point(CryptoPP::PolynomialMod2(x.data(), x.size()),
-                                 CryptoPP::PolynomialMod2(y.data(), y.size()));
+CryptoPPPoint AsCryptoPPPoint(const PublicKey& public_key) {
+    return CryptoPP::EC2N::Point(CryptoPP::PolynomialMod2(public_key.x.data(), public_key.x.size()),
+                                 CryptoPP::PolynomialMod2(public_key.y.data(), public_key.y.size()));
 }
 
-CryptoPPECCPublicKey PublicKey::AsCryptoPPPublicKey() const {
+CryptoPPECCPublicKey AsCryptoPPPublicKey(const PublicKey& public_key) {
     CryptoPPECCPublicKey public_key_cpp;
 
-    public_key_cpp.Initialize(CryptoPP::ASN1::sect233r1(), AsCryptoPPPoint());
+    public_key_cpp.Initialize(CryptoPP::ASN1::sect233r1(), AsCryptoPPPoint(public_key));
     return public_key_cpp;
 }
+
+PublicKey MakePublicKeyFromCrypto(const CryptoPPECCPrivateKey& private_key_cpp) {
+    CryptoPPECCPublicKey public_key_cpp;
+    PublicKey public_key;
+
+    private_key_cpp.MakePublicKey(public_key_cpp);
+
+    public_key_cpp.GetPublicElement().x.Encode(public_key.x.data(), public_key.x.size());
+    public_key_cpp.GetPublicElement().y.Encode(public_key.y.data(), public_key.y.size());
+
+    return public_key;
+}
+
+} // namespace
 
 std::vector<u8> HexToVector(const std::string& hex) {
     std::vector<u8> vector(hex.size() / 2);
@@ -140,38 +176,26 @@ Signature CreateECCSignature(std::span<const u8> signature_rs) {
     return ret;
 }
 
-PublicKey MakePublicKey(const CryptoPPECCPrivateKey& private_key_cpp) {
-    CryptoPPECCPublicKey public_key_cpp;
-    PublicKey public_key;
-
-    private_key_cpp.MakePublicKey(public_key_cpp);
-
-    public_key_cpp.GetPublicElement().x.Encode(public_key.x.data(), public_key.x.size());
-    public_key_cpp.GetPublicElement().y.Encode(public_key.y.data(), public_key.y.size());
-
-    return public_key;
-}
-
 PublicKey MakePublicKey(const PrivateKey& private_key) {
-    return MakePublicKey(private_key.AsCryptoPPPrivateKey());
+    return MakePublicKeyFromCrypto(AsCryptoPPPrivateKey(private_key));
 }
 
 std::pair<PrivateKey, PublicKey> GenerateKeyPair() {
     CryptoPPECCPrivateKey private_key_cpp;
     PrivateKey private_key;
 
-    Common::CryptoPPRandom prng;
+    CryptoPPRandom prng;
 
     private_key_cpp.Initialize(prng, CryptoPP::ASN1::sect233r1());
     private_key_cpp.GetPrivateExponent().Encode(private_key.x.data(), private_key.x.size());
 
-    return std::make_pair(private_key, MakePublicKey(private_key_cpp));
+    return std::make_pair(private_key, MakePublicKeyFromCrypto(private_key_cpp));
 }
 
 Signature Sign(std::span<const u8> data, PrivateKey private_key) {
     CryptoPP::ECDSA<CryptoPP::EC2N, CryptoPP::SHA256>::Signer signer(
-        private_key.AsCryptoPPPrivateKey());
-    Common::CryptoPPRandom prng;
+        AsCryptoPPPrivateKey(private_key));
+    CryptoPPRandom prng;
 
     Signature ret;
 
@@ -181,7 +205,7 @@ Signature Sign(std::span<const u8> data, PrivateKey private_key) {
 
 bool Verify(std::span<const u8> data, Signature signature, PublicKey public_key) {
     CryptoPP::ECDSA<CryptoPP::EC2N, CryptoPP::SHA256>::Verifier verifier(
-        public_key.AsCryptoPPPublicKey());
+        AsCryptoPPPublicKey(public_key));
 
     return verifier.VerifyMessage(data.data(), data.size(), signature.rs.data(),
                                   signature.rs.size());
@@ -194,10 +218,10 @@ std::vector<u8> Agree(PrivateKey private_key, PublicKey others_public_key) {
     std::vector<u8> agreement(domain.AgreedValueLength());
 
     std::vector<u8> private_encoded(domain.PrivateKeyLength());
-    private_key.AsCryptoPPInteger().Encode(private_encoded.data(), private_encoded.size());
+    AsCryptoPPInteger(private_key).Encode(private_encoded.data(), private_encoded.size());
 
     std::vector<u8> others_public_encoded(params.GetEncodedElementSize(true));
-    params.EncodeElement(true, others_public_key.AsCryptoPPPoint(), others_public_encoded.data());
+    params.EncodeElement(true, AsCryptoPPPoint(others_public_key), others_public_encoded.data());
 
     if (!domain.Agree(agreement.data(), private_encoded.data(), others_public_encoded.data())) {
         LOG_ERROR(HW, "ECDH agreement failed");

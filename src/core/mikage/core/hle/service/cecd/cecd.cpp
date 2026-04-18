@@ -6,7 +6,6 @@
 #include <array>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/unique_ptr.hpp>
-#include <cryptopp/base64.h>
 #include <CommonCrypto/CommonHMAC.h>
 #include "common/archives.h"
 #include "common/common_paths.h"
@@ -850,21 +849,34 @@ void Module::Interface::GetCecInfoEventHandleSys(Kernel::HLERequestContext& ctx)
 }
 
 std::string Module::EncodeBase64(std::span<const u8> in) const {
-    using namespace CryptoPP;
-    using Name::EncodingLookupArray;
-    using Name::InsertLineBreaks;
-    using Name::Pad;
-
     std::string out;
-    Base64Encoder encoder;
-    AlgorithmParameters params =
-        MakeParameters(EncodingLookupArray(), (const byte*)base64_dict.data())(InsertLineBreaks(),
-                                                                               false)(Pad(), false);
+    out.reserve(((in.size() + 2) / 3) * 4);
+    constexpr std::size_t bits_per_char = 6;
 
-    encoder.IsolatedInitialize(params);
-    encoder.Attach(new StringSink(out));
-    encoder.Put(in.data(), in.size());
-    encoder.MessageEnd();
+    std::size_t i = 0;
+    while (i + 3 <= in.size()) {
+        const u32 chunk = (static_cast<u32>(in[i]) << 16) | (static_cast<u32>(in[i + 1]) << 8) |
+                          static_cast<u32>(in[i + 2]);
+        out.push_back(base64_dict[(chunk >> 18) & 0x3F]);
+        out.push_back(base64_dict[(chunk >> 12) & 0x3F]);
+        out.push_back(base64_dict[(chunk >> bits_per_char) & 0x3F]);
+        out.push_back(base64_dict[chunk & 0x3F]);
+        i += 3;
+    }
+
+    if (const std::size_t remaining = in.size() - i; remaining != 0) {
+        u32 chunk = static_cast<u32>(in[i]) << 16;
+        if (remaining == 2) {
+            chunk |= static_cast<u32>(in[i + 1]) << 8;
+        }
+
+        out.push_back(base64_dict[(chunk >> 18) & 0x3F]);
+        out.push_back(base64_dict[(chunk >> 12) & 0x3F]);
+        if (remaining >= 2) {
+            out.push_back(base64_dict[(chunk >> bits_per_char) & 0x3F]);
+            out.push_back(base64_dict[chunk & 0x3F]);
+        }
+    }
 
     return out;
 }

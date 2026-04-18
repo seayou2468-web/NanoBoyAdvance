@@ -5,15 +5,10 @@
 #pragma once
 
 #include <array>
+#include <span>
 #include <vector>
 
 #include "core/hle/service/nfc/nfc_types.h"
-
-namespace CryptoPP {
-class SHA256;
-template <class T>
-class HMAC;
-} // namespace CryptoPP
 
 namespace HW::AES {
 struct NfcSecret;
@@ -73,12 +68,11 @@ HashSeed GetSeed(const NTAG215File& data);
 // Middle step on the generation of derived keys
 std::vector<u8> GenerateInternalKey(const HW::AES::NfcSecret& secret, const HashSeed& seed);
 
-// Initializes mbedtls context
-void CryptoInit(CryptoCtx& ctx, CryptoPP::HMAC<CryptoPP::SHA256>& hmac_ctx,
-                std::span<const u8> hmac_key, std::span<const u8> seed);
+// Initializes key derivation context
+void CryptoInit(CryptoCtx& ctx, std::span<const u8> seed);
 
-// Feeds data to mbedtls context to generate the derived key
-void CryptoStep(CryptoCtx& ctx, CryptoPP::HMAC<CryptoPP::SHA256>& hmac_ctx, DrgbOutput& output);
+// Feeds data to key derivation context to generate the derived key
+void CryptoStep(CryptoCtx& ctx, std::span<const u8> hmac_key, DrgbOutput& output);
 
 // Generates the derived key from amiibo data
 DerivedKeys GenerateKey(const HW::AES::NfcSecret& secret, const NTAG215File& data);

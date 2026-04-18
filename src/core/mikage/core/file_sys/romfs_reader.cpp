@@ -6,9 +6,8 @@
 
 #include <algorithm>
 #include <vector>
-#include <cryptopp/aes.h>
-#include <cryptopp/modes.h>
 #include "common/archives.h"
+#include "common/commoncrypto_aes.h"
 #include "common/logging/log.h"
 #include "core/file_sys/archive_artic.h"
 #include "core/file_sys/archive_backend.h"
@@ -32,9 +31,12 @@ std::size_t DirectRomFSReader::ReadFile(std::size_t offset, std::size_t length, 
     if (segments.size() == 1 && segments[0].second > cache_line_size) {
         length = file->ReadAtBytes(buffer, length, file_offset + offset);
         if (is_encrypted) {
-            CryptoPP::CTR_Mode<CryptoPP::AES>::Decryption d(key.data(), key.size(), ctr.data());
-            d.Seek(crypto_offset + offset);
-            d.ProcessData(buffer, buffer, length);
+            if (!Common::Crypto::AESCTRTransform(
+                    std::span<const u8>(buffer, length), std::span<u8>(buffer, length), key, ctr,
+                    crypto_offset + offset)) {
+                LOG_ERROR(Service_FS, "RomFS Cache SKIP decrypt failed at offset={}", offset);
+                return 0;
+            }
         }
         LOG_TRACE(Service_FS, "RomFS Cache SKIP: offset={}, length={}", offset, length);
         return length;
@@ -51,9 +53,13 @@ std::size_t DirectRomFSReader::ReadFile(std::size_t offset, std::size_t length, 
             // If not found, read from disk and cache the data
             read_size = file->ReadAtBytes(cache_entry.second.data(), read_size, file_offset + page);
             if (is_encrypted && read_size) {
-                CryptoPP::CTR_Mode<CryptoPP::AES>::Decryption d(key.data(), key.size(), ctr.data());
-                d.Seek(crypto_offset + page);
-                d.ProcessData(cache_entry.second.data(), cache_entry.second.data(), read_size);
+                if (!Common::Crypto::AESCTRTransform(
+                        std::span<const u8>(cache_entry.second.data(), read_size),
+                        std::span<u8>(cache_entry.second.data(), read_size), key, ctr,
+                        crypto_offset + page)) {
+                    LOG_ERROR(Service_FS, "RomFS Cache MISS decrypt failed at page={}", page);
+                    return read_progress;
+                }
             }
             LOG_TRACE(Service_FS, "RomFS Cache MISS: page={}, length={}, into={}", page, seg.second,
                       (seg.first - page));

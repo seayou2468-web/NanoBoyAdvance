@@ -6,8 +6,7 @@
 #include <optional>
 #include <fstream>
 #include <sstream>
-#include <cryptopp/aes.h>
-#include <cryptopp/modes.h>
+#include "common/commoncrypto_aes.h"
 #include "common/common_paths.h"
 #include "common/file_util.h"
 #include "common/logging/log.h"
@@ -302,8 +301,13 @@ std::istringstream GetKeysStream() {
         // purposes.
         std::vector<u8> kiv(16);
         std::string s(default_keys_enc_size, ' ');
-        CryptoPP::CBC_Mode<CryptoPP::AES>::Decryption(kiv.data(), kiv.size(), kiv.data())
-            .ProcessData(reinterpret_cast<u8*>(s.data()), default_keys_enc, s.size());
+        Common::Crypto::AESBlock iv{};
+        if (!Common::Crypto::AESCBCDecrypt(
+                std::span<const u8>(default_keys_enc, s.size()),
+                std::span<u8>(reinterpret_cast<u8*>(s.data()), s.size()), kiv, iv)) {
+            LOG_ERROR(HW_AES, "Failed to decrypt built-in key blob");
+            return std::istringstream("");
+        }
         return std::istringstream(s);
 #else
         return std::istringstream("");

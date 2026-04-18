@@ -2,9 +2,9 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include <cryptopp/aes.h>
-#include <cryptopp/modes.h>
+#include <algorithm>
 #include <CommonCrypto/CommonDigest.h>
+#include "common/commoncrypto_aes.h"
 #include "common/file_util.h"
 #include "common/logging/log.h"
 #include "core/file_sys/otp.h"
@@ -29,10 +29,14 @@ Loader::ResultStatus OTP::Load(const std::string& file_path, std::span<const u8>
 
     // OTP is probably encrypted, decrypt it.
     if (temp_otp.body.magic != otp_magic) {
-        CryptoPP::CBC_Mode<CryptoPP::AES>::Decryption d;
-        d.SetKeyWithIV(key.data(), key.size(), iv.data());
-        d.ProcessData(reinterpret_cast<u8*>(&temp_otp), reinterpret_cast<u8*>(&temp_otp),
-                      sizeof(temp_otp));
+        Common::Crypto::AESBlock aes_iv{};
+        std::copy_n(iv.begin(), std::min(iv.size(), aes_iv.size()), aes_iv.begin());
+        if (!Common::Crypto::AESCBCDecrypt(
+                std::span<const u8>(reinterpret_cast<const u8*>(&temp_otp), sizeof(temp_otp)),
+                std::span<u8>(reinterpret_cast<u8*>(&temp_otp), sizeof(temp_otp)), key, aes_iv)) {
+            LOG_ERROR(HW_AES, "OTP decrypt failed");
+            return Loader::ResultStatus::Error;
+        }
 
         if (temp_otp.body.magic != otp_magic) {
             LOG_ERROR(HW_AES, "OTP failed to decrypt (or uses dev keys)");

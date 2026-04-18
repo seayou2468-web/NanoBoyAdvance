@@ -2,12 +2,10 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include <cryptopp/aes.h>
-#include <cryptopp/cmac.h>
-#include <cryptopp/modes.h>
 #include <CommonCrypto/CommonDigest.h>
 #include "common/archives.h"
 #include "common/assert.h"
+#include "common/commoncrypto_aes.h"
 #include "common/common_types.h"
 #include "common/file_util.h"
 #include "common/logging/log.h"
@@ -1150,14 +1148,18 @@ void FS_USER::ExportIntegrityVerificationSeed(Kernel::HLERequestContext& ctx) {
     std::array<u8, CC_SHA256_DIGEST_LENGTH> movable_digest;
     CC_SHA256(movable.data(), static_cast<CC_LONG>(hashed_movable_size), movable_digest.data());
 
-    CryptoPP::CMAC<CryptoPP::AES> cmac(movable_cmac.data(), movable_cmac.size());
-    std::array<u8, CryptoPP::AES::BLOCKSIZE> cmac_hash;
-    cmac.Update(movable_digest.data(), movable_digest.size());
-    cmac.Final(cmac_hash.data());
+    Common::Crypto::AESBlock cmac_hash{};
+    if (!Common::Crypto::AESCMAC(movable_digest, movable_cmac, cmac_hash)) {
+        rb.Push(Result(ErrorDescription::InvalidResultValue, ErrorModule::FS,
+                       ErrorSummary::Internal, ErrorLevel::Status));
+        return;
+    }
 
-    CryptoPP::CBC_Mode<CryptoPP::AES>::Encryption{movable_key.data(), movable_key.size(),
-                                                  cmac_hash.data()}
-        .ProcessData(movable.data(), movable.data(), cipher_movable_size);
+    if (!Common::Crypto::AESCBCEncrypt(movable, movable, movable_key, cmac_hash)) {
+        rb.Push(Result(ErrorDescription::InvalidResultValue, ErrorModule::FS,
+                       ErrorSummary::Internal, ErrorLevel::Status));
+        return;
+    }
 
     movable.insert(movable.begin(), cmac_hash.begin(), cmac_hash.end());
 

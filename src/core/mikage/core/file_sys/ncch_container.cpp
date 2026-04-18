@@ -7,9 +7,8 @@
 #include <cstring>
 #include <memory>
 #include <span>
-#include <cryptopp/aes.h>
-#include <cryptopp/modes.h>
 #include <CommonCrypto/CommonDigest.h>
+#include "common/commoncrypto_aes.h"
 #include "common/common_types.h"
 #include "common/logging/log.h"
 #include "common/string_util.h"
@@ -434,10 +433,14 @@ Loader::ResultStatus NCCHContainer::Load() {
                         LOG_ERROR(Service_FS, "Failed to decrypt");
                         return Loader::ResultStatus::ErrorEncrypted;
                     }
-                    CryptoPP::byte* data = reinterpret_cast<CryptoPP::byte*>(&exheader_header);
-                    CryptoPP::CTR_Mode<CryptoPP::AES>::Decryption(
-                        primary_key.data(), primary_key.size(), exheader_ctr.data())
-                        .ProcessData(data, data, sizeof(exheader_header));
+                    auto* data = reinterpret_cast<u8*>(&exheader_header);
+                    if (!Common::Crypto::AESCTRTransform(
+                            std::span<const u8>(data, sizeof(exheader_header)),
+                            std::span<u8>(data, sizeof(exheader_header)), primary_key,
+                            exheader_ctr)) {
+                        LOG_ERROR(Service_FS, "Failed to decrypt NCCH exheader");
+                        return Loader::ResultStatus::ErrorEncrypted;
+                    }
                 }
             }
 
@@ -511,10 +514,13 @@ Loader::ResultStatus NCCHContainer::Load() {
                 return Loader::ResultStatus::Error;
 
             if (is_encrypted) {
-                CryptoPP::byte* data = reinterpret_cast<CryptoPP::byte*>(&exefs_header);
-                CryptoPP::CTR_Mode<CryptoPP::AES>::Decryption(primary_key.data(),
-                                                              primary_key.size(), exefs_ctr.data())
-                    .ProcessData(data, data, sizeof(exefs_header));
+                auto* data = reinterpret_cast<u8*>(&exefs_header);
+                if (!Common::Crypto::AESCTRTransform(
+                        std::span<const u8>(data, sizeof(exefs_header)),
+                        std::span<u8>(data, sizeof(exefs_header)), primary_key, exefs_ctr)) {
+                    LOG_ERROR(Service_FS, "Failed to decrypt NCCH ExeFS header");
+                    return Loader::ResultStatus::ErrorEncrypted;
+                }
             }
             
 			exefs_file = Reopen(file, filepath);
@@ -648,10 +654,6 @@ Loader::ResultStatus NCCHContainer::LoadSectionExeFS(const char* name, std::vect
                 key = secondary_key;
             }
 
-            CryptoPP::CTR_Mode<CryptoPP::AES>::Decryption dec(key.data(), key.size(),
-                                                              exefs_ctr.data());
-            dec.Seek(section.offset + sizeof(ExeFs_Header));
-
             size_t section_size = is_proto ? Common::AlignUp(section.size, 0x10) : section.size;
 
             if (strcmp(section.name, ".code") == 0 && is_compressed) {
@@ -662,7 +664,12 @@ Loader::ResultStatus NCCHContainer::LoadSectionExeFS(const char* name, std::vect
                     return Loader::ResultStatus::Error;
 
                 if (is_encrypted) {
-                    dec.ProcessData(&temp_buffer[0], &temp_buffer[0], section.size);
+                    if (!Common::Crypto::AESCTRTransform(
+                            std::span<const u8>(temp_buffer.data(), section.size),
+                            std::span<u8>(temp_buffer.data(), section.size), key, exefs_ctr,
+                            section.offset + sizeof(ExeFs_Header))) {
+                        return Loader::ResultStatus::ErrorEncrypted;
+                    }
                 }
 
                 // Decompress .code section...
@@ -676,7 +683,12 @@ Loader::ResultStatus NCCHContainer::LoadSectionExeFS(const char* name, std::vect
                 if (exefs_file->ReadBytes(buffer.data(), section_size) != section_size)
                     return Loader::ResultStatus::Error;
                 if (is_encrypted) {
-                    dec.ProcessData(buffer.data(), buffer.data(), section.size);
+                    if (!Common::Crypto::AESCTRTransform(
+                            std::span<const u8>(buffer.data(), section.size),
+                            std::span<u8>(buffer.data(), section.size), key, exefs_ctr,
+                            section.offset + sizeof(ExeFs_Header))) {
+                        return Loader::ResultStatus::ErrorEncrypted;
+                    }
                 }
             }
 

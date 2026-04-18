@@ -6,10 +6,9 @@
 #include <tuple>
 #include <string_view>
 #include <unordered_map>
-#include <cryptopp/aes.h>
-#include <cryptopp/modes.h>
 #include "common/archives.h"
 #include "common/assert.h"
+#include "common/commoncrypto_aes.h"
 #include "common/scope_exit.h"
 #include "common/string_util.h"
 #include "core/core.h"
@@ -2162,22 +2161,25 @@ void HTTP_C::DecryptClCertA() {
 
     std::vector<u8> cert_data(cert_file_data.size() - iv_length);
 
-    using CryptoPP::AES;
-    CryptoPP::CBC_Mode<AES>::Decryption aes_cert;
     std::array<u8, iv_length> cert_iv;
     std::memcpy(cert_iv.data(), cert_file_data.data(), iv_length);
-    aes_cert.SetKeyWithIV(key.data(), AES::BLOCKSIZE, cert_iv.data());
-    aes_cert.ProcessData(cert_data.data(), cert_file_data.data() + iv_length,
-                         cert_file_data.size() - iv_length);
+    if (!Common::Crypto::AESCBCDecrypt(
+            std::span<const u8>(cert_file_data.data() + iv_length, cert_file_data.size() - iv_length),
+            cert_data, key, cert_iv)) {
+        LOG_ERROR(Service_HTTP, "Failed to decrypt ctr-common-1-cert.bin");
+        return;
+    }
 
     std::vector<u8> key_data(key_file_data.size() - iv_length);
 
-    CryptoPP::CBC_Mode<AES>::Decryption aes_key;
     std::array<u8, iv_length> key_iv;
     std::memcpy(key_iv.data(), key_file_data.data(), iv_length);
-    aes_key.SetKeyWithIV(key.data(), AES::BLOCKSIZE, key_iv.data());
-    aes_key.ProcessData(key_data.data(), key_file_data.data() + iv_length,
-                        key_file_data.size() - iv_length);
+    if (!Common::Crypto::AESCBCDecrypt(
+            std::span<const u8>(key_file_data.data() + iv_length, key_file_data.size() - iv_length),
+            key_data, key, key_iv)) {
+        LOG_ERROR(Service_HTTP, "Failed to decrypt ctr-common-1-key.bin");
+        return;
+    }
 
     ClCertA.certificate = std::move(cert_data);
     ClCertA.private_key = std::move(key_data);

@@ -3,13 +3,14 @@
 // Refer to the license.txt file included.
 
 #include <algorithm>
+#include <bit>
 #include <cstddef>
 #include <cstring>
+#include <limits>
 #include <CommonCrypto/CommonDigest.h>
-#include <cryptopp/aes.h>
-#include <cryptopp/modes.h>
 #include "common/alignment.h"
 #include "common/archives.h"
+#include "common/commoncrypto_aes.h"
 #include "common/common_paths.h"
 #include "common/file_util.h"
 #include "common/hacks/hack_manager.h"
@@ -82,7 +83,41 @@ static_assert(sizeof(TicketInfo) == 0x18, "Ticket info structure size is wrong")
 
 class CIAFile::DecryptionState {
 public:
-    std::vector<CryptoPP::CBC_Mode<CryptoPP::AES>::Decryption> content;
+    class CBCCipherState {
+    public:
+        void SetKeyWithIV(std::span<const u8> in_key, std::span<const u8> in_iv) {
+            std::copy(in_key.begin(), in_key.end(), key.begin());
+            std::copy(in_iv.begin(), in_iv.end(), iv.begin());
+            valid = true;
+        }
+
+        bool ProcessData(u8* data, std::size_t size) {
+            if (!valid || size == 0) {
+                return size == 0;
+            }
+            if (size % Common::Crypto::AESBlockSize != 0) {
+                return false;
+            }
+
+            std::vector<u8> cipher(data, data + size);
+            std::vector<u8> plain(size);
+            if (!Common::Crypto::AESCBCDecrypt(cipher, plain, key, iv)) {
+                return false;
+            }
+
+            std::copy_n(cipher.end() - Common::Crypto::AESBlockSize, Common::Crypto::AESBlockSize,
+                        iv.begin());
+            std::copy(plain.begin(), plain.end(), data);
+            return true;
+        }
+
+    private:
+        Common::Crypto::AESBlock key{};
+        Common::Crypto::AESBlock iv{};
+        bool valid = false;
+    };
+
+    std::vector<CBCCipherState> content;
 };
 
 NCCHCryptoFile::NCCHCryptoFile(const std::string& out_file, bool encrypted_content) {
@@ -360,13 +395,14 @@ void NCCHCryptoFile::Write(const u8* buffer, std::size_t length) {
                         ctr = &romfs_ctr;
                     }
 
-                    CryptoPP::CTR_Mode<CryptoPP::AES>::Decryption d(key->data(), key->size(),
-                                                                    ctr->data());
-                    size_t offset = written - reg->seek_from;
-                    if (offset != 0) {
-                        d.Seek(offset);
+                    const size_t offset = written - reg->seek_from;
+                    if (!Common::Crypto::AESCTRTransform(
+                            std::span<const u8>(buffer, to_write), std::span<u8>(temp), *key, *ctr,
+                            offset)) {
+                        LOG_ERROR(Service_AM, "Failed to decrypt encrypted NCCH region");
+                        is_error = true;
+                        return;
                     }
-                    d.ProcessData(temp.data(), buffer, to_write);
                     file->WriteBytes(temp.data(), to_write);
 
                     if (reg->type == CryptoRegion::EXEFS_HDR) {
@@ -578,7 +614,14 @@ ResultVal<std::size_t> CIAFile::WriteContentData(u64 offset, std::size_t length,
                     install_results.push_back(current_content_install_result);
                     return current_content_install_result.result;
                 }
-                decryption_state->content[i].ProcessData(temp.data(), temp.data(), temp.size());
+                if (!decryption_state->content[i].ProcessData(temp.data(), temp.size())) {
+                    LOG_ERROR(Service_AM, "Failed decrypting CIA content chunk {}", i);
+                    current_content_install_result.result =
+                        Result(ErrorDescription::InvalidResultValue, ErrorModule::AM,
+                               ErrorSummary::Internal, ErrorLevel::Status);
+                    install_results.push_back(current_content_install_result);
+                    return current_content_install_result.result;
+                }
             }
 
             file.Write(temp.data(), temp.size());
@@ -710,8 +753,7 @@ Result CIAFile::PrepareToImportContent(const FileSys::TitleMetadata& tmd) {
                 decryption_state->content.resize(content_count);
                 for (std::size_t i = 0; i < content_count; ++i) {
                     auto ctr = tmd.GetContentCTRByIndex(i);
-                    decryption_state->content[i].SetKeyWithIV(title_key->data(), title_key->size(),
-                                                              ctr.data());
+                    decryption_state->content[i].SetKeyWithIV(*title_key, ctr);
                 }
             } else {
                 LOG_ERROR(Service_AM, "Could not read title key from ticket for encrypted CIA.");
@@ -814,7 +856,14 @@ ResultVal<std::size_t> CIAFile::WriteContentDataIndexed(u16 content_index, u64 o
             install_results.push_back(current_content_install_result);
             return current_content_install_result.result;
         }
-        decryption_state->content[content_index].ProcessData(temp.data(), temp.data(), temp.size());
+        if (!decryption_state->content[content_index].ProcessData(temp.data(), temp.size())) {
+            LOG_ERROR(Service_AM, "Failed decrypting CDN content chunk {}", content_index);
+            current_content_install_result.result =
+                Result(ErrorDescription::InvalidResultValue, ErrorModule::AM,
+                       ErrorSummary::Internal, ErrorLevel::Status);
+            install_results.push_back(current_content_install_result);
+            return current_content_install_result.result;
+        }
     }
 
     file.Write(temp.data(), temp.size());
@@ -4957,15 +5006,32 @@ void Module::Interface::ExportTicketWrapped(Kernel::HLERequestContext& ctx) {
         return ResultUnknown;
     }
 
-    CryptoPP::CBC_Mode<CryptoPP::AES>::Encryption e(key.data(), key.size(), iv.data());
-    e.ProcessData(ticket_data.data(), ticket_data.data(), ticket_data.size());
+    if (!Common::Crypto::AESCBCEncrypt(ticket_data, ticket_data, key, iv)) {
+        LOG_ERROR(Service_AM, "Failed to encrypt ticket export buffer");
+        return ResultUnknown;
+    }
 
     const auto& wrap_key = HW::RSA::GetTicketWrapSlot();
-    u32 padding_len = static_cast<u32>(
-        ((CryptoPP::Integer(wrap_key.GetModulus().data(), wrap_key.GetModulus().size()).BitCount() +
-          7) /
-         8) -
-        (key.size() + iv.size()) - 3);
+    const auto& modulus = wrap_key.GetModulus();
+    const auto first_non_zero = std::find_if(modulus.begin(), modulus.end(), [](u8 b) {
+        return b != 0;
+    });
+    const std::size_t significant_bytes = first_non_zero == modulus.end()
+                                              ? 0
+                                              : static_cast<std::size_t>(modulus.end() - first_non_zero);
+    const u8 msb = first_non_zero == modulus.end() ? 0 : *first_non_zero;
+    const int msb_bits =
+        msb == 0 ? 0
+                 : (std::numeric_limits<unsigned>::digits -
+                    std::countl_zero(static_cast<unsigned>(msb)));
+    const std::size_t modulus_bytes =
+        significant_bytes == 0 ? 0 : ((msb_bits + (significant_bytes - 1) * 8 + 7) / 8);
+    if (modulus_bytes <= (key.size() + iv.size()) + 3) {
+        LOG_ERROR(Service_AM, "Invalid wrap key modulus size");
+        return ResultUnknown;
+    }
+    const u32 padding_len =
+        static_cast<u32>(modulus_bytes - (key.size() + iv.size()) - 3);
 
     std::vector<u8> m;
     m.reserve(3 + padding_len + (key.size() + iv.size()));

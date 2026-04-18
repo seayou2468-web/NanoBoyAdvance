@@ -2,7 +2,8 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include <json.hpp>
+#include <cctype>
+#include <functional>
 #include "common/file_util.h"
 #include "common/literals.h"
 #include "common/memory_detect.h"
@@ -50,6 +51,149 @@ MapType MakeMapType(std::string_view ext) {
     }
     LOG_ERROR(Render, "Unknown material extension {}", ext);
     return MapType::Color;
+}
+
+void SkipWhitespace(const std::string& text, std::size_t& pos) {
+    while (pos < text.size() && std::isspace(static_cast<unsigned char>(text[pos])) != 0) {
+        ++pos;
+    }
+}
+
+bool ParseJsonStringToken(const std::string& text, std::size_t& pos, std::string& out) {
+    SkipWhitespace(text, pos);
+    if (pos >= text.size() || text[pos] != '"') {
+        return false;
+    }
+    ++pos;
+    out.clear();
+    while (pos < text.size()) {
+        const char c = text[pos++];
+        if (c == '\\') {
+            if (pos >= text.size()) {
+                return false;
+            }
+            out.push_back(text[pos++]);
+            continue;
+        }
+        if (c == '"') {
+            return true;
+        }
+        out.push_back(c);
+    }
+    return false;
+}
+
+bool ParseJsonBoolByKey(const std::string& text, std::string_view key, bool& out) {
+    const std::string needle = "\"" + std::string(key) + "\"";
+    const std::size_t key_pos = text.find(needle);
+    if (key_pos == std::string::npos) {
+        return false;
+    }
+    std::size_t value_pos = text.find(':', key_pos + needle.size());
+    if (value_pos == std::string::npos) {
+        return false;
+    }
+    ++value_pos;
+    SkipWhitespace(text, value_pos);
+    if (text.compare(value_pos, 4, "true") == 0) {
+        out = true;
+        return true;
+    }
+    if (text.compare(value_pos, 5, "false") == 0) {
+        out = false;
+        return true;
+    }
+    return false;
+}
+
+bool FindNamedObjectBounds(const std::string& text, std::string_view key, std::size_t& begin,
+                           std::size_t& end) {
+    const std::string needle = "\"" + std::string(key) + "\"";
+    const std::size_t key_pos = text.find(needle);
+    if (key_pos == std::string::npos) {
+        return false;
+    }
+    begin = text.find('{', key_pos + needle.size());
+    if (begin == std::string::npos) {
+        return false;
+    }
+    std::size_t depth = 0;
+    for (std::size_t i = begin; i < text.size(); ++i) {
+        if (text[i] == '{') {
+            ++depth;
+        } else if (text[i] == '}') {
+            if (depth == 0) {
+                return false;
+            }
+            --depth;
+            if (depth == 0) {
+                end = i;
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+bool ParseTextureMappings(const std::string& text,
+                          const std::function<void(const std::string&, const std::string&)>& on_map) {
+    std::size_t begin{};
+    std::size_t end{};
+    if (!FindNamedObjectBounds(text, "textures", begin, end)) {
+        return true;
+    }
+    std::size_t pos = begin + 1;
+    while (pos < end) {
+        SkipWhitespace(text, pos);
+        if (pos >= end || text[pos] == '}') {
+            break;
+        }
+
+        std::string hash_key;
+        if (!ParseJsonStringToken(text, pos, hash_key)) {
+            return false;
+        }
+        SkipWhitespace(text, pos);
+        if (pos >= end || text[pos] != ':') {
+            return false;
+        }
+        ++pos;
+        SkipWhitespace(text, pos);
+
+        if (pos < end && text[pos] == '"') {
+            std::string file;
+            if (!ParseJsonStringToken(text, pos, file)) {
+                return false;
+            }
+            on_map(hash_key, file);
+        } else if (pos < end && text[pos] == '[') {
+            ++pos;
+            while (pos < end) {
+                SkipWhitespace(text, pos);
+                if (pos < end && text[pos] == ']') {
+                    ++pos;
+                    break;
+                }
+                std::string file;
+                if (!ParseJsonStringToken(text, pos, file)) {
+                    return false;
+                }
+                on_map(hash_key, file);
+                SkipWhitespace(text, pos);
+                if (pos < end && text[pos] == ',') {
+                    ++pos;
+                }
+            }
+        } else {
+            return false;
+        }
+
+        SkipWhitespace(text, pos);
+        if (pos < end && text[pos] == ',') {
+            ++pos;
+        }
+    }
+    return true;
 }
 
 } // Anonymous namespace
@@ -191,18 +335,19 @@ void CustomTexManager::PrepareDumping(u64 title_id) {
         return;
     }
 
-    nlohmann::ordered_json json;
-    json["author"] = "citra";
-    json["version"] = "1.0.0";
-    json["description"] = "A graphics pack";
-
-    auto& options = json["options"];
-    options["skip_mipmap"] = false;
-    options["flip_png_files"] = true;
-    options["use_new_hash"] = true;
-
     FileUtil::IOFile file{pack_config, "w"};
-    const std::string output = json.dump(4);
+    const std::string output =
+        "{\n"
+        "    \"author\": \"citra\",\n"
+        "    \"version\": \"1.0.0\",\n"
+        "    \"description\": \"A graphics pack\",\n"
+        "    \"options\": {\n"
+        "        \"skip_mipmap\": false,\n"
+        "        \"flip_png_files\": true,\n"
+        "        \"use_new_hash\": true\n"
+        "    },\n"
+        "    \"textures\": {}\n"
+        "}\n";
     file.WriteString(output);
 }
 
@@ -337,42 +482,43 @@ bool CustomTexManager::ReadConfig(u64 title_id, bool options_only) {
         return false;
     }
 
-    nlohmann::json json = nlohmann::json::parse(config, nullptr, false, true);
-
-    const auto& options = json["options"];
-    skip_mipmap = options["skip_mipmap"].get<bool>();
-    flip_png_files = options["flip_png_files"].get<bool>();
-    use_new_hash = options["use_new_hash"].get<bool>();
+    bool parsed_skip_mipmap = skip_mipmap;
+    bool parsed_flip_png = flip_png_files;
+    bool parsed_use_new_hash = use_new_hash;
+    if (!ParseJsonBoolByKey(config, "skip_mipmap", parsed_skip_mipmap) ||
+        !ParseJsonBoolByKey(config, "flip_png_files", parsed_flip_png) ||
+        !ParseJsonBoolByKey(config, "use_new_hash", parsed_use_new_hash)) {
+        LOG_ERROR(Render, "Invalid pack config, using legacy defaults");
+        return false;
+    }
+    skip_mipmap = parsed_skip_mipmap;
+    flip_png_files = parsed_flip_png;
+    use_new_hash = parsed_use_new_hash;
 
     if (options_only) {
         return true;
     }
 
-    const auto& textures = json["textures"];
-    for (const auto& material : textures.items()) {
+    const auto parse = [&](const std::string& hash_key, const std::string& file) {
         std::size_t idx{};
-        const u64 hash = std::stoull(material.key(), &idx, 16);
+        u64 hash{};
+        try {
+            hash = std::stoull(hash_key, &idx, 16);
+        } catch (const std::exception&) {
+            LOG_ERROR(Render, "Key {} is invalid, skipping", hash_key);
+            return;
+        }
         if (!idx) {
-            LOG_ERROR(Render, "Key {} is invalid, skipping", material.key());
-            continue;
+            LOG_ERROR(Render, "Key {} is invalid, skipping", hash_key);
+            return;
         }
-        const auto parse = [&](const std::string& file) {
-            const std::string filename{FileUtil::GetFilename(file)};
-            auto [it, new_hash] = path_to_hash_map.try_emplace(filename);
-            it->second.push_back(hash);
-        };
-        const auto value = material.value();
-        if (value.is_string()) {
-            const auto file = value.get<std::string>();
-            parse(file);
-        } else if (value.is_array()) {
-            const auto files = value.get<std::vector<std::string>>();
-            for (const std::string& file : files) {
-                parse(file);
-            }
-        } else {
-            LOG_ERROR(Render, "Material with key {} is invalid", material.key());
-        }
+        const std::string filename{FileUtil::GetFilename(file)};
+        auto [it, new_hash] = path_to_hash_map.try_emplace(filename);
+        it->second.push_back(hash);
+    };
+    if (!ParseTextureMappings(config, parse)) {
+        LOG_ERROR(Render, "Invalid textures object in pack config");
+        return false;
     }
     return true;
 }

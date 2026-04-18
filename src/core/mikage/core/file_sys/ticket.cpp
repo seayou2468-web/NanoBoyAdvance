@@ -3,10 +3,9 @@
 // Refer to the license.txt file included.
 
 #include <algorithm>
-#include <cryptopp/aes.h>
-#include <cryptopp/modes.h>
 #include <CommonCrypto/CommonDigest.h>
 #include "common/alignment.h"
+#include "common/commoncrypto_aes.h"
 #include "core/file_sys/certificate.h"
 #include "core/file_sys/otp.h"
 #include "core/file_sys/signature.h"
@@ -55,8 +54,12 @@ Loader::ResultStatus Ticket::DoTitlekeyFixup() {
     std::vector<u8> iv(0x10);
     *reinterpret_cast<u64_be*>(iv.data()) = ticket_body.ticket_id;
 
-    CryptoPP::CBC_Mode<CryptoPP::AES>::Decryption{key.data(), key.size(), iv.data()}.ProcessData(
-        ticket_body.title_key.data(), ticket_body.title_key.data(), ticket_body.title_key.size());
+    Common::Crypto::AESBlock aes_iv{};
+    std::copy(iv.begin(), iv.end(), aes_iv.begin());
+    if (!Common::Crypto::AESCBCDecrypt(ticket_body.title_key, ticket_body.title_key, key, aes_iv)) {
+        LOG_ERROR(HW_AES, "Failed to decrypt personal title key");
+        return Loader::ResultStatus::Error;
+    }
 
     return Loader::ResultStatus::Success;
 }
@@ -164,8 +167,12 @@ std::optional<std::array<u8, 16>> Ticket::GetTitleKey() const {
     }
     auto key = HW::AES::GetNormalKey(HW::AES::KeySlotID::TicketCommonKey);
     auto title_key = ticket_body.title_key;
-    CryptoPP::CBC_Mode<CryptoPP::AES>::Decryption{key.data(), key.size(), ctr.data()}.ProcessData(
-        title_key.data(), title_key.data(), title_key.size());
+    Common::Crypto::AESBlock aes_ctr{};
+    std::copy(ctr.begin(), ctr.end(), aes_ctr.begin());
+    if (!Common::Crypto::AESCBCDecrypt(title_key, title_key, key, aes_ctr)) {
+        LOG_ERROR(Service_FS, "Failed to decrypt title key");
+        return {};
+    }
     return title_key;
 }
 
