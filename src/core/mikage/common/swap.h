@@ -85,7 +85,10 @@ public:
         return *this;
     }
 
-    operator long() const { return (long)swap(); }    
+    // Avoid ambiguous conversion on LP64 targets where long and s64 are identical.
+#if __SIZEOF_LONG__ != 8
+    operator long() const { return (long)swap(); }
+#endif
     operator s8() const { return (s8)swap(); }
     operator u8() const { return (u8)swap(); }
     operator s16() const { return (s16)swap(); }

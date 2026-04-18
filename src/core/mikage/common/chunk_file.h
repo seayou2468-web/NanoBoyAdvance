@@ -102,7 +102,9 @@ class PointerWrap
     // This makes it a compile error if you forget to define DoState() on non-POD.
     // Which also can be a problem, for example struct tm is non-POD on linux, for whatever reason...
 
-struct DoHelper
+    template <typename T, bool is_trivial_type = std::is_trivial<T>::value,
+              bool is_pointer_type = std::is_pointer<T>::value>
+    struct DoHelper
     {
         static void DoArray(PointerWrap *p, T *x, int count)
         {

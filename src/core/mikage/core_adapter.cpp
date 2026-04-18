@@ -14,6 +14,7 @@
 #include <exception>
 #include <filesystem>
 #include <fstream>
+#include <random>
 #include <string>
 #include <vector>
 
@@ -200,22 +201,24 @@ bool LoadRomFromMemory(void* opaque_runtime, const void* rom_data, size_t rom_si
     return false;
   }
 
-  auto tmpl = (temp_dir / "mikage_memrom_XXXXXX.3ds").string();
-  if (tmpl.size() < 4) {
-    last_error = "Temporary ROM template path is invalid";
+  std::mt19937_64 rng(std::random_device{}());
+  std::filesystem::path staging_file;
+  bool created = false;
+  for (int attempt = 0; attempt < 32; ++attempt) {
+    const uint64_t token = rng();
+    const auto candidate = temp_dir / ("mikage_memrom_" + std::to_string(token) + ".3ds");
+    if (std::filesystem::exists(candidate, ec)) {
+      continue;
+    }
+    staging_file = candidate;
+    created = true;
+    break;
+  }
+  if (!created) {
+    last_error = "Failed to allocate a unique temporary file path for 3DS ROM staging";
     return false;
   }
-  std::vector<char> writable_template(tmpl.begin(), tmpl.end());
-  writable_template.push_back('\0');
 
-  int fd = mkstemps(writable_template.data(), 4);
-  if (fd < 0) {
-    last_error = "Failed to create temporary file for 3DS ROM staging";
-    return false;
-  }
-  close(fd);
-
-  const std::filesystem::path staging_file(writable_template.data());
   std::ofstream out(staging_file, std::ios::binary | std::ios::trunc);
   if (!out) {
     last_error = "Failed to create temporary file for 3DS ROM staging";

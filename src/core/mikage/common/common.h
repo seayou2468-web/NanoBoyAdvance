@@ -120,12 +120,15 @@ enum EMUSTATE_CHANGE
     EMUSTATE_CHANGE_STOP
 };
 
-#else
-// TODO: speedup
+// Byte-swap helpers (portable fallback path).
 inline unsigned short bswap16(unsigned short x) { return (x << 8) | (x >> 8); }
-inline unsigned int bswap32(unsigned int x) { return (x >> 24) | ((x & 0xFF0000) >> 8) | ((x & 0xFF00) << 8) | (x << 24);}
-inline unsigned long long bswap64(unsigned long long x) {return ((unsigned long long)bswap32(x) << 32) | bswap32(x >> 32); }
-#endif
+inline unsigned int bswap32(unsigned int x) {
+    return (x >> 24) | ((x & 0xFF0000) >> 8) | ((x & 0xFF00) << 8) | (x << 24);
+}
+inline unsigned long long bswap64(unsigned long long x) {
+    return (static_cast<unsigned long long>(bswap32(static_cast<unsigned int>(x))) << 32) |
+           bswap32(static_cast<unsigned int>(x >> 32));
+}
 
 inline float bswapf(float f) {
     union {
