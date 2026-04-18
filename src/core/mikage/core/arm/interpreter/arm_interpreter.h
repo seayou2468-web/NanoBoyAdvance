@@ -5,8 +5,12 @@
 #pragma once
 
 #include "../../../common/common.h"
+#include "../../../common/common_types.h"
+#include <memory>
+#include <cstddef>
 
 #include "../arm_interface.h"
+#include "../skyeye_common/arm_regformat.h"
 
 class ARMul_State;
 
@@ -92,32 +96,32 @@ public:
     /**
      * Get a CP15 coprocessor register
      */
-    u32 GetCP15Register(u32 crn, u32 crm, u32 opcode_1, u32 opcode_2) const override;
+    u32 GetCP15Register(CP15Register reg) const override;
 
     /**
      * Set a CP15 coprocessor register
      */
-    void SetCP15Register(u32 crn, u32 crm, u32 opcode_1, u32 opcode_2, u32 value) override;
+    void SetCP15Register(CP15Register reg, u32 value) override;
 
     /**
      * Get a VFP register
      */
-    u32 GetVFPRegister(int index) const override;
+    u32 GetVFPReg(int index) const override;
 
     /**
      * Set a VFP register
      */
-    void SetVFPRegister(int index, u32 value) override;
+    void SetVFPReg(int index, u32 value) override;
 
     /**
      * Get VFP status and control register
      */
-    u32 GetVFPSystemReg() const override;
+    u32 GetVFPSystemReg(VFPSystemRegister reg) const override;
 
     /**
      * Set VFP status and control register
      */
-    void SetVFPSystemReg(u32 value) override;
+    void SetVFPSystemReg(VFPSystemRegister reg, u32 value) override;
 
     /**
      * Get the privilege mode
@@ -139,13 +143,33 @@ public:
      */
     void SetThumbFlag(u32 value) override;
 
+    /**
+     * Clear the instruction cache
+     */
+    void ClearInstructionCache() override;
+
+    /**
+     * Invalidate a range in the instruction cache
+     */
+    void InvalidateCacheRange(u32 addr, std::size_t size) override;
+
+    /**
+     * Set the page table for memory access
+     */
+    void SetPageTable(const std::shared_ptr<Memory::PageTable>& page_table) override;
+
+    /**
+     * Get the current page table
+     */
+    std::shared_ptr<Memory::PageTable> GetPageTable() const override;
+
 protected:
 
     /**
      * Executes the given number of instructions
      * @param num_instructions Number of instructions to execute
      */
-    void ExecuteInstructions(int num_instructions) override;
+    void ExecuteInstructions(u64 num_instructions) override;
 
 private:
 

@@ -4,10 +4,17 @@
 
 #pragma once
 
+#include <memory>
+#include <cstddef>
 #include "../../common/common.h"
 #include "../../common/common_types.h"
+#include "skyeye_common/arm_regformat.h"
 
 #include "../hle/svc.h"
+
+namespace Memory {
+class PageTable;
+}
 
 /// Generic ARM11 CPU interface
 class ARM_Interface : NonCopyable {
@@ -91,25 +98,19 @@ public:
 
     /**
      * Get a CP15 coprocessor register
-     * @param crn CRn field (0-15)
-     * @param crm CRm field (0-15)
-     * @param opcode_1 opcode_1 field (0-7)
-     * @param opcode_2 opcode_2 field (0-7)
+     * @param reg CP15 register identifier
      * @return The value of the CP15 register
      */
-    virtual u32 GetCP15Register(u32 crn, u32 crm, u32 opcode_1, u32 opcode_2) const {
+    virtual u32 GetCP15Register(CP15Register reg) const {
         return 0; // Default stub implementation
     }
 
     /**
      * Set a CP15 coprocessor register
-     * @param crn CRn field (0-15)
-     * @param crm CRm field (0-15)
-     * @param opcode_1 opcode_1 field (0-7)
-     * @param opcode_2 opcode_2 field (0-7)
+     * @param reg CP15 register identifier
      * @param value Value to set the CP15 register to
      */
-    virtual void SetCP15Register(u32 crn, u32 crm, u32 opcode_1, u32 opcode_2, u32 value) {
+    virtual void SetCP15Register(CP15Register reg, u32 value) {
         // Default stub implementation
     }
 
@@ -118,7 +119,7 @@ public:
      * @param index Register index (0-31 for single precision, 0-15 for double precision)
      * @return The value of the VFP register
      */
-    virtual u32 GetVFPRegister(int index) const {
+    virtual u32 GetVFPReg(int index) const {
         return 0; // Default stub implementation
     }
 
@@ -127,23 +128,25 @@ public:
      * @param index Register index
      * @param value Value to set the VFP register to
      */
-    virtual void SetVFPRegister(int index, u32 value) {
+    virtual void SetVFPReg(int index, u32 value) {
         // Default stub implementation
     }
 
     /**
      * Get VFP status and control register
-     * @return The value of the FPSCR register
+     * @param reg VFP system register identifier
+     * @return The value of the VFP system register
      */
-    virtual u32 GetVFPSystemReg() const {
+    virtual u32 GetVFPSystemReg(VFPSystemRegister reg) const {
         return 0; // Default stub implementation
     }
 
     /**
      * Set VFP status and control register
-     * @param value Value to set the FPSCR register to
+     * @param reg VFP system register identifier
+     * @param value Value to set the VFP register to
      */
-    virtual void SetVFPSystemReg(u32 value) {
+    virtual void SetVFPSystemReg(VFPSystemRegister reg, u32 value) {
         // Default stub implementation
     }
 
@@ -179,6 +182,38 @@ public:
         // Default stub implementation
     }
 
+    /**
+     * Clear the instruction cache
+     */
+    virtual void ClearInstructionCache() {
+        // Default stub implementation
+    }
+
+    /**
+     * Invalidate a range in the instruction cache
+     * @param addr Address to invalidate
+     * @param size Size of the range to invalidate
+     */
+    virtual void InvalidateCacheRange(u32 addr, std::size_t size) {
+        // Default stub implementation
+    }
+
+    /**
+     * Set the page table for memory access
+     * @param page_table Shared pointer to the page table
+     */
+    virtual void SetPageTable(const std::shared_ptr<Memory::PageTable>& page_table) {
+        // Default stub implementation
+    }
+
+    /**
+     * Get the current page table
+     * @return Shared pointer to the current page table
+     */
+    virtual std::shared_ptr<Memory::PageTable> GetPageTable() const {
+        return nullptr;
+    }
+
     /// Getter for num_instructions
     u64 GetNumInstructions() {
         return num_instructions;
@@ -188,9 +223,9 @@ protected:
     
     /**
      * Executes the given number of instructions
-     * @param num_instructions Number of instructions to executes
+     * @param num_instructions Number of instructions to execute
      */
-    virtual void ExecuteInstructions(int num_instructions) = 0;
+    virtual void ExecuteInstructions(u64 num_instructions) = 0;
 
 private:
 

@@ -101,7 +101,7 @@ void ARM_DynCom::ExecuteInstructions(u64 num_instructions) {
     state->NumInstrsToExecute = num_instructions;
     // Call the dynamic interpreter
     // This is defined in arm_dyncom_interpreter.cpp
-    arm_dyncom_interpreter_run(state.get());
+    InterpreterMainLoop(state.get());
     timer->AddTicks(num_instructions);
 }
 
