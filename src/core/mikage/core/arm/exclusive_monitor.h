@@ -13,6 +13,8 @@ class MemorySystem;
 
 namespace Core {
 
+using VAddr = u32;
+
 class ExclusiveMonitor {
 public:
     virtual ~ExclusiveMonitor();

@@ -1,27 +1,51 @@
 // SPDX-FileCopyrightText: Copyright 2018 yuzu Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#include "../../../common/compat/common/arch.h"
-#if CYTRUS_ARCH(x86_64) || CYTRUS_ARCH(arm64)
-#include "core/arm/dynarmic/arm_exclusive_monitor.h"
-#endif
-#include "../../../common/compat/common/settings.h"
 #include "core/arm/exclusive_monitor.h"
-#include "../../../common/compat/core/memory.h"
 
 namespace Core {
 
 ExclusiveMonitor::~ExclusiveMonitor() = default;
 
+namespace {
+
+class NoJitExclusiveMonitor final : public ExclusiveMonitor {
+public:
+    u8 ExclusiveRead8(std::size_t, VAddr) override {
+        return 0;
+    }
+    u16 ExclusiveRead16(std::size_t, VAddr) override {
+        return 0;
+    }
+    u32 ExclusiveRead32(std::size_t, VAddr) override {
+        return 0;
+    }
+    u64 ExclusiveRead64(std::size_t, VAddr) override {
+        return 0;
+    }
+    void ClearExclusive(std::size_t) override {}
+
+    bool ExclusiveWrite8(std::size_t, VAddr, u8) override {
+        return true;
+    }
+    bool ExclusiveWrite16(std::size_t, VAddr, u16) override {
+        return true;
+    }
+    bool ExclusiveWrite32(std::size_t, VAddr, u32) override {
+        return true;
+    }
+    bool ExclusiveWrite64(std::size_t, VAddr, u64) override {
+        return true;
+    }
+};
+
+} // namespace
+
 std::unique_ptr<Core::ExclusiveMonitor> MakeExclusiveMonitor(Memory::MemorySystem& memory,
                                                              std::size_t num_cores) {
-#if CYTRUS_ARCH(x86_64) || CYTRUS_ARCH(arm64)
-    if (Settings::values.use_cpu_jit) {
-        return std::make_unique<Core::DynarmicExclusiveMonitor>(memory, num_cores);
-    }
-#endif
-    // TODO(merry): Passthrough exclusive monitor
-    return nullptr;
+    (void)memory;
+    (void)num_cores;
+    return std::make_unique<NoJitExclusiveMonitor>();
 }
 
 } // namespace Core

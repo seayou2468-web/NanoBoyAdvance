@@ -6,7 +6,7 @@
 
 #include <cmath>
 #include <cstring>
-#include <boost/serialization/access.hpp>
+#include "common/serialization/boost_all_serialization.h"
 #include "common/common_types.h"
 
 namespace Pica {
