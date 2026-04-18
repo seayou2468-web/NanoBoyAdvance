@@ -1,8 +1,0 @@
-// Copyright 2026 Azahar Emulator Project
-// Licensed under GPLv2 or any later version
-
-#pragma once
-
-#include <cryptopp/eccrypto.h>
-#include <cryptopp/oids.h>
-

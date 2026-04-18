@@ -3,17 +3,16 @@
 // Refer to the license.txt file included.
 
 #include <algorithm>
+#include <array>
 #include <sstream>
 #include <vector>
 #if defined(__APPLE__)
 #include <CoreFoundation/CoreFoundation.h>
 #include <Security/Security.h>
 #endif
-#include "common/crypto/cryptopp_rsa_compat.h"
 #include "common/common_paths.h"
 #include "common/file_util.h"
 #include "common/logging/log.h"
-#include "common/secure_random.h"
 #include "common/string_util.h"
 #include "core/hw/aes/key.h"
 #include "core/hw/rsa/rsa.h"
@@ -21,19 +20,6 @@
 namespace HW::RSA {
 
 namespace {
-
-class CryptoPPRandom final : public CryptoPP::RandomNumberGenerator {
-public:
-    ~CryptoPPRandom() override = default;
-
-    std::string AlgorithmName() const override {
-        return "HW::RSA::CryptoPPRandom";
-    }
-
-    void GenerateBlock(byte* output, size_t size) override {
-        Common::FillSecureRandom(std::span<std::uint8_t>(output, size));
-    }
-};
 
 #if defined(__APPLE__)
 std::vector<u8> EncodeAsn1Length(std::size_t length) {
@@ -142,6 +128,56 @@ SecKeyRef CreateSecRsaPublicKey(std::span<const u8> modulus, std::span<const u8>
     }
     return key;
 }
+
+std::vector<u8> BuildRsaPrivateKeyDer(std::span<const u8> modulus, std::span<const u8> exponent,
+                                      std::span<const u8> private_d) {
+    std::vector<u8> seq_payload;
+    static constexpr std::array<u8, 1> zero = {0x00};
+
+    AppendAsn1Integer(seq_payload, zero);       // version
+    AppendAsn1Integer(seq_payload, modulus);    // n
+    AppendAsn1Integer(seq_payload, exponent);   // e
+    AppendAsn1Integer(seq_payload, private_d);  // d
+    AppendAsn1Integer(seq_payload, zero);       // p
+    AppendAsn1Integer(seq_payload, zero);       // q
+    AppendAsn1Integer(seq_payload, zero);       // d mod (p - 1)
+    AppendAsn1Integer(seq_payload, zero);       // d mod (q - 1)
+    AppendAsn1Integer(seq_payload, zero);       // q^-1 mod p
+
+    std::vector<u8> der;
+    der.push_back(0x30); // SEQUENCE
+    const std::vector<u8> seq_len = EncodeAsn1Length(seq_payload.size());
+    der.insert(der.end(), seq_len.begin(), seq_len.end());
+    der.insert(der.end(), seq_payload.begin(), seq_payload.end());
+    return der;
+}
+
+SecKeyRef CreateSecRsaPrivateKey(std::span<const u8> modulus, std::span<const u8> exponent,
+                                 std::span<const u8> private_d) {
+    const std::vector<u8> der = BuildRsaPrivateKeyDer(modulus, exponent, private_d);
+    ScopedCFTypeRef key_data(CFDataCreate(kCFAllocatorDefault, der.data(), der.size()));
+    if (key_data.As<CFDataRef>() == nullptr) {
+        return nullptr;
+    }
+
+    const int key_size_bits = static_cast<int>(modulus.size() * 8);
+    const void* keys[] = {kSecAttrKeyType, kSecAttrKeyClass, kSecAttrKeySizeInBits};
+    ScopedCFTypeRef key_size(CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &key_size_bits));
+    const void* values[] = {kSecAttrKeyTypeRSA, kSecAttrKeyClassPrivate, key_size.As<CFNumberRef>()};
+    ScopedCFTypeRef attrs(
+        CFDictionaryCreate(kCFAllocatorDefault, keys, values, 3, &kCFTypeDictionaryKeyCallBacks,
+                           &kCFTypeDictionaryValueCallBacks));
+    if (attrs.As<CFDictionaryRef>() == nullptr) {
+        return nullptr;
+    }
+
+    CFErrorRef error = nullptr;
+    SecKeyRef key = SecKeyCreateWithData(key_data.As<CFDataRef>(), attrs.As<CFDictionaryRef>(), &error);
+    if (error != nullptr) {
+        CFRelease(error);
+    }
+    return key;
+}
 #endif
 
 } // namespace
@@ -155,14 +191,50 @@ RsaSlot local_friend_code_seed_slot;
 
 std::vector<u8> RsaSlot::ModularExponentiation(std::span<const u8> message,
                                                int out_size_bytes) const {
-    CryptoPP::Integer sig =
-        CryptoPP::ModularExponentiation(CryptoPP::Integer(message.data(), message.size()),
-                                        CryptoPP::Integer(exponent.data(), exponent.size()),
-                                        CryptoPP::Integer(modulus.data(), modulus.size()));
+#if defined(__APPLE__)
+    ScopedCFTypeRef public_key(CreateSecRsaPublicKey(modulus, exponent));
+    if (public_key.As<SecKeyRef>() == nullptr) {
+        LOG_ERROR(HW_RSA, "Failed to create SecKey public key");
+        return {};
+    }
 
-    std::vector<u8> result((out_size_bytes == -1) ? sig.MinEncodedSize() : out_size_bytes);
-    sig.Encode(result.data(), result.size());
-    return result;
+    const auto block_size = static_cast<std::size_t>(SecKeyGetBlockSize(public_key.As<SecKeyRef>()));
+    std::vector<u8> block(block_size, 0);
+    const std::size_t input_copy_size = std::min(message.size(), block.size());
+    std::copy(message.end() - input_copy_size, message.end(), block.end() - input_copy_size);
+
+    ScopedCFTypeRef message_data(CFDataCreate(kCFAllocatorDefault, block.data(), block.size()));
+    if (message_data.As<CFDataRef>() == nullptr) {
+        return {};
+    }
+
+    CFErrorRef error = nullptr;
+    ScopedCFTypeRef result_data(SecKeyCreateEncryptedData(public_key.As<SecKeyRef>(),
+                                                          kSecKeyAlgorithmRSAEncryptionRaw,
+                                                          message_data.As<CFDataRef>(), &error));
+    if (error != nullptr) {
+        CFRelease(error);
+    }
+    if (result_data.As<CFDataRef>() == nullptr) {
+        LOG_ERROR(HW_RSA, "SecKeyCreateEncryptedData failed");
+        return {};
+    }
+
+    const auto* result_ptr = CFDataGetBytePtr(result_data.As<CFDataRef>());
+    const std::size_t result_len = static_cast<std::size_t>(CFDataGetLength(result_data.As<CFDataRef>()));
+    const std::size_t output_size =
+        out_size_bytes == -1 ? result_len : static_cast<std::size_t>(out_size_bytes);
+    std::vector<u8> out(output_size, 0);
+    if (result_len > out.size()) {
+        std::copy(result_ptr + (result_len - out.size()), result_ptr + result_len, out.begin());
+    } else {
+        std::copy(result_ptr, result_ptr + result_len, out.end() - result_len);
+    }
+    return out;
+#else
+    LOG_ERROR(HW_RSA, "RSA modular exponentiation is only supported on Apple targets");
+    return {};
+#endif
 }
 
 std::vector<u8> RsaSlot::Sign(std::span<const u8> message) const {
@@ -171,18 +243,38 @@ std::vector<u8> RsaSlot::Sign(std::span<const u8> message) const {
         return {};
     }
 
-    CryptoPP::RSASS<CryptoPP::PKCS1v15, CryptoPP::SHA256>::PrivateKey private_key;
-    private_key.Initialize(CryptoPP::Integer(modulus.data(), modulus.size()),
-                           CryptoPP::Integer(exponent.data(), exponent.size()),
-                           CryptoPP::Integer(private_d.data(), private_d.size()));
+#if defined(__APPLE__)
+    ScopedCFTypeRef private_key(CreateSecRsaPrivateKey(modulus, exponent, private_d));
+    if (private_key.As<SecKeyRef>() == nullptr) {
+        LOG_ERROR(HW_RSA, "Failed to create SecKey private key");
+        return {};
+    }
 
-    CryptoPP::RSASS<CryptoPP::PKCS1v15, CryptoPP::SHA256>::Signer signer(private_key);
-    CryptoPPRandom prng;
-    std::vector<u8> ret(signer.SignatureLength());
+    ScopedCFTypeRef message_data(CFDataCreate(kCFAllocatorDefault, message.data(), message.size()));
+    if (message_data.As<CFDataRef>() == nullptr) {
+        return {};
+    }
 
-    signer.SignMessage(prng, message.data(), message.size(), ret.data());
+    CFErrorRef error = nullptr;
+    ScopedCFTypeRef signature_data(
+        SecKeyCreateSignature(private_key.As<SecKeyRef>(),
+                              kSecKeyAlgorithmRSASignatureMessagePKCS1v15SHA256,
+                              message_data.As<CFDataRef>(), &error));
+    if (error != nullptr) {
+        CFRelease(error);
+    }
+    if (signature_data.As<CFDataRef>() == nullptr) {
+        LOG_ERROR(HW_RSA, "SecKeyCreateSignature failed");
+        return {};
+    }
 
-    return ret;
+    const auto* sig_ptr = CFDataGetBytePtr(signature_data.As<CFDataRef>());
+    const std::size_t sig_len = static_cast<std::size_t>(CFDataGetLength(signature_data.As<CFDataRef>()));
+    return std::vector<u8>(sig_ptr, sig_ptr + sig_len);
+#else
+    LOG_ERROR(HW_RSA, "RSA sign is only supported on Apple targets");
+    return {};
+#endif
 }
 
 bool RsaSlot::Verify(std::span<const u8> message, std::span<const u8> signature) const {
@@ -202,15 +294,11 @@ bool RsaSlot::Verify(std::span<const u8> message, std::span<const u8> signature)
             }
         }
     }
+    return false;
+#else
+    LOG_ERROR(HW_RSA, "RSA verify is only supported on Apple targets");
+    return false;
 #endif
-    CryptoPP::RSASS<CryptoPP::PKCS1v15, CryptoPP::SHA256>::PublicKey public_key;
-    public_key.Initialize(CryptoPP::Integer(modulus.data(), modulus.size()),
-                          CryptoPP::Integer(exponent.data(), exponent.size()));
-
-    CryptoPP::RSASS<CryptoPP::PKCS1v15, CryptoPP::SHA256>::Verifier verifier(public_key);
-
-    return verifier.VerifyMessage(message.data(), message.size(), signature.data(),
-                                  signature.size());
 }
 
 std::vector<u8> HexToVector(const std::string& hex) {

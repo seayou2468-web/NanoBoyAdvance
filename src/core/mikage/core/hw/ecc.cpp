@@ -2,10 +2,16 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
+#include <algorithm>
+#include <cstring>
+#include <memory>
 #include <sstream>
+#include <openssl/bn.h>
+#include <openssl/ec.h>
+#include <openssl/ecdsa.h>
+#include <openssl/obj_mac.h>
 #include "common/assert.h"
 #include "common/common_paths.h"
-#include "common/crypto/cryptopp_ecc_compat.h"
 #include "common/file_util.h"
 #include "common/logging/log.h"
 #include "common/secure_random.h"
@@ -18,63 +24,98 @@ namespace HW::ECC {
 PublicKey root_public;
 
 namespace {
+using EcGroupPtr = std::unique_ptr<EC_GROUP, decltype(&EC_GROUP_free)>;
+using EcPointPtr = std::unique_ptr<EC_POINT, decltype(&EC_POINT_free)>;
+using EcKeyPtr = std::unique_ptr<EC_KEY, decltype(&EC_KEY_free)>;
+using EcSigPtr = std::unique_ptr<ECDSA_SIG, decltype(&ECDSA_SIG_free)>;
+using BnPtr = std::unique_ptr<BIGNUM, decltype(&BN_free)>;
+using BnCtxPtr = std::unique_ptr<BN_CTX, decltype(&BN_CTX_free)>;
 
-using CryptoPPInteger = CryptoPP::Integer;
-using CryptoPPPoint = CryptoPP::EC2N::Point;
-using CryptoPPECCPrivateKey = CryptoPP::ECDSA<CryptoPP::EC2N, CryptoPP::SHA256>::PrivateKey;
-using CryptoPPECCPublicKey = CryptoPP::ECDSA<CryptoPP::EC2N, CryptoPP::SHA256>::PublicKey;
+EcGroupPtr CreateGroup() {
+    return EcGroupPtr(EC_GROUP_new_by_curve_name(NID_sect233r1), &EC_GROUP_free);
+}
 
-class CryptoPPRandom final : public CryptoPP::RandomNumberGenerator {
-public:
-    ~CryptoPPRandom() override = default;
+BnPtr CreateBigNum(std::span<const u8> data) {
+    if (data.empty()) {
+        return BnPtr(BN_new(), &BN_free);
+    }
+    return BnPtr(BN_bin2bn(data.data(), static_cast<int>(data.size()), nullptr), &BN_free);
+}
 
-    std::string AlgorithmName() const override {
-        return "HW::ECC::CryptoPPRandom";
+EcPointPtr CreatePoint(const EC_GROUP* group, const PublicKey& public_key) {
+    EcPointPtr point(EC_POINT_new(group), &EC_POINT_free);
+    BnCtxPtr ctx(BN_CTX_new(), &BN_CTX_free);
+    BnPtr x = CreateBigNum(public_key.x);
+    BnPtr y = CreateBigNum(public_key.y);
+    if (!point || !ctx || !x || !y) {
+        return EcPointPtr(nullptr, &EC_POINT_free);
+    }
+    if (EC_POINT_set_affine_coordinates(group, point.get(), x.get(), y.get(), ctx.get()) != 1) {
+        return EcPointPtr(nullptr, &EC_POINT_free);
+    }
+    return point;
+}
+
+EcKeyPtr CreatePrivateEcKey(const PrivateKey& private_key) {
+    EcGroupPtr group = CreateGroup();
+    if (!group) {
+        return EcKeyPtr(nullptr, &EC_KEY_free);
+    }
+    EcKeyPtr key(EC_KEY_new(), &EC_KEY_free);
+    BnPtr priv = CreateBigNum(private_key.x);
+    if (!key || !priv) {
+        return EcKeyPtr(nullptr, &EC_KEY_free);
+    }
+    if (EC_KEY_set_group(key.get(), group.get()) != 1 || EC_KEY_set_private_key(key.get(), priv.get()) != 1) {
+        return EcKeyPtr(nullptr, &EC_KEY_free);
     }
 
-    void GenerateBlock(byte* output, size_t size) override {
-        Common::FillSecureRandom(std::span<std::uint8_t>(output, size));
+    EcPointPtr pub(EC_POINT_new(group.get()), &EC_POINT_free);
+    BnCtxPtr ctx(BN_CTX_new(), &BN_CTX_free);
+    if (!pub || !ctx) {
+        return EcKeyPtr(nullptr, &EC_KEY_free);
     }
-};
-
-CryptoPPInteger AsCryptoPPInteger(const PrivateKey& private_key) {
-    return CryptoPP::Integer(private_key.x.data(), private_key.x.size(), CryptoPP::Integer::UNSIGNED,
-                             CryptoPP::BIG_ENDIAN_ORDER);
-}
-
-CryptoPPECCPrivateKey AsCryptoPPPrivateKey(const PrivateKey& private_key) {
-    CryptoPPECCPrivateKey private_key_cpp;
-    CryptoPPRandom prng;
-
-    private_key_cpp.Initialize(CryptoPP::ASN1::sect233r1(), AsCryptoPPInteger(private_key));
-    if (!private_key_cpp.Validate(prng, 3)) {
-        LOG_ERROR(HW, "Failed to verify ECC private key");
+    if (EC_POINT_mul(group.get(), pub.get(), priv.get(), nullptr, nullptr, ctx.get()) != 1 ||
+        EC_KEY_set_public_key(key.get(), pub.get()) != 1) {
+        return EcKeyPtr(nullptr, &EC_KEY_free);
     }
-
-    return private_key_cpp;
+    return key;
 }
 
-CryptoPPPoint AsCryptoPPPoint(const PublicKey& public_key) {
-    return CryptoPP::EC2N::Point(CryptoPP::PolynomialMod2(public_key.x.data(), public_key.x.size()),
-                                 CryptoPP::PolynomialMod2(public_key.y.data(), public_key.y.size()));
+EcKeyPtr CreatePublicEcKey(const PublicKey& public_key) {
+    EcGroupPtr group = CreateGroup();
+    if (!group) {
+        return EcKeyPtr(nullptr, &EC_KEY_free);
+    }
+    EcKeyPtr key(EC_KEY_new(), &EC_KEY_free);
+    if (!key) {
+        return EcKeyPtr(nullptr, &EC_KEY_free);
+    }
+    if (EC_KEY_set_group(key.get(), group.get()) != 1) {
+        return EcKeyPtr(nullptr, &EC_KEY_free);
+    }
+    EcPointPtr point = CreatePoint(group.get(), public_key);
+    if (!point || EC_KEY_set_public_key(key.get(), point.get()) != 1) {
+        return EcKeyPtr(nullptr, &EC_KEY_free);
+    }
+    return key;
 }
 
-CryptoPPECCPublicKey AsCryptoPPPublicKey(const PublicKey& public_key) {
-    CryptoPPECCPublicKey public_key_cpp;
-
-    public_key_cpp.Initialize(CryptoPP::ASN1::sect233r1(), AsCryptoPPPoint(public_key));
-    return public_key_cpp;
-}
-
-PublicKey MakePublicKeyFromCrypto(const CryptoPPECCPrivateKey& private_key_cpp) {
-    CryptoPPECCPublicKey public_key_cpp;
-    PublicKey public_key;
-
-    private_key_cpp.MakePublicKey(public_key_cpp);
-
-    public_key_cpp.GetPublicElement().x.Encode(public_key.x.data(), public_key.x.size());
-    public_key_cpp.GetPublicElement().y.Encode(public_key.y.data(), public_key.y.size());
-
+PublicKey GetPublicKeyFromEcKey(const EC_KEY* key) {
+    PublicKey public_key{};
+    const EC_GROUP* group = EC_KEY_get0_group(key);
+    const EC_POINT* point = EC_KEY_get0_public_key(key);
+    BnCtxPtr ctx(BN_CTX_new(), &BN_CTX_free);
+    BnPtr x(BN_new(), &BN_free);
+    BnPtr y(BN_new(), &BN_free);
+    if (!group || !point || !ctx || !x || !y) {
+        return public_key;
+    }
+    if (EC_POINT_get_affine_coordinates(group, point, x.get(), y.get(), ctx.get()) != 1) {
+        return public_key;
+    }
+    BN_bn2binpad(x.get(), public_key.x.data(), static_cast<int>(public_key.x.size()));
+    BN_bn2binpad(y.get(), public_key.y.data(), static_cast<int>(public_key.y.size()));
     return public_key;
 }
 
@@ -141,21 +182,20 @@ void InitSlots() {
 }
 
 PrivateKey CreateECCPrivateKey(std::span<const u8> private_key_x, bool fix_up) {
-    CryptoPPECCPrivateKey private_key;
-    CryptoPPInteger privk_x(private_key_x.data(), private_key_x.size(), CryptoPP::Integer::UNSIGNED,
-                            CryptoPP::BIG_ENDIAN_ORDER);
-
-    // The ECC library Nintendo used to generate private keys does not limit the private key
-    // size to be inside the subgroup order. To fix this, we do a modulo operation with the
-    // subgroup order, otherwise CryptoPP will fail to use the key.
-    if (fix_up) {
-        CryptoPP::DL_GroupParameters_EC<CryptoPP::EC2N> params(CryptoPP::ASN1::sect233r1());
-        privk_x = privk_x % params.GetSubgroupOrder();
+    PrivateKey ret{};
+    BnPtr priv = CreateBigNum(private_key_x);
+    if (!priv) {
+        return ret;
     }
-    private_key.Initialize(CryptoPP::ASN1::sect233r1(), privk_x);
-
-    PrivateKey ret;
-    private_key.GetPrivateExponent().Encode(ret.x.data(), ret.x.size());
+    if (fix_up) {
+        EcGroupPtr group = CreateGroup();
+        BnCtxPtr ctx(BN_CTX_new(), &BN_CTX_free);
+        BnPtr order(BN_new(), &BN_free);
+        if (group && ctx && order && EC_GROUP_get_order(group.get(), order.get(), ctx.get()) == 1) {
+            BN_mod(priv.get(), priv.get(), order.get(), ctx.get());
+        }
+    }
+    BN_bn2binpad(priv.get(), ret.x.data(), static_cast<int>(ret.x.size()));
     return ret;
 }
 
@@ -176,56 +216,105 @@ Signature CreateECCSignature(std::span<const u8> signature_rs) {
 }
 
 PublicKey MakePublicKey(const PrivateKey& private_key) {
-    return MakePublicKeyFromCrypto(AsCryptoPPPrivateKey(private_key));
+    EcKeyPtr key = CreatePrivateEcKey(private_key);
+    if (!key) {
+        LOG_ERROR(HW, "Failed to construct private EC key");
+        return {};
+    }
+    return GetPublicKeyFromEcKey(key.get());
 }
 
 std::pair<PrivateKey, PublicKey> GenerateKeyPair() {
-    CryptoPPECCPrivateKey private_key_cpp;
-    PrivateKey private_key;
+    PrivateKey private_key{};
+    EcGroupPtr group = CreateGroup();
+    EcKeyPtr key(EC_KEY_new(), &EC_KEY_free);
+    if (!group || !key || EC_KEY_set_group(key.get(), group.get()) != 1 ||
+        EC_KEY_generate_key(key.get()) != 1) {
+        LOG_ERROR(HW, "Failed to generate EC key pair");
+        return {private_key, {}};
+    }
 
-    CryptoPPRandom prng;
+    const BIGNUM* priv = EC_KEY_get0_private_key(key.get());
+    if (!priv || BN_bn2binpad(priv, private_key.x.data(), static_cast<int>(private_key.x.size())) !=
+                     static_cast<int>(private_key.x.size())) {
+        LOG_ERROR(HW, "Failed to export generated private key");
+        return {private_key, {}};
+    }
 
-    private_key_cpp.Initialize(prng, CryptoPP::ASN1::sect233r1());
-    private_key_cpp.GetPrivateExponent().Encode(private_key.x.data(), private_key.x.size());
-
-    return std::make_pair(private_key, MakePublicKeyFromCrypto(private_key_cpp));
+    return std::make_pair(private_key, GetPublicKeyFromEcKey(key.get()));
 }
 
 Signature Sign(std::span<const u8> data, PrivateKey private_key) {
-    CryptoPP::ECDSA<CryptoPP::EC2N, CryptoPP::SHA256>::Signer signer(
-        AsCryptoPPPrivateKey(private_key));
-    CryptoPPRandom prng;
+    Signature ret{};
+    EcKeyPtr key = CreatePrivateEcKey(private_key);
+    if (!key) {
+        LOG_ERROR(HW, "Failed to create private key for signing");
+        return ret;
+    }
 
-    Signature ret;
-
-    signer.SignMessage(prng, data.data(), data.size(), ret.rs.data());
+    EcSigPtr sig(ECDSA_do_sign(data.data(), static_cast<int>(data.size()), key.get()), &ECDSA_SIG_free);
+    if (!sig) {
+        LOG_ERROR(HW, "ECDSA_do_sign failed");
+        return ret;
+    }
+    const BIGNUM* r = nullptr;
+    const BIGNUM* s = nullptr;
+    ECDSA_SIG_get0(sig.get(), &r, &s);
+    if (!r || !s) {
+        LOG_ERROR(HW, "ECDSA signature missing r/s components");
+        return ret;
+    }
+    BN_bn2binpad(r, ret.r.data(), static_cast<int>(ret.r.size()));
+    BN_bn2binpad(s, ret.s.data(), static_cast<int>(ret.s.size()));
     return ret;
 }
 
 bool Verify(std::span<const u8> data, Signature signature, PublicKey public_key) {
-    CryptoPP::ECDSA<CryptoPP::EC2N, CryptoPP::SHA256>::Verifier verifier(
-        AsCryptoPPPublicKey(public_key));
+    EcKeyPtr key = CreatePublicEcKey(public_key);
+    if (!key) {
+        LOG_ERROR(HW, "Failed to construct public EC key");
+        return false;
+    }
 
-    return verifier.VerifyMessage(data.data(), data.size(), signature.rs.data(),
-                                  signature.rs.size());
+    BnPtr r = CreateBigNum(signature.r);
+    BnPtr s = CreateBigNum(signature.s);
+    EcSigPtr sig(ECDSA_SIG_new(), &ECDSA_SIG_free);
+    if (!r || !s || !sig || ECDSA_SIG_set0(sig.get(), r.release(), s.release()) != 1) {
+        LOG_ERROR(HW, "Failed to create ECDSA signature object for verification");
+        return false;
+    }
+
+    return ECDSA_do_verify(data.data(), static_cast<int>(data.size()), sig.get(), key.get()) == 1;
 }
 
 std::vector<u8> Agree(PrivateKey private_key, PublicKey others_public_key) {
-    CryptoPP::ECDH<CryptoPP::EC2N, CryptoPP::NoCofactorMultiplication>::Domain domain(
-        CryptoPP::ASN1::sect233r1());
-    CryptoPP::DL_GroupParameters_EC<CryptoPP::EC2N> params(CryptoPP::ASN1::sect233r1());
-    std::vector<u8> agreement(domain.AgreedValueLength());
-
-    std::vector<u8> private_encoded(domain.PrivateKeyLength());
-    AsCryptoPPInteger(private_key).Encode(private_encoded.data(), private_encoded.size());
-
-    std::vector<u8> others_public_encoded(params.GetEncodedElementSize(true));
-    params.EncodeElement(true, AsCryptoPPPoint(others_public_key), others_public_encoded.data());
-
-    if (!domain.Agree(agreement.data(), private_encoded.data(), others_public_encoded.data())) {
-        LOG_ERROR(HW, "ECDH agreement failed");
+    EcKeyPtr local_key = CreatePrivateEcKey(private_key);
+    if (!local_key) {
+        LOG_ERROR(HW, "Failed to construct private EC key for ECDH");
+        return {};
+    }
+    const EC_GROUP* group = EC_KEY_get0_group(local_key.get());
+    if (!group) {
+        LOG_ERROR(HW, "Missing EC group for ECDH");
+        return {};
+    }
+    EcPointPtr remote_point = CreatePoint(group, others_public_key);
+    if (!remote_point) {
+        LOG_ERROR(HW, "Invalid remote EC public key for ECDH");
+        return {};
     }
 
+    const int degree = EC_GROUP_get_degree(group);
+    const std::size_t secret_len = static_cast<std::size_t>((degree + 7) / 8);
+    std::vector<u8> agreement(secret_len);
+    const int out_len =
+        ECDH_compute_key(agreement.data(), static_cast<int>(agreement.size()), remote_point.get(),
+                         local_key.get(), nullptr);
+    if (out_len <= 0) {
+        LOG_ERROR(HW, "ECDH agreement failed");
+        return {};
+    }
+    agreement.resize(static_cast<std::size_t>(out_len));
     return agreement;
 }
 
