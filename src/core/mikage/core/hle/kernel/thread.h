@@ -80,7 +80,7 @@ public:
 private:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 class CpuLimiter {
@@ -133,7 +133,7 @@ private:
     SchedState curr_state{};
     std::queue<u32> sleeping_thread_ids;
 
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
 };
@@ -242,7 +242,7 @@ private:
     friend class Thread;
     friend class KernelSystem;
 
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
 };
@@ -411,7 +411,7 @@ public:
 private:
     ThreadManager& thread_manager;
 
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
 };
@@ -432,7 +432,7 @@ std::shared_ptr<Thread> SetupMainThread(KernelSystem& kernel, u32 entry_point, u
 BOOST_CLASS_EXPORT_KEY(Kernel::Thread)
 BOOST_CLASS_EXPORT_KEY(Kernel::WakeupCallback)
 
-namespace boost::serialization {
+namespace MikageSerialization {
 
 template <class Archive>
 void save_construct_data(Archive& ar, const Kernel::Thread* t, const unsigned int) {
@@ -446,4 +446,4 @@ void load_construct_data(Archive& ar, Kernel::Thread* t, const unsigned int) {
     ::new (t) Kernel::Thread(Core::Global<Kernel::KernelSystem>(), core_id);
 }
 
-} // namespace boost::serialization
+} // namespace MikageSerialization

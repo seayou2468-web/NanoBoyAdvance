@@ -191,7 +191,7 @@ Process Creation & Execution
 
 ```cpp
 // Old Approach (Boost):
-#include <boost/serialization/vector.hpp>
+#include "common/serialization/boost_all_serialization.h"
 ar& my_vector;
 
 // New Approach (Standard C++):
@@ -202,10 +202,10 @@ p.Do(my_vector);  // Via PointerWrap
 ### Interval Operations
 
 ```cpp
-// Old Approach (boost::icl):
-boost::icl::first(interval)   → interval.lower()
-boost::icl::last_next(interval) → interval.upper()
-boost::icl::length(interval)   → (interval.upper() - interval.lower())
+// Old external approach (ICL):
+MikageIcl::first(interval)   → interval.lower()
+MikageIcl::last_next(interval) → interval.upper()
+MikageIcl::length(interval)   → (interval.upper() - interval.lower())
 
 // Implemented in:
 // - core/video_core/rasterizer_cache/surface_*.cpp

@@ -102,7 +102,7 @@ private:
 
     BOOST_SERIALIZATION_SPLIT_MEMBER()
 
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 } // namespace Service::SM

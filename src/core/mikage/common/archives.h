@@ -2,8 +2,8 @@
 
 #include "common/serialization/boost_all_serialization.h"
 
-using iarchive = boost::serialization::input_archive;
-using oarchive = boost::serialization::output_archive;
+using iarchive = MikageSerialization::input_archive;
+using oarchive = MikageSerialization::output_archive;
 
 #define SERIALIZE_IMPL(A)                                                                          \
     template void A::serialize<iarchive>(iarchive&, const unsigned int);                          \

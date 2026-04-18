@@ -43,7 +43,7 @@ SERIALIZE_IMPL(ThreadManager)
 
 template <class Archive>
 void Thread::serialize(Archive& ar, const unsigned int file_version) {
-    ar& boost::serialization::base_object<WaitObject>(*this);
+    ar& MikageSerialization::base_object<WaitObject>(*this);
     ar & context;
     ar & thread_id;
     ar & status;

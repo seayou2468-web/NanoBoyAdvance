@@ -30,7 +30,7 @@ SERIALIZE_IMPL(Module)
 
 template <class Archive>
 void Module::SessionData::serialize(Archive& ar, const unsigned int) {
-    ar& boost::serialization::base_object<Kernel::SessionRequestHandler::SessionDataBase>(*this);
+    ar& MikageSerialization::base_object<Kernel::SessionRequestHandler::SessionDataBase>(*this);
     ar & online_service;
 }
 SERIALIZE_IMPL(Module::SessionData)

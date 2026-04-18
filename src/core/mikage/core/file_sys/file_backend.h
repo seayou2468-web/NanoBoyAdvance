@@ -107,7 +107,7 @@ protected:
     void serialize(Archive& ar, const unsigned int) {
         ar & delay_generator;
     }
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 } // namespace FileSys

@@ -18,11 +18,11 @@ struct ClientSlot : public Kernel::SessionRequestHandler::SessionDataBase {
 private:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<Kernel::SessionRequestHandler::SessionDataBase>(
+        ar& MikageSerialization::base_object<Kernel::SessionRequestHandler::SessionDataBase>(
             *this);
         ar & loaded_crs;
     }
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 class RO final : public ServiceFramework<RO, ClientSlot> {
@@ -165,9 +165,9 @@ private:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
         DEBUG_SERIALIZATION_POINT;
-        ar& boost::serialization::base_object<Kernel::SessionRequestHandler>(*this);
+        ar& MikageSerialization::base_object<Kernel::SessionRequestHandler>(*this);
     }
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 void InstallInterfaces(Core::System& system);

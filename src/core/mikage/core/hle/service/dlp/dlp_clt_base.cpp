@@ -287,9 +287,9 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<Kernel::HLERequestContext::WakeupCallback>(*this);
+        ar& MikageSerialization::base_object<Kernel::HLERequestContext::WakeupCallback>(*this);
     }
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 bool DLP_Clt_Base::OnConnectCallback() {

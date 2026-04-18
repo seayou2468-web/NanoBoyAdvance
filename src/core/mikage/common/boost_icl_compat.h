@@ -3,7 +3,7 @@
 
 #pragma once
 
-// Replacement for boost::icl (Interval Container Library) using C++ standard library
+// Replacement for external ICL-style interval helpers using C++ standard library
 // Provides minimal interval operations needed for rasterizer cache surface handling
 
 #include <utility>
@@ -11,7 +11,7 @@
 #include <set>
 #include <functional>
 
-namespace boost::icl {
+namespace MikageIcl {
 
 template <typename T>
 using right_open_interval = std::pair<T, T>;
@@ -61,4 +61,8 @@ inline T length(const std::pair<T, T>& interval) noexcept {
     return interval.second - interval.first;
 }
 
-} // namespace boost::icl
+} // namespace MikageIcl
+
+namespace boost {
+namespace icl = MikageIcl;
+}

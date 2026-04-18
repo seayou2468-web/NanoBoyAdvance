@@ -131,7 +131,7 @@ private:
     void serialize(Archive& ar, const unsigned int) {
         ar & items;
     }
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 class Z3DSWriteIOFile : public IOFile {
@@ -196,7 +196,7 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
     bool is_serializing = false;
 };
 
@@ -259,7 +259,7 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
     bool is_serializing = false;
 };
 

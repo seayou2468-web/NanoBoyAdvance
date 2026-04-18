@@ -83,12 +83,12 @@ private:
     ArchiveFactory_ExtSaveData() = default;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<ArchiveFactory>(*this);
-        ar& boost::serialization::base_object<ArticCacheProvider>(*this);
+        ar& MikageSerialization::base_object<ArchiveFactory>(*this);
+        ar& MikageSerialization::base_object<ArticCacheProvider>(*this);
         ar & type;
         ar & mount_point;
     }
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 /**

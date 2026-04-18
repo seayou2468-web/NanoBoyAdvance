@@ -90,7 +90,7 @@ SERIALIZE_IMPL(PLG_LDR::PluginLoaderContext)
 template <class Archive>
 void PLG_LDR::serialize(Archive& ar, const unsigned int) {
     DEBUG_SERIALIZATION_POINT;
-    ar& boost::serialization::base_object<Kernel::SessionRequestHandler>(*this);
+    ar& MikageSerialization::base_object<Kernel::SessionRequestHandler>(*this);
     ar & plgldr_context;
 }
 SERIALIZE_IMPL(PLG_LDR)

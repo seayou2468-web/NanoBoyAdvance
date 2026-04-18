@@ -166,10 +166,10 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<ArchiveBackend>(*this);
+        ar& MikageSerialization::base_object<ArchiveBackend>(*this);
         ar & archive_handle;
     }
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 class ArticFileBackend : public FileBackend {
@@ -222,10 +222,10 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<FileBackend>(*this);
+        ar& MikageSerialization::base_object<FileBackend>(*this);
         ar & file_handle;
     }
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 class ArticDirectoryBackend : public DirectoryBackend {
@@ -256,10 +256,10 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<DirectoryBackend>(*this);
+        ar& MikageSerialization::base_object<DirectoryBackend>(*this);
         ar & dir_handle;
     }
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 } // namespace FileSys
 

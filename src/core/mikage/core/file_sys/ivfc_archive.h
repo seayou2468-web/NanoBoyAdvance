@@ -145,10 +145,10 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<FileBackend>(*this);
+        ar& MikageSerialization::base_object<FileBackend>(*this);
         ar & romfs_file;
     }
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 class IVFCDirectory : public DirectoryBackend {
@@ -185,12 +185,12 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<FileBackend>(*this);
+        ar& MikageSerialization::base_object<FileBackend>(*this);
         ar & romfs_file;
         ar & data_offset;
         ar & data_size;
     }
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 } // namespace FileSys

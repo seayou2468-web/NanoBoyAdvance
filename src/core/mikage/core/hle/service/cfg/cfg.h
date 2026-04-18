@@ -652,7 +652,7 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 std::shared_ptr<Module> GetModule(Core::System& system);

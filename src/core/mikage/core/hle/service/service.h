@@ -216,27 +216,27 @@ extern const std::array<ServiceModuleInfo, 41> service_module_map;
                                                                                                    \
     template <class Archive>                                                                       \
     void serialize(Archive& ar, const unsigned int) {                                              \
-        ar& boost::serialization::base_object<Kernel::SessionRequestHandler>(*this);               \
+        ar& MikageSerialization::base_object<Kernel::SessionRequestHandler>(*this);               \
     }                                                                                              \
-    friend class boost::serialization::access;                                                     \
+    friend class MikageSerialization::access;                                                     \
     friend class ::construct_access;
 
 #define SERVICE_SERIALIZATION_SIMPLE                                                               \
     template <class Archive>                                                                       \
     void serialize(Archive& ar, const unsigned int) {                                              \
         DEBUG_SERIALIZATION_POINT;                                                                 \
-        ar& boost::serialization::base_object<Kernel::SessionRequestHandler>(*this);               \
+        ar& MikageSerialization::base_object<Kernel::SessionRequestHandler>(*this);               \
     }                                                                                              \
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 
 #define SERVICE_CONSTRUCT(T)                                                                       \
-    namespace boost::serialization {                                                               \
+    namespace MikageSerialization {                                                               \
     template <class Archive>                                                                       \
     void load_construct_data(Archive& ar, T* t, const unsigned int);                               \
     }
 
 #define SERVICE_CONSTRUCT_IMPL(T)                                                                  \
-    namespace boost::serialization {                                                               \
+    namespace MikageSerialization {                                                               \
     template <class Archive>                                                                       \
     void load_construct_data(Archive& ar, T* t, const unsigned int) {                              \
         ::new (t) T(Core::Global<Core::System>());                                                 \

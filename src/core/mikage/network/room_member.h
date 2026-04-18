@@ -41,7 +41,7 @@ private:
         ar & destination_address;
         ar & channel;
     }
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 /// Represents a chat message.

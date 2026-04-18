@@ -34,10 +34,10 @@ private:
     ArchiveFactory_OtherSaveDataPermitted() = default;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<ArchiveFactory>(*this);
+        ar& MikageSerialization::base_object<ArchiveFactory>(*this);
         ar & sd_savedata_source;
     }
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 /// File system interface to the OtherSaveDataGeneral archive
@@ -61,10 +61,10 @@ private:
     ArchiveFactory_OtherSaveDataGeneral() = default;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<ArchiveFactory>(*this);
+        ar& MikageSerialization::base_object<ArchiveFactory>(*this);
         ar & sd_savedata_source;
     }
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 } // namespace FileSys

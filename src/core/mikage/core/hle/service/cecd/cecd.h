@@ -253,7 +253,7 @@ public:
     private:
         template <class Archive>
         void serialize(Archive& ar, const unsigned int) {
-            ar& boost::serialization::base_object<Kernel::SessionRequestHandler::SessionDataBase>(
+            ar& MikageSerialization::base_object<Kernel::SessionRequestHandler::SessionDataBase>(
                 *this);
             ar & ncch_program_id;
             ar & data_path_type;
@@ -261,7 +261,7 @@ public:
             ar & path;
             ar & file;
         }
-        friend class boost::serialization::access;
+        friend class MikageSerialization::access;
     };
 
     class Interface : public ServiceFramework<Interface, SessionData> {
@@ -632,7 +632,7 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 /// Initialize CECD service(s)

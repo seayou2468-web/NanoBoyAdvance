@@ -146,7 +146,7 @@ private:
     // TODO: Perform proper arithmetic on this!
     float value;
 
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int file_version) {
         ar & value;

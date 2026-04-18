@@ -47,11 +47,11 @@ protected:
 private:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<FileBackend>(*this);
+        ar& MikageSerialization::base_object<FileBackend>(*this);
         ar & mode.hex;
         ar & file;
     }
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 class DiskDirectory : public DirectoryBackend {
@@ -80,7 +80,7 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<DirectoryBackend>(*this);
+        ar& MikageSerialization::base_object<DirectoryBackend>(*this);
         ar & directory;
         u64 child_index;
         if (Archive::is_saving::value) {
@@ -91,7 +91,7 @@ private:
             children_iterator = directory.children.begin() + child_index;
         }
     }
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 } // namespace FileSys

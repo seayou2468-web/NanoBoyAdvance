@@ -22,7 +22,7 @@ public:
 private:
     template <class Archive>
     void serialize(Archive&, const unsigned int) {}
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 /// Backing memory implemented by a local buffer
@@ -56,10 +56,10 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<BackingMem>(*this);
+        ar& MikageSerialization::base_object<BackingMem>(*this);
         ar & data;
     }
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 BOOST_CLASS_EXPORT_KEY(BufferMem);
@@ -153,5 +153,5 @@ private:
         ar & offset;
         Init();
     }
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };

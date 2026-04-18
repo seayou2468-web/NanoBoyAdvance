@@ -37,7 +37,7 @@ public:
 private:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int file_version) {}
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 /**
@@ -95,7 +95,7 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<RomFSReader>(*this);
+        ar& MikageSerialization::base_object<RomFSReader>(*this);
         ar & is_encrypted;
         ar & file;
         ar & key;
@@ -104,7 +104,7 @@ private:
         ar & crypto_offset;
         ar & data_size;
     }
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 /**
@@ -147,10 +147,10 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<RomFSReader>(*this);
+        ar& MikageSerialization::base_object<RomFSReader>(*this);
         ar & data_size;
     }
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 } // namespace FileSys

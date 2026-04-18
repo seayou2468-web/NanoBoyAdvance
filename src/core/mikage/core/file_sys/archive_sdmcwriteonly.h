@@ -33,9 +33,9 @@ private:
     SDMCWriteOnlyArchive() = default;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<SDMCArchive>(*this);
+        ar& MikageSerialization::base_object<SDMCArchive>(*this);
     }
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 /// File system interface to the SDMC write-only archive
@@ -64,10 +64,10 @@ private:
     ArchiveFactory_SDMCWriteOnly() = default;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<ArchiveFactory>(*this);
+        ar& MikageSerialization::base_object<ArchiveFactory>(*this);
         ar & sdmc_directory;
     }
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 class SDMCWriteOnlyDelayGenerator;

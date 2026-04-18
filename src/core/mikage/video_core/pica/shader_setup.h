@@ -35,7 +35,7 @@ struct Uniforms {
     }
 
 private:
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
     template <class Archive>
     void serialize(Archive& ar, const u32 file_version) {
         ar & f;
@@ -159,7 +159,7 @@ private:
     u64 program_code_hash{0};
     u64 swizzle_data_hash{0};
 
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
     template <class Archive>
     void serialize(Archive& ar, const u32 file_version) {
         ar & uniforms;

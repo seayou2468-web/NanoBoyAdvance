@@ -137,7 +137,7 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<RomFSReader>(*this);
+        ar& MikageSerialization::base_object<RomFSReader>(*this);
         ar & romfs;
         ar & patch_path;
         ar & patch_ext_path;
@@ -147,7 +147,7 @@ private:
         }
         // NOTE: Everything else is essentially cached, updated when we call Load
     }
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 } // namespace FileSys

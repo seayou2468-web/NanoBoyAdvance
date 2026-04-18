@@ -137,16 +137,16 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 } // namespace SharedPage
 
-namespace boost::serialization {
+namespace MikageSerialization {
 
 template <class Archive>
 void load_construct_data(Archive& ar, SharedPage::Handler* t, const unsigned int);
 
-} // namespace boost::serialization
+} // namespace MikageSerialization
 
 BOOST_CLASS_EXPORT_KEY(SharedPage::Handler)

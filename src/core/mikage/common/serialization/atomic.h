@@ -3,7 +3,7 @@
 #include <atomic>
 #include "common/serialization/boost_all_serialization.h"
 
-namespace boost::serialization {
+namespace MikageSerialization {
 
 template <class Archive, class T>
 void serialize(Archive& ar, std::atomic<T>& value, const unsigned int file_version) {
@@ -16,4 +16,4 @@ void save(Archive&, const std::atomic<T>&, const unsigned int) {}
 template <class Archive, class T>
 void load(Archive&, std::atomic<T>&, const unsigned int) {}
 
-} // namespace boost::serialization
+} // namespace MikageSerialization

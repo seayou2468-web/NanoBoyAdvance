@@ -82,7 +82,7 @@ private:
     std::string m_name;
 
 private:
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
 };
@@ -102,7 +102,7 @@ public:
 private:
     std::array<std::shared_ptr<ResourceLimit>, 4> resource_limits;
 
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
 };

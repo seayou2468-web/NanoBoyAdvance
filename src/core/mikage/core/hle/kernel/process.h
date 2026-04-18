@@ -27,7 +27,7 @@ struct AddressMapping {
     bool unk_flag;
 
 private:
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
 };
@@ -66,7 +66,7 @@ public:
         u32 size = 0;
 
     private:
-        friend class boost::serialization::access;
+        friend class MikageSerialization::access;
         template <class Archive>
         void serialize(Archive& ar, const unsigned int);
     };
@@ -118,7 +118,7 @@ public:
     u64 program_id;
 
 private:
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
 };
@@ -231,7 +231,7 @@ private:
 
     KernelSystem& kernel;
 
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int file_version);
 };

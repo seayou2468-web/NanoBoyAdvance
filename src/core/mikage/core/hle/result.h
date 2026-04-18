@@ -231,7 +231,7 @@ private:
     void serialize(Archive& ar, const unsigned int) {
         ar & raw;
     }
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 constexpr bool operator==(const Result& a, const Result& b) {

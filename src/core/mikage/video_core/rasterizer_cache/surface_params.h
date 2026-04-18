@@ -11,7 +11,7 @@
 
 namespace VideoCore {
 
-using SurfaceInterval = boost::icl::right_open_interval<PAddr>;
+using SurfaceInterval = MikageIcl::right_open_interval<PAddr>;
 
 constexpr std::size_t MAX_PICA_LEVELS = 8;
 

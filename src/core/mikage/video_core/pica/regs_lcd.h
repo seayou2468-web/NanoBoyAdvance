@@ -61,7 +61,7 @@ private:
         ar & color_fill_bottom.raw;
         ar & backlight_bottom;
     }
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 static_assert(std::is_standard_layout_v<RegsLcd>, "Structure does not use standard layout");
 

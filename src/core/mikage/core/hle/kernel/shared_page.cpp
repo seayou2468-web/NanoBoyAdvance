@@ -16,7 +16,7 @@
 
 SERIALIZE_EXPORT_IMPL(SharedPage::Handler)
 
-namespace boost::serialization {
+namespace MikageSerialization {
 
 template <class Archive>
 void load_construct_data(Archive& ar, SharedPage::Handler* t, const unsigned int) {
@@ -26,7 +26,7 @@ void load_construct_data(Archive& ar, SharedPage::Handler* t, const unsigned int
 template void load_construct_data<iarchive>(iarchive& ar, SharedPage::Handler* t,
                                             const unsigned int);
 
-} // namespace boost::serialization
+} // namespace MikageSerialization
 
 namespace SharedPage {
 
@@ -175,8 +175,8 @@ SharedPageDef& Handler::GetSharedPage() {
 
 template <class Archive>
 void Handler::serialize(Archive& ar, const unsigned int) {
-    ar& boost::serialization::base_object<BackingMem>(*this);
-    ar& boost::serialization::make_binary_object(&shared_page, sizeof(shared_page));
+    ar& MikageSerialization::base_object<BackingMem>(*this);
+    ar& MikageSerialization::make_binary_object(&shared_page, sizeof(shared_page));
 }
 SERIALIZE_IMPL(Handler)
 

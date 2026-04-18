@@ -86,7 +86,7 @@ private:
 protected:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {}
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 class ArticCacheProvider {
@@ -139,7 +139,7 @@ public:
 protected:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {}
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 
 private:
     std::unique_ptr<std::map<std::vector<u8>, std::shared_ptr<ArticCache>>> file_caches = nullptr;

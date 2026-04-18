@@ -15,7 +15,7 @@ namespace Service::FS {
 
 template <class Archive>
 void Directory::serialize(Archive& ar, const unsigned int) {
-    ar& boost::serialization::base_object<Kernel::SessionRequestHandler>(*this);
+    ar& MikageSerialization::base_object<Kernel::SessionRequestHandler>(*this);
     ar & path;
     ar & backend;
 }

@@ -56,7 +56,7 @@ Result ClientSession::SendSyncRequest(std::shared_ptr<Thread> thread) {
 
 template <class Archive>
 void ClientSession::serialize(Archive& ar, const unsigned int) {
-    ar& boost::serialization::base_object<Object>(*this);
+    ar& MikageSerialization::base_object<Object>(*this);
     ar & name;
     ar & parent;
 }

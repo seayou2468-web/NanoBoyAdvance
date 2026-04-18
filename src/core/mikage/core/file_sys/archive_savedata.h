@@ -34,10 +34,10 @@ private:
     ArchiveFactory_SaveData() = default;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<ArchiveFactory>(*this);
+        ar& MikageSerialization::base_object<ArchiveFactory>(*this);
         ar & sd_savedata_source;
     }
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 } // namespace FileSys

@@ -24,7 +24,7 @@ struct MemoryRegionInfo {
         u32 upper{};
 
     private:
-        friend class boost::serialization::access;
+        friend class MikageSerialization::access;
         template <class Archive>
         void serialize(Archive& ar, const unsigned int) {
             ar & lower;
@@ -101,7 +101,7 @@ struct MemoryRegionInfo {
     void Unlock();
 
 private:
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
 };

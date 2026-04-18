@@ -10,7 +10,7 @@
 
 namespace VideoCore {
 
-using SurfaceRegions = boost::icl::interval_set<PAddr, std::less, SurfaceInterval>;
+using SurfaceRegions = MikageIcl::interval_set<PAddr, std::less, SurfaceInterval>;
 
 struct Material;
 

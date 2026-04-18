@@ -90,7 +90,7 @@ public:
 private:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 class GSP_GPU final : public ServiceFramework<GSP_GPU, SessionData> {
@@ -409,7 +409,7 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 } // namespace Service::GSP

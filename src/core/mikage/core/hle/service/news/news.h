@@ -29,7 +29,7 @@ private:
         ar & valid;
         ar & flags;
     }
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 static_assert(sizeof(NewsDBHeader) == 0x10, "News DB Header structure size is wrong");
 
@@ -71,7 +71,7 @@ private:
         ar & date_time;
         ar & title;
     }
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 static_assert(sizeof(NotificationHeader) == 0x70, "Notification Header structure size is wrong");
 
@@ -85,7 +85,7 @@ private:
         ar & header;
         ar & notifications;
     }
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 static_assert(sizeof(NewsDB) == 0x2BD0, "News DB structure size is wrong");
 
@@ -474,7 +474,7 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 void InstallInterfaces(Core::System& system);

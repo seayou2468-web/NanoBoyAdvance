@@ -25,14 +25,14 @@ struct FileSessionSlot : public Kernel::SessionRequestHandler::SessionDataBase {
 private:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<Kernel::SessionRequestHandler::SessionDataBase>(
+        ar& MikageSerialization::base_object<Kernel::SessionRequestHandler::SessionDataBase>(
             *this);
         ar & priority;
         ar & offset;
         ar & size;
         ar & subfile;
     }
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 // TODO: File is not a real service, but it can still utilize ServiceFramework::RegisterHandlers.
@@ -80,7 +80,7 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 } // namespace Service::FS

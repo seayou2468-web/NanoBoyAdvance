@@ -58,10 +58,10 @@ private:
     u64 size{};
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<DiskFile>(*this);
+        ar& MikageSerialization::base_object<DiskFile>(*this);
         ar & size;
     }
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 class ExtSaveDataDelayGenerator : public DelayGenerator {
@@ -167,9 +167,9 @@ private:
     ExtSaveDataArchive() = default;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<SaveDataArchive>(*this);
+        ar& MikageSerialization::base_object<SaveDataArchive>(*this);
     }
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 struct ExtSaveDataArchivePath {

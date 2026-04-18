@@ -54,7 +54,7 @@ public:
     GeometryEmitter* emitter_ptr;
 
 private:
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
     template <class Archive>
     void serialize(Archive& ar, const u32 file_version) {
         ar & input;
@@ -90,7 +90,7 @@ public:
     Handlers* handlers;
 
 private:
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
     template <class Archive>
     void serialize(Archive& ar, const u32 file_version) {
         ar & buffer;
@@ -114,10 +114,10 @@ struct GeometryShaderUnit : public ShaderUnit {
     GeometryEmitter emitter;
 
 private:
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
     template <class Archive>
     void serialize(Archive& ar, const u32 file_version) {
-        ar& boost::serialization::base_object<ShaderUnit>(*this);
+        ar& MikageSerialization::base_object<ShaderUnit>(*this);
         ar & emitter;
     }
 };

@@ -12,9 +12,9 @@
 private:                                                                                           \
     template <class Archive>                                                                       \
     void serialize(Archive& ar, const unsigned int) {                                              \
-        ar& boost::serialization::base_object<DelayGenerator>(*this);                              \
+        ar& MikageSerialization::base_object<DelayGenerator>(*this);                              \
     }                                                                                              \
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 
 namespace FileSys {
 
@@ -28,7 +28,7 @@ public:
 private:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {}
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 class DefaultDelayGenerator : public DelayGenerator {

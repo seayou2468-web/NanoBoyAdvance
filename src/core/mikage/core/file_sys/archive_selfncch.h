@@ -32,7 +32,7 @@ private:
         ar & romfs_file;
         ar & update_romfs_file;
     }
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 /// File system interface to the SelfNCCH archive
@@ -57,10 +57,10 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<ArchiveFactory>(*this);
+        ar& MikageSerialization::base_object<ArchiveFactory>(*this);
         ar & ncch_data;
     }
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 class ExeFSSectionFile;

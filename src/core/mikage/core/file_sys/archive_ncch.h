@@ -69,11 +69,11 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<ArchiveBackend>(*this);
+        ar& MikageSerialization::base_object<ArchiveBackend>(*this);
         ar & title_id;
         ar & media_type;
     }
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 // File backend for NCCH files
@@ -98,10 +98,10 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<FileBackend>(*this);
+        ar& MikageSerialization::base_object<FileBackend>(*this);
         ar & file_buffer;
     }
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 /// File system interface to the NCCH archive
@@ -135,10 +135,10 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<ArchiveFactory>(*this);
-        ar& boost::serialization::base_object<ArticCacheProvider>(*this);
+        ar& MikageSerialization::base_object<ArchiveFactory>(*this);
+        ar& MikageSerialization::base_object<ArticCacheProvider>(*this);
     }
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 } // namespace FileSys

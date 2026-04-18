@@ -69,7 +69,7 @@ private:
         ar & buffer;
         ar & index;
     }
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 } // namespace Pica

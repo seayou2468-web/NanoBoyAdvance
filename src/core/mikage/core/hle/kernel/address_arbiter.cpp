@@ -99,9 +99,9 @@ public:
 private:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<WakeupCallback>(*this);
+        ar& MikageSerialization::base_object<WakeupCallback>(*this);
     }
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 void AddressArbiter::WakeUp(ThreadWakeupReason reason, std::shared_ptr<Thread> thread,
@@ -189,7 +189,7 @@ Result AddressArbiter::ArbitrateAddress(std::shared_ptr<Thread> thread, Arbitrat
 
 template <class Archive>
 void AddressArbiter::serialize(Archive& ar, const unsigned int) {
-    ar& boost::serialization::base_object<Object>(*this);
+    ar& MikageSerialization::base_object<Object>(*this);
     ar & name;
     ar & waiting_threads;
     ar & timeout_callback;
@@ -199,7 +199,7 @@ SERIALIZE_IMPL(AddressArbiter)
 
 } // namespace Kernel
 
-namespace boost::serialization {
+namespace MikageSerialization {
 
 template <class Archive>
 void save_construct_data(Archive& ar, const Kernel::AddressArbiter::Callback* t,
@@ -214,4 +214,4 @@ void load_construct_data(Archive& ar, Kernel::AddressArbiter::Callback* t, const
     ::new (t) Kernel::AddressArbiter::Callback(*parent);
 }
 
-} // namespace boost::serialization
+} // namespace MikageSerialization

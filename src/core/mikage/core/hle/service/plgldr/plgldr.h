@@ -57,7 +57,7 @@ public:
                 ar & path;
                 ar & config;
             }
-            friend class boost::serialization::access;
+            friend class MikageSerialization::access;
         };
         bool is_enabled = true;
         bool allow_game_change = true;
@@ -83,7 +83,7 @@ public:
 
         template <class Archive>
         void serialize(Archive& ar, const unsigned int);
-        friend class boost::serialization::access;
+        friend class MikageSerialization::access;
     };
 
     PLG_LDR(Core::System& system_);
@@ -128,7 +128,7 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 std::shared_ptr<PLG_LDR> GetService(Core::System& system);

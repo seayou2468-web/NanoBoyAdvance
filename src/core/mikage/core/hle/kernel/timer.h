@@ -35,7 +35,7 @@ private:
     friend class Timer;
     friend class KernelSystem;
 
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
 };
@@ -113,7 +113,7 @@ private:
 
     friend class KernelSystem;
 
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
 };

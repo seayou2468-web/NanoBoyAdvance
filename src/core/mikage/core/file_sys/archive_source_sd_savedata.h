@@ -49,10 +49,10 @@ private:
     ArchiveSource_SDSaveData() = default;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<ArticCacheProvider>(*this);
+        ar& MikageSerialization::base_object<ArticCacheProvider>(*this);
         ar & mount_point;
     }
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 } // namespace FileSys

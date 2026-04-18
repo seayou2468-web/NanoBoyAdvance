@@ -103,7 +103,7 @@ private:
             break;
         }
     }
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 /// Parameters of the archive, as specified in the Create or Format call.
@@ -255,7 +255,7 @@ private:
     void serialize(Archive& ar, const unsigned int) {
         ar & delay_generator;
     }
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 class ArchiveFactory : NonCopyable {
@@ -299,7 +299,7 @@ public:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {}
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 } // namespace FileSys

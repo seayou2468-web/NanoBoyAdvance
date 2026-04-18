@@ -18,7 +18,7 @@ namespace Kernel {
 
 template <class Archive>
 void ServerSession::serialize(Archive& ar, const unsigned int) {
-    ar& boost::serialization::base_object<WaitObject>(*this);
+    ar& MikageSerialization::base_object<WaitObject>(*this);
     ar & name;
     ar & parent;
     ar & hle_handler;

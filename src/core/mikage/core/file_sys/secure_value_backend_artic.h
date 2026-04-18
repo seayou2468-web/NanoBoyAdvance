@@ -41,9 +41,9 @@ protected:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<SecureValueBackend>(*this);
+        ar& MikageSerialization::base_object<SecureValueBackend>(*this);
     }
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 
 private:
     std::shared_ptr<Network::ArticBase::Client> client;

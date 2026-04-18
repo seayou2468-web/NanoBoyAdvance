@@ -30,7 +30,7 @@ struct MappedBufferContext {
 private:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 /// Performs IPC command buffer translation from one process to another.

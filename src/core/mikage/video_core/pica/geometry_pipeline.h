@@ -55,7 +55,7 @@ private:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int version);
 
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 } // namespace Pica
 

@@ -30,7 +30,7 @@ private:
         ar & unknown;
         ar & friend_code;
     }
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 struct MyPresence {
@@ -41,7 +41,7 @@ private:
     void serialize(Archive& ar, const unsigned int) {
         ar & unknown;
     }
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 struct Profile {
@@ -276,7 +276,7 @@ private:
         ar & my_presence;
         ar & logged_in;
     }
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 void InstallInterfaces(Core::System& system);

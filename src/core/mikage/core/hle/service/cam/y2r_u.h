@@ -101,7 +101,7 @@ private:
         ar & transfer_unit;
         ar & gap;
     }
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 struct ConversionConfiguration {
@@ -142,7 +142,7 @@ private:
         ar & src_YUYV;
         ar & dst;
     }
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 struct DitheringWeightParams {
@@ -183,7 +183,7 @@ private:
         ar & w3_xEven_yOdd;
         ar & w3_xOdd_yOdd;
     }
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 struct ConversionParameters {
@@ -359,7 +359,7 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 void InstallInterfaces(Core::System& system);

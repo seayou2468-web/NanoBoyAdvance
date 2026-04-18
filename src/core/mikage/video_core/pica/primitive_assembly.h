@@ -85,7 +85,7 @@ private:
         ar & strip_ready;
         ar & winding;
     }
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 } // namespace Pica

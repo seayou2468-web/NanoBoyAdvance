@@ -64,7 +64,7 @@ public:
     void Acquire(Thread* thread) override;
 
 private:
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
 };

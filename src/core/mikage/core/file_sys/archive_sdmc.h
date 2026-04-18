@@ -44,10 +44,10 @@ protected:
     SDMCArchive() = default;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<ArchiveBackend>(*this);
+        ar& MikageSerialization::base_object<ArchiveBackend>(*this);
         ar & mount_point;
     }
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 /// File system interface to the SDMC archive
@@ -76,10 +76,10 @@ private:
     ArchiveFactory_SDMC() = default;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<ArchiveFactory>(*this);
+        ar& MikageSerialization::base_object<ArchiveFactory>(*this);
         ar & sdmc_directory;
     }
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
 };
 
 class SDMCDelayGenerator;

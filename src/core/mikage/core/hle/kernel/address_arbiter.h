@@ -76,7 +76,7 @@ private:
     void WakeUp(ThreadWakeupReason reason, std::shared_ptr<Thread> thread,
                 std::shared_ptr<WaitObject> object) override;
 
-    friend class boost::serialization::access;
+    friend class MikageSerialization::access;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
 };
