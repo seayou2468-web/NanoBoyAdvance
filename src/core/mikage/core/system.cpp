@@ -13,19 +13,22 @@
 
 namespace System {
 
-volatile State g_state;
+volatile State g_state = STATE_NULL;
 MetaFileSystem g_ctr_file_system;
 
 void UpdateState(State state) {
+    g_state = state;
 }
 
 void Init(EmuWindow* emu_window) {
+    UpdateState(STATE_LOADING);
     Core::Init();
     Memory::Init();
     HW::Init();
     HLE::Init();
     CoreTiming::Init();
     VideoCore::Init(emu_window);
+    UpdateState(STATE_IDLE);
 }
 
 void RunLoopFor(int cycles) {
@@ -36,7 +39,10 @@ void RunLoopFor(int cycles) {
 }
 
 void RunLoopUntil(u64 global_cycles) {
-    while (CoreTiming::GetTicks() < global_cycles) {
+    if (g_state == STATE_IDLE) {
+        UpdateState(STATE_RUNNING);
+    }
+    while (CoreTiming::GetTicks() < global_cycles && g_state == STATE_RUNNING) {
         Core::SingleStep();
         CoreTiming::Advance();
         if (VideoCore::g_renderer != nullptr) {
@@ -46,6 +52,7 @@ void RunLoopUntil(u64 global_cycles) {
 }
 
 void Shutdown() {
+    UpdateState(STATE_DIE);
     Core::Shutdown();
     Memory::Shutdown();
     HW::Shutdown();
@@ -53,6 +60,7 @@ void Shutdown() {
     CoreTiming::Shutdown();
     VideoCore::Shutdown();
     g_ctr_file_system.Shutdown();
+    UpdateState(STATE_NULL);
 }
 
 } // namespace

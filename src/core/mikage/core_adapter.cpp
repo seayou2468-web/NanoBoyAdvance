@@ -8,11 +8,15 @@
 
 #include <algorithm>
 #include <cctype>
+#include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <exception>
 #include <filesystem>
+#include <fstream>
 #include <string>
 #include <vector>
+#include <unistd.h>
 
 #include "./common/log_manager.h"
 #include "./citra/emu_window/emu_window_ios.h"
@@ -29,6 +33,7 @@ struct MikageRuntime {
   bool rom_loaded = false;
   std::vector<std::string> bios_paths;
   std::vector<uint32_t> rgba_frame;
+  std::filesystem::path temp_rom_path;
 };
 
 void* CreateRuntime() {
@@ -36,6 +41,16 @@ void* CreateRuntime() {
   runtime->rgba_frame.resize(static_cast<size_t>(VideoCore::kScreenTopWidth) *
                              static_cast<size_t>(VideoCore::kScreenTopHeight + VideoCore::kScreenBottomHeight));
   return runtime;
+}
+
+void RemoveTemporaryRomIfAny(MikageRuntime* runtime) {
+  if (!runtime || runtime->temp_rom_path.empty()) {
+    return;
+  }
+
+  std::error_code ec;
+  std::filesystem::remove(runtime->temp_rom_path, ec);
+  runtime->temp_rom_path.clear();
 }
 
 void DestroyRuntime(void* opaque_runtime) {
@@ -47,6 +62,7 @@ void DestroyRuntime(void* opaque_runtime) {
     System::Shutdown();
     LogManager::Shutdown();
   }
+  RemoveTemporaryRomIfAny(runtime);
   delete runtime;
 }
 
@@ -105,6 +121,7 @@ void ResetSystemForFreshBoot(MikageRuntime* runtime) {
   System::Shutdown();
   runtime->initialized = false;
   runtime->rom_loaded = false;
+  RemoveTemporaryRomIfAny(runtime);
 }
 
 bool LoadRomFromPath(void* opaque_runtime, const char* rom_path, std::string& last_error) {
@@ -160,9 +177,68 @@ bool LoadRomFromPath(void* opaque_runtime, const char* rom_path, std::string& la
   return true;
 }
 
-bool LoadRomFromMemory(void*, const void*, size_t, std::string& last_error) {
-  last_error = "Mikage 3DS core does not support in-memory ROM loading";
-  return false;
+bool LoadRomFromMemory(void* opaque_runtime, const void* rom_data, size_t rom_size, std::string& last_error) {
+  auto* runtime = static_cast<MikageRuntime*>(opaque_runtime);
+  if (!runtime) {
+    last_error = "Mikage runtime is not initialized";
+    return false;
+  }
+  if (!rom_data || rom_size == 0) {
+    last_error = "Invalid 3DS ROM memory buffer";
+    return false;
+  }
+
+  if (runtime->rom_loaded) {
+    ResetSystemForFreshBoot(runtime);
+  } else {
+    RemoveTemporaryRomIfAny(runtime);
+  }
+
+  std::error_code ec;
+  const auto temp_dir = std::filesystem::temp_directory_path(ec);
+  if (ec) {
+    last_error = "Failed to get temporary directory for 3DS ROM staging";
+    return false;
+  }
+
+  auto tmpl = (temp_dir / "mikage_memrom_XXXXXX.3ds").string();
+  if (tmpl.size() < 4) {
+    last_error = "Temporary ROM template path is invalid";
+    return false;
+  }
+  std::vector<char> writable_template(tmpl.begin(), tmpl.end());
+  writable_template.push_back('\0');
+
+  int fd = mkstemps(writable_template.data(), 4);
+  if (fd < 0) {
+    last_error = "Failed to create temporary file for 3DS ROM staging";
+    return false;
+  }
+  close(fd);
+
+  const std::filesystem::path staging_file(writable_template.data());
+  std::ofstream out(staging_file, std::ios::binary | std::ios::trunc);
+  if (!out) {
+    last_error = "Failed to create temporary file for 3DS ROM staging";
+    return false;
+  }
+  out.write(static_cast<const char*>(rom_data), static_cast<std::streamsize>(rom_size));
+  if (!out.good()) {
+    out.close();
+    std::filesystem::remove(staging_file, ec);
+    last_error = "Failed to write 3DS ROM memory buffer to temporary file";
+    return false;
+  }
+  out.close();
+
+  std::string path = staging_file.string();
+  if (!LoadRomFromPath(runtime, path.c_str(), last_error)) {
+    std::filesystem::remove(staging_file, ec);
+    return false;
+  }
+
+  runtime->temp_rom_path = staging_file;
+  return true;
 }
 
 void StepFrame(void* opaque_runtime, std::string& last_error) {

@@ -23,14 +23,17 @@ ARM_Interpreter::~ARM_Interpreter() {
 
 // Initialize the interpreter with System and Memory references
 void ARM_Interpreter::InitializeWithSystem(Core::System& system, Memory::MemorySystem& memory) {
+    InitializeWithSystem(system, memory, 16); // USER32MODE
+}
+
+void ARM_Interpreter::InitializeWithSystem(Core::System& system, Memory::MemorySystem& memory, u32 initial_mode) {
     if (state) {
         delete state;
     }
     
     try {
-        // Create new Cytrus-compatible ARMul_State with System and Memory integration
-        const uint32_t USER32MODE = 16;
-        state = new ARMul_State(system, memory, USER32MODE);
+        // Create new Cytrus-compatible ARMul_State with System and Memory integration.
+        state = new ARMul_State(system, memory, static_cast<PrivilegeMode>(initial_mode));
         
         // Configure for ARM11
         state->Emulate = 3;  // RUN mode
@@ -298,4 +301,9 @@ void ARM_Interpreter::LoadContext(const ThreadContext& ctx) {
     state->VFlag = ctx.v_flag;
     state->shifter_carry_out = ctx.q_flag;
     state->TFlag = ctx.t_flag;
+    if (ctx.j_flag) {
+        state->Cpsr |= (1U << 24);
+    } else {
+        state->Cpsr &= ~(1U << 24);
+    }
 }

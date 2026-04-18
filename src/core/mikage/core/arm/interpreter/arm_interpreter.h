@@ -31,6 +31,7 @@ public:
      * This must be called before executing instructions
      */
     void InitializeWithSystem(Core::System& system, Memory::MemorySystem& memory);
+    void InitializeWithSystem(Core::System& system, Memory::MemorySystem& memory, u32 initial_mode);
 
     /**
      * Set the Program Counter to an address
