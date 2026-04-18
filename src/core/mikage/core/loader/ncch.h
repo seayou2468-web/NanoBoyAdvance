@@ -1,163 +1,113 @@
-// Copyright 2014 Citra Emulator Project
+// Copyright Citra Emulator Project / Azahar Emulator Project
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
 #pragma once
 
-#include "../../common/common_types.h"
-#include <string>
-#include <vector>
 #include <memory>
+#include "common/common_types.h"
+#include "common/swap.h"
+#include "core/file_sys/ncch_container.h"
+#include "core/loader/loader.h"
 
 namespace Loader {
 
-// ============================================================================
-// NCCH Format Definitions (Nintendo Cartridge Content Header)
-// ============================================================================
-
-// NCCH magic number
-#define NCCH_MAGIC 0x4843434E  // "NCCH"
-
-// Encryption flags
-enum class EncryptionType : u32 {
-    NoEncryption = 0x0,
-    FixedKeyEncryption = 0x1,
-    NormalKeyEncryption = 0x2,
-};
-
-// Content type flags
-enum class ContentType : u32 {
-    Application = 0x0,
-    SystemUpdate = 0x1,
-    SystemModule = 0x2,
-    Firmware = 0x3,
-    TWl = 0x4,
-};
-
-// ============================================================================
-// NCCH Header Structure
-// ============================================================================
-
-struct NCCHHeader {
-    u32 magic;                          // 0x00: "NCCH"
-    u32 content_size;                   // 0x04: Size in 16-byte units
-    u8 partition_id[8];                 // 0x08: Partition ID
-    u16 version;                        // 0x10: Content version
-    u32 content_type;                   // 0x12: Content type
-    u32 content_unit_size;              // 0x16: Content unit size (1 << value)
-    
-    // Flags
-    u8 flags;                           // 0x1A: Flags
-    u8 reserved1[3];                   // 0x1B: Reserved
-    
-    // Section offsets (in content units)
-    u32 exheader_offset;                // 0x1E: ExHeader offset
-    u32 exheader_size;                  // 0x22: ExHeader size
-    u32 reserved2;                      // 0x26: Reserved
-    u64 reserved3;                      // 0x2A: Reserved
-    
-    // Section info (4 entries × 8 bytes = 32 bytes)
-    struct SectionInfo {
-        u32 offset;                     // Offset in content units
-        u32 size;                       // Size in content units
-    } sections[4];                      // 0x32: .code, .rodata, .data, .bss
-    
-    u8 reserved4[16];                   // 0x52: Reserved
-    u8 dependencies[48];                // 0x62: Program ID dependencies
-    u8 reserved5[176];                  // 0x92: Reserved
-    
-} __attribute__((packed));
-
-// ============================================================================
-// Extended Header (ExHeader)
-// ============================================================================
-
-struct ExHeader {
-    struct SciRegion {
-        u32 arm11_code_address;         // ARM11 code address
-        u32 arm11_code_size;            // ARM11 code size (pages)
-        u32 arm9_code_address;          // ARM9 code address
-        u32 arm9_code_size;             // ARM9 code size (pages)
-    } sci;
-    
-    struct AccessControl {
-        u32 rw_flags[3];                // Read/Write flags for memory regions
-        u32 io_registers;               // I/O register access
-        u8 reserved[256];               // Reserved
-    } access_control;
-    
-    u8 arm11_local_capabilities[256];   // ARM11 local capabilities
-    u8 arm9_access_control[16];         // ARM9 access control
-};
-
-// ============================================================================
-// ROM Loader
-// ============================================================================
-
-class NCCHLoader {
+/// Loads an NCCH file (e.g. from a CCI, or the first NCCH in a CXI)
+class AppLoader_NCCH final : public AppLoader {
 public:
-    NCCHLoader();
-    ~NCCHLoader() = default;
-    
-    // Load NCCH ROM from file
-    bool LoadROM(const std::string& filename);
-    
-    // Get program entry point
-    u32 GetEntryPoint() const { return entry_point; }
-    
-    // Get program name
-    const std::string& GetProgramName() const { return program_name; }
-    
-    // Load into memory
-    bool LoadIntoMemory(u8* memory, u32 memory_size);
-    
-    // Get loaded sections
-    const std::vector<u8>& GetCodeSection() const { return code_section; }
-    const std::vector<u8>& GetRodataSection() const { return rodata_section; }
-    const std::vector<u8>& GetDataSection() const { return data_section; }
-    
-    // Get section addresses
-    u32 GetCodeAddress() const { return code_address; }
-    u32 GetRodataAddress() const { return rodata_address; }
-    u32 GetDataAddress() const { return data_address; }
+    AppLoader_NCCH(Core::System& system_, FileUtil::IOFile&& file, const std::string& filepath)
+        : AppLoader(system_, std::move(file)), base_ncch(filepath), overlay_ncch(&base_ncch),
+          filepath(filepath) {
+        filetype = IdentifyType(this->file.get());
+        this->file.reset();
+    }
+
+    /**
+     * Returns the type of the file
+     * @param file FileUtil::IOFile open file
+     * @return FileType found, or FileType::Error if this loader doesn't know it
+     */
+    static FileType IdentifyType(FileUtil::IOFile* file);
+
+    FileType GetFileType() override {
+        return filetype;
+    }
+
+    [[nodiscard]] std::span<const u32> GetPreferredRegions() const override {
+        return preferred_regions;
+    }
+
+    ResultStatus Load(std::shared_ptr<Kernel::Process>& process) override;
+
+    std::pair<std::optional<u32>, ResultStatus> LoadCoreVersion() override;
+
+    /**
+     * Loads the Exheader and returns the system mode for this application.
+     * @returns A pair with the optional system mode, and and the status.
+     */
+    std::pair<std::optional<Kernel::MemoryMode>, ResultStatus> LoadKernelMemoryMode() override;
+
+    std::pair<std::optional<Kernel::New3dsHwCapabilities>, ResultStatus> LoadNew3dsHwCapabilities()
+        override;
+
+    bool IsN3DSExclusive() override;
+
+    ResultStatus IsExecutable(bool& out_executable) override;
+
+    ResultStatus ReadCode(std::vector<u8>& buffer) override;
+
+    ResultStatus ReadIcon(std::vector<u8>& buffer) override;
+
+    ResultStatus ReadBanner(std::vector<u8>& buffer) override;
+
+    ResultStatus ReadLogo(std::vector<u8>& buffer) override;
+
+    ResultStatus ReadProgramId(u64& out_program_id) override;
+
+    ResultStatus ReadExtdataId(u64& out_extdata_id) override;
+
+    ResultStatus ReadRomFS(std::shared_ptr<FileSys::RomFSReader>& romfs_file) override;
+
+    ResultStatus ReadUpdateRomFS(std::shared_ptr<FileSys::RomFSReader>& romfs_file) override;
+
+    ResultStatus DumpRomFS(const std::string& target_path) override;
+
+    ResultStatus DumpUpdateRomFS(const std::string& target_path) override;
+
+    ResultStatus ReadTitle(std::string& title) override;
+
+    CompressFileInfo GetCompressFileInfo() override;
+
+    bool IsFileCompressed() override;
+
+    std::string GetFilePath() override {
+        return filepath;
+    }
 
 private:
-    NCCHHeader ncch_header;
-    ExHeader ex_header;
-    
-    std::vector<u8> code_section;
-    std::vector<u8> rodata_section;
-    std::vector<u8> data_section;
-    
-    u32 entry_point;
-    u32 code_address;
-    u32 rodata_address;
-    u32 data_address;
-    std::string program_name;
-    
-    // Helper functions
-    bool ReadNCCHHeader(const std::string& filename);
-    bool ReadExHeader(const std::string& filename);
-    bool ReadSections(const std::string& filename);
-    void ParseExHeader();
-};
+    /**
+     * Loads .code section into memory for booting
+     * @param process The newly created process
+     * @return ResultStatus result of function
+     */
+    ResultStatus LoadExec(std::shared_ptr<Kernel::Process>& process);
 
-// ============================================================================
-// Executable Loader Interface
-// ============================================================================
+    /// Reads the region lockout info in the SMDH and send it to CFG service
+    /// If an SMDH is not present, the program ID is compared against a list
+    /// of known system titles to determine the region.
+    void ParseRegionLockoutInfo(u64 program_id);
 
-class ExecutableLoader {
-public:
-    virtual ~ExecutableLoader() = default;
-    
-    // Load executable
-    virtual bool Load(const std::string& filename) = 0;
-    
-    // Get entry point
-    virtual u32 GetEntryPoint() const = 0;
-    
-    // Load into memory
-    virtual bool LoadIntoMemory(u8* memory, u32 memory_size) = 0;
+    /// Detects whether the NCCH contains GBA Virtual Console.
+    bool IsGbaVirtualConsole(std::span<const u8> code);
+
+    FileSys::NCCHContainer base_ncch;
+    FileSys::NCCHContainer update_ncch;
+    FileSys::NCCHContainer* overlay_ncch;
+
+    std::vector<u32> preferred_regions;
+
+    std::string filepath;
+    FileType filetype;
 };
 
 } // namespace Loader

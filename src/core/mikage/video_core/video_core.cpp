@@ -1,62 +1,65 @@
-// Copyright 2014 Citra Emulator Project
-// Licensed under GPLv2
+// Copyright Citra Emulator Project / Azahar Emulator Project
+// Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "../common/common.h"
-#include "../common/emu_window.h"
-#include "../common/log.h"
-
-#include "../core/core.h"
-
-#include "video_core.h"
-#include "renderer_base.h"
-#include "./renderer_metal/renderer_metal.h"
-#include "./renderer_software/renderer_software.h"
-
-#if defined(__APPLE__)
-#include <TargetConditionals.h>
+#include "common/logging/log.h"
+#include "common/settings.h"
+#include "video_core/gpu.h"
+#ifdef ENABLE_OPENGL
+#include "video_core/renderer_opengl/renderer_opengl.h"
 #endif
+#ifdef ENABLE_SOFTWARE_RENDERER
+#include "video_core/renderer_software/renderer_software.h"
+#endif
+#ifdef ENABLE_VULKAN
+#include "video_core/renderer_vulkan/renderer_vulkan.h"
+#endif
+#include "video_core/video_core.h"
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// Video Core namespace
+#ifdef ENABLE_SDL2
+#include <SDL.h>
+#endif
 
 namespace VideoCore {
 
-EmuWindow*      g_emu_window    = NULL;     ///< Frontend emulator window
-RendererBase*   g_renderer      = NULL;     ///< Renderer plugin
-int             g_current_frame = 0;
-
-/// Start the video core
-void Start() {
-    if (g_emu_window == NULL) {
-        ERROR_LOG(VIDEO, "VideoCore::Start called without calling Init()!");
+std::unique_ptr<RendererBase> CreateRenderer(Frontend::EmuWindow& emu_window,
+                                             Frontend::EmuWindow* secondary_window,
+                                             Pica::PicaCore& pica, Core::System& system) {
+    const Settings::GraphicsAPI graphics_api = Settings::values.graphics_api.GetValue();
+    switch (graphics_api) {
+#ifdef ENABLE_SOFTWARE_RENDERER
+    case Settings::GraphicsAPI::Software:
+        return std::make_unique<SwRenderer::RendererSoftware>(system, pica, emu_window);
+#endif
+#ifdef ENABLE_VULKAN
+    case Settings::GraphicsAPI::Vulkan:
+#if defined(ENABLE_SDL2) && !defined(__APPLE__)
+        // TODO: When we migrate to SDL3, refactor so that we don't need to init here.
+        if (SDL_WasInit(SDL_INIT_VIDEO) == 0) {
+            SDL_Init(SDL_INIT_VIDEO);
+        }
+#endif // ENABLE_SDL2
+        return std::make_unique<Vulkan::RendererVulkan>(system, pica, emu_window, secondary_window);
+#endif
+#ifdef ENABLE_OPENGL
+    case Settings::GraphicsAPI::OpenGL:
+        return std::make_unique<OpenGL::RendererOpenGL>(system, pica, emu_window, secondary_window);
+#endif
+    default:
+        LOG_CRITICAL(Render,
+                     "Unknown or unsupported graphics API {}, falling back to available default",
+                     graphics_api);
+#ifdef ENABLE_OPENGL
+        return std::make_unique<OpenGL::RendererOpenGL>(system, pica, emu_window, secondary_window);
+#elif ENABLE_VULKAN
+        return std::make_unique<Vulkan::RendererVulkan>(system, pica, emu_window, secondary_window);
+#elif ENABLE_SOFTWARE_RENDERER
+        return std::make_unique<SwRenderer::RendererSoftware>(system, pica, emu_window);
+#else
+// TODO: Add a null renderer backend for this, perhaps.
+#error "At least one renderer must be enabled."
+#endif
     }
 }
 
-/// Initialize the video core
-void Init(EmuWindow* emu_window) {
-    g_emu_window = emu_window;
-    g_emu_window->MakeCurrent();
-
-#if defined(__APPLE__)
-    g_renderer = new RendererMetal();
-#else
-#error "Mikage video core now targets iOS render backend only."
-#endif
-
-    g_renderer->SetWindow(g_emu_window);
-    g_renderer->Init();
-
-    g_current_frame = 0;
-
-    NOTICE_LOG(VIDEO, "initialized OK");
-}
-
-/// Shutdown the video core
-void Shutdown() {
-    delete g_renderer;
-    g_renderer = NULL;
-    NOTICE_LOG(VIDEO, "shutdown OK");
-}
-
-} // namespace
+} // namespace VideoCore

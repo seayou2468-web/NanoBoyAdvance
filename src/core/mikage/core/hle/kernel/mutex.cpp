@@ -1,132 +1,144 @@
 // Copyright 2014 Citra Emulator Project
-// Licensed under GPLv2
-// Refer to the license.txt file included.  
+// Licensed under GPLv2 or any later version
+// Refer to the license.txt file included.
 
-#include <map>
-#include <vector>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/string.hpp>
+#include "common/archives.h"
+#include "common/assert.h"
+#include "core/core.h"
+#include "core/hle/kernel/errors.h"
+#include "core/hle/kernel/kernel.h"
+#include "core/hle/kernel/mutex.h"
+#include "core/hle/kernel/object.h"
+#include "core/hle/kernel/resource_limit.h"
+#include "core/hle/kernel/thread.h"
 
-#include "../../../common/common.h"
-
-#include "kernel.h"
-#include "thread.h"
+SERIALIZE_EXPORT_IMPL(Kernel::Mutex)
 
 namespace Kernel {
 
-class Mutex : public Object {
-public:
-    const char* GetTypeName() { return "Mutex"; }
-
-    static Kernel::HandleType GetStaticHandleType() {  return Kernel::HandleType::Mutex; }
-    Kernel::HandleType GetHandleType() const { return Kernel::HandleType::Mutex; }
-
-    bool initial_locked;                        ///< Initial lock state when mutex was created
-    bool locked;                                ///< Current locked state
-    Handle lock_thread;                         ///< Handle to thread that currently has mutex
-    std::vector<Handle> waiting_threads;        ///< Threads that are waiting for the mutex
-};
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-typedef std::multimap<Handle, Handle> MutexMap;
-static MutexMap g_mutex_held_locks;
-
-void MutexAcquireLock(Mutex* mutex, Handle thread) {
-    g_mutex_held_locks.insert(std::make_pair(thread, mutex->GetHandle()));
-    mutex->lock_thread = thread;
-}
-
-void MutexAcquireLock(Mutex* mutex) {
-    Handle thread = GetCurrentThreadHandle();
-    MutexAcquireLock(mutex, thread);
-}
-
-void MutexEraseLock(Mutex* mutex) {
-    Handle handle = mutex->GetHandle();
-    auto locked = g_mutex_held_locks.equal_range(mutex->lock_thread);
-    for (MutexMap::iterator iter = locked.first; iter != locked.second; ++iter) {
-        if ((*iter).second == handle) {
-            g_mutex_held_locks.erase(iter);
-            break;
-        }
+void ReleaseThreadMutexes(Thread* thread) {
+    for (auto& mtx : thread->held_mutexes) {
+        mtx->lock_count = 0;
+        mtx->holding_thread = nullptr;
+        mtx->WakeupAllWaitingThreads();
     }
-    mutex->lock_thread = -1;
+    thread->held_mutexes.clear();
 }
 
-bool LockMutex(Mutex* mutex) {
-    // Mutex alread locked?
-    if (mutex->locked) {
-        return false;
+Mutex::Mutex(KernelSystem& kernel) : WaitObject(kernel), kernel(kernel) {}
+
+Mutex::~Mutex() {
+    if (resource_limit) {
+        resource_limit->Release(ResourceLimitType::Mutex, 1);
     }
-    MutexAcquireLock(mutex);
-    return true;
 }
 
-bool ReleaseMutexForThread(Mutex* mutex, Handle thread) {
-    MutexAcquireLock(mutex, thread);
-    Kernel::ResumeThreadFromWait(thread);
-    return true;
-}
+std::shared_ptr<Mutex> KernelSystem::CreateMutex(bool initial_locked, std::string name) {
+    auto mutex = std::make_shared<Mutex>(*this);
+    mutex->lock_count = 0;
+    mutex->name = std::move(name);
+    mutex->holding_thread = nullptr;
 
-bool ReleaseMutex(Mutex* mutex) {
-    MutexEraseLock(mutex);
-    bool woke_threads = false;
-    auto iter = mutex->waiting_threads.begin();
-
-    // Find the next waiting thread for the mutex...
-    while (!woke_threads && !mutex->waiting_threads.empty()) {
-        woke_threads |= ReleaseMutexForThread(mutex, *iter);
-        mutex->waiting_threads.erase(iter);
+    // Acquire mutex with current thread if initialized as locked
+    if (initial_locked) {
+        mutex->Acquire(GetCurrentThreadManager().GetCurrentThread());
     }
-    // Reset mutex lock thread handle, nothing is waiting
-    if (!woke_threads) {
-        mutex->locked = false;
-        mutex->lock_thread = -1;
-    }
-    return woke_threads;
-}
 
-/**
- * Releases a mutex
- * @param handle Handle to mutex to release
- */
-Result ReleaseMutex(Handle handle) {
-    Mutex* mutex = Kernel::g_object_pool.GetFast<Mutex>(handle);
-    if (!ReleaseMutex(mutex)) {
-        return -1;
-    }
-    return 0;
-}
-
-/**
- * Creates a mutex
- * @param handle Reference to handle for the newly created mutex
- * @param initial_locked Specifies if the mutex should be locked initially
- */
-Mutex* CreateMutex(Handle& handle, bool initial_locked) {
-    Mutex* mutex = new Mutex;
-    handle = Kernel::g_object_pool.Create(mutex);
-
-    mutex->locked = mutex->initial_locked = initial_locked;
-
-    // Acquire mutex with current thread if initialized as locked...
-    if (mutex->locked) {
-        MutexAcquireLock(mutex);
-
-    // Otherwise, reset lock thread handle
-    } else {
-        mutex->lock_thread = -1;
-    }
     return mutex;
 }
 
-/**
- * Creates a mutex
- * @param initial_locked Specifies if the mutex should be locked initially
- */
-Handle CreateMutex(bool initial_locked) {
-    Handle handle;
-    Mutex* mutex = CreateMutex(handle, initial_locked);
-    return handle;
+bool Mutex::ShouldWait(const Thread* thread) const {
+    return lock_count > 0 && thread != holding_thread.get();
 }
 
-} // namespace
+void Mutex::Acquire(Thread* thread) {
+    ASSERT_MSG(!ShouldWait(thread), "object unavailable!");
+
+    // Actually "acquire" the mutex only if we don't already have it
+    if (lock_count == 0) {
+        priority = thread->current_priority;
+        thread->held_mutexes.insert(SharedFrom(this));
+        holding_thread = SharedFrom(thread);
+        thread->UpdatePriority();
+        kernel.PrepareReschedule();
+    }
+
+    lock_count++;
+}
+
+Result Mutex::Release(Thread* thread) {
+    // We can only release the mutex if it's held by the calling thread.
+    if (thread != holding_thread.get()) {
+        if (holding_thread) {
+            LOG_ERROR(
+                Kernel,
+                "Tried to release a mutex (owned by thread id {}) from a different thread id {}",
+                holding_thread->thread_id, thread->thread_id);
+        }
+        return Result(ErrCodes::WrongLockingThread, ErrorModule::Kernel,
+                      ErrorSummary::InvalidArgument, ErrorLevel::Permanent);
+    }
+
+    // Note: It should not be possible for the situation where the mutex has a holding thread with a
+    // zero lock count to occur. The real kernel still checks for this, so we do too.
+    if (lock_count <= 0)
+        return Result(ErrorDescription::InvalidResultValue, ErrorModule::Kernel,
+                      ErrorSummary::InvalidState, ErrorLevel::Permanent);
+
+    lock_count--;
+
+    // Yield to the next thread only if we've fully released the mutex
+    if (lock_count == 0) {
+        holding_thread->held_mutexes.erase(SharedFrom(this));
+        holding_thread->UpdatePriority();
+        holding_thread = nullptr;
+        WakeupAllWaitingThreads();
+        kernel.PrepareReschedule();
+    }
+
+    return ResultSuccess;
+}
+
+void Mutex::AddWaitingThread(std::shared_ptr<Thread> thread) {
+    WaitObject::AddWaitingThread(thread);
+    thread->pending_mutexes.insert(SharedFrom(this));
+    UpdatePriority();
+}
+
+void Mutex::RemoveWaitingThread(Thread* thread) {
+    WaitObject::RemoveWaitingThread(thread);
+    thread->pending_mutexes.erase(SharedFrom(this));
+    UpdatePriority();
+}
+
+void Mutex::UpdatePriority() {
+    if (!holding_thread)
+        return;
+
+    u32 best_priority = ThreadPrioLowest;
+    for (auto& waiter : GetWaitingThreads()) {
+        if (waiter->current_priority < best_priority)
+            best_priority = waiter->current_priority;
+    }
+
+    if (best_priority != priority) {
+        priority = best_priority;
+        holding_thread->UpdatePriority();
+    }
+}
+
+template <class Archive>
+void Mutex::serialize(Archive& ar, const unsigned int) {
+    ar& boost::serialization::base_object<WaitObject>(*this);
+    ar & lock_count;
+    ar & priority;
+    ar & name;
+    ar & holding_thread;
+    ar & resource_limit;
+}
+SERIALIZE_IMPL(Mutex)
+
+} // namespace Kernel

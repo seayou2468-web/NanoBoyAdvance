@@ -1,190 +1,155 @@
-// Copyright 2020 Citra Emulator Project
+// Copyright 2016 Citra Emulator Project
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
 #pragma once
 
-#include "../../common/common_types.h"
-#include <vector>
-#include <memory>
-#include <string>
+#include "common/common_types.h"
+#include "core/hle/kernel/errors.h"
+#include "core/hle/kernel/thread.h"
+#include "core/memory.h"
 
-namespace HLE {
 namespace IPC {
 
-// ============================================================================
-// IPC Command Buffer Format (3DS ARM11)
-// ============================================================================
-//
-// [0] = Header (u32)
-//       Bits 0-15:   Command ID (0-0xFFFF)
-//       Bits 16-19:  Static buffer count (0-15 descriptors)
-//       Bits 20-22:  Translation parameters flag (see below)
-//       Bits 23:     Reserved
-//       Bits 24-27:  Normal parameters (in u32 units)
-//       Bits 28-31:  Reserved
-//
-// Translation parameters:
-//   0: No translation
-//   1: R0 contains pointer to buffer (32-bit process)
-//   2: R0, R1 contain pointers (32-bit process)
-//   3: R0, R1, R2 contain pointers
-//   4: R0, R1, R2, R3 contain pointers
-//
+/// Size of the command buffer area, in 32-bit words.
+constexpr std::size_t COMMAND_BUFFER_LENGTH = 0x100 / sizeof(u32);
 
-struct IPCCommandHeader {
+// Maximum number of static buffers per thread.
+constexpr std::size_t MAX_STATIC_BUFFERS = 16;
+
+// These errors are commonly returned by invalid IPC translations, so alias them here for
+// convenience.
+// TODO(yuriks): These will probably go away once translation is implemented inside the kernel.
+using Kernel::ResultInvalidBufferDescriptor;
+constexpr auto ResultInvalidHandle = Kernel::ResultInvalidHandleOs;
+
+enum DescriptorType : u32 {
+    // Buffer related descriptors types (mask : 0x0F)
+    StaticBuffer = 0x02,
+    PXIBuffer = 0x04,
+    MappedBuffer = 0x08,
+    // Handle related descriptors types (mask : 0x30, but need to check for buffer related
+    // descriptors first )
+    CopyHandle = 0x00,
+    MoveHandle = 0x10,
+    CallingPid = 0x20,
+};
+
+union Header {
     u32 raw;
-    
-    u32 GetCommandId() const { return (raw >> 0) & 0xFFFF; }
-    u32 GetStaticBufferCount() const { return (raw >> 16) & 0xF; }
-    u32 GetTranslationParamCount() const { return (raw >> 20) & 0x7; }
-    u32 GetNormalParamCount() const { return (raw >> 24) & 0xF; }
-    
-    void SetCommandId(u32 id) { 
-        raw = (raw & ~0xFFFF) | (id & 0xFFFF); 
-    }
-    void SetStaticBufferCount(u32 count) {
-        raw = (raw & ~(0xF << 16)) | ((count & 0xF) << 16);
-    }
-    void SetTranslationParams(u32 params) {
-        raw = (raw & ~(0x7 << 20)) | ((params & 0x7) << 20);
-    }
-    void SetNormalParamCount(u32 count) {
-        raw = (raw & ~(0xF << 24)) | ((count & 0xF) << 24);
-    }
+    BitField<0, 6, u32> translate_params_size;
+    BitField<6, 6, u32> normal_params_size;
+    BitField<16, 16, u32> command_id;
 };
 
-// ============================================================================
-// Static Buffer Descriptor (for large buffers)
-// ============================================================================
+/**
+ * @brief Creates a command header to be used for IPC
+ * @param command_id            ID of the command to create a header for.
+ * @param normal_params_size         Size of the normal parameters in words. Up to 63.
+ * @param translate_params_size Size of the translate parameters in words. Up to 63.
+ * @return The created IPC header.
+ *
+ * Normal parameters are sent directly to the process while the translate parameters might go
+ * through modifications and checks by the kernel.
+ * The translate parameters are described by headers generated with the IPC::*Desc functions.
+ *
+ * @note While @p normal_params_size is equivalent to the number of normal parameters,
+ * @p translate_params_size includes the size occupied by the translate parameters headers.
+ */
+inline constexpr u32 MakeHeader(u16 command_id, u32 normal_params_size, u32 translate_params_size) {
+    Header header{};
+    header.command_id.Assign(command_id);
+    header.normal_params_size.Assign(normal_params_size);
+    header.translate_params_size.Assign(translate_params_size);
+    return header.raw;
+}
 
-struct StaticBufferDescriptor {
-    u32 descriptor;
-    
-    // Format: [addr(28) | id(4)]
-    u32 GetAddress() const { return (descriptor & 0xFFFFFFF0); }
-    u32 GetId() const { return (descriptor & 0xF); }
-    
-    StaticBufferDescriptor(u32 addr, u32 id) 
-        : descriptor((addr & 0xFFFFFFF0) | (id & 0xF)) {}
+constexpr u32 MoveHandleDesc(u32 num_handles = 1) {
+    return MoveHandle | ((num_handles - 1) << 26);
+}
+
+constexpr u32 CopyHandleDesc(u32 num_handles = 1) {
+    return CopyHandle | ((num_handles - 1) << 26);
+}
+
+constexpr u32 CallingPidDesc() {
+    return CallingPid;
+}
+
+constexpr bool IsHandleDescriptor(u32 descriptor) {
+    return (descriptor & 0xF) == 0x0;
+}
+
+constexpr u32 HandleNumberFromDesc(u32 handle_descriptor) {
+    return (handle_descriptor >> 26) + 1;
+}
+
+union StaticBufferDescInfo {
+    u32 raw;
+    BitField<0, 4, u32> descriptor_type;
+    BitField<10, 4, u32> buffer_id;
+    BitField<14, 18, u32> size;
 };
 
-// ============================================================================
-// IPC Command Buffer
-// ============================================================================
+inline u32 StaticBufferDesc(std::size_t size, u8 buffer_id) {
+    StaticBufferDescInfo info{};
+    info.descriptor_type.Assign(StaticBuffer);
+    info.buffer_id.Assign(buffer_id);
+    info.size.Assign(static_cast<u32>(size));
+    return info.raw;
+}
 
-class CommandBuffer {
-public:
-    explicit CommandBuffer(u32 size = 64);
-    ~CommandBuffer();
-    
-    // Get/Set header
-    IPCCommandHeader GetHeader() const;
-    void SetHeader(IPCCommandHeader header);
-    
-    // Get/set parameter
-    u32 GetParameter(size_t index) const;
-    void SetParameter(size_t index, u32 value);
-    
-    // Get 64-bit parameter (pair of u32s)
-    u64 GetParameter64(size_t index) const;
-    void SetParameter64(size_t index, u64 value);
-    
-    // Handle buffer access
-    u32* GetBuffer() { return buffer.data(); }
-    const u32* GetBuffer() const { return buffer.data(); }
-    size_t GetSize() const { return buffer.size(); }
-    
-    // Response handling
-    void SetResultCode(u32 code);
-    u32 GetResultCode() const;
+/**
+ * @brief Creates a header describing a buffer to be sent over PXI.
+ * @param size         Size of the buffer. Max 0x00FFFFFF.
+ * @param buffer_id    The Id of the buffer. Max 0xF.
+ * @param is_read_only true if the buffer is read-only. If false, the buffer is considered to have
+ * read-write access.
+ * @return The created PXI buffer header.
+ *
+ * The next value is a phys-address of a table located in the BASE memregion.
+ */
+inline u32 PXIBufferDesc(u32 size, unsigned buffer_id, bool is_read_only) {
+    u32 type = PXIBuffer;
+    if (is_read_only)
+        type |= 0x2;
+    return type | (size << 8) | ((buffer_id & 0xF) << 4);
+}
 
-private:
-    std::vector<u32> buffer;
+enum MappedBufferPermissions : u32 {
+    R = 1,
+    W = 2,
+    RW = R | W,
 };
 
-// ============================================================================
-// IPC Session
-// ============================================================================
-
-class Session {
-public:
-    typedef u32 Handle;
-    
-    Session(Handle handle, const std::string& service_name);
-    ~Session() = default;
-    
-    Handle GetHandle() const { return handle; }
-    const std::string& GetServiceName() const { return service_name; }
-    
-    // Send IPC request
-    void SendCommandBuffer(CommandBuffer& cmd_buf);
-    
-private:
-    Handle handle;
-    std::string service_name;
+union MappedBufferDescInfo {
+    u32 raw;
+    BitField<0, 4, u32> flags;
+    BitField<1, 2, MappedBufferPermissions> perms;
+    BitField<4, 28, u32> size;
 };
 
-// ============================================================================
-// IPC Server (Receives requests from client)
-// ============================================================================
+inline u32 MappedBufferDesc(std::size_t size, MappedBufferPermissions perms) {
+    MappedBufferDescInfo info{};
+    info.flags.Assign(MappedBuffer);
+    info.perms.Assign(perms);
+    info.size.Assign(static_cast<u32>(size));
+    return info.raw;
+}
 
-class Server {
-public:
-    Server() = default;
-    ~Server() = default;
-    
-    // Accept connection
-    Session* AcceptConnection(const std::string& service_name);
-    
-    // Handle incoming request
-    void HandleRequest(Session* session, CommandBuffer& cmd_buf);
+inline DescriptorType GetDescriptorType(u32 descriptor) {
+    // Note: Those checks must be done in this order
+    if (IsHandleDescriptor(descriptor))
+        return (DescriptorType)(descriptor & 0x30);
 
-private:
-    std::vector<std::shared_ptr<Session>> sessions;
-};
+    // handle the fact that the following descriptors can have rights
+    if (descriptor & MappedBuffer)
+        return MappedBuffer;
 
-// ============================================================================
-// IPC Port Mapping (Service Name -> Port)
-// ============================================================================
+    if (descriptor & PXIBuffer)
+        return PXIBuffer;
 
-typedef std::function<void(CommandBuffer&)> CommandHandler;
-
-class Port {
-public:
-    Port(const std::string& name, CommandHandler handler) 
-        : service_name(name), command_handler(handler) {}
-    
-    const std::string& GetName() const { return service_name; }
-    void HandleCommand(CommandBuffer& cmd_buf) {
-        if (command_handler) {
-            command_handler(cmd_buf);
-        }
-    }
-
-private:
-    std::string service_name;
-    CommandHandler command_handler;
-};
-
-// ============================================================================
-// Global IPC Port Registry
-// ============================================================================
-
-class PortRegistry {
-public:
-    static PortRegistry& Instance() {
-        static PortRegistry instance;
-        return instance;
-    }
-    
-    void RegisterPort(const std::string& name, CommandHandler handler);
-    Port* GetPort(const std::string& name);
-
-private:
-    PortRegistry() = default;
-    std::map<std::string, std::unique_ptr<Port>> ports;
-};
+    return StaticBuffer;
+}
 
 } // namespace IPC
-} // namespace HLE
