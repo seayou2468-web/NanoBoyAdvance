@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "tuple"
+#include <tuple>
 
 #include "common/common_types.h"
 #include "core/hle/result.h"

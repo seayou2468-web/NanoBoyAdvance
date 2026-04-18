@@ -25,6 +25,8 @@
 
 // BOOST_SERIALIZATION_EXPORT macro - no-op in standard implementation
 #define BOOST_CLASS_EXPORT(T) namespace { }
+#define BOOST_CLASS_EXPORT_KEY(T) namespace { }
+#define BOOST_SERIALIZATION_REGISTER_ARCHIVE(T) namespace { }
 
 // BOOST_CLASS_VERSION macro - version tracking (stored as metadata in serialization)
 #define BOOST_CLASS_VERSION(T, Ver) namespace { }
@@ -34,6 +36,9 @@
 
 // Access class for serialization (standard approach)
 namespace boost::serialization {
+    struct input_archive {};
+    struct output_archive {};
+
     template<class T>
     class access {
     public:
@@ -42,6 +47,11 @@ namespace boost::serialization {
             // This is handled by PointerWrap::DoClass
         }
     };
+}
+
+namespace boost::serialization {
+    template <class Archive, class T>
+    inline void split_free(Archive&, T&, const unsigned int) {}
 }
 
 // Serialization split member support
@@ -86,4 +96,3 @@ namespace boost::serialization {
     struct vector_tag {};
     struct weak_ptr_tag {};
 }
-

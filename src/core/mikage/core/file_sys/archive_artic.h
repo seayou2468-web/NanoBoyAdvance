@@ -2,7 +2,7 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "atomic"
+#include <atomic>
 
 #include "common/common_types.h"
 #include "core/file_sys/archive_backend.h"

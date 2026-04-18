@@ -6,7 +6,7 @@
 
 #include <array>
 #include <shared_mutex>
-#include "vector"
+#include <vector>
 
 #include "common/alignment.h"
 #include "common/common_types.h"
