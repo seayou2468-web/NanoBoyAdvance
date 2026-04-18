@@ -143,6 +143,14 @@ public:
         }
     }
 
+    __forceinline T Value() const {
+        return static_cast<T>(*this);
+    }
+
+    __forceinline void Assign(T val) {
+        *this = val;
+    }
+
 private:
     // StorageType is T for non-enum types and the underlying type of T if
     // T is an enumeration. Note that T is wrapped within an enable_if in the

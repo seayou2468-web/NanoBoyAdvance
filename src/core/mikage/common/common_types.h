@@ -47,6 +47,23 @@ typedef int64_t         s64;    ///< 64-bit signed int
 typedef float   f32;    ///< 32-bit floating point
 typedef double  f64;    ///< 64-bit floating point
 
+using VAddr = u32;
+using PAddr = u32;
+
+#define MIKAGE_CONCAT_INNER(a, b) a##b
+#define MIKAGE_CONCAT(a, b) MIKAGE_CONCAT_INNER(a, b)
+
+// Compatibility padding helpers used by imported Citra/Azahar headers.
+#ifndef INSERT_PADDING_WORDS
+#define INSERT_PADDING_WORDS(num_words)                                                            \
+    u32 MIKAGE_CONCAT(_padding_words_, __COUNTER__)[(num_words)] {}
+#endif
+
+#ifndef INSERT_PADDING_BYTES
+#define INSERT_PADDING_BYTES(num_bytes)                                                            \
+    u8 MIKAGE_CONCAT(_padding_bytes_, __COUNTER__)[(num_bytes)] {}
+#endif
+
 /// Union for fast 16-bit type casting
 union t16 {
 	u8	_u8[2];             ///< 8-bit unsigned char(s)

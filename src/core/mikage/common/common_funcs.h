@@ -33,6 +33,34 @@ template<> struct CompileTimeAssert<true> {};
 
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
 
+#ifndef DECLARE_ENUM_FLAG_OPERATORS
+#define DECLARE_ENUM_FLAG_OPERATORS(T)                                                            \
+    inline constexpr T operator|(T lhs, T rhs) {                                                  \
+        using U = std::underlying_type_t<T>;                                                      \
+        return static_cast<T>(static_cast<U>(lhs) | static_cast<U>(rhs));                         \
+    }                                                                                              \
+    inline constexpr T operator&(T lhs, T rhs) {                                                  \
+        using U = std::underlying_type_t<T>;                                                      \
+        return static_cast<T>(static_cast<U>(lhs) & static_cast<U>(rhs));                         \
+    }                                                                                              \
+    inline constexpr T& operator|=(T& lhs, T rhs) {                                               \
+        lhs = lhs | rhs;                                                                           \
+        return lhs;                                                                                \
+    }
+#endif
+
+#ifndef DECLARE_ENUM_ARITHMETIC_OPERATORS
+#define DECLARE_ENUM_ARITHMETIC_OPERATORS(T)                                                      \
+    inline constexpr T operator+(T lhs, int rhs) {                                                \
+        using U = std::underlying_type_t<T>;                                                      \
+        return static_cast<T>(static_cast<U>(lhs) + rhs);                                         \
+    }                                                                                              \
+    inline constexpr T& operator+=(T& lhs, int rhs) {                                             \
+        lhs = lhs + rhs;                                                                           \
+        return lhs;                                                                                \
+    }
+#endif
+
 #ifndef _WIN32
 
 #include <errno.h>
