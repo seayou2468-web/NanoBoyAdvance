@@ -31,20 +31,15 @@ void ARM_Interpreter::InitializeWithSystem(Core::System& system, Memory::MemoryS
         delete state;
     }
     
-    try {
-        // Create new Cytrus-compatible ARMul_State with System and Memory integration.
-        state = new ARMul_State(system, memory, static_cast<PrivilegeMode>(initial_mode));
-        
-        // Configure for ARM11
-        state->Emulate = 3;  // RUN mode
-        state->Reset();
-        
-        // Set up default stack pointer
-        state->Reg[13] = 0x10000000;
-    } catch (...) {
-        // Fallback: if initialization fails, state remains nullptr
-        state = nullptr;
-    }
+    // Create new Cytrus-compatible ARMul_State with System and Memory integration.
+    state = new ARMul_State(system, memory, static_cast<PrivilegeMode>(initial_mode));
+
+    // Configure for ARM11
+    state->Emulate = 3;  // RUN mode
+    state->Reset();
+
+    // Set up default stack pointer
+    state->Reg[13] = 0x10000000;
 }
 
 /**

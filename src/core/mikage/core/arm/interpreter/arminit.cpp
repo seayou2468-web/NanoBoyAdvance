@@ -20,6 +20,9 @@
 
 #include <unistd.h>
 
+#include <cstdio>
+#include <cstdlib>
+
 #include <math.h>
 
 #include "armdefs.h"
@@ -255,9 +258,8 @@ ARMul_NewState (ARMul_State *state)
 	printf("create pc log file.\n");
 #endif
 	if (state->EventPtr == NULL) {
-		printf ("SKYEYE: ARMul_NewState malloc state->EventPtr error\n");
-		static struct EventNode* fallback_event_list[EVENTLISTSIZE] = {};
-		state->EventPtr = fallback_event_list;
+		fprintf(stderr, "SKYEYE: ARMul_NewState malloc state->EventPtr error\n");
+		abort();
 	}
 	for (i = 0; i < EVENTLISTSIZE; i++)
 		*(state->EventPtr + i) = NULL;

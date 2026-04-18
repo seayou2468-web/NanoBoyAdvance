@@ -3,13 +3,20 @@
 // Refer to the license.txt file included.
 
 #include <atomic>
+#if defined(__APPLE__)
+#include <CFNetwork/CFNetwork.h>
+#include <CoreFoundation/CoreFoundation.h>
+#else
+#error "Mikage HTTP backend now requires Apple CFNetwork/CoreFoundation"
+#endif
 #include <tuple>
+#include <cstring>
 #include <string_view>
 #include <unordered_map>
 #include "common/archives.h"
 #include "common/assert.h"
 #include "common/commoncrypto_aes.h"
-#include "common/scope_exit.h"
+#include "common/secure_random.h"
 #include "common/string_util.h"
 #include "core/core.h"
 #include "core/file_sys/archive_ncch.h"
@@ -170,129 +177,215 @@ static URLInfo SplitUrl(const std::string& url) {
     };
 }
 
-static std::size_t WriteHeaders(httplib::Stream& stream,
-                                std::span<const Context::RequestHeader> headers) {
-    std::size_t write_len = 0;
-    for (const auto& header : headers) {
-        auto len = stream.write_format("%s: %s\r\n", header.name.c_str(), header.value.c_str());
-        if (len < 0) {
-            return len;
+static std::string PercentEncode(std::string_view input) {
+    static constexpr char kHex[] = "0123456789ABCDEF";
+    std::string out;
+    out.reserve(input.size() * 3);
+    for (unsigned char c : input) {
+        if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') ||
+            c == '-' || c == '_' || c == '.' || c == '~') {
+            out.push_back(static_cast<char>(c));
+        } else {
+            out.push_back('%');
+            out.push_back(kHex[c >> 4]);
+            out.push_back(kHex[c & 0x0F]);
         }
-        write_len += len;
     }
-    auto len = stream.write("\r\n");
-    if (len < 0) {
-        return len;
-    }
-    write_len += len;
-    return write_len;
+    return out;
 }
 
-static void SerializeChunkedAsciiPostData(httplib::DataSink& sink, const Context::Params& params) {
-    std::string query;
-
-    for (auto it = params.begin(); it != params.end(); ++it) {
-        if (it != params.begin()) {
-            sink.os << "&";
-        }
-
-        query = StringFromFormat("%s=%s", it->first.c_str(),
-                                 httplib::detail::encode_query_param(it->second.value).c_str());
-        ReplaceAllInPlace(query, "*", "%2A");
-        sink.os << query;
-    }
-}
-
-static void SerializeChunkedMultipartPostData(httplib::DataSink& sink,
-                                              const Context::Params& params,
-                                              const std::string& boundary) {
+static std::string BuildMultipartBody(const Context::Params& params, const std::string& boundary) {
+    std::string out;
     for (const auto& param : params) {
-        const auto item = param.second.ToMultipartForm();
-        std::string body = httplib::detail::serialize_multipart_formdata_item_begin(item, boundary);
-        body += item.content + httplib::detail::serialize_multipart_formdata_item_end();
-        sink.os << body;
+        out += "--" + boundary + "\r\n";
+        out += "Content-Disposition: form-data; name=\"" + param.second.name + "\"\r\n";
+        if (param.second.is_binary) {
+            out += "Content-Type: application/octet-stream\r\n";
+        }
+        out += "\r\n";
+        out += param.second.value;
+        out += "\r\n";
     }
-
-    sink.os << httplib::detail::serialize_multipart_formdata_finish(boundary);
+    out += "--" + boundary + "--\r\n";
+    return out;
 }
 
-std::size_t Context::HandleHeaderWrite(std::vector<Context::RequestHeader>& pending_headers,
-                                       httplib::Stream& strm, httplib::Headers& httplib_headers) {
-    std::vector<Context::RequestHeader> final_headers;
-    std::vector<Context::RequestHeader>::iterator it_pending_headers;
-    httplib::Headers::iterator it_httplib_headers;
+static std::string MakeMultipartBoundary() {
+    return StringFromFormat("mikage-boundary-%08x", Common::Random::GenerateValue<u32>());
+}
 
-    auto find_pending_header = [&pending_headers](const std::string& str) {
-        return std::find_if(pending_headers.begin(), pending_headers.end(),
-                            [&str](Context::RequestHeader& rh) { return rh.name == str; });
-    };
+static std::string CFStringToStdString(CFStringRef str) {
+    if (!str) {
+        return {};
+    }
+    const CFIndex max_size = CFStringGetMaximumSizeForEncoding(CFStringGetLength(str), kCFStringEncodingUTF8) + 1;
+    std::string out(static_cast<std::size_t>(max_size), '\0');
+    if (CFStringGetCString(str, out.data(), max_size, kCFStringEncodingUTF8)) {
+        out.resize(std::strlen(out.c_str()));
+        return out;
+    }
+    return {};
+}
 
-    // Watch out for header ordering!!
-    // First: Host
-    it_pending_headers = find_pending_header("Host");
-    if (it_pending_headers != pending_headers.end()) {
-        final_headers.push_back(
-            Context::RequestHeader(it_pending_headers->name, it_pending_headers->value));
-        pending_headers.erase(it_pending_headers);
-    } else {
-        it_httplib_headers = httplib_headers.find("Host");
-        if (it_httplib_headers != httplib_headers.end()) {
-            final_headers.push_back(
-                Context::RequestHeader(it_httplib_headers->first, it_httplib_headers->second));
+static bool PerformRequestCFNetwork(const std::string& full_url, const std::string& method,
+                                    const std::vector<Context::RequestHeader>& headers,
+                                    const std::string& body, bool disable_cert_verify,
+                                    Context::Response& out_response, std::string& out_error,
+                                    std::atomic<u64>& current_download_size_bytes,
+                                    std::atomic<u64>& total_download_size_bytes) {
+#ifndef __APPLE__
+    out_error = "CFNetwork backend is only available on Apple platforms";
+    return false;
+#else
+    CFURLRef url = CFURLCreateWithBytes(kCFAllocatorDefault,
+                                        reinterpret_cast<const UInt8*>(full_url.data()),
+                                        static_cast<CFIndex>(full_url.size()),
+                                        kCFStringEncodingUTF8, nullptr);
+    if (!url) {
+        out_error = "Failed to create URL";
+        return false;
+    }
+
+    CFStringRef method_cf = CFStringCreateWithCString(kCFAllocatorDefault, method.c_str(),
+                                                       kCFStringEncodingUTF8);
+    if (!method_cf) {
+        CFRelease(url);
+        out_error = "Failed to create HTTP method";
+        return false;
+    }
+
+    CFHTTPMessageRef request = CFHTTPMessageCreateRequest(kCFAllocatorDefault, method_cf, url,
+                                                          kCFHTTPVersion1_1);
+    CFRelease(method_cf);
+    CFRelease(url);
+    if (!request) {
+        out_error = "Failed to create HTTP request";
+        return false;
+    }
+
+    for (const auto& header : headers) {
+        CFStringRef key = CFStringCreateWithCString(kCFAllocatorDefault, header.name.c_str(),
+                                                    kCFStringEncodingUTF8);
+        CFStringRef val = CFStringCreateWithCString(kCFAllocatorDefault, header.value.c_str(),
+                                                    kCFStringEncodingUTF8);
+        if (key && val) {
+            CFHTTPMessageSetHeaderFieldValue(request, key, val);
+        }
+        if (key) CFRelease(key);
+        if (val) CFRelease(val);
+    }
+
+    if (!body.empty()) {
+        CFDataRef body_data = CFDataCreate(kCFAllocatorDefault,
+                                           reinterpret_cast<const UInt8*>(body.data()),
+                                           static_cast<CFIndex>(body.size()));
+        if (body_data) {
+            CFHTTPMessageSetBody(request, body_data);
+            CFRelease(body_data);
         }
     }
 
-    // Second, user defined headers
-    // Third, Content-Type (optional, appended by MakeRequest)
-    for (const auto& header : pending_headers) {
-        final_headers.push_back(header);
+    CFReadStreamRef stream = CFReadStreamCreateForHTTPRequest(kCFAllocatorDefault, request);
+    CFRelease(request);
+    if (!stream) {
+        out_error = "Failed to create read stream";
+        return false;
     }
 
-    // Fourth: Content-Length
-    it_pending_headers = find_pending_header("Content-Length");
-    if (it_pending_headers == pending_headers.end()) {
-        if ((method == RequestMethod::Post || method == RequestMethod::Put) && !chunked_request) {
-            it_httplib_headers = httplib_headers.find("Content-Length");
-            if (it_httplib_headers != httplib_headers.end()) {
-                final_headers.push_back(
-                    Context::RequestHeader(it_httplib_headers->first, it_httplib_headers->second));
-            }
+    if (disable_cert_verify) {
+        const void* keys[] = {kCFStreamSSLValidatesCertificateChain};
+        const void* vals[] = {kCFBooleanFalse};
+        CFDictionaryRef ssl = CFDictionaryCreate(kCFAllocatorDefault, keys, vals, 1,
+                                                 &kCFTypeDictionaryKeyCallBacks,
+                                                 &kCFTypeDictionaryValueCallBacks);
+        if (ssl) {
+            CFReadStreamSetProperty(stream, kCFStreamPropertySSLSettings, ssl);
+            CFRelease(ssl);
         }
     }
 
-    // Fifth: Transfer-Encoding
-    if (chunked_request) {
-        final_headers.push_back(Context::RequestHeader("Transfer-Encoding", "chunked"));
+    if (!CFReadStreamOpen(stream)) {
+        CFRelease(stream);
+        out_error = "Failed to open read stream";
+        return false;
     }
 
-    return WriteHeaders(strm, final_headers);
-};
+    std::string body_out;
+    constexpr CFIndex kBufSize = 4096;
+    UInt8 buffer[kBufSize];
+    while (true) {
+        const CFIndex n = CFReadStreamRead(stream, buffer, kBufSize);
+        if (n > 0) {
+            body_out.append(reinterpret_cast<const char*>(buffer), static_cast<std::size_t>(n));
+            current_download_size_bytes = static_cast<u64>(body_out.size());
+        } else if (n == 0) {
+            break;
+        } else {
+            out_error = "Read stream error";
+            CFReadStreamClose(stream);
+            CFRelease(stream);
+            return false;
+        }
+    }
+    CFReadStreamClose(stream);
+
+    CFTypeRef response_header = CFReadStreamCopyProperty(stream, kCFStreamPropertyHTTPResponseHeader);
+    if (!response_header) {
+        CFRelease(stream);
+        out_error = "Missing HTTP response headers";
+        return false;
+    }
+
+    CFHTTPMessageRef response = reinterpret_cast<CFHTTPMessageRef>(response_header);
+    out_response.status = static_cast<int>(CFHTTPMessageGetResponseStatusCode(response));
+    out_response.reason.clear();
+    out_response.version = "HTTP/1.1";
+    out_response.body = std::move(body_out);
+    total_download_size_bytes = static_cast<u64>(out_response.body.size());
+
+    CFDictionaryRef header_dict = CFHTTPMessageCopyAllHeaderFields(response);
+    if (header_dict) {
+        CFIndex count = CFDictionaryGetCount(header_dict);
+        std::vector<const void*> keys(static_cast<std::size_t>(count));
+        std::vector<const void*> vals(static_cast<std::size_t>(count));
+        CFDictionaryGetKeysAndValues(header_dict, keys.data(), vals.data());
+        out_response.headers.clear();
+        for (CFIndex i = 0; i < count; ++i) {
+            auto* k = reinterpret_cast<CFStringRef>(const_cast<void*>(keys[static_cast<std::size_t>(i)]));
+            auto* v = reinterpret_cast<CFStringRef>(const_cast<void*>(vals[static_cast<std::size_t>(i)]));
+            out_response.headers.emplace(CFStringToStdString(k), CFStringToStdString(v));
+        }
+        CFRelease(header_dict);
+    }
+
+    CFRelease(response_header);
+    CFRelease(stream);
+    return true;
+#endif
+}
 
 void Context::ParseAsciiPostData() {
-    httplib::Params ascii_form;
-    for (auto param : post_data) {
-        ascii_form.emplace(param.first, param.second.value);
+    std::string query;
+    for (auto it = post_data.begin(); it != post_data.end(); ++it) {
+        if (it != post_data.begin()) {
+            query += "&";
+        }
+        query += PercentEncode(it->first);
+        query += "=";
+        query += PercentEncode(it->second.value);
     }
-
-    post_data_raw = httplib::detail::params_to_query_str(ascii_form);
+    post_data_raw = std::move(query);
     ReplaceAllInPlace(post_data_raw, "*", "%2A");
 }
 
 std::string Context::ParseMultipartFormData() {
-    httplib::MultipartFormDataItems multipart_form;
-    for (auto param : post_data) {
-        multipart_form.push_back(param.second.ToMultipartForm());
-    }
-
-    multipart_boundary = httplib::detail::make_multipart_data_boundary();
-    post_data_raw =
-        httplib::detail::serialize_multipart_formdata(multipart_form, multipart_boundary);
-    return httplib::detail::serialize_multipart_formdata_get_content_type(multipart_boundary);
+    multipart_boundary = MakeMultipartBoundary();
+    post_data_raw = BuildMultipartBody(post_data, multipart_boundary);
+    return "multipart/form-data; boundary=" + multipart_boundary;
 }
 
 void Context::MakeRequest() {
     ASSERT(state == RequestState::NotStarted);
-
     state = RequestState::ConnectingToServer;
 
     static const std::unordered_map<RequestMethod, std::string> request_method_strings{
@@ -303,200 +396,88 @@ void Context::MakeRequest() {
     };
 
     URLInfo url_info = SplitUrl(url);
+    std::vector<Context::RequestHeader> pending_headers = headers;
 
-    httplib::Request request;
-    std::vector<Context::RequestHeader> pending_headers;
-    request.method = request_method_strings.at(method);
-    request.path = url_info.path;
-
-    request.progress = [this](u64 current, u64 total) -> bool {
-        // TODO(B3N30): Is there a state that shows response header are available
-        current_download_size_bytes = current;
-        total_download_size_bytes = total;
-        return true;
-    };
-
-    for (const auto& header : headers) {
-        pending_headers.push_back(header);
-    }
-
-    httplib::Params ascii_form;
-    httplib::MultipartFormDataItems multipart_form;
-    if ((method == RequestMethod::Post || method == RequestMethod::Put) && !chunked_request) {
+    if (method == RequestMethod::Post || method == RequestMethod::Put) {
         switch (post_data_encoding) {
         case PostDataEncoding::AsciiForm:
             ParseAsciiPostData();
-            pending_headers.push_back(
-                Context::RequestHeader("Content-Type", "application/x-www-form-urlencoded"));
+            pending_headers.emplace_back("Content-Type", "application/x-www-form-urlencoded");
             break;
         case PostDataEncoding::MultipartForm:
-            pending_headers.push_back(
-                Context::RequestHeader("Content-Type", ParseMultipartFormData()));
+            pending_headers.emplace_back("Content-Type", ParseMultipartFormData());
             break;
         case PostDataEncoding::Auto:
             if (!post_data.empty()) {
                 if (force_multipart) {
-                    pending_headers.push_back(
-                        Context::RequestHeader("Content-Type", ParseMultipartFormData()));
+                    pending_headers.emplace_back("Content-Type", ParseMultipartFormData());
                 } else {
-                    pending_headers.push_back(Context::RequestHeader(
-                        "Content-Type", "application/x-www-form-urlencoded"));
                     ParseAsciiPostData();
+                    pending_headers.emplace_back("Content-Type", "application/x-www-form-urlencoded");
                 }
             }
             break;
         }
     }
 
-    // httplib doesn't expose setting the content provider for the request when not using the usual
-    // send methods like Client::Post or Client::Put, so we have to set the internal fields manually
-    if (!chunked_request) {
-        request.content_length_ = post_data_raw.size();
-        request.content_provider_ = [this](size_t offset, size_t length, httplib::DataSink& sink) {
-            return ContentProvider(offset, length, sink);
-        };
-    } else {
-        if (post_data_type == PostDataType::MultipartForm) {
-            multipart_boundary = httplib::detail::make_multipart_data_boundary();
-            pending_headers.push_back(Context::RequestHeader(
-                "Content-Type", httplib::detail::serialize_multipart_formdata_get_content_type(
-                                    multipart_boundary)));
+    if (chunked_request && !post_data.empty()) {
+        finish_post_data.Wait();
+        if (post_data_type == PostDataType::Raw) {
+            post_data_raw.clear();
+            for (const auto& data : post_data) {
+                post_data_raw += data.second.value;
+            }
+        } else if (post_data_type == PostDataType::AsciiForm) {
+            ParseAsciiPostData();
+            pending_headers.emplace_back("Content-Type", "application/x-www-form-urlencoded");
+        } else if (post_data_type == PostDataType::MultipartForm) {
+            pending_headers.emplace_back("Content-Type", ParseMultipartFormData());
         }
-
-        if (post_data_type == PostDataType::Raw && chunked_content_length > 0) {
-            pending_headers.push_back(Context::RequestHeader(
-                "Content-Length", StringFromFormat("%zu", chunked_content_length)));
-        }
-
-        request.content_length_ = 0;
-        request.content_provider_ =
-            httplib::detail::ContentProviderAdapter([this](size_t offset, httplib::DataSink& sink) {
-                return ChunkedContentProvider(offset, sink);
-            });
-        request.is_chunked_content_provider_ = true;
     }
 
     if (url_info.is_https) {
-        MakeRequestSSL(request, url_info, pending_headers);
+        MakeRequestSSL(url_info, pending_headers);
     } else {
-        MakeRequestNonSSL(request, url_info, pending_headers);
+        MakeRequestNonSSL(url_info, pending_headers);
     }
 }
 
-void Context::MakeRequestNonSSL(httplib::Request& request, const URLInfo& url_info,
-                                std::vector<Context::RequestHeader>& pending_headers) {
-    httplib::Error error{-1};
-    std::unique_ptr<httplib::Client> client =
-        std::make_unique<httplib::Client>(url_info.host, url_info.port);
-
-    client->set_header_writer(
-        [this, &pending_headers](httplib::Stream& strm, httplib::Headers& httplib_headers) {
-            return HandleHeaderWrite(pending_headers, strm, httplib_headers);
-        });
-
-    if (!client->send(request, response, error)) {
-        LOG_ERROR(Service_HTTP, "Request failed: {}: {}", error, httplib::to_string(error));
+void Context::MakeRequestNonSSL(const URLInfo& url_info,
+                                const std::vector<Context::RequestHeader>& pending_headers) {
+    const std::string method_string = (method == RequestMethod::Head) ? "HEAD" :
+                                      (method == RequestMethod::Put || method == RequestMethod::PutEmpty) ? "PUT" :
+                                      (method == RequestMethod::Delete) ? "DELETE" :
+                                      (method == RequestMethod::Post || method == RequestMethod::PostEmpty) ? "POST" : "GET";
+    std::string request_url = StringFromFormat("http://%s:%d%s", url_info.host.c_str(), url_info.port,
+                                               url_info.path.c_str());
+    std::string error;
+    if (!PerformRequestCFNetwork(request_url, method_string, pending_headers, post_data_raw, false,
+                                 response, error, current_download_size_bytes,
+                                 total_download_size_bytes)) {
+        LOG_ERROR(Service_HTTP, "Request failed: {}", error);
         state = RequestState::Completed;
-    } else {
-        LOG_DEBUG(Service_HTTP, "Request successful");
-        state = RequestState::ReceivingBody;
+        return;
     }
+    state = RequestState::ReceivingBody;
 }
 
-void Context::MakeRequestSSL(httplib::Request& request, const URLInfo& url_info,
-                             std::vector<Context::RequestHeader>& pending_headers) {
-    httplib::Error error{-1};
-    X509* cert = nullptr;
-    EVP_PKEY* key = nullptr;
-    const unsigned char* cert_data = nullptr;
-    const unsigned char* key_data = nullptr;
-    long cert_size = 0;
-    long key_size = 0;
-    SCOPE_EXIT({
-        if (cert) {
-            X509_free(cert);
-        }
-        if (key) {
-            EVP_PKEY_free(key);
-        }
-    });
-
-    if (uses_default_client_cert) {
-        cert_data = clcert_data->certificate.data();
-        key_data = clcert_data->private_key.data();
-        cert_size = static_cast<long>(clcert_data->certificate.size());
-        key_size = static_cast<long>(clcert_data->private_key.size());
-    } else if (auto client_cert = ssl_config.client_cert_ctx.lock()) {
-        cert_data = client_cert->certificate.data();
-        key_data = client_cert->private_key.data();
-        cert_size = static_cast<long>(client_cert->certificate.size());
-        key_size = static_cast<long>(client_cert->private_key.size());
-    }
-
-    std::unique_ptr<httplib::SSLClient> client;
-    if (cert_data && key_data) {
-        cert = d2i_X509(nullptr, &cert_data, cert_size);
-        key = d2i_PrivateKey(EVP_PKEY_RSA, nullptr, &key_data, key_size);
-        client = std::make_unique<httplib::SSLClient>(url_info.host, url_info.port, cert, key);
-    } else {
-        client = std::make_unique<httplib::SSLClient>(url_info.host, url_info.port);
-    }
-
-    // TODO(B3N30): Check for SSLOptions-Bits and set the verify method accordingly
-    // https://www.3dbrew.org/wiki/SSL_Services#SSLOpt
-    // Hack: Since for now RootCerts are not implemented we set the VerifyMode to None.
-    client->enable_server_certificate_verification(false);
-
-    client->set_header_writer(
-        [this, &pending_headers](httplib::Stream& strm, httplib::Headers& httplib_headers) {
-            return HandleHeaderWrite(pending_headers, strm, httplib_headers);
-        });
-
-    if (!client->send(request, response, error)) {
-        LOG_ERROR(Service_HTTP, "Request failed: {}: {}", error, httplib::to_string(error));
+void Context::MakeRequestSSL(const URLInfo& url_info,
+                             const std::vector<Context::RequestHeader>& pending_headers) {
+    const std::string method_string = (method == RequestMethod::Head) ? "HEAD" :
+                                      (method == RequestMethod::Put || method == RequestMethod::PutEmpty) ? "PUT" :
+                                      (method == RequestMethod::Delete) ? "DELETE" :
+                                      (method == RequestMethod::Post || method == RequestMethod::PostEmpty) ? "POST" : "GET";
+    std::string request_url = StringFromFormat("https://%s:%d%s", url_info.host.c_str(), url_info.port,
+                                               url_info.path.c_str());
+    std::string error;
+    if (!PerformRequestCFNetwork(request_url, method_string, pending_headers, post_data_raw, true,
+                                 response, error, current_download_size_bytes,
+                                 total_download_size_bytes)) {
+        LOG_ERROR(Service_HTTP, "Request failed: {}", error);
         state = RequestState::Completed;
-    } else {
-        LOG_DEBUG(Service_HTTP, "Request successful");
-        state = RequestState::ReceivingBody;
+        return;
     }
-}
-
-bool Context::ContentProvider(size_t offset, size_t length, httplib::DataSink& sink) {
-    state = RequestState::SendingRequest;
-
-    if (!post_data_raw.empty()) {
-        sink.write(post_data_raw.data() + offset, length);
-    }
-
-    // This state is set after sending the request, even if it hasn't received a response yet
-    state = RequestState::ReceivingResponse;
-    return true;
-}
-
-bool Context::ChunkedContentProvider(size_t offset, httplib::DataSink& sink) {
-    state = RequestState::SendingRequest;
-
-    finish_post_data.Wait();
-
-    switch (post_data_type) {
-    case PostDataType::AsciiForm:
-        SerializeChunkedAsciiPostData(sink, post_data);
-        break;
-    case PostDataType::MultipartForm:
-        SerializeChunkedMultipartPostData(sink, post_data, multipart_boundary);
-        break;
-    // Write the data values
-    case PostDataType::Raw:
-        for (const auto& data : post_data) {
-            sink.os << data.second.value;
-        }
-        break;
-    }
-
-    sink.done();
-    // This state is set after sending the request, even if it hasn't received a response yet
-    state = RequestState::ReceivingResponse;
-    return true;
+    state = RequestState::ReceivingBody;
 }
 
 void HTTP_C::Initialize(Kernel::HLERequestContext& ctx) {
@@ -1490,7 +1471,7 @@ void HTTP_C::GetResponseDataImpl(Kernel::HLERequestContext& ctx, bool timeout) {
                 LOG_DEBUG(Service_HTTP, "");
             }
 
-            // httplib does not keep the raw HTTP header data, so we need to reconstruct it.
+            // Native backend does not keep the raw HTTP header bytes, so we reconstruct them.
             // Sadly, the order of headers is lost, but for now it's good enough.
             std::string hdr =
                 StringFromFormat("%s %d %s\r\n", http_context.response.version.c_str(),

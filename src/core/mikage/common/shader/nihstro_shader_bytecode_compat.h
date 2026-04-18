@@ -3,5 +3,5 @@
 
 #pragma once
 
-#include <nihstro/shader_bytecode.h>
-
+// In-tree replacement of the previous external nihstro dependency.
+#include "common/shader/nihstro/shader_bytecode.h"

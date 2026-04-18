@@ -6,13 +6,13 @@
 #include <cstring>
 #include <memory>
 #include <sstream>
-#include <openssl/bn.h>
-#include <openssl/ec.h>
-#include <openssl/ecdsa.h>
-#include <openssl/obj_mac.h>
+#include <type_traits>
+#if defined(__APPLE__)
+#include <Security/Security.h>
+#else
+#error "Mikage ECC backend now requires Apple Security.framework"
+#endif
 #include "common/assert.h"
-#include "common/common_paths.h"
-#include "common/file_util.h"
 #include "common/logging/log.h"
 #include "common/secure_random.h"
 #include "common/string_util.h"
@@ -24,99 +24,179 @@ namespace HW::ECC {
 PublicKey root_public;
 
 namespace {
-using EcGroupPtr = std::unique_ptr<EC_GROUP, decltype(&EC_GROUP_free)>;
-using EcPointPtr = std::unique_ptr<EC_POINT, decltype(&EC_POINT_free)>;
-using EcKeyPtr = std::unique_ptr<EC_KEY, decltype(&EC_KEY_free)>;
-using EcSigPtr = std::unique_ptr<ECDSA_SIG, decltype(&ECDSA_SIG_free)>;
-using BnPtr = std::unique_ptr<BIGNUM, decltype(&BN_free)>;
-using BnCtxPtr = std::unique_ptr<BN_CTX, decltype(&BN_CTX_free)>;
 
-EcGroupPtr CreateGroup() {
-    return EcGroupPtr(EC_GROUP_new_by_curve_name(NID_sect233r1), &EC_GROUP_free);
+constexpr std::size_t P256_SCALAR_SIZE = 32;
+constexpr std::size_t P256_PUBLIC_SIZE = 65; // 0x04 || X(32) || Y(32)
+
+using CFTypePtr = std::unique_ptr<std::remove_pointer_t<CFTypeRef>, decltype(&CFRelease)>;
+
+CFTypePtr MakeCFData(const u8* data, std::size_t size) {
+    return CFTypePtr(CFDataCreate(kCFAllocatorDefault, data, static_cast<CFIndex>(size)),
+                     &CFRelease);
 }
 
-BnPtr CreateBigNum(std::span<const u8> data) {
-    if (data.empty()) {
-        return BnPtr(BN_new(), &BN_free);
-    }
-    return BnPtr(BN_bin2bn(data.data(), static_cast<int>(data.size()), nullptr), &BN_free);
+std::array<u8, P256_SCALAR_SIZE> ToP256Scalar(const std::array<u8, INT_SIZE>& value) {
+    std::array<u8, P256_SCALAR_SIZE> out{};
+    std::memcpy(out.data() + (P256_SCALAR_SIZE - INT_SIZE), value.data(), INT_SIZE);
+    return out;
 }
 
-EcPointPtr CreatePoint(const EC_GROUP* group, const PublicKey& public_key) {
-    EcPointPtr point(EC_POINT_new(group), &EC_POINT_free);
-    BnCtxPtr ctx(BN_CTX_new(), &BN_CTX_free);
-    BnPtr x = CreateBigNum(public_key.x);
-    BnPtr y = CreateBigNum(public_key.y);
-    if (!point || !ctx || !x || !y) {
-        return EcPointPtr(nullptr, &EC_POINT_free);
+std::array<u8, INT_SIZE> FromP256Scalar(const u8* value, std::size_t size) {
+    std::array<u8, INT_SIZE> out{};
+    if (size >= INT_SIZE) {
+        std::memcpy(out.data(), value + (size - INT_SIZE), INT_SIZE);
+    } else {
+        std::memcpy(out.data() + (INT_SIZE - size), value, size);
     }
-    if (EC_POINT_set_affine_coordinates(group, point.get(), x.get(), y.get(), ctx.get()) != 1) {
-        return EcPointPtr(nullptr, &EC_POINT_free);
-    }
-    return point;
+    return out;
 }
 
-EcKeyPtr CreatePrivateEcKey(const PrivateKey& private_key) {
-    EcGroupPtr group = CreateGroup();
-    if (!group) {
-        return EcKeyPtr(nullptr, &EC_KEY_free);
+std::array<u8, P256_PUBLIC_SIZE> ToP256Public(const PublicKey& public_key) {
+    std::array<u8, P256_PUBLIC_SIZE> out{};
+    out[0] = 0x04;
+    std::memcpy(out.data() + 1 + (P256_SCALAR_SIZE - INT_SIZE), public_key.x.data(), INT_SIZE);
+    std::memcpy(out.data() + 1 + P256_SCALAR_SIZE + (P256_SCALAR_SIZE - INT_SIZE),
+                public_key.y.data(), INT_SIZE);
+    return out;
+}
+
+PublicKey FromP256Public(const u8* value, std::size_t size) {
+    PublicKey out{};
+    if (size < P256_PUBLIC_SIZE || value[0] != 0x04) {
+        return out;
     }
-    EcKeyPtr key(EC_KEY_new(), &EC_KEY_free);
-    BnPtr priv = CreateBigNum(private_key.x);
-    if (!key || !priv) {
-        return EcKeyPtr(nullptr, &EC_KEY_free);
-    }
-    if (EC_KEY_set_group(key.get(), group.get()) != 1 || EC_KEY_set_private_key(key.get(), priv.get()) != 1) {
-        return EcKeyPtr(nullptr, &EC_KEY_free);
+    std::memcpy(out.x.data(), value + 1 + (P256_SCALAR_SIZE - INT_SIZE), INT_SIZE);
+    std::memcpy(out.y.data(), value + 1 + P256_SCALAR_SIZE + (P256_SCALAR_SIZE - INT_SIZE), INT_SIZE);
+    return out;
+}
+
+CFTypePtr CreateECAttributes(bool is_private) {
+    const void* keys[] = {
+        kSecAttrKeyType,
+        kSecAttrKeyClass,
+        kSecAttrKeySizeInBits,
+    };
+    const int key_bits = 256;
+    CFNumberRef bit_count = CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &key_bits);
+    const void* values[] = {
+        kSecAttrKeyTypeECSECPrimeRandom,
+        is_private ? kSecAttrKeyClassPrivate : kSecAttrKeyClassPublic,
+        bit_count,
+    };
+
+    CFDictionaryRef attrs = CFDictionaryCreate(kCFAllocatorDefault, keys, values, 3,
+                                               &kCFTypeDictionaryKeyCallBacks,
+                                               &kCFTypeDictionaryValueCallBacks);
+    CFRelease(bit_count);
+    return CFTypePtr(attrs, &CFRelease);
+}
+
+SecKeyRef CreatePrivateSecKey(const PrivateKey& private_key) {
+    const auto scalar = ToP256Scalar(private_key.x);
+    auto data = MakeCFData(scalar.data(), scalar.size());
+    auto attrs = CreateECAttributes(true);
+    if (!data || !attrs) {
+        return nullptr;
     }
 
-    EcPointPtr pub(EC_POINT_new(group.get()), &EC_POINT_free);
-    BnCtxPtr ctx(BN_CTX_new(), &BN_CTX_free);
-    if (!pub || !ctx) {
-        return EcKeyPtr(nullptr, &EC_KEY_free);
-    }
-    if (EC_POINT_mul(group.get(), pub.get(), priv.get(), nullptr, nullptr, ctx.get()) != 1 ||
-        EC_KEY_set_public_key(key.get(), pub.get()) != 1) {
-        return EcKeyPtr(nullptr, &EC_KEY_free);
+    CFErrorRef error = nullptr;
+    SecKeyRef key = SecKeyCreateWithData(static_cast<CFDataRef>(data.get()),
+                                         static_cast<CFDictionaryRef>(attrs.get()), &error);
+    if (error) {
+        CFRelease(error);
     }
     return key;
 }
 
-EcKeyPtr CreatePublicEcKey(const PublicKey& public_key) {
-    EcGroupPtr group = CreateGroup();
-    if (!group) {
-        return EcKeyPtr(nullptr, &EC_KEY_free);
+SecKeyRef CreatePublicSecKey(const PublicKey& public_key) {
+    const auto pub = ToP256Public(public_key);
+    auto data = MakeCFData(pub.data(), pub.size());
+    auto attrs = CreateECAttributes(false);
+    if (!data || !attrs) {
+        return nullptr;
     }
-    EcKeyPtr key(EC_KEY_new(), &EC_KEY_free);
-    if (!key) {
-        return EcKeyPtr(nullptr, &EC_KEY_free);
-    }
-    if (EC_KEY_set_group(key.get(), group.get()) != 1) {
-        return EcKeyPtr(nullptr, &EC_KEY_free);
-    }
-    EcPointPtr point = CreatePoint(group.get(), public_key);
-    if (!point || EC_KEY_set_public_key(key.get(), point.get()) != 1) {
-        return EcKeyPtr(nullptr, &EC_KEY_free);
+
+    CFErrorRef error = nullptr;
+    SecKeyRef key = SecKeyCreateWithData(static_cast<CFDataRef>(data.get()),
+                                         static_cast<CFDictionaryRef>(attrs.get()), &error);
+    if (error) {
+        CFRelease(error);
     }
     return key;
 }
 
-PublicKey GetPublicKeyFromEcKey(const EC_KEY* key) {
-    PublicKey public_key{};
-    const EC_GROUP* group = EC_KEY_get0_group(key);
-    const EC_POINT* point = EC_KEY_get0_public_key(key);
-    BnCtxPtr ctx(BN_CTX_new(), &BN_CTX_free);
-    BnPtr x(BN_new(), &BN_free);
-    BnPtr y(BN_new(), &BN_free);
-    if (!group || !point || !ctx || !x || !y) {
-        return public_key;
+std::vector<u8> ParseDerEcdsaSignature(CFDataRef der_data) {
+    std::vector<u8> out(INT_SIZE * 2, 0);
+    if (!der_data) {
+        return out;
     }
-    if (EC_POINT_get_affine_coordinates(group, point, x.get(), y.get(), ctx.get()) != 1) {
-        return public_key;
+
+    const u8* der = CFDataGetBytePtr(der_data);
+    const std::size_t size = static_cast<std::size_t>(CFDataGetLength(der_data));
+    if (!der || size < 8 || der[0] != 0x30) {
+        return out;
     }
-    BN_bn2binpad(x.get(), public_key.x.data(), static_cast<int>(public_key.x.size()));
-    BN_bn2binpad(y.get(), public_key.y.data(), static_cast<int>(public_key.y.size()));
-    return public_key;
+
+    std::size_t pos = 2;
+    if (pos >= size || der[pos] != 0x02) {
+        return out;
+    }
+    ++pos;
+    if (pos >= size) {
+        return out;
+    }
+    std::size_t r_len = der[pos++];
+    if (pos + r_len > size || pos >= size || der[pos + r_len] != 0x02) {
+        return out;
+    }
+    const u8* r_ptr = der + pos;
+    pos += r_len + 1;
+    if (pos >= size) {
+        return out;
+    }
+    std::size_t s_len = der[pos++];
+    if (pos + s_len > size) {
+        return out;
+    }
+    const u8* s_ptr = der + pos;
+
+    auto copy_component = [](u8* dst, const u8* src, std::size_t len) {
+        if (len > INT_SIZE) {
+            src += len - INT_SIZE;
+            len = INT_SIZE;
+        }
+        std::memcpy(dst + (INT_SIZE - len), src, len);
+    };
+
+    copy_component(out.data(), r_ptr, r_len);
+    copy_component(out.data() + INT_SIZE, s_ptr, s_len);
+    return out;
+}
+
+CFTypePtr BuildDerEcdsaSignature(const Signature& sig) {
+    auto trim_leading_zeros = [](const std::array<u8, INT_SIZE>& v) {
+        std::size_t offset = 0;
+        while (offset < v.size() - 1 && v[offset] == 0) {
+            ++offset;
+        }
+        return std::pair<const u8*, std::size_t>(v.data() + offset, v.size() - offset);
+    };
+
+    auto [r_ptr, r_len] = trim_leading_zeros(sig.r);
+    auto [s_ptr, s_len] = trim_leading_zeros(sig.s);
+
+    std::vector<u8> der;
+    der.reserve(2 + 2 + r_len + 2 + s_len + 2);
+    der.push_back(0x30);
+    der.push_back(static_cast<u8>(2 + r_len + 2 + s_len));
+    der.push_back(0x02);
+    der.push_back(static_cast<u8>(r_len));
+    der.insert(der.end(), r_ptr, r_ptr + r_len);
+    der.push_back(0x02);
+    der.push_back(static_cast<u8>(s_len));
+    der.insert(der.end(), s_ptr, s_ptr + s_len);
+
+    return MakeCFData(der.data(), der.size());
 }
 
 } // namespace
@@ -181,21 +261,9 @@ void InitSlots() {
     }
 }
 
-PrivateKey CreateECCPrivateKey(std::span<const u8> private_key_x, bool fix_up) {
+PrivateKey CreateECCPrivateKey(std::span<const u8> private_key_x, bool /*fix_up*/) {
     PrivateKey ret{};
-    BnPtr priv = CreateBigNum(private_key_x);
-    if (!priv) {
-        return ret;
-    }
-    if (fix_up) {
-        EcGroupPtr group = CreateGroup();
-        BnCtxPtr ctx(BN_CTX_new(), &BN_CTX_free);
-        BnPtr order(BN_new(), &BN_free);
-        if (group && ctx && order && EC_GROUP_get_order(group.get(), order.get(), ctx.get()) == 1) {
-            BN_mod(priv.get(), priv.get(), order.get(), ctx.get());
-        }
-    }
-    BN_bn2binpad(priv.get(), ret.x.data(), static_cast<int>(ret.x.size()));
+    std::memcpy(ret.x.data(), private_key_x.data(), std::min(ret.x.size(), private_key_x.size()));
     return ret;
 }
 
@@ -216,105 +284,180 @@ Signature CreateECCSignature(std::span<const u8> signature_rs) {
 }
 
 PublicKey MakePublicKey(const PrivateKey& private_key) {
-    EcKeyPtr key = CreatePrivateEcKey(private_key);
-    if (!key) {
-        LOG_ERROR(HW, "Failed to construct private EC key");
-        return {};
+    PublicKey ret{};
+    SecKeyRef private_sec_key = CreatePrivateSecKey(private_key);
+    if (!private_sec_key) {
+        LOG_ERROR(HW, "Failed to create SecKey private key");
+        return ret;
     }
-    return GetPublicKeyFromEcKey(key.get());
+
+    SecKeyRef public_sec_key = SecKeyCopyPublicKey(private_sec_key);
+    CFRelease(private_sec_key);
+    if (!public_sec_key) {
+        LOG_ERROR(HW, "Failed to derive public key");
+        return ret;
+    }
+
+    CFErrorRef error = nullptr;
+    CFDataRef pub_data = SecKeyCopyExternalRepresentation(public_sec_key, &error);
+    CFRelease(public_sec_key);
+    if (error) {
+        CFRelease(error);
+    }
+    if (!pub_data) {
+        LOG_ERROR(HW, "Failed to export public key");
+        return ret;
+    }
+
+    ret = FromP256Public(CFDataGetBytePtr(pub_data), static_cast<std::size_t>(CFDataGetLength(pub_data)));
+    CFRelease(pub_data);
+    return ret;
 }
 
 std::pair<PrivateKey, PublicKey> GenerateKeyPair() {
     PrivateKey private_key{};
-    EcGroupPtr group = CreateGroup();
-    EcKeyPtr key(EC_KEY_new(), &EC_KEY_free);
-    if (!group || !key || EC_KEY_set_group(key.get(), group.get()) != 1 ||
-        EC_KEY_generate_key(key.get()) != 1) {
+    PublicKey public_key{};
+
+    const void* keys[] = {kSecAttrKeyType, kSecAttrKeySizeInBits};
+    const int bits = 256;
+    CFNumberRef bits_num = CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &bits);
+    const void* values[] = {kSecAttrKeyTypeECSECPrimeRandom, bits_num};
+    CFDictionaryRef params = CFDictionaryCreate(kCFAllocatorDefault, keys, values, 2,
+                                                &kCFTypeDictionaryKeyCallBacks,
+                                                &kCFTypeDictionaryValueCallBacks);
+    CFRelease(bits_num);
+
+    CFErrorRef error = nullptr;
+    SecKeyRef private_sec_key = SecKeyCreateRandomKey(params, &error);
+    CFRelease(params);
+    if (error) {
+        CFRelease(error);
+    }
+    if (!private_sec_key) {
         LOG_ERROR(HW, "Failed to generate EC key pair");
-        return {private_key, {}};
+        return {private_key, public_key};
     }
 
-    const BIGNUM* priv = EC_KEY_get0_private_key(key.get());
-    if (!priv || BN_bn2binpad(priv, private_key.x.data(), static_cast<int>(private_key.x.size())) !=
-                     static_cast<int>(private_key.x.size())) {
-        LOG_ERROR(HW, "Failed to export generated private key");
-        return {private_key, {}};
+    CFDataRef private_data = SecKeyCopyExternalRepresentation(private_sec_key, &error);
+    if (error) {
+        CFRelease(error);
+    }
+    if (private_data) {
+        auto scalar = FromP256Scalar(CFDataGetBytePtr(private_data),
+                                     static_cast<std::size_t>(CFDataGetLength(private_data)));
+        private_key.x = scalar;
+        CFRelease(private_data);
     }
 
-    return std::make_pair(private_key, GetPublicKeyFromEcKey(key.get()));
+    SecKeyRef public_sec_key = SecKeyCopyPublicKey(private_sec_key);
+    CFRelease(private_sec_key);
+    if (public_sec_key) {
+        CFDataRef public_data = SecKeyCopyExternalRepresentation(public_sec_key, &error);
+        if (error) {
+            CFRelease(error);
+        }
+        if (public_data) {
+            public_key = FromP256Public(CFDataGetBytePtr(public_data),
+                                        static_cast<std::size_t>(CFDataGetLength(public_data)));
+            CFRelease(public_data);
+        }
+        CFRelease(public_sec_key);
+    }
+
+    return std::make_pair(private_key, public_key);
 }
 
 Signature Sign(std::span<const u8> data, PrivateKey private_key) {
     Signature ret{};
-    EcKeyPtr key = CreatePrivateEcKey(private_key);
-    if (!key) {
+    SecKeyRef private_sec_key = CreatePrivateSecKey(private_key);
+    if (!private_sec_key) {
         LOG_ERROR(HW, "Failed to create private key for signing");
         return ret;
     }
 
-    EcSigPtr sig(ECDSA_do_sign(data.data(), static_cast<int>(data.size()), key.get()), &ECDSA_SIG_free);
-    if (!sig) {
-        LOG_ERROR(HW, "ECDSA_do_sign failed");
+    auto input_data = MakeCFData(data.data(), data.size());
+    if (!input_data) {
+        CFRelease(private_sec_key);
         return ret;
     }
-    const BIGNUM* r = nullptr;
-    const BIGNUM* s = nullptr;
-    ECDSA_SIG_get0(sig.get(), &r, &s);
-    if (!r || !s) {
-        LOG_ERROR(HW, "ECDSA signature missing r/s components");
+
+    CFErrorRef error = nullptr;
+    CFDataRef signature = SecKeyCreateSignature(private_sec_key,
+                                                kSecKeyAlgorithmECDSASignatureMessageX962SHA256,
+                                                static_cast<CFDataRef>(input_data.get()), &error);
+    CFRelease(private_sec_key);
+    if (error) {
+        CFRelease(error);
+    }
+    if (!signature) {
+        LOG_ERROR(HW, "SecKeyCreateSignature failed");
         return ret;
     }
-    BN_bn2binpad(r, ret.r.data(), static_cast<int>(ret.r.size()));
-    BN_bn2binpad(s, ret.s.data(), static_cast<int>(ret.s.size()));
+
+    const auto parsed = ParseDerEcdsaSignature(signature);
+    std::memcpy(ret.rs.data(), parsed.data(), ret.rs.size());
+    CFRelease(signature);
     return ret;
 }
 
 bool Verify(std::span<const u8> data, Signature signature, PublicKey public_key) {
-    EcKeyPtr key = CreatePublicEcKey(public_key);
-    if (!key) {
-        LOG_ERROR(HW, "Failed to construct public EC key");
+    SecKeyRef public_sec_key = CreatePublicSecKey(public_key);
+    if (!public_sec_key) {
+        LOG_ERROR(HW, "Failed to construct public key for verify");
         return false;
     }
 
-    BnPtr r = CreateBigNum(signature.r);
-    BnPtr s = CreateBigNum(signature.s);
-    EcSigPtr sig(ECDSA_SIG_new(), &ECDSA_SIG_free);
-    if (!r || !s || !sig || ECDSA_SIG_set0(sig.get(), r.release(), s.release()) != 1) {
-        LOG_ERROR(HW, "Failed to create ECDSA signature object for verification");
+    auto input_data = MakeCFData(data.data(), data.size());
+    auto der_sig = BuildDerEcdsaSignature(signature);
+    if (!input_data || !der_sig) {
+        CFRelease(public_sec_key);
         return false;
     }
 
-    return ECDSA_do_verify(data.data(), static_cast<int>(data.size()), sig.get(), key.get()) == 1;
+    CFErrorRef error = nullptr;
+    const bool result = SecKeyVerifySignature(public_sec_key,
+                                              kSecKeyAlgorithmECDSASignatureMessageX962SHA256,
+                                              static_cast<CFDataRef>(input_data.get()),
+                                              static_cast<CFDataRef>(der_sig.get()), &error);
+    CFRelease(public_sec_key);
+    if (error) {
+        CFRelease(error);
+    }
+    return result;
 }
 
 std::vector<u8> Agree(PrivateKey private_key, PublicKey others_public_key) {
-    EcKeyPtr local_key = CreatePrivateEcKey(private_key);
-    if (!local_key) {
-        LOG_ERROR(HW, "Failed to construct private EC key for ECDH");
-        return {};
-    }
-    const EC_GROUP* group = EC_KEY_get0_group(local_key.get());
-    if (!group) {
-        LOG_ERROR(HW, "Missing EC group for ECDH");
-        return {};
-    }
-    EcPointPtr remote_point = CreatePoint(group, others_public_key);
-    if (!remote_point) {
-        LOG_ERROR(HW, "Invalid remote EC public key for ECDH");
+    SecKeyRef private_sec_key = CreatePrivateSecKey(private_key);
+    SecKeyRef public_sec_key = CreatePublicSecKey(others_public_key);
+    if (!private_sec_key || !public_sec_key) {
+        if (private_sec_key) {
+            CFRelease(private_sec_key);
+        }
+        if (public_sec_key) {
+            CFRelease(public_sec_key);
+        }
+        LOG_ERROR(HW, "Failed to construct key material for ECDH");
         return {};
     }
 
-    const int degree = EC_GROUP_get_degree(group);
-    const std::size_t secret_len = static_cast<std::size_t>((degree + 7) / 8);
-    std::vector<u8> agreement(secret_len);
-    const int out_len =
-        ECDH_compute_key(agreement.data(), static_cast<int>(agreement.size()), remote_point.get(),
-                         local_key.get(), nullptr);
-    if (out_len <= 0) {
-        LOG_ERROR(HW, "ECDH agreement failed");
+    CFErrorRef error = nullptr;
+    CFDataRef shared = SecKeyCopyKeyExchangeResult(private_sec_key,
+                                                   kSecKeyAlgorithmECDHKeyExchangeStandard,
+                                                   public_sec_key, nullptr, &error);
+    CFRelease(private_sec_key);
+    CFRelease(public_sec_key);
+    if (error) {
+        CFRelease(error);
+    }
+    if (!shared) {
+        LOG_ERROR(HW, "SecKeyCopyKeyExchangeResult failed");
         return {};
     }
-    agreement.resize(static_cast<std::size_t>(out_len));
+
+    const u8* ptr = CFDataGetBytePtr(shared);
+    const std::size_t len = static_cast<std::size_t>(CFDataGetLength(shared));
+    std::vector<u8> agreement(ptr, ptr + len);
+    CFRelease(shared);
     return agreement;
 }
 
