@@ -4,10 +4,6 @@
 
 #include <algorithm>
 #include <vector>
-#include <boost/serialization/assume_abstract.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/unique_ptr.hpp>
-#include <boost/serialization/vector.hpp>
 #include "common/archives.h"
 #include "common/assert.h"
 #include "common/common_types.h"
@@ -18,6 +14,7 @@
 #include "core/hle/kernel/ipc_debugger/recorder.h"
 #include "core/hle/kernel/kernel.h"
 #include "core/hle/kernel/process.h"
+#include "common/serialization/boost_all_serialization.h"
 
 SERIALIZE_EXPORT_IMPL(Kernel::SessionRequestHandler)
 SERIALIZE_EXPORT_IMPL(Kernel::SessionRequestHandler::SessionDataBase)

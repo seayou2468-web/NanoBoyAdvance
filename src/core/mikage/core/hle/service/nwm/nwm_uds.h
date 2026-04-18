@@ -15,12 +15,12 @@
 #include <unordered_map>
 #include <vector>
 #include <optional>
-#include <boost/serialization/export.hpp>
 #include "common/common_types.h"
 #include "common/swap.h"
 #include "core/hle/service/nwm/uds_common.h"
 #include "core/hle/service/service.h"
 #include "network/network.h"
+#include "common/serialization/boost_all_serialization.h"
 
 namespace Core {
 class System;

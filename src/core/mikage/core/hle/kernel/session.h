@@ -5,8 +5,8 @@
 #pragma once
 
 #include <memory>
-#include <boost/serialization/export.hpp>
 #include "core/hle/kernel/object.h"
+#include "common/serialization/boost_all_serialization.h"
 
 namespace Kernel {
 

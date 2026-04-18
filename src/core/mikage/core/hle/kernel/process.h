@@ -10,12 +10,12 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include <boost/serialization/export.hpp>
 #include "common/bit_field.h"
 #include "common/common_types.h"
 #include "core/hle/kernel/handle_table.h"
 #include "core/hle/kernel/object.h"
 #include "core/hle/kernel/vm_manager.h"
+#include "common/serialization/boost_all_serialization.h"
 
 namespace Kernel {
 

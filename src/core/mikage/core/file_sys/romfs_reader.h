@@ -8,15 +8,13 @@
 
 #include <array>
 #include <shared_mutex>
-#include <boost/serialization/array.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/export.hpp>
 #include "common/alignment.h"
 #include "common/common_types.h"
 #include "common/file_util.h"
 #include "common/static_lru_cache.h"
 #include "core/file_sys/artic_cache.h"
 #include "network/artic_base/artic_base_client.h"
+#include "common/serialization/boost_all_serialization.h"
 
 namespace Loader {
 enum class ResultStatus;

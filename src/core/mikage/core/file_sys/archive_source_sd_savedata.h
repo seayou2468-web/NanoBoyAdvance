@@ -6,12 +6,11 @@
 
 #include <memory>
 #include <string>
-#include <boost/serialization/export.hpp>
-#include <boost/serialization/string.hpp>
 #include "core/file_sys/archive_backend.h"
 #include "core/file_sys/artic_cache.h"
 #include "core/hle/result.h"
 #include "network/artic_base/artic_base_client.h"
+#include "common/serialization/boost_all_serialization.h"
 
 namespace Service::FS {
 enum class ArchiveIdCode : u32;

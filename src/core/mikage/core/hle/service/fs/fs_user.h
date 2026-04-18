@@ -6,12 +6,12 @@
 
 #include <optional>
 #include <unordered_map>
-#include <boost/serialization/base_object.hpp>
 #include "common/common_types.h"
 #include "core/file_sys/errors.h"
 #include "core/file_sys/secure_value_backend.h"
 #include "core/hle/service/fs/archive.h"
 #include "core/hle/service/service.h"
+#include "common/serialization/boost_all_serialization.h"
 
 namespace Core {
 class System;

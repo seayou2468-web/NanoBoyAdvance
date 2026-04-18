@@ -12,8 +12,6 @@
 #include <mutex>
 #include <string>
 #include <vector>
-#include <boost/serialization/array.hpp>
-#include <boost/serialization/shared_ptr.hpp>
 #include "common/common_types.h"
 #include "common/construct.h"
 #include "common/swap.h"
@@ -25,6 +23,7 @@
 #include "core/hle/result.h"
 #include "core/hle/service/service.h"
 #include "network/artic_base/artic_base_client.h"
+#include "common/serialization/boost_all_serialization.h"
 
 namespace Core {
 class System;

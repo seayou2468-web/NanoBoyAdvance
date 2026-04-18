@@ -2,9 +2,6 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/export.hpp>
-#include <boost/serialization/unique_ptr.hpp>
 #include "common/archives.h"
 #include "core/core.h"
 #include "video_core/gpu.h"
@@ -13,6 +10,7 @@
 #include "video_core/pica/shader_setup.h"
 #include "video_core/pica/shader_unit.h"
 #include "video_core/shader/shader.h"
+#include "common/serialization/boost_all_serialization.h"
 
 namespace Pica {
 

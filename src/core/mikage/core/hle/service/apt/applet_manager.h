@@ -9,15 +9,12 @@
 #include <memory>
 #include <optional>
 #include <vector>
-#include <boost/serialization/array.hpp>
-#include <boost/serialization/optional.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/vector.hpp>
 #include "core/frontend/input.h"
 #include "core/global.h"
 #include "core/hle/kernel/event.h"
 #include "core/hle/result.h"
 #include "core/hle/service/fs/archive.h"
+#include "common/serialization/boost_all_serialization.h"
 
 namespace Core {
 class System;

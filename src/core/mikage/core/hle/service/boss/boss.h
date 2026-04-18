@@ -5,12 +5,12 @@
 #pragma once
 
 #include <memory>
-#include <boost/serialization/export.hpp>
 #include "core/global.h"
 #include "core/hle/kernel/event.h"
 #include "core/hle/kernel/resource_limit.h"
 #include "core/hle/service/boss/online_service.h"
 #include "core/hle/service/service.h"
+#include "common/serialization/boost_all_serialization.h"
 
 namespace Core {
 class System;

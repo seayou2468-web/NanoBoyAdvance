@@ -6,9 +6,6 @@
 #include <iomanip>
 #include <sstream>
 #include <vector>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/unique_ptr.hpp>
 #include "common/archives.h"
 #include "common/crc.h"
 #include "common/swap.h"
@@ -18,6 +15,7 @@
 #include "core/hle/kernel/shared_memory.h"
 #include "core/hle/service/ir/extra_hid.h"
 #include "core/hle/service/ir/ir_user.h"
+#include "common/serialization/boost_all_serialization.h"
 
 SERIALIZE_EXPORT_IMPL(Service::IR::IR_USER)
 SERVICE_CONSTRUCT_IMPL(Service::IR::IR_USER)

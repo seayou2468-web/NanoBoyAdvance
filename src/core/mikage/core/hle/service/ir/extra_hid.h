@@ -7,11 +7,11 @@
 #include <array>
 #include <atomic>
 #include <span>
-#include <boost/serialization/array.hpp>
 #include "common/bit_field.h"
 #include "common/swap.h"
 #include "core/frontend/input.h"
 #include "core/hle/service/ir/ir_user.h"
+#include "common/serialization/boost_all_serialization.h"
 
 namespace Core {
 struct TimingEventType;

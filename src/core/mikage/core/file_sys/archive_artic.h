@@ -4,7 +4,6 @@
 
 #include "atomic"
 
-#include <boost/serialization/unique_ptr.hpp>
 #include "common/common_types.h"
 #include "core/file_sys/archive_backend.h"
 #include "core/file_sys/artic_cache.h"
@@ -13,6 +12,7 @@
 #include "core/hle/service/fs/archive.h"
 #include "core/perf_stats.h"
 #include "network/artic_base/artic_base_client.h"
+#include "common/serialization/boost_all_serialization.h"
 
 namespace FileSys {
 

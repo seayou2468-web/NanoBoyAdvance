@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include <boost/serialization/export.hpp>
 #include "common/bit_field.h"
 #include "common/common_types.h"
+#include "common/serialization/boost_all_serialization.h"
 
 namespace Mii {
 

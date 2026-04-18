@@ -7,7 +7,6 @@
 #include <sstream>
 #include <boost/iostreams/device/file_descriptor.hpp>
 #include <boost/iostreams/stream.hpp>
-#include <cryptopp/hex.h>
 #include <cryptopp/integer.h>
 #include <cryptopp/nbtheory.h>
 #include <cryptopp/sha.h>

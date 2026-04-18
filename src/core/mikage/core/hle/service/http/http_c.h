@@ -11,17 +11,12 @@
 #include <unordered_map>
 #include <vector>
 #include <optional>
-#include <boost/serialization/optional.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/string.hpp>
-#include <boost/serialization/unordered_map.hpp>
-#include <boost/serialization/vector.hpp>
-#include <boost/serialization/weak_ptr.hpp>
 #include <httplib.h>
 #include "common/thread.h"
 #include "core/hle/ipc_helpers.h"
 #include "core/hle/kernel/shared_memory.h"
 #include "core/hle/service/service.h"
+#include "common/serialization/boost_all_serialization.h"
 
 namespace Core {
 class System;

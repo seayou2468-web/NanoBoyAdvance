@@ -4,8 +4,6 @@
 
 #include <algorithm>
 #include <array>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/unique_ptr.hpp>
 #include <CommonCrypto/CommonHMAC.h>
 #include "common/archives.h"
 #include "common/common_paths.h"
@@ -25,6 +23,7 @@
 #include "core/hle/service/cecd/cecd_s.h"
 #include "core/hle/service/cecd/cecd_u.h"
 #include "core/hle/service/cfg/cfg.h"
+#include "common/serialization/boost_all_serialization.h"
 
 SERVICE_CONSTRUCT_IMPL(Service::CECD::Module)
 SERIALIZE_EXPORT_IMPL(Service::CECD::Module)

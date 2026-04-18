@@ -7,11 +7,11 @@
 #include <atomic>
 #include <memory>
 #include <string>
-#include <boost/serialization/export.hpp>
 #include "common/common_types.h"
 #include "common/serialization/atomic.h"
 #include "core/global.h"
 #include "core/hle/kernel/kernel.h"
+#include "common/serialization/boost_all_serialization.h"
 
 namespace Kernel {
 

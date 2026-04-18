@@ -7,10 +7,10 @@
 #include <algorithm>
 #include <cstddef>
 #include <memory>
-#include <boost/serialization/unique_ptr.hpp>
 #include "common/common_types.h"
 #include "core/hle/result.h"
 #include "delay_generator.h"
+#include "common/serialization/boost_all_serialization.h"
 
 namespace FileSys {
 

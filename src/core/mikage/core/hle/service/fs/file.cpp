@@ -2,7 +2,6 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include <boost/serialization/unique_ptr.hpp>
 #include "common/archives.h"
 #include "common/logging/log.h"
 #include "core/core.h"
@@ -14,6 +13,7 @@
 #include "core/hle/kernel/event.h"
 #include "core/hle/kernel/server_session.h"
 #include "core/hle/service/fs/file.h"
+#include "common/serialization/boost_all_serialization.h"
 
 SERIALIZE_EXPORT_IMPL(Service::FS::File)
 SERIALIZE_EXPORT_IMPL(Service::FS::FileSessionSlot)

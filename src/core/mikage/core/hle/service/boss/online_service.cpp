@@ -2,7 +2,6 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include <boost/serialization/map.hpp>
 #include "common/archives.h"
 #include "common/file_util.h"
 #include "common/serialization/boost_std_variant.hpp"
@@ -16,6 +15,7 @@
 #include "core/file_sys/file_backend.h"
 #include "core/hle/kernel/hle_ipc.h"
 #include "core/hle/service/boss/online_service.h"
+#include "common/serialization/boost_all_serialization.h"
 
 namespace Service::BOSS {
 

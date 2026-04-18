@@ -14,7 +14,6 @@
 #include <unordered_map>
 #include <vector>
 #include <set>
-#include <boost/serialization/export.hpp>
 #include <queue>
 #include "common/common_types.h"
 #include "common/thread_queue_list.h"
@@ -24,6 +23,7 @@
 #include "core/hle/kernel/resource_limit.h"
 #include "core/hle/kernel/wait_object.h"
 #include "core/hle/result.h"
+#include "common/serialization/boost_all_serialization.h"
 
 namespace Kernel {
 

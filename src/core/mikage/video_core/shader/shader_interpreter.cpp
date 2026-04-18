@@ -6,11 +6,11 @@
 #include <cmath>
 #include <numeric>
 #include <vector>
-#include <nihstro/shader_bytecode.h>
 #include "common/assert.h"
 #include "common/common_types.h"
 #include "common/logging/log.h"
 #include "common/microprofile.h"
+#include "common/shader/nihstro_shader_bytecode_compat.h"
 #include "common/vector_math.h"
 #include "video_core/pica/shader_setup.h"
 #include "video_core/pica/shader_unit.h"

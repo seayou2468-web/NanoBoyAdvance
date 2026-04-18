@@ -2,11 +2,14 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
+#include <algorithm>
 #include <sstream>
-#include <cryptopp/hex.h>
-#include <cryptopp/integer.h>
-#include <cryptopp/nbtheory.h>
-#include <cryptopp/sha.h>
+#include <vector>
+#if defined(__APPLE__)
+#include <CoreFoundation/CoreFoundation.h>
+#include <Security/Security.h>
+#endif
+#include "common/crypto/cryptopp_rsa_compat.h"
 #include "common/common_paths.h"
 #include "common/file_util.h"
 #include "common/logging/log.h"
@@ -14,7 +17,6 @@
 #include "common/string_util.h"
 #include "core/hw/aes/key.h"
 #include "core/hw/rsa/rsa.h"
-#include "cryptopp/rsa.h"
 
 namespace HW::RSA {
 
@@ -32,6 +34,115 @@ public:
         Common::FillSecureRandom(std::span<std::uint8_t>(output, size));
     }
 };
+
+#if defined(__APPLE__)
+std::vector<u8> EncodeAsn1Length(std::size_t length) {
+    if (length < 0x80) {
+        return {static_cast<u8>(length)};
+    }
+
+    std::vector<u8> encoded;
+    while (length != 0) {
+        encoded.push_back(static_cast<u8>(length & 0xFF));
+        length >>= 8;
+    }
+    std::reverse(encoded.begin(), encoded.end());
+    encoded.insert(encoded.begin(), static_cast<u8>(0x80 | encoded.size()));
+    return encoded;
+}
+
+void AppendAsn1Integer(std::vector<u8>& out, std::span<const u8> integer_bytes) {
+    std::size_t first_non_zero = 0;
+    while (first_non_zero + 1 < integer_bytes.size() && integer_bytes[first_non_zero] == 0) {
+        ++first_non_zero;
+    }
+    std::span<const u8> trimmed = integer_bytes.subspan(first_non_zero);
+
+    out.push_back(0x02); // INTEGER
+    const bool needs_sign_padding = !trimmed.empty() && (trimmed.front() & 0x80) != 0;
+    const std::size_t payload_size = trimmed.size() + (needs_sign_padding ? 1 : 0);
+    const std::vector<u8> len = EncodeAsn1Length(payload_size);
+    out.insert(out.end(), len.begin(), len.end());
+    if (needs_sign_padding) {
+        out.push_back(0x00);
+    }
+    out.insert(out.end(), trimmed.begin(), trimmed.end());
+}
+
+std::vector<u8> BuildRsaPublicKeyDer(std::span<const u8> modulus, std::span<const u8> exponent) {
+    std::vector<u8> seq_payload;
+    AppendAsn1Integer(seq_payload, modulus);
+    AppendAsn1Integer(seq_payload, exponent);
+
+    std::vector<u8> der;
+    der.push_back(0x30); // SEQUENCE
+    const std::vector<u8> seq_len = EncodeAsn1Length(seq_payload.size());
+    der.insert(der.end(), seq_len.begin(), seq_len.end());
+    der.insert(der.end(), seq_payload.begin(), seq_payload.end());
+    return der;
+}
+
+class ScopedCFTypeRef final {
+public:
+    explicit ScopedCFTypeRef(CFTypeRef value = nullptr) : value(value) {}
+    ~ScopedCFTypeRef() {
+        if (value != nullptr) {
+            CFRelease(value);
+        }
+    }
+
+    ScopedCFTypeRef(const ScopedCFTypeRef&) = delete;
+    ScopedCFTypeRef& operator=(const ScopedCFTypeRef&) = delete;
+
+    ScopedCFTypeRef(ScopedCFTypeRef&& other) noexcept : value(other.value) {
+        other.value = nullptr;
+    }
+    ScopedCFTypeRef& operator=(ScopedCFTypeRef&& other) noexcept {
+        if (this != &other) {
+            if (value != nullptr) {
+                CFRelease(value);
+            }
+            value = other.value;
+            other.value = nullptr;
+        }
+        return *this;
+    }
+
+    template <typename T>
+    T As() const {
+        return reinterpret_cast<T>(value);
+    }
+
+private:
+    CFTypeRef value;
+};
+
+SecKeyRef CreateSecRsaPublicKey(std::span<const u8> modulus, std::span<const u8> exponent) {
+    const std::vector<u8> der = BuildRsaPublicKeyDer(modulus, exponent);
+    ScopedCFTypeRef key_data(CFDataCreate(kCFAllocatorDefault, der.data(), der.size()));
+    if (key_data.As<CFDataRef>() == nullptr) {
+        return nullptr;
+    }
+
+    const int key_size_bits = static_cast<int>(modulus.size() * 8);
+    const void* keys[] = {kSecAttrKeyType, kSecAttrKeyClass, kSecAttrKeySizeInBits};
+    ScopedCFTypeRef key_size(CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &key_size_bits));
+    const void* values[] = {kSecAttrKeyTypeRSA, kSecAttrKeyClassPublic, key_size.As<CFNumberRef>()};
+    ScopedCFTypeRef attrs(
+        CFDictionaryCreate(kCFAllocatorDefault, keys, values, 3, &kCFTypeDictionaryKeyCallBacks,
+                           &kCFTypeDictionaryValueCallBacks));
+    if (attrs.As<CFDictionaryRef>() == nullptr) {
+        return nullptr;
+    }
+
+    CFErrorRef error = nullptr;
+    SecKeyRef key = SecKeyCreateWithData(key_data.As<CFDataRef>(), attrs.As<CFDictionaryRef>(), &error);
+    if (error != nullptr) {
+        CFRelease(error);
+    }
+    return key;
+}
+#endif
 
 } // namespace
 
@@ -75,6 +186,23 @@ std::vector<u8> RsaSlot::Sign(std::span<const u8> message) const {
 }
 
 bool RsaSlot::Verify(std::span<const u8> message, std::span<const u8> signature) const {
+#if defined(__APPLE__)
+    ScopedCFTypeRef public_key(CreateSecRsaPublicKey(modulus, exponent));
+    if (public_key.As<SecKeyRef>() != nullptr) {
+        ScopedCFTypeRef message_data(CFDataCreate(kCFAllocatorDefault, message.data(), message.size()));
+        ScopedCFTypeRef signature_data(
+            CFDataCreate(kCFAllocatorDefault, signature.data(), signature.size()));
+        if (message_data.As<CFDataRef>() != nullptr && signature_data.As<CFDataRef>() != nullptr) {
+            const bool ok = SecKeyVerifySignature(public_key.As<SecKeyRef>(),
+                                                  kSecKeyAlgorithmRSASignatureMessagePKCS1v15SHA256,
+                                                  message_data.As<CFDataRef>(),
+                                                  signature_data.As<CFDataRef>(), nullptr);
+            if (ok) {
+                return true;
+            }
+        }
+    }
+#endif
     CryptoPP::RSASS<CryptoPP::PKCS1v15, CryptoPP::SHA256>::PublicKey public_key;
     public_key.Initialize(CryptoPP::Integer(modulus.data(), modulus.size()),
                           CryptoPP::Integer(exponent.data(), exponent.size()));

@@ -5,10 +5,10 @@
 #pragma once
 
 #include <memory>
-#include <boost/serialization/base_object.hpp>
 #include "core/file_sys/archive_backend.h"
 #include "core/global.h"
 #include "core/hle/service/service.h"
+#include "common/serialization/boost_all_serialization.h"
 
 namespace Core {
 class System;

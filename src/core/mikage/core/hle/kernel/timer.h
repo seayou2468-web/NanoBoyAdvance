@@ -4,11 +4,11 @@
 
 #pragma once
 
-#include <boost/serialization/export.hpp>
 #include "common/common_types.h"
 #include "core/core_timing.h"
 #include "core/hle/kernel/object.h"
 #include "core/hle/kernel/wait_object.h"
+#include "common/serialization/boost_all_serialization.h"
 
 namespace Core {
 class Timing;

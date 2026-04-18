@@ -21,10 +21,30 @@
 
 #include "directory_file_system.h"
 
-#include <dirent.h>
-#include <unistd.h>
-#include <sys/stat.h>
-#include <ctype.h>
+#include <cctype>
+#include <chrono>
+#include <filesystem>
+#include <system_error>
+
+namespace fs = std::filesystem;
+
+namespace {
+
+std::time_t FileTimeToTimeT(const fs::file_time_type& file_time) {
+	using namespace std::chrono;
+	const auto as_system_clock = time_point_cast<system_clock::duration>(
+		file_time - fs::file_time_type::clock::now() + system_clock::now());
+	return system_clock::to_time_t(as_system_clock);
+}
+
+std::string ToLowerASCII(std::string value) {
+	for (char& c : value) {
+		c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+	}
+	return value;
+}
+
+} // namespace
 
 #if HOST_IS_CASE_SENSITIVE
 static bool FixFilenameCase(const std::string &path, std::string &filename)
@@ -34,41 +54,27 @@ static bool FixFilenameCase(const std::string &path, std::string &filename)
 		return true;
 
 	size_t filenameSize = filename.size();  // size in bytes, not characters
-	for (size_t i = 0; i < filenameSize; i++)
-	{
-		filename[i] = tolower(filename[i]);
-	}
+	const std::string lowered_filename = ToLowerASCII(filename);
 
 	//TODO: lookup filename in cache for "path"
 
-	struct dirent *result = NULL;
-
-	DIR *dirp = opendir(path.c_str());
-	if (!dirp)
-		return false;
-
 	bool retValue = false;
-
-	while ((result = readdir(dirp)) != NULL)
-	{
-		if (strlen(result->d_name) != filenameSize)
-			continue;
-
-		size_t i;
-		for (i = 0; i < filenameSize; i++)
-		{
-			if (filename[i] != tolower(result->d_name[i]))
-				break;
+	std::error_code ec;
+	for (const auto& entry : fs::directory_iterator(path, ec)) {
+		if (ec) {
+			break;
 		}
-
-		if (i < filenameSize)
+		const std::string candidate = entry.path().filename().string();
+		if (candidate.size() != filenameSize) {
 			continue;
-
-		filename = result->d_name;
+		}
+		if (ToLowerASCII(candidate) != lowered_filename) {
+			continue;
+		}
+		filename = candidate;
 		retValue = true;
+		break;
 	}
-
-	closedir(dirp);
 
 	return retValue;
 }
@@ -306,9 +312,10 @@ int DirectoryFileSystem::RenameFile(const std::string &from, const std::string &
 #endif
 
 	fullTo = GetLocalPath(fullTo);
-	const char * fullToC = fullTo.c_str();
 
-	bool retValue = (0 == rename(fullFrom.c_str(), fullToC));
+	std::error_code ec;
+	fs::rename(fullFrom, fullTo, ec);
+	bool retValue = !ec;
 
 #if HOST_IS_CASE_SENSITIVE
 	if (! retValue)
@@ -319,7 +326,9 @@ int DirectoryFileSystem::RenameFile(const std::string &from, const std::string &
 			return -1;  // or go on and attempt (for a better error code than just false?)
 		fullFrom = GetLocalPath(fullFrom);
 
-		retValue = (0 == rename(fullFrom.c_str(), fullToC));
+		ec.clear();
+		fs::rename(fullFrom, fullTo, ec);
+		retValue = !ec;
 	}
 #endif
 
@@ -329,7 +338,9 @@ int DirectoryFileSystem::RenameFile(const std::string &from, const std::string &
 
 bool DirectoryFileSystem::RemoveFile(const std::string &filename) {
 	std::string fullName = GetLocalPath(filename);
-	bool retValue = (0 == unlink(fullName.c_str()));
+	std::error_code ec;
+	const bool removed = fs::remove(fullName, ec);
+	bool retValue = removed && !ec;
 
 #if HOST_IS_CASE_SENSITIVE
 	if (! retValue)
@@ -340,7 +351,8 @@ bool DirectoryFileSystem::RemoveFile(const std::string &filename) {
 			return false;  // or go on and attempt (for a better error code than just false?)
 		fullName = GetLocalPath(fullName);
 
-		retValue = (0 == unlink(fullName.c_str()));
+		ec.clear();
+		retValue = fs::remove(fullName, ec) && !ec;
 	}
 #endif
 
@@ -439,14 +451,22 @@ FileInfo DirectoryFileSystem::GetFileInfo(std::string filename) {
 
 	if (x.type != FILETYPE_DIRECTORY)
 	{
-		struct stat s;
-		stat(fullName.c_str(), &s);
+		std::error_code ec;
+		x.size = fs::file_size(fullName, ec);
+		if (ec) {
+			x.size = 0;
+		}
 
-		x.size = File::GetSize(fullName);
-		x.access = s.st_mode & 0x1FF;
-		localtime_r((time_t*)&s.st_atime,&x.atime);
-		localtime_r((time_t*)&s.st_ctime,&x.ctime);
-		localtime_r((time_t*)&s.st_mtime,&x.mtime);
+		const fs::file_status status = fs::status(fullName, ec);
+		x.access = ec ? 0 : (static_cast<u32>(status.permissions()) & 0x1FF);
+
+		const auto write_time = fs::last_write_time(fullName, ec);
+		if (!ec) {
+			const std::time_t time_value = FileTimeToTimeT(write_time);
+			localtime_r(&time_value, &x.atime);
+			localtime_r(&time_value, &x.ctime);
+			localtime_r(&time_value, &x.mtime);
+		}
 	}
 
 	return x;
@@ -459,41 +479,57 @@ bool DirectoryFileSystem::GetHostPath(const std::string &inpath, std::string &ou
 
 std::vector<FileInfo> DirectoryFileSystem::GetDirListing(std::string path) {
 	std::vector<FileInfo> myVector;
-	dirent *dirp;
 	std::string localPath = GetLocalPath(path);
-	DIR *dp = opendir(localPath.c_str());
+	std::error_code ec;
+	fs::directory_iterator dir_it(localPath, ec);
+	fs::directory_iterator end_it;
 
 #if HOST_IS_CASE_SENSITIVE
-	if(dp == NULL && FixPathCase(basePath,path, FPC_FILE_MUST_EXIST)) {
+	if (ec && FixPathCase(basePath, path, FPC_FILE_MUST_EXIST)) {
 		// May have failed due to case sensitivity, try again
 		localPath = GetLocalPath(path);
-		dp = opendir(localPath.c_str());
+		ec.clear();
+		dir_it = fs::directory_iterator(localPath, ec);
 	}
 #endif
 
-	if (dp == NULL) {
+	if (ec) {
 		ERROR_LOG(FILESYS,"Error opening directory %s\n",path.c_str());
 		return myVector;
 	}
 
-	while ((dirp = readdir(dp)) != NULL) {
+	for (; dir_it != end_it; dir_it.increment(ec)) {
+		if (ec) {
+			break;
+		}
 		FileInfo entry;
-		struct stat s;
-		std::string fullName = GetLocalPath(path) + "/"+dirp->d_name;
-		stat(fullName.c_str(), &s);
-		if (S_ISDIR(s.st_mode))
-			entry.type = FILETYPE_DIRECTORY;
-		else
-			entry.type = FILETYPE_NORMAL;
-		entry.access = s.st_mode & 0x1FF;
-		entry.name = dirp->d_name;
-		entry.size = s.st_size;
-		localtime_r((time_t*)&s.st_atime,&entry.atime);
-		localtime_r((time_t*)&s.st_ctime,&entry.ctime);
-		localtime_r((time_t*)&s.st_mtime,&entry.mtime);
+		const auto& fs_entry = *dir_it;
+		const auto status = fs_entry.status(ec);
+		if (ec) {
+			ec.clear();
+			continue;
+		}
+
+		entry.type = fs::is_directory(status) ? FILETYPE_DIRECTORY : FILETYPE_NORMAL;
+		entry.access = static_cast<u32>(status.permissions()) & 0x1FF;
+		entry.name = fs_entry.path().filename().string();
+		entry.size = entry.type == FILETYPE_DIRECTORY ? 0 : fs_entry.file_size(ec);
+		if (ec) {
+			ec.clear();
+			entry.size = 0;
+		}
+
+		const auto write_time = fs_entry.last_write_time(ec);
+		if (!ec) {
+			const std::time_t time_value = FileTimeToTimeT(write_time);
+			localtime_r(&time_value, &entry.atime);
+			localtime_r(&time_value, &entry.ctime);
+			localtime_r(&time_value, &entry.mtime);
+		} else {
+			ec.clear();
+		}
 		myVector.push_back(entry);
 	}
-	closedir(dp);
 	return myVector;
 }
 

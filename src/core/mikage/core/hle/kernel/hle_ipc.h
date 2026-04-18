@@ -11,13 +11,13 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include <boost/serialization/export.hpp>
 #include "common/common_types.h"
 #include "common/settings.h"
 #include "common/swap.h"
 #include "core/hle/ipc.h"
 #include "core/hle/kernel/object.h"
 #include "core/hle/kernel/server_session.h"
+#include "common/serialization/boost_all_serialization.h"
 
 namespace Service {
 class ServiceFrameworkBase;

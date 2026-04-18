@@ -4,9 +4,6 @@
 
 #include <span>
 #include <vector>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/optional.hpp>
-#include <boost/serialization/shared_ptr.hpp>
 #include "common/archives.h"
 #include "common/bit_field.h"
 #include "common/hacks/hack_manager.h"
@@ -24,6 +21,7 @@
 #include "video_core/pica/regs_lcd.h"
 #include "video_core/renderer_base.h"
 #include "video_core/right_eye_disabler.h"
+#include "common/serialization/boost_all_serialization.h"
 
 SERIALIZE_EXPORT_IMPL(Service::GSP::SessionData)
 SERIALIZE_EXPORT_IMPL(Service::GSP::GSP_GPU)

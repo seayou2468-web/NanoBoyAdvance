@@ -4,10 +4,6 @@
 
 #include <algorithm>
 #include <climits>
-#include <boost/serialization/string.hpp>
-#include <boost/serialization/unordered_map.hpp>
-#include <boost/serialization/vector.hpp>
-#include <boost/serialization/weak_ptr.hpp>
 #include "common/archives.h"
 #include "common/assert.h"
 #include "common/common_types.h"
@@ -26,6 +22,7 @@
 #include "core/hle/kernel/thread.h"
 #include "core/hle/result.h"
 #include "core/memory.h"
+#include "common/serialization/boost_all_serialization.h"
 
 SERIALIZE_EXPORT_IMPL(Kernel::Thread)
 SERIALIZE_EXPORT_IMPL(Kernel::WakeupCallback)

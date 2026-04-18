@@ -3,10 +3,6 @@
 // Refer to the license.txt file included.
 
 #include <algorithm>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/string.hpp>
-#include <boost/serialization/vector.hpp>
 #include "common/archives.h"
 #include "common/common_types.h"
 #include "common/logging/log.h"
@@ -16,6 +12,7 @@
 #include "core/hle/kernel/resource_limit.h"
 #include "core/hle/kernel/thread.h"
 #include "core/memory.h"
+#include "common/serialization/boost_all_serialization.h"
 
 SERIALIZE_EXPORT_IMPL(Kernel::AddressArbiter)
 SERIALIZE_EXPORT_IMPL(Kernel::AddressArbiter::Callback)

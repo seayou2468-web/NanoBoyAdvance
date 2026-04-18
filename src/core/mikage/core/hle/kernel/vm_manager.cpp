@@ -4,9 +4,6 @@
 
 #include <algorithm>
 #include <iterator>
-#include <boost/serialization/map.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/split_member.hpp>
 #include "common/archives.h"
 #include "common/assert.h"
 #include "core/core.h"
@@ -14,6 +11,7 @@
 #include "core/hle/kernel/vm_manager.h"
 #include "core/hle/service/plgldr/plgldr.h"
 #include "core/memory.h"
+#include "common/serialization/boost_all_serialization.h"
 
 SERIALIZE_EXPORT_IMPL(Kernel::VirtualMemoryArea)
 

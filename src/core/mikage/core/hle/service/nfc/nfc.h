@@ -5,10 +5,10 @@
 #pragma once
 
 #include <memory>
-#include <boost/serialization/binary_object.hpp>
 #include "common/common_types.h"
 #include "core/hle/service/nfc/nfc_device.h"
 #include "core/hle/service/service.h"
+#include "common/serialization/boost_all_serialization.h"
 
 namespace Core {
 class System;

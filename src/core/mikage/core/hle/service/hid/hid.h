@@ -9,7 +9,6 @@
 #include <cstddef>
 #include <memory>
 #include <vector>
-#include <boost/serialization/version.hpp>
 #include "common/bit_field.h"
 #include "common/common_funcs.h"
 #include "common/common_types.h"
@@ -19,6 +18,7 @@
 #include "core/frontend/input.h"
 #include "core/hle/service/service.h"
 #include "network/artic_base/artic_base_client.h"
+#include "common/serialization/boost_all_serialization.h"
 
 namespace Kernel {
 class Event;

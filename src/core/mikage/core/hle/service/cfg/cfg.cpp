@@ -8,8 +8,6 @@
 #include <random>
 #include <sstream>
 #include <tuple>
-#include <boost/serialization/array.hpp>
-#include <boost/serialization/unique_ptr.hpp>
 #include <CommonCrypto/CommonDigest.h>
 #include "common/archives.h"
 #include "common/file_util.h"
@@ -36,6 +34,7 @@
 #include "core/loader/loader.h"
 #ifdef HAVE_LIBRETRO
 #include "citra_libretro/core_settings.h"
+#include "common/serialization/boost_all_serialization.h"
 #endif
 
 SERVICE_CONSTRUCT_IMPL(Service::CFG::Module)

@@ -6,10 +6,10 @@
 
 #include <memory>
 #include <string>
-#include <boost/serialization/export.hpp>
 #include "common/common_types.h"
 #include "core/hle/kernel/object.h"
 #include "core/hle/result.h"
+#include "common/serialization/boost_all_serialization.h"
 
 namespace Kernel {
 

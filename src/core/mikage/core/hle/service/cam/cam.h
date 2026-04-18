@@ -9,17 +9,13 @@
 #include <future>
 #include <memory>
 #include <vector>
-#include <boost/serialization/array.hpp>
-#include <boost/serialization/deque.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/unique_ptr.hpp>
-#include <boost/serialization/version.hpp>
 #include "common/common_types.h"
 #include "common/swap.h"
 #include "core/global.h"
 #include "core/hle/result.h"
 #include "core/hle/service/cam/cam_params.h"
 #include "core/hle/service/service.h"
+#include "common/serialization/boost_all_serialization.h"
 
 namespace Core {
 class System;

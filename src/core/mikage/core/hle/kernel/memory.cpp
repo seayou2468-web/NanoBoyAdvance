@@ -6,11 +6,11 @@
 #include <memory>
 #include <utility>
 #include <vector>
-#include <boost/serialization/set.hpp>
 #include "common/archives.h"
 #include "common/assert.h"
 #include "common/common_types.h"
 #include "common/logging/log.h"
+#include "common/serialization/std_set_serialization.h"
 #include "common/settings.h"
 #include "core/core.h"
 #include "core/hle/kernel/config_mem.h"
@@ -24,6 +24,99 @@
 SERIALIZE_EXPORT_IMPL(Kernel::MemoryRegionInfo)
 
 namespace Kernel {
+
+namespace {
+
+using Interval = MemoryRegionInfo::Interval;
+using IntervalSet = MemoryRegionInfo::IntervalSet;
+
+u32 IntervalSize(const Interval& interval) {
+    return interval.upper - interval.lower;
+}
+
+bool Contains(const IntervalSet& intervals, const Interval& needle) {
+    auto it = intervals.upper_bound(needle);
+    if (it == intervals.begin()) {
+        return false;
+    }
+    --it;
+    return it->lower <= needle.lower && needle.upper <= it->upper;
+}
+
+bool Intersects(const Interval& a, const Interval& b) {
+    return a.lower < b.upper && b.lower < a.upper;
+}
+
+bool IntersectsAny(const IntervalSet& intervals, const Interval& needle) {
+    auto it = intervals.lower_bound(needle);
+    if (it != intervals.end() && Intersects(*it, needle)) {
+        return true;
+    }
+    if (it != intervals.begin()) {
+        --it;
+        if (Intersects(*it, needle)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void InsertMerge(IntervalSet& intervals, Interval interval) {
+    auto it = intervals.lower_bound(interval);
+    if (it != intervals.begin()) {
+        auto prev = std::prev(it);
+        if (prev->upper >= interval.lower) {
+            interval.lower = std::min(interval.lower, prev->lower);
+            interval.upper = std::max(interval.upper, prev->upper);
+            it = intervals.erase(prev);
+        }
+    }
+    while (it != intervals.end() && it->lower <= interval.upper) {
+        interval.lower = std::min(interval.lower, it->lower);
+        interval.upper = std::max(interval.upper, it->upper);
+        it = intervals.erase(it);
+    }
+    intervals.insert(it, interval);
+}
+
+void SubtractInterval(IntervalSet& intervals, const Interval& needle) {
+    auto it = intervals.lower_bound(needle);
+    if (it != intervals.begin()) {
+        --it;
+    }
+
+    std::vector<Interval> to_add;
+    while (it != intervals.end()) {
+        if (it->lower >= needle.upper) {
+            break;
+        }
+        if (!Intersects(*it, needle)) {
+            ++it;
+            continue;
+        }
+
+        const Interval current = *it;
+        it = intervals.erase(it);
+        if (current.lower < needle.lower) {
+            to_add.push_back({current.lower, needle.lower});
+        }
+        if (needle.upper < current.upper) {
+            to_add.push_back({needle.upper, current.upper});
+            break;
+        }
+    }
+    for (const auto& interval : to_add) {
+        intervals.insert(interval);
+    }
+}
+
+void SubtractIntervals(IntervalSet& intervals, const IntervalSet& to_subtract) {
+    for (const auto& interval : to_subtract) {
+        SubtractInterval(intervals, interval);
+    }
+}
+
+} // namespace
 
 /// Size of the APPLICATION, SYSTEM and BASE memory regions (respectively) for each system
 /// memory configuration type.
@@ -187,7 +280,7 @@ void MemoryRegionInfo::Reset(u32 base, u32 size) {
     free_blocks.clear();
 
     // mark the entire region as free
-    free_blocks.insert(Interval::right_open(base, base + size));
+    free_blocks.insert(Interval{base, base + size});
 }
 
 MemoryRegionInfo::IntervalSet MemoryRegionInfo::HeapAllocate(u32 size) {
@@ -198,15 +291,14 @@ MemoryRegionInfo::IntervalSet MemoryRegionInfo::HeapAllocate(u32 size) {
 
     // Try allocating from the higher address
     for (auto iter = free_blocks.rbegin(); iter != free_blocks.rend(); ++iter) {
-        ASSERT(iter->bounds() == boost::icl::interval_bounds::right_open());
-        if (iter->upper() - iter->lower() >= rest) {
+        if (IntervalSize(*iter) >= rest) {
             // Requested size is fulfilled with this block
-            result += Interval(iter->upper() - rest, iter->upper());
+            result.insert(Interval{iter->upper - rest, iter->upper});
             rest = 0;
             break;
         }
-        result += *iter;
-        rest -= iter->upper() - iter->lower();
+        result.insert(*iter);
+        rest -= IntervalSize(*iter);
     }
 
     if (rest != 0) {
@@ -214,7 +306,7 @@ MemoryRegionInfo::IntervalSet MemoryRegionInfo::HeapAllocate(u32 size) {
         return {};
     }
 
-    free_blocks -= result;
+    SubtractIntervals(free_blocks, result);
     used += size;
     return result;
 }
@@ -222,12 +314,12 @@ MemoryRegionInfo::IntervalSet MemoryRegionInfo::HeapAllocate(u32 size) {
 bool MemoryRegionInfo::LinearAllocate(u32 offset, u32 size) {
     ASSERT(!is_locked);
 
-    Interval interval(offset, offset + size);
-    if (!boost::icl::contains(free_blocks, interval)) {
+    Interval interval{offset, offset + size};
+    if (!Contains(free_blocks, interval)) {
         // The requested range is already allocated
         return false;
     }
-    free_blocks -= interval;
+    SubtractInterval(free_blocks, interval);
     used += size;
     return true;
 }
@@ -237,12 +329,11 @@ std::optional<u32> MemoryRegionInfo::LinearAllocate(u32 size) {
 
     // Find the first sufficient continuous block from the lower address
     for (const auto& interval : free_blocks) {
-        ASSERT(interval.bounds() == boost::icl::interval_bounds::right_open());
-        if (interval.upper() - interval.lower() >= size) {
-            Interval allocated(interval.lower(), interval.lower() + size);
-            free_blocks -= allocated;
+        if (IntervalSize(interval) >= size) {
+            Interval allocated{interval.lower, interval.lower + size};
+            SubtractInterval(free_blocks, allocated);
             used += size;
-            return allocated.lower();
+            return allocated.lower;
         }
     }
 
@@ -255,13 +346,12 @@ std::optional<u32> MemoryRegionInfo::RLinearAllocate(u32 size) {
 
     // Find the first sufficient continuous block from the upper address
     for (auto iter = free_blocks.rbegin(); iter != free_blocks.rend(); ++iter) {
-        auto interval = *iter;
-        ASSERT(interval.bounds() == boost::icl::interval_bounds::right_open());
-        if (interval.upper() - interval.lower() >= size) {
-            Interval allocated(interval.upper() - size, interval.upper());
-            free_blocks -= allocated;
+        const auto interval = *iter;
+        if (IntervalSize(interval) >= size) {
+            Interval allocated{interval.upper - size, interval.upper};
+            SubtractInterval(free_blocks, allocated);
             used += size;
-            return allocated.lower();
+            return allocated.lower;
         }
     }
 
@@ -274,9 +364,9 @@ void MemoryRegionInfo::Free(u32 offset, u32 size) {
         return;
     }
 
-    Interval interval(offset, offset + size);
-    ASSERT(!boost::icl::intersects(free_blocks, interval)); // must be allocated blocks
-    free_blocks += interval;
+    Interval interval{offset, offset + size};
+    ASSERT(!IntersectsAny(free_blocks, interval)); // must be allocated blocks
+    InsertMerge(free_blocks, interval);
     used -= size;
 }
 

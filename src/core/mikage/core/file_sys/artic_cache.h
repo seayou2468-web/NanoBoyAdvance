@@ -8,15 +8,13 @@
 #include <shared_mutex>
 #include "vector"
 
-#include <boost/serialization/array.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/export.hpp>
 #include "common/alignment.h"
 #include "common/common_types.h"
 #include "common/static_lru_cache.h"
 #include "core/file_sys/archive_backend.h"
 #include "core/hle/result.h"
 #include "network/artic_base/artic_base_client.h"
+#include "common/serialization/boost_all_serialization.h"
 
 namespace FileSys {
 class ArticCache {

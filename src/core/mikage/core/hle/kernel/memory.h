@@ -5,10 +5,9 @@
 #pragma once
 
 #include <optional>
-#include <boost/icl/interval_set.hpp>
-#include <boost/serialization/export.hpp>
+#include <set>
 #include "common/common_types.h"
-#include "common/serialization/boost_interval_set.hpp"
+#include "common/serialization/boost_all_serialization.h"
 
 namespace Kernel {
 
@@ -20,9 +19,30 @@ struct MemoryRegionInfo {
     u32 size;
     u32 used;
 
-    // The domain of the interval_set are offsets from start of FCRAM
-    using IntervalSet = boost::icl::interval_set<u32>;
-    using Interval = IntervalSet::interval_type;
+    struct Interval {
+        u32 lower{};
+        u32 upper{};
+
+    private:
+        friend class boost::serialization::access;
+        template <class Archive>
+        void serialize(Archive& ar, const unsigned int) {
+            ar & lower;
+            ar & upper;
+        }
+    };
+
+    struct IntervalLess {
+        bool operator()(const Interval& lhs, const Interval& rhs) const {
+            if (lhs.lower != rhs.lower) {
+                return lhs.lower < rhs.lower;
+            }
+            return lhs.upper < rhs.upper;
+        }
+    };
+
+    // The domain of intervals are offsets from start of FCRAM
+    using IntervalSet = std::set<Interval, IntervalLess>;
 
     IntervalSet free_blocks;
 

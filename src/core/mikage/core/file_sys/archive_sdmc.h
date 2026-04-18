@@ -6,11 +6,9 @@
 
 #include <memory>
 #include <string>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/export.hpp>
-#include <boost/serialization/string.hpp>
 #include "core/file_sys/archive_backend.h"
 #include "core/hle/result.h"
+#include "common/serialization/boost_all_serialization.h"
 
 namespace FileSys {
 

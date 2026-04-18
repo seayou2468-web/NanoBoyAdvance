@@ -3,10 +3,9 @@
 // Refer to the license.txt file included.
 
 #include <sstream>
-#include <cryptopp/eccrypto.h>
-#include <cryptopp/oids.h>
 #include "common/assert.h"
 #include "common/common_paths.h"
+#include "common/crypto/cryptopp_ecc_compat.h"
 #include "common/file_util.h"
 #include "common/logging/log.h"
 #include "common/secure_random.h"

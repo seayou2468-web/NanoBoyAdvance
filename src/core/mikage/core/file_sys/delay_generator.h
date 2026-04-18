@@ -5,9 +5,8 @@
 #pragma once
 
 #include <cstddef>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/export.hpp>
 #include "common/common_types.h"
+#include "common/serialization/boost_all_serialization.h"
 
 #define SERIALIZE_DELAY_GENERATOR                                                                  \
 private:                                                                                           \

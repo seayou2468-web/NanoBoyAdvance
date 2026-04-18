@@ -3,7 +3,6 @@
 // Refer to the license.txt file included.
 
 #include <span>
-#include <boost/serialization/weak_ptr.hpp>
 #include "audio_core/input.h"
 #include "audio_core/input_details.h"
 #include "common/archives.h"
@@ -17,6 +16,7 @@
 #include "core/hle/kernel/kernel.h"
 #include "core/hle/kernel/shared_memory.h"
 #include "core/hle/service/mic/mic_u.h"
+#include "common/serialization/boost_all_serialization.h"
 
 SERVICE_CONSTRUCT_IMPL(Service::MIC::MIC_U)
 SERIALIZE_EXPORT_IMPL(Service::MIC::MIC_U)

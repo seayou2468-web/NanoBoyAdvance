@@ -8,15 +8,13 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/unique_ptr.hpp>
-#include <boost/serialization/vector.hpp>
 #include "common/common_types.h"
 #include "common/file_util.h"
 #include "core/file_sys/archive_backend.h"
 #include "core/file_sys/directory_backend.h"
 #include "core/file_sys/file_backend.h"
 #include "core/hle/result.h"
+#include "common/serialization/boost_all_serialization.h"
 
 namespace FileSys {
 
