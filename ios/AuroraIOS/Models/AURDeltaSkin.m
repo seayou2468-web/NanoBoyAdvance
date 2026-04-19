@@ -153,11 +153,7 @@ static NSSet<NSNumber *> *AURCoreTypesFromMetadata(NSDictionary *json) {
 
     NSString *gameType = [json[@"gameType"] isKindOfClass:[NSString class]] ? [json[@"gameType"] lowercaseString] : nil;
     NSDictionary<NSString *, NSNumber *> *map = @{
-        @"gba": @(EMULATOR_CORE_TYPE_GBA),
-        @"gbc": @(EMULATOR_CORE_TYPE_GB),
-        @"gb": @(EMULATOR_CORE_TYPE_GB),
-        @"nes": @(EMULATOR_CORE_TYPE_NES),
-        @"nds": @(EMULATOR_CORE_TYPE_NDS)
+        @"3ds": @(EMULATOR_CORE_TYPE_3DS)
     };
     NSNumber *single = map[gameType ?: @""];
     if (single) [types addObject:single];
@@ -171,10 +167,7 @@ static NSSet<NSNumber *> *AURCoreTypesFromMetadata(NSDictionary *json) {
     }
 
     if (types.count == 0) {
-        [types addObject:@(EMULATOR_CORE_TYPE_GBA)];
-        [types addObject:@(EMULATOR_CORE_TYPE_GB)];
-        [types addObject:@(EMULATOR_CORE_TYPE_NES)];
-        [types addObject:@(EMULATOR_CORE_TYPE_NDS)];
+        [types addObject:@(EMULATOR_CORE_TYPE_3DS)];
     }
     return types;
 }

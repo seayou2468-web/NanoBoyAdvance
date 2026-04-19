@@ -227,42 +227,21 @@ static NSData *AURInflateRawDeflate(NSData *compressed, NSUInteger expectedSize)
 }
 
 - (AURControllerSkin *)defaultSkinForCore:(EmulatorCoreType)coreType isLandscape:(BOOL)isLandscape {
-    AURControllerSkin *skin = [[AURControllerSkin alloc] init];
-    NSMutableDictionary *rects = [NSMutableDictionary dictionary];
+    (void)coreType;
+    (void)isLandscape;
 
-    if (coreType == EMULATOR_CORE_TYPE_GBA) {
-        skin.name = @"GBA Default";
-        rects[@"up"] = [NSValue valueWithCGRect:CGRectMake(45, 120, 45, 45)];
-        rects[@"down"] = [NSValue valueWithCGRect:CGRectMake(45, 200, 45, 45)];
-        rects[@"left"] = [NSValue valueWithCGRect:CGRectMake(5, 160, 45, 45)];
-        rects[@"right"] = [NSValue valueWithCGRect:CGRectMake(85, 160, 45, 45)];
-        rects[@"a"] = [NSValue valueWithCGRect:CGRectMake(280, 140, 75, 75)];
-        rects[@"b"] = [NSValue valueWithCGRect:CGRectMake(200, 170, 75, 75)];
-        rects[@"l"] = [NSValue valueWithCGRect:CGRectMake(0, 0, 110, 45)];
-        rects[@"r"] = [NSValue valueWithCGRect:CGRectMake(265, 0, 110, 45)];
-        rects[@"start"] = [NSValue valueWithCGRect:CGRectMake(195, 380, 70, 25)];
-        rects[@"select"] = [NSValue valueWithCGRect:CGRectMake(110, 380, 70, 25)];
-    } else if (coreType == EMULATOR_CORE_TYPE_NES) {
-        skin.name = @"NES Default";
-        rects[@"up"] = [NSValue valueWithCGRect:CGRectMake(60, 130, 40, 40)];
-        rects[@"down"] = [NSValue valueWithCGRect:CGRectMake(60, 210, 40, 40)];
-        rects[@"left"] = [NSValue valueWithCGRect:CGRectMake(20, 170, 40, 40)];
-        rects[@"right"] = [NSValue valueWithCGRect:CGRectMake(100, 170, 40, 40)];
-        rects[@"a"] = [NSValue valueWithCGRect:CGRectMake(300, 170, 60, 60)];
-        rects[@"b"] = [NSValue valueWithCGRect:CGRectMake(225, 170, 60, 60)];
-        rects[@"start"] = [NSValue valueWithCGRect:CGRectMake(210, 350, 55, 20)];
-        rects[@"select"] = [NSValue valueWithCGRect:CGRectMake(110, 350, 55, 20)];
-    } else {
-        skin.name = @"GB/GBC Default";
-        rects[@"up"] = [NSValue valueWithCGRect:CGRectMake(50, 120, 45, 45)];
-        rects[@"down"] = [NSValue valueWithCGRect:CGRectMake(50, 200, 45, 45)];
-        rects[@"left"] = [NSValue valueWithCGRect:CGRectMake(10, 160, 45, 45)];
-        rects[@"right"] = [NSValue valueWithCGRect:CGRectMake(90, 160, 45, 45)];
-        rects[@"a"] = [NSValue valueWithCGRect:CGRectMake(290, 160, 65, 65)];
-        rects[@"b"] = [NSValue valueWithCGRect:CGRectMake(215, 160, 65, 65)];
-        rects[@"start"] = [NSValue valueWithCGRect:CGRectMake(200, 340, 60, 20)];
-        rects[@"select"] = [NSValue valueWithCGRect:CGRectMake(110, 340, 60, 20)];
-    }
+    AURControllerSkin *skin = [[AURControllerSkin alloc] init];
+    skin.name = @"3DS Default";
+
+    NSMutableDictionary *rects = [NSMutableDictionary dictionary];
+    rects[@"up"] = [NSValue valueWithCGRect:CGRectMake(50, 120, 45, 45)];
+    rects[@"down"] = [NSValue valueWithCGRect:CGRectMake(50, 200, 45, 45)];
+    rects[@"left"] = [NSValue valueWithCGRect:CGRectMake(10, 160, 45, 45)];
+    rects[@"right"] = [NSValue valueWithCGRect:CGRectMake(90, 160, 45, 45)];
+    rects[@"a"] = [NSValue valueWithCGRect:CGRectMake(290, 160, 65, 65)];
+    rects[@"b"] = [NSValue valueWithCGRect:CGRectMake(215, 160, 65, 65)];
+    rects[@"start"] = [NSValue valueWithCGRect:CGRectMake(200, 340, 60, 20)];
+    rects[@"select"] = [NSValue valueWithCGRect:CGRectMake(110, 340, 60, 20)];
 
     skin.buttonRects = rects;
     return skin;

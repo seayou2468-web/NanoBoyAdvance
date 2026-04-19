@@ -25,12 +25,6 @@
 }
 
 - (void)updateSections {
-    NSString *gbaBios = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"gba"].lastPathComponent ?: @"Required";
-    NSString *gbBios = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"gb"].lastPathComponent ?: @"Optional";
-    NSString *gbcBios = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"gbc"].lastPathComponent ?: @"Optional";
-    NSString *ndsArm9Bios = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"nds_arm9"].lastPathComponent ?: @"Required (4KB)";
-    NSString *ndsArm7Bios = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"nds_arm7"].lastPathComponent ?: @"Required (16KB)";
-    NSString *ndsFirmware = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"nds_firmware"].lastPathComponent ?: @"Optional";
     NSString *threeDsBoot9 = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"3ds_boot9"].lastPathComponent ?: @"Optional";
     NSString *threeDsBoot11 = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"3ds_boot11"].lastPathComponent ?: @"Optional";
     NSString *threeDsFirmware = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"3ds_firmware"].lastPathComponent ?: @"Optional";
@@ -38,8 +32,8 @@
     self.sections = @[
         @{@"title": @"User Interface", @"items": @[@"Appearance", @"App Icon"]},
         @{@"title": @"Core Settings (BIOS)",
-          @"items": @[@"GBA BIOS", @"GB BIOS", @"GBC BIOS", @"NDS ARM9 BIOS", @"NDS ARM7 BIOS", @"NDS Firmware", @"3DS Boot9", @"3DS Boot11", @"3DS Firmware"],
-          @"details": @[gbaBios, gbBios, gbcBios, ndsArm9Bios, ndsArm7Bios, ndsFirmware, threeDsBoot9, threeDsBoot11, threeDsFirmware]},
+          @"items": @[@"3DS Boot9", @"3DS Boot11", @"3DS Firmware"],
+          @"details": @[threeDsBoot9, threeDsBoot11, threeDsFirmware]},
         @{@"title": @"Controllers", @"items": @[@"Preferred Skins", @"Import Skin"]},
         @{@"title": @"About", @"items": @[@"Version 1.0"]}
     ];
@@ -67,7 +61,7 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     if (indexPath.section == 1) {
-        NSArray *ids = @[@"gba", @"gb", @"gbc", @"nds_arm9", @"nds_arm7", @"nds_firmware", @"3ds_boot9", @"3ds_boot11", @"3ds_firmware"];
+        NSArray *ids = @[@"3ds_boot9", @"3ds_boot11", @"3ds_firmware"];
         if (indexPath.row < ids.count) {
             self.pickingBIOSIdentifier = ids[indexPath.row];
             UIDocumentPickerViewController *picker = [[UIDocumentPickerViewController alloc] initForOpeningContentTypes:@[UTTypeData] asCopy:YES];
@@ -77,7 +71,7 @@
     } else if (indexPath.section == 2) {
         if (indexPath.row == 0) {
             AURPreferredControllerSkinsViewController *vc = [[AURPreferredControllerSkinsViewController alloc] init];
-            vc.coreType = EMULATOR_CORE_TYPE_GBA;
+            vc.coreType = EMULATOR_CORE_TYPE_3DS;
             [self.navigationController pushViewController:vc animated:YES];
         } else if (indexPath.row == 1) {
             UTType *deltaSkinType = [UTType typeWithFilenameExtension:@"deltaskin"];

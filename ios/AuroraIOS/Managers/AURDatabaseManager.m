@@ -152,12 +152,6 @@
 }
 
 - (NSNumber *)biosStorageKeyForIdentifier:(NSString *)identifier {
-    if ([identifier isEqualToString:@"nds_arm9"]) return @1001;
-    if ([identifier isEqualToString:@"nds_arm7"]) return @1002;
-    if ([identifier isEqualToString:@"nds_firmware"]) return @1003;
-    if ([identifier isEqualToString:@"gba"]) return @(EMULATOR_CORE_TYPE_GBA);
-    if ([identifier isEqualToString:@"gb"]) return @1004; // Use 1004 for GB
-    if ([identifier isEqualToString:@"gbc"]) return @1005; // Use 1005 for GBC
     if ([identifier isEqualToString:@"3ds_boot9"]) return @2001;
     if ([identifier isEqualToString:@"3ds_boot11"]) return @2002;
     if ([identifier isEqualToString:@"3ds_firmware"]) return @2003;
@@ -185,25 +179,24 @@
 }
 
 - (void)setBIOSURL:(NSURL *)url forCoreType:(EmulatorCoreType)coreType {
-    // Legacy support
-    NSString *identifier = @"gb";
-    if (coreType == EMULATOR_CORE_TYPE_GBA) identifier = @"gba";
-    else if (coreType == EMULATOR_CORE_TYPE_3DS) identifier = @"3ds_boot9";
-    [self setBIOSURL:url forIdentifier:identifier];
+    if (coreType != EMULATOR_CORE_TYPE_3DS) {
+        return;
+    }
+    [self setBIOSURL:url forIdentifier:@"3ds_boot9"];
 }
 
 - (void)setBIOSPath:(NSString *)path forCoreType:(EmulatorCoreType)coreType {
-    NSString *identifier = @"gb";
-    if (coreType == EMULATOR_CORE_TYPE_GBA) identifier = @"gba";
-    else if (coreType == EMULATOR_CORE_TYPE_3DS) identifier = @"3ds_boot9";
-    [self setBIOSPath:path forIdentifier:identifier];
+    if (coreType != EMULATOR_CORE_TYPE_3DS) {
+        return;
+    }
+    [self setBIOSPath:path forIdentifier:@"3ds_boot9"];
 }
 
 - (NSString *)BIOSPathForCoreType:(EmulatorCoreType)coreType {
-    NSString *identifier = @"gb";
-    if (coreType == EMULATOR_CORE_TYPE_GBA) identifier = @"gba";
-    else if (coreType == EMULATOR_CORE_TYPE_3DS) identifier = @"3ds_boot9";
-    return [self BIOSPathForIdentifier:identifier];
+    if (coreType != EMULATOR_CORE_TYPE_3DS) {
+        return nil;
+    }
+    return [self BIOSPathForIdentifier:@"3ds_boot9"];
 }
 
 @end

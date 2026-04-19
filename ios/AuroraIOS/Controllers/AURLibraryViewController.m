@@ -14,22 +14,6 @@ static BOOL AURCoreTypeForExtension(NSString *ext, EmulatorCoreType *outType) {
         return NO;
     }
     NSString *lower = ext.lowercaseString;
-    if ([lower isEqualToString:@"gba"]) {
-        *outType = EMULATOR_CORE_TYPE_GBA;
-        return YES;
-    }
-    if ([lower isEqualToString:@"nes"]) {
-        *outType = EMULATOR_CORE_TYPE_NES;
-        return YES;
-    }
-    if ([lower isEqualToString:@"gb"] || [lower isEqualToString:@"gbc"]) {
-        *outType = EMULATOR_CORE_TYPE_GB;
-        return YES;
-    }
-    if ([lower isEqualToString:@"nds"]) {
-        *outType = EMULATOR_CORE_TYPE_NDS;
-        return YES;
-    }
     if ([lower isEqualToString:@"3ds"] || [lower isEqualToString:@"cci"] || [lower isEqualToString:@"cxi"] ||
         [lower isEqualToString:@"cia"] || [lower isEqualToString:@"3dsx"] || [lower isEqualToString:@"app"] ||
         [lower isEqualToString:@"elf"] || [lower isEqualToString:@"axf"] || [lower isEqualToString:@"bin"]) {
@@ -79,7 +63,7 @@ static BOOL AURCoreTypeForExtension(NSString *ext, EmulatorCoreType *outType) {
     // ... (rest of the setup)
 
     // Setup Segmented Control for Systems (Glassmorphic)
-    self.segmentedControl = [[UISegmentedControl alloc] initWithItems:@[@"GBA", @"GBC", @"GB", @"NES", @"NDS", @"3DS"]];
+    self.segmentedControl = [[UISegmentedControl alloc] initWithItems:@[@"3DS"]];
     self.segmentedControl.selectedSegmentIndex = 0;
     [self.segmentedControl addTarget:self action:@selector(segmentChanged:) forControlEvents:UIControlEventValueChanged];
     self.navigationItem.titleView = self.segmentedControl;
@@ -141,16 +125,7 @@ static BOOL AURCoreTypeForExtension(NSString *ext, EmulatorCoreType *outType) {
 }
 
 - (void)reloadData {
-    EmulatorCoreType type;
-    switch (self.segmentedControl.selectedSegmentIndex) {
-        case 0: type = EMULATOR_CORE_TYPE_GBA; break;
-        case 1: type = EMULATOR_CORE_TYPE_GB; break;
-        case 2: type = EMULATOR_CORE_TYPE_GB; break; // Actually GB
-        case 3: type = EMULATOR_CORE_TYPE_NES; break;
-        case 4: type = EMULATOR_CORE_TYPE_NDS; break;
-        case 5: type = EMULATOR_CORE_TYPE_3DS; break;
-        default: type = EMULATOR_CORE_TYPE_GBA; break;
-    }
+    EmulatorCoreType type = EMULATOR_CORE_TYPE_3DS;
     self.games = [[AURDatabaseManager sharedManager] gamesForCoreType:type];
     [self.collectionView reloadData];
 }
@@ -176,7 +151,7 @@ static BOOL AURCoreTypeForExtension(NSString *ext, EmulatorCoreType *outType) {
         NSString *ext = [[url pathExtension] lowercaseString];
         if ([ext isEqualToString:@"zip"]) {
             NSURL *extractedURL = nil;
-            EmulatorCoreType extractedType = EMULATOR_CORE_TYPE_GB;
+            EmulatorCoreType extractedType = EMULATOR_CORE_TYPE_3DS;
             NSString *extractedTitle = nil;
             if ([self extractFirstROMFromZipURL:url extractedURL:&extractedURL coreType:&extractedType title:&extractedTitle]) {
                 game.romPath = extractedURL.path;
@@ -186,9 +161,9 @@ static BOOL AURCoreTypeForExtension(NSString *ext, EmulatorCoreType *outType) {
                 return;
             }
         } else {
-            EmulatorCoreType detectedType = EMULATOR_CORE_TYPE_GB;
+            EmulatorCoreType detectedType = EMULATOR_CORE_TYPE_3DS;
             if (!AURCoreTypeForExtension(ext, &detectedType)) {
-                detectedType = EMULATOR_CORE_TYPE_GB;
+                detectedType = EMULATOR_CORE_TYPE_3DS;
             }
             game.coreType = detectedType;
             game.romPath = [url path];
@@ -245,7 +220,7 @@ static BOOL AURCoreTypeForExtension(NSString *ext, EmulatorCoreType *outType) {
 
         NSString *entryFileName = entryName.lastPathComponent;
         NSString *entryExt = entryFileName.pathExtension.lowercaseString;
-        EmulatorCoreType type = EMULATOR_CORE_TYPE_GB;
+        EmulatorCoreType type = EMULATOR_CORE_TYPE_3DS;
         if (!AURCoreTypeForExtension(entryExt, &type)) {
             continue;
         }
