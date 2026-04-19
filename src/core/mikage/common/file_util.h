@@ -190,6 +190,8 @@ public:
 
 	std::FILE* GetHandle() { return m_file; }
 
+	std::string Filename() const { return ""; }
+
 	void SetHandle(std::FILE* file);
 
 	bool Seek(s64 off, int origin);

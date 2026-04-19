@@ -16,6 +16,13 @@ class KernelSystem;
 namespace Service::SM {
 class ServiceManager;
 }
+namespace Loader {
+enum class ResultStatus;
+class AppLoaderShim {
+public:
+    ResultStatus ReadProgramId(u64&);
+};
+}
 
 namespace Core {
 
@@ -43,6 +50,7 @@ public:
     Movie& Movie();
     ::Kernel::KernelSystem& Kernel();
     ::Service::SM::ServiceManager& ServiceManager();
+    ::Loader::AppLoaderShim& GetAppLoader();
 
     PerfStats* perf_stats{};
 };

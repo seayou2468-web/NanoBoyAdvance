@@ -10,6 +10,8 @@
 #include "../../../../common/logging/log.h"
 #include "../../../../common/secure_random.h"
 #include "../../../core.h"
+#include "../../applets/mii_selector.h"
+#include "../../kernel/event.h"
 #include "../../kernel/shared_page.h"
 #include "amiibo_crypto.h"
 #include "nfc_device.h"
@@ -73,7 +75,7 @@ bool NfcDevice::LoadAmiibo(std::string filename) {
 
     if (!amiibo_file.ReadBytes(&tag.file, sizeof(tag.file))) {
         LOG_ERROR(Service_NFC, "Could not read amiibo data from file \"{}\"", filename);
-        tag.file = {};
+        std::memset(&tag.file, 0, sizeof(tag.file));
         return false;
     }
 
@@ -100,7 +102,7 @@ bool NfcDevice::LoadAmiibo(std::string filename) {
     if (!HW::AES::NfcSecretsAvailable()) {
         LOG_INFO(Service_NFC, "Loading amiibo without keys");
         memcpy(&encrypted_tag.raw, &tag.raw, sizeof(EncryptedNTAG215File));
-        tag.file = {};
+        std::memset(&tag.file, 0, sizeof(tag.file));
         BuildAmiiboWithoutKeys();
         is_plain_amiibo = true;
         is_write_protected = true;
@@ -109,7 +111,7 @@ bool NfcDevice::LoadAmiibo(std::string filename) {
 
     LOG_INFO(Service_NFC, "Loading amiibo with keys");
     memcpy(&encrypted_tag.raw, &tag.raw, sizeof(EncryptedNTAG215File));
-    tag.file = {};
+    std::memset(&tag.file, 0, sizeof(tag.file));
     return true;
 }
 
@@ -133,8 +135,8 @@ void NfcDevice::CloseAmiibo() {
     }
 
     device_state = DeviceState::TagRemoved;
-    encrypted_tag.file = {};
-    tag.file = {};
+    std::memset(&encrypted_tag.file, 0, sizeof(encrypted_tag.file));
+    std::memset(&tag.file, 0, sizeof(tag.file));
     tag_in_range_event->Clear();
     tag_out_of_range_event->Signal();
 }
@@ -149,8 +151,8 @@ std::shared_ptr<Kernel::Event> NfcDevice::GetDeactivateEvent() const {
 
 void NfcDevice::Initialize() {
     device_state = DeviceState::Initialized;
-    encrypted_tag.file = {};
-    tag.file = {};
+    std::memset(&encrypted_tag.file, 0, sizeof(encrypted_tag.file));
+    std::memset(&tag.file, 0, sizeof(tag.file));
     is_initalized = true;
 }
 
@@ -568,7 +570,7 @@ Result NfcDevice::GetAdminInfo(AdminInfo& admin_info) const {
     u32 application_area_id = 0;
     AppAreaVersion app_area_version = AppAreaVersion::NotSet;
     if (tag.file.settings.settings.appdata_initialized != 0) {
-        application_id = tag.file.application_id;
+        application_id = tag.file.application_id.swap();
         app_area_version =
             static_cast<AppAreaVersion>(application_id >> application_id_version_offset & 0xf);
 
@@ -1095,7 +1097,7 @@ void NfcDevice::BuildAmiiboWithoutKeys() {
 
 void NfcDevice::RescheduleTagRemoveEvent() {
     /// The interval at which the amiibo will be removed automatically 3s
-    static constexpr u64 amiibo_removal_interval = msToCycles(3 * 1000);
+    const u64 amiibo_removal_interval = msToCycles(3 * 1000);
 
     system.CoreTiming().UnscheduleEvent(remove_amiibo_event, 0);
 

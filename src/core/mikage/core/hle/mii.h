@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include <cstring>
 #include "../../common/bit_field.h"
 #include "../../common/common_types.h"
 #include "../../common/serialization/boost_all_serialization.h"
@@ -16,10 +15,6 @@ using Nickname = std::array<char16_t, 10>;
 #pragma pack(push, 1)
 // Reference: https://github.com/devkitPro/libctru/blob/master/libctru/include/3ds/mii.h
 struct MiiData {
-    MiiData() {
-        std::memset(this, 0, sizeof(*this));
-    }
-
     u8 version; ///< Always 3?
 
     /// Mii options
@@ -56,7 +51,7 @@ struct MiiData {
 
     /// Mii details
     union {
-        u16_be raw;
+        u16 raw;
 
         BitField<0, 1, u16> gender;          ///< Gender of Mii (0=Male, 1=Female)
         BitField<1, 4, u16> bday_month;      ///< Month of Mii's birthday
@@ -98,7 +93,7 @@ struct MiiData {
 
     /// Eye details
     union {
-        u32_be raw;
+        u32 raw;
 
         BitField<0, 6, u32> type;
         BitField<6, 3, u32> color;
@@ -111,7 +106,7 @@ struct MiiData {
 
     /// Eyebrow details
     union {
-        u32_be raw;
+        u32 raw;
 
         BitField<0, 5, u32> style;
         BitField<5, 3, u32> color;
@@ -124,7 +119,7 @@ struct MiiData {
 
     /// Nose details
     union {
-        u16_be raw;
+        u16 raw;
 
         BitField<0, 5, u16> type;
         BitField<5, 4, u16> scale;
@@ -133,7 +128,7 @@ struct MiiData {
 
     /// Mouth details
     union {
-        u16_be raw;
+        u16 raw;
 
         BitField<0, 6, u16> type;
         BitField<6, 3, u16> color;
@@ -143,7 +138,7 @@ struct MiiData {
 
     /// Mustache details
     union {
-        u16_be raw;
+        u16 raw;
 
         BitField<0, 5, u16> mouth_y;
         BitField<5, 3, u16> mustache_type;
@@ -151,7 +146,7 @@ struct MiiData {
 
     /// Beard details
     union {
-        u16_be raw;
+        u16 raw;
 
         BitField<0, 3, u16> type;
         BitField<3, 3, u16> color;
@@ -161,7 +156,7 @@ struct MiiData {
 
     /// Glasses details
     union {
-        u16_be raw;
+        u16 raw;
 
         BitField<0, 4, u16> type;
         BitField<4, 3, u16> color;
@@ -171,7 +166,7 @@ struct MiiData {
 
     /// Mole details
     union {
-        u16_be raw;
+        u16 raw;
 
         BitField<0, 1, u16> type;
         BitField<1, 4, u16> scale;
@@ -190,10 +185,6 @@ static_assert(sizeof(MiiData) == 0x5C, "MiiData structure has incorrect size");
 static_assert(std::is_trivially_copyable_v<MiiData>, "MiiData must be trivially copyable.");
 
 struct ChecksummedMiiData {
-    ChecksummedMiiData() {
-        std::memset(this, 0, sizeof(*this));
-    }
-
 private:
     MiiData mii_data;
     u16 padding;
