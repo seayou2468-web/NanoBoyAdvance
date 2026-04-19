@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <memory>
 #include "./arm/arm_interface.h"
 #include "./arm/interpreter/armdefs.h"
 
@@ -12,12 +13,27 @@
 namespace Kernel {
 class KernelSystem;
 }
+namespace Service::SM {
+class ServiceManager;
+}
 
 namespace Core {
 
+struct TimingEventType;
 class Timing;
 class Movie;
 class PerfStats;
+
+class Timing {
+public:
+    u64 GetTicks() const;
+    template <typename Callback>
+    TimingEventType* RegisterEvent(const char*, Callback&&) {
+        return nullptr;
+    }
+    void ScheduleEvent(s64 cycles_into_future, TimingEventType* event_type, u64 userdata = 0);
+    void UnscheduleEvent(TimingEventType* event_type, u64 userdata);
+};
 
 class System { // Cytrus CPU migration shim declaration.
 public:
@@ -26,6 +42,7 @@ public:
     Timing& CoreTiming();
     Movie& Movie();
     ::Kernel::KernelSystem& Kernel();
+    ::Service::SM::ServiceManager& ServiceManager();
 
     PerfStats* perf_stats{};
 };

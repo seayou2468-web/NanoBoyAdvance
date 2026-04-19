@@ -34,6 +34,7 @@ struct ValuesSettings {
         bool use_touch_from_button = false;
     } current_input_profile{};
     ScalarSetting factor_3d{};
+    ScalarSetting volume{};
 };
 
 namespace NativeButton {

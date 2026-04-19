@@ -21,6 +21,7 @@
 #include "../ir/ir_user.h"
 #include "../service.h"
 #include "../../../movie.h"
+#include "../../../perf_stats.h"
 #include "../../../../common/serialization/boost_all_serialization.h"
 
 SERVICE_CONSTRUCT_IMPL(Service::HID::Module)
@@ -660,11 +661,15 @@ Module::Module(Core::System& system) : system(system) {
             .Unwrap();
 
     // Create event handles
-    event_pad_or_touch_1 = system.Kernel().CreateEvent(ResetType::OneShot, "HID:EventPadOrTouch1");
-    event_pad_or_touch_2 = system.Kernel().CreateEvent(ResetType::OneShot, "HID:EventPadOrTouch2");
-    event_accelerometer = system.Kernel().CreateEvent(ResetType::OneShot, "HID:EventAccelerometer");
-    event_gyroscope = system.Kernel().CreateEvent(ResetType::OneShot, "HID:EventGyroscope");
-    event_debug_pad = system.Kernel().CreateEvent(ResetType::OneShot, "HID:EventDebugPad");
+    event_pad_or_touch_1 =
+        system.Kernel().CreateEvent(Kernel::ResetType::OneShot, "HID:EventPadOrTouch1");
+    event_pad_or_touch_2 =
+        system.Kernel().CreateEvent(Kernel::ResetType::OneShot, "HID:EventPadOrTouch2");
+    event_accelerometer =
+        system.Kernel().CreateEvent(Kernel::ResetType::OneShot, "HID:EventAccelerometer");
+    event_gyroscope =
+        system.Kernel().CreateEvent(Kernel::ResetType::OneShot, "HID:EventGyroscope");
+    event_debug_pad = system.Kernel().CreateEvent(Kernel::ResetType::OneShot, "HID:EventDebugPad");
 
     // Register update callbacks
     Core::Timing& timing = system.CoreTiming();
