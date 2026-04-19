@@ -41,8 +41,14 @@ C_FLAGS=(
   "${COMMON_INCLUDES[@]}"
 )
 
-mapfile -t SOURCES < <(find src/core/mikage -type f \( -name '*.cpp' -o -name '*.cc' -o -name '*.c' \) \
-  ! -path 'src/core/mikage/reference/*' | sort)
+# 🔥 Bash 3.2対応版（mapfile排除）
+SOURCES=()
+while IFS= read -r src; do
+  SOURCES+=("$src")
+done < <(
+  find src/core/mikage -type f \( -name '*.cpp' -o -name '*.cc' -o -name '*.c' \) \
+    ! -path 'src/core/mikage/reference/*' | sort
+)
 
 if [[ ${#SOURCES[@]} -eq 0 ]]; then
   echo "No Mikage sources found" >&2
