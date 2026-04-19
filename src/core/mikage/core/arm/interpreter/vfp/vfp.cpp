@@ -28,6 +28,11 @@
 #include "../armdefs.h"
 #include "vfp.h"
 
+#ifdef BIT
+#undef BIT
+#endif
+#define BIT(s, n) (((s) >> (n)) & 1)
+
 //ARMul_State* persistent_state; /* function calls from SoftFloat lib don't have an access to ARMul_state. */
 
 unsigned

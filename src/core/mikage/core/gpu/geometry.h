@@ -14,10 +14,46 @@ namespace Geometry {
 // Simple Math Types (to avoid external dependencies)
 // ============================================================================
 
-struct Vec2 { f32 x, y; };
+struct Vec2 {
+    f32 x = 0.0f;
+    f32 y = 0.0f;
+    constexpr Vec2() = default;
+    constexpr Vec2(f32 x_, f32 y_) : x(x_), y(y_) {}
+};
 struct Vec3 { f32 x, y, z; };
-struct Vec4 { f32 x, y, z, w; };
+struct Vec4 {
+    f32 x = 0.0f;
+    f32 y = 0.0f;
+    f32 z = 0.0f;
+    f32 w = 0.0f;
+    constexpr Vec4() = default;
+    constexpr Vec4(f32 x_, f32 y_, f32 z_, f32 w_) : x(x_), y(y_), z(z_), w(w_) {}
+};
 struct Mat44 { f32 m[16]; };
+
+inline constexpr Vec2 operator+(const Vec2& lhs, const Vec2& rhs) {
+    return Vec2{lhs.x + rhs.x, lhs.y + rhs.y};
+}
+
+inline constexpr Vec2 operator*(const Vec2& lhs, f32 rhs) {
+    return Vec2{lhs.x * rhs, lhs.y * rhs};
+}
+
+inline constexpr Vec2 operator*(f32 lhs, const Vec2& rhs) {
+    return rhs * lhs;
+}
+
+inline constexpr Vec4 operator+(const Vec4& lhs, const Vec4& rhs) {
+    return Vec4{lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z, lhs.w + rhs.w};
+}
+
+inline constexpr Vec4 operator*(const Vec4& lhs, f32 rhs) {
+    return Vec4{lhs.x * rhs, lhs.y * rhs, lhs.z * rhs, lhs.w * rhs};
+}
+
+inline constexpr Vec4 operator*(f32 lhs, const Vec4& rhs) {
+    return rhs * lhs;
+}
 
 // ============================================================================
 // Vertex Formats (3DS)
@@ -132,4 +168,9 @@ private:
 };
 
 } // namespace Geometry
+
+using Vec2 = Geometry::Vec2;
+using Vec3 = Geometry::Vec3;
+using Vec4 = Geometry::Vec4;
+using Mat44 = Geometry::Mat44;
 } // namespace GPU

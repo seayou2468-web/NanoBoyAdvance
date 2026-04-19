@@ -12,3 +12,10 @@
 #define LOG_WARNING(category, ...) do {} while (0)
 #define LOG_ERROR(category, ...) do {} while (0)
 #define LOG_CRITICAL(category, ...) do {} while (0)
+
+#ifndef OS_LOG_TYPE_DEFAULT
+#define OS_LOG_TYPE_DEFAULT 0
+#endif
+#ifndef OS_LOG_TYPE_WARNING
+#define OS_LOG_TYPE_WARNING OS_LOG_TYPE_DEFAULT
+#endif

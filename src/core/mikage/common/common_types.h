@@ -37,6 +37,8 @@ typedef int8_t          s8;     ///< 8-bit signed byte
 typedef int16_t         s16;    ///< 16-bit signed short
 typedef int32_t         s32;    ///< 32-bit signed word
 typedef int64_t         s64;    ///< 64-bit signed int
+typedef int32_t         i32;
+typedef int64_t         i64;
 
 // For using windows lock code
 #define TCHAR char

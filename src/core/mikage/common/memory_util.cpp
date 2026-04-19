@@ -7,12 +7,8 @@
 #include "memory_util.h"
 #include "string_util.h"
 
-#ifdef _WIN32
-#include <psapi.h>
-#else
 #include <errno.h>
 #include <stdio.h>
-#endif
 
 #if !defined(_WIN32) && defined(__aarch64__) && !defined(MAP_32BIT)
 #define PAGE_MASK     (getpagesize() - 1)
@@ -24,9 +20,6 @@
 
 void* AllocateExecutableMemory(size_t size, bool low)
 {
-#if defined(_WIN32)
-    void* ptr = VirtualAlloc(0, size, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
-#else
     static char *map_hint = 0;
 #if defined(__aarch64__) && !defined(MAP_32BIT)
     // This OS has no flag to enforce allocation below the 4 GB boundary,
@@ -44,7 +37,6 @@ void* AllocateExecutableMemory(size_t size, bool low)
         | (low ? MAP_32BIT : 0)
 #endif
         , -1, 0);
-#endif /* defined(_WIN32) */
 
     // printf("Mapped executable memory at %p (size %ld)\n", ptr,
     //    (unsigned long)size);
@@ -59,7 +51,7 @@ void* AllocateExecutableMemory(size_t size, bool low)
 #endif    
         PanicAlert("Failed to allocate executable memory");
     }
-#if !defined(_WIN32) && defined(__aarch64__) && !defined(MAP_32BIT)
+#if defined(__aarch64__) && !defined(MAP_32BIT)
     else
     {
         if (low)
@@ -81,12 +73,8 @@ void* AllocateExecutableMemory(size_t size, bool low)
 
 void* AllocateMemoryPages(size_t size)
 {
-#ifdef _WIN32
-    void* ptr = VirtualAlloc(0, size, MEM_COMMIT, PAGE_READWRITE);
-#else
     void* ptr = mmap(0, size, PROT_READ | PROT_WRITE,
             MAP_ANON | MAP_PRIVATE, -1, 0);
-#endif
 
     // printf("Mapped memory at %p (size %ld)\n", ptr,
     //    (unsigned long)size);
@@ -99,16 +87,12 @@ void* AllocateMemoryPages(size_t size)
 
 void* AllocateAlignedMemory(size_t size,size_t alignment)
 {
-#ifdef _WIN32
-    void* ptr =  _aligned_malloc(size,alignment);
-#else
     void* ptr = NULL;
 #ifdef ANDROID
     ptr = memalign(alignment, size);
 #else
     if (posix_memalign(&ptr, alignment, size) != 0)
         ERROR_LOG(MEMMAP, "Failed to allocate aligned memory");
-#endif
 #endif
 
     // printf("Mapped memory at %p (size %ld)\n", ptr,
@@ -124,15 +108,7 @@ void FreeMemoryPages(void* ptr, size_t size)
 {
     if (ptr)
     {
-#ifdef _WIN32
-    
-        if (!VirtualFree(ptr, 0, MEM_RELEASE))
-            PanicAlert("FreeMemoryPages failed!\n%s", GetLastErrorMsg());
-        ptr = NULL; // Is this our responsibility?
-    
-#else
         munmap(ptr, size);
-#endif
     }
 }
 
@@ -140,56 +116,21 @@ void FreeAlignedMemory(void* ptr)
 {
     if (ptr)
     {
-#ifdef _WIN32
-    _aligned_free(ptr);
-#else
-    free(ptr);
-#endif
+        free(ptr);
     }
 }
 
 void WriteProtectMemory(void* ptr, size_t size, bool allowExecute)
 {
-#ifdef _WIN32
-    DWORD oldValue;
-    if (!VirtualProtect(ptr, size, allowExecute ? PAGE_EXECUTE_READ : PAGE_READONLY, &oldValue))
-        PanicAlert("WriteProtectMemory failed!\n%s", GetLastErrorMsg());
-#else
     mprotect(ptr, size, allowExecute ? (PROT_READ | PROT_EXEC) : PROT_READ);
-#endif
 }
 
 void UnWriteProtectMemory(void* ptr, size_t size, bool allowExecute)
 {
-#ifdef _WIN32
-    DWORD oldValue;
-    if (!VirtualProtect(ptr, size, allowExecute ? PAGE_EXECUTE_READWRITE : PAGE_READWRITE, &oldValue))
-        PanicAlert("UnWriteProtectMemory failed!\n%s", GetLastErrorMsg());
-#else
     mprotect(ptr, size, allowExecute ? (PROT_READ | PROT_WRITE | PROT_EXEC) : PROT_WRITE | PROT_READ);
-#endif
 }
 
 std::string MemUsage()
 {
-#ifdef _WIN32
-#pragma comment(lib, "psapi")
-    DWORD processID = GetCurrentProcessId();
-    HANDLE hProcess;
-    PROCESS_MEMORY_COUNTERS pmc;
-    std::string Ret;
-
-    // Print information about the memory usage of the process.
-
-    hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, processID);
-    if (NULL == hProcess) return "MemUsage Error";
-
-    if (GetProcessMemoryInfo(hProcess, &pmc, sizeof(pmc)))
-        Ret = StringFromFormat("%s K", ThousandSeparate(pmc.WorkingSetSize / 1024, 7).c_str());
-
-    CloseHandle(hProcess);
-    return Ret;
-#else
     return "";
-#endif
 }

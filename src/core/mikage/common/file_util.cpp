@@ -104,20 +104,11 @@ bool Delete(const std::string &filename)
         return false;
     }
 
-#ifdef _WIN32
-    if (!DeleteFile(UTF8ToTStr(filename).c_str()))
-    {
-        WARN_LOG(COMMON, "Delete: DeleteFile failed on %s: %s", 
-                 filename.c_str(), GetLastErrorMsg());
-        return false;
-    }
-#else
     if (unlink(filename.c_str()) == -1) {
         WARN_LOG(COMMON, "Delete: unlink failed on %s: %s", 
                  filename.c_str(), GetLastErrorMsg());
         return false;
     }
-#endif
 
     return true;
 }
@@ -126,18 +117,6 @@ bool Delete(const std::string &filename)
 bool CreateDir(const std::string &path)
 {
     INFO_LOG(COMMON, "CreateDir: directory %s", path.c_str());
-#ifdef _WIN32
-    if (::CreateDirectory(UTF8ToTStr(path).c_str(), NULL))
-        return true;
-    DWORD error = GetLastError();
-    if (error == ERROR_ALREADY_EXISTS)
-    {
-        WARN_LOG(COMMON, "CreateDir: CreateDirectory failed on %s: already exists", path.c_str());
-        return true;
-    }
-    ERROR_LOG(COMMON, "CreateDir: CreateDirectory failed on %s: %i", path.c_str(), error);
-    return false;
-#else
     if (mkdir(path.c_str(), 0755) == 0)
         return true;
 
@@ -151,7 +130,6 @@ bool CreateDir(const std::string &path)
 
     ERROR_LOG(COMMON, "CreateDir: mkdir failed on %s: %s", path.c_str(), strerror(err));
     return false;
-#endif
 }
 
 // Creates the full path of fullPath returns true on success
@@ -205,13 +183,8 @@ bool DeleteDir(const std::string &filename)
         return false;
     }
 
-#ifdef _WIN32
-    if (::RemoveDirectory(UTF8ToTStr(filename).c_str()))
-        return true;
-#else
     if (rmdir(filename.c_str()) == 0)
         return true;
-#endif
     ERROR_LOG(COMMON, "DeleteDir: %s: %s", filename.c_str(), GetLastErrorMsg());
 
     return false;

@@ -1,22 +1,16 @@
-// -----------------------------------------------------------------------------------------
-//
-// iOS-compatible stub for extended trace functionality
-// Original Windows-specific implementation removed
-//
-// -----------------------------------------------------------------------------------------
+#pragma once
 
-#ifndef _EXTENDEDTRACE_H_INCLUDED_
-#define _EXTENDEDTRACE_H_INCLUDED_
-
-#include <string>
 #include <cstdio>
+#include <string>
 
-// iOS-compatible no-op macros for stack trace
-#define EXTENDEDTRACEINITIALIZE(IniSymbolPath)      ((void)0)
-#define EXTENDEDTRACEUNINITIALIZE()                 ((void)0)
-#define STACKTRACE(file)                            ((void)0)
-#define STACKTRACE2(file, eip, esp, ebp)            ((void)0)
+void etfprintf(FILE* file, const char* format, ...);
+void etfprint(FILE* file, const std::string& text);
 
-#endif    // WIN32
+bool InitSymInfo(const char* initial_symbol_path);
+bool UninitSymInfo();
+void StackTrace();
 
-#endif    // _EXTENDEDTRACE_H_INCLUDED_
+#define EXTENDEDTRACEINITIALIZE(IniSymbolPath) ((void)InitSymInfo(IniSymbolPath))
+#define EXTENDEDTRACEUNINITIALIZE() ((void)UninitSymInfo())
+#define STACKTRACE(file) ((void)0)
+#define STACKTRACE2(file, eip, esp, ebp) ((void)0)
