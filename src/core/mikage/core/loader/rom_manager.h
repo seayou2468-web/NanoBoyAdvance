@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "../common/common_types.h"
-#include "loader/ncch.h"
+#include "../../common/common_types.h"
+#include "ncch.h"
 #include <string>
 #include <memory>
 
@@ -28,6 +28,20 @@ enum class ROMFormat {
 // ============================================================================
 // ROM Manager
 // ============================================================================
+
+
+class NCCHLoader {
+public:
+    bool LoadROM(const std::string& filename);
+    u32 GetEntryPoint() const;
+    const std::string& GetProgramName() const;
+    bool LoadIntoMemory(u8* memory, u32 memory_size) const;
+
+private:
+    std::string rom_path;
+    std::string program_name{"Unknown"};
+    u32 entry_point = 0;
+};
 
 class ROMManager {
 public:

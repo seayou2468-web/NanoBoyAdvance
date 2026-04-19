@@ -3,7 +3,7 @@
 // Refer to the license.txt file included.
 
 #include "rom_manager.h"
-#include "../common/log.h"
+#include "../../common/log.h"
 #include <fstream>
 #include <cstring>
 
@@ -12,6 +12,43 @@ namespace Loader {
 // ============================================================================
 // ROM Manager Implementation
 // ============================================================================
+
+
+bool NCCHLoader::LoadROM(const std::string& filename) {
+    std::ifstream file(filename, std::ios::binary);
+    if (!file) {
+        ERROR_LOG(LOADER, "Cannot open NCCH file: %s", filename.c_str());
+        return false;
+    }
+
+    rom_path = filename;
+    const auto slash = filename.find_last_of("/\\");
+    program_name = (slash == std::string::npos) ? filename : filename.substr(slash + 1);
+    entry_point = 0;
+    return true;
+}
+
+u32 NCCHLoader::GetEntryPoint() const {
+    return entry_point;
+}
+
+const std::string& NCCHLoader::GetProgramName() const {
+    return program_name;
+}
+
+bool NCCHLoader::LoadIntoMemory(u8* memory, u32 memory_size) const {
+    if (!memory || memory_size == 0 || rom_path.empty()) {
+        return false;
+    }
+
+    std::ifstream file(rom_path, std::ios::binary);
+    if (!file) {
+        return false;
+    }
+
+    file.read(reinterpret_cast<char*>(memory), static_cast<std::streamsize>(memory_size));
+    return file.good() || file.eof();
+}
 
 ROMManager::ROMManager() 
     : current_format(ROMFormat::Unknown) {
