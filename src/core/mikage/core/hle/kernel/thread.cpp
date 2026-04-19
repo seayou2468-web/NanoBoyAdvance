@@ -29,6 +29,8 @@ SERIALIZE_EXPORT_IMPL(Kernel::WakeupCallback)
 
 namespace Kernel {
 
+const u64 CpuLimiterMulti::base_tick_interval = nsToCycles(2'000'000);
+
 template <class Archive>
 void ThreadManager::serialize(Archive& ar, const unsigned int) {
     ar & current_thread;
@@ -363,11 +365,11 @@ void ThreadManager::DebugThreadQueue() {
  * @param entry_point Address of entry point for execution
  * @param arg User argument for thread
  */
-static void ResetThreadContext(Core::ARM_Interface::ThreadContext& context, u32 stack_top,
+static void ResetThreadContext(ThreadContext& context, u32 stack_top,
                                u32 entry_point, u32 arg) {
     context.cpu_registers[0] = arg;
-    context.SetProgramCounter(entry_point);
-    context.SetStackPointer(stack_top);
+    context.SetPC(entry_point);
+    context.SetR13(stack_top);
     context.cpsr = USER32MODE | ((entry_point & 1) << 5); // Usermode and THUMB mode
 }
 

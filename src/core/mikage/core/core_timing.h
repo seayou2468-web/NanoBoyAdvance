@@ -51,8 +51,16 @@ inline s64 usToCycles(u64 us) {
     return (s64)(g_clock_rate_arm11 / 1000000 * us);
 }
 
+inline s64 nsToCycles(s64 ns) {
+    return (g_clock_rate_arm11 / 1000000000LL) * ns;
+}
+
 inline s64 cyclesToUs(s64 cycles) {
     return cycles / (g_clock_rate_arm11 / 1000000);
+}
+
+namespace Core {
+struct TimingEventType {};
 }
 
 namespace CoreTiming {

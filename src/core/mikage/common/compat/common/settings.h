@@ -14,8 +14,13 @@ struct EmuSettings {
     int cpu_core_count = 2;
 };
 
+struct ValuesSettings {
+    bool deterministic_async_operations = false;
+};
+
 // Global settings instance
 static EmuSettings g_settings;
+static ValuesSettings values;
 
 // Helper functions
 inline bool IsBigEndian() {

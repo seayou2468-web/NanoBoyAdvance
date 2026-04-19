@@ -8,10 +8,10 @@
 
 namespace Common {
 
-template<class IdType>
+template<class IdType, int NumQueues = 128>
 struct ThreadQueueList {
     // Number of queues (number of priority levels starting at 0.)
-    static const int NUM_QUEUES = 128;
+    static const int NUM_QUEUES = NumQueues;
     
     // Initial number of threads a single queue can handle.
     static const int INITIAL_CAPACITY = 32;
@@ -43,7 +43,7 @@ struct ThreadQueueList {
     }
 
     // Only for debugging, returns priority level.
-    int contains(const IdType uid) {
+    u32 contains(const IdType uid) {
         for (int i = 0; i < NUM_QUEUES; ++i)
         {
             if (queues[i].data == NULL)
@@ -57,33 +57,32 @@ struct ThreadQueueList {
             }
         }
 
-        return -1;
+        return UINT32_MAX;
     }
 
-    inline IdType pop_first() {
+    inline std::pair<u32, IdType> pop_first() {
         Queue *cur = first;
-        while (cur != invalid())
-        {
-            if (cur->end - cur->first > 0)
-                return cur->data[cur->first++];
+        for (u32 priority = 0; cur != invalid(); ++priority) {
+            if (cur->end - cur->first > 0) {
+                return {priority, cur->data[cur->first++]};
+            }
             cur = cur->next;
         }
 
-        //_dbg_assert_msg_(SCEKERNEL, false, "ThreadQueueList should not be empty.");
-        return 0;
+        return {UINT32_MAX, IdType{}};
     }
 
-    inline IdType pop_first_better(u32 priority) {
+    inline std::pair<u32, IdType> pop_first_better(u32 priority) {
         Queue *cur = first;
         Queue *stop = &queues[priority];
-        while (cur < stop)
-        {
-            if (cur->end - cur->first > 0)
-                return cur->data[cur->first++];
+        for (u32 current_priority = 0; cur < stop; ++current_priority) {
+            if (cur->end - cur->first > 0) {
+                return {current_priority, cur->data[cur->first++]};
+            }
             cur = cur->next;
         }
 
-        return 0;
+        return {UINT32_MAX, IdType{}};
     }
 
     inline void push_front(u32 priority, const IdType threadID) {
@@ -128,6 +127,15 @@ struct ThreadQueueList {
             if (cur->end == cur->capacity)
                 rebalance(priority);
         }
+    }
+
+    inline void move(const IdType threadID, u32 old_priority, u32 new_priority) {
+        if (old_priority == new_priority) {
+            return;
+        }
+        remove(old_priority, threadID);
+        prepare(new_priority);
+        push_back(new_priority, threadID);
     }
 
     inline void clear() {

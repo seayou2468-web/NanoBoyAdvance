@@ -28,6 +28,7 @@ enum {
     FCRAM_MASK              = (FCRAM_SIZE - 1),                 ///< FCRAM mask
 
     SHARED_MEMORY_SIZE      = 0x04000000,   ///< Shared memory size
+    SHARED_PAGE_SIZE        = 0x00001000,   ///< Shared page size
     SHARED_MEMORY_VADDR     = 0x10000000,   ///< Shared memory
     SHARED_MEMORY_VADDR_END = (SHARED_MEMORY_VADDR + SHARED_MEMORY_SIZE),
     SHARED_MEMORY_MASK      = (SHARED_MEMORY_SIZE - 1),

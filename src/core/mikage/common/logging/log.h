@@ -13,6 +13,17 @@
 #define LOG_ERROR(category, ...) do {} while (0)
 #define LOG_CRITICAL(category, ...) do {} while (0)
 
+namespace Common::Log {
+enum class Level {
+    Trace,
+    Debug,
+    Info,
+    Warning,
+    Error,
+    Critical,
+};
+}
+
 #ifndef OS_LOG_TYPE_DEFAULT
 #define OS_LOG_TYPE_DEFAULT 0
 #endif

@@ -122,7 +122,7 @@ private:
 
     void WakeupSleepingThreads();
 
-    static constexpr u64 base_tick_interval = nsToCycles(2'000'000); // 2ms
+    static const u64 base_tick_interval; // 2ms
 
     Kernel::KernelSystem& kernel;
     Core::TimingEventType* tick_event{};
@@ -365,7 +365,7 @@ public:
         return status == ThreadStatus::WaitSynchAll;
     }
 
-    Core::ARM_Interface::ThreadContext context{};
+    ThreadContext context{};
 
     u32 thread_id;
 
