@@ -6,7 +6,7 @@
 
 #include <algorithm>
 #include <bit>
-#include <span>
+#include "span"
 #include "../../common/alignment.h"
 #include "../../common/color.h"
 #include "pixel_format.h"

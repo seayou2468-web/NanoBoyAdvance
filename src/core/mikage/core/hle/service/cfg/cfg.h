@@ -6,7 +6,7 @@
 
 #include <array>
 #include <memory>
-#include <span>
+#include "span"
 #include <string>
 #include <utility>
 #include "../../../../common/common_types.h"

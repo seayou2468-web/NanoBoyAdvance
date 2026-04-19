@@ -5,7 +5,7 @@
 #pragma once
 
 #include <array>
-#include <span>
+#include "span"
 #include <string>
 #include <vector>
 #include "../../common/common_types.h"

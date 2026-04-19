@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <span>
+#include "span"
 #include "../../common/thread_worker.h"
 #include "../pica/regs_texturing.h"
 #include "../rasterizer_interface.h"

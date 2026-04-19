@@ -31,7 +31,7 @@
 - (void)setupController:(GCController *)controller {
     GCExtendedGamepad *profile = controller.extendedGamepad;
     if (profile) {
-        __weak typeof(self) weakSelf = self;
+        __weak __typeof__(self) weakSelf = self;
 
         profile.buttonA.pressedChangedHandler = ^(GCControllerButtonInput *button, float value, BOOL pressed) {
             [weakSelf handleKey:EMULATOR_KEY_A pressed:pressed];

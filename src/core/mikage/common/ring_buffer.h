@@ -11,7 +11,7 @@
 #include <cstring>
 #include <limits>
 #include <new>
-#include <span>
+#include "span"
 #include <type_traits>
 #include <vector>
 #include "common_types.h"

@@ -10,6 +10,36 @@
 
 namespace Common {
 
+template <typename T>
+constexpr int CountTrailingZeros(T value) {
+#if __cplusplus >= 202002L
+    return std::countr_zero(value);
+#else
+    if constexpr (sizeof(T) <= sizeof(unsigned int)) {
+        return __builtin_ctz(static_cast<unsigned int>(value));
+    } else if constexpr (sizeof(T) <= sizeof(unsigned long)) {
+        return __builtin_ctzl(static_cast<unsigned long>(value));
+    } else {
+        return __builtin_ctzll(static_cast<unsigned long long>(value));
+    }
+#endif
+}
+
+template <typename T>
+constexpr u32 PopCount(T value) {
+#if __cplusplus >= 202002L
+    return static_cast<u32>(std::popcount(value));
+#else
+    if constexpr (sizeof(T) <= sizeof(unsigned int)) {
+        return static_cast<u32>(__builtin_popcount(static_cast<unsigned int>(value)));
+    } else if constexpr (sizeof(T) <= sizeof(unsigned long)) {
+        return static_cast<u32>(__builtin_popcountl(static_cast<unsigned long>(value)));
+    } else {
+        return static_cast<u32>(__builtin_popcountll(static_cast<unsigned long long>(value)));
+    }
+#endif
+}
+
 // Similar to std::bitset, this is a class which encapsulates a bitset, i.e.
 // using the set bits of an integer to represent a set of integers.  Like that
 // class, it acts like an array of bools:
@@ -29,9 +59,9 @@ namespace Common {
 // - Counting set bits using .Count() - see comment on that method.
 
 template <typename IntTy>
-    requires std::is_unsigned_v<IntTy>
 class BitSet {
 public:
+    static_assert(std::is_unsigned_v<IntTy>, "BitSet requires an unsigned integer type");
     // A reference to a particular bit, returned from operator[].
     class Ref {
     public:
@@ -57,7 +87,7 @@ public:
         constexpr Iterator(IntTy val) : m_val(val) {}
         constexpr int operator*() {
             // This will never be called when m_val == 0, because that would be the end() iterator
-            return std::countr_zero(m_val);
+            return CountTrailingZeros(m_val);
         }
         constexpr Iterator& operator++() {
             // Unset least significant set bit
@@ -136,7 +166,7 @@ public:
         return m_val != 0;
     }
     constexpr u32 Count() const {
-        return std::popcount(m_val);
+        return PopCount(m_val);
     }
 
     constexpr Iterator begin() const {

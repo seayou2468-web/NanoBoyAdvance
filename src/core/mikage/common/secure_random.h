@@ -9,7 +9,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <random>
-#include <span>
+#include "span"
 #include <type_traits>
 
 #if defined(__APPLE__)

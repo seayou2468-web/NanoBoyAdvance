@@ -6,7 +6,7 @@
 
 #include <array>
 #include <atomic>
-#include <span>
+#include "span"
 #include "../../../../common/bit_field.h"
 #include "../../../../common/swap.h"
 #include "../../../frontend/input.h"

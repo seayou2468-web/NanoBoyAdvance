@@ -1,0 +1,75 @@
+#pragma once
+
+#include <array>
+#include <cstddef>
+#include <type_traits>
+
+#if __cplusplus >= 202002L
+#include_next <span>
+#else
+
+namespace std {
+
+inline constexpr std::size_t dynamic_extent = static_cast<std::size_t>(-1);
+
+template <typename T, std::size_t Extent = dynamic_extent>
+class span {
+public:
+    using element_type = T;
+    using value_type = std::remove_cv_t<T>;
+    using size_type = std::size_t;
+    using pointer = T*;
+    using reference = T&;
+    using iterator = pointer;
+    static constexpr size_type extent = Extent;
+
+    constexpr span() noexcept : ptr_(nullptr), size_(0) {}
+
+    constexpr span(pointer ptr, size_type count) : ptr_(ptr), size_(count) {}
+
+    template <size_type N, typename = std::enable_if_t<Extent == dynamic_extent || N == Extent>>
+    constexpr span(element_type (&arr)[N]) noexcept : ptr_(arr), size_(N) {}
+
+    template <size_type N, typename = std::enable_if_t<Extent == dynamic_extent || N == Extent>>
+    constexpr span(std::array<value_type, N>& arr) noexcept : ptr_(arr.data()), size_(N) {}
+
+    template <size_type N, typename = std::enable_if_t<Extent == dynamic_extent || N == Extent>>
+    constexpr span(const std::array<value_type, N>& arr) noexcept : ptr_(arr.data()), size_(N) {}
+
+    template <typename U, std::size_t OtherExtent,
+              typename = std::enable_if_t<std::is_convertible_v<U (*)[], T (*)[]>>>
+    constexpr span(const span<U, OtherExtent>& other) noexcept : ptr_(other.data()), size_(other.size()) {}
+
+    template <typename Container,
+              typename = decltype(std::declval<Container&>().data()),
+              typename = decltype(std::declval<Container&>().size())>
+    constexpr span(Container& c) : ptr_(c.data()), size_(c.size()) {}
+
+    constexpr reference operator[](size_type idx) const { return ptr_[idx]; }
+    constexpr pointer data() const noexcept { return ptr_; }
+    constexpr size_type size() const noexcept { return size_; }
+    constexpr size_type size_bytes() const noexcept { return size_ * sizeof(element_type); }
+    constexpr bool empty() const noexcept { return size_ == 0; }
+
+    constexpr iterator begin() const noexcept { return ptr_; }
+    constexpr iterator end() const noexcept { return ptr_ + size_; }
+
+    constexpr span<element_type, dynamic_extent> first(size_type count) const {
+        return span<element_type, dynamic_extent>(ptr_, count);
+    }
+    constexpr span<element_type, dynamic_extent> last(size_type count) const {
+        return span<element_type, dynamic_extent>(ptr_ + (size_ - count), count);
+    }
+    constexpr span<element_type, dynamic_extent> subspan(size_type offset,
+                                                         size_type count = dynamic_extent) const {
+        const size_type n = (count == dynamic_extent) ? (size_ - offset) : count;
+        return span<element_type, dynamic_extent>(ptr_ + offset, n);
+    }
+
+private:
+    pointer ptr_;
+    size_type size_;
+};
+
+} // namespace std
+#endif

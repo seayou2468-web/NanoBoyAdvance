@@ -5,7 +5,7 @@
 #pragma once
 
 #include <array>
-#include <span>
+#include "span"
 #include <vector>
 #include "../../common/bit_field.h"
 #include "../../common/common_funcs.h"

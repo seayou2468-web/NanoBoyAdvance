@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <span>
+#include "span"
 #include "common_types.h"
 
 namespace Common {

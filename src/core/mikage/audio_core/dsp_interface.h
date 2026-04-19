@@ -5,7 +5,7 @@
 #pragma once
 
 #include <memory>
-#include <span>
+#include "span"
 #include "../common/serialization/boost_all_serialization.h"
 #include "audio_types.h"
 #include "time_stretch.h"

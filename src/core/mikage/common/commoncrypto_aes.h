@@ -7,7 +7,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
-#include <span>
+#include "span"
 
 #if __has_include(<CommonCrypto/CommonCryptor.h>)
 #include <CommonCrypto/CommonCryptor.h>

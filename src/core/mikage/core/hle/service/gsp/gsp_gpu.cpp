@@ -2,7 +2,7 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include <span>
+#include "span"
 #include <vector>
 #include "../../../../common/archives.h"
 #include "../../../../common/bit_field.h"

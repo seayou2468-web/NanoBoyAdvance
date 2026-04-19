@@ -6,7 +6,7 @@
 
 #include <cstring>
 #include <memory>
-#include <span>
+#include "span"
 #include <CommonCrypto/CommonDigest.h>
 #include "../../common/commoncrypto_aes.h"
 #include "../../common/common_types.h"
