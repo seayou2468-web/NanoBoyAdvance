@@ -19,6 +19,34 @@
 #include "../cfg/cfg.h"
 #include "../gsp/gsp_gpu.h"
 #include "../../../../video_core/utils.h"
+#include "../../../../video_core/video_core.h"
+
+namespace Service::PLGLDR {
+struct PLG_LDR {
+    struct Context {
+        enum class PluginMemoryStrategy { PLG_STRATEGY_MODE3 };
+
+        struct UserLoadParameters {
+            u32 low_title_Id = 0;
+            PluginMemoryStrategy plugin_memory_strategy = PluginMemoryStrategy::PLG_STRATEGY_MODE3;
+        };
+
+        bool is_enabled = false;
+        bool use_user_load_parameters = false;
+        UserLoadParameters user_load_parameters{};
+        PluginMemoryStrategy plugin_memory_strategy = PluginMemoryStrategy::PLG_STRATEGY_MODE3;
+    };
+
+    using PluginMemoryStrategy = Context::PluginMemoryStrategy;
+    PluginMemoryStrategy plugin_memory_strategy = PluginMemoryStrategy::PLG_STRATEGY_MODE3;
+    Context GetPluginLoaderContext() const {
+        return {};
+    }
+};
+inline std::shared_ptr<PLG_LDR> GetService(Core::System&) {
+    return nullptr;
+}
+} // namespace Service::PLGLDR
 
 SERVICE_CONSTRUCT_IMPL(Service::APT::AppletManager)
 

@@ -191,6 +191,7 @@ public:
 	std::FILE* GetHandle() { return m_file; }
 
 	std::string Filename() const { return ""; }
+	bool IsCompressed() const { return false; }
 
 	void SetHandle(std::FILE* file);
 
@@ -212,7 +213,9 @@ private:
 
 }  // namespace
 
-namespace FileUtil = File;
+namespace FileUtil {
+using namespace File;
+}
 
 // To deal with Windows being dumb at unicode:
 template <typename T>

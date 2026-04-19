@@ -126,7 +126,8 @@ public:
 
     __forceinline BitField& operator=(T val)
     {
-        storage = (storage & ~GetMask()) | ((val << position) & GetMask());
+        const StorageType raw_val = static_cast<StorageType>(val);
+        storage = (storage & ~GetMask()) | ((raw_val << position) & GetMask());
         return *this;
     }
 

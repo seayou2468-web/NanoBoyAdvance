@@ -5,6 +5,8 @@
 #pragma once
 
 #include <memory>
+#include <span>
+#include <string>
 #include "./arm/arm_interface.h"
 #include "./arm/interpreter/armdefs.h"
 
@@ -21,7 +23,13 @@ enum class ResultStatus;
 class AppLoaderShim {
 public:
     ResultStatus ReadProgramId(u64&);
+    ResultStatus ReadExtdataId(u64&);
+    std::span<const u32> GetPreferredRegions() const;
+    bool DoingInitialSetup();
 };
+}
+namespace Memory {
+class MemorySystem;
 }
 
 namespace Core {
@@ -40,6 +48,7 @@ public:
     }
     void ScheduleEvent(s64 cycles_into_future, TimingEventType* event_type, u64 userdata = 0);
     void UnscheduleEvent(TimingEventType* event_type, u64 userdata);
+    void RemoveEvent(TimingEventType* event_type);
 };
 
 class System { // Cytrus CPU migration shim declaration.
@@ -51,6 +60,9 @@ public:
     ::Kernel::KernelSystem& Kernel();
     ::Service::SM::ServiceManager& ServiceManager();
     ::Loader::AppLoaderShim& GetAppLoader();
+    ::Memory::MemorySystem& Memory();
+    std::string GetCartridge() const;
+    void RequestShutdown();
 
     PerfStats* perf_stats{};
 };

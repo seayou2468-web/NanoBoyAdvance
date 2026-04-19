@@ -61,10 +61,10 @@ public:
 
     std::optional<std::array<u8, 16>> GetTitleKey() const;
     u64 GetTitleID() const {
-        return ticket_body.title_id;
+        return ticket_body.title_id.swap();
     }
     u64 GetTicketID() const {
-        return ticket_body.ticket_id;
+        return ticket_body.ticket_id.swap();
     }
     u16 GetVersion() const {
         return ticket_body.ticket_title_version;

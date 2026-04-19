@@ -36,6 +36,11 @@ enum class MemoryType : u8 {
     AXWram = 5
 };
 
+enum class FlushMode : u8 {
+    Flush = 0,
+    Invalidate = 1,
+};
+
 // ============================================================================
 // Virtual Memory Manager
 // ============================================================================
@@ -127,6 +132,12 @@ public:
     u8 Read8(u32 address) const { 
         if (!CheckAccess(address, MemoryPermission::Read)) return 0;
         return Memory::Read8(address); 
+    }
+
+    void RasterizerFlushVirtualRegion(u32, u32, FlushMode) {}
+
+    u8* GetPointer(u32 address) const {
+        return static_cast<u8*>(GetHostPointer(address));
     }
     
     u16 Read16(u32 address) const { 

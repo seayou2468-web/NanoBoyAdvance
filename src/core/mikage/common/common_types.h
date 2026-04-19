@@ -52,6 +52,9 @@ typedef double  f64;    ///< 64-bit floating point
 using VAddr = u32;
 using PAddr = u32;
 
+template <typename T>
+using enum_le = T;
+
 #define MIKAGE_CONCAT_INNER(a, b) a##b
 #define MIKAGE_CONCAT(a, b) MIKAGE_CONCAT_INNER(a, b)
 

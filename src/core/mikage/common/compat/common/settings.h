@@ -21,6 +21,9 @@ struct ValuesSettings {
         int GetValue() const {
             return value;
         }
+        operator bool() const {
+            return value != 0;
+        }
     };
 
     bool deterministic_async_operations = false;
@@ -35,6 +38,8 @@ struct ValuesSettings {
     } current_input_profile{};
     ScalarSetting factor_3d{};
     ScalarSetting volume{};
+    ScalarSetting is_new_3ds{1};
+    bool lle_applets = false;
 };
 
 namespace NativeButton {

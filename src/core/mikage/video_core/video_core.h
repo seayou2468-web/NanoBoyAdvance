@@ -37,4 +37,8 @@ void Init(EmuWindow* emu_window);
 /// Shutdown the video core
 void Shutdown();
 
+inline u32 GetMortonOffset(u32 x, u32 y, u32 bytes_per_pixel) {
+    return ((y << 3) + x) * bytes_per_pixel;
+}
+
 } // namespace
