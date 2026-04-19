@@ -33,7 +33,6 @@
 		<string>-fobjc-arc</string>
 		<string>-fblocks</string>
     <string>-std=gnu++20</string>
-    <string>-DNBA_IOS_MIKAGE_ONLY=1</string>
 	</array>
 	<key>LDEDisplayName</key>
 	<string>gbemu-ハヤマサ</string>
