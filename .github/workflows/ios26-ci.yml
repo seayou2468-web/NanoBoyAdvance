@@ -34,37 +34,12 @@ jobs:
               ;;
           esac
 
-      - name: Build Mikage core adapter (iOS device)
+      - name: Full build Mikage core (iOS device)
         run: |
           set -euxo pipefail
-          xcrun --sdk iphoneos clang++ \
-            -std=c++20 \
-            -target arm64-apple-ios26.0 \
-            -D__APPLE__=1 \
-            -DTARGET_OS_IPHONE=1 \
-            -I. -Isrc -Isrc/core -Isrc/core/mikage \
-            -fsyntax-only \
-            src/core/mikage/core_adapter.cpp
+          ./scripts/ci/build_mikage_full_ios_device.sh
 
-      - name: Link smoke test for C API + registry (iOS device)
+      - name: Verify full build artifact
         run: |
           set -euxo pipefail
-          cat > /tmp/mikage_ci_dummy.cpp <<'CPP'
-          #include "src/core/api/emulator_core_c_api.h"
-          int main() {
-            EmulatorCoreHandle* core = EmulatorCore_Create(EMULATOR_CORE_TYPE_3DS);
-            EmulatorCore_Destroy(core);
-            return 0;
-          }
-          CPP
-
-          xcrun --sdk iphoneos clang++ \
-            -std=c++20 \
-            -target arm64-apple-ios26.0 \
-            -D__APPLE__=1 \
-            -DTARGET_OS_IPHONE=1 \
-            -I. -Isrc -Isrc/core -Isrc/core/mikage \
-            /tmp/mikage_ci_dummy.cpp \
-            src/core/api/emulator_core_c_api.cpp \
-            src/core/core_adapter_registry.cpp \
-            -o /tmp/mikage_ci_smoke_device
+          ls -lh build/mikage-ios26-device/libmikage_full.a
