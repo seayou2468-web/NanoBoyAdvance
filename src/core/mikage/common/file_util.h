@@ -10,6 +10,9 @@
 #include <cstdio>
 #include <string>
 #include <vector>
+#include <array>
+#include <cctype>
+#include <string_view>
 #include <string.h>
 
 #include "common.h"
@@ -215,6 +218,28 @@ private:
 
 namespace FileUtil {
 using namespace File;
+
+template <std::size_t NameN, std::size_t ExtN>
+inline void SplitFilename83(const std::string& filename, std::array<char, NameN>& short_name,
+                            std::array<char, ExtN>& extension) {
+    static_assert(NameN >= 8);
+    static_assert(ExtN >= 3);
+    short_name.fill(' ');
+    extension.fill(' ');
+
+    std::string name;
+    std::string ext;
+    SplitPath(filename, nullptr, &name, &ext);
+
+    auto copy_upper = [](std::string_view src, auto& out) {
+        for (std::size_t i = 0; i < out.size() && i < src.size(); ++i) {
+            out[i] = static_cast<char>(std::toupper(static_cast<unsigned char>(src[i])));
+        }
+    };
+
+    copy_upper(name, short_name);
+    copy_upper(ext, extension);
+}
 }
 
 // To deal with Windows being dumb at unicode:

@@ -35,6 +35,9 @@
 #else
 #include <cerrno>
 #include <ifaddrs.h>
+#include <netdb.h>
+#include <poll.h>
+#include <arpa/inet.h>
 #include <netinet/tcp.h>
 #endif
 
@@ -51,6 +54,9 @@
 #define ERRNO(x) x
 #define GET_ERRNO errno
 #define closesocket(x) close(x)
+#ifndef POLLRDNORM
+#define POLLRDNORM POLLIN
+#endif
 #endif
 #define MSGCUSTOM_HANDLE_DONTWAIT 0x80000000
 

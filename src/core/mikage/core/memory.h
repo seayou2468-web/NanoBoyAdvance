@@ -2,14 +2,22 @@
 
 #include "./mem_map.h"
 #include "../common/common_types.h"
+#include "../common/memory_ref.h"
 #include <array>
 #include <algorithm>
 #include <map>
 #include <optional>
 #include <vector>
 #include <cstring>
+#include <string>
 
 namespace Memory {
+
+class PageTable {
+public:
+    PageTable() = default;
+    ~PageTable() = default;
+};
 
 // ============================================================================
 // Memory Protection / Access Control
@@ -177,6 +185,19 @@ public:
         Write32(address, static_cast<u32>(value & 0xFFFFFFFFULL));
         Write32(address + 4, static_cast<u32>(value >> 32));
     }
+
+    std::string ReadCString(u32 address, u32 max_length) const {
+        std::string result;
+        result.reserve(max_length);
+        for (u32 i = 0; i < max_length; ++i) {
+            const char c = static_cast<char>(Read8(address + i));
+            if (c == '\0') {
+                break;
+            }
+            result.push_back(c);
+        }
+        return result;
+    }
     
     // Bulk memory operations
     void ReadBlock(u32 src_addr, void* dest_ptr, u32 size) const {
@@ -186,6 +207,11 @@ public:
             dest[i] = this->Read8(src_addr + i);
         }
     }
+
+    template <typename ProcessLike>
+    void ReadBlock(const ProcessLike&, u32 src_addr, void* dest_ptr, u32 size) const {
+        ReadBlock(src_addr, dest_ptr, size);
+    }
     
     void WriteBlock(u32 dest_addr, const void* src_ptr, u32 size) {
         if (!CheckAccess(dest_addr, MemoryPermission::Write)) return;
@@ -193,6 +219,19 @@ public:
         for (u32 i = 0; i < size; ++i) {
             this->Write8(dest_addr + i, src[i]);
         }
+    }
+
+    template <typename ProcessLike>
+    void WriteBlock(const ProcessLike&, u32 dest_addr, const void* src_ptr, u32 size) {
+        WriteBlock(dest_addr, src_ptr, size);
+    }
+
+    u8* GetPhysicalPointer(u32 phys_addr) const {
+        return reinterpret_cast<u8*>(vm_manager->GetHostPointer(phys_addr));
+    }
+
+    MemoryRef GetPhysicalRef(u32 phys_addr, u32 size = 0x1000) const {
+        return MemoryRef(std::make_shared<PointerMem>(GetPhysicalPointer(phys_addr), size));
     }
     
     // Virtual memory management

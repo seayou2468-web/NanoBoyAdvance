@@ -64,6 +64,39 @@ private:
 
 BOOST_CLASS_EXPORT_KEY(BufferMem);
 
+/// Backing memory implemented by a non-owning raw pointer range.
+class PointerMem : public BackingMem {
+public:
+    PointerMem() = default;
+    PointerMem(u8* ptr_, std::size_t size_) : ptr(ptr_), size(size_) {}
+
+    u8* GetPtr() override {
+        return ptr;
+    }
+
+    const u8* GetPtr() const override {
+        return ptr;
+    }
+
+    std::size_t GetSize() const override {
+        return size;
+    }
+
+private:
+    u8* ptr{};
+    std::size_t size{};
+
+    template <class Archive>
+    void serialize(Archive& ar, const unsigned int) {
+        ar& MikageSerialization::base_object<BackingMem>(*this);
+        ar & ptr;
+        ar & size;
+    }
+    friend class MikageSerialization::access;
+};
+
+BOOST_CLASS_EXPORT_KEY(PointerMem);
+
 /**
  * A managed reference to host-side memory.
  * Fast enough to be used everywhere instead of u8*

@@ -29,6 +29,7 @@ enum {
 
     SHARED_MEMORY_SIZE      = 0x04000000,   ///< Shared memory size
     SHARED_PAGE_SIZE        = 0x00001000,   ///< Shared page size
+    SHARED_PAGE_VADDR       = 0x1FF81000,
     SHARED_MEMORY_VADDR     = 0x10000000,   ///< Shared memory
     SHARED_MEMORY_VADDR_END = (SHARED_MEMORY_VADDR + SHARED_MEMORY_SIZE),
     SHARED_MEMORY_MASK      = (SHARED_MEMORY_SIZE - 1),
@@ -84,6 +85,19 @@ enum {
     SCRATCHPAD_VADDR_END    = 0x10000000,
     SCRATCHPAD_VADDR        = (SCRATCHPAD_VADDR_END - SCRATCHPAD_SIZE), ///< Stack space
     SCRATCHPAD_MASK         = (SCRATCHPAD_SIZE - 1),            ///< Scratchpad memory mask
+
+    // New 3DS compatibility constants used by Azahar-origin HLE/HW code.
+    FCRAM_N3DS_SIZE         = 0x10000000,
+    IO_AREA_VADDR           = HARDWARE_IO_VADDR,
+    IO_AREA_PADDR           = HARDWARE_IO_PADDR,
+    IO_AREA_SIZE            = HARDWARE_IO_SIZE,
+    DSP_RAM_VADDR           = 0x1FF00000,
+    DSP_RAM_PADDR           = 0x1FF00000,
+    DSP_RAM_SIZE            = DSP_SIZE,
+    N3DS_EXTRA_RAM_VADDR    = 0x30000000,
+    N3DS_EXTRA_RAM_PADDR    = 0x30000000,
+    N3DS_EXTRA_RAM_SIZE     = 0x08000000,
+    CITRA_PAGE_SIZE         = 0x1000,
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

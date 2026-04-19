@@ -20,6 +20,10 @@ struct AddressMapping;
 class Process;
 } // namespace Kernel
 
+namespace Core {
+class System;
+}
+
 namespace Loader {
 
 /// File types supported by CTR

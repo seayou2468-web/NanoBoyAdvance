@@ -26,6 +26,42 @@
 
 #include <math.h>
 #include <cstdint>
+#include <cstring>
+#include <type_traits>
+#include <algorithm>
+
+#include "span"
+
+#if __cplusplus < 202002L
+#ifndef consteval
+#define consteval constexpr
+#endif
+namespace std {
+template <class To, class From,
+          class = std::enable_if_t<sizeof(To) == sizeof(From) &&
+                                   std::is_trivially_copyable<From>::value &&
+                                   std::is_trivial<To>::value>>
+inline To bit_cast(const From& src) noexcept {
+    To dst;
+    std::memcpy(&dst, &src, sizeof(To));
+    return dst;
+}
+
+template <class Container, class Pred>
+inline typename Container::size_type erase_if(Container& c, Pred pred) {
+    typename Container::size_type erased = 0;
+    for (auto it = c.begin(); it != c.end();) {
+        if (pred(*it)) {
+            it = c.erase(it);
+            ++erased;
+        } else {
+            ++it;
+        }
+    }
+    return erased;
+}
+}
+#endif
 
 // iOS-compatible type definitions
 typedef uint8_t         u8;     ///< 8-bit unsigned byte
@@ -57,6 +93,7 @@ using enum_le = T;
 
 #define MIKAGE_CONCAT_INNER(a, b) a##b
 #define MIKAGE_CONCAT(a, b) MIKAGE_CONCAT_INNER(a, b)
+#define CONCAT2(a, b) MIKAGE_CONCAT(a, b)
 
 // Compatibility padding helpers used by imported Citra/Azahar headers.
 #ifndef INSERT_PADDING_WORDS

@@ -7,6 +7,7 @@
 #define _HASH_H_
 
 #include "common.h"
+#include <functional>
 
 u32 HashFletcher(const u8* data_u8, size_t length);  // FAST. Length & 1 == 0.
 u32 HashAdler32(const u8* data, size_t len);         // Fairly accurate, slightly slower
@@ -17,4 +18,24 @@ u64 GetHashHiresTexture(const u8 *src, int len, u32 samples);
 u64 GetMurmurHash3(const u8 *src, int len, u32 samples);
 u64 GetHash64(const u8 *src, int len, u32 samples);
 void SetHash64Function(bool useHiresTextures);
+
+namespace Common {
+namespace Detail {
+inline std::size_t HashValue(std::size_t v) { return v; }
+template <typename T>
+inline std::size_t HashValue(const T& v) {
+    return std::hash<T>{}(v);
+}
+}
+
+template <typename... Ts>
+inline u64 HashCombine(Ts... values) {
+    std::size_t seed = 0;
+    auto combine = [&](const auto& v) {
+        seed ^= Detail::HashValue(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    };
+    (combine(values), ...);
+    return static_cast<u64>(seed);
+}
+} // namespace Common
 #endif // _HASH_H_

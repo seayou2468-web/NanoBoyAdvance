@@ -20,7 +20,14 @@ struct VKFormatTraits {
     u32 aspect_flags{};
     u32 native_format{};
 
-    auto operator<=>(const VKFormatTraits&) const = default;
+    bool operator==(const VKFormatTraits& rhs) const {
+        return transfer_support == rhs.transfer_support && blit_support == rhs.blit_support &&
+               attachment_support == rhs.attachment_support &&
+               storage_support == rhs.storage_support &&
+               needs_conversion == rhs.needs_conversion &&
+               needs_emulation == rhs.needs_emulation && usage_flags == rhs.usage_flags &&
+               aspect_flags == rhs.aspect_flags && native_format == rhs.native_format;
+    }
 };
 
 struct Profile {
@@ -47,7 +54,27 @@ struct Profile {
 
     u8 is_vulkan{};
 
-    auto operator<=>(const Profile&) const = default;
+    bool operator==(const Profile& rhs) const {
+        return enable_accurate_mul == rhs.enable_accurate_mul &&
+               has_separable_shaders == rhs.has_separable_shaders &&
+               has_clip_planes == rhs.has_clip_planes &&
+               has_geometry_shader == rhs.has_geometry_shader &&
+               has_custom_border_color == rhs.has_custom_border_color &&
+               has_fragment_shader_interlock == rhs.has_fragment_shader_interlock &&
+               has_fragment_shader_barycentric == rhs.has_fragment_shader_barycentric &&
+               has_blend_minmax_factor == rhs.has_blend_minmax_factor &&
+               has_minus_one_to_one_range == rhs.has_minus_one_to_one_range &&
+               has_logic_op == rhs.has_logic_op &&
+               has_gl_ext_framebuffer_fetch == rhs.has_gl_ext_framebuffer_fetch &&
+               has_gl_arm_framebuffer_fetch == rhs.has_gl_arm_framebuffer_fetch &&
+               has_gl_nv_fragment_shader_interlock == rhs.has_gl_nv_fragment_shader_interlock &&
+               has_gl_intel_fragment_shader_ordering ==
+                   rhs.has_gl_intel_fragment_shader_ordering &&
+               has_gl_nv_fragment_shader_barycentric == rhs.has_gl_nv_fragment_shader_barycentric &&
+               vk_disable_spirv_optimizer == rhs.vk_disable_spirv_optimizer &&
+               vk_use_spirv_generator == rhs.vk_use_spirv_generator &&
+               vk_format_traits == rhs.vk_format_traits && is_vulkan == rhs.is_vulkan;
+    }
 };
 
 } // namespace Pica::Shader

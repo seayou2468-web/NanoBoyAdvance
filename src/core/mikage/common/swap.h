@@ -17,6 +17,12 @@
 
 #pragma once
 
+unsigned short bswap16(unsigned short x);
+unsigned int bswap32(unsigned int x);
+unsigned long long bswap64(unsigned long long x);
+float bswapf(float f);
+double bswapd(double f);
+
 // Android
 #if defined(ANDROID)
 #include <sys/endian.h>

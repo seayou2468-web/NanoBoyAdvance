@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <array>
+#include <optional>
 #include <sstream>
 #include <vector>
 #if defined(__APPLE__)
@@ -20,6 +21,10 @@
 namespace HW::RSA {
 
 namespace {
+
+bool StartsWith(const std::string& value, const char* prefix) {
+    return value.rfind(prefix, 0) == 0;
+}
 
 #if defined(__APPLE__)
 std::vector<u8> EncodeAsn1Length(std::size_t length) {
@@ -337,11 +342,11 @@ void InitSlots() {
         std::getline(s, line);
 
         // Ignore empty or commented lines.
-        if (line.empty() || line.starts_with("#")) {
+        if (line.empty() || StartsWith(line, "#")) {
             continue;
         }
 
-        if (line.starts_with(":")) {
+        if (StartsWith(line, ":")) {
             mode = line.substr(1);
             continue;
         }
@@ -350,7 +355,8 @@ void InitSlots() {
             continue;
         }
 
-        const auto parts = Common::SplitString(line, '=');
+        std::vector<std::string> parts;
+        SplitString(line, '=', parts);
         if (parts.size() != 2) {
             LOG_ERROR(HW_RSA, "Failed to parse {}", line);
             continue;

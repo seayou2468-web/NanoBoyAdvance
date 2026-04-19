@@ -56,13 +56,14 @@ public:
     static System& GetInstance();
 
     Timing& CoreTiming();
-    Movie& Movie();
+    ::Core::Movie& Movie();
     ::Kernel::KernelSystem& Kernel();
     ::Service::SM::ServiceManager& ServiceManager();
     ::Loader::AppLoaderShim& GetAppLoader();
     ::Memory::MemorySystem& Memory();
     std::string GetCartridge() const;
     void RequestShutdown();
+    void InvalidateCacheRange(u32, std::size_t) {}
 
     PerfStats* perf_stats{};
 };

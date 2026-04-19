@@ -3,6 +3,7 @@
 // Refer to the license.txt file included.
 
 #include "../../../../common/alignment.h"
+#include "../../../../common/common_types.h"
 #include "../../../../common/logging/log.h"
 #include "../../../../common/scope_exit.h"
 #include "../../../arm/arm_interface.h"

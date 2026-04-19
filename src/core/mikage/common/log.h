@@ -138,6 +138,25 @@ void GenericLog(LOGTYPES_LEVELS level, LOGTYPES_TYPE type,
 
 #define _assert_(_a_) _dbg_assert_(MASTER_LOG, _a_)
 
+#ifndef LOG_TRACE
+#define LOG_TRACE(category, ...) do {} while (0)
+#endif
+#ifndef LOG_DEBUG
+#define LOG_DEBUG(category, ...) do {} while (0)
+#endif
+#ifndef LOG_INFO
+#define LOG_INFO(category, ...) do {} while (0)
+#endif
+#ifndef LOG_WARNING
+#define LOG_WARNING(category, ...) do {} while (0)
+#endif
+#ifndef LOG_ERROR
+#define LOG_ERROR(category, ...) do {} while (0)
+#endif
+#ifndef LOG_CRITICAL
+#define LOG_CRITICAL(category, ...) do {} while (0)
+#endif
+
 #ifndef GEKKO
 #ifdef _WIN32
 #define _assert_msg_(_t_, _a_, _fmt_, ...)        \

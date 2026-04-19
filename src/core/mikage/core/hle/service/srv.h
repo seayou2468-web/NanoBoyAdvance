@@ -2,20 +2,12 @@
 // Licensed under GPLv2
 // Refer to the license.txt file included.
 
-#include "service.h"
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// Namespace SRV
-
 namespace SRV {
 
-/// Interface to "srv:" service
-class Interface : public Service::Interface {
-
+// Legacy shim for old srv: interface code path.
+class Interface {
 public:
-
     Interface();
-
     ~Interface();
 
     /**
@@ -25,13 +17,6 @@ public:
     const char *GetPortName() const {
         return "srv:";
     }
-
-    /**
-     * Called when svcSendSyncRequest is called, loads command buffer and executes comand
-     * @return Return result of svcSendSyncRequest passed back to user app
-     */
-    Result Sync();
-
 };
 
 } // namespace
