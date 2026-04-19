@@ -30,4 +30,16 @@ struct DataPacket {
     std::uint32_t data_size{};
 };
 
+struct ResponseMethod {
+    enum class ArticResult : std::int32_t {
+        SUCCESS = 0,
+        METHOD_ERROR = -1,
+    };
+};
+
+enum class MethodState : std::int32_t {
+    OK = 0,
+    INTERNAL_METHOD_ERROR = -1,
+};
+
 } // namespace ArticBaseCommon

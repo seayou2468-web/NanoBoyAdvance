@@ -14,6 +14,7 @@
 #include "../../../../common/common_types.h"
 #include "../../../../common/settings.h"
 #include "../../../core.h"
+#include "../../../system.h"
 #include "../../../core_timing.h"
 #include "../../../frontend/input.h"
 #include "../service.h"

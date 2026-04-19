@@ -22,6 +22,7 @@
 class PointerWrap;
 
 extern int g_clock_rate_arm11;
+constexpr u64 BASE_CLOCK_RATE_ARM11 = 268123480;
 
 inline s64 msToCycles(int ms) {
     return g_clock_rate_arm11 / 1000 * ms;

@@ -9,9 +9,26 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+namespace Kernel {
+class KernelSystem;
+}
+
 namespace Core {
 
-class System; // Cytrus CPU migration shim forward declaration.
+class Timing;
+class Movie;
+class PerfStats;
+
+class System { // Cytrus CPU migration shim declaration.
+public:
+    static System& GetInstance();
+
+    Timing& CoreTiming();
+    Movie& Movie();
+    ::Kernel::KernelSystem& Kernel();
+
+    PerfStats* perf_stats{};
+};
 class ARM_Interpreter; // Forward declare for System integration
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

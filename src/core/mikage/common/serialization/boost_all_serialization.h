@@ -13,6 +13,7 @@
 #include <optional>
 #include <set>
 #include <string>
+#include <type_traits>
 #include <unordered_map>
 #include <vector>
 
@@ -25,8 +26,22 @@
 
 namespace MikageSerialization {
 
-struct input_archive {};
-struct output_archive {};
+struct input_archive {
+    using is_loading = std::true_type;
+};
+struct output_archive {
+    using is_loading = std::false_type;
+};
+
+template <typename T>
+inline input_archive& operator&(input_archive& ar, T&) {
+    return ar;
+}
+
+template <typename T>
+inline output_archive& operator&(output_archive& ar, T&) {
+    return ar;
+}
 
 class access {
 public:
