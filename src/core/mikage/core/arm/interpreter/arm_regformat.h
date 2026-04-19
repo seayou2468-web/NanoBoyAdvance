@@ -1,5 +1,8 @@
 #pragma once
 
+#ifndef MIKAGE_ARM_REGFORMAT_DEFINITIONS
+#define MIKAGE_ARM_REGFORMAT_DEFINITIONS
+
 enum {
     R0 = 0,
     R1,
@@ -198,3 +201,5 @@ constexpr int CP15_TRANSLATION_BASE = CP15_TRANSLATION_BASE_TABLE_0;
 
 constexpr int VFP_BASE = VFP_FPSID;
 #define VFP_OFFSET(x) (x - VFP_BASE)
+
+#endif // MIKAGE_ARM_REGFORMAT_DEFINITIONS

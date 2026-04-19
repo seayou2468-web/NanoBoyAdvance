@@ -1,5 +1,8 @@
 #pragma once
 
+#ifndef MIKAGE_ARM_REGFORMAT_DEFINITIONS
+#define MIKAGE_ARM_REGFORMAT_DEFINITIONS
+
 enum {
     R0 = 0,
     R1,
@@ -185,3 +188,5 @@ enum CP15Register {
     // All registers should be defined above this.
     CP15_REGISTER_COUNT,
 };
+
+#endif // MIKAGE_ARM_REGFORMAT_DEFINITIONS
