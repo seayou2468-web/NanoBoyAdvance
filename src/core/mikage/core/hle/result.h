@@ -13,6 +13,10 @@
 
 // All the constants in this file come from http://3dbrew.org/wiki/Error_codes
 
+#ifdef PL
+#undef PL
+#endif
+
 /**
  * Detailed description of the error. Code 0 always means success. Codes 1000 and above are
  * considered "well-known" and have common values between all modules. The meaning of other codes
@@ -213,17 +217,18 @@ union Result {
 
     constexpr Result(u32 description_, ErrorModule module_, ErrorSummary summary_,
                      ErrorLevel level_)
-        : raw(description.FormatValue(description_) | module.FormatValue(module_) |
-              summary.FormatValue(summary_) | level.FormatValue(level_)) {}
+        : raw((description_ & 0x3FFu) | ((static_cast<u32>(module_) & 0xFFu) << 10) |
+              ((static_cast<u32>(summary_) & 0x3Fu) << 21) |
+              ((static_cast<u32>(level_) & 0x1Fu) << 27)) {}
 
     constexpr Result& operator=(const Result& o) = default;
 
     constexpr bool IsSuccess() const {
-        return is_error.ExtractValue(raw) == 0;
+        return ((raw >> 31) & 0x1u) == 0;
     }
 
     constexpr bool IsError() const {
-        return is_error.ExtractValue(raw) == 1;
+        return ((raw >> 31) & 0x1u) == 1;
     }
 
 private:

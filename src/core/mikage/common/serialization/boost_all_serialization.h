@@ -28,10 +28,9 @@ namespace MikageSerialization {
 struct input_archive {};
 struct output_archive {};
 
-template <class T>
 class access {
 public:
-    template <class Archive>
+    template <class Archive, class T>
     static void serialize(Archive&, T&, const unsigned int) {}
 };
 
