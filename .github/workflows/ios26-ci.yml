@@ -24,8 +24,8 @@ jobs:
         run: |
           set -euxo pipefail
           xcodebuild -version
-          SDK_VERSION="$(xcrun --sdk iphonesimulator --show-sdk-version)"
-          echo "iPhoneSimulator SDK: ${SDK_VERSION}"
+          SDK_VERSION="$(xcrun --sdk iphoneos --show-sdk-version)"
+          echo "iPhoneOS SDK: ${SDK_VERSION}"
           case "${SDK_VERSION}" in
             26.*) ;;
             *)
@@ -34,18 +34,19 @@ jobs:
               ;;
           esac
 
-      - name: Build Mikage core adapter (iOS simulator)
+      - name: Build Mikage core adapter (iOS device)
         run: |
           set -euxo pipefail
-          xcrun --sdk iphonesimulator clang++ \
+          xcrun --sdk iphoneos clang++ \
             -std=c++20 \
+            -target arm64-apple-ios26.0 \
             -D__APPLE__=1 \
             -DTARGET_OS_IPHONE=1 \
             -I. -Isrc -Isrc/core -Isrc/core/mikage \
             -fsyntax-only \
             src/core/mikage/core_adapter.cpp
 
-      - name: Link smoke test for C API + registry (iOS simulator)
+      - name: Link smoke test for C API + registry (iOS device)
         run: |
           set -euxo pipefail
           cat > /tmp/mikage_ci_dummy.cpp <<'CPP'
@@ -57,12 +58,13 @@ jobs:
           }
           CPP
 
-          xcrun --sdk iphonesimulator clang++ \
+          xcrun --sdk iphoneos clang++ \
             -std=c++20 \
+            -target arm64-apple-ios26.0 \
             -D__APPLE__=1 \
             -DTARGET_OS_IPHONE=1 \
             -I. -Isrc -Isrc/core -Isrc/core/mikage \
             /tmp/mikage_ci_dummy.cpp \
             src/core/api/emulator_core_c_api.cpp \
             src/core/core_adapter_registry.cpp \
-            -o /tmp/mikage_ci_smoke
+            -o /tmp/mikage_ci_smoke_device
