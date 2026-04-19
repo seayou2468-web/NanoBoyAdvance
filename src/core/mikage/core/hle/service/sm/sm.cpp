@@ -3,12 +3,12 @@
 // Refer to the license.txt file included.
 
 #include <tuple>
-#include "common/assert.h"
-#include "core/core.h"
-#include "core/hle/kernel/client_session.h"
-#include "core/hle/result.h"
-#include "core/hle/service/sm/sm.h"
-#include "core/hle/service/sm/srv.h"
+#include "../../../../common/assert.h"
+#include "../../../core.h"
+#include "../../kernel/client_session.h"
+#include "../../result.h"
+#include "sm.h"
+#include "srv.h"
 
 namespace Service::SM {
 

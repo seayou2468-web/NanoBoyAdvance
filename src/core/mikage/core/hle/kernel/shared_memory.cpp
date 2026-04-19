@@ -2,14 +2,14 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/archives.h"
-#include "common/logging/log.h"
-#include "core/hle/kernel/errors.h"
-#include "core/hle/kernel/memory.h"
-#include "core/hle/kernel/resource_limit.h"
-#include "core/hle/kernel/shared_memory.h"
-#include "core/memory.h"
-#include "common/serialization/boost_all_serialization.h"
+#include "../../../common/archives.h"
+#include "../../../common/logging/log.h"
+#include "errors.h"
+#include "memory.h"
+#include "resource_limit.h"
+#include "shared_memory.h"
+#include "../../memory.h"
+#include "../../../common/serialization/boost_all_serialization.h"
 
 SERIALIZE_EXPORT_IMPL(Kernel::SharedMemory)
 

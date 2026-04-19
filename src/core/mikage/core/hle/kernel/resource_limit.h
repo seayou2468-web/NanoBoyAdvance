@@ -6,9 +6,9 @@
 
 #include <array>
 #include <memory>
-#include "common/common_types.h"
-#include "core/hle/kernel/object.h"
-#include "common/serialization/boost_all_serialization.h"
+#include "../../../common/common_types.h"
+#include "object.h"
+#include "../../../common/serialization/boost_all_serialization.h"
 
 namespace Kernel {
 

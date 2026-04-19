@@ -3,17 +3,17 @@
 // Refer to the license.txt file included.
 
 #include <CommonCrypto/CommonDigest.h>
-#include "common/common_paths.h"
-#include "common/logging/log.h"
-#include "common/string_util.h"
-#include "core/file_sys/archive_systemsavedata.h"
-#include "core/file_sys/certificate.h"
-#include "core/file_sys/otp.h"
-#include "core/hw/aes/key.h"
-#include "core/hw/ecc.h"
-#include "core/hw/rsa/rsa.h"
-#include "core/hw/unique_data.h"
-#include "core/loader/loader.h"
+#include "../../common/common_paths.h"
+#include "../../common/logging/log.h"
+#include "../../common/string_util.h"
+#include "../file_sys/archive_systemsavedata.h"
+#include "../file_sys/certificate.h"
+#include "../file_sys/otp.h"
+#include "aes/key.h"
+#include "ecc.h"
+#include "rsa/rsa.h"
+#include "unique_data.h"
+#include "../loader/loader.h"
 
 namespace HW::UniqueData {
 

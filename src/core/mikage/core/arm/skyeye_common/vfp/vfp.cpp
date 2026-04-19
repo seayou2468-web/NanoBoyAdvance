@@ -23,7 +23,7 @@
 #include "../../../../common/compat/common/common_funcs.h"
 #include "../../../../common/compat/common/common_types.h"
 #include "../../../../common/compat/common/logging/log.h"
-#include "skyeye_common/armstate.h"
+#include "../armstate.h"
 #include "skyeye_common/vfp/asm_vfp.h"
 #include "skyeye_common/vfp/vfp.h"
 

@@ -4,16 +4,16 @@
 
 #include <array>
 #include <cstring>
-#include "common/archives.h"
-#include "common/common_funcs.h"
-#include "common/logging/log.h"
-#include "common/scope_exit.h"
-#include "core/core.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/kernel/event.h"
-#include "core/hle/kernel/process.h"
-#include "core/hle/service/cam/y2r_u.h"
-#include "core/hw/y2r.h"
+#include "../../../../common/archives.h"
+#include "../../../../common/common_funcs.h"
+#include "../../../../common/logging/log.h"
+#include "../../../../common/scope_exit.h"
+#include "../../../core.h"
+#include "../../ipc_helpers.h"
+#include "../../kernel/event.h"
+#include "../../kernel/process.h"
+#include "y2r_u.h"
+#include "../../../hw/y2r.h"
 
 SERVICE_CONSTRUCT_IMPL(Service::Y2R::Y2R_U)
 SERIALIZE_EXPORT_IMPL(Service::Y2R::Y2R_U)

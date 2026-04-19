@@ -2,9 +2,9 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "core/core.h"
-#include "core/hle/service/pxi/dev.h"
-#include "core/hle/service/pxi/pxi.h"
+#include "../../../core.h"
+#include "dev.h"
+#include "pxi.h"
 
 namespace Service::PXI {
 

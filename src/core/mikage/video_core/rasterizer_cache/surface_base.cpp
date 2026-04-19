@@ -2,10 +2,10 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/alignment.h"
-#include "video_core/custom_textures/material.h"
-#include "video_core/rasterizer_cache/surface_base.h"
-#include "video_core/texture/texture_decode.h"
+#include "../../common/alignment.h"
+#include "../custom_textures/material.h"
+#include "surface_base.h"
+#include "../texture/texture_decode.h"
 
 namespace VideoCore {
 

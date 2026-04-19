@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "common/common_types.h"
+#include "../../../common/common_types.h"
 
 #define BITS(s, a, b) ((s << ((sizeof(s) * 8 - 1) - b)) >> (sizeof(s) * 8 - b + a - 1))
 #define BIT(s, n) ((s >> (n)) & 1)

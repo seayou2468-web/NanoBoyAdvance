@@ -8,12 +8,12 @@
 #include <string>
 #include <type_traits>
 #include <unordered_map>
-#include "core/hle/kernel/client_port.h"
-#include "core/hle/kernel/object.h"
-#include "core/hle/kernel/server_port.h"
-#include "core/hle/result.h"
-#include "core/hle/service/service.h"
-#include "common/serialization/boost_all_serialization.h"
+#include "../../kernel/client_port.h"
+#include "../../kernel/object.h"
+#include "../../kernel/server_port.h"
+#include "../../result.h"
+#include "../service.h"
+#include "../../../../common/serialization/boost_all_serialization.h"
 
 namespace Core {
 class System;

@@ -6,8 +6,8 @@
 
 #include <map>
 #include <vector>
-#include "common/common_types.h"
-#include "common/hacks/hack_list.h"
+#include "../common_types.h"
+#include "hack_list.h"
 
 namespace Common::Hacks {
 

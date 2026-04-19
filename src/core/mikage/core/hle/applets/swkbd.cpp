@@ -5,17 +5,17 @@
 #include <algorithm>
 #include <cstring>
 #include <string>
-#include "common/assert.h"
-#include "common/logging/log.h"
-#include "common/string_util.h"
-#include "core/core.h"
-#include "core/hle/applets/swkbd.h"
-#include "core/hle/kernel/kernel.h"
-#include "core/hle/kernel/shared_memory.h"
-#include "core/hle/result.h"
-#include "core/hle/service/gsp/gsp.h"
-#include "core/hle/service/hid/hid.h"
-#include "core/memory.h"
+#include "../../../common/assert.h"
+#include "../../../common/logging/log.h"
+#include "../../../common/string_util.h"
+#include "../../core.h"
+#include "swkbd.h"
+#include "../kernel/kernel.h"
+#include "../kernel/shared_memory.h"
+#include "../result.h"
+#include "../service/gsp/gsp.h"
+#include "../service/hid/hid.h"
+#include "../../memory.h"
 
 namespace HLE::Applets {
 

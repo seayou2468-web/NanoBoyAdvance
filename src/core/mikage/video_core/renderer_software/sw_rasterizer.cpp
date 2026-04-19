@@ -3,19 +3,19 @@
 // Refer to the license.txt file included.
 
 #include <vector>
-#include "common/logging/log.h"
-#include "common/microprofile.h"
-#include "common/quaternion.h"
-#include "common/vector_math.h"
-#include "core/memory.h"
-#include "video_core/pica/output_vertex.h"
-#include "video_core/pica/pica_core.h"
-#include "video_core/renderer_software/sw_framebuffer.h"
-#include "video_core/renderer_software/sw_lighting.h"
-#include "video_core/renderer_software/sw_proctex.h"
-#include "video_core/renderer_software/sw_rasterizer.h"
-#include "video_core/renderer_software/sw_texturing.h"
-#include "video_core/texture/texture_decode.h"
+#include "../../common/logging/log.h"
+#include "../../common/microprofile.h"
+#include "../../common/quaternion.h"
+#include "../../common/vector_math.h"
+#include "../../core/memory.h"
+#include "../pica/output_vertex.h"
+#include "../pica/pica_core.h"
+#include "sw_framebuffer.h"
+#include "sw_lighting.h"
+#include "sw_proctex.h"
+#include "sw_rasterizer.h"
+#include "sw_texturing.h"
+#include "../texture/texture_decode.h"
 
 namespace SwRenderer {
 

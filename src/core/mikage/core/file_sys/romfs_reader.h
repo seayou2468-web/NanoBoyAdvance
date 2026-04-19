@@ -8,13 +8,13 @@
 
 #include <array>
 #include <shared_mutex>
-#include "common/alignment.h"
-#include "common/common_types.h"
-#include "common/file_util.h"
-#include "common/static_lru_cache.h"
-#include "core/file_sys/artic_cache.h"
-#include "network/artic_base/artic_base_client.h"
-#include "common/serialization/boost_all_serialization.h"
+#include "../../common/alignment.h"
+#include "../../common/common_types.h"
+#include "../../common/file_util.h"
+#include "../../common/static_lru_cache.h"
+#include "artic_cache.h"
+#include "../../network/artic_base/artic_base_client.h"
+#include "../../common/serialization/boost_all_serialization.h"
 
 namespace Loader {
 enum class ResultStatus;

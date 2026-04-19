@@ -5,10 +5,10 @@
 #pragma once
 
 #include <string>
-#include "core/file_sys/archive_backend.h"
-#include "core/file_sys/directory_backend.h"
-#include "core/file_sys/file_backend.h"
-#include "core/hle/result.h"
+#include "archive_backend.h"
+#include "directory_backend.h"
+#include "file_backend.h"
+#include "../hle/result.h"
 
 namespace FileSys {
 

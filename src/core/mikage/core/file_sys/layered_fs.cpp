@@ -4,15 +4,15 @@
 
 #include <algorithm>
 #include <cstring>
-#include "common/alignment.h"
-#include "common/archives.h"
-#include "common/assert.h"
-#include "common/common_paths.h"
-#include "common/file_util.h"
-#include "common/string_util.h"
-#include "common/swap.h"
-#include "core/file_sys/layered_fs.h"
-#include "core/file_sys/patch.h"
+#include "../../common/alignment.h"
+#include "../../common/archives.h"
+#include "../../common/assert.h"
+#include "../../common/common_paths.h"
+#include "../../common/file_util.h"
+#include "../../common/string_util.h"
+#include "../../common/swap.h"
+#include "layered_fs.h"
+#include "patch.h"
 
 SERIALIZE_EXPORT_IMPL(FileSys::LayeredFS)
 

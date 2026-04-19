@@ -3,14 +3,14 @@
 // Refer to the license.txt file included.
 
 #include <algorithm>
-#include "common/color.h"
-#include "common/logging/log.h"
-#include "core/memory.h"
-#include "video_core/pica/regs_external.h"
-#include "video_core/pica/regs_framebuffer.h"
-#include "video_core/pica_types.h"
-#include "video_core/renderer_software/sw_framebuffer.h"
-#include "video_core/utils.h"
+#include "../../common/color.h"
+#include "../../common/logging/log.h"
+#include "../../core/memory.h"
+#include "../pica/regs_external.h"
+#include "../pica/regs_framebuffer.h"
+#include "../pica_types.h"
+#include "sw_framebuffer.h"
+#include "../utils.h"
 
 namespace SwRenderer {
 

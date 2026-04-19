@@ -4,12 +4,12 @@
 
 #include <iomanip>
 #include <sstream>
-#include "common/alignment.h"
-#include "common/settings.h"
-#include "core/core_timing.h"
-#include "core/hle/service/hid/hid.h"
-#include "core/hle/service/ir/extra_hid.h"
-#include "core/movie.h"
+#include "../../../../common/alignment.h"
+#include "../../../../common/settings.h"
+#include "../../../core_timing.h"
+#include "../hid/hid.h"
+#include "extra_hid.h"
+#include "../../../movie.h"
 
 namespace Service::IR {
 

@@ -6,16 +6,16 @@
 #include <iomanip>
 #include <sstream>
 #include <vector>
-#include "common/archives.h"
-#include "common/crc.h"
-#include "common/swap.h"
-#include "core/core.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/kernel/event.h"
-#include "core/hle/kernel/shared_memory.h"
-#include "core/hle/service/ir/extra_hid.h"
-#include "core/hle/service/ir/ir_user.h"
-#include "common/serialization/boost_all_serialization.h"
+#include "../../../../common/archives.h"
+#include "../../../../common/crc.h"
+#include "../../../../common/swap.h"
+#include "../../../core.h"
+#include "../../ipc_helpers.h"
+#include "../../kernel/event.h"
+#include "../../kernel/shared_memory.h"
+#include "extra_hid.h"
+#include "ir_user.h"
+#include "../../../../common/serialization/boost_all_serialization.h"
 
 SERIALIZE_EXPORT_IMPL(Service::IR::IR_USER)
 SERVICE_CONSTRUCT_IMPL(Service::IR::IR_USER)

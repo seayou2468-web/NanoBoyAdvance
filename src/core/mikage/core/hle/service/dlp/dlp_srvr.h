@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "common/timer.h"
-#include "core/hle/service/service.h"
+#include "../../../../common/timer.h"
+#include "../service.h"
 #include "dlp_base.h"
 
 namespace Service::FS {

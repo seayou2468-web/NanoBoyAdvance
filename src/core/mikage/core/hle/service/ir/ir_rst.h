@@ -6,11 +6,11 @@
 
 #include <atomic>
 #include <memory>
-#include "common/bit_field.h"
-#include "common/common_types.h"
-#include "common/swap.h"
-#include "core/frontend/input.h"
-#include "core/hle/service/service.h"
+#include "../../../../common/bit_field.h"
+#include "../../../../common/common_types.h"
+#include "../../../../common/swap.h"
+#include "../../../frontend/input.h"
+#include "../service.h"
 
 namespace Kernel {
 class Event;

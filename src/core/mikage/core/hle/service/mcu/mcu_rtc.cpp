@@ -3,13 +3,13 @@
 // Refer to the license.txt file included.
 
 #include <algorithm>
-#include "common/archives.h"
-#include "common/vector_math.h"
-#include "core/core.h"
-#include "core/core_timing.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/service/mcu/mcu.h"
-#include "core/hle/service/mcu/mcu_rtc.h"
+#include "../../../../common/archives.h"
+#include "../../../../common/vector_math.h"
+#include "../../../core.h"
+#include "../../../core_timing.h"
+#include "../../ipc_helpers.h"
+#include "mcu.h"
+#include "mcu_rtc.h"
 
 SERVICE_CONSTRUCT_IMPL(Service::MCU::RTC)
 SERIALIZE_EXPORT_IMPL(Service::MCU::RTC)

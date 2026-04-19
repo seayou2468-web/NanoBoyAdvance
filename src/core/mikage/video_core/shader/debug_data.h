@@ -5,9 +5,9 @@
 #pragma once
 
 #include <vector>
-#include "common/common_types.h"
-#include "common/vector_math.h"
-#include "video_core/pica_types.h"
+#include "../../common/common_types.h"
+#include "../../common/vector_math.h"
+#include "../pica_types.h"
 
 namespace Pica::Shader {
 

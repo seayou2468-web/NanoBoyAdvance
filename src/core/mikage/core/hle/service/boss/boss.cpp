@@ -2,14 +2,14 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/archives.h"
-#include "common/logging/log.h"
-#include "core/core.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/result.h"
-#include "core/hle/service/boss/boss.h"
-#include "core/hle/service/boss/boss_p.h"
-#include "core/hle/service/boss/boss_u.h"
+#include "../../../../common/archives.h"
+#include "../../../../common/logging/log.h"
+#include "../../../core.h"
+#include "../../ipc_helpers.h"
+#include "../../result.h"
+#include "boss.h"
+#include "boss_p.h"
+#include "boss_u.h"
 
 SERVICE_CONSTRUCT_IMPL(Service::BOSS::Module)
 SERIALIZE_EXPORT_IMPL(Service::BOSS::Module)

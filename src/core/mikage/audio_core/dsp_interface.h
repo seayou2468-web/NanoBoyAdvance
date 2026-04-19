@@ -6,12 +6,12 @@
 
 #include <memory>
 #include <span>
-#include "common/serialization/boost_all_serialization.h"
-#include "audio_core/audio_types.h"
-#include "audio_core/time_stretch.h"
-#include "common/common_types.h"
-#include "common/ring_buffer.h"
-#include "core/memory.h"
+#include "../common/serialization/boost_all_serialization.h"
+#include "audio_types.h"
+#include "time_stretch.h"
+#include "../common/common_types.h"
+#include "../common/ring_buffer.h"
+#include "../core/memory.h"
 
 namespace Core {
 class System;

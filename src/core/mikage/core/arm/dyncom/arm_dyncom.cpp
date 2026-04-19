@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <cstring>
 #include <memory>
-#include "dyncom/arm_dyncom.h"
+#include "arm_dyncom.h"
 #include "dyncom/arm_dyncom_interpreter.h"
 #include "dyncom/arm_dyncom_trans.h"
 #include "skyeye_common/armstate.h"

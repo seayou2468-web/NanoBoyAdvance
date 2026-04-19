@@ -6,21 +6,21 @@
 #include <optional>
 #include <fstream>
 #include <sstream>
-#include "common/commoncrypto_aes.h"
-#include "common/common_paths.h"
-#include "common/file_util.h"
-#include "common/logging/log.h"
-#include "common/string_util.h"
-#include "core/file_sys/certificate.h"
-#include "core/file_sys/otp.h"
-#include "core/hle/service/fs/archive.h"
-#include "core/hw/aes/arithmetic128.h"
-#include "core/hw/aes/key.h"
+#include "../../../common/commoncrypto_aes.h"
+#include "../../../common/common_paths.h"
+#include "../../../common/file_util.h"
+#include "../../../common/logging/log.h"
+#include "../../../common/string_util.h"
+#include "../../file_sys/certificate.h"
+#include "../../file_sys/otp.h"
+#include "../../hle/service/fs/archive.h"
+#include "arithmetic128.h"
+#include "key.h"
 #ifdef ENABLE_BUILTIN_KEYBLOB
-#include "core/hw/default_keys.h"
+#include "../default_keys.h"
 #endif // ENABLE_BUILTIN_KEYBLOB
-#include "core/hw/rsa/rsa.h"
-#include "core/loader/loader.h"
+#include "../rsa/rsa.h"
+#include "../../loader/loader.h"
 
 namespace HW::AES {
 

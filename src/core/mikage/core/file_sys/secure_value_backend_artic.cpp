@@ -2,9 +2,9 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/archives.h"
-#include "core/file_sys/archive_artic.h"
-#include "core/file_sys/secure_value_backend_artic.h"
+#include "../../common/archives.h"
+#include "archive_artic.h"
+#include "secure_value_backend_artic.h"
 
 SERIALIZE_EXPORT_IMPL(FileSys::ArticSecureValueBackend)
 

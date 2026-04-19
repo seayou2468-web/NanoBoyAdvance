@@ -2,18 +2,18 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/archives.h"
-#include "common/logging/log.h"
-#include "core/core.h"
-#include "core/file_sys/errors.h"
-#include "core/file_sys/file_backend.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/kernel/client_port.h"
-#include "core/hle/kernel/client_session.h"
-#include "core/hle/kernel/event.h"
-#include "core/hle/kernel/server_session.h"
-#include "core/hle/service/fs/file.h"
-#include "common/serialization/boost_all_serialization.h"
+#include "../../../../common/archives.h"
+#include "../../../../common/logging/log.h"
+#include "../../../core.h"
+#include "../../../file_sys/errors.h"
+#include "../../../file_sys/file_backend.h"
+#include "../../ipc_helpers.h"
+#include "../../kernel/client_port.h"
+#include "../../kernel/client_session.h"
+#include "../../kernel/event.h"
+#include "../../kernel/server_session.h"
+#include "file.h"
+#include "../../../../common/serialization/boost_all_serialization.h"
 
 SERIALIZE_EXPORT_IMPL(Service::FS::File)
 SERIALIZE_EXPORT_IMPL(Service::FS::FileSessionSlot)

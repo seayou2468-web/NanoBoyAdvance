@@ -4,17 +4,17 @@
 
 #include <algorithm>
 #include <vector>
-#include "common/archives.h"
-#include "common/assert.h"
-#include "common/common_types.h"
-#include "core/core.h"
-#include "core/hle/kernel/event.h"
-#include "core/hle/kernel/handle_table.h"
-#include "core/hle/kernel/hle_ipc.h"
-#include "core/hle/kernel/ipc_debugger/recorder.h"
-#include "core/hle/kernel/kernel.h"
-#include "core/hle/kernel/process.h"
-#include "common/serialization/boost_all_serialization.h"
+#include "../../../common/archives.h"
+#include "../../../common/assert.h"
+#include "../../../common/common_types.h"
+#include "../../core.h"
+#include "event.h"
+#include "handle_table.h"
+#include "hle_ipc.h"
+#include "ipc_debugger/recorder.h"
+#include "kernel.h"
+#include "process.h"
+#include "../../../common/serialization/boost_all_serialization.h"
 
 SERIALIZE_EXPORT_IMPL(Kernel::SessionRequestHandler)
 SERIALIZE_EXPORT_IMPL(Kernel::SessionRequestHandler::SessionDataBase)

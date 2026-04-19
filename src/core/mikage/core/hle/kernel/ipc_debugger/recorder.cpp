@@ -2,17 +2,17 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/assert.h"
-#include "common/logging/log.h"
-#include "core/hle/kernel/client_port.h"
-#include "core/hle/kernel/client_session.h"
-#include "core/hle/kernel/ipc_debugger/recorder.h"
-#include "core/hle/kernel/process.h"
-#include "core/hle/kernel/server_port.h"
-#include "core/hle/kernel/server_session.h"
-#include "core/hle/kernel/session.h"
-#include "core/hle/kernel/thread.h"
-#include "core/hle/service/service.h"
+#include "../../../../common/assert.h"
+#include "../../../../common/logging/log.h"
+#include "../client_port.h"
+#include "../client_session.h"
+#include "recorder.h"
+#include "../process.h"
+#include "../server_port.h"
+#include "../server_session.h"
+#include "../session.h"
+#include "../thread.h"
+#include "../../service/service.h"
 
 namespace IPCDebugger {
 

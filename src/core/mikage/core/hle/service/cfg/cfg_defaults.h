@@ -6,8 +6,8 @@
 
 #include <span>
 #include <unordered_map>
-#include "common/common_types.h"
-#include "core/hle/service/cfg/cfg.h"
+#include "../../../../common/common_types.h"
+#include "cfg.h"
 
 namespace Service::CFG {
 

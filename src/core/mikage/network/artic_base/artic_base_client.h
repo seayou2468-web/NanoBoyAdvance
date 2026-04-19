@@ -15,7 +15,7 @@
 #include <utility>
 
 #include "artic_base_common.h"
-#include "network/socket_manager.h"
+#include "../socket_manager.h"
 
 using SocketHolder = int;
 

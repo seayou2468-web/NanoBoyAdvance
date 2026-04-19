@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "core/hle/service/apt/apt.h"
+#include "apt.h"
 
 namespace Service::APT {
 

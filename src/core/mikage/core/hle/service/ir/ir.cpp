@@ -3,12 +3,12 @@
 // Refer to the license.txt file included.
 
 #include <memory>
-#include "core/core.h"
-#include "core/hle/service/ir/ir.h"
-#include "core/hle/service/ir/ir_rst.h"
-#include "core/hle/service/ir/ir_u.h"
-#include "core/hle/service/ir/ir_user.h"
-#include "core/hle/service/service.h"
+#include "../../../core.h"
+#include "ir.h"
+#include "ir_rst.h"
+#include "ir_u.h"
+#include "ir_user.h"
+#include "../service.h"
 
 namespace Service::IR {
 

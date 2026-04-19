@@ -8,7 +8,7 @@
 #include <cstddef>
 #include <span>
 #include <vector>
-#include "common/common_types.h"
+#include "../../../common/common_types.h"
 
 namespace HW::AES {
 

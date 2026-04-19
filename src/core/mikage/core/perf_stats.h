@@ -9,9 +9,9 @@
 #include <chrono>
 #include <cstddef>
 #include <mutex>
-#include "common/bit_field.h"
-#include "common/common_types.h"
-#include "common/thread.h"
+#include "../common/bit_field.h"
+#include "../common/common_types.h"
+#include "../common/thread.h"
 
 namespace Core {
 

@@ -7,9 +7,9 @@
 #include <memory>
 #include <span>
 #include <vector>
-#include "common/assert.h"
-#include "common/common_types.h"
-#include "common/serialization/boost_all_serialization.h"
+#include "assert.h"
+#include "common_types.h"
+#include "serialization/boost_all_serialization.h"
 
 /// Abstract host-side memory - for example a static buffer, or local vector
 class BackingMem {

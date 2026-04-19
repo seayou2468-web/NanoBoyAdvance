@@ -7,8 +7,8 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include "common/common_types.h"
-#include "core/tracer/citrace.h"
+#include "../../common/common_types.h"
+#include "citrace.h"
 
 namespace CiTrace {
 

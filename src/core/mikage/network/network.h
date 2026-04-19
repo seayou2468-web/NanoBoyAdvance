@@ -5,8 +5,8 @@
 #pragma once
 
 #include <memory>
-#include "network/room.h"
-#include "network/room_member.h"
+#include "room.h"
+#include "room_member.h"
 
 namespace Network {
 

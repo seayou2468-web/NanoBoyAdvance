@@ -2,16 +2,16 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/archives.h"
-#include "common/assert.h"
-#include "core/core.h"
-#include "core/hle/kernel/errors.h"
-#include "core/hle/kernel/kernel.h"
-#include "core/hle/kernel/mutex.h"
-#include "core/hle/kernel/object.h"
-#include "core/hle/kernel/resource_limit.h"
-#include "core/hle/kernel/thread.h"
-#include "common/serialization/boost_all_serialization.h"
+#include "../../../common/archives.h"
+#include "../../../common/assert.h"
+#include "../../core.h"
+#include "errors.h"
+#include "kernel.h"
+#include "mutex.h"
+#include "object.h"
+#include "resource_limit.h"
+#include "thread.h"
+#include "../../../common/serialization/boost_all_serialization.h"
 
 SERIALIZE_EXPORT_IMPL(Kernel::Mutex)
 

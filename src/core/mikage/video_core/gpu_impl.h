@@ -5,22 +5,22 @@
 
 #pragma once
 
-#include "common/archives.h"
-#include "common/microprofile.h"
-#include "core/core.h"
-#include "core/core_timing.h"
-#include "core/hle/service/gsp/gsp_gpu.h"
-#include "core/hle/service/plgldr/plgldr.h"
-#include "video_core/debug_utils/debug_utils.h"
-#include "video_core/gpu.h"
-#include "video_core/gpu_debugger.h"
-#include "video_core/gpu_impl.h"
-#include "video_core/pica/pica_core.h"
-#include "video_core/pica/regs_lcd.h"
-#include "video_core/renderer_base.h"
-#include "video_core/renderer_software/sw_blitter.h"
-#include "video_core/right_eye_disabler.h"
-#include "video_core/video_core.h"
+#include "../common/archives.h"
+#include "../common/microprofile.h"
+#include "../core/core.h"
+#include "../core/core_timing.h"
+#include "../core/hle/service/gsp/gsp_gpu.h"
+#include "../core/hle/service/plgldr/plgldr.h"
+#include "debug_utils/debug_utils.h"
+#include "gpu.h"
+#include "gpu_debugger.h"
+#include "gpu_impl.h"
+#include "pica/pica_core.h"
+#include "pica/regs_lcd.h"
+#include "renderer_base.h"
+#include "renderer_software/sw_blitter.h"
+#include "right_eye_disabler.h"
+#include "video_core.h"
 
 namespace VideoCore {
 struct GPU::Impl {

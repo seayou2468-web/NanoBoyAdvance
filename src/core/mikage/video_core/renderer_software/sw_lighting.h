@@ -7,9 +7,9 @@
 #include <span>
 #include <utility>
 
-#include "common/quaternion.h"
-#include "common/vector_math.h"
-#include "video_core/pica/pica_core.h"
+#include "../../common/quaternion.h"
+#include "../../common/vector_math.h"
+#include "../pica/pica_core.h"
 
 namespace SwRenderer {
 

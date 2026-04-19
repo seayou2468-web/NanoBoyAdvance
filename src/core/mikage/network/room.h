@@ -8,7 +8,7 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include "common/common_types.h"
+#include "../common/common_types.h"
 #include "network/verify_user.h"
 
 namespace Network {

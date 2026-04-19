@@ -2,12 +2,12 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/archives.h"
-#include "common/file_util.h"
-#include "core/file_sys/disk_archive.h"
-#include "core/file_sys/errors.h"
-#include "core/file_sys/path_parser.h"
-#include "core/file_sys/savedata_archive.h"
+#include "../../common/archives.h"
+#include "../../common/file_util.h"
+#include "disk_archive.h"
+#include "errors.h"
+#include "path_parser.h"
+#include "savedata_archive.h"
 
 namespace FileSys {
 

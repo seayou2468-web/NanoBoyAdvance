@@ -3,12 +3,12 @@
 // Refer to the license.txt file included.
 
 #include <utility>
-#include "common/assert.h"
-#include "common/bit_set.h"
-#include "common/hash.h"
-#include "common/logging/log.h"
-#include "video_core/pica/regs_shader.h"
-#include "video_core/pica/shader_setup.h"
+#include "../../common/assert.h"
+#include "../../common/bit_set.h"
+#include "../../common/hash.h"
+#include "../../common/logging/log.h"
+#include "regs_shader.h"
+#include "shader_setup.h"
 
 namespace Pica {
 

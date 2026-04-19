@@ -6,12 +6,12 @@
 #include <memory>
 #include <type_traits>
 #include <utility>
-#include "common/assert.h"
-#include "common/common_types.h"
-#include "core/core.h"
-#include "core/core_timing.h"
-#include "core/hle/applets/applet.h"
-#include "core/hle/result.h"
+#include "../../../common/assert.h"
+#include "../../../common/common_types.h"
+#include "../../core.h"
+#include "../../core_timing.h"
+#include "applet.h"
+#include "../result.h"
 
 namespace HLE::Applets {
 

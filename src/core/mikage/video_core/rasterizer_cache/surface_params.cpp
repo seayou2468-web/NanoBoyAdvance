@@ -2,9 +2,9 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/alignment.h"
-#include "common/string_util.h"
-#include "video_core/rasterizer_cache/surface_params.h"
+#include "../../common/alignment.h"
+#include "../../common/string_util.h"
+#include "surface_params.h"
 
 namespace VideoCore {
 

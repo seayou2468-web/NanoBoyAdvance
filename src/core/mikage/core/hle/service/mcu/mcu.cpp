@@ -2,10 +2,10 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "core/core.h"
-#include "core/hle/service/mcu/mcu.h"
-#include "core/hle/service/mcu/mcu_hwc.h"
-#include "core/hle/service/mcu/mcu_rtc.h"
+#include "../../../core.h"
+#include "mcu.h"
+#include "mcu_hwc.h"
+#include "mcu_rtc.h"
 
 namespace Service::MCU {
 

@@ -8,8 +8,8 @@
 #include <string>
 #include <string_view>
 #include <type_traits>
-#include "common/logging/log.h"
-#include "core/file_sys/patch.h"
+#include "../../common/logging/log.h"
+#include "patch.h"
 
 namespace FileSys::Patch {
 

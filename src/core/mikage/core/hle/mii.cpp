@@ -2,10 +2,10 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/archives.h"
-#include "common/crc.h"
-#include "core/hle/mii.h"
-#include "common/serialization/boost_all_serialization.h"
+#include "../../common/archives.h"
+#include "../../common/crc.h"
+#include "mii.h"
+#include "../../common/serialization/boost_all_serialization.h"
 
 SERIALIZE_EXPORT_IMPL(Mii::MiiData)
 SERIALIZE_EXPORT_IMPL(Mii::ChecksummedMiiData)

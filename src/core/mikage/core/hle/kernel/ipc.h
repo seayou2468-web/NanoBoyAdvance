@@ -6,10 +6,10 @@
 
 #include <memory>
 #include <vector>
-#include "common/common_types.h"
-#include "core/hle/ipc.h"
-#include "core/hle/kernel/thread.h"
-#include "common/serialization/boost_all_serialization.h"
+#include "../../../common/common_types.h"
+#include "../ipc.h"
+#include "thread.h"
+#include "../../../common/serialization/boost_all_serialization.h"
 
 namespace Memory {
 class MemorySystem;

@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "core/hle/service/frd/frd.h"
+#include "frd.h"
 
 namespace Service::FRD {
 

@@ -55,7 +55,7 @@
 #include "../../../../common/compat/common/common_funcs.h"
 #include "../../../../common/compat/common/common_types.h"
 #include "../../../../common/compat/common/logging/log.h"
-#include "skyeye_common/vfp/asm_vfp.h"
+#include "asm_vfp.h"
 #include "skyeye_common/vfp/vfp.h"
 #include "skyeye_common/vfp/vfp_helper.h"
 

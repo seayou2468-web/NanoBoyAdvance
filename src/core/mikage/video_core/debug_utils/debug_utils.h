@@ -12,8 +12,8 @@
 #include <string>
 #include <utility>
 #include <vector>
-#include "common/common_types.h"
-#include "video_core/pica/regs_rasterizer.h"
+#include "../../common/common_types.h"
+#include "../pica/regs_rasterizer.h"
 
 namespace CiTrace {
 class Recorder;

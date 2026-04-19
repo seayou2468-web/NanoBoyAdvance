@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include "core/memory.h"
-#include "video_core/pica/output_vertex.h"
-#include "video_core/pica/regs_pipeline.h"
+#include "../../core/memory.h"
+#include "output_vertex.h"
+#include "regs_pipeline.h"
 
 namespace Memory {
 class MemorySystem;

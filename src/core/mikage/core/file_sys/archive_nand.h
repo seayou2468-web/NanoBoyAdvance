@@ -6,9 +6,9 @@
 
 #include <memory>
 #include <string>
-#include "core/file_sys/archive_backend.h"
-#include "core/hle/result.h"
-#include "common/serialization/boost_all_serialization.h"
+#include "archive_backend.h"
+#include "../hle/result.h"
+#include "../../common/serialization/boost_all_serialization.h"
 
 namespace FileSys {
 

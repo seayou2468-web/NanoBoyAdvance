@@ -9,10 +9,10 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include "common/common_types.h"
-#include "common/swap.h"
-#include "core/file_sys/romfs_reader.h"
-#include "common/serialization/boost_all_serialization.h"
+#include "../../common/common_types.h"
+#include "../../common/swap.h"
+#include "romfs_reader.h"
+#include "../../common/serialization/boost_all_serialization.h"
 
 namespace FileSys {
 

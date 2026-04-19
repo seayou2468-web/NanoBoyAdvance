@@ -1,7 +1,7 @@
 #include <cstdlib>
 #include "../../../common/compat/common/assert.h"
 #include "../../../common/compat/common/common_types.h"
-#include "dyncom/arm_dyncom_trans.h"
+#include "arm_dyncom_trans.h"
 #include "skyeye_common/armstate.h"
 #include "skyeye_common/armsupp.h"
 #include "skyeye_common/vfp/vfp.h"
@@ -1804,7 +1804,7 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(yield)(unsigned int inst, int index) {
 
 // Floating point VFPv3 instructions
 #define VFP_INTERPRETER_TRANS
-#include "core/arm/skyeye_common/vfp/vfpinstr.cpp"
+#include "../skyeye_common/vfp/vfpinstr.cpp"
 #undef VFP_INTERPRETER_TRANS
 
 const transop_fp_t arm_instruction_trans[] = {

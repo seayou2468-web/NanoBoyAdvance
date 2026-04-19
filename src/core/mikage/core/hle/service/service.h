@@ -10,13 +10,13 @@
 #include <memory>
 #include <string>
 #include <map>
-#include "common/archives.h"
-#include "common/common_types.h"
-#include "common/construct.h"
-#include "core/hle/kernel/hle_ipc.h"
-#include "core/hle/kernel/object.h"
-#include "core/hle/service/sm/sm.h"
-#include "common/serialization/boost_all_serialization.h"
+#include "../../../common/archives.h"
+#include "../../../common/common_types.h"
+#include "../../../common/construct.h"
+#include "../kernel/hle_ipc.h"
+#include "../kernel/object.h"
+#include "sm/sm.h"
+#include "../../../common/serialization/boost_all_serialization.h"
 
 namespace Core {
 class System;

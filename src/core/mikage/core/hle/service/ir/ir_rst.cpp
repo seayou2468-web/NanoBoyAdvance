@@ -2,17 +2,17 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/archives.h"
-#include "common/settings.h"
-#include "core/core.h"
-#include "core/core_timing.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/kernel/event.h"
-#include "core/hle/kernel/shared_memory.h"
-#include "core/hle/service/hid/hid.h"
-#include "core/hle/service/ir/ir_rst.h"
-#include "core/movie.h"
-#include "common/serialization/boost_all_serialization.h"
+#include "../../../../common/archives.h"
+#include "../../../../common/settings.h"
+#include "../../../core.h"
+#include "../../../core_timing.h"
+#include "../../ipc_helpers.h"
+#include "../../kernel/event.h"
+#include "../../kernel/shared_memory.h"
+#include "../hid/hid.h"
+#include "ir_rst.h"
+#include "../../../movie.h"
+#include "../../../../common/serialization/boost_all_serialization.h"
 
 SERIALIZE_EXPORT_IMPL(Service::IR::IR_RST)
 SERVICE_CONSTRUCT_IMPL(Service::IR::IR_RST)

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "common/common_types.h"
-#include "core/hw/aes/key.h"
+#include "../../../common/common_types.h"
+#include "key.h"
 
 namespace HW::AES {
 AESKey Lrot128(const AESKey& in, u32 rot);

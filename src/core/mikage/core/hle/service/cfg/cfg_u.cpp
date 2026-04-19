@@ -2,8 +2,8 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/archives.h"
-#include "core/hle/service/cfg/cfg_u.h"
+#include "../../../../common/archives.h"
+#include "cfg_u.h"
 
 SERIALIZE_EXPORT_IMPL(Service::CFG::CFG_U)
 

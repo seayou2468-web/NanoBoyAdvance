@@ -7,12 +7,12 @@
 #include <memory>
 #include <string>
 #include <tuple>
-#include "common/common_types.h"
-#include "core/hle/kernel/object.h"
-#include "core/hle/kernel/server_session.h"
-#include "core/hle/kernel/wait_object.h"
-#include "core/hle/result.h"
-#include "common/serialization/boost_all_serialization.h"
+#include "../../../common/common_types.h"
+#include "object.h"
+#include "server_session.h"
+#include "wait_object.h"
+#include "../result.h"
+#include "../../../common/serialization/boost_all_serialization.h"
 
 namespace Kernel {
 

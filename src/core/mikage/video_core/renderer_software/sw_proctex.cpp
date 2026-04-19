@@ -4,7 +4,7 @@
 
 #include <array>
 #include <cmath>
-#include "video_core/renderer_software/sw_proctex.h"
+#include "sw_proctex.h"
 
 namespace SwRenderer {
 

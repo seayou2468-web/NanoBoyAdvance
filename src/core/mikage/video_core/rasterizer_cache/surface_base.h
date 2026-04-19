@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include "common/boost_icl_compat.h"
-#include "video_core/rasterizer_cache/surface_params.h"
-#include "video_core/rasterizer_cache/utils.h"
+#include "../../common/boost_icl_compat.h"
+#include "surface_params.h"
+#include "utils.h"
 
 namespace VideoCore {
 

@@ -6,9 +6,9 @@
 
 #include <array>
 #include <functional>
-#include "common/serialization/boost_all_serialization.h"
-#include "video_core/pica/output_vertex.h"
-#include "video_core/pica/regs_pipeline.h"
+#include "../../common/serialization/boost_all_serialization.h"
+#include "output_vertex.h"
+#include "regs_pipeline.h"
 
 namespace Pica {
 

@@ -6,7 +6,7 @@
 #include <cstddef>
 #include <initializer_list>
 #include <type_traits>
-#include "common/common_types.h"
+#include "common_types.h"
 
 namespace Common {
 

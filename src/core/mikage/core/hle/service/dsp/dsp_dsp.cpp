@@ -2,14 +2,14 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "audio_core/audio_types.h"
-#include "common/archives.h"
-#include "common/assert.h"
-#include "common/logging/log.h"
-#include "core/core.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/kernel/process.h"
-#include "core/hle/service/dsp/dsp_dsp.h"
+#include "../../../../audio_core/audio_types.h"
+#include "../../../../common/archives.h"
+#include "../../../../common/assert.h"
+#include "../../../../common/logging/log.h"
+#include "../../../core.h"
+#include "../../ipc_helpers.h"
+#include "../../kernel/process.h"
+#include "dsp_dsp.h"
 
 using DspPipe = AudioCore::DspPipe;
 using InterruptType = Service::DSP::InterruptType;

@@ -4,17 +4,17 @@
 
 #include <algorithm>
 #include <CommonCrypto/CommonDigest.h>
-#include "common/alignment.h"
-#include "common/commoncrypto_aes.h"
-#include "core/file_sys/certificate.h"
-#include "core/file_sys/otp.h"
-#include "core/file_sys/signature.h"
-#include "core/file_sys/ticket.h"
-#include "core/hle/service/am/am.h"
-#include "core/hw/aes/key.h"
-#include "core/hw/ecc.h"
-#include "core/hw/unique_data.h"
-#include "core/loader/loader.h"
+#include "../../common/alignment.h"
+#include "../../common/commoncrypto_aes.h"
+#include "certificate.h"
+#include "otp.h"
+#include "signature.h"
+#include "ticket.h"
+#include "../hle/service/am/am.h"
+#include "../hw/aes/key.h"
+#include "../hw/ecc.h"
+#include "../hw/unique_data.h"
+#include "../loader/loader.h"
 
 namespace FileSys {
 Loader::ResultStatus Ticket::DoTitlekeyFixup() {

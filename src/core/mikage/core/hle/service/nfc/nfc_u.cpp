@@ -2,8 +2,8 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/archives.h"
-#include "core/hle/service/nfc/nfc_u.h"
+#include "../../../../common/archives.h"
+#include "nfc_u.h"
 
 SERIALIZE_EXPORT_IMPL(Service::NFC::NFC_U)
 

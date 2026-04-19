@@ -15,7 +15,7 @@
 #include <queue>
 
 #include "common/polyfill_thread.h"
-#include "common/thread.h"
+#include "thread.h"
 #include "common/unique_function.h"
 
 namespace Common {

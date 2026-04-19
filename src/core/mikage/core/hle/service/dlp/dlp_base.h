@@ -4,11 +4,11 @@
 
 #pragma once
 
-#include "core/core.h"
-#include "core/hle/service/cfg/cfg.h"
-#include "core/hle/service/nwm/nwm_uds.h"
-#include "core/hle/service/service.h"
-#include "core/loader/smdh.h"
+#include "../../../core.h"
+#include "../cfg/cfg.h"
+#include "../nwm/nwm_uds.h"
+#include "../service.h"
+#include "../../../loader/smdh.h"
 
 #include <semaphore>
 

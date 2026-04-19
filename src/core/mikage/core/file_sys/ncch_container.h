@@ -10,12 +10,12 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include "common/bit_field.h"
-#include "common/common_types.h"
-#include "common/file_util.h"
-#include "common/swap.h"
-#include "core/file_sys/romfs_reader.h"
-#include "core/loader/loader.h"
+#include "../../common/bit_field.h"
+#include "../../common/common_types.h"
+#include "../../common/file_util.h"
+#include "../../common/swap.h"
+#include "romfs_reader.h"
+#include "../loader/loader.h"
 
 enum NCSDContentIndex { Main = 0, Manual = 1, DLP = 2, New3DSUpdate = 6, Update = 7 };
 

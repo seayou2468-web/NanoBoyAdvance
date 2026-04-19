@@ -2,15 +2,15 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/archives.h"
-#include "common/file_util.h"
-#include "common/logging/log.h"
-#include "common/string_util.h"
-#include "core/file_sys/archive_artic.h"
-#include "core/file_sys/archive_source_sd_savedata.h"
-#include "core/file_sys/errors.h"
-#include "core/file_sys/savedata_archive.h"
-#include "core/hle/service/fs/archive.h"
+#include "../../common/archives.h"
+#include "../../common/file_util.h"
+#include "../../common/logging/log.h"
+#include "../../common/string_util.h"
+#include "archive_artic.h"
+#include "archive_source_sd_savedata.h"
+#include "errors.h"
+#include "savedata_archive.h"
+#include "../hle/service/fs/archive.h"
 
 SERIALIZE_EXPORT_IMPL(FileSys::ArchiveSource_SDSaveData)
 

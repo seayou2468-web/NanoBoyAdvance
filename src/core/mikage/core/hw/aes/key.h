@@ -8,7 +8,7 @@
 #include <cstddef>
 #include <istream>
 #include <vector>
-#include "common/common_types.h"
+#include "../../../common/common_types.h"
 
 namespace FileSys {
 class Certificate;

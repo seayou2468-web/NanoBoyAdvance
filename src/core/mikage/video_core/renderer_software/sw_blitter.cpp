@@ -2,14 +2,14 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/alignment.h"
-#include "common/color.h"
-#include "common/vector_math.h"
-#include "core/memory.h"
-#include "video_core/pica/regs_external.h"
-#include "video_core/rasterizer_interface.h"
-#include "video_core/renderer_software/sw_blitter.h"
-#include "video_core/utils.h"
+#include "../../common/alignment.h"
+#include "../../common/color.h"
+#include "../../common/vector_math.h"
+#include "../../core/memory.h"
+#include "../pica/regs_external.h"
+#include "../rasterizer_interface.h"
+#include "sw_blitter.h"
+#include "../utils.h"
 
 namespace SwRenderer {
 

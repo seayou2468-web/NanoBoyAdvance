@@ -6,15 +6,15 @@
 #include <array>
 #include <cstddef>
 #include <memory>
-#include "common/assert.h"
-#include "common/color.h"
-#include "common/common_types.h"
-#include "common/microprofile.h"
-#include "common/vector_math.h"
-#include "core/core.h"
-#include "core/hle/service/cam/y2r_u.h"
-#include "core/hw/y2r.h"
-#include "core/memory.h"
+#include "../../common/assert.h"
+#include "../../common/color.h"
+#include "../../common/common_types.h"
+#include "../../common/microprofile.h"
+#include "../../common/vector_math.h"
+#include "../core.h"
+#include "../hle/service/cam/y2r_u.h"
+#include "y2r.h"
+#include "../memory.h"
 
 namespace HW::Y2R {
 

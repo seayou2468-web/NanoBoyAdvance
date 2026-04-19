@@ -5,10 +5,10 @@
 #pragma once
 
 #include <memory>
-#include "common/common_types.h"
-#include "common/swap.h"
-#include "core/file_sys/ncch_container.h"
-#include "core/loader/loader.h"
+#include "../../common/common_types.h"
+#include "../../common/swap.h"
+#include "../file_sys/ncch_container.h"
+#include "loader.h"
 
 namespace Loader {
 

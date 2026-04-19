@@ -4,9 +4,9 @@
 
 #include <algorithm>
 #include <set>
-#include "common/file_util.h"
-#include "common/string_util.h"
-#include "core/file_sys/path_parser.h"
+#include "../../common/file_util.h"
+#include "../../common/string_util.h"
+#include "path_parser.h"
 
 namespace FileSys {
 

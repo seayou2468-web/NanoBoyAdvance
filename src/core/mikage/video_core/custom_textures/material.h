@@ -10,7 +10,7 @@
 #include <span>
 #include <string>
 #include <vector>
-#include "video_core/custom_textures/custom_format.h"
+#include "custom_format.h"
 
 namespace Frontend {
 class ImageInterface;

@@ -4,15 +4,15 @@
 
 #include <atomic>
 
-#include "common/common_types.h"
-#include "core/file_sys/archive_backend.h"
-#include "core/file_sys/artic_cache.h"
-#include "core/file_sys/directory_backend.h"
-#include "core/file_sys/file_backend.h"
-#include "core/hle/service/fs/archive.h"
-#include "core/perf_stats.h"
-#include "network/artic_base/artic_base_client.h"
-#include "common/serialization/boost_all_serialization.h"
+#include "../../common/common_types.h"
+#include "archive_backend.h"
+#include "artic_cache.h"
+#include "directory_backend.h"
+#include "file_backend.h"
+#include "../hle/service/fs/archive.h"
+#include "../perf_stats.h"
+#include "../../network/artic_base/artic_base_client.h"
+#include "../../common/serialization/boost_all_serialization.h"
 
 namespace FileSys {
 

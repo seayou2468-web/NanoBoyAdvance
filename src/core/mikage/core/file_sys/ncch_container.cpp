@@ -8,19 +8,19 @@
 #include <memory>
 #include <span>
 #include <CommonCrypto/CommonDigest.h>
-#include "common/commoncrypto_aes.h"
-#include "common/common_types.h"
-#include "common/logging/log.h"
-#include "common/string_util.h"
-#include "common/zstd_compression.h"
-#include "core/core.h"
-#include "core/file_sys/layered_fs.h"
-#include "core/file_sys/ncch_container.h"
-#include "core/file_sys/patch.h"
-#include "core/file_sys/seed_db.h"
-#include "core/hw/aes/key.h"
-#include "core/hw/unique_data.h"
-#include "core/loader/loader.h"
+#include "../../common/commoncrypto_aes.h"
+#include "../../common/common_types.h"
+#include "../../common/logging/log.h"
+#include "../../common/string_util.h"
+#include "../../common/zstd_compression.h"
+#include "../core.h"
+#include "layered_fs.h"
+#include "ncch_container.h"
+#include "patch.h"
+#include "seed_db.h"
+#include "../hw/aes/key.h"
+#include "../hw/unique_data.h"
+#include "../loader/loader.h"
 
 namespace FileSys {
 

@@ -9,13 +9,13 @@
 #include <future>
 #include <memory>
 #include <vector>
-#include "common/common_types.h"
-#include "common/swap.h"
-#include "core/global.h"
-#include "core/hle/result.h"
-#include "core/hle/service/cam/cam_params.h"
-#include "core/hle/service/service.h"
-#include "common/serialization/boost_all_serialization.h"
+#include "../../../../common/common_types.h"
+#include "../../../../common/swap.h"
+#include "../../../global.h"
+#include "../../result.h"
+#include "cam_params.h"
+#include "../service.h"
+#include "../../../../common/serialization/boost_all_serialization.h"
 
 namespace Core {
 class System;

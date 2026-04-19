@@ -6,7 +6,7 @@
 
 #include <utility>
 #include <vector>
-#include "common/assert.h"
+#include "../../../common/assert.h"
 
 namespace Core {
 class System;

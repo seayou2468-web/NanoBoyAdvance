@@ -7,11 +7,11 @@
 #include <array>
 #include <span>
 #include <vector>
-#include "common/common_types.h"
-#include "common/swap.h"
-#include "core/hle/service/nwm/uds_beacon.h"
-#include "core/hle/service/nwm/uds_common.h"
-#include "core/hle/service/service.h"
+#include "../../../../common/common_types.h"
+#include "../../../../common/swap.h"
+#include "uds_beacon.h"
+#include "uds_common.h"
+#include "../service.h"
 
 namespace Service::NWM {
 

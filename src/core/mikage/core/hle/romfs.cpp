@@ -3,8 +3,8 @@
 // Refer to the license.txt file included.
 
 #include <cstring>
-#include "common/swap.h"
-#include "core/hle/romfs.h"
+#include "../../common/swap.h"
+#include "romfs.h"
 
 namespace RomFS {
 

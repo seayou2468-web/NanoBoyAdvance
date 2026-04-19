@@ -2,15 +2,15 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/archives.h"
-#include "core/core.h"
-#include "video_core/gpu.h"
-#include "video_core/pica/geometry_pipeline.h"
-#include "video_core/pica/pica_core.h"
-#include "video_core/pica/shader_setup.h"
-#include "video_core/pica/shader_unit.h"
-#include "video_core/shader/shader.h"
-#include "common/serialization/boost_all_serialization.h"
+#include "../../common/archives.h"
+#include "../../core/core.h"
+#include "../gpu.h"
+#include "geometry_pipeline.h"
+#include "pica_core.h"
+#include "shader_setup.h"
+#include "shader_unit.h"
+#include "../shader/shader.h"
+#include "../../common/serialization/boost_all_serialization.h"
 
 namespace Pica {
 

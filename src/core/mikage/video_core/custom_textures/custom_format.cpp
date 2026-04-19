@@ -2,7 +2,7 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "video_core/custom_textures/custom_format.h"
+#include "custom_format.h"
 
 namespace VideoCore {
 

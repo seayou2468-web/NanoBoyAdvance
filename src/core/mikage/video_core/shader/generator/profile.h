@@ -5,7 +5,7 @@
 #pragma once
 
 #include <array>
-#include "common/common_types.h"
+#include "../../../common/common_types.h"
 
 namespace Pica::Shader {
 

@@ -2,15 +2,15 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "core/core.h"
-#include "core/hle/service/nwm/nwm.h"
-#include "core/hle/service/nwm/nwm_cec.h"
-#include "core/hle/service/nwm/nwm_ext.h"
-#include "core/hle/service/nwm/nwm_inf.h"
-#include "core/hle/service/nwm/nwm_sap.h"
-#include "core/hle/service/nwm/nwm_soc.h"
-#include "core/hle/service/nwm/nwm_tst.h"
-#include "core/hle/service/nwm/nwm_uds.h"
+#include "../../../core.h"
+#include "nwm.h"
+#include "nwm_cec.h"
+#include "nwm_ext.h"
+#include "nwm_inf.h"
+#include "nwm_sap.h"
+#include "nwm_soc.h"
+#include "nwm_tst.h"
+#include "nwm_uds.h"
 
 namespace Service::NWM {
 

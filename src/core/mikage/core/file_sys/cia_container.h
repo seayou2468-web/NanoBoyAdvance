@@ -8,12 +8,12 @@
 #include <memory>
 #include <span>
 #include <string>
-#include "common/common_types.h"
-#include "common/file_util.h"
-#include "common/swap.h"
-#include "core/file_sys/ticket.h"
-#include "core/file_sys/title_metadata.h"
-#include "core/loader/smdh.h"
+#include "../../common/common_types.h"
+#include "../../common/file_util.h"
+#include "../../common/swap.h"
+#include "ticket.h"
+#include "title_metadata.h"
+#include "../loader/smdh.h"
 
 namespace Loader {
 enum class ResultStatus;

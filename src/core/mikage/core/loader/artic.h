@@ -5,13 +5,13 @@
 #pragma once
 
 #include <memory>
-#include "common/common_types.h"
-#include "common/swap.h"
-#include "core/core.h"
-#include "core/file_sys/ncch_container.h"
-#include "core/hle/service/fs/fs_user.h"
-#include "core/loader/loader.h"
-#include "network/artic_base/artic_base_client.h"
+#include "../../common/common_types.h"
+#include "../../common/swap.h"
+#include "../core.h"
+#include "../file_sys/ncch_container.h"
+#include "../hle/service/fs/fs_user.h"
+#include "loader.h"
+#include "../../network/artic_base/artic_base_client.h"
 
 namespace Loader {
 

@@ -4,10 +4,10 @@
 
 #pragma once
 
-#include "core/hle/kernel/object.h"
-#include "core/hle/kernel/resource_limit.h"
-#include "core/hle/kernel/wait_object.h"
-#include "common/serialization/boost_all_serialization.h"
+#include "object.h"
+#include "resource_limit.h"
+#include "wait_object.h"
+#include "../../../common/serialization/boost_all_serialization.h"
 
 namespace Kernel {
 

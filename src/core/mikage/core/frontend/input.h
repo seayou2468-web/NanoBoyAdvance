@@ -9,9 +9,9 @@
 #include <tuple>
 #include <unordered_map>
 #include <utility>
-#include "common/logging/log.h"
-#include "common/param_package.h"
-#include "common/vector_math.h"
+#include "../../common/logging/log.h"
+#include "../../common/param_package.h"
+#include "../../common/vector_math.h"
 
 namespace Input {
 

@@ -6,7 +6,7 @@
 
 #include <functional>
 #include <string>
-#include "video_core/pica/shader_setup.h"
+#include "../../pica/shader_setup.h"
 
 namespace Pica::Shader::Generator::GLSL {
 

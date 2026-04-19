@@ -3,9 +3,9 @@
 // Refer to the license.txt file included.
 
 #include <vector>
-#include "common/string_util.h"
-#include "video_core/shader/generator/pica_fs_config.h"
-#include "video_core/shader/generator/spv_fs_shader_gen.h"
+#include "../../../common/string_util.h"
+#include "pica_fs_config.h"
+#include "spv_fs_shader_gen.h"
 
 namespace Pica::Shader::Generator::SPIRV {
 

@@ -4,10 +4,10 @@
 
 #pragma once
 
-#include "common/common_types.h"
-#include "core/hle/kernel/errors.h"
-#include "core/hle/kernel/thread.h"
-#include "core/memory.h"
+#include "../../common/common_types.h"
+#include "kernel/errors.h"
+#include "kernel/thread.h"
+#include "../memory.h"
 
 namespace IPC {
 

@@ -11,10 +11,10 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include "common/thread.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/kernel/shared_memory.h"
-#include "core/hle/service/service.h"
+#include "../../../../common/thread.h"
+#include "../../ipc_helpers.h"
+#include "../../kernel/shared_memory.h"
+#include "../service.h"
 
 namespace MikageSerialization {
 class access;

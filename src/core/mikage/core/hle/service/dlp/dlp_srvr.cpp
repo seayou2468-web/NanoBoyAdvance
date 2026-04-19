@@ -2,21 +2,21 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/archives.h"
-#include "common/common_types.h"
-#include "common/logging/log.h"
-#include "common/string_util.h"
-#include "core/core.h"
-#include "core/file_sys/archive_ncch.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/kernel/event.h"
-#include "core/hle/kernel/shared_memory.h"
-#include "core/hle/result.h"
-#include "core/hle/romfs.h"
-#include "core/hle/service/am/am.h"
-#include "core/hle/service/dlp/dlp_srvr.h"
-#include "core/hle/service/fs/archive.h"
-#include "core/hle/service/fs/fs_user.h"
+#include "../../../../common/archives.h"
+#include "../../../../common/common_types.h"
+#include "../../../../common/logging/log.h"
+#include "../../../../common/string_util.h"
+#include "../../../core.h"
+#include "../../../file_sys/archive_ncch.h"
+#include "../../ipc_helpers.h"
+#include "../../kernel/event.h"
+#include "../../kernel/shared_memory.h"
+#include "../../result.h"
+#include "../../romfs.h"
+#include "../am/am.h"
+#include "dlp_srvr.h"
+#include "../fs/archive.h"
+#include "../fs/fs_user.h"
 
 SERIALIZE_EXPORT_IMPL(Service::DLP::DLP_SRVR)
 

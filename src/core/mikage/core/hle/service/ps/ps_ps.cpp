@@ -2,15 +2,15 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/archives.h"
-#include "common/commoncrypto_aes.h"
-#include "common/logging/log.h"
-#include "core/core.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/service/ps/ps_ps.h"
-#include "core/hle/service/ssl/ssl_c.h"
-#include "core/hw/aes/arithmetic128.h"
-#include "core/hw/aes/key.h"
+#include "../../../../common/archives.h"
+#include "../../../../common/commoncrypto_aes.h"
+#include "../../../../common/logging/log.h"
+#include "../../../core.h"
+#include "../../ipc_helpers.h"
+#include "ps_ps.h"
+#include "../ssl/ssl_c.h"
+#include "../../../hw/aes/arithmetic128.h"
+#include "../../../hw/aes/key.h"
 
 SERIALIZE_EXPORT_IMPL(Service::PS::PS_PS)
 

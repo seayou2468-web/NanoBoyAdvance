@@ -8,7 +8,7 @@
 #include <span>
 #include <vector>
 
-#include "core/hle/service/nfc/nfc_types.h"
+#include "nfc_types.h"
 
 namespace HW::AES {
 struct NfcSecret;

@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include "common/common_types.h"
-#include "common/vector_math.h"
-#include "video_core/pica/regs_framebuffer.h"
+#include "../../common/common_types.h"
+#include "../../common/vector_math.h"
+#include "../pica/regs_framebuffer.h"
 
 namespace Memory {
 class MemorySystem;

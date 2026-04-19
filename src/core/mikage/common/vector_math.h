@@ -38,7 +38,7 @@
 #include <cmath>
 #include <cstring>
 #include <type_traits>
-#include "common/serialization/boost_all_serialization.h"
+#include "serialization/boost_all_serialization.h"
 
 namespace Common {
 

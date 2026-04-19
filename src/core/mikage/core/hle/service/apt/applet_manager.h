@@ -9,12 +9,12 @@
 #include <memory>
 #include <optional>
 #include <vector>
-#include "core/frontend/input.h"
-#include "core/global.h"
-#include "core/hle/kernel/event.h"
-#include "core/hle/result.h"
-#include "core/hle/service/fs/archive.h"
-#include "common/serialization/boost_all_serialization.h"
+#include "../../../frontend/input.h"
+#include "../../../global.h"
+#include "../../kernel/event.h"
+#include "../../result.h"
+#include "../fs/archive.h"
+#include "../../../../common/serialization/boost_all_serialization.h"
 
 namespace Core {
 class System;

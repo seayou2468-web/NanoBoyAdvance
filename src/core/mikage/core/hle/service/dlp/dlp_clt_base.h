@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "core/hle/kernel/event.h"
-#include "core/hle/kernel/shared_memory.h"
+#include "../../kernel/event.h"
+#include "../../kernel/shared_memory.h"
 #include "dlp_base.h"
 
 namespace Service::DLP {

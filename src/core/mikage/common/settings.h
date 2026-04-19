@@ -1,3 +1,3 @@
 #pragma once
 
-#include "common/compat/common/settings.h"
+#include "compat/common/settings.h"

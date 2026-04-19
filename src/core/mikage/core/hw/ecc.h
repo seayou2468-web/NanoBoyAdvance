@@ -8,7 +8,7 @@
 #include <cstddef>
 #include <span>
 #include <vector>
-#include "common/common_types.h"
+#include "../../common/common_types.h"
 
 namespace HW::ECC {
 // All the supported 3DS ECC operations use the sect233r1 curve,

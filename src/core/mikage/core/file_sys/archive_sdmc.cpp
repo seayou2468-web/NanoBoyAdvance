@@ -4,15 +4,15 @@
 
 #include <algorithm>
 #include <memory>
-#include "common/archives.h"
-#include "common/error.h"
-#include "common/file_util.h"
-#include "common/logging/log.h"
-#include "common/settings.h"
-#include "core/file_sys/archive_sdmc.h"
-#include "core/file_sys/disk_archive.h"
-#include "core/file_sys/errors.h"
-#include "core/file_sys/path_parser.h"
+#include "../../common/archives.h"
+#include "../../common/error.h"
+#include "../../common/file_util.h"
+#include "../../common/logging/log.h"
+#include "../../common/settings.h"
+#include "archive_sdmc.h"
+#include "disk_archive.h"
+#include "errors.h"
+#include "path_parser.h"
 
 SERIALIZE_EXPORT_IMPL(FileSys::SDMCArchive)
 SERIALIZE_EXPORT_IMPL(FileSys::ArchiveFactory_SDMC)

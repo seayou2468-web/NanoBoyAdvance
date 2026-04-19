@@ -8,10 +8,10 @@
 #include <string>
 #include <tuple>
 #include <utility>
-#include "common/assert.h"
-#include "common/common_types.h"
-#include "common/shader/nihstro_shader_bytecode_compat.h"
-#include "video_core/shader/generator/glsl_shader_decompiler.h"
+#include "../../../common/assert.h"
+#include "../../../common/common_types.h"
+#include "../../../common/shader/nihstro_shader_bytecode_compat.h"
+#include "glsl_shader_decompiler.h"
 
 namespace Pica::Shader::Generator::GLSL {
 

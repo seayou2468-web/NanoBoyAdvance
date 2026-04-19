@@ -3,14 +3,14 @@
 // Refer to the license.txt file included.
 
 #include <utility>
-#include "common/archives.h"
-#include "common/assert.h"
-#include "common/logging/log.h"
-#include "core/hle/kernel/errors.h"
-#include "core/hle/kernel/handle_table.h"
-#include "core/hle/kernel/process.h"
-#include "core/hle/kernel/thread.h"
-#include "common/serialization/boost_all_serialization.h"
+#include "../../../common/archives.h"
+#include "../../../common/assert.h"
+#include "../../../common/logging/log.h"
+#include "errors.h"
+#include "handle_table.h"
+#include "process.h"
+#include "thread.h"
+#include "../../../common/serialization/boost_all_serialization.h"
 
 SERIALIZE_EXPORT_IMPL(Kernel::HandleTable)
 

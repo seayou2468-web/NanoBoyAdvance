@@ -2,13 +2,13 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/archives.h"
-#include "core/core.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/service/cfg/cfg.h"
-#include "core/hle/service/cfg/cfg_u.h"
-#include "core/hle/service/nwm/nwm_soc.h"
-#include "core/hle/service/nwm/nwm_uds.h"
+#include "../../../../common/archives.h"
+#include "../../../core.h"
+#include "../../ipc_helpers.h"
+#include "../cfg/cfg.h"
+#include "../cfg/cfg_u.h"
+#include "nwm_soc.h"
+#include "nwm_uds.h"
 
 SERIALIZE_EXPORT_IMPL(Service::NWM::NWM_SOC)
 SERVICE_CONSTRUCT_IMPL(Service::NWM::NWM_SOC)

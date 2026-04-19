@@ -2,17 +2,17 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/archives.h"
-#include "common/assert.h"
-#include "core/global.h"
-#include "core/hle/kernel/client_port.h"
-#include "core/hle/kernel/client_session.h"
-#include "core/hle/kernel/errors.h"
-#include "core/hle/kernel/hle_ipc.h"
-#include "core/hle/kernel/object.h"
-#include "core/hle/kernel/server_port.h"
-#include "core/hle/kernel/server_session.h"
-#include "common/serialization/boost_all_serialization.h"
+#include "../../../common/archives.h"
+#include "../../../common/assert.h"
+#include "../../global.h"
+#include "client_port.h"
+#include "client_session.h"
+#include "errors.h"
+#include "hle_ipc.h"
+#include "object.h"
+#include "server_port.h"
+#include "server_session.h"
+#include "../../../common/serialization/boost_all_serialization.h"
 
 SERIALIZE_EXPORT_IMPL(Kernel::ClientPort)
 

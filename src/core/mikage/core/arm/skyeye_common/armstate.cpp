@@ -5,7 +5,7 @@
 #include <algorithm>
 #include "../../../common/compat/common/logging/log.h"
 #include "../../../common/compat/common/swap.h"
-#include "skyeye_common/armstate.h"
+#include "armstate.h"
 #include "skyeye_common/vfp/vfp.h"
 #include "../../../common/compat/core/core.h"
 #include "../../../common/compat/core/memory.h"

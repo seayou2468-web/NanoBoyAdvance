@@ -2,11 +2,11 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/color.h"
-#include "core/core.h"
-#include "video_core/gpu.h"
-#include "video_core/pica/pica_core.h"
-#include "video_core/renderer_software/renderer_software.h"
+#include "../../common/color.h"
+#include "../../core/core.h"
+#include "../gpu.h"
+#include "../pica/pica_core.h"
+#include "renderer_software.h"
 
 namespace SwRenderer {
 

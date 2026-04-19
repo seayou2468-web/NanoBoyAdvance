@@ -2,10 +2,10 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/archives.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/service/mcu/mcu_hwc.h"
-#include "core/hle/service/mcu/mcu_rtc.h"
+#include "../../../../common/archives.h"
+#include "../../ipc_helpers.h"
+#include "mcu_hwc.h"
+#include "mcu_rtc.h"
 
 SERVICE_CONSTRUCT_IMPL(Service::MCU::HWC)
 SERIALIZE_EXPORT_IMPL(Service::MCU::HWC)

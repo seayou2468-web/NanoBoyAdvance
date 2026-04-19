@@ -2,7 +2,7 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "dyncom/arm_dyncom_dec.h"
+#include "arm_dyncom_dec.h"
 #include "skyeye_common/armsupp.h"
 
 namespace {

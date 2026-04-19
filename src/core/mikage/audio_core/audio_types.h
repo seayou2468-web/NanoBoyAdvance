@@ -7,7 +7,7 @@
 #include <array>
 #include <cstddef>
 #include <deque>
-#include "common/common_types.h"
+#include "../common/common_types.h"
 
 namespace AudioCore {
 

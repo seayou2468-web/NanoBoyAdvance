@@ -2,8 +2,8 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/archives.h"
-#include "core/hle/service/hid/hid_spvr.h"
+#include "../../../../common/archives.h"
+#include "hid_spvr.h"
 
 SERIALIZE_EXPORT_IMPL(Service::HID::Spvr)
 

@@ -2,13 +2,13 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/archives.h"
-#include "common/common_types.h"
-#include "common/secure_random.h"
-#include "core/core.h"
-#include "core/hle/ipc.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/service/ssl/ssl_c.h"
+#include "../../../../common/archives.h"
+#include "../../../../common/common_types.h"
+#include "../../../../common/secure_random.h"
+#include "../../../core.h"
+#include "../../ipc.h"
+#include "../../ipc_helpers.h"
+#include "ssl_c.h"
 
 SERIALIZE_EXPORT_IMPL(Service::SSL::SSL_C)
 namespace Service::SSL {

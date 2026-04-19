@@ -5,11 +5,11 @@
 #include <algorithm>
 #include <array>
 #include <cstring>
-#include "common/commoncrypto_aes.h"
-#include "common/alignment.h"
-#include "common/logging/log.h"
-#include "core/hw/aes/ccm.h"
-#include "core/hw/aes/key.h"
+#include "../../../common/commoncrypto_aes.h"
+#include "../../../common/alignment.h"
+#include "../../../common/logging/log.h"
+#include "ccm.h"
+#include "key.h"
 
 namespace HW::AES {
 

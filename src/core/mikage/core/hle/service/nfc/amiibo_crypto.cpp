@@ -10,10 +10,10 @@
 #include <cstring>
 #include <CommonCrypto/CommonHMAC.h>
 
-#include "common/commoncrypto_aes.h"
-#include "common/logging/log.h"
-#include "core/hle/service/nfc/amiibo_crypto.h"
-#include "core/hw/aes/key.h"
+#include "../../../../common/commoncrypto_aes.h"
+#include "../../../../common/logging/log.h"
+#include "amiibo_crypto.h"
+#include "../../../hw/aes/key.h"
 
 namespace Service::NFC::AmiiboCrypto {
 

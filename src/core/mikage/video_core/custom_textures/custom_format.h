@@ -6,7 +6,7 @@
 
 #include <limits>
 #include <string_view>
-#include "common/common_types.h"
+#include "../../common/common_types.h"
 
 namespace VideoCore {
 

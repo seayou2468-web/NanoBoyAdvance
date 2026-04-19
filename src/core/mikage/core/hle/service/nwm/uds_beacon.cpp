@@ -5,10 +5,10 @@
 #include <cstring>
 #include <span>
 #include <CommonCrypto/CommonDigest.h>
-#include "common/assert.h"
-#include "common/commoncrypto_aes.h"
-#include "core/hle/service/nwm/nwm_uds.h"
-#include "core/hle/service/nwm/uds_beacon.h"
+#include "../../../../common/assert.h"
+#include "../../../../common/commoncrypto_aes.h"
+#include "nwm_uds.h"
+#include "uds_beacon.h"
 
 namespace Service::NWM {
 

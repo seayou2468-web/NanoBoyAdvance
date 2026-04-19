@@ -4,11 +4,11 @@
 
 #include <algorithm>
 #include <CommonCrypto/CommonDigest.h>
-#include "common/commoncrypto_aes.h"
-#include "common/file_util.h"
-#include "common/logging/log.h"
-#include "core/file_sys/otp.h"
-#include "core/loader/loader.h"
+#include "../../common/commoncrypto_aes.h"
+#include "../../common/file_util.h"
+#include "../../common/logging/log.h"
+#include "otp.h"
+#include "../loader/loader.h"
 
 namespace FileSys {
 Loader::ResultStatus OTP::Load(const std::string& file_path, std::span<const u8> key,

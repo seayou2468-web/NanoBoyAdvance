@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "common/common_types.h"
-#include "common/vector_math.h"
+#include "../../common/common_types.h"
+#include "../../common/vector_math.h"
 
 namespace Pica::Texture {
 

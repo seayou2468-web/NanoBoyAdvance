@@ -2,13 +2,13 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/alignment.h"
-#include "common/archives.h"
-#include "core/core.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/kernel/resource_limit.h"
-#include "core/hle/result.h"
-#include "core/hle/service/csnd/csnd_snd.h"
+#include "../../../../common/alignment.h"
+#include "../../../../common/archives.h"
+#include "../../../core.h"
+#include "../../ipc_helpers.h"
+#include "../../kernel/resource_limit.h"
+#include "../../result.h"
+#include "csnd_snd.h"
 
 SERVICE_CONSTRUCT_IMPL(Service::CSND::CSND_SND)
 SERIALIZE_EXPORT_IMPL(Service::CSND::CSND_SND)

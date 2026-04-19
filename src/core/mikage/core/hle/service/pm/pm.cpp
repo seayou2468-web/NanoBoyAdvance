@@ -2,10 +2,10 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "core/core.h"
-#include "core/hle/service/pm/pm.h"
-#include "core/hle/service/pm/pm_app.h"
-#include "core/hle/service/pm/pm_dbg.h"
+#include "../../../core.h"
+#include "pm.h"
+#include "pm_app.h"
+#include "pm_dbg.h"
 
 namespace Service::PM {
 

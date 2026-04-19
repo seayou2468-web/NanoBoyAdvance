@@ -5,11 +5,11 @@
 #pragma once
 
 #include <memory>
-#include "common/archives.h"
-#include "core/hle/kernel/mutex.h"
-#include "core/hle/kernel/shared_memory.h"
-#include "core/hle/service/service.h"
-#include "common/serialization/boost_all_serialization.h"
+#include "../../../../common/archives.h"
+#include "../../kernel/mutex.h"
+#include "../../kernel/shared_memory.h"
+#include "../service.h"
+#include "../../../../common/serialization/boost_all_serialization.h"
 
 namespace Core {
 class System;

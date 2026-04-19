@@ -5,8 +5,8 @@
 #pragma once
 
 #include <span>
-#include "common/math_util.h"
-#include "common/vector_math.h"
+#include "../../common/math_util.h"
+#include "../../common/vector_math.h"
 
 namespace VideoCore {
 

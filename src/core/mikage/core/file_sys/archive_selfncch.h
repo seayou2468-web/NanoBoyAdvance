@@ -8,11 +8,11 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include "common/common_types.h"
-#include "core/file_sys/archive_backend.h"
-#include "core/hle/result.h"
-#include "core/loader/loader.h"
-#include "common/serialization/boost_all_serialization.h"
+#include "../../common/common_types.h"
+#include "archive_backend.h"
+#include "../hle/result.h"
+#include "../loader/loader.h"
+#include "../../common/serialization/boost_all_serialization.h"
 
 namespace FileSys {
 

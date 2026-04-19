@@ -6,8 +6,8 @@
 #include <iterator>
 #include <utility>
 
-#include "common/common_types.h"
-#include "video_core/pica/regs_internal.h"
+#include "../../common/common_types.h"
+#include "regs_internal.h"
 
 namespace Pica {
 

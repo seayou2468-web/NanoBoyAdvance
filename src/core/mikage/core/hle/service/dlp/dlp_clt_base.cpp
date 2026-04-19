@@ -4,12 +4,12 @@
 
 #include "dlp_clt_base.h"
 
-#include "common/alignment.h"
-#include "common/string_util.h"
-#include "common/timer.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/service/am/am.h"
-#include "core/hle/service/nwm/uds_beacon.h"
+#include "../../../../common/alignment.h"
+#include "../../../../common/string_util.h"
+#include "../../../../common/timer.h"
+#include "../../ipc_helpers.h"
+#include "../am/am.h"
+#include "../nwm/uds_beacon.h"
 
 namespace Service::DLP {
 

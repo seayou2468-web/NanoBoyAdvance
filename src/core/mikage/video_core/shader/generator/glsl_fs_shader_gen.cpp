@@ -3,7 +3,7 @@
 // Refer to the license.txt file included.
 
 #include <format>
-#include "video_core/shader/generator/glsl_fs_shader_gen.h"
+#include "glsl_fs_shader_gen.h"
 
 namespace Pica::Shader::Generator::GLSL {
 

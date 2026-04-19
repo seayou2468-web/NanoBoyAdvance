@@ -21,12 +21,12 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#include "core/file_sys/file_backend.h"
-#include "core/file_sys/plugin_3gx.h"
-#include "core/file_sys/plugin_3gx_bootloader.h"
-#include "core/hle/kernel/config_mem.h"
-#include "core/hle/kernel/vm_manager.h"
-#include "core/loader/loader.h"
+#include "file_backend.h"
+#include "plugin_3gx.h"
+#include "plugin_3gx_bootloader.h"
+#include "../hle/kernel/config_mem.h"
+#include "../hle/kernel/vm_manager.h"
+#include "../loader/loader.h"
 
 static std::string ReadTextInfo(FileUtil::IOFile& file, std::size_t offset, std::size_t max_size) {
     if (offset == 0 || max_size == 0 ||

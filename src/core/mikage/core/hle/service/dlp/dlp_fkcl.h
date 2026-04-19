@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "core/hle/service/service.h"
+#include "../service.h"
 #include "dlp_clt_base.h"
 
 namespace Service::DLP {

@@ -4,7 +4,7 @@
 
 #include <algorithm>
 #include <functional>
-#include "core/hw/aes/arithmetic128.h"
+#include "arithmetic128.h"
 
 namespace HW::AES {
 

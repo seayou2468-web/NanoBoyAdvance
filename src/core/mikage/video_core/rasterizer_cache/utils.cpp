@@ -2,9 +2,9 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "video_core/rasterizer_cache/surface_params.h"
-#include "video_core/rasterizer_cache/texture_codec.h"
-#include "video_core/rasterizer_cache/utils.h"
+#include "surface_params.h"
+#include "texture_codec.h"
+#include "utils.h"
 
 namespace VideoCore {
 

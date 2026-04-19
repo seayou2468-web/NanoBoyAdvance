@@ -4,14 +4,14 @@
 
 #include <algorithm>
 #include <iterator>
-#include "common/archives.h"
-#include "common/assert.h"
-#include "core/core.h"
-#include "core/hle/kernel/errors.h"
-#include "core/hle/kernel/vm_manager.h"
-#include "core/hle/service/plgldr/plgldr.h"
-#include "core/memory.h"
-#include "common/serialization/boost_all_serialization.h"
+#include "../../../common/archives.h"
+#include "../../../common/assert.h"
+#include "../../core.h"
+#include "errors.h"
+#include "vm_manager.h"
+#include "../service/plgldr/plgldr.h"
+#include "../../memory.h"
+#include "../../../common/serialization/boost_all_serialization.h"
 
 SERIALIZE_EXPORT_IMPL(Kernel::VirtualMemoryArea)
 

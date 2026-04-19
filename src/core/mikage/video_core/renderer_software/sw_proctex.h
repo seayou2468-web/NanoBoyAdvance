@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include "common/common_types.h"
-#include "common/vector_math.h"
-#include "video_core/pica/pica_core.h"
+#include "../../common/common_types.h"
+#include "../../common/vector_math.h"
+#include "../pica/pica_core.h"
 
 namespace SwRenderer {
 

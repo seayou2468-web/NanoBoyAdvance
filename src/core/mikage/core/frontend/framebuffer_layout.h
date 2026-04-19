@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "common/math_util.h"
-#include "common/settings.h"
+#include "../../common/math_util.h"
+#include "../../common/settings.h"
 
 namespace Layout {
 

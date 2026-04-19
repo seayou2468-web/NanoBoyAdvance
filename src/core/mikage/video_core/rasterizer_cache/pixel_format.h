@@ -6,8 +6,8 @@
 
 #include <limits>
 #include <string_view>
-#include "video_core/pica/regs_framebuffer.h"
-#include "video_core/pica/regs_texturing.h"
+#include "../pica/regs_framebuffer.h"
+#include "../pica/regs_texturing.h"
 
 namespace Pica {
 enum class PixelFormat : u32;

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "core/core_timing.h"
-#include "core/hle/service/service.h"
+#include "../../../core_timing.h"
+#include "../service.h"
 
 namespace Service::MCU {
 class InfoLedHandler;

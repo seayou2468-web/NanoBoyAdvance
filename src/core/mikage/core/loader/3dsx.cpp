@@ -4,15 +4,15 @@
 
 #include <algorithm>
 #include <vector>
-#include "common/logging/log.h"
-#include "common/zstd_compression.h"
-#include "core/core.h"
-#include "core/hle/kernel/process.h"
-#include "core/hle/kernel/resource_limit.h"
-#include "core/hle/service/fs/archive.h"
-#include "core/hle/service/fs/fs_user.h"
-#include "core/loader/3dsx.h"
-#include "core/memory.h"
+#include "../../common/logging/log.h"
+#include "../../common/zstd_compression.h"
+#include "../core.h"
+#include "../hle/kernel/process.h"
+#include "../hle/kernel/resource_limit.h"
+#include "../hle/service/fs/archive.h"
+#include "../hle/service/fs/fs_user.h"
+#include "3dsx.h"
+#include "../memory.h"
 
 namespace Loader {
 

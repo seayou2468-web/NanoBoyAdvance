@@ -6,15 +6,15 @@
 
 #include <memory>
 #include <string>
-#include "common/assert.h"
-#include "common/common_types.h"
-#include "core/hle/kernel/ipc.h"
-#include "core/hle/kernel/object.h"
-#include "core/hle/kernel/session.h"
-#include "core/hle/kernel/wait_object.h"
-#include "core/hle/result.h"
-#include "core/memory.h"
-#include "common/serialization/boost_all_serialization.h"
+#include "../../../common/assert.h"
+#include "../../../common/common_types.h"
+#include "ipc.h"
+#include "object.h"
+#include "session.h"
+#include "wait_object.h"
+#include "../result.h"
+#include "../../memory.h"
+#include "../../../common/serialization/boost_all_serialization.h"
 
 namespace Kernel {
 

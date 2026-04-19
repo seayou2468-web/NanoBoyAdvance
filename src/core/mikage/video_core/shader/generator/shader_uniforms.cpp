@@ -2,8 +2,8 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "video_core/pica/shader_setup.h"
-#include "video_core/shader/generator/shader_uniforms.h"
+#include "../../pica/shader_setup.h"
+#include "shader_uniforms.h"
 
 namespace Pica::Shader::Generator {
 

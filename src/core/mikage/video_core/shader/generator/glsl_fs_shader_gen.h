@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "video_core/shader/generator/pica_fs_config.h"
+#include "pica_fs_config.h"
 
 namespace Pica::Shader::Generator::GLSL {
 

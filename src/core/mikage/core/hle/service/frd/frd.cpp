@@ -5,19 +5,19 @@
 #include <array>
 #include <cstring>
 #include <vector>
-#include "common/archives.h"
-#include "common/assert.h"
-#include "common/logging/log.h"
-#include "core/core.h"
-#include "core/hle/applets/mii_selector.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/kernel/event.h"
-#include "core/hle/mii.h"
-#include "core/hle/result.h"
-#include "core/hle/service/cfg/cfg.h"
-#include "core/hle/service/frd/frd.h"
-#include "core/hle/service/frd/frd_a.h"
-#include "core/hle/service/frd/frd_u.h"
+#include "../../../../common/archives.h"
+#include "../../../../common/assert.h"
+#include "../../../../common/logging/log.h"
+#include "../../../core.h"
+#include "../../applets/mii_selector.h"
+#include "../../ipc_helpers.h"
+#include "../../kernel/event.h"
+#include "../../mii.h"
+#include "../../result.h"
+#include "../cfg/cfg.h"
+#include "frd.h"
+#include "frd_a.h"
+#include "frd_u.h"
 
 SERVICE_CONSTRUCT_IMPL(Service::FRD::Module)
 

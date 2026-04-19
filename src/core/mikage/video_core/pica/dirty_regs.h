@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "video_core/pica/regs_internal.h"
+#include "regs_internal.h"
 
 namespace Pica {
 

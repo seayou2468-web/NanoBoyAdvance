@@ -4,11 +4,11 @@
 
 #pragma once
 
-#include "common/common_types.h"
-#include "core/core_timing.h"
-#include "core/hle/kernel/object.h"
-#include "core/hle/kernel/wait_object.h"
-#include "common/serialization/boost_all_serialization.h"
+#include "../../../common/common_types.h"
+#include "../../core_timing.h"
+#include "object.h"
+#include "wait_object.h"
+#include "../../../common/serialization/boost_all_serialization.h"
 
 namespace Core {
 class Timing;

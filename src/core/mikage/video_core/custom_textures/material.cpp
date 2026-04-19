@@ -2,11 +2,11 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/file_util.h"
-#include "common/logging/log.h"
-#include "common/texture.h"
-#include "core/frontend/image_interface.h"
-#include "video_core/custom_textures/material.h"
+#include "../../common/file_util.h"
+#include "../../common/logging/log.h"
+#include "../../common/texture.h"
+#include "../../core/frontend/image_interface.h"
+#include "material.h"
 
 namespace VideoCore {
 

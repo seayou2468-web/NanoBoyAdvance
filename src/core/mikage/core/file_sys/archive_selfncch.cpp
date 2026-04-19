@@ -3,15 +3,15 @@
 // Refer to the license.txt file included.
 
 #include <array>
-#include "common/archives.h"
-#include "common/common_types.h"
-#include "common/logging/log.h"
-#include "common/swap.h"
-#include "core/core.h"
-#include "core/file_sys/archive_selfncch.h"
-#include "core/file_sys/errors.h"
-#include "core/file_sys/ivfc_archive.h"
-#include "core/hle/kernel/process.h"
+#include "../../common/archives.h"
+#include "../../common/common_types.h"
+#include "../../common/logging/log.h"
+#include "../../common/swap.h"
+#include "../core.h"
+#include "archive_selfncch.h"
+#include "errors.h"
+#include "ivfc_archive.h"
+#include "../hle/kernel/process.h"
 
 SERIALIZE_EXPORT_IMPL(FileSys::ArchiveFactory_SelfNCCH)
 

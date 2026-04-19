@@ -1,0 +1,20 @@
+Remaining external dependencies detected in src/core/mikage (after this change):
+
+- Apple SDK frameworks/headers:
+  - CFNetwork/CFNetwork.h
+  - CommonCrypto/CommonCryptor.h
+  - CommonCrypto/CommonDigest.h
+  - CommonCrypto/CommonHMAC.h
+  - Security/Security.h
+
+- Third-party libraries:
+  - dds-ktx.h
+  - fmt/format.h
+  - sirit/sirit.h
+
+- Platform-specific non-iOS remnants still referenced in source:
+  - linux/ashmem.h
+  - io.h
+  - mmsystem.h
+  - psapi.h
+  - e32std.h

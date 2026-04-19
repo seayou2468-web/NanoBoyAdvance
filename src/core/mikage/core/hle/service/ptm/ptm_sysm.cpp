@@ -2,8 +2,8 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/archives.h"
-#include "core/hle/service/ptm/ptm_sysm.h"
+#include "../../../../common/archives.h"
+#include "ptm_sysm.h"
 
 SERIALIZE_EXPORT_IMPL(Service::PTM::PTM_S)
 SERIALIZE_EXPORT_IMPL(Service::PTM::PTM_Sysm)

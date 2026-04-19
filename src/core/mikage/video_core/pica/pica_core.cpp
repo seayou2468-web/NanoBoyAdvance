@@ -2,18 +2,18 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/arch.h"
-#include "common/archives.h"
-#include "common/microprofile.h"
-#include "common/scope_exit.h"
-#include "common/settings.h"
-#include "core/core.h"
-#include "core/memory.h"
-#include "video_core/debug_utils/debug_utils.h"
-#include "video_core/pica/pica_core.h"
-#include "video_core/pica/vertex_loader.h"
-#include "video_core/rasterizer_interface.h"
-#include "video_core/shader/shader.h"
+#include "../../common/arch.h"
+#include "../../common/archives.h"
+#include "../../common/microprofile.h"
+#include "../../common/scope_exit.h"
+#include "../../common/settings.h"
+#include "../../core/core.h"
+#include "../../core/memory.h"
+#include "../debug_utils/debug_utils.h"
+#include "pica_core.h"
+#include "vertex_loader.h"
+#include "../rasterizer_interface.h"
+#include "../shader/shader.h"
 
 namespace Pica {
 

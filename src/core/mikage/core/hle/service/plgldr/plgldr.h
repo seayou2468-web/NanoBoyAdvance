@@ -24,8 +24,8 @@
 #pragma once
 
 #include <memory>
-#include "core/hle/service/service.h"
-#include "common/serialization/boost_all_serialization.h"
+#include "../service.h"
+#include "../../../../common/serialization/boost_all_serialization.h"
 
 namespace Core {
 class System;

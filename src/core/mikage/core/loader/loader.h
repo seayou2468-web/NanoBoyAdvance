@@ -10,10 +10,10 @@
 #include <string>
 #include <utility>
 #include <vector>
-#include "common/common_types.h"
-#include "common/file_util.h"
-#include "core/file_sys/romfs_reader.h"
-#include "core/hle/kernel/kernel.h"
+#include "../../common/common_types.h"
+#include "../../common/file_util.h"
+#include "../file_sys/romfs_reader.h"
+#include "../hle/kernel/kernel.h"
 
 namespace Kernel {
 struct AddressMapping;

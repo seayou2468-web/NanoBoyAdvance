@@ -9,7 +9,7 @@
 #include "../../../common/compat/common/common_types.h"
 #include "../../../common/compat/common/logging/log.h"
 #include "../../../common/compat/common/microprofile.h"
-#include "dyncom/arm_dyncom_dec.h"
+#include "arm_dyncom_dec.h"
 #include "dyncom/arm_dyncom_interpreter.h"
 #include "dyncom/arm_dyncom_run.h"
 #include "dyncom/arm_dyncom_thumb.h"
@@ -959,7 +959,8 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
             cpu->RecordBreak(breakpoint_data);                                                     \
             goto END;                                                                              \
         }                                                                                          \
-    }
+    }
+
 
 // GCC and Clang have a C++ extension to support a lookup table of labels. Otherwise, fallback to a
 // clunky switch statement.
@@ -4571,7 +4572,7 @@ YIELD_INST: {
 }
 
 #define VFP_INTERPRETER_IMPL
-#include "core/arm/skyeye_common/vfp/vfpinstr.cpp"
+#include "../skyeye_common/vfp/vfpinstr.cpp"
 #undef VFP_INTERPRETER_IMPL
 
 END: {
@@ -4582,5 +4583,6 @@ END: {
 INIT_INST_LENGTH: {
     cpu->NumInstrsToExecute = 0;
     return num_instrs;
+}
 }
 }

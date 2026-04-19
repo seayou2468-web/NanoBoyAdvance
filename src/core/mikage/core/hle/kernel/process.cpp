@@ -4,22 +4,22 @@
 
 #include <algorithm>
 #include <memory>
-#include "common/archives.h"
-#include "common/assert.h"
-#include "common/common_funcs.h"
-#include "common/logging/log.h"
-#include "common/serialization/boost_vector.hpp"
-#include "core/core.h"
-#include "core/hle/kernel/errors.h"
-#include "core/hle/kernel/memory.h"
-#include "core/hle/kernel/process.h"
-#include "core/hle/kernel/resource_limit.h"
-#include "core/hle/kernel/thread.h"
-#include "core/hle/kernel/vm_manager.h"
-#include "core/hle/service/plgldr/plgldr.h"
-#include "core/loader/loader.h"
-#include "core/memory.h"
-#include "common/serialization/boost_all_serialization.h"
+#include "../../../common/archives.h"
+#include "../../../common/assert.h"
+#include "../../../common/common_funcs.h"
+#include "../../../common/logging/log.h"
+#include "../../../common/serialization/boost_vector.hpp"
+#include "../../core.h"
+#include "errors.h"
+#include "memory.h"
+#include "process.h"
+#include "resource_limit.h"
+#include "thread.h"
+#include "vm_manager.h"
+#include "../service/plgldr/plgldr.h"
+#include "../../loader/loader.h"
+#include "../../memory.h"
+#include "../../../common/serialization/boost_all_serialization.h"
 
 SERIALIZE_EXPORT_IMPL(Kernel::AddressMapping)
 SERIALIZE_EXPORT_IMPL(Kernel::Process)

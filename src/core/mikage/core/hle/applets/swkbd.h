@@ -5,13 +5,13 @@
 #pragma once
 
 #include <memory>
-#include "common/common_funcs.h"
-#include "common/common_types.h"
-#include "core/frontend/applets/swkbd.h"
-#include "core/hle/applets/applet.h"
-#include "core/hle/kernel/shared_memory.h"
-#include "core/hle/result.h"
-#include "core/hle/service/apt/apt.h"
+#include "../../../common/common_funcs.h"
+#include "../../../common/common_types.h"
+#include "../../frontend/applets/swkbd.h"
+#include "applet.h"
+#include "../kernel/shared_memory.h"
+#include "../result.h"
+#include "../service/apt/apt.h"
 
 namespace HLE::Applets {
 

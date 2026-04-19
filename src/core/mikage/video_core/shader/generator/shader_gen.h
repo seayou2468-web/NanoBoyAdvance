@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "common/hash.h"
-#include "video_core/pica/regs_rasterizer.h"
+#include "../../../common/hash.h"
+#include "../../pica/regs_rasterizer.h"
 
 #define LAYOUT_HASH static_cast<u64>(sizeof(T)), static_cast<u64>(alignof(T))
 #define FIELD_HASH(x) static_cast<u64>(offsetof(T, x)), static_cast<u64>(sizeof(x))

@@ -8,12 +8,12 @@
 #include <string>
 #include <utility>
 #include <vector>
-#include "common/bit_field.h"
-#include "common/common_types.h"
-#include "common/swap.h"
-#include "core/file_sys/delay_generator.h"
-#include "core/hle/result.h"
-#include "common/serialization/boost_all_serialization.h"
+#include "../../common/bit_field.h"
+#include "../../common/common_types.h"
+#include "../../common/swap.h"
+#include "delay_generator.h"
+#include "../hle/result.h"
+#include "../../common/serialization/boost_all_serialization.h"
 
 namespace FileSys {
 

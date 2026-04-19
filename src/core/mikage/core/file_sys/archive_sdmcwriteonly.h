@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "core/file_sys/archive_sdmc.h"
+#include "archive_sdmc.h"
 
 namespace FileSys {
 

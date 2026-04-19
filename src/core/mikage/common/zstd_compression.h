@@ -12,10 +12,10 @@
 #include <unordered_map>
 #include <vector>
 
-#include "common/archives.h"
-#include "common/common_types.h"
-#include "common/file_util.h"
-#include "common/serialization/boost_all_serialization.h"
+#include "archives.h"
+#include "common_types.h"
+#include "file_util.h"
+#include "serialization/boost_all_serialization.h"
 
 namespace Common::Compression {
 

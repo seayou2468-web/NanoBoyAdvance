@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include "common/hash.h"
-#include "video_core/pica/regs_internal.h"
-#include "video_core/shader/generator/profile.h"
+#include "../../../common/hash.h"
+#include "../../pica/regs_internal.h"
+#include "profile.h"
 
 #define LAYOUT_HASH static_cast<u64>(sizeof(T)), static_cast<u64>(alignof(T))
 #define FIELD_HASH(x) static_cast<u64>(offsetof(T, x)), static_cast<u64>(sizeof(x))

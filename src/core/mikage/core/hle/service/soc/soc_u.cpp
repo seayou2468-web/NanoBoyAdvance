@@ -7,19 +7,19 @@
 #include <type_traits>
 #include <unordered_map>
 #include <vector>
-#include "common/archives.h"
-#include "common/assert.h"
-#include "common/bit_field.h"
-#include "common/common_types.h"
-#include "common/logging/log.h"
-#include "common/scope_exit.h"
-#include "common/swap.h"
-#include "core/core.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/kernel/shared_memory.h"
-#include "core/hle/result.h"
-#include "core/hle/service/soc/soc_u.h"
-#include "network/socket_manager.h"
+#include "../../../../common/archives.h"
+#include "../../../../common/assert.h"
+#include "../../../../common/bit_field.h"
+#include "../../../../common/common_types.h"
+#include "../../../../common/logging/log.h"
+#include "../../../../common/scope_exit.h"
+#include "../../../../common/swap.h"
+#include "../../../core.h"
+#include "../../ipc_helpers.h"
+#include "../../kernel/shared_memory.h"
+#include "../../result.h"
+#include "soc_u.h"
+#include "../../../../network/socket_manager.h"
 
 #ifdef _WIN32
 

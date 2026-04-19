@@ -2,13 +2,13 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/archives.h"
-#include "common/assert.h"
-#include "core/hle/kernel/event.h"
-#include "core/hle/kernel/kernel.h"
-#include "core/hle/kernel/resource_limit.h"
-#include "core/hle/kernel/thread.h"
-#include "common/serialization/boost_all_serialization.h"
+#include "../../../common/archives.h"
+#include "../../../common/assert.h"
+#include "event.h"
+#include "kernel.h"
+#include "resource_limit.h"
+#include "thread.h"
+#include "../../../common/serialization/boost_all_serialization.h"
 
 SERIALIZE_EXPORT_IMPL(Kernel::Event)
 

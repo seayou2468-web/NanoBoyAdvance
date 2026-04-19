@@ -6,7 +6,7 @@
 
 #include <memory>
 #include <string>
-#include "core/frontend/camera/interface.h"
+#include "interface.h"
 
 namespace Camera {
 

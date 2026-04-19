@@ -5,11 +5,11 @@
 #pragma once
 
 #include <span>
-#include "common/thread_worker.h"
-#include "video_core/pica/regs_texturing.h"
-#include "video_core/rasterizer_interface.h"
-#include "video_core/renderer_software/sw_clipper.h"
-#include "video_core/renderer_software/sw_framebuffer.h"
+#include "../../common/thread_worker.h"
+#include "../pica/regs_texturing.h"
+#include "../rasterizer_interface.h"
+#include "sw_clipper.h"
+#include "sw_framebuffer.h"
 
 namespace Pica {
 struct RegsInternal;

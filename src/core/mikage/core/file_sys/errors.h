@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "core/hle/result.h"
+#include "../hle/result.h"
 
 namespace FileSys {
 

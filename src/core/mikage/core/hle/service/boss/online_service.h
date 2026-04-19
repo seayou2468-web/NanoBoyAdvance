@@ -8,9 +8,9 @@
 #include <variant>
 #include <vector>
 
-#include "common/common_types.h"
-#include "core/hle/result.h"
-#include "core/loader/loader.h"
+#include "../../../../common/common_types.h"
+#include "../../result.h"
+#include "../../../loader/loader.h"
 
 namespace Kernel {
 class MappedBuffer;

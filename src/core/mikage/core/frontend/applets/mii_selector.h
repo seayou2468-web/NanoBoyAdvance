@@ -6,7 +6,7 @@
 
 #include <memory>
 #include <string>
-#include "core/hle/applets/mii_selector.h"
+#include "../../hle/applets/mii_selector.h"
 
 namespace Frontend {
 

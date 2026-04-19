@@ -2,8 +2,8 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "core/hle/service/apt/bcfnt/bcfnt.h"
-#include "core/hle/service/service.h"
+#include "bcfnt.h"
+#include "../../service.h"
 
 namespace Service::APT::BCFNT {
 

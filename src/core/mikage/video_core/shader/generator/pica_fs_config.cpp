@@ -2,7 +2,7 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "video_core/shader/generator/pica_fs_config.h"
+#include "pica_fs_config.h"
 
 namespace Pica::Shader {
 

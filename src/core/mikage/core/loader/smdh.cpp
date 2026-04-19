@@ -4,10 +4,10 @@
 
 #include <cstring>
 #include <vector>
-#include "common/common_types.h"
-#include "core/loader/loader.h"
-#include "core/loader/smdh.h"
-#include "video_core/utils.h"
+#include "../../common/common_types.h"
+#include "loader.h"
+#include "smdh.h"
+#include "../../video_core/utils.h"
 
 namespace Loader {
 

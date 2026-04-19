@@ -6,16 +6,16 @@
 #include <cmath>
 #include <numeric>
 #include <vector>
-#include "common/assert.h"
-#include "common/common_types.h"
-#include "common/logging/log.h"
-#include "common/microprofile.h"
-#include "common/shader/nihstro_shader_bytecode_compat.h"
-#include "common/vector_math.h"
-#include "video_core/pica/shader_setup.h"
-#include "video_core/pica/shader_unit.h"
-#include "video_core/pica_types.h"
-#include "video_core/shader/shader_interpreter.h"
+#include "../../common/assert.h"
+#include "../../common/common_types.h"
+#include "../../common/logging/log.h"
+#include "../../common/microprofile.h"
+#include "../../common/shader/nihstro_shader_bytecode_compat.h"
+#include "../../common/vector_math.h"
+#include "../pica/shader_setup.h"
+#include "../pica/shader_unit.h"
+#include "../pica_types.h"
+#include "shader_interpreter.h"
 
 using nihstro::Instruction;
 using nihstro::OpCode;

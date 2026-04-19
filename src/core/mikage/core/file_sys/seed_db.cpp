@@ -4,10 +4,10 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/file_util.h"
-#include "common/logging/log.h"
-#include "common/string_util.h"
-#include "core/file_sys/seed_db.h"
+#include "../../common/file_util.h"
+#include "../../common/logging/log.h"
+#include "../../common/string_util.h"
+#include "seed_db.h"
 
 namespace FileSys {
 

@@ -4,15 +4,15 @@
 
 #include <cstring>
 #include <string>
-#include "common/assert.h"
-#include "common/logging/log.h"
-#include "common/string_util.h"
-#include "core/core.h"
-#include "core/frontend/applets/mii_selector.h"
-#include "core/hle/applets/mii_selector.h"
-#include "core/hle/kernel/kernel.h"
-#include "core/hle/kernel/shared_memory.h"
-#include "core/hle/result.h"
+#include "../../../common/assert.h"
+#include "../../../common/logging/log.h"
+#include "../../../common/string_util.h"
+#include "../../core.h"
+#include "../../frontend/applets/mii_selector.h"
+#include "mii_selector.h"
+#include "../kernel/kernel.h"
+#include "../kernel/shared_memory.h"
+#include "../result.h"
 
 namespace HLE::Applets {
 

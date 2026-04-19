@@ -2,11 +2,11 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/archives.h"
-#include "core/core.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/kernel/kernel.h"
-#include "core/hle/service/pm/pm_app.h"
+#include "../../../../common/archives.h"
+#include "../../../core.h"
+#include "../../ipc_helpers.h"
+#include "../../kernel/kernel.h"
+#include "pm_app.h"
 
 SERVICE_CONSTRUCT_IMPL(Service::PM::PM_APP)
 SERIALIZE_EXPORT_IMPL(Service::PM::PM_APP)

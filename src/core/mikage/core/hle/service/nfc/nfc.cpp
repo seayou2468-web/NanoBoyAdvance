@@ -2,12 +2,12 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/archives.h"
-#include "core/core.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/service/nfc/nfc.h"
-#include "core/hle/service/nfc/nfc_m.h"
-#include "core/hle/service/nfc/nfc_u.h"
+#include "../../../../common/archives.h"
+#include "../../../core.h"
+#include "../../ipc_helpers.h"
+#include "nfc.h"
+#include "nfc_m.h"
+#include "nfc_u.h"
 
 SERVICE_CONSTRUCT_IMPL(Service::NFC::Module)
 SERIALIZE_EXPORT_IMPL(Service::NFC::Module)

@@ -3,11 +3,11 @@
 // Refer to the license.txt file included.
 
 #include <string_view>
-#include "common/string_util.h"
-#include "video_core/pica/regs_rasterizer.h"
-#include "video_core/shader/generator/glsl_shader_decompiler.h"
-#include "video_core/shader/generator/glsl_shader_gen.h"
-#include "video_core/shader/generator/shader_gen.h"
+#include "../../../common/string_util.h"
+#include "../../pica/regs_rasterizer.h"
+#include "glsl_shader_decompiler.h"
+#include "glsl_shader_gen.h"
+#include "shader_gen.h"
 
 using VSOutputAttributes = Pica::RasterizerRegs::VSOutputAttributes;
 

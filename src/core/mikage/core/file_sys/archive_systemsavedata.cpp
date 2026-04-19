@@ -6,15 +6,15 @@
 #include <cstring>
 #include <memory>
 #include <vector>
-#include "common/archives.h"
-#include "common/common_types.h"
-#include "common/file_util.h"
-#include "common/string_util.h"
-#include "core/file_sys/archive_artic.h"
-#include "core/file_sys/archive_systemsavedata.h"
-#include "core/file_sys/errors.h"
-#include "core/file_sys/savedata_archive.h"
-#include "core/hle/service/fs/archive.h"
+#include "../../common/archives.h"
+#include "../../common/common_types.h"
+#include "../../common/file_util.h"
+#include "../../common/string_util.h"
+#include "archive_artic.h"
+#include "archive_systemsavedata.h"
+#include "errors.h"
+#include "savedata_archive.h"
+#include "../hle/service/fs/archive.h"
 
 SERIALIZE_EXPORT_IMPL(FileSys::ArchiveFactory_SystemSaveData)
 

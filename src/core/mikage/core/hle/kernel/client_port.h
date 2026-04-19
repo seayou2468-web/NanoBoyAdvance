@@ -6,11 +6,11 @@
 
 #include <memory>
 #include <string>
-#include "common/common_types.h"
-#include "core/hle/kernel/object.h"
-#include "core/hle/kernel/server_port.h"
-#include "core/hle/result.h"
-#include "common/serialization/boost_all_serialization.h"
+#include "../../../common/common_types.h"
+#include "object.h"
+#include "server_port.h"
+#include "../result.h"
+#include "../../../common/serialization/boost_all_serialization.h"
 
 namespace Kernel {
 

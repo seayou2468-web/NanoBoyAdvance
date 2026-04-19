@@ -2,10 +2,10 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "core/core.h"
-#include "core/hle/service/gsp/gsp.h"
-#include "core/hle/service/gsp/gsp_gpu.h"
-#include "core/hle/service/gsp/gsp_lcd.h"
+#include "../../../core.h"
+#include "gsp.h"
+#include "gsp_gpu.h"
+#include "gsp_lcd.h"
 
 namespace Service::GSP {
 

@@ -4,14 +4,14 @@
 
 #include <memory>
 #include <string>
-#include "common/logging/log.h"
-#include "common/string_util.h"
-#include "core/core.h"
-#include "core/hle/kernel/process.h"
-#include "core/loader/3dsx.h"
-#include "core/loader/artic.h"
-#include "core/loader/elf.h"
-#include "core/loader/ncch.h"
+#include "../../common/logging/log.h"
+#include "../../common/string_util.h"
+#include "../core.h"
+#include "../hle/kernel/process.h"
+#include "3dsx.h"
+#include "artic.h"
+#include "elf.h"
+#include "ncch.h"
 
 namespace Loader {
 

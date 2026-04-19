@@ -5,18 +5,18 @@
 #include <algorithm>
 #include <memory>
 #include <vector>
-#include "common/archives.h"
-#include "common/common_types.h"
-#include "common/file_util.h"
-#include "common/logging/log.h"
-#include "common/string_util.h"
-#include "core/file_sys/archive_artic.h"
-#include "core/file_sys/archive_extsavedata.h"
-#include "core/file_sys/disk_archive.h"
-#include "core/file_sys/errors.h"
-#include "core/file_sys/path_parser.h"
-#include "core/file_sys/savedata_archive.h"
-#include "core/hle/service/fs/archive.h"
+#include "../../common/archives.h"
+#include "../../common/common_types.h"
+#include "../../common/file_util.h"
+#include "../../common/logging/log.h"
+#include "../../common/string_util.h"
+#include "archive_artic.h"
+#include "archive_extsavedata.h"
+#include "disk_archive.h"
+#include "errors.h"
+#include "path_parser.h"
+#include "savedata_archive.h"
+#include "../hle/service/fs/archive.h"
 
 SERIALIZE_EXPORT_IMPL(FileSys::ArchiveFactory_ExtSaveData)
 

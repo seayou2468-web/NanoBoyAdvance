@@ -7,8 +7,8 @@
 #include <array>
 #include <cstddef>
 #include <vector>
-#include "common/common_types.h"
-#include "common/file_util.h"
+#include "../../common/common_types.h"
+#include "../../common/file_util.h"
 
 namespace FileSys {
 class Certificate;

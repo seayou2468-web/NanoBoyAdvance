@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "common/common_types.h"
-#include "common/logging/log.h"
+#include "../../common/common_types.h"
+#include "../../common/logging/log.h"
 
 namespace FileSys {
 

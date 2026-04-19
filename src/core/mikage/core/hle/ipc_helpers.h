@@ -10,8 +10,8 @@
 #include <type_traits>
 #include <utility>
 #include <vector>
-#include "core/hle/ipc.h"
-#include "core/hle/kernel/hle_ipc.h"
+#include "ipc.h"
+#include "kernel/hle_ipc.h"
 
 namespace IPC {
 

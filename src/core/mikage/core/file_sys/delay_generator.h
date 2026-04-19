@@ -5,8 +5,8 @@
 #pragma once
 
 #include <cstddef>
-#include "common/common_types.h"
-#include "common/serialization/boost_all_serialization.h"
+#include "../../common/common_types.h"
+#include "../../common/serialization/boost_all_serialization.h"
 
 #define SERIALIZE_DELAY_GENERATOR                                                                  \
 private:                                                                                           \

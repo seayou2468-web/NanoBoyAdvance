@@ -2,11 +2,11 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/alignment.h"
-#include "common/math_util.h"
-#include "core/memory.h"
-#include "video_core/pica/pica_core.h"
-#include "video_core/rasterizer_accelerated.h"
+#include "../common/alignment.h"
+#include "../common/math_util.h"
+#include "../core/memory.h"
+#include "pica/pica_core.h"
+#include "rasterizer_accelerated.h"
 
 namespace VideoCore {
 

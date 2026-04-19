@@ -6,14 +6,14 @@
 
 #include <algorithm>
 #include <vector>
-#include "common/archives.h"
-#include "common/commoncrypto_aes.h"
-#include "common/logging/log.h"
-#include "core/file_sys/archive_artic.h"
-#include "core/file_sys/archive_backend.h"
-#include "core/file_sys/romfs_reader.h"
-#include "core/hle/service/fs/fs_user.h"
-#include "core/loader/loader.h"
+#include "../../common/archives.h"
+#include "../../common/commoncrypto_aes.h"
+#include "../../common/logging/log.h"
+#include "archive_artic.h"
+#include "archive_backend.h"
+#include "romfs_reader.h"
+#include "../hle/service/fs/fs_user.h"
+#include "../loader/loader.h"
 
 SERIALIZE_EXPORT_IMPL(FileSys::DirectRomFSReader)
 

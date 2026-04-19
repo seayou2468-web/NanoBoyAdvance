@@ -6,20 +6,20 @@
 #include <memory>
 #include <utility>
 #include <vector>
-#include "common/archives.h"
-#include "common/assert.h"
-#include "common/common_types.h"
-#include "common/logging/log.h"
-#include "common/serialization/std_set_serialization.h"
-#include "common/settings.h"
-#include "core/core.h"
-#include "core/hle/kernel/config_mem.h"
-#include "core/hle/kernel/memory.h"
-#include "core/hle/kernel/process.h"
-#include "core/hle/kernel/shared_page.h"
-#include "core/hle/kernel/vm_manager.h"
-#include "core/hle/result.h"
-#include "core/memory.h"
+#include "../../../common/archives.h"
+#include "../../../common/assert.h"
+#include "../../../common/common_types.h"
+#include "../../../common/logging/log.h"
+#include "../../../common/serialization/std_set_serialization.h"
+#include "../../../common/settings.h"
+#include "../../core.h"
+#include "config_mem.h"
+#include "memory.h"
+#include "process.h"
+#include "shared_page.h"
+#include "vm_manager.h"
+#include "../result.h"
+#include "../../memory.h"
 
 SERIALIZE_EXPORT_IMPL(Kernel::MemoryRegionInfo)
 

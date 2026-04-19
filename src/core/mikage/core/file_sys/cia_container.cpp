@@ -2,12 +2,12 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/alignment.h"
-#include "common/file_util.h"
-#include "common/logging/log.h"
-#include "core/file_sys/cia_container.h"
-#include "core/file_sys/file_backend.h"
-#include "core/loader/loader.h"
+#include "../../common/alignment.h"
+#include "../../common/file_util.h"
+#include "../../common/logging/log.h"
+#include "cia_container.h"
+#include "file_backend.h"
+#include "../loader/loader.h"
 
 namespace FileSys {
 

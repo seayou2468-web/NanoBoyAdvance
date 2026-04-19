@@ -5,10 +5,10 @@
 #include <cstddef>
 #include <iomanip>
 #include <sstream>
-#include "common/logging/log.h"
-#include "common/string_util.h"
-#include "core/file_sys/archive_backend.h"
-#include "core/memory.h"
+#include "../../common/logging/log.h"
+#include "../../common/string_util.h"
+#include "archive_backend.h"
+#include "../memory.h"
 
 namespace FileSys {
 

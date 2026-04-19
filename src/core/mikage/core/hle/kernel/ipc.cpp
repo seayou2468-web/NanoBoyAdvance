@@ -3,20 +3,20 @@
 // Refer to the license.txt file included.
 
 #include <algorithm>
-#include "common/alignment.h"
-#include "common/archives.h"
-#include "common/memory_ref.h"
-#include "core/core.h"
-#include "core/hle/ipc.h"
-#include "core/hle/kernel/handle_table.h"
-#include "core/hle/kernel/ipc.h"
-#include "core/hle/kernel/ipc_debugger/recorder.h"
-#include "core/hle/kernel/kernel.h"
-#include "core/hle/kernel/memory.h"
-#include "core/hle/kernel/process.h"
-#include "core/hle/kernel/thread.h"
-#include "core/memory.h"
-#include "common/serialization/boost_all_serialization.h"
+#include "../../../common/alignment.h"
+#include "../../../common/archives.h"
+#include "../../../common/memory_ref.h"
+#include "../../core.h"
+#include "../ipc.h"
+#include "handle_table.h"
+#include "ipc.h"
+#include "ipc_debugger/recorder.h"
+#include "kernel.h"
+#include "memory.h"
+#include "process.h"
+#include "thread.h"
+#include "../../memory.h"
+#include "../../../common/serialization/boost_all_serialization.h"
 
 SERIALIZE_EXPORT_IMPL(Kernel::MappedBufferContext)
 

@@ -10,8 +10,8 @@
 
 #include <memory>
 #include <string>
-#include "common/common_types.h"
-#include "core/loader/loader.h"
+#include "../../common/common_types.h"
+#include "loader.h"
 
 namespace Loader {
 

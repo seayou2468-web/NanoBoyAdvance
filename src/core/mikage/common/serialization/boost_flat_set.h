@@ -1,8 +1,8 @@
 #pragma once
 
 #include <set>
-#include "common/common_types.h"
-#include "common/serialization/boost_all_serialization.h"
+#include "../common_types.h"
+#include "boost_all_serialization.h"
 
 namespace MikageSerialization {
 

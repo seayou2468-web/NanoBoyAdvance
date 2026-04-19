@@ -1,7 +1,7 @@
 #pragma once
 
 #include <atomic>
-#include "common/serialization/boost_all_serialization.h"
+#include "boost_all_serialization.h"
 
 namespace MikageSerialization {
 

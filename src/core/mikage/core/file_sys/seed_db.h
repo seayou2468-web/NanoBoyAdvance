@@ -9,8 +9,8 @@
 #include <array>
 #include <optional>
 #include <unordered_map>
-#include "common/common_types.h"
-#include "common/swap.h"
+#include "../../common/common_types.h"
+#include "../../common/swap.h"
 
 namespace FileSys {
 

@@ -5,16 +5,16 @@
 #include <array>
 #include <chrono>
 
-#include "common/crc.h"
-#include "common/file_util.h"
-#include "common/logging/log.h"
-#include "common/secure_random.h"
-#include "core/core.h"
-#include "core/hle/kernel/shared_page.h"
-#include "core/hle/service/nfc/amiibo_crypto.h"
-#include "core/hle/service/nfc/nfc_device.h"
-#include "core/hw/aes/key.h"
-#include "core/loader/loader.h"
+#include "../../../../common/crc.h"
+#include "../../../../common/file_util.h"
+#include "../../../../common/logging/log.h"
+#include "../../../../common/secure_random.h"
+#include "../../../core.h"
+#include "../../kernel/shared_page.h"
+#include "amiibo_crypto.h"
+#include "nfc_device.h"
+#include "../../../hw/aes/key.h"
+#include "../../../loader/loader.h"
 
 SERVICE_CONSTRUCT_IMPL(Service::NFC::NfcDevice)
 

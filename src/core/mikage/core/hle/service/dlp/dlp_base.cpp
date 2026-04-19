@@ -4,14 +4,14 @@
 
 #include "dlp_base.h"
 
-#include "common/alignment.h"
-#include "common/swap.h"
-#include "common/timer.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/service/nwm/uds_data.h"
-#include "core/hle/service/service.h"
-#include "core/hw/aes/key.h"
-#include "core/hw/unique_data.h"
+#include "../../../../common/alignment.h"
+#include "../../../../common/swap.h"
+#include "../../../../common/timer.h"
+#include "../../ipc_helpers.h"
+#include "../nwm/uds_data.h"
+#include "../service.h"
+#include "../../../hw/aes/key.h"
+#include "../../../hw/unique_data.h"
 
 namespace Service::DLP {
 

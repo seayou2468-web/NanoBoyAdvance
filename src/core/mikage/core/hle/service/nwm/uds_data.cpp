@@ -5,10 +5,10 @@
 #include <algorithm>
 #include <cstring>
 #include <CommonCrypto/CommonDigest.h>
-#include "common/commoncrypto_aes.h"
-#include "core/hle/service/nwm/nwm_uds.h"
-#include "core/hle/service/nwm/uds_data.h"
-#include "core/hw/aes/key.h"
+#include "../../../../common/commoncrypto_aes.h"
+#include "nwm_uds.h"
+#include "uds_data.h"
+#include "../../../hw/aes/key.h"
 
 namespace Service::NWM {
 

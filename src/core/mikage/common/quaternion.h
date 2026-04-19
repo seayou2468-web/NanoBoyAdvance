@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "common/vector_math.h"
+#include "vector_math.h"
 
 namespace Common {
 

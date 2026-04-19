@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "core/file_sys/archive_source_sd_savedata.h"
-#include "common/serialization/boost_all_serialization.h"
+#include "archive_source_sd_savedata.h"
+#include "../../common/serialization/boost_all_serialization.h"
 
 namespace FileSys {
 

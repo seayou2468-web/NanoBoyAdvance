@@ -2,10 +2,10 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "core/core.h"
-#include "core/hle/service/am/am.h"
-#include "core/hle/service/apt/ns.h"
-#include "core/loader/loader.h"
+#include "../../../core.h"
+#include "../am/am.h"
+#include "ns.h"
+#include "../../../loader/loader.h"
 
 namespace Service::NS {
 

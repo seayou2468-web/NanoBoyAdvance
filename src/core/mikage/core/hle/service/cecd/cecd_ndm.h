@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "core/hle/service/cecd/cecd.h"
+#include "cecd.h"
 
 namespace Service::CECD {
 

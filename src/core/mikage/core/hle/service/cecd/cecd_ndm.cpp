@@ -2,8 +2,8 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/archives.h"
-#include "core/hle/service/cecd/cecd_ndm.h"
+#include "../../../../common/archives.h"
+#include "cecd_ndm.h"
 
 SERIALIZE_EXPORT_IMPL(Service::CECD::CECD_NDM)
 

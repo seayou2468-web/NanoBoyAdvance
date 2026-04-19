@@ -13,20 +13,20 @@
 #include <cstring>
 #include <string_view>
 #include <unordered_map>
-#include "common/archives.h"
-#include "common/assert.h"
-#include "common/commoncrypto_aes.h"
-#include "common/secure_random.h"
-#include "common/string_util.h"
-#include "core/core.h"
-#include "core/file_sys/archive_ncch.h"
-#include "core/file_sys/file_backend.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/kernel/ipc.h"
-#include "core/hle/romfs.h"
-#include "core/hle/service/fs/archive.h"
-#include "core/hle/service/http/http_c.h"
-#include "core/hw/aes/key.h"
+#include "../../../../common/archives.h"
+#include "../../../../common/assert.h"
+#include "../../../../common/commoncrypto_aes.h"
+#include "../../../../common/secure_random.h"
+#include "../../../../common/string_util.h"
+#include "../../../core.h"
+#include "../../../file_sys/archive_ncch.h"
+#include "../../../file_sys/file_backend.h"
+#include "../../ipc_helpers.h"
+#include "../../kernel/ipc.h"
+#include "../../romfs.h"
+#include "../fs/archive.h"
+#include "http_c.h"
+#include "../../../hw/aes/key.h"
 
 SERIALIZE_EXPORT_IMPL(Service::HTTP::HTTP_C)
 SERIALIZE_EXPORT_IMPL(Service::HTTP::SessionData)

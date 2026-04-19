@@ -6,8 +6,8 @@
 
 #include <functional>
 #include <span>
-#include "common/serialization/boost_all_serialization.h"
-#include "common/common_types.h"
+#include "../common/serialization/boost_all_serialization.h"
+#include "../common/common_types.h"
 
 namespace Service {
 namespace HID {

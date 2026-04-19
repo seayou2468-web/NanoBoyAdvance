@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "core/file_sys/archive_backend.h"
-#include "core/hle/service/service.h"
+#include "../../../file_sys/archive_backend.h"
+#include "../service.h"
 
 namespace Core {
 class System;

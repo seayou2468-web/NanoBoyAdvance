@@ -21,19 +21,19 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#include "common/archives.h"
-#include "common/logging/log.h"
-#include "common/settings.h"
-#include "common/string_util.h"
-#include "core/core.h"
-#include "core/file_sys/plugin_3gx.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/kernel/event.h"
-#include "core/hle/kernel/handle_table.h"
-#include "core/hle/kernel/kernel.h"
-#include "core/hle/service/plgldr/plgldr.h"
-#include "core/loader/loader.h"
-#include "common/serialization/boost_all_serialization.h"
+#include "../../../../common/archives.h"
+#include "../../../../common/logging/log.h"
+#include "../../../../common/settings.h"
+#include "../../../../common/string_util.h"
+#include "../../../core.h"
+#include "../../../file_sys/plugin_3gx.h"
+#include "../../ipc_helpers.h"
+#include "../../kernel/event.h"
+#include "../../kernel/handle_table.h"
+#include "../../kernel/kernel.h"
+#include "plgldr.h"
+#include "../../../loader/loader.h"
+#include "../../../../common/serialization/boost_all_serialization.h"
 
 SERIALIZE_EXPORT_IMPL(Service::PLGLDR::PLG_LDR)
 SERVICE_CONSTRUCT_IMPL(Service::PLGLDR::PLG_LDR)

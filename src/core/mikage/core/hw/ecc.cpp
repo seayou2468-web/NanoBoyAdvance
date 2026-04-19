@@ -12,12 +12,12 @@
 #else
 #error "Mikage ECC backend now requires Apple Security.framework"
 #endif
-#include "common/assert.h"
-#include "common/logging/log.h"
-#include "common/secure_random.h"
-#include "common/string_util.h"
-#include "core/hw/aes/key.h"
-#include "core/hw/ecc.h"
+#include "../../common/assert.h"
+#include "../../common/logging/log.h"
+#include "../../common/secure_random.h"
+#include "../../common/string_util.h"
+#include "aes/key.h"
+#include "ecc.h"
 
 namespace HW::ECC {
 

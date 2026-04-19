@@ -4,7 +4,7 @@
 
 #pragma once
 #include <atomic>
-#include "common/common_types.h"
+#include "../common/common_types.h"
 
 namespace Network {
 class SocketManager {

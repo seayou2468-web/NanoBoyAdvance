@@ -3,16 +3,16 @@
 // Refer to the license.txt file included.
 
 #include <tuple>
-#include "common/archives.h"
-#include "common/assert.h"
-#include "core/hle/kernel/client_port.h"
-#include "core/hle/kernel/errors.h"
-#include "core/hle/kernel/hle_ipc.h"
-#include "core/hle/kernel/object.h"
-#include "core/hle/kernel/server_port.h"
-#include "core/hle/kernel/server_session.h"
-#include "core/hle/kernel/thread.h"
-#include "common/serialization/boost_all_serialization.h"
+#include "../../../common/archives.h"
+#include "../../../common/assert.h"
+#include "client_port.h"
+#include "errors.h"
+#include "hle_ipc.h"
+#include "object.h"
+#include "server_port.h"
+#include "server_session.h"
+#include "thread.h"
+#include "../../../common/serialization/boost_all_serialization.h"
 
 SERIALIZE_EXPORT_IMPL(Kernel::ServerPort)
 

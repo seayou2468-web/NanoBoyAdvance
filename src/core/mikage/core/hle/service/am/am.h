@@ -12,18 +12,18 @@
 #include <mutex>
 #include <string>
 #include <vector>
-#include "common/common_types.h"
-#include "common/construct.h"
-#include "common/swap.h"
-#include "core/file_sys/cia_container.h"
-#include "core/file_sys/file_backend.h"
-#include "core/file_sys/ncch_container.h"
-#include "core/global.h"
-#include "core/hle/kernel/mutex.h"
-#include "core/hle/result.h"
-#include "core/hle/service/service.h"
-#include "network/artic_base/artic_base_client.h"
-#include "common/serialization/boost_all_serialization.h"
+#include "../../../../common/common_types.h"
+#include "../../../../common/construct.h"
+#include "../../../../common/swap.h"
+#include "../../../file_sys/cia_container.h"
+#include "../../../file_sys/file_backend.h"
+#include "../../../file_sys/ncch_container.h"
+#include "../../../global.h"
+#include "../../kernel/mutex.h"
+#include "../../result.h"
+#include "../service.h"
+#include "../../../../network/artic_base/artic_base_client.h"
+#include "../../../../common/serialization/boost_all_serialization.h"
 
 namespace Core {
 class System;

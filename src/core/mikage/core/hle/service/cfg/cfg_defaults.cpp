@@ -2,9 +2,9 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/string_util.h"
-#include "core/hle/service/cfg/cfg.h"
-#include "core/hle/service/cfg/cfg_defaults.h"
+#include "../../../../common/string_util.h"
+#include "cfg.h"
+#include "cfg_defaults.h"
 
 namespace Service::CFG {
 

@@ -2,13 +2,13 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/archives.h"
-#include "common/assert.h"
-#include "common/settings.h"
-#include "core/hle/kernel/process.h"
-#include "core/hle/kernel/resource_limit.h"
-#include "core/hle/kernel/thread.h"
-#include "common/serialization/boost_all_serialization.h"
+#include "../../../common/archives.h"
+#include "../../../common/assert.h"
+#include "../../../common/settings.h"
+#include "process.h"
+#include "resource_limit.h"
+#include "thread.h"
+#include "../../../common/serialization/boost_all_serialization.h"
 
 SERIALIZE_EXPORT_IMPL(Kernel::ResourceLimit)
 SERIALIZE_EXPORT_IMPL(Kernel::ResourceLimitList)

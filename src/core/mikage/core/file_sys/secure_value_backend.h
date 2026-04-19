@@ -6,9 +6,9 @@
 
 #include <tuple>
 
-#include "common/common_types.h"
-#include "core/hle/result.h"
-#include "core/hle/service/fs/archive.h"
+#include "../../common/common_types.h"
+#include "../hle/result.h"
+#include "../hle/service/fs/archive.h"
 
 namespace FileSys {
 class SecureValueBackend : NonCopyable {

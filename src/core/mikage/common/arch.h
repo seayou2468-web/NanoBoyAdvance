@@ -1,3 +1,3 @@
 #pragma once
 
-#include "common/compat/common/arch.h"
+#include "compat/common/arch.h"

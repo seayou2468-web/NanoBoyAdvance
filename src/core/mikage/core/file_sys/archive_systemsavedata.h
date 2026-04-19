@@ -6,13 +6,13 @@
 
 #include <memory>
 #include <string>
-#include "common/common_types.h"
-#include "core/file_sys/archive_backend.h"
-#include "core/file_sys/artic_cache.h"
-#include "core/hle/result.h"
-#include "core/hle/service/fs/archive.h"
-#include "network/artic_base/artic_base_client.h"
-#include "common/serialization/boost_all_serialization.h"
+#include "../../common/common_types.h"
+#include "archive_backend.h"
+#include "artic_cache.h"
+#include "../hle/result.h"
+#include "../hle/service/fs/archive.h"
+#include "../../network/artic_base/artic_base_client.h"
+#include "../../common/serialization/boost_all_serialization.h"
 
 namespace FileSys {
 

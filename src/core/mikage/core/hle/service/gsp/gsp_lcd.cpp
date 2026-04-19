@@ -2,9 +2,9 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/archives.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/service/gsp/gsp_lcd.h"
+#include "../../../../common/archives.h"
+#include "../../ipc_helpers.h"
+#include "gsp_lcd.h"
 
 SERIALIZE_EXPORT_IMPL(Service::GSP::GSP_LCD)
 

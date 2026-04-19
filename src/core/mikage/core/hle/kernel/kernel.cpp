@@ -2,21 +2,21 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "common/archives.h"
-#include "common/serialization/atomic.h"
-#include "common/settings.h"
-#include "core/hle/kernel/client_port.h"
-#include "core/hle/kernel/config_mem.h"
-#include "core/hle/kernel/handle_table.h"
-#include "core/hle/kernel/ipc_debugger/recorder.h"
-#include "core/hle/kernel/kernel.h"
-#include "core/hle/kernel/memory.h"
-#include "core/hle/kernel/process.h"
-#include "core/hle/kernel/resource_limit.h"
-#include "core/hle/kernel/shared_page.h"
-#include "core/hle/kernel/thread.h"
-#include "core/hle/kernel/timer.h"
-#include "common/serialization/boost_all_serialization.h"
+#include "../../../common/archives.h"
+#include "../../../common/serialization/atomic.h"
+#include "../../../common/settings.h"
+#include "client_port.h"
+#include "config_mem.h"
+#include "handle_table.h"
+#include "ipc_debugger/recorder.h"
+#include "kernel.h"
+#include "memory.h"
+#include "process.h"
+#include "resource_limit.h"
+#include "shared_page.h"
+#include "thread.h"
+#include "timer.h"
+#include "../../../common/serialization/boost_all_serialization.h"
 
 SERIALIZE_EXPORT_IMPL(Kernel::New3dsHwCapabilities)
 

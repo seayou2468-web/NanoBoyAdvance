@@ -9,12 +9,12 @@
 // bootrom. Because we're not emulating this, and essentially just "stubbing" the functionality, I'm
 // putting this as a subset of HLE for now.
 
-#include "common/common_funcs.h"
-#include "common/common_types.h"
-#include "common/memory_ref.h"
-#include "common/swap.h"
-#include "core/memory.h"
-#include "common/serialization/boost_all_serialization.h"
+#include "../../../common/common_funcs.h"
+#include "../../../common/common_types.h"
+#include "../../../common/memory_ref.h"
+#include "../../../common/swap.h"
+#include "../../memory.h"
+#include "../../../common/serialization/boost_all_serialization.h"
 
 namespace ConfigMem {
 

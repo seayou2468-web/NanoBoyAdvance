@@ -3,20 +3,20 @@
 // Refer to the license.txt file included.
 
 #include <span>
-#include "audio_core/input.h"
-#include "audio_core/input_details.h"
-#include "common/archives.h"
-#include "common/logging/log.h"
-#include "common/settings.h"
-#include "core/core.h"
-#include "core/hle/ipc.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/kernel/event.h"
-#include "core/hle/kernel/handle_table.h"
-#include "core/hle/kernel/kernel.h"
-#include "core/hle/kernel/shared_memory.h"
-#include "core/hle/service/mic/mic_u.h"
-#include "common/serialization/boost_all_serialization.h"
+#include "../../../../audio_core/input.h"
+#include "../../../../audio_core/input_details.h"
+#include "../../../../common/archives.h"
+#include "../../../../common/logging/log.h"
+#include "../../../../common/settings.h"
+#include "../../../core.h"
+#include "../../ipc.h"
+#include "../../ipc_helpers.h"
+#include "../../kernel/event.h"
+#include "../../kernel/handle_table.h"
+#include "../../kernel/kernel.h"
+#include "../../kernel/shared_memory.h"
+#include "mic_u.h"
+#include "../../../../common/serialization/boost_all_serialization.h"
 
 SERVICE_CONSTRUCT_IMPL(Service::MIC::MIC_U)
 SERIALIZE_EXPORT_IMPL(Service::MIC::MIC_U)

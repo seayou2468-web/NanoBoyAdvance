@@ -11,7 +11,7 @@
 #include "dyncom/arm_dyncom_trans.h"
 #include "skyeye_common/armstate.h"
 #include "../../../common/compat/core/core.h"
-#include "../../../common/compat/core/core_timing.h"
+#include "../core_timing.h"
 
 namespace Core {
 

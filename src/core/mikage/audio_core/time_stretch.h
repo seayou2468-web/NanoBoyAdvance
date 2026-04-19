@@ -7,7 +7,7 @@
 #include <array>
 #include <cstddef>
 #include <memory>
-#include "common/common_types.h"
+#include "../common/common_types.h"
 
 namespace soundtouch {
 class SoundTouch;
