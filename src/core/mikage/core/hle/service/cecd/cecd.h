@@ -5,7 +5,7 @@
 #pragma once
 
 #include <memory>
-#include "span"
+#include <span>
 #include "../../../../common/bit_field.h"
 #include "../../../../common/common_funcs.h"
 #include "../../kernel/event.h"

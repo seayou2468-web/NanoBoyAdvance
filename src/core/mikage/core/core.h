@@ -5,7 +5,7 @@
 #pragma once
 
 #include <memory>
-#include "span"
+#include <span>
 #include <string>
 #include "./arm/arm_interface.h"
 #include "./arm/interpreter/armdefs.h"

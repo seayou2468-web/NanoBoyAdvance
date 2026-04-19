@@ -6,7 +6,7 @@
 
 #include <memory>
 #include <optional>
-#include "span"
+#include <span>
 #include <string>
 #include "../../common/common_types.h"
 #include "archive_backend.h"

@@ -5,7 +5,7 @@
 #pragma once
 
 #include <functional>
-#include "span"
+#include <span>
 #include "../common/serialization/boost_all_serialization.h"
 #include "../common/common_types.h"
 

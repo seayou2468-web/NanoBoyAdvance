@@ -6,7 +6,7 @@
 
 #include <array>
 #include <cstddef>
-#include "span"
+#include <span>
 #include <vector>
 #include "../../../common/common_types.h"
 

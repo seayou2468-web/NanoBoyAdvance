@@ -6,7 +6,7 @@
 
 #include <functional>
 #include <memory>
-#include "span"
+#include <span>
 #include "../service.h"
 
 namespace Kernel {

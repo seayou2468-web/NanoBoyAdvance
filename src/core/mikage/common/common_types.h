@@ -30,7 +30,7 @@
 #include <type_traits>
 #include <algorithm>
 
-#include "span"
+#include <span>
 
 #if __cplusplus < 202002L
 #ifndef consteval

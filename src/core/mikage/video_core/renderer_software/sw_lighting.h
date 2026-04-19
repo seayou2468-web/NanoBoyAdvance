@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "span"
+#include <span>
 #include <utility>
 
 #include "../../common/quaternion.h"

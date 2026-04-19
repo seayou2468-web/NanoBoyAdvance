@@ -7,7 +7,7 @@
 #include <array>
 #include <atomic>
 #include <mutex>
-#include "span"
+#include <span>
 #include <string>
 #include <vector>
 #include "custom_format.h"
