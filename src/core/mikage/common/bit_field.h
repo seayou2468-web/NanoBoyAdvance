@@ -124,14 +124,14 @@ public:
     // so that we can use this within unions
     BitField() = default;
 
-    __forceinline BitField& operator=(T val)
+    __forceinline constexpr BitField& operator=(T val)
     {
         const StorageType raw_val = static_cast<StorageType>(val);
         storage = (storage & ~GetMask()) | ((raw_val << position) & GetMask());
         return *this;
     }
 
-    __forceinline operator T() const
+    __forceinline constexpr operator T() const
     {
         if (std::numeric_limits<T>::is_signed)
         {
@@ -144,11 +144,11 @@ public:
         }
     }
 
-    __forceinline T Value() const {
+    __forceinline constexpr T Value() const {
         return static_cast<T>(*this);
     }
 
-    __forceinline void Assign(T val) {
+    __forceinline constexpr void Assign(T val) {
         *this = val;
     }
 
@@ -164,10 +164,12 @@ private:
     // Unsigned version of StorageType
     typedef typename std::make_unsigned<StorageType>::type StorageTypeU;
 
-    __forceinline StorageType GetMask() const
+    __forceinline static constexpr StorageType StaticMask()
     {
         return ((~(StorageTypeU)0) >> (8 * sizeof(T)-bits)) << position;
     }
+    __forceinline constexpr StorageType GetMask() const { return StaticMask(); }
+    static constexpr StorageType mask = StaticMask();
 
     StorageType storage;
 
