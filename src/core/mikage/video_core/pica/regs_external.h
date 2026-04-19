@@ -4,7 +4,9 @@
 
 #pragma once
 
-#include <sstream>
+#include <algorithm>
+#include <array>
+#include <cstdio>
 #include <string>
 #include "../../common/assert.h"
 #include "../../common/bit_field.h"
@@ -85,11 +87,16 @@ struct MemoryFillConfig {
     }
 
     inline std::string DebugName() const {
-        std::ostringstream stream;
-        stream << "from 0x" << std::hex << std::uppercase << GetStartAddress() << " to 0x"
-               << GetEndAddress() << " with " << (fill_32bit ? "32" : (fill_24bit ? "24" : "16"))
-               << "-bit value 0x" << value_32bit;
-        return stream.str();
+        std::array<char, 96> buffer{};
+        const char* bit_width = fill_32bit ? "32" : (fill_24bit ? "24" : "16");
+        const int length =
+            std::snprintf(buffer.data(), buffer.size(), "from %#X to %#X with %s-bit value %#X",
+                          GetStartAddress(), GetEndAddress(), bit_width, value_32bit);
+        if (length <= 0) {
+            return {};
+        }
+        const auto output_length = static_cast<size_t>(length);
+        return std::string(buffer.data(), std::min(output_length, buffer.size() - 1));
     }
 };
 static_assert(sizeof(MemoryFillConfig) == 0x10);
@@ -150,13 +157,17 @@ struct DisplayTransferConfig {
     }
 
     inline std::string DebugName() const noexcept {
-        std::ostringstream stream;
-        stream << "from 0x" << std::hex << GetPhysicalInputAddress() << " to 0x"
-               << GetPhysicalOutputAddress() << " with "
-               << (scaling == NoScale ? "no" : (scaling == ScaleX ? "X" : "XY"))
-               << " scaling and stride " << std::dec << input_width.Value() << ", width "
-               << output_width.Value();
-        return stream.str();
+        std::array<char, 128> buffer{};
+        const char* scaling_name = scaling == NoScale ? "no" : (scaling == ScaleX ? "X" : "XY");
+        const int length = std::snprintf(
+            buffer.data(), buffer.size(), "from %#x to %#x with %s scaling and stride %u, width %u",
+            GetPhysicalInputAddress(), GetPhysicalOutputAddress(), scaling_name,
+            input_width.Value(), output_width.Value());
+        if (length <= 0) {
+            return {};
+        }
+        const auto output_length = static_cast<size_t>(length);
+        return std::string(buffer.data(), std::min(output_length, buffer.size() - 1));
     }
 
     union {
