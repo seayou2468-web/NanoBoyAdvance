@@ -363,7 +363,7 @@ public:
         std::vector<u8> buffer;
         if (capture_info) {
             buffer.resize(sizeof(CaptureBufferInfo));
-            std::memcpy(buffer.data(), &capture_info.get(), sizeof(CaptureBufferInfo));
+            std::memcpy(buffer.data(), &capture_info.value(), sizeof(CaptureBufferInfo));
         }
         return buffer;
     }
@@ -371,14 +371,14 @@ public:
         ASSERT_MSG(buffer.size() >= sizeof(CaptureBufferInfo), "CaptureBufferInfo is too small.");
 
         capture_info.emplace();
-        std::memcpy(&capture_info.get(), buffer.data(), sizeof(CaptureBufferInfo));
+        std::memcpy(&capture_info.value(), buffer.data(), sizeof(CaptureBufferInfo));
     }
 
     std::vector<u8> ReceiveCaptureBufferInfo() {
         std::vector<u8> buffer;
         if (capture_buffer_info) {
             buffer.resize(sizeof(CaptureBufferInfo));
-            std::memcpy(buffer.data(), &capture_buffer_info.get(), sizeof(CaptureBufferInfo));
+            std::memcpy(buffer.data(), &capture_buffer_info.value(), sizeof(CaptureBufferInfo));
             capture_buffer_info.reset();
         }
         return buffer;
@@ -387,7 +387,7 @@ public:
         ASSERT_MSG(buffer.size() >= sizeof(CaptureBufferInfo), "CaptureBufferInfo is too small.");
 
         capture_buffer_info.emplace();
-        std::memcpy(&capture_buffer_info.get(), buffer.data(), sizeof(CaptureBufferInfo));
+        std::memcpy(&capture_buffer_info.value(), buffer.data(), sizeof(CaptureBufferInfo));
     }
 
     Result PrepareToStartApplication(u64 title_id, FS::MediaType media_type);

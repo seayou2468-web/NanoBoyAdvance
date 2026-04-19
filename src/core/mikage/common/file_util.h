@@ -210,6 +210,8 @@ private:
 
 }  // namespace
 
+namespace FileUtil = File;
+
 // To deal with Windows being dumb at unicode:
 template <typename T>
 void OpenFStream(T& fstream, const std::string& filename, std::ios_base::openmode openmode)

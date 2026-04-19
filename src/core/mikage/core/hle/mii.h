@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <cstring>
 #include "../../common/bit_field.h"
 #include "../../common/common_types.h"
 #include "../../common/serialization/boost_all_serialization.h"
@@ -15,6 +16,10 @@ using Nickname = std::array<char16_t, 10>;
 #pragma pack(push, 1)
 // Reference: https://github.com/devkitPro/libctru/blob/master/libctru/include/3ds/mii.h
 struct MiiData {
+    MiiData() {
+        std::memset(this, 0, sizeof(*this));
+    }
+
     u8 version; ///< Always 3?
 
     /// Mii options
@@ -182,10 +187,13 @@ private:
 };
 
 static_assert(sizeof(MiiData) == 0x5C, "MiiData structure has incorrect size");
-static_assert(std::is_trivial_v<MiiData>, "MiiData must be trivial.");
 static_assert(std::is_trivially_copyable_v<MiiData>, "MiiData must be trivially copyable.");
 
 struct ChecksummedMiiData {
+    ChecksummedMiiData() {
+        std::memset(this, 0, sizeof(*this));
+    }
+
 private:
     MiiData mii_data;
     u16 padding;
@@ -233,7 +241,6 @@ private:
 #pragma pack(pop)
 static_assert(sizeof(ChecksummedMiiData) == 0x60,
               "ChecksummedMiiData structure has incorrect size");
-static_assert(std::is_trivial_v<ChecksummedMiiData>, "ChecksummedMiiData must be trivial.");
 static_assert(std::is_trivially_copyable_v<ChecksummedMiiData>,
               "ChecksummedMiiData must be trivially copyable.");
 } // namespace Mii
