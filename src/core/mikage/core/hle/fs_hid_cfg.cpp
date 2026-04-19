@@ -168,10 +168,11 @@ void FS_Service_Extended::GetFileSize(u32* buffer) {
     
     auto it = open_files.find(file_handle);
     if (it != open_files.end()) {
+        const u64 file_size = static_cast<u64>(it->second->GetSize());
         buffer[0] = 0x20;
         buffer[1] = 0;
-        buffer[2] = it->second->GetSize() & 0xFFFFFFFF;
-        buffer[3] = (it->second->GetSize() >> 32) & 0xFFFFFFFF;
+        buffer[2] = static_cast<u32>(file_size & 0xFFFFFFFFULL);
+        buffer[3] = static_cast<u32>((file_size >> 32) & 0xFFFFFFFFULL);
         
         NOTICE_LOG(KERNEL, "FS: GetFileSize(handle=0x%x) -> %u", 
                    file_handle, it->second->GetSize());

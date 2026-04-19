@@ -33,7 +33,7 @@ public:
 
     void ValidateHeader() {
         DEBUG_ASSERT_MSG(index == TotalSize(),
-                         "Operations do not match the header (cmd {:#x}, session: {})", header.raw,
+                         "Operations do not match the header (cmd 0x%x, session: %s)", header.raw,
                          context->Session()->GetName().c_str());
     }
 
