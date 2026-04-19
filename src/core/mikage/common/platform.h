@@ -35,7 +35,12 @@
 #ifndef LONG
 #define LONG long
 #endif
+
+// Apple's SDK already defines BOOL in Objective-C/Objective-C++ contexts.
+#if !defined(__OBJC__) && !defined(BOOL)
 #define BOOL bool
+#endif
+
 #define DWORD u32
 
 #ifndef MAX_PATH
@@ -49,7 +54,6 @@
 #define _tzset tzset
 
 typedef void EXCEPTION_POINTERS;
-using Handle = u32;
 
 #ifndef INVALID_HANDLE
 #define INVALID_HANDLE 0xFFFFFFFFu
