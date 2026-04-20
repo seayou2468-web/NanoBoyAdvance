@@ -18,6 +18,7 @@ file(GLOB_RECURSE AURORAIOS_SOURCES CONFIGURE_DEPENDS
 )
 
 file(GLOB_RECURSE CORE_SOURCES CONFIGURE_DEPENDS
+  "src/core/*.cpp"
   "src/core/api/*.cpp"
   "src/core/mikage/*.cpp"
   "src/core/mikage/*.c"
