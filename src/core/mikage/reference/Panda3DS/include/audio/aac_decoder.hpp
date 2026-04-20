@@ -1,23 +1,18 @@
 #pragma once
 #include <functional>
 #include <vector>
+#include <AudioToolbox/AudioToolbox.h>
 
 #include "audio/aac.hpp"
 #include "helpers.hpp"
 
-#if defined(__APPLE__)
-#include <AudioToolbox/AudioToolbox.h>
-#endif
-
 namespace Audio::AAC {
 	class Decoder {
 		using PaddrCallback = std::function<u8*(u32)>;
-#if defined(__APPLE__)
 		AudioConverterRef converter = nullptr;
 		AudioStreamBasicDescription inputFormat {};
 		AudioStreamBasicDescription outputFormat {};
 		std::vector<u8> inputPacket;
-#endif
 
 		bool initialized = false;
 		u32 sampleRate = 48000;

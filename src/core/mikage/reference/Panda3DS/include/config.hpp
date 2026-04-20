@@ -3,7 +3,6 @@
 #include <string>
 
 #include "audio/dsp_core.hpp"
-#include "frontend_settings.hpp"
 #include "renderer.hpp"
 #include "screen_layout.hpp"
 #include "services/region_codes.hpp"
@@ -34,13 +33,7 @@ struct AudioDeviceConfig {
 
 	// Remember to initialize every field here to its default value otherwise bad things will happen
 	struct EmulatorConfig {
-		// For now, use specialized shaders by default on MacOS as M1 drivers are buggy when using the ubershader.
-		// On other platforms we default to ubershader + shadergen fallback for lights
-	#if defined(__APPLE__)
 	static constexpr bool ubershaderDefault = false;
-#else
-	static constexpr bool ubershaderDefault = true;
-#endif
 	static constexpr bool accelerateShadersDefault = true;
 	static constexpr bool audioEnabledDefault = true;
 
@@ -69,13 +62,11 @@ struct AudioDeviceConfig {
 	bool sdCardInserted = true;
 	bool sdWriteProtected = false;
 	bool circlePadProEnabled = true;
-	bool usePortableBuild = false;
 
 	bool audioEnabled = audioEnabledDefault;
 	bool vsyncEnabled = true;
 	bool aacEnabled = true;  // Enable AAC audio?
 
-	bool printAppVersion = true;
 	bool printDSPFirmware = false;
 
 	bool chargerPlugged = true;
@@ -84,39 +75,12 @@ struct AudioDeviceConfig {
 
 	LanguageCodes systemLanguage = LanguageCodes::English;
 
-	// Default ROM path to open in frontends
-	std::filesystem::path defaultRomPath = "";
 	std::filesystem::path filePath;
-
-	static constexpr size_t maxRecentGames = 8;
-	std::vector<std::filesystem::path> recentlyPlayed;
-
-	// Frontend window settings
-	struct WindowSettings {
-		static constexpr int defaultX = 200;
-		static constexpr int defaultY = 200;
-		static constexpr int defaultWidth = 800;
-		static constexpr int defaultHeight = 240 * 2;
-
-		bool rememberPosition = false;  // Remember window position & size
-		bool showAppVersion = false;
-
-		int x = defaultX;
-		int y = defaultY;
-		int width = defaultHeight;
-		int height = defaultHeight;
-	};
-
-	WindowSettings windowSettings;
 	AudioDeviceConfig audioDeviceConfig;
-	FrontendSettings frontendSettings;
 
 	EmulatorConfig(const std::filesystem::path& path);
 	void load();
 	void save();
-
-	void addToRecentGames(const std::filesystem::path& path);
-
 	static LanguageCodes languageCodeFromString(std::string inString);
 	static const char* languageCodeToString(LanguageCodes code);
 };

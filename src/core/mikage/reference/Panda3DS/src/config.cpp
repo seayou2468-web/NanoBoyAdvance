@@ -42,45 +42,9 @@ void EmulatorConfig::load() {
 		if (generalResult.is_ok()) {
 			auto general = generalResult.unwrap();
 
-			usePortableBuild = toml::find_or<toml::boolean>(general, "UsePortableBuild", false);
-			defaultRomPath = toml::find_or<std::string>(general, "DefaultRomPath", "");
-
-			printAppVersion = toml::find_or<toml::boolean>(general, "PrintAppVersion", true);
 			circlePadProEnabled = toml::find_or<toml::boolean>(general, "EnableCirclePadPro", true);
 			fastmemEnabled = toml::find_or<toml::boolean>(general, "EnableFastmem", enableFastmemDefault);
 			systemLanguage = languageCodeFromString(toml::find_or<std::string>(general, "SystemLanguage", "en"));
-
-			// Load recent games list
-			if (general.contains("RecentGames") && general.at("RecentGames").is_array()) {
-				const auto& recentsArray = general.at("RecentGames").as_array();
-				recentlyPlayed.clear();
-
-				for (const auto& item : recentsArray) {
-					if (item.is_string()) {
-						std::filesystem::path gamePath = toml::get<std::string>(item);
-
-						recentlyPlayed.push_back(gamePath);
-						if (recentlyPlayed.size() >= maxRecentGames) {
-							break;
-						}
-					}
-				}
-			}
-		}
-	}
-
-	if (data.contains("Window")) {
-		auto windowResult = toml::expect<toml::value>(data.at("Window"));
-		if (windowResult.is_ok()) {
-			auto window = windowResult.unwrap();
-
-			windowSettings.showAppVersion = toml::find_or<toml::boolean>(window, "AppVersionOnWindow", false);
-			windowSettings.rememberPosition = toml::find_or<toml::boolean>(window, "RememberWindowPosition", false);
-
-			windowSettings.x = toml::find_or<toml::integer>(window, "WindowPosX", WindowSettings::defaultX);
-			windowSettings.y = toml::find_or<toml::integer>(window, "WindowPosY", WindowSettings::defaultY);
-			windowSettings.width = toml::find_or<toml::integer>(window, "WindowWidth", WindowSettings::defaultWidth);
-			windowSettings.height = toml::find_or<toml::integer>(window, "WindowHeight", WindowSettings::defaultHeight);
 		}
 	}
 
@@ -156,19 +120,8 @@ void EmulatorConfig::load() {
 			sdCardInserted = toml::find_or<toml::boolean>(sd, "UseVirtualSD", true);
 			sdWriteProtected = toml::find_or<toml::boolean>(sd, "WriteProtectVirtualSD", false);
 		}
-	}
-
-	if (data.contains("UI")) {
-		auto uiResult = toml::expect<toml::value>(data.at("UI"));
-		if (uiResult.is_ok()) {
-			auto ui = uiResult.unwrap();
-
-			frontendSettings.theme = FrontendSettings::themeFromString(toml::find_or<std::string>(ui, "Theme", "dark"));
-			frontendSettings.icon = FrontendSettings::iconFromString(toml::find_or<std::string>(ui, "WindowIcon", "rpog"));
-			frontendSettings.language = toml::find_or<std::string>(ui, "Language", "en");
 		}
 	}
-}
 
 void EmulatorConfig::save() {
 	toml::basic_value<toml::preserve_comments, std::map> data;
@@ -189,25 +142,9 @@ void EmulatorConfig::save() {
 		printf("Saving new configuration file %s\n", path.string().c_str());
 	}
 
-	data["General"]["UsePortableBuild"] = usePortableBuild;
-	data["General"]["DefaultRomPath"] = defaultRomPath.string();
-	data["General"]["PrintAppVersion"] = printAppVersion;
 	data["General"]["SystemLanguage"] = languageCodeToString(systemLanguage);
 	data["General"]["EnableCirclePadPro"] = circlePadProEnabled;
 	data["General"]["EnableFastmem"] = fastmemEnabled;
-
-	toml::array recentsArray;
-	for (const auto& gamePath : recentlyPlayed) {
-		recentsArray.push_back(gamePath.string());
-	}
-	data["General"]["RecentGames"] = recentsArray;
-
-	data["Window"]["AppVersionOnWindow"] = windowSettings.showAppVersion;
-	data["Window"]["RememberWindowPosition"] = windowSettings.rememberPosition;
-	data["Window"]["WindowPosX"] = windowSettings.x;
-	data["Window"]["WindowPosY"] = windowSettings.y;
-	data["Window"]["WindowWidth"] = windowSettings.width;
-	data["Window"]["WindowHeight"] = windowSettings.height;
 
 	data["GPU"]["Renderer"] = std::string(Renderer::typeToString(rendererType));
 	data["GPU"]["EnableVSync"] = vsyncEnabled;
@@ -233,10 +170,6 @@ void EmulatorConfig::save() {
 
 	data["SD"]["UseVirtualSD"] = sdCardInserted;
 	data["SD"]["WriteProtectVirtualSD"] = sdWriteProtected;
-
-	data["UI"]["Theme"] = std::string(FrontendSettings::themeToString(frontendSettings.theme));
-	data["UI"]["WindowIcon"] = std::string(FrontendSettings::iconToString(frontendSettings.icon));
-	data["UI"]["Language"] = frontendSettings.language;
 
 	std::ofstream file(path, std::ios::out);
 	file << data;
@@ -293,19 +226,5 @@ const char* EmulatorConfig::languageCodeToString(LanguageCodes code) {
 		return "en";
 	} else {
 		return codes[static_cast<u32>(code)];
-	}
-}
-void EmulatorConfig::addToRecentGames(const std::filesystem::path& path) {
-	// Remove path if it's already in the list
-	auto it = std::find(recentlyPlayed.begin(), recentlyPlayed.end(), path);
-	if (it != recentlyPlayed.end()) {
-		recentlyPlayed.erase(it);
-	}
-
-	recentlyPlayed.insert(recentlyPlayed.begin(), path);
-
-	// Limit how many games can be saved
-	if (recentlyPlayed.size() > maxRecentGames) {
-		recentlyPlayed.resize(maxRecentGames);
 	}
 }

@@ -119,7 +119,6 @@ void AAC::Decoder::decode(AAC::Message& response, const AAC::Message& request, A
 
 	std::array<std::vector<s16>, 2> streams;
 	for (auto& frame : frames) {
-#if defined(__APPLE__)
 		if (!isInitialized()) {
 			initialize(frame.sampleRate, channelCount);
 		}
@@ -180,13 +179,6 @@ void AAC::Decoder::decode(AAC::Message& response, const AAC::Message& request, A
 				streams[1].resize(streams[1].size() + outPackets, 0);
 			}
 		}
-#else
-		(void)frame;
-		streams[0].resize(streams[0].size() + 1024, 0);
-		if (channelCount > 1) {
-			streams[1].resize(streams[1].size() + 1024, 0);
-		}
-#endif
 	}
 
 	if (!streams[0].empty()) {
@@ -198,7 +190,6 @@ void AAC::Decoder::decode(AAC::Message& response, const AAC::Message& request, A
 }
 
 void AAC::Decoder::initialize(u32 newSampleRate, u32 newChannelCount) {
-#if defined(__APPLE__)
 	if (converter != nullptr) {
 		AudioConverterDispose(converter);
 		converter = nullptr;
@@ -227,17 +218,12 @@ void AAC::Decoder::initialize(u32 newSampleRate, u32 newChannelCount) {
 	}
 
 	initialized = true;
-#else
-	initialized = true;
-#endif
 }
 
 AAC::Decoder::~Decoder() {
-#if defined(__APPLE__)
 	if (converter != nullptr) {
 		AudioConverterDispose(converter);
 		converter = nullptr;
 	}
-#endif
 	initialized = false;
 }

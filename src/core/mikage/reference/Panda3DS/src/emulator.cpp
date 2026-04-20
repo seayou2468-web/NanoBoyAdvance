@@ -2,25 +2,10 @@
 
 #include <fstream>
 
-
-#ifdef _WIN32
-#include <windows.h>
-
-// Gently ask to use the discrete Nvidia/AMD GPU if possible instead of integrated graphics
-extern "C" {
-__declspec(dllexport) DWORD NvOptimusEnablement = 1;
-__declspec(dllexport) DWORD AmdPowerXpressRequestHighPerformance = 1;
-}
-#endif
-
 Emulator::Emulator()
-	: config(getConfigPath()), kernel(cpu, memory, gpu, config, lua), cpu(memory, kernel, *this), gpu(memory, config),
-	  memory(kernel.fcramManager, config), cheats(memory, kernel.getServiceManager().getHID()), audioDevice(config.audioDeviceConfig), lua(*this),
-	  running(false)
-#ifdef PANDA3DS_ENABLE_HTTP_SERVER
-	  ,
-	  httpServer(this)
-#endif
+		: config(getConfigPath()), kernel(cpu, memory, gpu, config, lua), cpu(memory, kernel, *this), gpu(memory, config),
+		  memory(kernel.fcramManager, config), cheats(memory, kernel.getServiceManager().getHID()), audioDevice(config.audioDeviceConfig), lua(*this),
+		  running(false)
 {
 	DSPService& dspService = kernel.getServiceManager().getDSP();
 
@@ -74,26 +59,13 @@ void Emulator::reset(ReloadOption reload) {
 	}
 }
 
-std::filesystem::path Emulator::getAndroidAppPath() {
-	// Retrieve app path directly from /proc when platform helpers are unavailable
-	std::ifstream cmdline("/proc/self/cmdline");
-	std::string applicationName;
-	std::getline(cmdline, applicationName, '\0');
-
-	return std::filesystem::path("/data") / "data" / applicationName / "files";
-}
-
 std::filesystem::path Emulator::getConfigPath() {
-	if constexpr (Helpers::isAndroid()) {
-		return getAndroidAppPath() / "config.toml";
-	} else {
-		std::filesystem::path localPath = std::filesystem::current_path() / "config.toml";
+	std::filesystem::path localPath = std::filesystem::current_path() / "config.toml";
 
-		if (std::filesystem::exists(localPath)) {
-			return localPath;
-		} else {
-			return getAppDataRoot() / "config.toml";
-		}
+	if (std::filesystem::exists(localPath)) {
+		return localPath;
+	} else {
+		return getAppDataRoot() / "config.toml";
 	}
 }
 

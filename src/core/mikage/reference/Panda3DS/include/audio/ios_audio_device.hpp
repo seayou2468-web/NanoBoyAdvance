@@ -1,11 +1,8 @@
 #pragma once
 #include <atomic>
+#include <AudioToolbox/AudioQueue.h>
 
 #include "audio/audio_device_interface.hpp"
-
-#if defined(__APPLE__)
-#include <AudioToolbox/AudioQueue.h>
-#endif
 
 class IOSAudioDevice final : public AudioDeviceInterface {
 	static constexpr u32 sampleRate = 32768;
@@ -15,10 +12,8 @@ class IOSAudioDevice final : public AudioDeviceInterface {
 
 	bool initialized = false;
 
-#if defined(__APPLE__)
 	AudioQueueRef queue = nullptr;
 	AudioQueueBufferRef buffers[queueBufferCount] = {};
-#endif
 
 	void fillOutputBuffer(s16* output, usize frameCount);
 
@@ -30,4 +25,3 @@ class IOSAudioDevice final : public AudioDeviceInterface {
 	void stop() override;
 	bool isInitialized() const { return initialized; }
 };
-

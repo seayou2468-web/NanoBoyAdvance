@@ -19,10 +19,6 @@
 #include "memory.hpp"
 #include "scheduler.hpp"
 
-#ifdef PANDA3DS_ENABLE_HTTP_SERVER
-#include "http_server.hpp"
-#endif
-
 enum class ROMType {
 	None,
 	ELF,
@@ -54,11 +50,6 @@ class Emulator {
 	bool running = false;  // Is the emulator running a game?
 
   private:
-#ifdef PANDA3DS_ENABLE_HTTP_SERVER
-	HttpServer httpServer;
-	friend struct HttpServer;
-#endif
-
 	// Keep the handle for the ROM here to reload when necessary and to prevent deleting it
 	// This is currently only used for ELFs, NCSDs use the IOFile API instead
 	std::ifstream loadedELF;
@@ -126,7 +117,6 @@ class Emulator {
 	u64 getTicks() { return cpu.getTicks(); }
 
 	std::filesystem::path getConfigPath();
-	std::filesystem::path getAndroidAppPath();
 	// Get the root path for the emulator's app data
 	std::filesystem::path getAppDataRoot();
 

@@ -3,27 +3,19 @@
 #include <algorithm>
 #include <array>
 #include <cstddef>
-
-#include "helpers.hpp"
-
-#if defined(__APPLE__)
 #include <CommonCrypto/CommonCryptor.h>
 #include <CommonCrypto/CommonDigest.h>
-#endif
+
+#include "helpers.hpp"
 
 namespace AppleCrypto {
 	static constexpr usize SHA256DigestSize = 32;
 
 	static inline void sha256(const u8* data, usize size, u8* digestOut) {
-#if defined(__APPLE__)
 		CC_SHA256(data, static_cast<CC_LONG>(size), digestOut);
-#else
-		Helpers::panic("AppleCrypto::sha256 requires Apple CommonCrypto");
-#endif
 	}
 
 	static inline void aes128CtrXcrypt(const u8* key, const u8* initialCounter, usize offset, u8* data, usize size) {
-#if defined(__APPLE__)
 		CCCryptorRef cryptor = nullptr;
 		const CCCryptorStatus createStatus = CCCryptorCreateWithMode(
 			kCCEncrypt, kCCModeCTR, kCCAlgorithmAES, ccNoPadding, initialCounter, key, 16, nullptr, 0, 0, kCCModeOptionCTR_BE, &cryptor
@@ -53,8 +45,5 @@ namespace AppleCrypto {
 		if (status != kCCSuccess || moved != size) {
 			Helpers::panic("Failed to process CommonCrypto CTR stream");
 		}
-#else
-		Helpers::panic("AppleCrypto::aes128CtrXcrypt requires Apple CommonCrypto");
-#endif
 	}
 }  // namespace AppleCrypto

@@ -55,7 +55,6 @@ void IOSAudioDevice::init(Samples& samples, bool safe) {
 	running = false;
 	lastStereoSample = {0, 0};
 
-#if defined(__APPLE__)
 	if (safe) {
 		initialized = true;
 		return;
@@ -106,9 +105,6 @@ void IOSAudioDevice::init(Samples& samples, bool safe) {
 	}
 
 	initialized = true;
-#else
-	initialized = true;
-#endif
 }
 
 void IOSAudioDevice::start() {
@@ -118,33 +114,26 @@ void IOSAudioDevice::start() {
 	}
 	if (!running) {
 		running = true;
-#if defined(__APPLE__)
 		if (queue != nullptr) {
 			AudioQueueStart(queue, nullptr);
 		}
-#endif
 	}
 }
 
 void IOSAudioDevice::stop() {
 	if (running) {
 		running = false;
-#if defined(__APPLE__)
 		if (queue != nullptr) {
 			AudioQueuePause(queue);
 		}
-#endif
 	}
 }
 
 void IOSAudioDevice::close() {
 	stop();
-#if defined(__APPLE__)
 	if (queue != nullptr) {
 		AudioQueueDispose(queue, true);
 		queue = nullptr;
 	}
-#endif
 	initialized = false;
 }
-
