@@ -20,6 +20,9 @@ class CPU {
 	u32 cpsr = CPSR::UserMode;
 	u32 fpscr = FPSCR::MainThreadDefault;
 	u32 tlsBase = 0;
+	u32 exclusiveAddress = 0;
+	u32 exclusiveSize = 0;
+	bool exclusiveValid = false;
 
 	Memory& mem;
 	Scheduler& scheduler;
