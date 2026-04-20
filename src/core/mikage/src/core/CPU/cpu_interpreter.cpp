@@ -1,6 +1,8 @@
 #include "cpu_interpreter.hpp"
 
 #include <bit>
+#include <cfenv>
+#include <cmath>
 
 #include "arm_defs.hpp"
 #include "emulator.hpp"
@@ -38,6 +40,8 @@ void CPU::reset() {
 	exclusiveAddress = 0;
 	exclusiveSize = 0;
 	exclusiveValid = false;
+	itCond = 0;
+	itMask = 0;
 }
 
 bool CPU::conditionPassed(u32 cond) const {
@@ -193,6 +197,135 @@ u32 CPU::executeArm(u32 inst) {
 		return 2;
 	}
 
+	// MLS
+	if ((inst & 0x0FF000F0u) == 0x00600090u) {
+		const u32 rd = (inst >> 16) & 0xF;
+		const u32 ra = (inst >> 12) & 0xF;
+		const u32 rs = (inst >> 8) & 0xF;
+		const u32 rm = inst & 0xF;
+		const u32 product = get_reg_operand(rm) * get_reg_operand(rs);
+		write_reg(rd, get_reg_operand(ra) - product);
+		if (rd != PC_INDEX) {
+			gprs[PC_INDEX] = old_pc + 4;
+		}
+		return 2;
+	}
+
+	// UMULL/UMLAL/SMULL/SMLAL
+	if ((inst & 0x0F8000F0u) == 0x00800090u) {
+		const bool signed_mul = (inst & (1u << 22)) != 0;
+		const bool accumulate = (inst & (1u << 21)) != 0;
+		const bool set_flags = (inst & (1u << 20)) != 0;
+		const u32 rd_hi = (inst >> 16) & 0xF;
+		const u32 rd_lo = (inst >> 12) & 0xF;
+		const u32 rs = (inst >> 8) & 0xF;
+		const u32 rm = inst & 0xF;
+
+		u64 result = 0;
+		if (signed_mul) {
+			const s64 lhs = static_cast<s32>(get_reg_operand(rm));
+			const s64 rhs = static_cast<s32>(get_reg_operand(rs));
+			result = static_cast<u64>(lhs * rhs);
+			if (accumulate) {
+				const u64 acc = (static_cast<u64>(gprs[rd_hi]) << 32) | gprs[rd_lo];
+				result += acc;
+			}
+		} else {
+			result = static_cast<u64>(get_reg_operand(rm)) * static_cast<u64>(get_reg_operand(rs));
+			if (accumulate) {
+				const u64 acc = (static_cast<u64>(gprs[rd_hi]) << 32) | gprs[rd_lo];
+				result += acc;
+			}
+		}
+
+		write_reg(rd_lo, static_cast<u32>(result));
+		write_reg(rd_hi, static_cast<u32>(result >> 32));
+		if (set_flags) {
+			cpsr = (cpsr & ~(CPSR::Sign | CPSR::Zero)) |
+				   ((result >> 63) ? CPSR::Sign : 0) |
+				   ((result == 0) ? CPSR::Zero : 0);
+		}
+		if (rd_hi != PC_INDEX && rd_lo != PC_INDEX) {
+			gprs[PC_INDEX] = old_pc + 4;
+		}
+		return 3;
+	}
+
+	// SDIV/UDIV
+	if ((inst & 0x0FE0F0F0u) == 0x0710F010u || (inst & 0x0FE0F0F0u) == 0x0730F010u) {
+		const bool is_unsigned = (inst & 0x00200000u) != 0;
+		const u32 rd = (inst >> 16) & 0xF;
+		const u32 rm = inst & 0xF;
+		const u32 rn = (inst >> 8) & 0xF;
+		u32 result = 0;
+		if (get_reg_operand(rm) != 0) {
+			if (is_unsigned) {
+				result = get_reg_operand(rn) / get_reg_operand(rm);
+			} else {
+				result = static_cast<u32>(static_cast<s32>(get_reg_operand(rn)) / static_cast<s32>(get_reg_operand(rm)));
+			}
+		}
+		write_reg(rd, result);
+		if (rd != PC_INDEX) {
+			gprs[PC_INDEX] = old_pc + 4;
+		}
+		return 4;
+	}
+
+	// MOVW/MOVT
+	if ((inst & 0x0FF00000u) == 0x03000000u || (inst & 0x0FF00000u) == 0x03400000u) {
+		const bool top = (inst & 0x00400000u) != 0;
+		const u32 rd = (inst >> 12) & 0xF;
+		const u32 imm16 = ((inst >> 4) & 0xF000u) | (inst & 0x0FFFu);
+		const u32 value = top ? ((gprs[rd] & 0x0000FFFFu) | (imm16 << 16)) : imm16;
+		write_reg(rd, value);
+		if (rd != PC_INDEX) {
+			gprs[PC_INDEX] = old_pc + 4;
+		}
+		return 1;
+	}
+
+	// SBFX/UBFX
+	if ((inst & 0x0FE00070u) == 0x07A00050u || (inst & 0x0FE00070u) == 0x07E00050u) {
+		const bool unsigned_extract = (inst & 0x00400000u) != 0;
+		const u32 widthm1 = (inst >> 16) & 0x1F;
+		const u32 rd = (inst >> 12) & 0xF;
+		const u32 lsb = (inst >> 7) & 0x1F;
+		const u32 rn = inst & 0xF;
+		const u32 width = widthm1 + 1;
+
+		const u32 value = get_reg_operand(rn) >> lsb;
+		const u32 mask = (width >= 32) ? 0xFFFFFFFFu : ((1u << width) - 1u);
+		u32 result = value & mask;
+		if (!unsigned_extract && width < 32 && ((result >> (width - 1)) & 1u) != 0) {
+			result |= ~mask;
+		}
+		write_reg(rd, result);
+		if (rd != PC_INDEX) {
+			gprs[PC_INDEX] = old_pc + 4;
+		}
+		return 1;
+	}
+
+	// BFI/BFC
+	if ((inst & 0x0FE00070u) == 0x07C00010u) {
+		const u32 msb = (inst >> 16) & 0x1F;
+		const u32 rd = (inst >> 12) & 0xF;
+		const u32 lsb = (inst >> 7) & 0x1F;
+		const u32 rn = inst & 0xF;
+		if (msb >= lsb) {
+			const u32 width = msb - lsb + 1;
+			const u32 source = (rn == 0xFu) ? 0u : get_reg_operand(rn);  // BFC uses Rn=1111.
+			const u32 field_mask = (width >= 32) ? 0xFFFFFFFFu : (((1u << width) - 1u) << lsb);
+			const u32 result = (gprs[rd] & ~field_mask) | ((source << lsb) & field_mask);
+			write_reg(rd, result);
+		}
+		if (rd != PC_INDEX) {
+			gprs[PC_INDEX] = old_pc + 4;
+		}
+		return 1;
+	}
+
 	// LDREX/STREX family (ARMv6K)
 	if ((inst & 0x000000F0u) == 0x90u && ((inst >> 20) & 0xFFu) >= 0x18u && ((inst >> 20) & 0xFFu) <= 0x1Fu) {
 		const u32 op = (inst >> 20) & 0xFFu;
@@ -274,6 +407,34 @@ u32 CPU::executeArm(u32 inst) {
 				}
 				return 3;
 			}
+			case 0x1B: {  // LDREXD
+				if ((rd & 1u) == 0 && rd != LR_INDEX) {
+					write_reg(rd, mem.read32(base));
+					write_reg(rd + 1, mem.read32(base + 4));
+				}
+				exclusiveAddress = base;
+				exclusiveSize = 8;
+				exclusiveValid = true;
+				if (rd != PC_INDEX && rd + 1 != PC_INDEX) {
+					gprs[PC_INDEX] = old_pc + 4;
+				}
+				return 4;
+			}
+			case 0x1A: {  // STREXD
+				const bool success = exclusiveValid && exclusiveAddress == base && exclusiveSize == 8;
+				if (success && (rm & 1u) == 0 && rm != LR_INDEX) {
+					mem.write32(base, gprs[rm]);
+					mem.write32(base + 4, gprs[rm + 1]);
+					write_reg(rd, 0);
+				} else {
+					write_reg(rd, 1);
+				}
+				clear_exclusive();
+				if (rd != PC_INDEX) {
+					gprs[PC_INDEX] = old_pc + 4;
+				}
+				return 4;
+			}
 			default: break;
 		}
 	}
@@ -307,6 +468,27 @@ u32 CPU::executeArm(u32 inst) {
 				default: break;
 			}
 			write_reg(rd, result);
+			if (rd != PC_INDEX) {
+				gprs[PC_INDEX] = old_pc + 4;
+			}
+			return 1;
+		}
+
+		if (key == 0x6A7u || key == 0x6B7u || key == 0x6E7u || key == 0x6F7u) {
+			const u32 rn = (inst >> 16) & 0xF;
+			const u32 rd = (inst >> 12) & 0xF;
+			const u32 rm = inst & 0xF;
+			const u32 rotate = ((inst >> 10) & 0x3) * 8;
+			const u32 value = ror32(get_reg_operand(rm), rotate);
+			u32 ext = 0;
+			switch (key) {
+				case 0x6A7u: ext = static_cast<u32>(static_cast<s32>(static_cast<s8>(value & 0xFFu))); break;   // SXTAB
+				case 0x6B7u: ext = static_cast<u32>(static_cast<s32>(static_cast<s16>(value & 0xFFFFu))); break; // SXTAH
+				case 0x6E7u: ext = value & 0xFFu; break;   // UXTAB
+				case 0x6F7u: ext = value & 0xFFFFu; break; // UXTAH
+				default: break;
+			}
+			write_reg(rd, get_reg_operand(rn) + ext);
 			if (rd != PC_INDEX) {
 				gprs[PC_INDEX] = old_pc + 4;
 			}
@@ -352,6 +534,62 @@ u32 CPU::executeArm(u32 inst) {
 		return 1;
 	}
 
+	// SSAT/USAT
+	if ((inst & 0x0FA00010u) == 0x06A00010u || (inst & 0x0FA00010u) == 0x06E00010u) {
+		const bool is_unsigned = (inst & 0x00400000u) != 0;
+		const u32 sat_imm = (inst >> 16) & 0x1F;
+		const u32 rd = (inst >> 12) & 0xF;
+		const u32 shift_imm = (inst >> 7) & 0x1F;
+		const bool arithmetic_shift = (inst & (1u << 6)) != 0;
+		const u32 rn = inst & 0xF;
+
+		u32 shifted = get_reg_operand(rn);
+		if (arithmetic_shift) {
+			if (shift_imm == 0) {
+				shifted = shifted;
+			} else {
+				shifted = static_cast<u32>(static_cast<s32>(shifted) >> shift_imm);
+			}
+		} else {
+			shifted <<= shift_imm;
+		}
+
+		bool saturated = false;
+		u32 result = shifted;
+		if (is_unsigned) {
+			const u32 sat = sat_imm + 1;
+			const u32 max_value = (sat >= 32) ? 0xFFFFFFFFu : ((1u << sat) - 1u);
+			const s64 value = static_cast<s32>(shifted);
+			if (value < 0) {
+				result = 0;
+				saturated = true;
+			} else if (static_cast<u64>(value) > max_value) {
+				result = max_value;
+				saturated = true;
+			}
+		} else {
+			const u32 sat = sat_imm + 1;
+			const s64 min_value = -(static_cast<s64>(1) << (sat - 1));
+			const s64 max_value = (static_cast<s64>(1) << (sat - 1)) - 1;
+			const s64 value = static_cast<s32>(shifted);
+			if (value < min_value) {
+				result = static_cast<u32>(static_cast<s32>(min_value));
+				saturated = true;
+			} else if (value > max_value) {
+				result = static_cast<u32>(static_cast<s32>(max_value));
+				saturated = true;
+			}
+		}
+		if (saturated) {
+			cpsr |= CPSR::StickyOverflow;
+		}
+		write_reg(rd, result);
+		if (rd != PC_INDEX) {
+			gprs[PC_INDEX] = old_pc + 4;
+		}
+		return 1;
+	}
+
 	if ((inst & 0x0FB00FF0u) == 0x01000090u) {
 		const bool byte = (inst & (1u << 22)) != 0;
 		const u32 rn = (inst >> 16) & 0xF;
@@ -382,6 +620,237 @@ u32 CPU::executeArm(u32 inst) {
 			gprs[PC_INDEX] = old_pc + 4;
 		}
 		return 1;
+	}
+
+	// VFP scalar arithmetic subset (single/double): VMUL/VADD/VSUB/VDIV.
+	// Encoding references are aligned with ARM VFP data-processing register forms.
+	if ((inst & 0x0FB00E10u) == 0x0E000A00u || (inst & 0x0FB00E10u) == 0x0E200A00u || (inst & 0x0FB00E10u) == 0x0E300A00u ||
+		(inst & 0x0FB00E10u) == 0x0E800A00u) {
+		const auto update_fp_exceptions = [&]() {
+			const int ex = std::fetestexcept(FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW | FE_INEXACT);
+			if (ex & FE_INVALID) fpscr |= (1u << 0);     // IOC
+			if (ex & FE_DIVBYZERO) fpscr |= (1u << 1);   // DZC
+			if (ex & FE_OVERFLOW) fpscr |= (1u << 2);    // OFC
+			if (ex & FE_UNDERFLOW) fpscr |= (1u << 3);   // UFC
+			if (ex & FE_INEXACT) fpscr |= (1u << 4);     // IXC
+		};
+		const auto apply_fpscr_rounding = [&]() {
+			const int previous = std::fegetround();
+			switch ((fpscr >> 22) & 0x3u) {
+				case 0x0: std::fesetround(FE_TONEAREST); break;
+				case 0x1: std::fesetround(FE_UPWARD); break;
+				case 0x2: std::fesetround(FE_DOWNWARD); break;
+				case 0x3: std::fesetround(FE_TOWARDZERO); break;
+			}
+			return previous;
+		};
+		const auto restore_rounding = [&](int previous) {
+			std::fesetround(previous);
+		};
+
+		const bool is_mla_class = (inst & 0x0FB00E10u) == 0x0E000A00u;
+		const bool is_mul = (inst & 0x0FB00E10u) == 0x0E200A00u;
+		const bool is_div = (inst & 0x0FB00E10u) == 0x0E800A00u;
+		const bool double_precision = (inst & (1u << 8)) != 0;
+		if (!double_precision) {
+			const u32 sd = (((inst >> 12) & 0xF) << 1) | ((inst >> 22) & 1u);
+			const u32 sn = (((inst >> 16) & 0xF) << 1) | ((inst >> 7) & 1u);
+			const u32 sm = ((inst & 0xF) << 1) | ((inst >> 5) & 1u);
+				if (sd < 32 && sn < 32 && sm < 32) {
+						const float lhs = std::bit_cast<float>(extRegs[sn]);
+						const float rhs = std::bit_cast<float>(extRegs[sm]);
+						float result = lhs;
+						const int previous_round = apply_fpscr_rounding();
+						std::feclearexcept(FE_ALL_EXCEPT);
+							if (is_div) {
+								result = lhs / rhs;  // VDIV
+						} else if (is_mla_class) {
+						const float acc = std::bit_cast<float>(extRegs[sd]);
+						const float product = lhs * rhs;
+						result = (inst & (1u << 6)) ? (acc - product) : (acc + product);  // VMLS / VMLA
+					} else if (is_mul) {
+						result = lhs * rhs;  // VMUL
+					} else if ((inst & (1u << 6)) != 0) {
+					result = lhs - rhs;  // VSUB
+						} else {
+							result = lhs + rhs;  // VADD
+						}
+						update_fp_exceptions();
+						restore_rounding(previous_round);
+						extRegs[sd] = std::bit_cast<u32>(result);
+						gprs[PC_INDEX] = old_pc + 4;
+						return 2;
+			}
+		} else {
+			const u32 dd = ((inst >> 12) & 0xF) | (((inst >> 22) & 1u) << 4);
+			const u32 dn = ((inst >> 16) & 0xF) | (((inst >> 7) & 1u) << 4);
+			const u32 dm = (inst & 0xF) | (((inst >> 5) & 1u) << 4);
+				if (dd < 32 && dn < 32 && dm < 32) {
+					const u64 lhs_bits = static_cast<u64>(extRegs[dn * 2]) | (static_cast<u64>(extRegs[dn * 2 + 1]) << 32);
+						const u64 rhs_bits = static_cast<u64>(extRegs[dm * 2]) | (static_cast<u64>(extRegs[dm * 2 + 1]) << 32);
+						const double lhs = std::bit_cast<double>(lhs_bits);
+						const double rhs = std::bit_cast<double>(rhs_bits);
+						double result = lhs;
+						const int previous_round = apply_fpscr_rounding();
+						std::feclearexcept(FE_ALL_EXCEPT);
+							if (is_div) {
+								result = lhs / rhs;  // VDIV.F64
+						} else if (is_mla_class) {
+						const u64 acc_bits = static_cast<u64>(extRegs[dd * 2]) | (static_cast<u64>(extRegs[dd * 2 + 1]) << 32);
+						const double acc = std::bit_cast<double>(acc_bits);
+						const double product = lhs * rhs;
+						result = (inst & (1u << 6)) ? (acc - product) : (acc + product);  // VMLS.F64 / VMLA.F64
+					} else if (is_mul) {
+						result = lhs * rhs;  // VMUL.F64
+					} else if ((inst & (1u << 6)) != 0) {
+					result = lhs - rhs;  // VSUB.F64
+						} else {
+							result = lhs + rhs;  // VADD.F64
+						}
+						update_fp_exceptions();
+						restore_rounding(previous_round);
+						const u64 out = std::bit_cast<u64>(result);
+						extRegs[dd * 2] = static_cast<u32>(out);
+					extRegs[dd * 2 + 1] = static_cast<u32>(out >> 32);
+				gprs[PC_INDEX] = old_pc + 4;
+				return 4;
+			}
+		}
+	}
+
+	// VFP VMOV immediate (single/double scalar subset).
+	if ((inst & 0x0FBF0F0Fu) == 0x0EB00A00u) {
+		const bool double_precision = (inst & (1u << 8)) != 0;
+		const u32 imm8 = (((inst >> 16) & 0xF) << 4) | (inst & 0xF);
+		if (!double_precision) {
+			const u32 sd = (((inst >> 12) & 0xF) << 1) | ((inst >> 22) & 1u);
+			if (sd < 32) {
+				const u32 sign = (imm8 >> 7) & 1u;
+				const u32 b = (imm8 >> 6) & 1u;
+				const u32 exp = ((~b & 1u) << 7) | (b << 6) | (b << 5) | (b << 4) | (b << 3) | (b << 2) |
+								((imm8 >> 4) & 0x3);
+				const u32 frac = (imm8 & 0xFu) << 19;
+				extRegs[sd] = (sign << 31) | (exp << 23) | frac;
+				gprs[PC_INDEX] = old_pc + 4;
+				return 1;
+			}
+		} else {
+			const u32 dd = ((inst >> 12) & 0xF) | (((inst >> 22) & 1u) << 4);
+			if (dd < 32) {
+				const u64 sign = static_cast<u64>((imm8 >> 7) & 1u);
+				const u64 b = static_cast<u64>((imm8 >> 6) & 1u);
+				const u64 exp = ((~b & 1ull) << 10) | (b << 9) | (b << 8) | (b << 7) | (b << 6) | (b << 5) |
+								(b << 4) | (b << 3) | (b << 2) | ((imm8 >> 4) & 0x3u);
+				const u64 frac = static_cast<u64>(imm8 & 0xFu) << 48;
+				const u64 value = (sign << 63) | (exp << 52) | frac;
+				extRegs[dd * 2] = static_cast<u32>(value);
+				extRegs[dd * 2 + 1] = static_cast<u32>(value >> 32);
+				gprs[PC_INDEX] = old_pc + 4;
+				return 1;
+			}
+		}
+	}
+
+	// VFP VMOV register-to-register (single/double scalar subset).
+	if ((inst & 0x0FBF0ED0u) == 0x0EB00A40u) {
+		const bool double_precision = (inst & (1u << 8)) != 0;
+		if (!double_precision) {
+			const u32 sd = (((inst >> 12) & 0xF) << 1) | ((inst >> 22) & 1u);
+			const u32 sm = ((inst & 0xF) << 1) | ((inst >> 5) & 1u);
+			if (sd < 32 && sm < 32) {
+				extRegs[sd] = extRegs[sm];
+				gprs[PC_INDEX] = old_pc + 4;
+				return 1;
+			}
+		} else {
+			const u32 dd = ((inst >> 12) & 0xF) | (((inst >> 22) & 1u) << 4);
+			const u32 dm = (inst & 0xF) | (((inst >> 5) & 1u) << 4);
+			if (dd < 32 && dm < 32) {
+				extRegs[dd * 2] = extRegs[dm * 2];
+				extRegs[dd * 2 + 1] = extRegs[dm * 2 + 1];
+				gprs[PC_INDEX] = old_pc + 4;
+				return 1;
+			}
+		}
+	}
+
+	// VFP unary arithmetic subset: VABS / VNEG (single/double).
+	if ((inst & 0x0FBF0ED0u) == 0x0EB00AC0u || (inst & 0x0FBF0ED0u) == 0x0EB10AC0u) {
+		const bool is_neg = (inst & 0x0FBF0ED0u) == 0x0EB10AC0u;
+		const bool double_precision = (inst & (1u << 8)) != 0;
+		if (!double_precision) {
+			const u32 sd = (((inst >> 12) & 0xF) << 1) | ((inst >> 22) & 1u);
+			const u32 sm = ((inst & 0xF) << 1) | ((inst >> 5) & 1u);
+			if (sd < 32 && sm < 32) {
+				const float value = std::bit_cast<float>(extRegs[sm]);
+				const float result = is_neg ? -value : std::fabs(value);
+				extRegs[sd] = std::bit_cast<u32>(result);
+				gprs[PC_INDEX] = old_pc + 4;
+				return 1;
+			}
+		} else {
+			const u32 dd = ((inst >> 12) & 0xF) | (((inst >> 22) & 1u) << 4);
+			const u32 dm = (inst & 0xF) | (((inst >> 5) & 1u) << 4);
+			if (dd < 32 && dm < 32) {
+				const u64 bits = static_cast<u64>(extRegs[dm * 2]) | (static_cast<u64>(extRegs[dm * 2 + 1]) << 32);
+				const double value = std::bit_cast<double>(bits);
+				const double result = is_neg ? -value : std::fabs(value);
+				const u64 out = std::bit_cast<u64>(result);
+				extRegs[dd * 2] = static_cast<u32>(out);
+				extRegs[dd * 2 + 1] = static_cast<u32>(out >> 32);
+				gprs[PC_INDEX] = old_pc + 4;
+				return 2;
+			}
+		}
+	}
+
+	// VFP compare subset: VCMP/VCMPE (single/double), updates FPSCR NZCV.
+	if ((inst & 0x0FBF0E50u) == 0x0EB40A40u) {
+		const bool double_precision = (inst & (1u << 8)) != 0;
+		u32 nzcv = 0;
+		if (!double_precision) {
+			const u32 sd = (((inst >> 12) & 0xF) << 1) | ((inst >> 22) & 1u);
+			const u32 sm = ((inst & 0xF) << 1) | ((inst >> 5) & 1u);
+			if (sd < 32 && sm < 32) {
+					const float lhs = std::bit_cast<float>(extRegs[sd]);
+					const float rhs = std::bit_cast<float>(extRegs[sm]);
+					if (std::isnan(lhs) || std::isnan(rhs)) {
+						nzcv = 0x30000000u;  // unordered
+						fpscr |= (1u << 0);   // IOC
+					} else if (lhs == rhs) {
+					nzcv = 0x60000000u;  // Z=1,C=1
+				} else if (lhs < rhs) {
+					nzcv = 0x80000000u;  // N=1
+				} else {
+					nzcv = 0x20000000u;  // C=1
+				}
+				fpscr = (fpscr & ~0xF0000000u) | nzcv;
+				gprs[PC_INDEX] = old_pc + 4;
+				return 1;
+			}
+		} else {
+			const u32 dd = ((inst >> 12) & 0xF) | (((inst >> 22) & 1u) << 4);
+			const u32 dm = (inst & 0xF) | (((inst >> 5) & 1u) << 4);
+			if (dd < 32 && dm < 32) {
+				const u64 lhs_bits = static_cast<u64>(extRegs[dd * 2]) | (static_cast<u64>(extRegs[dd * 2 + 1]) << 32);
+				const u64 rhs_bits = static_cast<u64>(extRegs[dm * 2]) | (static_cast<u64>(extRegs[dm * 2 + 1]) << 32);
+					const double lhs = std::bit_cast<double>(lhs_bits);
+					const double rhs = std::bit_cast<double>(rhs_bits);
+					if (std::isnan(lhs) || std::isnan(rhs)) {
+						nzcv = 0x30000000u;
+						fpscr |= (1u << 0);
+					} else if (lhs == rhs) {
+					nzcv = 0x60000000u;
+				} else if (lhs < rhs) {
+					nzcv = 0x80000000u;
+				} else {
+					nzcv = 0x20000000u;
+				}
+				fpscr = (fpscr & ~0xF0000000u) | nzcv;
+				gprs[PC_INDEX] = old_pc + 4;
+				return 1;
+			}
+		}
 	}
 
 	if ((inst & 0x0DBFF000u) == 0x0128F000u) {
@@ -439,6 +908,183 @@ u32 CPU::executeArm(u32 inst) {
 			gprs[PC_INDEX] = old_pc + 4;
 			return 1;
 		}
+
+		// VFP/NEON register transfers (VMRS/VMSR/VMOV scalar transfer subset).
+		if (coproc == 10 || coproc == 11) {
+			// VMRS / VMSR FPSCR
+			if (crn == 1 && crm == 0 && opc2 == 0 && opc1 == 7) {
+				if (load) {  // VMRS
+					if (rd == PC_INDEX) {
+						cpsr = (cpsr & ~0xF0000000u) | (fpscr & 0xF0000000u);
+					} else {
+						write_reg(rd, fpscr);
+					}
+				} else {  // VMSR
+					fpscr = get_reg_operand(rd);
+				}
+				if (!(load && rd == PC_INDEX)) {
+					gprs[PC_INDEX] = old_pc + 4;
+				}
+				return 1;
+			}
+
+			// VMOV between ARM core register and single-precision VFP/NEON scalar S<n>.
+			// Matches VMOVBRS-like register transfer subset.
+			if (crm == 0 && opc2 == 0 && opc1 <= 1) {
+				const u32 s_index = (((inst >> 16) & 0xF) << 1) | ((inst >> 7) & 1u);
+				if (s_index < 32) {
+					if (load) {
+						write_reg(rd, extRegs[s_index]);
+					} else {
+						extRegs[s_index] = get_reg_operand(rd);
+					}
+					if (!(load && rd == PC_INDEX)) {
+						gprs[PC_INDEX] = old_pc + 4;
+					}
+					return 1;
+				}
+			}
+
+			// VMOV between ARM core register and D<n>[index] lane (32-bit lane transfer subset).
+			// This provides a useful NEON scalar transfer path without full vector ALU implementation.
+			if (crm == 0 && opc2 == 1) {
+				const u32 d = ((inst >> 16) & 0xF) | (((inst >> 7) & 1u) << 4);
+				const u32 lane = (inst >> 21) & 1u;
+				const u32 s_index = d * 2 + lane;
+				if (s_index < 32) {
+					if (load) {
+						write_reg(rd, extRegs[s_index]);
+					} else {
+						extRegs[s_index] = get_reg_operand(rd);
+					}
+					if (!(load && rd == PC_INDEX)) {
+						gprs[PC_INDEX] = old_pc + 4;
+					}
+					return 1;
+				}
+			}
+		}
+	}
+
+	// CLREX
+	if ((inst & 0x0FFFFFF0u) == 0x057FF01Fu) {
+		clear_exclusive();
+		gprs[PC_INDEX] = old_pc + 4;
+		return 1;
+	}
+
+	// VFP single-precision VLDR/VSTR (memory transfer subset).
+	// Encoding form: cond 1101 U D 0/1 Rn Vd 101X imm8
+	if ((inst & 0x0F000E00u) == 0x0D000A00u) {
+		const bool load = (inst & (1u << 20)) != 0;
+		const bool single = (inst & (1u << 8)) == 0;
+		if (single) {
+			const u32 rn = (inst >> 16) & 0xF;
+			const u32 vd = (((inst >> 12) & 0xF) << 1) | ((inst >> 22) & 1u);
+			const u32 imm32 = (inst & 0xFFu) << 2;
+			const bool add = (inst & (1u << 23)) != 0;
+			if (vd < 32) {
+				const u32 base = (rn == PC_INDEX) ? (((old_pc + 8) & ~3u)) : get_reg_operand(rn);
+				const u32 addr = add ? (base + imm32) : (base - imm32);
+				if (load) {
+					extRegs[vd] = mem.read32(addr);
+				} else {
+					mem.write32(addr, extRegs[vd]);
+					clear_exclusive();
+				}
+				gprs[PC_INDEX] = old_pc + 4;
+				return 2;
+			}
+		} else {
+			const u32 rn = (inst >> 16) & 0xF;
+			const u32 vd = ((inst >> 12) & 0xF) | (((inst >> 22) & 1u) << 4);
+			const u32 imm32 = (inst & 0xFFu) << 2;
+			const bool add = (inst & (1u << 23)) != 0;
+			if (vd < 32) {
+				const u32 base = (rn == PC_INDEX) ? (((old_pc + 8) & ~3u)) : get_reg_operand(rn);
+				const u32 addr = add ? (base + imm32) : (base - imm32);
+				if (load) {
+					extRegs[vd * 2] = mem.read32(addr);
+					extRegs[vd * 2 + 1] = mem.read32(addr + 4);
+				} else {
+					mem.write32(addr, extRegs[vd * 2]);
+					mem.write32(addr + 4, extRegs[vd * 2 + 1]);
+					clear_exclusive();
+				}
+				gprs[PC_INDEX] = old_pc + 4;
+				return 3;
+			}
+		}
+	}
+
+	// VFP single-precision VSTM/VLDM (multiple transfer subset, includes VPUSH/VPOP forms).
+	// Encoding form: cond 110P U D W L Rn Vd 101X imm8
+	if ((inst & 0x0F000E00u) == 0x0C000A00u) {
+		const bool load = (inst & (1u << 20)) != 0;
+		const bool single = (inst & (1u << 8)) == 0;
+		if (single) {
+			const bool add = (inst & (1u << 23)) != 0;
+			const bool write_back = (inst & (1u << 21)) != 0;
+			const u32 rn = (inst >> 16) & 0xF;
+			const u32 vd = (((inst >> 12) & 0xF) << 1) | ((inst >> 22) & 1u);
+			const u32 regs = inst & 0xFFu;
+			const u32 imm32 = regs << 2;
+
+			if (vd + regs <= 32) {
+				u32 address = (rn == PC_INDEX) ? (old_pc + 8) : gprs[rn];
+				if (!add) {
+					address -= imm32;
+				}
+
+				for (u32 i = 0; i < regs; i++) {
+					if (load) {
+						extRegs[vd + i] = mem.read32(address);
+					} else {
+						mem.write32(address, extRegs[vd + i]);
+						clear_exclusive();
+					}
+					address += 4;
+				}
+
+				if (write_back) {
+					gprs[rn] = add ? (gprs[rn] + imm32) : (gprs[rn] - imm32);
+				}
+				gprs[PC_INDEX] = old_pc + 4;
+				return 2 + regs;
+			}
+		} else {
+			const bool add = (inst & (1u << 23)) != 0;
+			const bool write_back = (inst & (1u << 21)) != 0;
+			const u32 rn = (inst >> 16) & 0xF;
+			const u32 vd = ((inst >> 12) & 0xF) | (((inst >> 22) & 1u) << 4);
+			const u32 regs = (inst & 0xFEu) >> 1;
+			const u32 imm32 = (inst & 0xFFu) << 2;
+
+			if (vd + regs <= 32) {
+				u32 address = (rn == PC_INDEX) ? (old_pc + 8) : gprs[rn];
+				if (!add) {
+					address -= imm32;
+				}
+
+				for (u32 i = 0; i < regs; i++) {
+					if (load) {
+						extRegs[(vd + i) * 2] = mem.read32(address);
+						extRegs[(vd + i) * 2 + 1] = mem.read32(address + 4);
+					} else {
+						mem.write32(address, extRegs[(vd + i) * 2]);
+						mem.write32(address + 4, extRegs[(vd + i) * 2 + 1]);
+						clear_exclusive();
+					}
+					address += 8;
+				}
+
+				if (write_back) {
+					gprs[rn] = add ? (gprs[rn] + imm32) : (gprs[rn] - imm32);
+				}
+				gprs[PC_INDEX] = old_pc + 4;
+				return 2 + regs * 2;
+			}
+		}
 	}
 
 	// Halfword/signed data transfer (LDRH/LDRSH/LDRSB/STRH)
@@ -463,7 +1109,16 @@ u32 CPU::executeArm(u32 inst) {
 		const u32 base = get_reg_operand(rn);
 		u32 effective = pre ? (up ? base + offset : base - offset) : base;
 
-		if (!load && sh == 0x1) {  // STRH
+		if ((inst & 0xF0u) == 0xD0u && (rd & 1u) == 0) {  // STRD/LDRD
+			if (load) {
+				write_reg(rd, mem.read32(effective));
+				write_reg(rd + 1, mem.read32(effective + 4));
+			} else {
+				mem.write32(effective, gprs[rd]);
+				mem.write32(effective + 4, gprs[rd + 1]);
+				clear_exclusive();
+			}
+		} else if (!load && sh == 0x1) {  // STRH
 			mem.write16(effective, static_cast<u16>(gprs[rd]));
 			clear_exclusive();
 		} else if (load && sh == 0x1) {  // LDRH
@@ -787,10 +1442,41 @@ u32 CPU::executeArm(u32 inst) {
 
 u32 CPU::executeThumb(u16 inst) {
 	const u32 old_pc = gprs[PC_INDEX];
+	const bool is_thumb32_prefix = ((inst & 0xE000u) == 0xE000u) && ((inst & 0x1800u) != 0);
+	const bool is_it = (inst & 0xFF00u) == 0xBF00u && (inst & 0xF) != 0 && ((inst >> 4) & 0xF) != 0xF;
+	struct ITAdvanceGuard {
+		u8& mask;
+		u8& cond;
+		bool enabled;
+		~ITAdvanceGuard() {
+			if (!enabled || mask == 0) {
+				return;
+			}
+			mask = static_cast<u8>((mask << 1) & 0xF);
+			if (mask == 0) {
+				cond = 0;
+			}
+		}
+	} it_guard{itMask, itCond, itMask != 0 && !is_it};
 	const auto set_carry = [&](bool value) {
 		if (value) cpsr |= CPSR::Carry;
 		else cpsr &= ~CPSR::Carry;
 	};
+	if (itMask != 0 && !is_it) {
+		const bool then = (itMask & 0x8u) != 0;
+		const u32 cond = then ? itCond : (itCond ^ 1u);
+		if (!conditionPassed(cond)) {
+			gprs[PC_INDEX] = old_pc + (is_thumb32_prefix ? 4u : 2u);
+			it_guard.enabled = false;
+			if (itMask != 0) {
+				itMask = static_cast<u8>((itMask << 1) & 0xF);
+				if (itMask == 0) {
+					itCond = 0;
+				}
+			}
+			return 1;
+		}
+	}
 	if ((inst & 0xF800u) == 0x1800u) {
 		const bool immediate = (inst & (1u << 10)) != 0;
 		const bool sub = (inst & (1u << 9)) != 0;
@@ -808,6 +1494,21 @@ u32 CPU::executeThumb(u16 inst) {
 
 	// BKPT
 	if ((inst & 0xFF00u) == 0xBE00u) {
+		gprs[PC_INDEX] = old_pc + 2;
+		return 1;
+	}
+
+	// IT
+	if (is_it) {
+		it_guard.enabled = false;
+		itCond = static_cast<u8>((inst >> 4) & 0xF);
+		itMask = static_cast<u8>(inst & 0xF);
+		gprs[PC_INDEX] = old_pc + 2;
+		return 1;
+	}
+
+	// Hints (NOP/YIELD/WFE/WFI/SEV)
+	if ((inst & 0xFF0Fu) == 0xBF00u) {
 		gprs[PC_INDEX] = old_pc + 2;
 		return 1;
 	}
@@ -1112,6 +1813,22 @@ u32 CPU::executeThumb(u16 inst) {
 		return 1;
 	}
 
+	// CBZ/CBNZ
+	if ((inst & 0xF500u) == 0xB100u) {
+		const bool nonzero = (inst & (1u << 11)) != 0;
+		const u32 i = (inst >> 9) & 0x1;
+		const u32 imm5 = (inst >> 3) & 0x1F;
+		const u32 rn = inst & 0x7;
+		const u32 offset = (i << 6) | (imm5 << 1);
+		const bool is_zero = (gprs[rn] == 0);
+		if ((is_zero && !nonzero) || (!is_zero && nonzero)) {
+			gprs[PC_INDEX] = old_pc + 4 + offset;
+		} else {
+			gprs[PC_INDEX] = old_pc + 2;
+		}
+		return 1;
+	}
+
 	// REV / REV16 / REVSH
 	if ((inst & 0xFFC0u) == 0xBA00u) {
 		const u32 opcode = (inst >> 6) & 0x3;
@@ -1234,6 +1951,231 @@ u32 CPU::executeThumb(u16 inst) {
 
 	if ((inst & 0xF800u) == 0xF000u || (inst & 0xF800u) == 0xF800u) {
 		const u16 next = mem.read16(old_pc + 2);
+		// Thumb-2 MOVW/MOVT (immediate)
+		if ((inst & 0xFBF0u) == 0xF240u || (inst & 0xFBF0u) == 0xF2C0u) {
+			const bool top = (inst & 0x0080u) != 0;
+			const u32 rd = (next >> 8) & 0xF;
+			const u32 imm4 = inst & 0xF;
+			const u32 i = (inst >> 10) & 0x1;
+			const u32 imm3 = (next >> 12) & 0x7;
+			const u32 imm8 = next & 0xFF;
+			const u32 imm16 = (imm4 << 12) | (i << 11) | (imm3 << 8) | imm8;
+			if (top) {
+				gprs[rd] = (gprs[rd] & 0x0000FFFFu) | (imm16 << 16);
+			} else {
+				gprs[rd] = imm16;
+			}
+			gprs[PC_INDEX] = old_pc + 4;
+			return 1;
+		}
+
+		// Thumb-2 SDIV/UDIV
+		if (((inst & 0xFFF0u) == 0xFB90u || (inst & 0xFFF0u) == 0xFBB0u) && (next & 0xF0F0u) == 0xF0F0u) {
+			const bool is_unsigned = (inst & 0x0020u) != 0;
+			const u32 rn = inst & 0xF;
+			const u32 rd = (next >> 8) & 0xF;
+			const u32 rm = next & 0xF;
+			u32 result = 0;
+			if (gprs[rm] != 0) {
+				if (is_unsigned) {
+					result = gprs[rn] / gprs[rm];
+				} else {
+					result = static_cast<u32>(static_cast<s32>(gprs[rn]) / static_cast<s32>(gprs[rm]));
+				}
+			}
+			gprs[rd] = result;
+			gprs[PC_INDEX] = old_pc + 4;
+			return 4;
+		}
+
+		// Thumb-2 data-processing (shifted register): AND/BIC/ORR/ORN/EOR/ADD/ADC/SBC/SUB/RSB and test variants.
+		if ((inst & 0xFE00u) == 0xEA00u || (inst & 0xFE00u) == 0xEB00u) {
+			const u32 op = (inst >> 5) & 0xF;
+			const u32 rn = inst & 0xF;
+			const u32 rd = (next >> 8) & 0xF;
+			const u32 imm3 = (next >> 12) & 0x7;
+			const u32 imm2 = (next >> 6) & 0x3;
+			const u32 shift_type = (next >> 4) & 0x3;
+			const u32 rm = next & 0xF;
+			const u32 shift = (imm3 << 2) | imm2;
+
+			const auto apply_shift = [&](u32 value, bool& carry_out) {
+				carry_out = (cpsr & CPSR::Carry) != 0;
+				switch (shift_type) {
+					case 0:  // LSL
+						if (shift == 0) return value;
+						if (shift < 32) {
+							carry_out = ((value >> (32 - shift)) & 1u) != 0;
+							return value << shift;
+						}
+						if (shift == 32) {
+							carry_out = (value & 1u) != 0;
+							return 0u;
+						}
+						carry_out = false;
+						return 0u;
+					case 1:  // LSR
+						if (shift == 0 || shift == 32) {
+							carry_out = (value >> 31) != 0;
+							return 0u;
+						}
+						if (shift < 32) {
+							carry_out = ((value >> (shift - 1)) & 1u) != 0;
+							return value >> shift;
+						}
+						carry_out = false;
+						return 0u;
+					case 2:  // ASR
+						if (shift == 0 || shift >= 32) {
+							carry_out = (value >> 31) != 0;
+							return (value & 0x80000000u) ? 0xFFFFFFFFu : 0u;
+						}
+						carry_out = ((value >> (shift - 1)) & 1u) != 0;
+						return static_cast<u32>(static_cast<s32>(value) >> shift);
+					case 3:  // ROR
+					default:
+						if (shift == 0) {
+							return value;
+						}
+						carry_out = ((value >> ((shift - 1) & 31)) & 1u) != 0;
+						return ror32(value, shift);
+				}
+			};
+
+			const u32 lhs = gprs[rn];
+			bool shifter_carry = false;
+			const u32 rhs = apply_shift(gprs[rm], shifter_carry);
+			u32 result = 0;
+			bool write_result = true;
+			switch (op) {
+				case 0x0: result = lhs & rhs; break;  // AND
+				case 0x1: result = lhs & ~rhs; break; // BIC
+				case 0x2: result = lhs | rhs; break;  // ORR
+				case 0x3: result = lhs | ~rhs; break; // ORN
+				case 0x4: result = lhs ^ rhs; break;  // EOR
+				case 0x8: result = lhs + rhs; break;  // ADD
+				case 0xA: {
+					const u32 carry = (cpsr & CPSR::Carry) ? 1u : 0u;
+					result = lhs + rhs + carry;
+					break;
+				}
+				case 0xB: {
+					const u32 carry = (cpsr & CPSR::Carry) ? 1u : 0u;
+					result = lhs - rhs - (1u - carry);
+					break;
+				}
+				case 0xD: result = lhs - rhs; break;  // SUB
+				case 0xE: result = rhs - lhs; break;  // RSB
+				default: write_result = false; break;
+			}
+
+			if (rd == 0xF) {
+				write_result = false;
+				switch (op) {
+					case 0x0: setNZFlags(lhs & rhs); if (shifter_carry) cpsr |= CPSR::Carry; else cpsr &= ~CPSR::Carry; break;  // TST
+					case 0x4: setNZFlags(lhs ^ rhs); if (shifter_carry) cpsr |= CPSR::Carry; else cpsr &= ~CPSR::Carry; break;  // TEQ
+					case 0x8: setAddFlags(lhs, rhs, lhs + rhs); break; // CMN
+					case 0xD: setSubFlags(lhs, rhs, lhs - rhs); break; // CMP
+					default: break;
+				}
+			} else if (write_result) {
+				switch (op) {
+					case 0x0:
+					case 0x1:
+					case 0x2:
+					case 0x3:
+					case 0x4:
+						setNZFlags(result);
+						if (shifter_carry) cpsr |= CPSR::Carry;
+						else cpsr &= ~CPSR::Carry;
+						break;
+					case 0x8: setAddFlags(lhs, rhs, result); break;
+					case 0xA: {
+						const u32 carry = (cpsr & CPSR::Carry) ? 1u : 0u;
+						const u64 wide = static_cast<u64>(lhs) + static_cast<u64>(rhs) + carry;
+						setNZFlags(result);
+						if ((wide >> 32) != 0) cpsr |= CPSR::Carry;
+						else cpsr &= ~CPSR::Carry;
+						break;
+					}
+					case 0xB:
+					case 0xD: setSubFlags(lhs, rhs, result); break;
+					case 0xE: setSubFlags(rhs, lhs, result); break;
+					default: break;
+				}
+				gprs[rd] = result;
+			}
+
+			gprs[PC_INDEX] = old_pc + 4;
+			return 2;
+		}
+
+		// Thumb-2 B.W (unconditional)
+		if ((inst & 0xF800u) == 0xF000u && (next & 0xD000u) == 0x9000u) {
+			const u32 s = (inst >> 10) & 1u;
+			const u32 imm10 = inst & 0x03FFu;
+			const u32 j1 = (next >> 13) & 1u;
+			const u32 j2 = (next >> 11) & 1u;
+			const u32 imm11 = next & 0x07FFu;
+			const u32 i1 = (~(j1 ^ s)) & 1u;
+			const u32 i2 = (~(j2 ^ s)) & 1u;
+			const u32 encoded = (s << 24) | (i1 << 23) | (i2 << 22) | (imm10 << 12) | (imm11 << 1);
+			const s32 offset = static_cast<s32>(signExtend(encoded, 25));
+			gprs[PC_INDEX] = old_pc + 4 + offset;
+			return 2;
+		}
+
+		// Thumb-2 B<cond>.W
+		if ((inst & 0xF800u) == 0xF000u && (next & 0xD000u) == 0x8000u) {
+			const u32 cond = (inst >> 6) & 0xF;
+			if (cond != 0xE && cond != 0xF) {
+				const u32 s = (inst >> 10) & 1u;
+				const u32 imm6 = inst & 0x3Fu;
+				const u32 j1 = (next >> 13) & 1u;
+				const u32 j2 = (next >> 11) & 1u;
+				const u32 imm11 = next & 0x07FFu;
+				const u32 i1 = (~(j1 ^ s)) & 1u;
+				const u32 i2 = (~(j2 ^ s)) & 1u;
+				const u32 encoded = (s << 20) | (i1 << 19) | (i2 << 18) | (imm6 << 12) | (imm11 << 1);
+				const s32 offset = static_cast<s32>(signExtend(encoded, 21));
+				if (conditionPassed(cond)) {
+					gprs[PC_INDEX] = old_pc + 4 + offset;
+				} else {
+					gprs[PC_INDEX] = old_pc + 4;
+				}
+				return 2;
+			}
+		}
+
+		// Thumb-2 TBB/TBH
+		if ((inst & 0xFFF0u) == 0xE8D0u && ((next & 0xFFE0u) == 0xF000u || (next & 0xFFE0u) == 0xF010u)) {
+			const bool halfword = (next & 0x0010u) != 0;
+			const u32 rn = inst & 0xF;
+			const u32 rm = next & 0xF;
+			const u32 base = gprs[rn];
+			const u32 index = gprs[rm];
+			const u32 offset = halfword ? static_cast<u32>(mem.read16(base + index * 2)) : static_cast<u32>(mem.read8(base + index));
+			gprs[PC_INDEX] = old_pc + 4 + (offset << 1);
+			return 2;
+		}
+
+		// Thumb-2 BLX (immediate)
+		if ((inst & 0xF800u) == 0xF000u && (next & 0xD001u) == 0xC000u) {
+			const u32 s = (inst >> 10) & 1u;
+			const u32 imm10 = inst & 0x03FFu;
+			const u32 j1 = (next >> 13) & 1u;
+			const u32 j2 = (next >> 11) & 1u;
+			const u32 imm10l = (next >> 1) & 0x03FFu;
+			const u32 i1 = (~(j1 ^ s)) & 1u;
+			const u32 i2 = (~(j2 ^ s)) & 1u;
+			const u32 encoded = (s << 24) | (i1 << 23) | (i2 << 22) | (imm10 << 12) | (imm10l << 2);
+			const s32 offset = static_cast<s32>(signExtend(encoded, 25));
+			gprs[LR_INDEX] = (old_pc + 4) | 1u;
+			gprs[PC_INDEX] = (old_pc + 4 + offset) & ~3u;
+			cpsr &= ~CPSR::Thumb;
+			return 3;
+		}
+
 		if ((inst & 0xF800u) == 0xF000u && (next & 0xF800u) == 0xF800u) {
 			u32 hi = inst & 0x7FF;
 			u32 lo = next & 0x7FF;
@@ -1245,7 +2187,7 @@ u32 CPU::executeThumb(u16 inst) {
 		}
 	}
 
-	gprs[PC_INDEX] = old_pc + 2;
+	gprs[PC_INDEX] = old_pc + (is_thumb32_prefix ? 4u : 2u);
 	return 1;
 }
 

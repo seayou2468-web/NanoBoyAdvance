@@ -23,6 +23,8 @@ class CPU {
 	u32 exclusiveAddress = 0;
 	u32 exclusiveSize = 0;
 	bool exclusiveValid = false;
+	u8 itCond = 0;
+	u8 itMask = 0;
 
 	Memory& mem;
 	Scheduler& scheduler;
