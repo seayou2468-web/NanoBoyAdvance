@@ -72,7 +72,10 @@
 
 #if defined(LUA_USE_IOS)
 #define LUA_USE_POSIX
-#define LUA_USE_DLOPEN
+/*
+** iOS does not allow arbitrary runtime dynamic library loading for App Store
+** apps, so keep loadlib in stub mode.
+*/
 #endif
 
 
@@ -799,4 +802,3 @@
 
 
 #endif
-

@@ -54,7 +54,18 @@ static int l_checkmode (const char *mode) {
 
 #if !defined(l_popen)		/* { */
 
-#if defined(LUA_USE_POSIX)	/* { */
+#if defined(LUA_USE_IOS)	/* { */
+
+/*
+** iOS does not support spawning child processes from app sandbox.
+*/
+#define l_popen(L,c,m)  \
+	  ((void)c, (void)m, \
+	  luaL_error(L, "'popen' not supported on iOS"), \
+	  (FILE*)0)
+#define l_pclose(L,file)		((void)L, (void)file, -1)
+
+#elif defined(LUA_USE_POSIX)	/* }{ */
 
 #define l_popen(L,c,m)		(fflush(NULL), popen(c,m))
 #define l_pclose(L,file)	(pclose(file))
@@ -838,4 +849,3 @@ LUAMOD_API int luaopen_io (lua_State *L) {
   createstdfile(L, stderr, NULL, "stderr");
   return 1;
 }
-
