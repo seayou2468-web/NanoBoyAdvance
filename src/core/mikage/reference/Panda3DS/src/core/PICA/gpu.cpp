@@ -40,8 +40,6 @@ GPU::GPU(Memory& mem, EmulatorConfig& config) : mem(mem), config(config) {
 void GPU::reset() {
 	regs.fill(0);
 	shaderUnit.reset();
-	shaderJIT.reset();
-	shaderJIT.setAccurateMul(config.accurateShaderMul);
 
 	std::memset(vram, 0, vramSize);
 	lightingLUT.fill(0);
@@ -96,7 +94,6 @@ void GPU::reset() {
 static std::array<PICA::Vertex, Renderer::vertexBufferSize> vertices;
 
 // Call the correct version of drawArrays based on whether this is an indexed draw (first template parameter)
-// And whether we are going to use the shader JIT (second template parameter)
 void GPU::drawArrays(bool indexed) {
 	PICA::DrawAcceleration accel;
 
@@ -117,29 +114,17 @@ void GPU::drawArrays(bool indexed) {
 		// Note: In the hardware shader path the vertices span shouldn't actually be used as the renderer will perform its own attribute fetching
 		renderer->drawVertices(primType, std::span(vertices).first(vertexCount));
 	} else {
-		const bool shaderJITEnabled = ShaderJIT::isAvailable() && config.shaderJitEnabled;
-
 		if (indexed) {
-			if (shaderJITEnabled) {
-				drawArrays<true, ShaderExecMode::JIT>();
-			} else {
-				drawArrays<true, ShaderExecMode::Interpreter>();
-			}
+			drawArrays<true, ShaderExecMode::Interpreter>();
 		} else {
-			if (shaderJITEnabled) {
-				drawArrays<false, ShaderExecMode::JIT>();
-			} else {
-				drawArrays<false, ShaderExecMode::Interpreter>();
-			}
+			drawArrays<false, ShaderExecMode::Interpreter>();
 		}
 	}
 }
 
 template <bool indexed, ShaderExecMode mode>
 void GPU::drawArrays() {
-	if constexpr (mode == ShaderExecMode::JIT) {
-		shaderJIT.prepare(shaderUnit.vs);
-	} else if constexpr (mode == ShaderExecMode::Hardware) {
+	if constexpr (mode == ShaderExecMode::Hardware) {
 		// Hardware shaders have their own accelerated code path for draws, so they're not meant to take this path
 		Helpers::panic("GPU::DrawArrays: Hardware shaders shouldn't take this path!");
 	}
@@ -330,11 +315,7 @@ void GPU::drawArrays() {
 			std::memcpy(&shaderUnit.vs.inputs[mapping], &currentAttributes[j], sizeof(vec4f));
 		}
 
-		if constexpr (mode == ShaderExecMode::JIT) {
-			shaderJIT.run(shaderUnit.vs);
-		} else {
 			shaderUnit.vs.run();
-		}
 
 		PICA::Vertex& out = vertices[i];
 		// Map shader outputs to fixed function properties

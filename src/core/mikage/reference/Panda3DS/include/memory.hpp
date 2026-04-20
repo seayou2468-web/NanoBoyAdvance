@@ -122,7 +122,7 @@ class Memory {
 	// TODO: remove this reference when Peach's excellent page table code is moved to a better home
 	KFcram& fcramManager;
 
-	// Our dynarmic core uses page tables for reads and writes with 4096 byte pages
+	// CPU core uses page tables for reads and writes with 4096 byte pages
 	std::vector<uintptr_t> readTable, writeTable;
 
 	// vaddr->paddr translation table
@@ -163,7 +163,7 @@ class Memory {
 	// We also use MMU-accelerated fastmem for fast memory emulation
 	// This means that we've got a 4GB memory arena which is organized the same way as the emulated 3DS' memory map
 	// And we can access this directly instead of calling the memory read/write functions, which would be slower
-	// Regions that are not mapped or can't be accelerated this way will segfault, and the caller (eg dynarmic), will
+	// Regions that are not mapped or can't be accelerated this way will segfault, and the caller will
 	// handle this segfault and call the Slower memory read/write functions
 	bool useFastmem = false;
 	static constexpr size_t FASTMEM_FCRAM_OFFSET = 0;                                    // Offset of FCRAM in the fastmem arena

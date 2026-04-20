@@ -150,7 +150,7 @@ struct Thread {
 
 	// Thread context used for switching between threads
 	std::array<u32, 16> gprs;
-	std::array<u32, 32> fprs;  // Stored as u32 because dynarmic does it
+	std::array<u32, 32> fprs;  // Stored as u32
 	u32 cpsr;
 	u32 fpscr;
 	u32 tlsBase;  // Base pointer for thread-local storage

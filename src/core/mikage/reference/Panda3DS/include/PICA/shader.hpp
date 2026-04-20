@@ -62,7 +62,7 @@ namespace PICA::ShaderGen {
 	class ShaderDecompiler;
 };
 
-// Note: All PICA f24 vec4 registers must have the alignas(16) specifier to make them easier to access in SSE/NEON code in the JIT
+// Note: All PICA f24 vec4 registers must have the alignas(16) specifier to make them easier to access in SIMD code paths
 class PICAShader {
 	using f24 = Floats::f24;
 	using vec4f = std::array<f24, 4>;
@@ -94,7 +94,7 @@ class PICAShader {
 	std::array<u32, 4> floatUniformBuffer;  // Buffer for temporarily caching float uniform data
 
   public:
-	// These are placed close to the temp registers and co because it helps the JIT generate better code
+	// These are placed close to the temp registers and co for cache locality.
 	u32 entrypoint = 0;  // Initial shader PC
 
 	// We want these registers in this order & with this alignment for uploading them directly to a UBO
@@ -106,9 +106,9 @@ class PICAShader {
 	alignas(16) std::array<vec4f, 16> fixedAttributes;  // Fixed vertex attributes
 	alignas(16) std::array<vec4f, 16> inputs;           // Attributes passed to the shader
 	alignas(16) std::array<vec4f, 16> outputs;
-	alignas(16) vec4f dummy = vec4f({f24::zero(), f24::zero(), f24::zero(), f24::zero()});  // Dummy register used by the JIT
+	alignas(16) vec4f dummy = vec4f({f24::zero(), f24::zero(), f24::zero(), f24::zero()});  // Dummy register used by fallback paths
 
-	// We use a hashmap for matching 3DS shaders to their equivalent compiled code in our shader cache in the shader JIT
+	// We use hashes for tracking shader/operand descriptor changes.
 	// We choose our hash type to be a 64-bit integer by default, as the collision chance is very tiny and generating it is decently optimal
 	// Ideally we want to be able to support multiple different types of hash depending on compilation settings, but let's get this working first
 	using Hash = PICAHash::HashType;
@@ -130,8 +130,8 @@ class PICAShader {
 	std::array<CallInfo, 4> callInfo;
 	ShaderType type;
 
-	Hash lastCodeHash = 0;    // Last hash computed for the shader code (Used for the JIT caching mechanism)
-	Hash lastOpdescHash = 0;  // Last hash computed for the operand descriptors (Also used for the JIT)
+	Hash lastCodeHash = 0;    // Last hash computed for the shader code
+	Hash lastOpdescHash = 0;  // Last hash computed for the operand descriptors
 
   public:
 	bool uniformsDirty = false;
@@ -140,8 +140,6 @@ class PICAShader {
 	bool codeHashDirty = false;
 	bool opdescHashDirty = false;
 
-	// Add these as friend classes for the JIT so it has access to all important state
-	friend class ShaderJIT;
 	friend class ShaderEmitter;
 	friend class PICA::ShaderGen::ShaderDecompiler;
 
@@ -249,14 +247,14 @@ class PICAShader {
 		loadedShader[bufferIndex++] = word;
 		bufferIndex &= 0xfff;
 
-		codeHashDirty = true;  // Signal the JIT if necessary that the program hash has potentially changed
+		codeHashDirty = true;  // Signal that the program hash has potentially changed
 	}
 
 	void uploadDescriptor(u32 word) {
 		operandDescriptors[opDescriptorIndex++] = word;
 		opDescriptorIndex &= 0x7f;
 
-		opdescHashDirty = true;  // Signal the JIT if necessary that the program hash has potentially changed
+		opdescHashDirty = true;  // Signal that the operand descriptor hash has potentially changed
 	}
 
 	void setFloatUniformIndex(u32 word) {

@@ -100,7 +100,6 @@ void EmulatorConfig::load() {
 				rendererType = rendererDefault;
 			}
 
-			shaderJitEnabled = toml::find_or<toml::boolean>(gpu, "EnableShaderJIT", shaderJitDefault);
 			vsyncEnabled = toml::find_or<toml::boolean>(gpu, "EnableVSync", true);
 			useUbershaders = toml::find_or<toml::boolean>(gpu, "UseUbershaders", ubershaderDefault);
 			accurateShaderMul = toml::find_or<toml::boolean>(gpu, "AccurateShaderMultiplication", false);
@@ -210,7 +209,6 @@ void EmulatorConfig::save() {
 	data["Window"]["WindowWidth"] = windowSettings.width;
 	data["Window"]["WindowHeight"] = windowSettings.height;
 
-	data["GPU"]["EnableShaderJIT"] = shaderJitEnabled;
 	data["GPU"]["Renderer"] = std::string(Renderer::typeToString(rendererType));
 	data["GPU"]["EnableVSync"] = vsyncEnabled;
 	data["GPU"]["AccurateShaderMultiplication"] = accurateShaderMul;

@@ -32,18 +32,11 @@ struct AudioDeviceConfig {
 	static const char* volumeCurveToString(VolumeCurve curve);
 };
 
-// Remember to initialize every field here to its default value otherwise bad things will happen
-struct EmulatorConfig {
-	// Only enable the shader JIT by default on platforms where it's completely tested
-#if defined(PANDA3DS_X64_HOST) || defined(PANDA3DS_ARM64_HOST)
-	static constexpr bool shaderJitDefault = true;
-#else
-	static constexpr bool shaderJitDefault = false;
-#endif
-
-	// For now, use specialized shaders by default on MacOS as M1 drivers are buggy when using the ubershader.
-	// On other platforms we default to ubershader + shadergen fallback for lights
-#if defined(__APPLE__)
+	// Remember to initialize every field here to its default value otherwise bad things will happen
+	struct EmulatorConfig {
+		// For now, use specialized shaders by default on MacOS as M1 drivers are buggy when using the ubershader.
+		// On other platforms we default to ubershader + shadergen fallback for lights
+	#if defined(__APPLE__)
 	static constexpr bool ubershaderDefault = false;
 #else
 	static constexpr bool ubershaderDefault = true;
@@ -56,7 +49,6 @@ struct EmulatorConfig {
 
 	static constexpr bool enableFastmemDefault = true;
 
-	bool shaderJitEnabled = shaderJitDefault;
 	bool useUbershaders = ubershaderDefault;
 	bool accelerateShaders = accelerateShadersDefault;
 	bool fastmemEnabled = enableFastmemDefault;

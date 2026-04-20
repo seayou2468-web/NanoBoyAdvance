@@ -2,7 +2,6 @@
 #include <array>
 
 #include "PICA/draw_acceleration.hpp"
-#include "PICA/dynapica/shader_rec.hpp"
 #include "PICA/float_types.hpp"
 #include "PICA/pica_vertex.hpp"
 #include "PICA/regs.hpp"
@@ -16,7 +15,6 @@
 
 enum class ShaderExecMode {
 	Interpreter,  // Interpret shaders on the CPU
-	JIT,          // Recompile shaders to CPU machine code
 	Hardware,     // Recompiler shaders to host shaders and run them on the GPU
 };
 
@@ -31,7 +29,6 @@ class GPU {
 	Memory& mem;
 	EmulatorConfig& config;
 	ShaderUnit shaderUnit;
-	ShaderJIT shaderJIT;  // Doesn't do anything if JIT is disabled or not supported
 
 	u8* vram = nullptr;
 	MAKE_LOG_FUNCTION(log, gpuLogger)
