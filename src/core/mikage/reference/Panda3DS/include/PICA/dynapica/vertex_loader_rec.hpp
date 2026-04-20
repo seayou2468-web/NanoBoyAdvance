@@ -1,6 +1,6 @@
 #pragma once
 #include "helpers.hpp"
-#include "renderer_gl/renderer_gl.hpp"
+#include "PICA/pica_vertex.hpp"
 #include "x64_regs.hpp"
 
 // Recompiler that takes the current vertex attribute configuration, ie the format of vertices (VAO in OpenGL) and emits optimized

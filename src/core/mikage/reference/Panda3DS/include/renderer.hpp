@@ -10,12 +10,8 @@
 #include "helpers.hpp"
 
 enum class RendererType : s8 {
-	// Todo: Auto = -1,
 	Null = 0,
-	OpenGL = 1,
-	Vulkan = 2,
-	Metal = 3,
-	Software = 4,
+	Software = 1,
 };
 
 struct EmulatorConfig;
@@ -81,14 +77,6 @@ class Renderer {
 	virtual bool supportsShaderReload() { return false; }
 	virtual std::string getUbershader() { return ""; }
 	virtual void setUbershader(const std::string& shader) {}
-
-	// Only relevant for OpenGL renderer and other OpenGL-based backends (eg software)
-	// Called to notify the core to use OpenGL ES and not desktop GL
-	virtual void setupGLES() {}
-
-	// Used for Metal renderer on desktop/iOS frontends
-	// Passes an NSView's backing layer (CAMetalLayer) to the renderer
-	virtual void setMTKLayer(void* layer) { Helpers::panic("Renderer doesn't support MTK Layer"); };
 
 	// This function is called on every draw call before parsing vertex data.
 	// It is responsible for things like looking up which vertex/fragment shaders to use, recompiling them if they don't exist, choosing between

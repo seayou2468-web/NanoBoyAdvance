@@ -17,8 +17,6 @@ constexpr u32 bottomScreenHeight = 300;
 
 using namespace Floats;
 
-// Note: For when we have multiple backends, the GL state manager can stay here and have the constructor for the Vulkan-or-whatever renderer ignore it
-// Thus, our GLStateManager being here does not negatively impact renderer-agnosticness
 GPU::GPU(Memory& mem, EmulatorConfig& config) : mem(mem), config(config) {
 	vram = new u8[vramSize];
 	mem.setVRAM(vram);  // Give the bus a pointer to our VRAM

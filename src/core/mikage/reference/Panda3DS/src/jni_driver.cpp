@@ -1,18 +1,15 @@
-#include <EGL/egl.h>
-#include <android/log.h>
 #include <jni.h>
 
 #include <stdexcept>
 
 #include "emulator.hpp"
-#include "renderer_gl/renderer_gl.hpp"
 #include "services/hid.hpp"
 #include "android_utils.hpp"
 #include "mobile_sensors.hpp"
 
 static std::unique_ptr<Emulator> emulator = nullptr;
 static HIDService* hidService = nullptr;
-static RendererGL* renderer = nullptr;
+static Renderer* renderer = nullptr;
 static bool romLoaded = false;
 static JavaVM* jvm = nullptr;
 
@@ -65,27 +62,13 @@ AlberFunction(void, Resume)(JNIEnv* env, jobject obj) { emulator->resume(); }
 
 AlberFunction(void, Initialize)(JNIEnv* env, jobject obj) {
 	emulator = std::make_unique<Emulator>();
-
-	if (emulator->getRendererType() != RendererType::OpenGL) {
-		return throwException(env, "Renderer type is not OpenGL");
-	}
-
-	renderer = static_cast<RendererGL*>(emulator->getRenderer());
+	renderer = emulator->getRenderer();
 	hidService = &emulator->getServiceManager().getHID();
-
-	if (!gladLoadGLES2Loader(reinterpret_cast<GLADloadproc>(eglGetProcAddress))) {
-		return throwException(env, "Failed to load OpenGL ES 2.0");
-	}
-
-	__android_log_print(ANDROID_LOG_INFO, "AlberDriver", "OpenGL ES %d.%d", GLVersion.major, GLVersion.minor);
-	emulator->getRenderer()->setupGLES();
 	emulator->initGraphicsContext(nullptr);
 }
 
 AlberFunction(void, RunFrame)(JNIEnv* env, jobject obj, jint fbo) {
-	renderer->setFBO(fbo);
-	// TODO: don't reset entire state manager
-	renderer->resetStateManager();
+	(void)fbo;
 	emulator->runFrame();
 
 	hidService->updateInputs(emulator->getTicks());
