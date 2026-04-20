@@ -14,9 +14,9 @@ class Emulator;
 
 #ifdef PANDA3DS_ENABLE_LUA
 extern "C" {
-#include <lauxlib.h>
-#include <lua.h>
-#include <lualib.h>
+#include "lua/lauxlib.h"
+#include "lua/lua.h"
+#include "lua/lualib.h"
 }
 
 class LuaManager {

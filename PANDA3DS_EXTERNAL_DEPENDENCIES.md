@@ -17,10 +17,6 @@
   - 根拠: `capstone/capstone.h` を include。
 - **cmrc**（埋め込みリソース）
   - 根拠: `cmrc/cmrc.hpp` を include し `cmrc::ConsoleFonts::get_filesystem()` を利用。
-- **Lua**（スクリプト）
-  - 根拠: `lua.h`, `lualib.h` を include。
-- **stb_image_write**（画像出力）
-  - 根拠: `stb_image_write.h` を include。
 
 ### プラットフォーム SDK / フレームワーク
 - **Apple CommonCrypto**
@@ -44,8 +40,13 @@
   - `src/core/mikage/reference/Panda3DS/include/elfio/elfio.hpp` を同梱。
 - **toml11**
   - `src/core/mikage/reference/Panda3DS/include/toml.hpp` および `src/core/mikage/reference/Panda3DS/include/toml/*` を同梱。
+- **Lua**
+  - `src/core/mikage/reference/Panda3DS/include/lua/*` (Lua 5.4.8 の C ソース/ヘッダ) を同梱。
 - **HTTP サーバ / メモリマップ I/O**
   - 外部ライブラリ（cpp-httplib, mio）ではなく、プラットフォーム提供 API（ソケット + `mmap`/`msync`）へ置換済み。
+
+- **stb_image_write**
+  - `src/core/mikage/reference/Panda3DS/src/stb_image_write.c` を削除済み（機能ごと除去）。
 
 ## 注記
 - この repository の Panda3DS 参照ツリーには CMake 等の依存宣言ファイルが含まれていないため、
