@@ -17,8 +17,6 @@
   - 根拠: `capstone/capstone.h` を include。
 - **cmrc**（埋め込みリソース）
   - 根拠: `cmrc/cmrc.hpp` を include し `cmrc::ConsoleFonts::get_filesystem()` を利用。
-- **GLM**（数学ライブラリ）
-  - 根拠: `glm/glm.hpp` を include。
 - **Lua**（スクリプト）
   - 根拠: `lua.h`, `lualib.h` を include。
 - **stb_image_write**（画像出力）
@@ -31,6 +29,8 @@
   - 根拠: `AudioToolbox/AudioQueue.h`, `AudioToolbox/AudioToolbox.h`。
 - **Apple Foundation / QuartzCore**
   - 根拠: `Foundation/Foundation.h`, `QuartzCore/QuartzCore.h`。
+- **Apple SIMD**
+  - 根拠: `simd/simd.h` を include（センサー変換処理）。
 
 ## 除外（内蔵のため対象外）
 
