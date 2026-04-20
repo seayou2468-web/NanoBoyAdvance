@@ -1,5 +1,6 @@
 #pragma once
 #include <climits>
+#include <cstdio>
 #include <cstdarg>
 #include <cstdint>
 #include <iostream>
@@ -46,7 +47,11 @@ namespace Helpers {
 	template <class... Args>
 	[[noreturn]] static void panic(const char* fmt, Args&&... args) {
 		std::cout << termcolor::on_red << "[FATAL] ";
-		std::printf(fmt, args...);
+		if constexpr (sizeof...(Args) == 0) {
+			std::printf("%s", fmt);
+		} else {
+			std::printf(fmt, args...);
+		}
 		std::cout << termcolor::reset << "\n";
 
 		exit(1);
@@ -65,7 +70,11 @@ namespace Helpers {
 	template <class... Args>
 	static void warn(const char* fmt, Args&&... args) {
 		std::cout << termcolor::on_red << "[Warning] ";
-		std::printf(fmt, args...);
+		if constexpr (sizeof...(Args) == 0) {
+			std::printf("%s", fmt);
+		} else {
+			std::printf(fmt, args...);
+		}
 		std::cout << termcolor::reset << "\n";
 	}
 

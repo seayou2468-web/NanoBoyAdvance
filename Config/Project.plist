@@ -32,7 +32,6 @@
 	<array>
 		<string>-fobjc-arc</string>
 		<string>-fblocks</string>
-    <string>-std=gnu++20</string>
 	</array>
 	<key>LDEDisplayName</key>
 	<string>gbemu-ハヤマサ</string>

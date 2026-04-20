@@ -25,7 +25,7 @@
 }
 
 - (NSUInteger)hash {
-    return self.orientation ^ self.device ^ self.displayType;
+    return ((NSUInteger)self.orientation) ^ ((NSUInteger)self.device) ^ ((NSUInteger)self.displayType);
 }
 
 @end

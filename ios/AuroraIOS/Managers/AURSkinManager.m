@@ -130,7 +130,7 @@ static NSData *AURInflateRawDeflate(NSData *compressed, NSUInteger expectedSize)
         return NO;
     }
 
-    const uint8_t *bytes = zipData.bytes;
+    const uint8_t *bytes = (const uint8_t *)zipData.bytes;
     NSUInteger offset = 0;
     NSFileManager *fileManager = [NSFileManager defaultManager];
 
