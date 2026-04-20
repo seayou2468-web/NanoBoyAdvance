@@ -12,7 +12,8 @@ class Emulator;
 class Kernel;
 
 // ARM11 interpreter backend (non-JIT).
-// Instruction condition handling follows the Cytrus/Citra DynCom interpreter model.
+// Full Cytrus/Citra DynCom sources are transplanted under cytrus_arm/.
+// This front-end keeps Panda3DS CPU-facing API stable while executing through interpreter semantics.
 class CPU {
 	std::array<u32, 16> gprs{};
 	std::array<u32, 64> extRegs{};

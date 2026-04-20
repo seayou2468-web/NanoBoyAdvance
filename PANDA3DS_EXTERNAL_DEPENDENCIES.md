@@ -47,8 +47,9 @@
   - `src/core/mikage/reference/Panda3DS/src/stb_image_write.c` を削除済み（機能ごと除去）。
 
 ## CPU 実装
-- CPU は JIT (Dynarmic) から、Cytrus/Citra 系 DynCom インタプリンタの条件分岐・実行モデルを踏襲した
-  Panda3DS 内蔵インタプリンタへ置換。
+- Cytrus/Citra 系 DynCom CPU インタプリタを `src/core/mikage/reference/Panda3DS/src/core/CPU/cytrus_arm/*` と
+  `src/core/mikage/reference/Panda3DS/include/cytrus_arm/*` に移植。
+- Panda3DS 側 CPU フロント (`cpu_interpreter.*`) も JIT 非依存のインタプリタ経路に置換。
 
 ## 注記
 - この repository の Panda3DS 参照ツリーには CMake 等の依存宣言ファイルが含まれていないため、
