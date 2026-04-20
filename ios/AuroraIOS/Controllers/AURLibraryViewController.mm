@@ -261,13 +261,17 @@ static BOOL AURCoreTypeForExtension(NSString *ext, EmulatorCoreType *outType) {
             [self collectionView:collectionView didSelectItemAtIndexPath:indexPath];
         }];
         UIAction *rename = [UIAction actionWithTitle:@"Rename" image:[UIImage systemImageNamed:@"pencil"] identifier:nil handler:^(__kindof UIAction * _Nonnull action) {}];
-        UIAction *delete = [UIAction actionWithTitle:@"Delete" image:[UIImage systemImageNamed:@"trash"] identifier:nil handler:^(__kindof UIAction * _Nonnull action) {
-            [[AURDatabaseManager sharedManager] removeGame:game removeROMFile:YES];
-            [self reloadData];
-        }];
-        delete.attributes = UIMenuElementAttributesDestructive;
+        UIAction *deleteAction = [UIAction actionWithTitle:@"Delete"
+                                             image:[UIImage systemImageNamed:@"trash"]
+                                        identifier:nil
+                                           handler:^(__kindof UIAction * _Nonnull action) {
+    [[AURDatabaseManager sharedManager] removeGame:game removeROMFile:YES];
+    [self reloadData];
+}];
 
-        return [UIMenu menuWithTitle:game.title children:@[play, rename, delete]];
+deleteAction.attributes = UIMenuElementAttributesDestructive;
+
+return [UIMenu menuWithTitle:game.title children:@[play, rename, deleteAction]];
     }];
 }
 
