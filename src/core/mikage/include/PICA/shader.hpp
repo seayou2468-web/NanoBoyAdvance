@@ -323,6 +323,7 @@ class PICAShader {
 
 	// Returns how big the PICA uniforms are combined. Used for hw accelerated shaders where we upload the uniforms to our GPU.
 	static constexpr usize totalUniformSize() { return sizeof(floatUniforms) + sizeof(intUniforms) + sizeof(boolUniform); }
-	void* getUniformPointer() { return static_cast<void*>(&floatUniforms); }
-	const void* getUniformPointer() const { return static_cast<const void*>(&floatUniforms); }
+	const void* getUniformPointer() const {
+    return static_cast<const void*>(&floatUniforms);
+}
 };
