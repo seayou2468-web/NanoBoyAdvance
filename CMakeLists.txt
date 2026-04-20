@@ -52,12 +52,16 @@ target_compile_options(AuroraIOS PRIVATE
   -fobjc-arc
 )
 
+find_library(AVFOUNDATION_FRAMEWORK AVFoundation REQUIRED)
+find_library(AUDIOTOOLBOX_FRAMEWORK AudioToolbox REQUIRED)
+
 target_link_libraries(AuroraIOS PRIVATE
+  ${AVFOUNDATION_FRAMEWORK}
+  ${AUDIOTOOLBOX_FRAMEWORK}
   "-framework Foundation"
   "-framework UIKit"
   "-framework CoreGraphics"
   "-framework QuartzCore"
-  "-framework AVFoundation"
   "-framework Network"
   "-framework AVKit"
   "-framework CoreImage"
