@@ -20,6 +20,16 @@ class CPU {
 	u32 cpsr = CPSR::UserMode;
 	u32 fpscr = FPSCR::MainThreadDefault;
 	u32 tlsBase = 0;
+	u32 cp15SCTLR = 0;
+	u32 cp15ACTLR = 0;
+	u32 cp15TTBR0 = 0;
+	u32 cp15TTBR1 = 0;
+	u32 cp15TTBCR = 0;
+	u32 cp15DACR = 0;
+	u32 cp15DFSR = 0;
+	u32 cp15IFSR = 0;
+	u32 cp15DFAR = 0;
+	u32 cp15IFAR = 0;
 	u32 exclusiveAddress = 0;
 	u32 exclusiveSize = 0;
 	bool exclusiveValid = false;

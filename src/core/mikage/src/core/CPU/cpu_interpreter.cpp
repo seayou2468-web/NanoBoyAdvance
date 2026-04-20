@@ -3,6 +3,7 @@
 #include <bit>
 #include <cfenv>
 #include <cmath>
+#include <optional>
 
 #include "arm_defs.hpp"
 #include "emulator.hpp"
@@ -37,6 +38,16 @@ void CPU::reset() {
 	cpsr = CPSR::UserMode;
 	fpscr = FPSCR::MainThreadDefault;
 	tlsBase = VirtualAddrs::TLSBase;
+	cp15SCTLR = 0x00C50078u;
+	cp15ACTLR = 0;
+	cp15TTBR0 = 0;
+	cp15TTBR1 = 0;
+	cp15TTBCR = 0;
+	cp15DACR = 0;
+	cp15DFSR = 0;
+	cp15IFSR = 0;
+	cp15DFAR = 0;
+	cp15IFAR = 0;
 	exclusiveAddress = 0;
 	exclusiveSize = 0;
 	exclusiveValid = false;
@@ -1162,6 +1173,71 @@ u32 CPU::executeArm(u32 inst) {
 		const u32 opc1 = (inst >> 21) & 0x7;
 
 		if (coproc == 15) {
+			const auto cp15_read = [&]() -> std::optional<u32> {
+				// CPU ID / capability registers
+				if (crn == 0 && crm == 0 && opc1 == 0 && opc2 == 0) return 0x410FC0F0u;  // MIDR (Cortex-A9-like)
+				if (crn == 0 && crm == 0 && opc1 == 0 && opc2 == 1) return 0x0F0D2112u;  // CTR
+				if (crn == 0 && crm == 0 && opc1 == 0 && opc2 == 5) return 0u;           // MPIDR (single-core view)
+
+				// System control and MMU registers
+				if (crn == 1 && crm == 0 && opc1 == 0 && opc2 == 0) return cp15SCTLR;
+				if (crn == 1 && crm == 0 && opc1 == 0 && opc2 == 1) return cp15ACTLR;
+				if (crn == 2 && crm == 0 && opc1 == 0 && opc2 == 0) return cp15TTBR0;
+				if (crn == 2 && crm == 0 && opc1 == 0 && opc2 == 1) return cp15TTBR1;
+				if (crn == 2 && crm == 0 && opc1 == 0 && opc2 == 2) return cp15TTBCR;
+				if (crn == 3 && crm == 0 && opc1 == 0 && opc2 == 0) return cp15DACR;
+
+				// Fault status/address registers
+				if (crn == 5 && crm == 0 && opc1 == 0 && opc2 == 0) return cp15DFSR;
+				if (crn == 5 && crm == 0 && opc1 == 0 && opc2 == 1) return cp15IFSR;
+				if (crn == 6 && crm == 0 && opc1 == 0 && opc2 == 0) return cp15DFAR;
+				if (crn == 6 && crm == 0 && opc1 == 0 && opc2 == 2) return cp15IFAR;
+				return std::nullopt;
+			};
+			const auto cp15_write = [&](u32 value) -> bool {
+				if (crn == 1 && crm == 0 && opc1 == 0 && opc2 == 0) {
+					cp15SCTLR = value;
+					return true;
+				}
+				if (crn == 1 && crm == 0 && opc1 == 0 && opc2 == 1) {
+					cp15ACTLR = value;
+					return true;
+				}
+				if (crn == 2 && crm == 0 && opc1 == 0 && opc2 == 0) {
+					cp15TTBR0 = value;
+					return true;
+				}
+				if (crn == 2 && crm == 0 && opc1 == 0 && opc2 == 1) {
+					cp15TTBR1 = value;
+					return true;
+				}
+				if (crn == 2 && crm == 0 && opc1 == 0 && opc2 == 2) {
+					cp15TTBCR = value;
+					return true;
+				}
+				if (crn == 3 && crm == 0 && opc1 == 0 && opc2 == 0) {
+					cp15DACR = value;
+					return true;
+				}
+				if (crn == 5 && crm == 0 && opc1 == 0 && opc2 == 0) {
+					cp15DFSR = value;
+					return true;
+				}
+				if (crn == 5 && crm == 0 && opc1 == 0 && opc2 == 1) {
+					cp15IFSR = value;
+					return true;
+				}
+				if (crn == 6 && crm == 0 && opc1 == 0 && opc2 == 0) {
+					cp15DFAR = value;
+					return true;
+				}
+				if (crn == 6 && crm == 0 && opc1 == 0 && opc2 == 2) {
+					cp15IFAR = value;
+					return true;
+				}
+				return false;
+			};
+
 			// TPIDRURW/TPIDRURO-style TLS register accesses used by many binaries.
 			if (crn == 13 && crm == 0 && opc1 == 0 && opc2 == 2) {
 				if (load) write_reg(rd, tlsBase);
@@ -1177,6 +1253,20 @@ u32 CPU::executeArm(u32 inst) {
 				if (rd != PC_INDEX || !load) {
 					gprs[PC_INDEX] = old_pc + 4;
 				}
+				return 1;
+			}
+
+			if (load) {
+				const auto value = cp15_read();
+				if (value.has_value()) {
+					write_reg(rd, *value);
+					if (rd != PC_INDEX) {
+						gprs[PC_INDEX] = old_pc + 4;
+					}
+					return 1;
+				}
+			} else if (cp15_write(get_reg_operand(rd))) {
+				gprs[PC_INDEX] = old_pc + 4;
 				return 1;
 			}
 
@@ -1248,6 +1338,15 @@ u32 CPU::executeArm(u32 inst) {
 	// CLREX
 	if ((inst & 0x0FFFFFF0u) == 0x057FF01Fu) {
 		clear_exclusive();
+		gprs[PC_INDEX] = old_pc + 4;
+		return 1;
+	}
+
+	// ARM architectural hints / barriers in SYSTEM space.
+	// NOP/YIELD/WFE/WFI/SEV and DMB/DSB/ISB are treated as synchronization no-ops in this interpreter path.
+	if ((inst & 0x0FFFFFF0u) == 0x0320F000u || (inst & 0x0FFFFFF0u) == 0x0320F010u || (inst & 0x0FFFFFF0u) == 0x0320F020u ||
+		(inst & 0x0FFFFFF0u) == 0x0320F030u || (inst & 0x0FFFFFF0u) == 0x0320F040u || (inst & 0x0FFFFFF0u) == 0x057FF040u ||
+		(inst & 0x0FFFFFF0u) == 0x057FF050u || (inst & 0x0FFFFFF0u) == 0x057FF060u) {
 		gprs[PC_INDEX] = old_pc + 4;
 		return 1;
 	}
