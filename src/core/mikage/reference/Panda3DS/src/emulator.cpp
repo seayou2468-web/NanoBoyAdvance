@@ -182,12 +182,8 @@ void Emulator::pollScheduler() {
 // %APPDATA%/Alber/PenguinDemo/SaveData on Windows, and so on. We do this because games save data in their own filesystem on the cart.
 // If the portable build setting is enabled, then those saves go in the executable directory instead
 std::filesystem::path Emulator::getAppDataRoot() {
-#ifdef __ANDROID__
-	return getAndroidAppPath();
-#else
 	const std::filesystem::path base = std::filesystem::current_path();
 	return base / "Emulator Files";
-#endif
 }
 
 bool Emulator::loadROM(const std::filesystem::path& path) {

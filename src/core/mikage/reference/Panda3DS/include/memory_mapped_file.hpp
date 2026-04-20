@@ -1,19 +1,20 @@
 #pragma once
 
 #include <filesystem>
+#include <span>
 #include <system_error>
 
 #include "helpers.hpp"
-#include "mio/mio.hpp"
 
 // Minimal RAII wrapper over memory mapped files
 
 class MemoryMappedFile {
 	std::filesystem::path filePath = "";  // path of our file
-	mio::mmap_sink map;                   // mmap sink for our file
+	size_t mappingSize = 0;
 
 	u8* pointer = nullptr;  // Pointer to the contents of the memory mapped file
 	bool opened = false;
+	int fd = -1;
 
   public:
 	bool exists() const { return opened; }
@@ -33,10 +34,9 @@ class MemoryMappedFile {
 	u8& operator[](size_t index) { return pointer[index]; }
 	const u8& operator[](size_t index) const { return pointer[index]; }
 
-	auto begin() { return map.begin(); }
-	auto end() { return map.end(); }
-	auto cbegin() { return map.cbegin(); }
-	auto cend() { return map.cend(); }
-
-	mio::mmap_sink& getSink() { return map; }
+	auto begin() { return pointer; }
+	auto end() { return pointer + mappingSize; }
+	auto cbegin() { return pointer; }
+	auto cend() { return pointer + mappingSize; }
+	size_t size() const { return mappingSize; }
 };
