@@ -1,0 +1,75 @@
+cmake_minimum_required(VERSION 3.25)
+
+project(AuroraIOS LANGUAGES C CXX OBJC OBJCXX)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_XCODE_GENERATE_SCHEME ON)
+
+if(NOT CMAKE_SYSTEM_NAME STREQUAL "iOS")
+  message(FATAL_ERROR "This CMake project is for iOS builds only.")
+endif()
+
+file(GLOB_RECURSE AURORAIOS_SOURCES CONFIGURE_DEPENDS
+  "ios/AuroraIOS/*.m"
+  "ios/AuroraIOS/*.mm"
+  "ios/AuroraIOS/*.c"
+  "ios/AuroraIOS/*.cpp"
+)
+
+file(GLOB_RECURSE CORE_SOURCES CONFIGURE_DEPENDS
+  "src/core/api/*.cpp"
+  "src/core/mikage/*.cpp"
+  "src/core/mikage/*.c"
+)
+
+add_executable(AuroraIOS MACOSX_BUNDLE
+  ${AURORAIOS_SOURCES}
+  ${CORE_SOURCES}
+)
+
+set_target_properties(AuroraIOS PROPERTIES
+  MACOSX_BUNDLE TRUE
+  MACOSX_BUNDLE_GUI_IDENTIFIER com.frappev.rn
+  XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER com.frappev.rn
+  XCODE_ATTRIBUTE_INFOPLIST_FILE ${CMAKE_SOURCE_DIR}/Config/Project.plist
+  XCODE_ATTRIBUTE_INFOPLIST_KEY_UISupportedInterfaceOrientations "UIInterfaceOrientationPortrait"
+  XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2"
+  XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET "26.0"
+  XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED "NO"
+  XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED "NO"
+)
+
+target_include_directories(AuroraIOS PRIVATE
+  ${CMAKE_SOURCE_DIR}
+  ${CMAKE_SOURCE_DIR}/src/core
+  ${CMAKE_SOURCE_DIR}/src/core/api
+  ${CMAKE_SOURCE_DIR}/src/core/mikage/include
+)
+
+target_compile_options(AuroraIOS PRIVATE
+  -fobjc-arc
+)
+
+target_link_libraries(AuroraIOS PRIVATE
+  "-framework Foundation"
+  "-framework UIKit"
+  "-framework CoreGraphics"
+  "-framework QuartzCore"
+  "-framework AVFoundation"
+  "-framework Network"
+  "-framework AVKit"
+  "-framework CoreImage"
+  "-framework Metal"
+  "-framework MetalKit"
+  "-framework PencilKit"
+  "-framework LocalAuthentication"
+  "-framework UniformTypeIdentifiers"
+  "-framework CoreServices"
+  "-framework CoreLocation"
+  "-framework MapKit"
+  "-framework MobileCoreServices"
+  "-framework GameController"
+  "-lz"
+  "-liconv"
+)
