@@ -2,10 +2,6 @@
 
 #include "../../../include/ipc.hpp"
 
-namespace NewsCommands {
-	enum : u32 {};
-}
-
 void NewsUService::reset() {}
 
 void NewsUService::handleSyncRequest(u32 messagePointer) {

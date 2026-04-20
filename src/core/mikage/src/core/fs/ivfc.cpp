@@ -1,4 +1,5 @@
 #include "../../../include/fs/ivfc.hpp"
+#include <cinttypes>
 
 namespace IVFC {
 	size_t parseIVFC(uintptr_t ivfcStart, IVFC& ivfc) {
@@ -58,7 +59,7 @@ namespace IVFC {
 
 		// According to 3DBrew, this is usually the case but not guaranteed
 		if (ivfcActualSize != ivfcDescriptorSize) {
-			printf("IVFC descriptor size mismatch: %llx != %llx\n", ivfcActualSize, ivfcDescriptorSize);
+			printf("IVFC descriptor size mismatch: %" PRIxPTR " != %" PRIx64 "\n", ivfcActualSize, ivfcDescriptorSize);
 		}
 
 		if (magicIdentifier == 0x10000 && ivfcActualSize != 0x5C) {

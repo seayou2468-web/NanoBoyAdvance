@@ -326,6 +326,14 @@ int Kernel::wakeupOneThread(u64 waitlist, Handle handle) {
 			break;
 
 		case ThreadStatus::WaitSyncAll: Helpers::panic("WakeupOneThread: Thread on WaitSyncAll"); break;
+		case ThreadStatus::Running:
+		case ThreadStatus::Ready:
+		case ThreadStatus::WaitArbiter:
+		case ThreadStatus::WaitArbiterTimeout:
+		case ThreadStatus::WaitSleep:
+		case ThreadStatus::WaitIPC:
+		case ThreadStatus::Dormant:
+		case ThreadStatus::Dead: Helpers::panic("WakeupOneThread: Unexpected thread status %d", static_cast<int>(t.status)); break;
 	}
 
 	return threadIndex;
@@ -359,6 +367,14 @@ void Kernel::wakeupAllThreads(u64 waitlist, Handle handle) {
 				break;
 
 			case ThreadStatus::WaitSyncAll: Helpers::panic("WakeupAllThreads: Thread on WaitSyncAll"); break;
+			case ThreadStatus::Running:
+			case ThreadStatus::Ready:
+			case ThreadStatus::WaitArbiter:
+			case ThreadStatus::WaitArbiterTimeout:
+			case ThreadStatus::WaitSleep:
+			case ThreadStatus::WaitIPC:
+			case ThreadStatus::Dormant:
+			case ThreadStatus::Dead: Helpers::panic("WakeupAllThreads: Unexpected thread status %d", static_cast<int>(t.status)); break;
 		}
 	}
 }
