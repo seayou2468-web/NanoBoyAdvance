@@ -1,0 +1,2268 @@
+{
+  "debugObjects" : {
+    "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/services\/ir\/ir_user.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/services\/ir\/ir_user.cpp"
+    },
+    "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/kernel\/ports.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/kernel\/ports.cpp"
+    },
+    "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/PICA\/shader_decompiler.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/PICA\/shader_decompiler.cpp"
+    },
+    "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/kernel\/events.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/kernel\/events.cpp"
+    },
+    "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/emulator.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/emulator.cpp"
+    },
+    "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/services\/cam.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/services\/cam.cpp"
+    },
+    "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/kernel\/kernel.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/kernel\/kernel.cpp"
+    },
+    "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/PICA\/gpu.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/PICA\/gpu.cpp"
+    },
+    "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/services\/nwm_uds.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/services\/nwm_uds.cpp"
+    },
+    "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/PICA\/regs.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/PICA\/regs.cpp"
+    },
+    "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/kernel\/address_arbiter.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/kernel\/address_arbiter.cpp"
+    },
+    "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/services\/nfc.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/services\/nfc.cpp"
+    },
+    "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/services\/y2r.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/services\/y2r.cpp"
+    },
+    "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/services\/gsp_gpu.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/services\/gsp_gpu.cpp"
+    },
+    "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/fs\/ivfc.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "format specifies type 'unsigned long long' but the argument has type 'uintptr_t' (aka 'unsigned long')",
+          "severity" : 1,
+          "line" : 61,
+          "column" : 60
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/fs\/ivfc.cpp"
+    },
+    "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/core_adapter_registry.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/core_adapter_registry.cpp"
+    },
+    "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/services\/news_u.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "declaration does not declare anything",
+          "severity" : 1,
+          "line" : 6,
+          "column" : 2
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/services\/news_u.cpp"
+    },
+    "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/PICA\/draw_acceleration.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/PICA\/draw_acceleration.cpp"
+    },
+    "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/services\/cecd.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/services\/cecd.cpp"
+    },
+    "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/services\/ldr_ro.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/services\/ldr_ro.cpp"
+    },
+    "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/services\/apt.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/services\/apt.cpp"
+    },
+    "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/kernel\/memory_management.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/kernel\/memory_management.cpp"
+    },
+    "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/kernel\/file_operations.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/kernel\/file_operations.cpp"
+    },
+    "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/services\/dsp.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/services\/dsp.cpp"
+    },
+    "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/services\/fs.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/services\/fs.cpp"
+    },
+    "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/kernel\/resource_limits.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/kernel\/resource_limits.cpp"
+    },
+    "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/kernel\/idle_thread.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/kernel\/idle_thread.cpp"
+    },
+    "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/renderer.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/renderer.cpp"
+    },
+    "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/kernel\/threads.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "8 enumeration values not handled in switch: 'Running', 'Ready', 'WaitArbiter'...",
+          "severity" : 1,
+          "line" : 309,
+          "column" : 10
+        },
+        {
+          "message" : "8 enumeration values not handled in switch: 'Running', 'Ready', 'WaitArbiter'...",
+          "severity" : 1,
+          "line" : 342,
+          "column" : 11
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/kernel\/threads.cpp"
+    },
+    "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/PICA\/shader_interpreter.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/PICA\/shader_interpreter.cpp"
+    },
+    "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/PICA\/pica_hash.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/PICA\/pica_hash.cpp"
+    },
+    "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/services\/mic.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/services\/mic.cpp"
+    },
+    "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/services\/csnd.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/services\/csnd.cpp"
+    },
+    "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/services\/hid.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/services\/hid.cpp"
+    },
+    "Internal" : {
+      "debugItems" : [
+        {
+          "message" : "Failed to compile source code",
+          "severity" : 2,
+          "line" : 0,
+          "column" : 0
+        }
+      ],
+      "type" : {
+        "DebugMessage" : {
+
+        }
+      },
+      "title" : "Internal"
+    },
+    "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/services\/service_manager.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/services\/service_manager.cpp"
+    },
+    "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/kernel\/error.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/kernel\/error.cpp"
+    },
+    "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/kernel\/directory_operations.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/kernel\/directory_operations.cpp"
+    },
+    "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/kernel\/timers.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/kernel\/timers.cpp"
+    },
+    "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/PICA\/shader_unit.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/PICA\/shader_unit.cpp"
+    },
+    "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/CPU\/cpu_interpreter.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 321,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "severity" : 1,
+          "line" : 322,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "severity" : 0,
+          "line" : 16,
+          "column" : 24
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/0C017F97-9BE8-4AEB-BAB4-30618CCFEEEC\/src\/core\/mikage\/src\/core\/CPU\/cpu_interpreter.cpp"
+    }
+  }
+}
