@@ -1,6 +1,6 @@
 #include <cstdlib>
-#include "../../../../../reference/Cytrus/Core/include/common/assert.h"
-#include "../../../../../reference/Cytrus/Core/include/common/common_types.h"
+#include "common/assert.h"
+#include "common/common_types.h"
 #include "../../../../../include/cytrus_arm/dyncom/arm_dyncom_trans.h"
 #include "../../../../../include/cytrus_arm/skyeye_common/armstate.h"
 #include "../../../../../include/cytrus_arm/skyeye_common/armsupp.h"
@@ -1804,7 +1804,7 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(yield)(unsigned int inst, int index) {
 
 // Floating point VFPv3 instructions
 #define VFP_INTERPRETER_TRANS
-#include "../../../../../reference/Cytrus/Core/include/core/arm/skyeye_common/vfp/vfpinstr.cpp"
+#include "core/arm/skyeye_common/vfp/vfpinstr.cpp"
 #undef VFP_INTERPRETER_TRANS
 
 const transop_fp_t arm_instruction_trans[] = {

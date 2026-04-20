@@ -32,7 +32,7 @@
 
 #pragma once
 
-#include "../../../../reference/Cytrus/Core/include/common/common_types.h"
+#include "common/common_types.h"
 #include "../armstate.h"
 #include "./asm_vfp.h"
 

@@ -26,7 +26,7 @@
 
 #pragma once
 
-#include "../../../reference/Cytrus/Core/include/common/common_types.h"
+#include "common/common_types.h"
 
 enum class ThumbDecodeStatus {
     UNDEFINED, // Undefined Thumb instruction

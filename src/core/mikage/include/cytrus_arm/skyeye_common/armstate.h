@@ -19,9 +19,9 @@
 
 #include <array>
 #include <unordered_map>
-#include "../../../reference/Cytrus/Core/include/common/common_types.h"
+#include "common/common_types.h"
 #include "./arm_regformat.h"
-#include "../../../reference/Cytrus/Core/include/core/gdbstub/gdbstub.h"
+#include "core/gdbstub/gdbstub.h"
 
 namespace Core {
 class System;

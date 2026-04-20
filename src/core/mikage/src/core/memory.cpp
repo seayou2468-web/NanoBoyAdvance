@@ -2,7 +2,7 @@
 
 #include <cassert>
 #include <chrono>  // For time since epoch
-#include <cmrc/cmrc.hpp>
+#include "../../include/cmrc/cmrc.hpp"
 #include <ctime>
 
 #include "../../include/kernel/config_mem.hpp"

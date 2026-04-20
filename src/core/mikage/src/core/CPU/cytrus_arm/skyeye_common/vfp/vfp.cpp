@@ -20,9 +20,9 @@
 
 /* Note: this file handles interface with arm core and vfp registers */
 
-#include "../../../../../../reference/Cytrus/Core/include/common/common_funcs.h"
-#include "../../../../../../reference/Cytrus/Core/include/common/common_types.h"
-#include "../../../../../../reference/Cytrus/Core/include/common/logging/log.h"
+#include "common/common_funcs.h"
+#include "common/common_types.h"
+#include "common/logging/log.h"
 #include "../../../../../../include/cytrus_arm/skyeye_common/armstate.h"
 #include "../../../../../../include/cytrus_arm/skyeye_common/vfp/asm_vfp.h"
 #include "../../../../../../include/cytrus_arm/skyeye_common/vfp/vfp.h"

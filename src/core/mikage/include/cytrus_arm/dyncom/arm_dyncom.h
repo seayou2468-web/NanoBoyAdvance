@@ -5,8 +5,8 @@
 #pragma once
 
 #include <memory>
-#include "../../../reference/Cytrus/Core/include/common/common_types.h"
-#include "../../../reference/Cytrus/Core/include/core/arm/arm_interface.h"
+#include "common/common_types.h"
+#include "core/arm/arm_interface.h"
 #include "../skyeye_common/arm_regformat.h"
 #include "../skyeye_common/armstate.h"
 

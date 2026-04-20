@@ -6,9 +6,9 @@
 
 #include <algorithm>
 #include <cstdio>
-#include "../../../../../reference/Cytrus/Core/include/common/common_types.h"
-#include "../../../../../reference/Cytrus/Core/include/common/logging/log.h"
-#include "../../../../../reference/Cytrus/Core/include/common/microprofile.h"
+#include "common/common_types.h"
+#include "common/logging/log.h"
+#include "common/microprofile.h"
 #include "../../../../../include/cytrus_arm/dyncom/arm_dyncom_dec.h"
 #include "../../../../../include/cytrus_arm/dyncom/arm_dyncom_interpreter.h"
 #include "../../../../../include/cytrus_arm/dyncom/arm_dyncom_run.h"
@@ -19,9 +19,9 @@
 #include "../../../../../include/cytrus_arm/skyeye_common/vfp/vfp.h"
 #include "../../../../../include/fmt/core.h"
 #include "../../../audio/teakra/core_timing.h"
-#include "../../../../../reference/Cytrus/Core/include/core/gdbstub/gdbstub.h"
-#include "../../../../../reference/Cytrus/Core/include/core/hle/kernel/svc.h"
-#include "../../../../../reference/Cytrus/Core/include/core/memory.h"
+#include "core/gdbstub/gdbstub.h"
+#include "core/hle/kernel/svc.h"
+#include "core/memory.h"
 
 #define RM BITS(sht_oper, 0, 3)
 #define RS BITS(sht_oper, 8, 11)
@@ -4575,7 +4575,7 @@ YIELD_INST: {
 }
 
 #define VFP_INTERPRETER_IMPL
-#include "../../../../../reference/Cytrus/Core/include/core/arm/skyeye_common/vfp/vfpinstr.cpp"
+#include "core/arm/skyeye_common/vfp/vfpinstr.cpp"
 #undef VFP_INTERPRETER_IMPL
 
 END: {

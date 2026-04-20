@@ -1,6 +1,6 @@
 #include "../../../include/PICA/shader_decompiler.hpp"
 
-#include <fmt/format.h>
+#include "../../../include/fmt/format.h"
 
 #include <array>
 #include <cassert>
