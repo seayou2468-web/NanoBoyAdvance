@@ -774,16 +774,44 @@ u32 CPU::executeArm(u32 inst) {
 		}
 	}
 
-	// VFP unary arithmetic subset: VABS / VNEG (single/double).
-	if ((inst & 0x0FBF0ED0u) == 0x0EB00AC0u || (inst & 0x0FBF0ED0u) == 0x0EB10AC0u) {
-		const bool is_neg = (inst & 0x0FBF0ED0u) == 0x0EB10AC0u;
+	// VFP unary arithmetic subset: VABS / VNEG / VSQRT (single/double).
+	const bool is_vabs = (inst & 0x0FBF0ED0u) == 0x0EB00AC0u;
+	const bool is_vsqrt = (inst & 0x0FBF0ED0u) == 0x0EB10AC0u;
+	const bool is_vneg = (inst & 0x0FBE0ED0u) == 0x0EB00A40u;
+	if (is_vabs || is_vneg || is_vsqrt) {
+		const auto update_fp_exceptions = [&]() {
+			const int ex = std::fetestexcept(FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW | FE_INEXACT);
+			if (ex & FE_INVALID) fpscr |= (1u << 0);     // IOC
+			if (ex & FE_DIVBYZERO) fpscr |= (1u << 1);   // DZC
+			if (ex & FE_OVERFLOW) fpscr |= (1u << 2);    // OFC
+			if (ex & FE_UNDERFLOW) fpscr |= (1u << 3);   // UFC
+			if (ex & FE_INEXACT) fpscr |= (1u << 4);     // IXC
+		};
+		const auto apply_fpscr_rounding = [&]() {
+			const int previous = std::fegetround();
+			switch ((fpscr >> 22) & 0x3u) {
+				case 0x0: std::fesetround(FE_TONEAREST); break;
+				case 0x1: std::fesetround(FE_UPWARD); break;
+				case 0x2: std::fesetround(FE_DOWNWARD); break;
+				case 0x3: std::fesetround(FE_TOWARDZERO); break;
+			}
+			return previous;
+		};
+		const auto restore_rounding = [&](int previous) {
+			std::fesetround(previous);
+		};
+
 		const bool double_precision = (inst & (1u << 8)) != 0;
 		if (!double_precision) {
 			const u32 sd = (((inst >> 12) & 0xF) << 1) | ((inst >> 22) & 1u);
 			const u32 sm = ((inst & 0xF) << 1) | ((inst >> 5) & 1u);
 			if (sd < 32 && sm < 32) {
 				const float value = std::bit_cast<float>(extRegs[sm]);
-				const float result = is_neg ? -value : std::fabs(value);
+				const int previous_round = apply_fpscr_rounding();
+				std::feclearexcept(FE_ALL_EXCEPT);
+				const float result = is_vsqrt ? std::sqrt(value) : (is_vneg ? -value : std::fabs(value));
+				update_fp_exceptions();
+				restore_rounding(previous_round);
 				extRegs[sd] = std::bit_cast<u32>(result);
 				gprs[PC_INDEX] = old_pc + 4;
 				return 1;
@@ -794,7 +822,11 @@ u32 CPU::executeArm(u32 inst) {
 			if (dd < 32 && dm < 32) {
 				const u64 bits = static_cast<u64>(extRegs[dm * 2]) | (static_cast<u64>(extRegs[dm * 2 + 1]) << 32);
 				const double value = std::bit_cast<double>(bits);
-				const double result = is_neg ? -value : std::fabs(value);
+				const int previous_round = apply_fpscr_rounding();
+				std::feclearexcept(FE_ALL_EXCEPT);
+				const double result = is_vsqrt ? std::sqrt(value) : (is_vneg ? -value : std::fabs(value));
+				update_fp_exceptions();
+				restore_rounding(previous_round);
 				const u64 out = std::bit_cast<u64>(result);
 				extRegs[dd * 2] = static_cast<u32>(out);
 				extRegs[dd * 2 + 1] = static_cast<u32>(out >> 32);
