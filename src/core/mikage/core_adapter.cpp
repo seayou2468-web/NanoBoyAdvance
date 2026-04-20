@@ -19,6 +19,7 @@
 #include <vector>
 
 #include "./include/emulator.hpp"
+#include "./include/jscore_runtime.hpp"
 #include "./include/services/hid.hpp"
 
 namespace {
@@ -29,6 +30,7 @@ constexpr uint32_t kMikageFrameHeight = Emulator::height;
 struct MikageRuntime {
   bool rom_loaded = false;
   std::vector<std::string> bios_paths;
+  std::vector<std::string> pending_cheat_codes;
   std::vector<uint32_t> rgba_frame;
   std::filesystem::path temp_rom_path;
   std::unique_ptr<Emulator> emulator;
@@ -266,9 +268,48 @@ bool LoadStateFromBuffer(void*, const void*, size_t, std::string& last_error) {
   return false;
 }
 
-bool ApplyCheatCode(void*, const char*, std::string& last_error) {
-  last_error = "Mikage cheats are not yet connected";
-  return false;
+bool NormalizeCheatCodeWithJavaScriptCore(const char* cheat_code, std::string& normalized, std::string& last_error) {
+  if (!cheat_code || cheat_code[0] == '\0') {
+    last_error = "Cheat code is empty";
+    return false;
+  }
+
+  normalized = cheat_code;
+  constexpr const char* kJsPrefix = "js:";
+  if (normalized.rfind(kJsPrefix, 0) != 0) {
+    return true;
+  }
+
+  const std::string script = normalized.substr(std::strlen(kJsPrefix));
+  std::string script_output;
+  if (!jscore_runtime::EvaluateScriptToString(script, script_output, last_error)) {
+    last_error = "JavaScriptCore evaluation failed: " + last_error;
+    return false;
+  }
+
+  if (script_output.empty()) {
+    last_error = "JavaScriptCore script returned an empty cheat code";
+    return false;
+  }
+
+  normalized = script_output;
+  return true;
+}
+
+bool ApplyCheatCode(void* opaque_runtime, const char* cheat_code, std::string& last_error) {
+  auto* runtime = static_cast<MikageRuntime*>(opaque_runtime);
+  if (!runtime) {
+    last_error = "Mikage runtime is not initialized";
+    return false;
+  }
+
+  std::string normalized_cheat;
+  if (!NormalizeCheatCodeWithJavaScriptCore(cheat_code, normalized_cheat, last_error)) {
+    return false;
+  }
+
+  runtime->pending_cheat_codes.push_back(std::move(normalized_cheat));
+  return true;
 }
 
 }  // namespace
