@@ -15,8 +15,6 @@
   - 根拠: `xbyak/xbyak.h`, `xbyak/xbyak_util.h` を include。
 - **capstone**（逆アセンブラ）
   - 根拠: `capstone/capstone.h` を include。
-- **toml11 / toml.hpp**（設定ファイル読み書き）
-  - 根拠: `toml.hpp` を include し `toml::parse`, `toml::find_or` を利用。
 - **cmrc**（埋め込みリソース）
   - 根拠: `cmrc/cmrc.hpp` を include し `cmrc::ConsoleFonts::get_filesystem()` を利用。
 - **GLM**（数学ライブラリ）
@@ -44,6 +42,8 @@
   - `src/core/mikage/reference/Panda3DS/include/teakra/*` および `src/core/mikage/reference/Panda3DS/src/core/audio/teakra/*` が同梱。
 - **ELFIO**
   - `src/core/mikage/reference/Panda3DS/include/elfio/elfio.hpp` を同梱。
+- **toml11**
+  - `src/core/mikage/reference/Panda3DS/include/toml.hpp` および `src/core/mikage/reference/Panda3DS/include/toml/*` を同梱。
 - **HTTP サーバ / メモリマップ I/O**
   - 外部ライブラリ（cpp-httplib, mio）ではなく、プラットフォーム提供 API（ソケット + `mmap`/`msync`）へ置換済み。
 
