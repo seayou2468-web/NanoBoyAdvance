@@ -7,8 +7,6 @@
 ## 外部依存
 
 ### コア/ライブラリ
-- **Dynarmic**（ARM JIT）
-  - 根拠: `dynarmic/interface/...` を直接 include。
 - **Oaknut**（ARM64 コード生成）
   - 根拠: `oaknut/code_block.hpp`, `oaknut/oaknut.hpp` を include。
 - **Xbyak**（x64 JIT アセンブラ）
@@ -47,6 +45,10 @@
 
 - **stb_image_write**
   - `src/core/mikage/reference/Panda3DS/src/stb_image_write.c` を削除済み（機能ごと除去）。
+
+## CPU 実装
+- CPU は JIT (Dynarmic) から、Cytrus/Citra 系 DynCom インタプリンタの条件分岐・実行モデルを踏襲した
+  Panda3DS 内蔵インタプリンタへ置換。
 
 ## 注記
 - この repository の Panda3DS 参照ツリーには CMake 等の依存宣言ファイルが含まれていないため、
