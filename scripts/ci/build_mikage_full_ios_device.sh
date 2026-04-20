@@ -7,6 +7,8 @@ OUT_DIR="${1:-build/mikage-ios26-device}"
 OBJ_DIR="${OUT_DIR}/obj"
 LIB_PATH="${OUT_DIR}/libmikage_full.a"
 
+scripts/ci/check_no_lua_dependency.sh
+
 mkdir -p "${OBJ_DIR}"
 
 COMMON_INCLUDES=(
