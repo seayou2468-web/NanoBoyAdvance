@@ -93,6 +93,15 @@ class PICAShader {
 
 	std::array<u32, 4> floatUniformBuffer;  // Buffer for temporarily caching float uniform data
 
+	static bool validateUniformLayout(const PICAShader& shader) {
+		const auto* base = static_cast<const u8*>(shader.getUniformPointer());
+		const auto* intUniformsPtr = reinterpret_cast<const u8*>(&shader.intUniforms);
+		const auto* boolUniformPtr = reinterpret_cast<const u8*>(&shader.boolUniform);
+
+		return intUniformsPtr == base + 96 * sizeof(float) * 4 &&
+		       boolUniformPtr == intUniformsPtr + 4 * sizeof(u8) * 4;
+	}
+
   public:
 	// These are placed close to the temp registers and co for cache locality.
 	u32 entrypoint = 0;  // Initial shader PC
@@ -234,7 +243,7 @@ class PICAShader {
 	static constexpr size_t maxInstructionCount = 4096;
 	std::array<u32, maxInstructionCount> loadedShader;  // Currently loaded & active shader
 
-	PICAShader(ShaderType type) : type(type) {}
+	PICAShader(ShaderType type) : type(type) { assert(validateUniformLayout(*this)); }
 
 	void setBufferIndex(u32 index) { bufferIndex = index & 0xfff; }
 	void setOpDescriptorIndex(u32 index) { opDescriptorIndex = index & 0x7f; }
@@ -316,8 +325,3 @@ class PICAShader {
 	static constexpr usize totalUniformSize() { return sizeof(floatUniforms) + sizeof(intUniforms) + sizeof(boolUniform); }
 	void* getUniformPointer() { return static_cast<void*>(&floatUniforms); }
 };
-
-static_assert(
-	offsetof(PICAShader, intUniforms) == offsetof(PICAShader, floatUniforms) + 96 * sizeof(float) * 4 &&
-	offsetof(PICAShader, boolUniform) == offsetof(PICAShader, intUniforms) + 4 * sizeof(u8) * 4
-);
