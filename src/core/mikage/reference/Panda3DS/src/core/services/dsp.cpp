@@ -1,10 +1,10 @@
 #include "services/dsp.hpp"
 
-#include <fmt/format.h>
-#include <fmt/ranges.h>
-
+#include <cstdio>
 #include <cstring>
 #include <fstream>
+#include <iomanip>
+#include <sstream>
 
 #include "apple_crypto.hpp"
 #include "config.hpp"
@@ -337,29 +337,43 @@ void DSPService::printFirmwareInfo() {
 	std::array<u8, AppleCrypto::SHA256DigestSize> hash;
 	AppleCrypto::sha256(loadedComponent.data(), firmwareSize, hash.data());
 
-	fmt::print("\nLoaded DSP firmware\n");
-	fmt::print("Firmware SHA-256 hash: {:X}\n", fmt::join(hash, ""));
-	fmt::print("Size: {} bytes ({} KB)\n", firmwareSize, firmwareSize / 1024);
+	auto hashToString = [](const auto& bytes, const char* sep) {
+		std::ostringstream out;
+		for (usize i = 0; i < bytes.size(); i++) {
+			if (i != 0 && sep != nullptr && sep[0] != '\0') {
+				out << sep;
+			}
+			out << std::uppercase << std::hex << std::setw(2) << std::setfill('0') << static_cast<unsigned>(bytes[i]);
+		}
+		return out.str();
+	};
+
+	std::printf("\nLoaded DSP firmware\n");
+	std::printf("Firmware SHA-256 hash: %s\n", hashToString(hash, "").c_str());
+	std::printf("Size: %zu bytes (%zu KB)\n", firmwareSize, firmwareSize / 1024);
 
 	bool knownFirmware = false;
 
 	for (int i = 0; i < firmwareDB.size(); i++) {
-		const auto& entry = firmwareDB[i];
-		if (entry.size == firmwareSize && std::memcmp(hash.data(), entry.hash.data(), hash.size()) == 0) {
-			knownFirmware = true;
-			fmt::print(
-				"Firmware found in DSP firmware DB.\nFeatures AAC decoder: {}\nOther notes: {}\n", entry.supportsAAC ? "yes" : "no", entry.notes
-			);
+			const auto& entry = firmwareDB[i];
+			if (entry.size == firmwareSize && std::memcmp(hash.data(), entry.hash.data(), hash.size()) == 0) {
+				knownFirmware = true;
+				std::printf(
+					"Firmware found in DSP firmware DB.\nFeatures AAC decoder: %s\nOther notes: %s\n", entry.supportsAAC ? "yes" : "no", entry.notes
+				);
 
 			break;
 		}
 	}
 
 	if (!knownFirmware) {
-		fmt::print("Firmware not found in DSP firmware DB.\nHash in case you want to add it to the DB: {{{:#X}}}\n", fmt::join(hash, ", "));
+		std::printf(
+			"Firmware not found in DSP firmware DB.\nHash in case you want to add it to the DB: {%s}\n",
+			hashToString(hash, ", ").c_str()
+		);
 		// DSP firmwares that feature AAC decoding are usually around 210KB as opposed to the average DSP firmware which is around 48KB
-		fmt::print("Features AAC decoder: {}\n", firmwareSize >= 200_KB ? "probably yes" : "probably not");
+		std::printf("Features AAC decoder: %s\n", firmwareSize >= 200_KB ? "probably yes" : "probably not");
 	}
 
-	fmt::print("\n");
+	std::printf("\n");
 }

@@ -8,7 +8,7 @@
 #include "renderer_gl/renderer_gl.hpp"
 #include "services/hid.hpp"
 #include "android_utils.hpp"
-#include "sdl_sensors.hpp"
+#include "mobile_sensors.hpp"
 
 static std::unique_ptr<Emulator> emulator = nullptr;
 static HIDService* hidService = nullptr;
@@ -120,7 +120,7 @@ AlberFunction(void, KeyUp)(JNIEnv* env, jobject obj, jint keyCode) { hidService-
 AlberFunction(void, KeyDown)(JNIEnv* env, jobject obj, jint keyCode) { hidService->pressKey((u32)keyCode); }
 
 AlberFunction(void, SetGyro)(JNIEnv* env, jobject obj, jfloat roll, jfloat pitch, jfloat yaw) {
-    auto rotation = Sensors::SDL::convertRotation({ float(roll), float(pitch), float(yaw) });
+    auto rotation = Sensors::convertRotation({ float(roll), float(pitch), float(yaw) });
     hidService->setPitch(s16(rotation.x));
     hidService->setRoll(s16(rotation.y));
     hidService->setYaw(s16(rotation.z));
@@ -128,7 +128,7 @@ AlberFunction(void, SetGyro)(JNIEnv* env, jobject obj, jfloat roll, jfloat pitch
 
 AlberFunction(void, SetAccel)(JNIEnv* env, jobject obj, jfloat rawX, jfloat rawY, jfloat rawZ) {
     float data[3] = { float(rawX), float(rawY), float(rawZ) };
-    auto accel = Sensors::SDL::convertAcceleration(data);
+    auto accel = Sensors::convertAcceleration(data);
     hidService->setAccel(accel.x, accel.y, accel.z);
 }
 

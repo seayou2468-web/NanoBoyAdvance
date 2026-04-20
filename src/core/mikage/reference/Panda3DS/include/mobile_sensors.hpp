@@ -6,11 +6,10 @@
 #include "helpers.hpp"
 #include "services/hid.hpp"
 
-// Convert SDL sensor readings to 3DS format
-// We use the same code for Android as well, since the values we get from Android are in the same format as SDL (m/s^2 for acceleration, rad/s for
-// rotation)
-namespace Sensors::SDL {
-	// Convert the rotation data we get from SDL sensor events to rotation data we can feed right to HID
+// Convert generic mobile sensor readings to 3DS format.
+// Android values are expected in m/s^2 for acceleration and rad/s for rotation.
+namespace Sensors {
+	// Convert rotation sensor data to HID-ready values.
 	// Returns [pitch, roll, yaw]
 	static glm::vec3 convertRotation(glm::vec3 rotation) {
 		// Annoyingly, Android doesn't support the <numbers> header yet so we define pi ourselves
@@ -26,7 +25,7 @@ namespace Sensors::SDL {
 		// At rest (3DS laid flat on table), hardware reads around ~0 for x and z axis, and around ~480 for y axis due to gravity.
 		// This code tries to mimic this approximately, with offsets based on measurements from my DualShock 4.
 		static constexpr float accelMax = 9.f;
-		// We define standard gravity(g) ourself instead of using the SDL one in order for the code to work on Android too.
+		// Define standard gravity ourselves for consistent behavior across platforms.
 		static constexpr float standardGravity = 9.80665f;
 
 		s16 x = std::clamp<s16>(s16(data[0] / accelMax * 930.f), -930, +930);
@@ -35,4 +34,4 @@ namespace Sensors::SDL {
 
 		return glm::vec3(x, y, z);
 	}
-}  // namespace Sensors::SDL
+}  // namespace Sensors

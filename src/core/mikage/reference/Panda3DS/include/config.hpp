@@ -66,7 +66,6 @@ struct EmulatorConfig {
 	float topScreenSize = 0.5;
 
 	bool accurateShaderMul = false;
-	bool discordRpcEnabled = false;
 
 	// Toggles whether to force shadergen when there's more than N lights active and we're using the ubershader, for better performance
 	bool forceShadergenForLights = true;
@@ -84,7 +83,6 @@ struct EmulatorConfig {
 	bool vsyncEnabled = true;
 	bool aacEnabled = true;  // Enable AAC audio?
 
-	bool enableRenderdoc = false;
 	bool printAppVersion = true;
 	bool printDSPFirmware = false;
 
@@ -94,7 +92,7 @@ struct EmulatorConfig {
 
 	LanguageCodes systemLanguage = LanguageCodes::English;
 
-	// Default ROM path to open in Qt and misc frontends
+	// Default ROM path to open in frontends
 	std::filesystem::path defaultRomPath = "";
 	std::filesystem::path filePath;
 

@@ -13,7 +13,6 @@
 #include "config.hpp"
 #include "cpu.hpp"
 #include "crypto/aes_engine.hpp"
-#include "discord_rpc.hpp"
 #include "fs/romfs.hpp"
 #include "io_file.hpp"
 #include "lua_manager.hpp"
@@ -60,11 +59,6 @@ class Emulator {
 	friend struct HttpServer;
 #endif
 
-#ifdef PANDA3DS_ENABLE_DISCORD_RPC
-	Discord::RPC discordRpc;
-#endif
-	void updateDiscord();
-
 	// Keep the handle for the ROM here to reload when necessary and to prevent deleting it
 	// This is currently only used for ELFs, NCSDs use the IOFile API instead
 	std::ifstream loadedELF;
@@ -103,7 +97,7 @@ class Emulator {
 	bool loadELF(const std::filesystem::path& path);
 	bool loadELF(std::ifstream& file);
 
-	// For passing the SDL Window, GL context, etc from the frontend to the renderer
+	// For passing the graphics context from the frontend to the renderer
 	void initGraphicsContext(void* context) { gpu.initGraphicsContext(context); }
 
 	RomFS::DumpingResult dumpRomFS(const std::filesystem::path& path);
@@ -138,6 +132,4 @@ class Emulator {
 
 	std::span<u8> getSMDH();
 
-  private:
-	void loadRenderdoc();
 };

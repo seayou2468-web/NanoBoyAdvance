@@ -42,7 +42,6 @@ void EmulatorConfig::load() {
 		if (generalResult.is_ok()) {
 			auto general = generalResult.unwrap();
 
-			discordRpcEnabled = toml::find_or<toml::boolean>(general, "EnableDiscordRPC", false);
 			usePortableBuild = toml::find_or<toml::boolean>(general, "UsePortableBuild", false);
 			defaultRomPath = toml::find_or<std::string>(general, "DefaultRomPath", "");
 
@@ -110,7 +109,6 @@ void EmulatorConfig::load() {
 			forceShadergenForLights = toml::find_or<toml::boolean>(gpu, "ForceShadergenForLighting", true);
 			lightShadergenThreshold = toml::find_or<toml::integer>(gpu, "ShadergenLightThreshold", 1);
 			hashTextures = toml::find_or<toml::boolean>(gpu, "HashTextures", hashTexturesDefault);
-			enableRenderdoc = toml::find_or<toml::boolean>(gpu, "EnableRenderdoc", false);
 
 			auto screenLayoutName = toml::find_or<std::string>(gpu, "ScreenLayout", "Default");
 			screenLayout = ScreenLayout::layoutFromString(screenLayoutName);
@@ -192,7 +190,6 @@ void EmulatorConfig::save() {
 		printf("Saving new configuration file %s\n", path.string().c_str());
 	}
 
-	data["General"]["EnableDiscordRPC"] = discordRpcEnabled;
 	data["General"]["UsePortableBuild"] = usePortableBuild;
 	data["General"]["DefaultRomPath"] = defaultRomPath.string();
 	data["General"]["PrintAppVersion"] = printAppVersion;
@@ -221,7 +218,6 @@ void EmulatorConfig::save() {
 	data["GPU"]["ForceShadergenForLighting"] = forceShadergenForLights;
 	data["GPU"]["ShadergenLightThreshold"] = lightShadergenThreshold;
 	data["GPU"]["AccelerateShaders"] = accelerateShaders;
-	data["GPU"]["EnableRenderdoc"] = enableRenderdoc;
 	data["GPU"]["HashTextures"] = hashTextures;
 	data["GPU"]["ScreenLayout"] = std::string(ScreenLayout::layoutToString(screenLayout));
 	data["GPU"]["TopScreenSize"] = double(topScreenSize);

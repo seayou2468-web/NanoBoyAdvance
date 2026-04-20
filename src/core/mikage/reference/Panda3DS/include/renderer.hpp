@@ -86,7 +86,7 @@ class Renderer {
 	// Called to notify the core to use OpenGL ES and not desktop GL
 	virtual void setupGLES() {}
 
-	// Used for Metal renderer on Qt and iOS
+	// Used for Metal renderer on desktop/iOS frontends
 	// Passes an NSView's backing layer (CAMetalLayer) to the renderer
 	virtual void setMTKLayer(void* layer) { Helpers::panic("Renderer doesn't support MTK Layer"); };
 

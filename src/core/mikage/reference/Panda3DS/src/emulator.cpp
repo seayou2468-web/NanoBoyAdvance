@@ -2,7 +2,6 @@
 
 #include <fstream>
 
-#include "renderdoc.hpp"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -29,12 +28,6 @@ Emulator::Emulator()
 	dspService.setDSPCore(dsp.get());
 
 	audioDevice.init(dsp->getSamples());
-#ifdef PANDA3DS_ENABLE_DISCORD_RPC
-	if (config.discordRpcEnabled) {
-		discordRpc.init();
-		updateDiscord();
-	}
-#endif
 
 	reloadSettings();
 	reset(ReloadOption::NoReload);
@@ -45,9 +38,6 @@ Emulator::~Emulator() {
 	lua.close();
 	audioDevice.close();
 
-#ifdef PANDA3DS_ENABLE_DISCORD_RPC
-	discordRpc.stop();
-#endif
 }
 
 void Emulator::reset(ReloadOption reload) {
@@ -85,7 +75,7 @@ void Emulator::reset(ReloadOption reload) {
 }
 
 std::filesystem::path Emulator::getAndroidAppPath() {
-	// SDL_GetPrefPath fails to get the path due to no JNI environment
+	// Retrieve app path directly from /proc when platform helpers are unavailable
 	std::ifstream cmdline("/proc/self/cmdline");
 	std::string applicationName;
 	std::getline(cmdline, applicationName, '\0');
@@ -247,9 +237,6 @@ bool Emulator::loadROM(const std::filesystem::path& path) {
 
 	if (success) {
 		romPath = path;
-#ifdef PANDA3DS_ENABLE_DISCORD_RPC
-		updateDiscord();
-#endif
 	} else {
 		romPath = std::nullopt;
 		romType = ROMType::None;
@@ -342,21 +329,6 @@ std::span<u8> Emulator::getSMDH() {
 	}
 }
 
-#ifdef PANDA3DS_ENABLE_DISCORD_RPC
-void Emulator::updateDiscord() {
-	if (config.discordRpcEnabled) {
-		if (romType != ROMType::None) {
-			const auto name = romPath.value().stem();
-			discordRpc.update(Discord::RPCStatus::Playing, name.string());
-		} else {
-			discordRpc.update(Discord::RPCStatus::Idling, "");
-		}
-	}
-}
-#else
-void Emulator::updateDiscord() {}
-#endif
-
 static void dumpRomFSNode(const RomFS::RomFSNode& node, const char* romFSBase, const std::filesystem::path& path) {
 	for (auto& file : node.files) {
 		const auto p = path / file->name;
@@ -433,31 +405,8 @@ void Emulator::setAudioEnabled(bool enable) {
 	dsp->setAudioEnabled(enable);
 }
 
-void Emulator::loadRenderdoc() {
-	std::string capturePath = (std::filesystem::current_path() / "RenderdocCaptures").generic_string();
-	Renderdoc::loadRenderdoc();
-	Renderdoc::setOutputDir(capturePath, "");
-}
-
 void Emulator::reloadSettings() {
 	setAudioEnabled(config.audioEnabled);
 
-	if (Renderdoc::isSupported() && config.enableRenderdoc && !Renderdoc::isLoaded()) {
-		loadRenderdoc();
-	}
-
 	gpu.getRenderer()->setHashTextures(config.hashTextures);
-
-#ifdef PANDA3DS_ENABLE_DISCORD_RPC
-	// Reload RPC setting if we're compiling with RPC support
-
-	if (discordRpc.running() != config.discordRpcEnabled) {
-		if (config.discordRpcEnabled) {
-			discordRpc.init();
-			updateDiscord();
-		} else {
-			discordRpc.stop();
-		}
-	}
-#endif
 }
