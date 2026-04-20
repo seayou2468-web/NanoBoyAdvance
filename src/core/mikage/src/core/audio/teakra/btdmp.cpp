@@ -1,6 +1,6 @@
 #include <string>
-#include "btdmp.h"
-#include "crash.h"
+#include "./btdmp.h"
+#include "./crash.h"
 
 namespace Teakra {
 

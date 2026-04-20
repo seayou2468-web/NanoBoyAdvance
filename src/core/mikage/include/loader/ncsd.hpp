@@ -1,8 +1,8 @@
 #pragma once
 #include <array>
-#include "helpers.hpp"
-#include "io_file.hpp"
-#include "loader/ncch.hpp"
+#include "../helpers.hpp"
+#include "../io_file.hpp"
+#include "./ncch.hpp"
 
 struct NCSD {
     static constexpr u64 mediaUnit = 0x200;

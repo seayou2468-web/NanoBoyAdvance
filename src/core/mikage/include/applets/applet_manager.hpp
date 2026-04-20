@@ -1,12 +1,12 @@
 #pragma once
 #include <optional>
 
-#include "applets/error_applet.hpp"
-#include "applets/mii_selector.hpp"
-#include "applets/software_keyboard.hpp"
-#include "helpers.hpp"
-#include "memory.hpp"
-#include "result/result.hpp"
+#include "./error_applet.hpp"
+#include "./mii_selector.hpp"
+#include "./software_keyboard.hpp"
+#include "../helpers.hpp"
+#include "../memory.hpp"
+#include "../result/result.hpp"
 
 namespace Applets {
 	class AppletManager {

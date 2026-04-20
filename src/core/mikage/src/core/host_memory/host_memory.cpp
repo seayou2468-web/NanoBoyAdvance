@@ -1,13 +1,13 @@
 // SPDX-FileCopyrightText: Copyright 2025 Panda3DS Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#include "host_memory/host_memory.h"
+#include "../../../include/host_memory/host_memory.h"
 
 #include <algorithm>
 #include <cstring>
 #include <utility>
 
-#include "helpers.hpp"
+#include "../../../include/helpers.hpp"
 
 namespace Common {
 

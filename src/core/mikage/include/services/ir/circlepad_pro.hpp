@@ -1,7 +1,7 @@
 #pragma once
-#include "bitfield.hpp"
-#include "services/ir/ir_device.hpp"
-#include "services/ir/ir_types.hpp"
+#include "../../bitfield.hpp"
+#include "./ir_device.hpp"
+#include "./ir_types.hpp"
 
 namespace IR {
 	class CirclePadPro : public IR::Device {

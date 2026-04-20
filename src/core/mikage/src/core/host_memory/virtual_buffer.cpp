@@ -7,7 +7,7 @@
 #include <sys/mman.h>
 #endif
 
-#include "host_memory/virtual_buffer.h"
+#include "../../../include/host_memory/virtual_buffer.h"
 
 namespace Common {
 void* AllocateMemoryPages(std::size_t size) noexcept {

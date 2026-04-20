@@ -1,10 +1,10 @@
-#include "loader/ncsd.hpp"
+#include "../../../include/loader/ncsd.hpp"
 
 #include <cstring>
 #include <optional>
 
-#include "kernel/fcram.hpp"
-#include "memory.hpp"
+#include "../../../include/kernel/fcram.hpp"
+#include "../../../include/memory.hpp"
 
 using namespace KernelMemoryTypes;
 

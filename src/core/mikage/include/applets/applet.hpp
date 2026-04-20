@@ -2,10 +2,10 @@
 
 #include <vector>
 
-#include "helpers.hpp"
-#include "kernel/kernel_types.hpp"
-#include "memory.hpp"
-#include "result/result.hpp"
+#include "../helpers.hpp"
+#include "../kernel/kernel_types.hpp"
+#include "../memory.hpp"
+#include "../result/result.hpp"
 
 namespace Applets {
 	namespace AppletIDs {

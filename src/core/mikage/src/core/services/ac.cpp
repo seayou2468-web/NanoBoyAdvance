@@ -1,6 +1,6 @@
-#include "services/ac.hpp"
+#include "../../../include/services/ac.hpp"
 
-#include "ipc.hpp"
+#include "../../../include/ipc.hpp"
 
 namespace ACCommands {
 	enum : u32 {

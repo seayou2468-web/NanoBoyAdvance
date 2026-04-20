@@ -1,5 +1,5 @@
 #pragma once
-#include "helpers.hpp"
+#include "../helpers.hpp"
 
 // Configuration memory addresses
 namespace ConfigMem {

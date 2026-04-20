@@ -6,7 +6,7 @@
 #include <CommonCrypto/CommonCryptor.h>
 #include <CommonCrypto/CommonDigest.h>
 
-#include "helpers.hpp"
+#include "./helpers.hpp"
 
 namespace AppleCrypto {
 	static constexpr usize SHA256DigestSize = 32;

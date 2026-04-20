@@ -2,7 +2,7 @@
 #include <atomic>
 #include <AudioToolbox/AudioQueue.h>
 
-#include "audio/audio_device_interface.hpp"
+#include "./audio_device_interface.hpp"
 
 class IOSAudioDevice final : public AudioDeviceInterface {
 	static constexpr u32 sampleRate = 32768;

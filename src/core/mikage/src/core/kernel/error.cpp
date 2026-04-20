@@ -1,4 +1,4 @@
-#include "kernel.hpp"
+#include "../../../include/kernel/kernel.hpp"
 
 namespace Commands {
 	enum : u32 {

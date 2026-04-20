@@ -1,5 +1,5 @@
 #include <cstdio>
-#include "ahbm.h"
+#include "./ahbm.h"
 
 namespace Teakra {
 

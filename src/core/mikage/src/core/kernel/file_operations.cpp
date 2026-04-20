@@ -1,5 +1,5 @@
-#include "ipc.hpp"
-#include "kernel.hpp"
+#include "../../../include/ipc.hpp"
+#include "../../../include/kernel/kernel.hpp"
 
 namespace FileOps {
 	enum : u32 {

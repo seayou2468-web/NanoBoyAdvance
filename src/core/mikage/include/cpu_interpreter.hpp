@@ -3,10 +3,10 @@
 #include <array>
 #include <span>
 
-#include "arm_defs.hpp"
-#include "helpers.hpp"
-#include "memory.hpp"
-#include "scheduler.hpp"
+#include "./arm_defs.hpp"
+#include "./helpers.hpp"
+#include "./memory.hpp"
+#include "./scheduler.hpp"
 
 class Emulator;
 class Kernel;

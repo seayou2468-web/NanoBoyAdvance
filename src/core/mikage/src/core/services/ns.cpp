@@ -1,6 +1,6 @@
-#include "services/ns.hpp"
+#include "../../../include/services/ns.hpp"
 
-#include "ipc.hpp"
+#include "../../../include/ipc.hpp"
 
 namespace NSCommands {
 	enum : u32 {

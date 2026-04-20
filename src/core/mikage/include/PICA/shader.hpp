@@ -5,9 +5,9 @@
 #include <cstddef>
 #include <cstring>
 
-#include "PICA/float_types.hpp"
-#include "PICA/pica_hash.hpp"
-#include "helpers.hpp"
+#include "./float_types.hpp"
+#include "./pica_hash.hpp"
+#include "../helpers.hpp"
 
 enum class ShaderType {
 	Vertex,

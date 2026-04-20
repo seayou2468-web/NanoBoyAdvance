@@ -1,6 +1,6 @@
-#include "interpreter.h"
-#include "processor.h"
-#include "register.h"
+#include "./interpreter.h"
+#include "./processor.h"
+#include "./register.h"
 
 namespace Teakra {
 

@@ -1,10 +1,10 @@
-#include "services/apt.hpp"
+#include "../../../include/services/apt.hpp"
 
 #include <algorithm>
 #include <vector>
 
-#include "ipc.hpp"
-#include "kernel.hpp"
+#include "../../../include/ipc.hpp"
+#include "../../../include/kernel/kernel.hpp"
 
 namespace APTCommands {
 	enum : u32 {

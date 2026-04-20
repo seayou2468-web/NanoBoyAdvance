@@ -1,13 +1,13 @@
-#include "services/cfg.hpp"
+#include "../../../include/services/cfg.hpp"
 
 #include <array>
 #include <bit>
 #include <string>
 #include <unordered_map>
 
-#include "ipc.hpp"
-#include "services/dsp.hpp"
-#include "system_models.hpp"
+#include "../../../include/ipc.hpp"
+#include "../../../include/services/dsp.hpp"
+#include "../../../include/system_models.hpp"
 
 namespace CFGCommands {
 	enum : u32 {

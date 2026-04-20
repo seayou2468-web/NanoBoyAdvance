@@ -1,6 +1,6 @@
-#include "services/gsp_lcd.hpp"
+#include "../../../include/services/gsp_lcd.hpp"
 
-#include "ipc.hpp"
+#include "../../../include/ipc.hpp"
 
 namespace LCDCommands {
 	enum : u32 {

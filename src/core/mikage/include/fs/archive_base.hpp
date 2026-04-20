@@ -8,10 +8,9 @@
 #include <type_traits>
 #include <vector>
 
-#include "helpers.hpp"
-#include "memory.hpp"
-#include "result.hpp"
-#include "result/result.hpp"
+#include "../helpers.hpp"
+#include "../memory.hpp"
+#include "../result/result.hpp"
 
 using Result::HorizonResult;
 

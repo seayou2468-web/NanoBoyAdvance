@@ -1,10 +1,10 @@
-#include "kernel.hpp"
+#include "../../../include/kernel/kernel.hpp"
 
 #include <cassert>
 #include <limits>
 
-#include "cpu.hpp"
-#include "kernel_types.hpp"
+#include "../../../include/cpu.hpp"
+#include "../../../include/kernel/kernel_types.hpp"
 
 Kernel::Kernel(CPU& cpu, Memory& mem, GPU& gpu, const EmulatorConfig& config, LuaManager& lua)
 	: cpu(cpu), regs(cpu.regs()), mem(mem), handleCounter(0), serviceManager(regs, mem, gpu, currentProcess, *this, config, lua), fcramManager(mem) {

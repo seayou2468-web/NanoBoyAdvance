@@ -8,8 +8,8 @@
 #include <utility>
 #include <vector>
 
-#include "PICA/shader.hpp"
-#include "PICA/shader_gen_types.hpp"
+#include "./shader.hpp"
+#include "./shader_gen_types.hpp"
 
 struct EmulatorConfig;
 

@@ -1,11 +1,11 @@
-#include "PICA/draw_acceleration.hpp"
+#include "../../../include/PICA/draw_acceleration.hpp"
 
 #include <bit>
 #include <tuple>
 
-#include "PICA/gpu.hpp"
-#include "PICA/pica_simd.hpp"
-#include "PICA/regs.hpp"
+#include "../../../include/PICA/gpu.hpp"
+#include "../../../include/PICA/pica_simd.hpp"
+#include "../../../include/PICA/regs.hpp"
 
 void GPU::getAcceleratedDrawInfo(PICA::DrawAcceleration& accel, bool indexed) {
 	accel.indexed = indexed;

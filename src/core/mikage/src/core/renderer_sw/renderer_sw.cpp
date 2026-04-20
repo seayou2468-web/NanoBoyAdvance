@@ -1,4 +1,4 @@
-#include "renderer_sw/renderer_sw.hpp"
+#include "../../../include/renderer_sw/renderer_sw.hpp"
 
 RendererSw::RendererSw(GPU& gpu, const std::array<u32, regNum>& internalRegs, const std::array<u32, extRegNum>& externalRegs)
 	: Renderer(gpu, internalRegs, externalRegs) {}

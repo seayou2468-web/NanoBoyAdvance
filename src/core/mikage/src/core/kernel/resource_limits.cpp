@@ -1,6 +1,6 @@
-#include "resource_limits.hpp"
+#include "../../../include/kernel/resource_limits.hpp"
 
-#include "kernel.hpp"
+#include "../../../include/kernel/kernel.hpp"
 
 // Result GetResourceLimit(Handle* resourceLimit, Handle process)
 // out: r0 -> result, r1 -> handle

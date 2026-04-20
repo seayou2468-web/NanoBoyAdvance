@@ -1,12 +1,12 @@
-#include "audio/dsp_core.hpp"
+#include "../../../include/audio/dsp_core.hpp"
 
 #include <algorithm>
 #include <cctype>
 #include <unordered_map>
 
-#include "audio/hle_core.hpp"
-#include "audio/null_core.hpp"
-#include "audio/teakra_core.hpp"
+#include "../../../include/audio/hle_core.hpp"
+#include "../../../include/audio/null_core.hpp"
+#include "../../../include/audio/teakra_core.hpp"
 
 std::unique_ptr<Audio::DSPCore> Audio::makeDSPCore(EmulatorConfig& config, Memory& mem, Scheduler& scheduler, DSPService& dspService) {
 	std::unique_ptr<DSPCore> core;

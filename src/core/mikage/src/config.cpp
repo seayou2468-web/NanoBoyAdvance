@@ -1,4 +1,4 @@
-#include "config.hpp"
+#include "../include/config.hpp"
 
 #include <algorithm>
 #include <cctype>
@@ -8,8 +8,8 @@
 #include <string>
 #include <unordered_map>
 
-#include "helpers.hpp"
-#include "toml.hpp"
+#include "../include/helpers.hpp"
+#include "../include/toml.hpp"
 
 // Largely based on https://github.com/nba-emu/NanoBoyAdvance/blob/master/src/platform/core/src/config.cpp
 // We are legally allowed, as per the author's wish, to use the above code without any licensing restrictions

@@ -1,6 +1,6 @@
-#include "services/dlp_srvr.hpp"
+#include "../../../include/services/dlp_srvr.hpp"
 
-#include "ipc.hpp"
+#include "../../../include/ipc.hpp"
 
 namespace DlpSrvrCommands {
 	enum : u32 {

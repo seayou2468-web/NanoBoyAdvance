@@ -2,7 +2,7 @@
 #include <functional>
 #include <string>
 
-#include "helpers.hpp"
+#include "../helpers.hpp"
 
 // We allow Lua scripts to intercept service calls and allow their own code to be ran on SyncRequests
 // For example, if we want to intercept dsp::DSP ReadPipe (Header: 0x000E00C0), the "serviceName" field would be "dsp::DSP"

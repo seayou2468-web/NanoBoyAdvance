@@ -6,16 +6,16 @@
 #include <optional>
 #include <vector>
 
-#include "config.hpp"
-#include "crypto/aes_engine.hpp"
-#include "handles.hpp"
-#include "helpers.hpp"
-#include "host_memory/host_memory.h"
-#include "kernel/fcram.hpp"
-#include "loader/3dsx.hpp"
-#include "loader/ncsd.hpp"
-#include "result/result.hpp"
-#include "services/region_codes.hpp"
+#include "./config.hpp"
+#include "./crypto/aes_engine.hpp"
+#include "./kernel/handles.hpp"
+#include "./helpers.hpp"
+#include "./host_memory/host_memory.h"
+#include "./kernel/fcram.hpp"
+#include "./loader/3dsx.hpp"
+#include "./loader/ncsd.hpp"
+#include "./result/result.hpp"
+#include "./services/region_codes.hpp"
 
 namespace PhysicalAddrs {
 	enum : u32 {

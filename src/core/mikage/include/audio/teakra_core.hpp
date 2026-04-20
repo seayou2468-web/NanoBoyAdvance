@@ -1,10 +1,10 @@
 #pragma once
 #include <array>
 
-#include "audio/dsp_core.hpp"
-#include "memory.hpp"
-#include "swap.hpp"
-#include "teakra/teakra.h"
+#include "./dsp_core.hpp"
+#include "../memory.hpp"
+#include "../swap.hpp"
+#include "../teakra/teakra.h"
 
 namespace Audio {
 	class TeakraDSP : public DSPCore {

@@ -1,5 +1,5 @@
-#include "kernel.hpp"
-#include "resource_limits.hpp"
+#include "../../../include/kernel/kernel.hpp"
+#include "../../../include/kernel/resource_limits.hpp"
 
 static const char* arbitrationTypeToString(u32 type) {
 	switch (type) {

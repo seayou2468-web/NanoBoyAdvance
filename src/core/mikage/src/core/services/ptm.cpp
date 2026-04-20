@@ -1,6 +1,6 @@
-#include "services/ptm.hpp"
+#include "../../../include/services/ptm.hpp"
 
-#include "ipc.hpp"
+#include "../../../include/ipc.hpp"
 
 namespace PTMCommands {
 	enum : u32 {

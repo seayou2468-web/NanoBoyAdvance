@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 
-#include "helpers.hpp"
+#include "./helpers.hpp"
 
 namespace ScreenLayout {
 	static constexpr u32 TOP_SCREEN_WIDTH = 400;

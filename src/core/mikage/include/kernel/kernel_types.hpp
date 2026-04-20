@@ -3,8 +3,8 @@
 #include <cstring>
 #include <vector>
 
-#include "handles.hpp"
-#include "helpers.hpp"
+#include "./handles.hpp"
+#include "../helpers.hpp"
 
 enum class KernelObjectType : u8 {
 	AddressArbiter,

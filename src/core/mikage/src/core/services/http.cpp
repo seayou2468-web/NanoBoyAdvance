@@ -1,7 +1,7 @@
-#include "services/http.hpp"
+#include "../../../include/services/http.hpp"
 
-#include "ipc.hpp"
-#include "result/result.hpp"
+#include "../../../include/ipc.hpp"
+#include "../../../include/result/result.hpp"
 
 namespace HTTPCommands {
 	enum : u32 {

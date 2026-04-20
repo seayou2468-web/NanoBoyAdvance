@@ -1,13 +1,13 @@
-#include "PICA/gpu.hpp"
+#include "../../../include/PICA/gpu.hpp"
 
 #include <array>
 #include <bitset>
 #include <cstddef>
 #include <cstdio>
 
-#include "PICA/float_types.hpp"
-#include "PICA/regs.hpp"
-#include "renderer_sw/renderer_sw.hpp"
+#include "../../../include/PICA/float_types.hpp"
+#include "../../../include/PICA/regs.hpp"
+#include "../../../include/renderer_sw/renderer_sw.hpp"
 
 constexpr u32 topScreenWidth = 240;
 constexpr u32 topScreenHeight = 400;

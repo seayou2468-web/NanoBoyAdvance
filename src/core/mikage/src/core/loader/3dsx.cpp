@@ -1,10 +1,10 @@
-#include "loader/3dsx.hpp"
+#include "../../../include/loader/3dsx.hpp"
 
 #include <cstring>
 #include <optional>
 #include <span>
 
-#include "memory.hpp"
+#include "../../../include/memory.hpp"
 
 using namespace KernelMemoryTypes;
 

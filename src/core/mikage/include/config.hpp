@@ -2,10 +2,10 @@
 #include <filesystem>
 #include <string>
 
-#include "audio/dsp_core.hpp"
-#include "renderer.hpp"
-#include "screen_layout.hpp"
-#include "services/region_codes.hpp"
+#include "./audio/dsp_core.hpp"
+#include "./renderer.hpp"
+#include "./screen_layout.hpp"
+#include "./services/region_codes.hpp"
 
 struct AudioDeviceConfig {
 	// Audio curve to use for volumes between 0-100

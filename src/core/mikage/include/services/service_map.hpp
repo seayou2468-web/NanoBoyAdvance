@@ -3,7 +3,7 @@
 #include <type_traits>
 #include <utility>
 
-#include "handles.hpp"
+#include "../kernel/handles.hpp"
 
 // Helpers for constructing std::maps to look up OS services.
 // We want to be able to map both service names -> services (Used for OS emulation)

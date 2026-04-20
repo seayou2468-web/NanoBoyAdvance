@@ -1,8 +1,8 @@
-#include "services/nfc.hpp"
+#include "../../../include/services/nfc.hpp"
 
-#include "io_file.hpp"
-#include "ipc.hpp"
-#include "kernel.hpp"
+#include "../../../include/io_file.hpp"
+#include "../../../include/ipc.hpp"
+#include "../../../include/kernel/kernel.hpp"
 
 namespace NFCCommands {
 	enum : u32 {

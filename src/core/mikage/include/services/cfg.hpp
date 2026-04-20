@@ -1,12 +1,12 @@
 #pragma once
 #include <cstring>
 
-#include "config.hpp"
-#include "helpers.hpp"
-#include "logger.hpp"
-#include "memory.hpp"
-#include "region_codes.hpp"
-#include "result/result.hpp"
+#include "../config.hpp"
+#include "../helpers.hpp"
+#include "../logger.hpp"
+#include "../memory.hpp"
+#include "./region_codes.hpp"
+#include "../result/result.hpp"
 
 class CFGService {
 	using Handle = HorizonHandle;

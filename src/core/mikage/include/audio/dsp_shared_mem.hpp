@@ -9,9 +9,9 @@
 #include <memory>
 #include <type_traits>
 
-#include "bitfield.hpp"
-#include "helpers.hpp"
-#include "swap.hpp"
+#include "../bitfield.hpp"
+#include "../helpers.hpp"
+#include "../swap.hpp"
 
 namespace Audio::HLE {
 	// The application-accessible region of DSP memory consists of two parts. Both are marked as IO and

@@ -6,13 +6,13 @@
 #include <queue>
 #include <vector>
 
-#include "audio/aac.hpp"
-#include "audio/aac_decoder.hpp"
-#include "audio/audio_interpolation.hpp"
-#include "audio/dsp_core.hpp"
-#include "audio/dsp_shared_mem.hpp"
-#include "audio/hle_mixer.hpp"
-#include "memory.hpp"
+#include "./aac.hpp"
+#include "./aac_decoder.hpp"
+#include "./audio_interpolation.hpp"
+#include "./dsp_core.hpp"
+#include "./dsp_shared_mem.hpp"
+#include "./hle_mixer.hpp"
+#include "../memory.hpp"
 
 namespace Audio {
 	struct DSPSource {

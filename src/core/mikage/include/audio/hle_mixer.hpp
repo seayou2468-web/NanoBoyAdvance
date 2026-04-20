@@ -1,8 +1,8 @@
 #pragma once
 #include <array>
 
-#include "audio/dsp_shared_mem.hpp"
-#include "helpers.hpp"
+#include "./dsp_shared_mem.hpp"
+#include "../helpers.hpp"
 
 namespace Audio {
 	using SampleFormat = HLE::SourceConfiguration::Configuration::Format;

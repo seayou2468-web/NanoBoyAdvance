@@ -1,6 +1,6 @@
 #include <string>
 
-#include "applets/applet.hpp"
+#include "./applet.hpp"
 
 namespace Applets {
 	class ErrorApplet final : public AppletBase {

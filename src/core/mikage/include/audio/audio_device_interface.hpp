@@ -1,9 +1,9 @@
 #pragma once
 #include <array>
 
-#include "config.hpp"
-#include "helpers.hpp"
-#include "ring_buffer.hpp"
+#include "../config.hpp"
+#include "../helpers.hpp"
+#include "../ring_buffer.hpp"
 
 class AudioDeviceInterface {
   protected:

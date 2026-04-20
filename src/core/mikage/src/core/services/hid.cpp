@@ -1,12 +1,12 @@
-#include "services/hid.hpp"
+#include "../../../include/services/hid.hpp"
 
 #include <algorithm>
 #include <cctype>
 #include <unordered_map>
 
-#include "ipc.hpp"
-#include "kernel.hpp"
-#include "services/ir/circlepad_pro.hpp"
+#include "../../../include/ipc.hpp"
+#include "../../../include/kernel/kernel.hpp"
+#include "../../../include/services/ir/circlepad_pro.hpp"
 
 namespace HIDCommands {
 	enum : u32 {

@@ -1,6 +1,6 @@
-#include "PICA/regs.hpp"
+#include "../../../include/PICA/regs.hpp"
 
-#include "PICA/gpu.hpp"
+#include "../../../include/PICA/gpu.hpp"
 
 using namespace Floats;
 using namespace Helpers;

@@ -1,9 +1,9 @@
-#include "applets/mii_selector.hpp"
+#include "../../../include/applets/mii_selector.hpp"
 
 #include <limits>
 
-#include "crc16.hpp"
-#include "kernel/handles.hpp"
+#include "../../../include/crc16.hpp"
+#include "../../../include/kernel/handles.hpp"
 
 using namespace Applets;
 

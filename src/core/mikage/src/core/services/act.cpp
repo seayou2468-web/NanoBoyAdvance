@@ -1,6 +1,6 @@
-#include "services/act.hpp"
+#include "../../../include/services/act.hpp"
 
-#include "ipc.hpp"
+#include "../../../include/ipc.hpp"
 
 namespace ACTCommands {
 	enum : u32 {

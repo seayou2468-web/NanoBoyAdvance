@@ -1,6 +1,6 @@
 #include <cstring>
 
-#include "kernel.hpp"
+#include "../../../include/kernel/kernel.hpp"
 
 HorizonHandle Kernel::makePort(const char* name) {
 	Handle ret = makeObject(KernelObjectType::Port);

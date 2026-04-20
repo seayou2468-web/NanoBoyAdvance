@@ -6,18 +6,18 @@
 #include <optional>
 #include <span>
 
-#include "PICA/gpu.hpp"
-#include "audio/audio_device.hpp"
-#include "audio/dsp_core.hpp"
-#include "cheats.hpp"
-#include "config.hpp"
-#include "cpu.hpp"
-#include "crypto/aes_engine.hpp"
-#include "fs/romfs.hpp"
-#include "io_file.hpp"
-#include "lua_manager.hpp"
-#include "memory.hpp"
-#include "scheduler.hpp"
+#include "./PICA/gpu.hpp"
+#include "./audio/audio_device.hpp"
+#include "./audio/dsp_core.hpp"
+#include "./cheats.hpp"
+#include "./config.hpp"
+#include "./cpu.hpp"
+#include "./crypto/aes_engine.hpp"
+#include "./fs/romfs.hpp"
+#include "./io_file.hpp"
+#include "./lua_manager.hpp"
+#include "./memory.hpp"
+#include "./scheduler.hpp"
 
 enum class ROMType {
 	None,

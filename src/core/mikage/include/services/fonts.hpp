@@ -8,8 +8,8 @@
 
 #include <memory>
 
-#include "helpers.hpp"
-#include "swap.hpp"
+#include "../helpers.hpp"
+#include "../swap.hpp"
 
 namespace HLE::Fonts {
 	struct CFNT {

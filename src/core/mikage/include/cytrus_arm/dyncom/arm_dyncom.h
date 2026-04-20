@@ -7,8 +7,8 @@
 #include <memory>
 #include "common/common_types.h"
 #include "core/arm/arm_interface.h"
-#include "core/arm/skyeye_common/arm_regformat.h"
-#include "core/arm/skyeye_common/armstate.h"
+#include "../skyeye_common/arm_regformat.h"
+#include "../skyeye_common/armstate.h"
 
 namespace Memory {
 class MemorySystem;

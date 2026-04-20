@@ -1,4 +1,4 @@
-#include "services/ir/ir_user.hpp"
+#include "../../../../include/services/ir/ir_user.hpp"
 
 #include <array>
 #include <cstddef>
@@ -6,9 +6,9 @@
 #include <string>
 #include <vector>
 
-#include "ipc.hpp"
-#include "kernel.hpp"
-#include "services/ir/ir_types.hpp"
+#include "../../../../include/ipc.hpp"
+#include "../../../../include/kernel/kernel.hpp"
+#include "../../../../include/services/ir/ir_types.hpp"
 
 using namespace IR;
 

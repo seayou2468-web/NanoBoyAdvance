@@ -7,8 +7,8 @@
 #include <array>
 #include <type_traits>
 
-#include "helpers.hpp"
-#include "swap.hpp"
+#include "../helpers.hpp"
+#include "../swap.hpp"
 
 namespace Service::NFC {
 	static constexpr std::size_t amiiboNameLength = 0xA;

@@ -1,15 +1,15 @@
-#include "memory.hpp"
+#include "../../include/memory.hpp"
 
 #include <cassert>
 #include <chrono>  // For time since epoch
 #include <cmrc/cmrc.hpp>
 #include <ctime>
 
-#include "config_mem.hpp"
-#include "kernel/fcram.hpp"
-#include "resource_limits.hpp"
-#include "services/fonts.hpp"
-#include "services/ptm.hpp"
+#include "../../include/kernel/config_mem.hpp"
+#include "../../include/kernel/fcram.hpp"
+#include "../../include/kernel/resource_limits.hpp"
+#include "../../include/services/fonts.hpp"
+#include "../../include/services/ptm.hpp"
 
 CMRC_DECLARE(ConsoleFonts);
 

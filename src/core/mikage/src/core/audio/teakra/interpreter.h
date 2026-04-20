@@ -6,13 +6,13 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
-#include "bit.h"
-#include "core_timing.h"
-#include "crash.h"
-#include "decoder.h"
-#include "memory_interface.h"
-#include "operand.h"
-#include "register.h"
+#include "./bit.h"
+#include "./core_timing.h"
+#include "./crash.h"
+#include "./decoder.h"
+#include "./memory_interface.h"
+#include "./operand.h"
+#include "./register.h"
 
 namespace Teakra {
 

@@ -1,9 +1,9 @@
-#include "services/frd.hpp"
+#include "../../../include/services/frd.hpp"
 
 #include <string>
 
-#include "ipc.hpp"
-#include "services/region_codes.hpp"
+#include "../../../include/ipc.hpp"
+#include "../../../include/services/region_codes.hpp"
 
 namespace FRDCommands {
 	enum : u32 {

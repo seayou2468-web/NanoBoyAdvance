@@ -1,4 +1,4 @@
-#include "services/amiibo_device.hpp"
+#include "../../../include/services/amiibo_device.hpp"
 
 void AmiiboDevice::reset() {
 	encrypted = false;

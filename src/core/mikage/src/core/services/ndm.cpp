@@ -1,6 +1,6 @@
-#include "services/ndm.hpp"
+#include "../../../include/services/ndm.hpp"
 
-#include "ipc.hpp"
+#include "../../../include/ipc.hpp"
 
 namespace NDMCommands {
 	enum : u32 {

@@ -1,7 +1,7 @@
 #include <algorithm>
 #include <memory>
 
-#include "fs/archive_twl_sound.hpp"
+#include "../../../include/fs/archive_twl_sound.hpp"
 
 namespace fs = std::filesystem;
 

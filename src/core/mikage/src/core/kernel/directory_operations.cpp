@@ -4,8 +4,8 @@
 #include <string>
 #include <utility>
 
-#include "ipc.hpp"
-#include "kernel.hpp"
+#include "../../../include/ipc.hpp"
+#include "../../../include/kernel/kernel.hpp"
 
 namespace DirectoryOps {
 	enum : u32 {

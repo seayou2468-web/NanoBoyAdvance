@@ -1,11 +1,11 @@
 #pragma once
 #include <optional>
 
-#include "helpers.hpp"
-#include "kernel_types.hpp"
-#include "logger.hpp"
-#include "memory.hpp"
-#include "result/result.hpp"
+#include "../helpers.hpp"
+#include "../kernel/kernel_types.hpp"
+#include "../logger.hpp"
+#include "../memory.hpp"
+#include "../result/result.hpp"
 
 class Kernel;
 

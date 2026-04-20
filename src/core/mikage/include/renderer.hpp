@@ -4,10 +4,10 @@
 #include <span>
 #include <string>
 
-#include "PICA/draw_acceleration.hpp"
-#include "PICA/pica_vertex.hpp"
-#include "PICA/regs.hpp"
-#include "helpers.hpp"
+#include "./PICA/draw_acceleration.hpp"
+#include "./PICA/pica_vertex.hpp"
+#include "./PICA/regs.hpp"
+#include "./helpers.hpp"
 
 enum class RendererType : s8 {
 	Null = 0,

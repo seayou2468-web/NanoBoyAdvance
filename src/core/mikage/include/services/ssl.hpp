@@ -1,10 +1,10 @@
 #pragma once
 #include <random>
 
-#include "helpers.hpp"
-#include "kernel_types.hpp"
-#include "logger.hpp"
-#include "memory.hpp"
+#include "../helpers.hpp"
+#include "../kernel/kernel_types.hpp"
+#include "../logger.hpp"
+#include "../memory.hpp"
 
 class SSLService {
 	using Handle = HorizonHandle;

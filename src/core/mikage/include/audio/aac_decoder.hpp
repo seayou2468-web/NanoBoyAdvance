@@ -3,8 +3,8 @@
 #include <vector>
 #include <AudioToolbox/AudioToolbox.h>
 
-#include "audio/aac.hpp"
-#include "helpers.hpp"
+#include "./aac.hpp"
+#include "../helpers.hpp"
 
 namespace Audio::AAC {
 	class Decoder {

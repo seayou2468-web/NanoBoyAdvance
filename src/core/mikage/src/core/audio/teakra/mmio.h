@@ -1,8 +1,8 @@
 #pragma once
 #include <array>
 #include <memory>
-#include "common_types.h"
-#include "icu.h"
+#include "./common_types.h"
+#include "./icu.h"
 
 namespace Teakra {
 

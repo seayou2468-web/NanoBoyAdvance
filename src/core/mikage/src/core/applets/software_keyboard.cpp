@@ -1,9 +1,9 @@
-#include "applets/software_keyboard.hpp"
+#include "../../../include/applets/software_keyboard.hpp"
 
 #include <cstring>
 #include <string>
 
-#include "kernel/handles.hpp"
+#include "../../../include/kernel/handles.hpp"
 
 using namespace Applets;
 

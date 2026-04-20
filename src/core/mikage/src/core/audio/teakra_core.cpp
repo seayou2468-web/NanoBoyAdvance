@@ -1,12 +1,12 @@
-#include "audio/teakra_core.hpp"
+#include "../../../include/audio/teakra_core.hpp"
 
 #include <algorithm>
 #include <chrono>
 #include <cstring>
 #include <thread>
 
-#include "audio/dsp_binary.hpp"
-#include "services/dsp.hpp"
+#include "../../../include/audio/dsp_binary.hpp"
+#include "../../../include/services/dsp.hpp"
 
 using namespace Audio;
 

@@ -3,8 +3,8 @@
 #include <algorithm>
 #include <simd/simd.h>
 
-#include "helpers.hpp"
-#include "services/hid.hpp"
+#include "./helpers.hpp"
+#include "./services/hid.hpp"
 
 // Convert generic mobile sensor readings to 3DS format.
 // Android values are expected in m/s^2 for acceleration and rad/s for rotation.

@@ -1,6 +1,6 @@
-#include "fcram.hpp"
+#include "../../../include/kernel/fcram.hpp"
 
-#include "memory.hpp"
+#include "../../../include/memory.hpp"
 
 void KFcram::Region::reset(u32 start, size_t size) {
 	this->start = start;

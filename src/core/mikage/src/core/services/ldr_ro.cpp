@@ -1,10 +1,10 @@
-#include "services/ldr_ro.hpp"
+#include "../../../include/services/ldr_ro.hpp"
 
 #include <cstdio>
 #include <string>
 
-#include "ipc.hpp"
-#include "kernel.hpp"
+#include "../../../include/ipc.hpp"
+#include "../../../include/kernel/kernel.hpp"
 
 namespace LDRCommands {
 	enum : u32 {

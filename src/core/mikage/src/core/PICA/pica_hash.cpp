@@ -1,8 +1,8 @@
-#include "PICA/pica_hash.hpp"
-#include "PICA/shader.hpp"
+#include "../../../include/PICA/pica_hash.hpp"
+#include "../../../include/PICA/shader.hpp"
 
 #define XXH_INLINE_ALL
-#include "xxhash/xxhash.h"
+#include "../../../include/xxhash/xxhash.h"
 
 PICAHash::HashType PICAHash::computeHash(const char* buf, std::size_t len) {
 	return XXH3_64bits(buf, len);

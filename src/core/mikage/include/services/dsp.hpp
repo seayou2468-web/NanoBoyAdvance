@@ -4,11 +4,11 @@
 #include <optional>
 #include <vector>
 
-#include "audio/dsp_core.hpp"
-#include "helpers.hpp"
-#include "logger.hpp"
-#include "memory.hpp"
-#include "result/result.hpp"
+#include "../audio/dsp_core.hpp"
+#include "../helpers.hpp"
+#include "../logger.hpp"
+#include "../memory.hpp"
+#include "../result/result.hpp"
 
 struct EmulatorConfig;
 // Circular dependencies!

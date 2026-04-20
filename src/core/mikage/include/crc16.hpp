@@ -1,6 +1,6 @@
 #pragma once
 
-#include "helpers.hpp"
+#include "./helpers.hpp"
 
 namespace CRC {
 	// CRC-16 with polynomial 0x1021, initial remainder 0, final XOR 0, no input/output reflection.

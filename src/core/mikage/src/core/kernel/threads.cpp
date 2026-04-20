@@ -4,12 +4,12 @@
 #include <cstring>
 #include <limits>
 
-#include "arm_defs.hpp"
-#include "kernel.hpp"
+#include "../../../include/arm_defs.hpp"
+#include "../../../include/kernel/kernel.hpp"
 // This header needs to be included because I did stupid forward decl hack so the kernel and CPU can both access each
 // other
-#include "cpu.hpp"
-#include "resource_limits.hpp"
+#include "../../../include/cpu.hpp"
+#include "../../../include/kernel/resource_limits.hpp"
 
 // Switch to another thread
 // newThread: Index of the newThread in the thread array (NOT a handle).

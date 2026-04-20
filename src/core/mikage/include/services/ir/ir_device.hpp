@@ -2,8 +2,8 @@
 #include <functional>
 #include <span>
 
-#include "helpers.hpp"
-#include "scheduler.hpp"
+#include "../../helpers.hpp"
+#include "../../scheduler.hpp"
 
 namespace IR {
 	class Device {

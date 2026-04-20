@@ -2,7 +2,7 @@
 #include <array>
 #include <memory>
 #include <optional>
-#include "common_types.h"
+#include "./common_types.h"
 
 namespace Teakra {
 struct SharedMemory {

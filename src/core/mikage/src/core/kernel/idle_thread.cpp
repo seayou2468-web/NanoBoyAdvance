@@ -1,7 +1,7 @@
 #include <cstring>
 
-#include "arm_defs.hpp"
-#include "kernel.hpp"
+#include "../../../include/arm_defs.hpp"
+#include "../../../include/kernel/kernel.hpp"
 
 /*
 	This file sets up an idle thread that's meant to run when no other OS thread can run.

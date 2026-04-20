@@ -1,8 +1,8 @@
-#include "services/csnd.hpp"
+#include "../../../include/services/csnd.hpp"
 
-#include "ipc.hpp"
-#include "kernel.hpp"
-#include "result/result.hpp"
+#include "../../../include/ipc.hpp"
+#include "../../../include/kernel/kernel.hpp"
+#include "../../../include/result/result.hpp"
 
 namespace CSNDCommands {
 	enum : u32 {

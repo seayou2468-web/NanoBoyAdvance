@@ -1,4 +1,4 @@
-#include "services/dsp.hpp"
+#include "../../../include/services/dsp.hpp"
 
 #include <cstdio>
 #include <cstring>
@@ -6,11 +6,11 @@
 #include <iomanip>
 #include <sstream>
 
-#include "apple_crypto.hpp"
-#include "config.hpp"
-#include "ipc.hpp"
-#include "kernel.hpp"
-#include "services/dsp_firmware_db.hpp"
+#include "../../../include/apple_crypto.hpp"
+#include "../../../include/config.hpp"
+#include "../../../include/ipc.hpp"
+#include "../../../include/kernel/kernel.hpp"
+#include "../../../include/services/dsp_firmware_db.hpp"
 
 namespace DSPCommands {
 	enum : u32 {

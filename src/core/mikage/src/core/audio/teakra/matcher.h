@@ -3,8 +3,8 @@
 #include <algorithm>
 #include <functional>
 #include <vector>
-#include "common_types.h"
-#include "crash.h"
+#include "./common_types.h"
+#include "./crash.h"
 
 struct Rejector {
     u16 mask;

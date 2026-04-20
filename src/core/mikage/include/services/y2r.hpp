@@ -2,10 +2,10 @@
 #include <array>
 #include <optional>
 
-#include "helpers.hpp"
-#include "kernel_types.hpp"
-#include "logger.hpp"
-#include "memory.hpp"
+#include "../helpers.hpp"
+#include "../kernel/kernel_types.hpp"
+#include "../logger.hpp"
+#include "../memory.hpp"
 
 // Circular dependencies go br
 class Kernel;

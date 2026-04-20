@@ -1,11 +1,11 @@
-#include "PICA/shader_decompiler.hpp"
+#include "../../../include/PICA/shader_decompiler.hpp"
 
 #include <fmt/format.h>
 
 #include <array>
 #include <cassert>
 
-#include "config.hpp"
+#include "../../../include/config.hpp"
 
 using namespace PICA;
 using namespace PICA::ShaderGen;

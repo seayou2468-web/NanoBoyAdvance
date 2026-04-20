@@ -1,6 +1,6 @@
-#include "services/boss.hpp"
+#include "../../../include/services/boss.hpp"
 
-#include "ipc.hpp"
+#include "../../../include/ipc.hpp"
 
 namespace BOSSCommands {
 	enum : u32 {

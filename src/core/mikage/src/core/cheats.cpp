@@ -1,6 +1,6 @@
-#include "cheats.hpp"
+#include "../../include/cheats.hpp"
 
-#include "swap.hpp"
+#include "../../include/swap.hpp"
 
 Cheats::Cheats(Memory& mem, HIDService& hid) : ar(mem, hid) { reset(); }
 

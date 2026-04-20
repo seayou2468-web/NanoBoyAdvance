@@ -5,12 +5,12 @@
 #include <algorithm>
 #include <cstring>
 #include <memory>
-#include "core/arm/dyncom/arm_dyncom.h"
-#include "core/arm/dyncom/arm_dyncom_interpreter.h"
-#include "core/arm/dyncom/arm_dyncom_trans.h"
-#include "core/arm/skyeye_common/armstate.h"
-#include "core/core.h"
-#include "core/core_timing.h"
+#include "../../../../../include/cytrus_arm/dyncom/arm_dyncom.h"
+#include "../../../../../include/cytrus_arm/dyncom/arm_dyncom_interpreter.h"
+#include "../../../../../include/cytrus_arm/dyncom/arm_dyncom_trans.h"
+#include "../../../../../include/cytrus_arm/skyeye_common/armstate.h"
+#include "../../../../../include/fmt/core.h"
+#include "../../../audio/teakra/core_timing.h"
 
 namespace Core {
 

@@ -2,7 +2,7 @@
 #include <array>
 #include <functional>
 #include <memory>
-#include "common_types.h"
+#include "./common_types.h"
 
 namespace Teakra {
 class Apbp {

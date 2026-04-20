@@ -3,8 +3,8 @@
 #include <limits>
 #include <utility>
 
-#include "compiler_builtins.hpp"
-#include "helpers.hpp"
+#include "../compiler_builtins.hpp"
+#include "../helpers.hpp"
 
 #if defined(_M_AMD64) || defined(__x86_64__)
 #define PICA_SIMD_X64

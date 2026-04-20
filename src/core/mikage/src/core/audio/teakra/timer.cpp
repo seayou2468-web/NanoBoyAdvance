@@ -1,5 +1,5 @@
-#include "crash.h"
-#include "timer.h"
+#include "./crash.h"
+#include "./timer.h"
 
 namespace Teakra {
 

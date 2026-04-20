@@ -1,6 +1,6 @@
 #include <array>
 
-#include "services/ir/ir_user.hpp"
+#include "../../../../include/services/ir/ir_user.hpp"
 
 u8 IRUserService::crc8(std::span<const u8> data) {
 	// The IR service uses CRC8 with generator polynomial = 0x07 for verifying payloads received from IR devices

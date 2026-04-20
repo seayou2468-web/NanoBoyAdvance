@@ -7,8 +7,8 @@
 #include <toml.hpp>
 #include <unordered_map>
 
-#include "helpers.hpp"
-#include "services/hid.hpp"
+#include "./helpers.hpp"
+#include "./services/hid.hpp"
 
 struct InputMappings {
 	using Scancode = u32;

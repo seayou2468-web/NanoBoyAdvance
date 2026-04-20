@@ -1,11 +1,11 @@
 #pragma once
 #include <cassert>
 
-#include "helpers.hpp"
-#include "kernel_types.hpp"
-#include "logger.hpp"
-#include "memory.hpp"
-#include "result/result.hpp"
+#include "../helpers.hpp"
+#include "../kernel/kernel_types.hpp"
+#include "../logger.hpp"
+#include "../memory.hpp"
+#include "../result/result.hpp"
 
 // It's important to keep this struct to 16 bytes as we use its sizeof in the service functions in frd.cpp
 struct FriendKey {

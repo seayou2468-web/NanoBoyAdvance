@@ -1,7 +1,7 @@
 #include <cstring>
 
-#include "elfio/elfio.hpp"
-#include "memory.hpp"
+#include "../../../include/elfio/elfio.hpp"
+#include "../../../include/memory.hpp"
 
 using namespace ELFIO;
 using namespace KernelMemoryTypes;

@@ -1,8 +1,8 @@
-#include "services/gsp_gpu.hpp"
+#include "../../../include/services/gsp_gpu.hpp"
 
-#include "PICA/regs.hpp"
-#include "ipc.hpp"
-#include "kernel.hpp"
+#include "../../../include/PICA/regs.hpp"
+#include "../../../include/ipc.hpp"
+#include "../../../include/kernel/kernel.hpp"
 
 // Commands used with SendSyncRequest targetted to the GSP::GPU service
 namespace ServiceCommands {

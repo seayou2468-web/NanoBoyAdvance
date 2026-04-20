@@ -1,10 +1,10 @@
 #pragma once
 #include <array>
 
-#include "bitfield.hpp"
-#include "helpers.hpp"
-#include "memory.hpp"
-#include "swap.hpp"
+#include "../../bitfield.hpp"
+#include "../../helpers.hpp"
+#include "../../memory.hpp"
+#include "../../swap.hpp"
 
 // Type definitions for the IR service
 // Based off https://github.com/azahar-emu/azahar/blob/de7b457ee466e432047c4ee8d37fca9eae7e031e/src/core/hle/service/ir/ir_user.cpp#L88

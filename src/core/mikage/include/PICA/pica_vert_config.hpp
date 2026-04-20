@@ -5,11 +5,11 @@
 #include <type_traits>
 #include <unordered_map>
 
-#include "PICA/pica_hash.hpp"
-#include "PICA/regs.hpp"
-#include "PICA/shader.hpp"
-#include "bitfield.hpp"
-#include "helpers.hpp"
+#include "./pica_hash.hpp"
+#include "./regs.hpp"
+#include "./shader.hpp"
+#include "../bitfield.hpp"
+#include "../helpers.hpp"
 
 namespace PICA {
 	// Configuration struct used

@@ -1,7 +1,7 @@
-#include "services/mcu/mcu_hwc.hpp"
+#include "../../../../include/services/mcu/mcu_hwc.hpp"
 
-#include "ipc.hpp"
-#include "result/result.hpp"
+#include "../../../../include/ipc.hpp"
+#include "../../../../include/result/result.hpp"
 
 namespace MCU::HWCCommands {
 	enum : u32 {

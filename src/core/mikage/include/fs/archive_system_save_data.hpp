@@ -1,5 +1,5 @@
 #pragma once
-#include "archive_base.hpp"
+#include "./archive_base.hpp"
 
 class SystemSaveDataArchive : public ArchiveBase {
   public:

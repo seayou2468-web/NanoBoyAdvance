@@ -20,7 +20,7 @@
 #include <array>
 #include <unordered_map>
 #include "common/common_types.h"
-#include "core/arm/skyeye_common/arm_regformat.h"
+#include "./arm_regformat.h"
 #include "core/gdbstub/gdbstub.h"
 
 namespace Core {

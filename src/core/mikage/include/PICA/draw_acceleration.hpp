@@ -2,7 +2,7 @@
 
 #include <array>
 
-#include "helpers.hpp"
+#include "../helpers.hpp"
 
 namespace PICA {
 	struct DrawAcceleration {

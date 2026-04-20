@@ -3,14 +3,14 @@
 #include <optional>
 #include <span>
 
-#include "config.hpp"
-#include "helpers.hpp"
-#include "kernel_types.hpp"
-#include "logger.hpp"
-#include "memory.hpp"
-#include "result/result.hpp"
-#include "services/hid.hpp"
-#include "services/ir/circlepad_pro.hpp"
+#include "../../config.hpp"
+#include "../../helpers.hpp"
+#include "../../kernel/kernel_types.hpp"
+#include "../../logger.hpp"
+#include "../../memory.hpp"
+#include "../../result/result.hpp"
+#include "../hid.hpp"
+#include "./circlepad_pro.hpp"
 
 // Circular dependencies in this project? Never
 class Kernel;

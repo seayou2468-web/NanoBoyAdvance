@@ -1,9 +1,9 @@
-#include "services/cam.hpp"
+#include "../../../include/services/cam.hpp"
 
 #include <vector>
 
-#include "ipc.hpp"
-#include "kernel.hpp"
+#include "../../../include/ipc.hpp"
+#include "../../../include/kernel/kernel.hpp"
 
 namespace CAMCommands {
 	enum : u32 {

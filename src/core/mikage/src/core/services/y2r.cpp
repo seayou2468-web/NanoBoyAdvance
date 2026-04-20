@@ -1,7 +1,7 @@
-#include "services/y2r.hpp"
+#include "../../../include/services/y2r.hpp"
 
-#include "ipc.hpp"
-#include "kernel.hpp"
+#include "../../../include/ipc.hpp"
+#include "../../../include/kernel/kernel.hpp"
 
 namespace Y2RCommands {
 	enum : u32 {

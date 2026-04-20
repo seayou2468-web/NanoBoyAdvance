@@ -1,7 +1,7 @@
-#include "services/soc.hpp"
+#include "../../../include/services/soc.hpp"
 
-#include "ipc.hpp"
-#include "result/result.hpp"
+#include "../../../include/ipc.hpp"
+#include "../../../include/result/result.hpp"
 
 namespace SOCCommands {
 	enum : u32 {

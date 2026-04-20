@@ -1,6 +1,6 @@
-#include "services/am.hpp"
+#include "../../../include/services/am.hpp"
 
-#include "ipc.hpp"
+#include "../../../include/ipc.hpp"
 
 namespace AMCommands {
 	enum : u32 {

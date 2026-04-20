@@ -1,12 +1,12 @@
-#include "loader/ncch.hpp"
+#include "../../../include/loader/ncch.hpp"
 
 #include <cstring>
 #include <iostream>
 #include <vector>
 
-#include "apple_crypto.hpp"
-#include "loader/lz77.hpp"
-#include "memory.hpp"
+#include "../../../include/apple_crypto.hpp"
+#include "../../../include/loader/lz77.hpp"
+#include "../../../include/memory.hpp"
 
 bool NCCH::loadFromHeader(Crypto::AESEngine &aesEngine, IOFile& file, const FSInfo &info) {
     // 0x200 bytes for the NCCH header

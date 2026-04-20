@@ -1,4 +1,4 @@
-#include "core_adapter.hpp"
+#include "./core_adapter.hpp"
 
 #if defined(__APPLE__)
 #include <TargetConditionals.h>

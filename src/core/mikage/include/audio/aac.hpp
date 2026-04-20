@@ -2,8 +2,8 @@
 #include <array>
 #include <type_traits>
 
-#include "helpers.hpp"
-#include "swap.hpp"
+#include "../helpers.hpp"
+#include "../swap.hpp"
 
 namespace Audio::AAC {
 	namespace ResultCode {

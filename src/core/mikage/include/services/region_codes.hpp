@@ -1,5 +1,5 @@
 #pragma once
-#include "helpers.hpp"
+#include "../helpers.hpp"
 
 // Used for CFG::SecureInfoGetRegion
 enum class Regions : u32 {

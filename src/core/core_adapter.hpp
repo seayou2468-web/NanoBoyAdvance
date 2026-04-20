@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <string>
 
-#include "api/emulator_core_c_api.h"
+#include "./api/emulator_core_c_api.h"
 
 namespace core {
 

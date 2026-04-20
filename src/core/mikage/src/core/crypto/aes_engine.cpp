@@ -1,4 +1,4 @@
-#include "crypto/aes_engine.hpp"
+#include "../../../include/crypto/aes_engine.hpp"
 
 #include <fstream>
 #include <iostream>
@@ -7,7 +7,7 @@
 #include <tuple>
 #include <vector>
 
-#include "helpers.hpp"
+#include "../../../include/helpers.hpp"
 
 namespace Crypto {
 	void AESEngine::loadKeys(const std::filesystem::path& path) {

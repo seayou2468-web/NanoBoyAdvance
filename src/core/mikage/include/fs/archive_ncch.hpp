@@ -1,5 +1,5 @@
 #pragma once
-#include "archive_base.hpp"
+#include "./archive_base.hpp"
 
 class NCCHArchive : public ArchiveBase {
   public:

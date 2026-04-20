@@ -2,8 +2,8 @@
 
 #include <functional>
 #include <utility>
-#include "common_types.h"
-#include "core_timing.h"
+#include "./common_types.h"
+#include "./core_timing.h"
 
 namespace Teakra {
 

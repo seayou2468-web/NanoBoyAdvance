@@ -3,7 +3,7 @@
 #include <functional>
 #include <utility>
 #include <queue>
-#include "common_types.h"
+#include "./common_types.h"
 
 namespace Teakra {
 

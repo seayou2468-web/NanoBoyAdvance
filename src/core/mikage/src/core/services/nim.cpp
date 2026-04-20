@@ -1,6 +1,6 @@
-#include "services/nim.hpp"
+#include "../../../include/services/nim.hpp"
 
-#include "ipc.hpp"
+#include "../../../include/ipc.hpp"
 
 namespace NIMCommands {
 	enum : u32 {

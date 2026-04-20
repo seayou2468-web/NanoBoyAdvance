@@ -24,7 +24,7 @@
 #endif
 #include <cstring>
 
-#include "helpers.hpp"
+#include "./helpers.hpp"
 
 // GCC
 #ifdef __GNUC__

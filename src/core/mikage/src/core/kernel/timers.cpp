@@ -1,8 +1,8 @@
 #include <limits>
 
-#include "cpu.hpp"
-#include "kernel.hpp"
-#include "scheduler.hpp"
+#include "../../../include/cpu.hpp"
+#include "../../../include/kernel/kernel.hpp"
+#include "../../../include/scheduler.hpp"
 
 HorizonHandle Kernel::makeTimer(ResetType type) {
 	Handle ret = makeObject(KernelObjectType::Timer);

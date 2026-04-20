@@ -3,9 +3,9 @@
 #include <bitset>
 #include <vector>
 
-#include "helpers.hpp"
-#include "memory.hpp"
-#include "services/hid.hpp"
+#include "./helpers.hpp"
+#include "./memory.hpp"
+#include "./services/hid.hpp"
 
 class ActionReplay {
 	using Cheat = std::vector<u32>;  // A cheat is really just a bunch of 64-bit opcodes neatly encoded into 32-bit chunks

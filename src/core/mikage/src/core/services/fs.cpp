@@ -1,9 +1,9 @@
-#include "services/fs.hpp"
+#include "../../../include/services/fs.hpp"
 
-#include "io_file.hpp"
-#include "ipc.hpp"
-#include "kernel/kernel.hpp"
-#include "result/result.hpp"
+#include "../../../include/io_file.hpp"
+#include "../../../include/ipc.hpp"
+#include "../../../include/kernel/kernel.hpp"
+#include "../../../include/result/result.hpp"
 
 #ifdef CreateFile  // windows.h defines CreateFile & DeleteFile because of course it does.
 #undef CreateDirectory

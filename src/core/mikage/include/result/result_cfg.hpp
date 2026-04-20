@@ -1,5 +1,5 @@
 #pragma once
-#include "result_common.hpp"
+#include "./result_common.hpp"
 
 DEFINE_HORIZON_RESULT_MODULE(Result::CFG, Config);
 

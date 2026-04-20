@@ -1,6 +1,6 @@
-#include "applets/error_applet.hpp"
+#include "../../../include/applets/error_applet.hpp"
 
-#include "kernel/handles.hpp"
+#include "../../../include/kernel/handles.hpp"
 
 using namespace Applets;
 

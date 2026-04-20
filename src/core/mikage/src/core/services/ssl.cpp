@@ -1,7 +1,7 @@
-#include "services/ssl.hpp"
+#include "../../../include/services/ssl.hpp"
 
-#include "ipc.hpp"
-#include "result/result.hpp"
+#include "../../../include/ipc.hpp"
+#include "../../../include/result/result.hpp"
 
 namespace SSLCommands {
 	enum : u32 {

@@ -3,10 +3,10 @@
 #include <string>
 #include <vector>
 
-#include "helpers.hpp"
-#include "logger.hpp"
-#include "ring_buffer.hpp"
-#include "scheduler.hpp"
+#include "../helpers.hpp"
+#include "../logger.hpp"
+#include "../ring_buffer.hpp"
+#include "../scheduler.hpp"
 
 // The DSP core must have access to the DSP service to be able to trigger interrupts properly
 class DSPService;

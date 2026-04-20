@@ -3,10 +3,10 @@
 #include <optional>
 #include <vector>
 
-#include "crypto/aes_engine.hpp"
-#include "helpers.hpp"
-#include "io_file.hpp"
-#include "services/region_codes.hpp"
+#include "../crypto/aes_engine.hpp"
+#include "../helpers.hpp"
+#include "../io_file.hpp"
+#include "../services/region_codes.hpp"
 
 struct NCCH {
 	struct EncryptionInfo {

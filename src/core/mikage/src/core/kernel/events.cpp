@@ -1,8 +1,8 @@
 #include <bit>
 #include <utility>
 
-#include "cpu.hpp"
-#include "kernel.hpp"
+#include "../../../include/cpu.hpp"
+#include "../../../include/kernel/kernel.hpp"
 
 const char* Kernel::resetTypeToString(u32 type) {
 	switch (type) {

@@ -1,4 +1,4 @@
-#include "services/ir/circlepad_pro.hpp"
+#include "../../../../include/services/ir/circlepad_pro.hpp"
 
 #include <array>
 #include <string>

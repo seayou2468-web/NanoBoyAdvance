@@ -4,7 +4,7 @@
 
 // Adapted from https://github.com/PabloMK7/citra/blob/master/src/core/hle/service/apt/bcfnt/bcfnt.cpp
 
-#include "services/fonts.hpp"
+#include "../../../include/services/fonts.hpp"
 
 #include <cstring>
 

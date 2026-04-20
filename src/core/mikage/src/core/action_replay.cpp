@@ -1,4 +1,4 @@
-#include "action_replay.hpp"
+#include "../../include/action_replay.hpp"
 
 ActionReplay::ActionReplay(Memory& mem, HIDService& hid) : mem(mem), hid(hid) { reset(); }
 

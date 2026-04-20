@@ -1,6 +1,6 @@
-#include "memory_interface.h"
-#include "mmio.h"
-#include "shared_memory.h"
+#include "./memory_interface.h"
+#include "./mmio.h"
+#include "./shared_memory.h"
 
 namespace Teakra {
 MemoryInterface::MemoryInterface(SharedMemory& shared_memory,

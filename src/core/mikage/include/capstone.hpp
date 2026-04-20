@@ -4,7 +4,7 @@
 #include <span>
 #include <string>
 
-#include "helpers.hpp"
+#include "./helpers.hpp"
 
 namespace Common {
 	class CapstoneDisassembler {

@@ -2,11 +2,11 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "audio/audio_interpolation.hpp"
+#include "../../../include/audio/audio_interpolation.hpp"
 
 #include <algorithm>
 
-#include "helpers.hpp"
+#include "../../../include/helpers.hpp"
 
 namespace Audio::Interpolation {
 	// Calculations are done in fixed point with 24 fractional bits.

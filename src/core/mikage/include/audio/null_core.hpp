@@ -1,8 +1,8 @@
 #pragma once
 #include <array>
 
-#include "audio/dsp_core.hpp"
-#include "memory.hpp"
+#include "./dsp_core.hpp"
+#include "../memory.hpp"
 
 namespace Audio {
 	class NullDSP : public DSPCore {

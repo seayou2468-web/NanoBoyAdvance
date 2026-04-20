@@ -1,9 +1,9 @@
-#include "renderer.hpp"
+#include "../include/renderer.hpp"
 
 #include <algorithm>
 #include <unordered_map>
 
-#include "PICA/gpu.hpp"
+#include "../include/PICA/gpu.hpp"
 
 Renderer::Renderer(GPU& gpu, const std::array<u32, regNum>& internalRegs, const std::array<u32, extRegNum>& externalRegs)
 	: gpu(gpu), regs(internalRegs), externalRegs(externalRegs) {}

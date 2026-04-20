@@ -1,6 +1,6 @@
 #include <cmath>
 
-#include "PICA/shader.hpp"
+#include "../../../include/PICA/shader.hpp"
 
 using namespace Helpers;
 

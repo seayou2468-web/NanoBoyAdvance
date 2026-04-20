@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 
-#include "helpers.hpp"
+#include "./helpers.hpp"
 
 // The kinds of events that can cause a Lua call.
 // Frame: Call program on frame end
@@ -14,9 +14,9 @@ class Emulator;
 
 #ifdef PANDA3DS_ENABLE_LUA
 extern "C" {
-#include "lua/lauxlib.h"
-#include "lua/lua.h"
-#include "lua/lualib.h"
+#include "./lua/lauxlib.h"
+#include "./lua/lua.h"
+#include "./lua/lualib.h"
 }
 
 class LuaManager {

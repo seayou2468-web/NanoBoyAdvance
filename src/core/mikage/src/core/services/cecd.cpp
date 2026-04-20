@@ -1,7 +1,7 @@
-#include "services/cecd.hpp"
+#include "../../../include/services/cecd.hpp"
 
-#include "ipc.hpp"
-#include "kernel.hpp"
+#include "../../../include/ipc.hpp"
+#include "../../../include/kernel/kernel.hpp"
 
 namespace CECDCommands {
 	enum : u32 {

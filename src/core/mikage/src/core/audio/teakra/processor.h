@@ -1,8 +1,8 @@
 #pragma once
 
 #include <memory>
-#include "common_types.h"
-#include "core_timing.h"
+#include "./common_types.h"
+#include "./core_timing.h"
 
 namespace Teakra {
 

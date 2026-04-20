@@ -6,7 +6,7 @@
 #include <memory>
 #include <string>
 
-#include "termcolor.hpp"
+#include "./termcolor.hpp"
 
 // We have to detect and special-case AppleClang at the moment since its C++20 support is finicky and doesn't quite support std::bit_cast
 #if defined(__clang__) && defined(__apple_build_version__)

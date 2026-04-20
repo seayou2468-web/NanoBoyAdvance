@@ -1,4 +1,4 @@
-#include "fs/archive_self_ncch.hpp"
+#include "../../../include/fs/archive_self_ncch.hpp"
 #include <memory>
 
 // The part of the NCCH archive we're trying to access. Depends on the first 4 bytes of the binary file path

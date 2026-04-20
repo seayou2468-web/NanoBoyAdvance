@@ -4,14 +4,14 @@
 #include <string>
 #include <vector>
 
-#include "config.hpp"
-#include "fcram.hpp"
-#include "helpers.hpp"
-#include "kernel_types.hpp"
-#include "logger.hpp"
-#include "memory.hpp"
-#include "resource_limits.hpp"
-#include "services/service_manager.hpp"
+#include "../config.hpp"
+#include "./fcram.hpp"
+#include "../helpers.hpp"
+#include "./kernel_types.hpp"
+#include "../logger.hpp"
+#include "../memory.hpp"
+#include "./resource_limits.hpp"
+#include "../services/service_manager.hpp"
 
 class CPU;
 class LuaManager;

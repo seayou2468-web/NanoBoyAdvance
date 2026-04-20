@@ -1,8 +1,8 @@
 #pragma once
 
-#include "audio/hle_mixer.hpp"
-#include "compiler_builtins.hpp"
-#include "helpers.hpp"
+#include "./hle_mixer.hpp"
+#include "../compiler_builtins.hpp"
+#include "../helpers.hpp"
 
 #if defined(_M_AMD64) || defined(__x86_64__)
 #define DSP_SIMD_X64

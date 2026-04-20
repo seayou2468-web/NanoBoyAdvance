@@ -3,7 +3,7 @@
 #include <cstddef>
 #include <type_traits>
 
-#include "helpers.hpp"
+#include "../helpers.hpp"
 
 namespace PICA {
 	struct LightUniform {

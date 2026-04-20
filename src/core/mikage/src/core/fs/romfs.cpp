@@ -1,11 +1,11 @@
-#include "fs/romfs.hpp"
+#include "../../../include/fs/romfs.hpp"
 
 #include <cstdio>
 #include <queue>
 #include <string>
 
-#include "fs/ivfc.hpp"
-#include "helpers.hpp"
+#include "../../../include/fs/ivfc.hpp"
+#include "../../../include/helpers.hpp"
 
 namespace RomFS {
 	constexpr u32 metadataInvalidEntry = 0xFFFFFFFF;

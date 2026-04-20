@@ -1,7 +1,7 @@
-#include "services/mic.hpp"
+#include "../../../include/services/mic.hpp"
 
-#include "ipc.hpp"
-#include "kernel/kernel.hpp"
+#include "../../../include/ipc.hpp"
+#include "../../../include/kernel/kernel.hpp"
 
 namespace MICCommands {
 	enum : u32 {

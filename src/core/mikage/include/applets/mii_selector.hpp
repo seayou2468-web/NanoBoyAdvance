@@ -1,7 +1,7 @@
 #include <string>
 
-#include "applets/applet.hpp"
-#include "swap.hpp"
+#include "./applet.hpp"
+#include "../swap.hpp"
 
 namespace Applets {
 	struct MiiConfig {

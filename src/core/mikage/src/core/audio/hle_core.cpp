@@ -1,4 +1,4 @@
-#include "audio/hle_core.hpp"
+#include "../../../include/audio/hle_core.hpp"
 
 #include <algorithm>
 #include <cassert>
@@ -6,11 +6,11 @@
 #include <thread>
 #include <utility>
 
-#include "audio/aac_decoder.hpp"
-#include "audio/dsp_binary.hpp"
-#include "audio/dsp_simd.hpp"
-#include "config.hpp"
-#include "services/dsp.hpp"
+#include "../../../include/audio/aac_decoder.hpp"
+#include "../../../include/audio/dsp_binary.hpp"
+#include "../../../include/audio/dsp_simd.hpp"
+#include "../../../include/config.hpp"
+#include "../../../include/services/dsp.hpp"
 
 namespace Audio {
 	namespace DSPPipeType {

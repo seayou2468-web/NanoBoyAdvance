@@ -1,4 +1,4 @@
-#include "kernel.hpp"
+#include "../../../include/kernel/kernel.hpp"
 
 namespace Operation {
 	enum : u32 {

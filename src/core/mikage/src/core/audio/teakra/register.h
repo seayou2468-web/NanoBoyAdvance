@@ -4,9 +4,9 @@
 #include <array>
 #include <memory>
 #include <vector>
-#include "common_types.h"
-#include "crash.h"
-#include "operand.h"
+#include "./common_types.h"
+#include "./crash.h"
+#include "./operand.h"
 
 namespace Teakra {
 

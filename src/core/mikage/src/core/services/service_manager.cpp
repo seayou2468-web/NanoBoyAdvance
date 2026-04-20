@@ -1,10 +1,10 @@
-#include "services/service_manager.hpp"
+#include "../../../include/services/service_manager.hpp"
 
 #include <set>
 
-#include "ipc.hpp"
-#include "kernel.hpp"
-#include "services/service_map.hpp"
+#include "../../../include/ipc.hpp"
+#include "../../../include/kernel/kernel.hpp"
+#include "../../../include/services/service_map.hpp"
 
 ServiceManager::ServiceManager(
 	std::span<u32, 16> regs, Memory& mem, GPU& gpu, u32& currentPID, Kernel& kernel, const EmulatorConfig& config, LuaManager& lua

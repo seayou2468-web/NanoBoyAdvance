@@ -1,3 +1,3 @@
 #pragma once
 
-#include "cpu_interpreter.hpp"
+#include "./cpu_interpreter.hpp"

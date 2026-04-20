@@ -1,7 +1,7 @@
 #include <array>
 
-#include "applets/applet.hpp"
-#include "swap.hpp"
+#include "./applet.hpp"
+#include "../swap.hpp"
 
 namespace Applets {
 	// Software keyboard definitions adapted from libctru/Citra

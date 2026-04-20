@@ -1,8 +1,8 @@
 #include <cstdio>
 #include <cstring>
-#include "ahbm.h"
-#include "dma.h"
-#include "shared_memory.h"
+#include "./ahbm.h"
+#include "./dma.h"
+#include "./shared_memory.h"
 
 namespace Teakra {
 

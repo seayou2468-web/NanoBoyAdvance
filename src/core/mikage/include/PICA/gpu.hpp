@@ -1,17 +1,17 @@
 #pragma once
 #include <array>
 
-#include "PICA/draw_acceleration.hpp"
-#include "PICA/float_types.hpp"
-#include "PICA/pica_vertex.hpp"
-#include "PICA/regs.hpp"
-#include "PICA/shader_unit.hpp"
-#include "compiler_builtins.hpp"
-#include "config.hpp"
-#include "helpers.hpp"
-#include "logger.hpp"
-#include "memory.hpp"
-#include "renderer.hpp"
+#include "./draw_acceleration.hpp"
+#include "./float_types.hpp"
+#include "./pica_vertex.hpp"
+#include "./regs.hpp"
+#include "./shader_unit.hpp"
+#include "../compiler_builtins.hpp"
+#include "../config.hpp"
+#include "../helpers.hpp"
+#include "../logger.hpp"
+#include "../memory.hpp"
+#include "../renderer.hpp"
 
 enum class ShaderExecMode {
 	Interpreter,  // Interpret shaders on the CPU

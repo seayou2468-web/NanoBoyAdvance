@@ -1,5 +1,5 @@
 #pragma once
-#include "common_types.h"
+#include "./common_types.h"
 
 template <typename T, T... values>
 inline constexpr bool NoOverlap = (values + ...) == (values | ...);

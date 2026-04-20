@@ -8,9 +8,9 @@
 #include <optional>
 #include <vector>
 
-#include "helpers.hpp"
-#include "io_file.hpp"
-#include "swap.hpp"
+#include "../helpers.hpp"
+#include "../io_file.hpp"
+#include "../swap.hpp"
 
 namespace Crypto {
 	constexpr usize AesKeySize = 0x10;

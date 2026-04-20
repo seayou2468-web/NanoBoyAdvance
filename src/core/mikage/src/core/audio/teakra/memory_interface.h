@@ -1,8 +1,8 @@
 #pragma once
 
 #include <array>
-#include "common_types.h"
-#include "crash.h"
+#include "./common_types.h"
+#include "./crash.h"
 
 namespace Teakra {
 

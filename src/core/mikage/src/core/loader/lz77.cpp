@@ -1,4 +1,4 @@
-#include "loader/lz77.hpp"
+#include "../../../include/loader/lz77.hpp"
 
 #include <algorithm>
 #include <cstring>

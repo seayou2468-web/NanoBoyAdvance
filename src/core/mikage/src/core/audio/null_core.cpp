@@ -1,6 +1,6 @@
-#include "audio/null_core.hpp"
+#include "../../../include/audio/null_core.hpp"
 
-#include "services/dsp.hpp"
+#include "../../../include/services/dsp.hpp"
 
 namespace Audio {
 	namespace DSPPipeType {

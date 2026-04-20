@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "core/arm/skyeye_common/vfp/vfp_helper.h" /* for references to cdp SoftFloat functions */
+#include "./vfp_helper.h" /* for references to cdp SoftFloat functions */
 
 #define VFP_DEBUG_UNTESTED(x) LOG_TRACE(Core_ARM11, "in func {}, " #x " untested", __FUNCTION__);
 #define CHECK_VFP_ENABLED

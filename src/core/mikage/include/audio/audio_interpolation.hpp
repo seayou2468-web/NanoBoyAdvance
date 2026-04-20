@@ -7,8 +7,8 @@
 #include <array>
 #include <deque>
 
-#include "audio/hle_mixer.hpp"
-#include "helpers.hpp"
+#include "./hle_mixer.hpp"
+#include "../helpers.hpp"
 
 namespace Audio::Interpolation {
 	// A variable length buffer of signed PCM16 stereo samples.

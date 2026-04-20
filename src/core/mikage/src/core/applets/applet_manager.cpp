@@ -1,6 +1,6 @@
-#include "applets/applet_manager.hpp"
+#include "../../../include/applets/applet_manager.hpp"
 
-#include "services/apt.hpp"
+#include "../../../include/services/apt.hpp"
 
 using namespace Applets;
 

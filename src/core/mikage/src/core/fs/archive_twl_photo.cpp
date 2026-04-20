@@ -1,7 +1,7 @@
 #include <algorithm>
 #include <memory>
 
-#include "fs/archive_twl_photo.hpp"
+#include "../../../include/fs/archive_twl_photo.hpp"
 
 namespace fs = std::filesystem;
 
