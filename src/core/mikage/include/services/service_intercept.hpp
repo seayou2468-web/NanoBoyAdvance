@@ -4,7 +4,7 @@
 
 #include "../helpers.hpp"
 
-// We allow Lua scripts to intercept service calls and allow their own code to be ran on SyncRequests
+// Optional scripts can intercept service calls and run their own code on SyncRequests
 // For example, if we want to intercept dsp::DSP ReadPipe (Header: 0x000E00C0), the "serviceName" field would be "dsp::DSP"
 // and the "function" field would be 0x000E00C0
 struct InterceptedService {

@@ -3,8 +3,8 @@
 #include <fstream>
 
 Emulator::Emulator()
-		: config(getConfigPath()), kernel(cpu, memory, gpu, config, lua), cpu(memory, kernel, *this), gpu(memory, config),
-		  memory(kernel.fcramManager, config), cheats(memory, kernel.getServiceManager().getHID()), audioDevice(config.audioDeviceConfig), lua(*this),
+		: config(getConfigPath()), kernel(cpu, memory, gpu, config, scriptManager), cpu(memory, kernel, *this), gpu(memory, config),
+		  memory(kernel.fcramManager, config), cheats(memory, kernel.getServiceManager().getHID()), audioDevice(config.audioDeviceConfig), scriptManager(*this),
 		  running(false)
 {
 	DSPService& dspService = kernel.getServiceManager().getDSP();
@@ -20,7 +20,7 @@ Emulator::Emulator()
 
 Emulator::~Emulator() {
 	config.save();
-	lua.close();
+	scriptManager.close();
 	audioDevice.close();
 
 }
@@ -119,7 +119,7 @@ void Emulator::pollScheduler() {
 				[[likely]] {
 					// Signal that we've reached the end of a frame
 					frameDone = true;
-					lua.signalEvent(LuaEvent::Frame);
+					scriptManager.signalEvent(ScriptEvent::Frame);
 
 					// Send VBlank interrupts
 					ServiceManager& srv = kernel.getServiceManager();

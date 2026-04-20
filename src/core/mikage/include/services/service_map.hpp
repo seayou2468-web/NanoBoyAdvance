@@ -7,7 +7,7 @@
 
 // Helpers for constructing std::maps to look up OS services.
 // We want to be able to map both service names -> services (Used for OS emulation)
-// And service handles -> services (For Lua service call intercepts)
+// And service handles -> services (for script service call intercepts)
 using ServiceMapEntry = std::pair<std::string, HorizonHandle>;
 
 // Comparator for constructing a name->handle service map

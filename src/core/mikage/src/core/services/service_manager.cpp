@@ -7,9 +7,9 @@
 #include "../../../include/services/service_map.hpp"
 
 ServiceManager::ServiceManager(
-	std::span<u32, 16> regs, Memory& mem, GPU& gpu, u32& currentPID, Kernel& kernel, const EmulatorConfig& config, LuaManager& lua
+	std::span<u32, 16> regs, Memory& mem, GPU& gpu, u32& currentPID, Kernel& kernel, const EmulatorConfig& config, ScriptManager& scriptManager
 )
-	: regs(regs), mem(mem), kernel(kernel), lua(lua), ac(mem), am(mem), boss(mem), act(mem), apt(mem, kernel), cam(mem, kernel), cecd(mem, kernel),
+	: regs(regs), mem(mem), kernel(kernel), scriptManager(scriptManager), ac(mem), am(mem), boss(mem), act(mem), apt(mem, kernel), cam(mem, kernel), cecd(mem, kernel),
 	  cfg(mem, config), csnd(mem, kernel), dlp_srvr(mem), dsp(mem, kernel, config), hid(mem, kernel), http(mem), ir_user(mem, hid, config, kernel),
 	  frd(mem), fs(mem, kernel, config), gsp_gpu(mem, gpu, kernel, currentPID), gsp_lcd(mem), ldr(mem, kernel), mcu_hwc(mem, config),
 	  mic(mem, kernel), nfc(mem, kernel), nim(mem), ndm(mem), news_u(mem), ns(mem), nwm_uds(mem, kernel), ptm(mem, config), soc(mem), ssl(mem),
@@ -272,19 +272,19 @@ void ServiceManager::sendCommandToService(u32 messagePointer, Handle handle) {
 }
 
 bool ServiceManager::checkForIntercept(u32 messagePointer, Handle handle) {
-	// Check if there's a Lua handler for this function and call it
+	// Check if there's a script handler for this function and call it
 	const u32 function = mem.read32(messagePointer);
 
 	if (auto service_it = serviceMapByHandle.find(handle); service_it != serviceMapByHandle.end()) {
 		auto intercept = InterceptedService(service_it->first, function);
 
 		if (auto intercept_it = interceptedServices.find(intercept); intercept_it != interceptedServices.end()) {
-			// If the Lua handler returns true, it means the service is handled entirely
-			// From Lua, and we shouldn't do anything else here.
-			return lua.signalInterceptedService(intercept.serviceName, function, messagePointer, intercept_it->second);
+			// If the script handler returns true, it means the service is handled entirely
+			// from script code, and we shouldn't do anything else here.
+			return scriptManager.signalInterceptedService(intercept.serviceName, function, messagePointer, intercept_it->second);
 		}
 	}
 
-	// Lua did not intercept the service, so emulate it normally
+	// Script manager did not intercept the service, so emulate it normally
 	return false;
 }

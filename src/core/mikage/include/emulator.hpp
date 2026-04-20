@@ -16,7 +16,7 @@
 #include "./fs/romfs.hpp"
 #include "./io_file.hpp"
 #include "./kernel/kernel.hpp"
-#include "./lua_manager.hpp"
+#include "./script_manager.hpp"
 #include "./memory.hpp"
 #include "./scheduler.hpp"
 
@@ -57,7 +57,7 @@ class Emulator {
 	NCSD loadedNCSD;
 
 	std::optional<std::filesystem::path> romPath = std::nullopt;
-	LuaManager lua;
+	ScriptManager scriptManager;
 
   public:
 	// Decides whether to reload or not reload the ROM when resetting. We use enum class over a plain bool for clarity.
@@ -110,7 +110,7 @@ class Emulator {
 	EmulatorConfig& getConfig() { return config; }
 	Cheats& getCheats() { return cheats; }
 	ServiceManager& getServiceManager() { return kernel.getServiceManager(); }
-	LuaManager& getLua() { return lua; }
+	ScriptManager& getScriptManager() { return scriptManager; }
 	AudioDeviceInterface& getAudioDevice() { return audioDevice; }
 
 	RendererType getRendererType() const { return config.rendererType; }
