@@ -51,18 +51,8 @@ struct EmulatorConfig {
 	static constexpr bool accelerateShadersDefault = true;
 	static constexpr bool audioEnabledDefault = true;
 
-	// We default to OpenGL on all platforms other than iOS
-#if defined(PANDA3DS_IOS)
-	static constexpr RendererType rendererDefault = RendererType::Metal;
-#else
-	static constexpr RendererType rendererDefault = RendererType::OpenGL;
-#endif
-
-#if defined(__LIBRETRO__)
-	static constexpr bool hashTexturesDefault = true;
-#else
 	static constexpr bool hashTexturesDefault = false;
-#endif
+	static constexpr RendererType rendererDefault = RendererType::Software;
 
 	static constexpr bool enableFastmemDefault = true;
 

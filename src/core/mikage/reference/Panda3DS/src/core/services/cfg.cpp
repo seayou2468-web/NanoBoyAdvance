@@ -252,7 +252,7 @@ void CFGService::genUniqueConsoleHash(u32 messagePointer) {
 
 	mem.write32(messagePointer, IPC::responseHeader(0x3, 3, 0));
 	mem.write32(messagePointer + 4, Result::Success);
-	// We need to implement hash generation & the SHA-256 digest properly later on. We have cryptopp so the hashing isn't too hard to do
+	// We need to implement hash generation & the SHA-256 digest properly later on.
 	// Let's stub it for now
 	mem.write32(messagePointer + 8, 0x33646D6F ^ salt);   // Lower word of hash
 	mem.write32(messagePointer + 12, 0xA3534841 ^ salt);  // Upper word of hash

@@ -13,16 +13,14 @@ std::optional<RendererType> Renderer::typeFromString(std::string inString) {
 	// Transform to lower-case to make the setting case-insensitive
 	std::transform(inString.begin(), inString.end(), inString.begin(), [](unsigned char c) { return std::tolower(c); });
 
-	// Huge table of possible names and misspellings
-	// Please stop misspelling Vulkan as Vulcan
-	static const std::unordered_map<std::string, RendererType> map = {
-		{"null", RendererType::Null},         {"nil", RendererType::Null},      {"none", RendererType::Null},
-		{"gl", RendererType::OpenGL},         {"ogl", RendererType::OpenGL},    {"opengl", RendererType::OpenGL},
-		{"vk", RendererType::Vulkan},         {"vulkan", RendererType::Vulkan}, {"vulcan", RendererType::Vulkan},
-		{"mtl", RendererType::Metal},         {"metal", RendererType::Metal},
-		{"sw", RendererType::Software},       {"soft", RendererType::Software}, {"software", RendererType::Software},
-		{"softrast", RendererType::Software},
-	};
+		static const std::unordered_map<std::string, RendererType> map = {
+			{"null", RendererType::Software},     {"nil", RendererType::Software},      {"none", RendererType::Software},
+			{"gl", RendererType::Software},       {"ogl", RendererType::Software},      {"opengl", RendererType::Software},
+			{"vk", RendererType::Software},       {"vulkan", RendererType::Software},   {"vulcan", RendererType::Software},
+			{"mtl", RendererType::Software},      {"metal", RendererType::Software},
+			{"sw", RendererType::Software},       {"soft", RendererType::Software}, {"software", RendererType::Software},
+			{"softrast", RendererType::Software},
+		};
 
 	if (auto search = map.find(inString); search != map.end()) {
 		return search->second;
@@ -33,14 +31,14 @@ std::optional<RendererType> Renderer::typeFromString(std::string inString) {
 
 const char* Renderer::typeToString(RendererType rendererType) {
 	switch (rendererType) {
-		case RendererType::Null: return "null";
-		case RendererType::OpenGL: return "opengl";
-		case RendererType::Vulkan: return "vulkan";
-		case RendererType::Metal: return "metal";
-		case RendererType::Software: return "software";
-		default: return "Invalid";
+			case RendererType::Software: return "software";
+			case RendererType::Null: return "software";
+			case RendererType::OpenGL: return "software";
+			case RendererType::Vulkan: return "software";
+			case RendererType::Metal: return "software";
+			default: return "Invalid";
+		}
 	}
-}
 
 void Renderer::doSoftwareTextureCopy(u32 inputAddr, u32 outputAddr, u32 copySize, u32 inputWidth, u32 inputGap, u32 outputWidth, u32 outputGap) {
 	u8* inputPointer = gpu.getPointerPhys<u8>(inputAddr);

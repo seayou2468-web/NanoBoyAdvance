@@ -1,13 +1,10 @@
 #include "loader/ncch.hpp"
 
-#include <cryptopp/aes.h>
-#include <cryptopp/modes.h>
-#include <cryptopp/sha.h>
-
 #include <cstring>
 #include <iostream>
 #include <vector>
 
+#include "apple_crypto.hpp"
 #include "loader/lz77.hpp"
 #include "memory.hpp"
 
@@ -77,15 +74,13 @@ bool NCCH::loadFromHeader(Crypto::AESEngine &aesEngine, IOFile& file, const FSIn
 			// from seeddb.bin
 			std::optional<Crypto::AESKey> seedOptional = aesEngine.getSeedFromDB(programID);
 			if (seedOptional.has_value()) {
-				auto seed = *seedOptional;
-				
-				CryptoPP::SHA256 shaEngine;
-				std::array<u8, 32> data;
-				std::array<u8, CryptoPP::SHA256::DIGESTSIZE> hash;
+					auto seed = *seedOptional;
+					std::array<u8, 32> data;
+					std::array<u8, AppleCrypto::SHA256DigestSize> hash;
 
-				std::memcpy(&data[0], primaryKeyY.data(), primaryKeyY.size());
-				std::memcpy(&data[16], seed.data(), seed.size());
-				shaEngine.CalculateDigest(hash.data(), data.data(), data.size());
+					std::memcpy(&data[0], primaryKeyY.data(), primaryKeyY.size());
+					std::memcpy(&data[16], seed.data(), seed.size());
+					AppleCrypto::sha256(data.data(), data.size(), hash.data());
 				// Note that SHA256 will produce a 256-bit hash, while we only need 128 bits cause this is an AES key
 				// So the latter 16 bytes of the SHA256 are thrown out.
 				std::memcpy(secondaryKeyY.data(), hash.data(), secondaryKeyY.size());
@@ -399,18 +394,10 @@ std::pair<bool, std::size_t> NCCH::readFromFile(IOFile& file, const FSInfo &info
 		return { success, bytes};
 	}
 
-	if (success && info.encryptionInfo.has_value()) {
-		auto& encryptionInfo = info.encryptionInfo.value();
-
-		CryptoPP::CTR_Mode<CryptoPP::AES>::Decryption d(encryptionInfo.normalKey.data(), encryptionInfo.normalKey.size(), encryptionInfo.initialCounter.data());
-
-		if (offset > 0) {
-			d.Seek(offset);
+		if (success && info.encryptionInfo.has_value()) {
+			auto& encryptionInfo = info.encryptionInfo.value();
+			AppleCrypto::aes128CtrXcrypt(encryptionInfo.normalKey.data(), encryptionInfo.initialCounter.data(), offset, dst, bytes);
 		}
-
-		CryptoPP::byte* data = reinterpret_cast<CryptoPP::byte*>(dst);
-		d.ProcessData(data, data, bytes);
-	}
 
 	return { success, bytes};
 }

@@ -31,6 +31,6 @@ class AudioDeviceInterface {
 	virtual void start() = 0;
 	virtual void stop() = 0;
 
-	// Only used for audio devices that render multiple audio frames in one go, eg the libretro audio device.
+	// Optional hook for audio devices that render multiple audio frames in one go.
 	virtual void renderBatch(RenderBatchCallback callback) {}
 };

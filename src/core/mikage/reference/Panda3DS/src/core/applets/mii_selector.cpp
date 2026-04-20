@@ -1,8 +1,8 @@
 #include "applets/mii_selector.hpp"
 
-#include <boost/crc.hpp>
 #include <limits>
 
+#include "crc16.hpp"
 #include "kernel/handles.hpp"
 
 using namespace Applets;
@@ -23,7 +23,7 @@ Result::HorizonResult MiiSelectorApplet::start(const MemoryBlock* sharedMem, con
 	output = getDefaultMii();
 	output.returnCode = 0;  // Success
 	output.selectedGuestMiiIndex = std::numeric_limits<u32>::max();
-	output.miiChecksum = boost::crc<16, 0x1021, 0, 0, false, false>(&output.selectedMiiData, sizeof(MiiData) + sizeof(output.unknown1));
+	output.miiChecksum = CRC::crc16_1021_no_reflect(&output.selectedMiiData, sizeof(MiiData) + sizeof(output.unknown1));
 
 	// Copy output into the response parameter
 	param.data.resize(sizeof(output));

@@ -1,9 +1,63 @@
 #pragma once
-#include <boost/container/flat_map.hpp>
-#include <boost/container/static_vector.hpp>
+#include <algorithm>
+#include <array>
 #include <limits>
+#include <utility>
 
 #include "helpers.hpp"
+
+template <typename Key, typename Val, usize size>
+class FixedFlatMultimap {
+	using Entry = std::pair<Key, Val>;
+	std::array<Entry, size> entries {};
+	usize used = 0;
+
+  public:
+	using iterator = typename std::array<Entry, size>::iterator;
+	using const_iterator = typename std::array<Entry, size>::const_iterator;
+
+	iterator begin() { return entries.begin(); }
+	iterator end() { return entries.begin() + used; }
+	const_iterator begin() const { return entries.begin(); }
+	const_iterator end() const { return entries.begin() + used; }
+	const_iterator cbegin() const { return entries.cbegin(); }
+	const_iterator cend() const { return entries.cbegin() + used; }
+
+	void clear() { used = 0; }
+
+	std::pair<iterator, iterator> equal_range(const Key& key) {
+		iterator first = std::lower_bound(begin(), end(), key, [](const Entry& e, const Key& k) { return e.first < k; });
+		iterator last = std::upper_bound(first, end(), key, [](const Key& k, const Entry& e) { return k < e.first; });
+		return {first, last};
+	}
+
+	std::pair<const_iterator, const_iterator> equal_range(const Key& key) const {
+		const_iterator first = std::lower_bound(cbegin(), cend(), key, [](const Entry& e, const Key& k) { return e.first < k; });
+		const_iterator last = std::upper_bound(first, cend(), key, [](const Key& k, const Entry& e) { return k < e.first; });
+		return {first, last};
+	}
+
+	void emplace(Key key, Val val) {
+		if (used >= size) [[unlikely]] {
+			Helpers::panic("FixedFlatMultimap overflow");
+		}
+
+		iterator insertion = std::upper_bound(begin(), end(), key, [](const Key& k, const Entry& e) { return k < e.first; });
+		std::move_backward(insertion, end(), end() + 1);
+		*insertion = Entry{key, val};
+		used++;
+	}
+
+	iterator erase(iterator it) {
+		if (it == end()) {
+			return it;
+		}
+
+		std::move(it + 1, end(), it);
+		used--;
+		return it;
+	}
+};
 
 struct Scheduler {
 	enum class EventType {
@@ -20,7 +74,7 @@ struct Scheduler {
 	static constexpr u64 arm11Clock = 268111856;
 
 	template <typename Key, typename Val, usize size>
-	using EventMap = boost::container::flat_multimap<Key, Val, std::less<Key>, boost::container::static_vector<std::pair<Key, Val>, size>>;
+	using EventMap = FixedFlatMultimap<Key, Val, size>;
 
 	EventMap<u64, EventType, totalNumberOfEvents> events;
 	u64 currentTimestamp = 0;

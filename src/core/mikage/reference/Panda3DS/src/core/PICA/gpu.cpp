@@ -7,17 +7,7 @@
 
 #include "PICA/float_types.hpp"
 #include "PICA/regs.hpp"
-#include "renderer_null/renderer_null.hpp"
 #include "renderer_sw/renderer_sw.hpp"
-#ifdef PANDA3DS_ENABLE_OPENGL
-#include "renderer_gl/renderer_gl.hpp"
-#endif
-#ifdef PANDA3DS_ENABLE_VULKAN
-#include "renderer_vk/renderer_vk.hpp"
-#endif
-#ifdef PANDA3DS_ENABLE_METAL
-#include "renderer_mtl/renderer_mtl.hpp"
-#endif
 
 constexpr u32 topScreenWidth = 240;
 constexpr u32 topScreenHeight = 400;
@@ -34,36 +24,12 @@ GPU::GPU(Memory& mem, EmulatorConfig& config) : mem(mem), config(config) {
 	mem.setVRAM(vram);  // Give the bus a pointer to our VRAM
 
 	switch (config.rendererType) {
-		case RendererType::Null: {
-			renderer.reset(new RendererNull(*this, regs, externalRegs));
-			break;
-		}
-
 		case RendererType::Software: {
 			renderer.reset(new RendererSw(*this, regs, externalRegs));
 			break;
 		}
-
-#ifdef PANDA3DS_ENABLE_OPENGL
-		case RendererType::OpenGL: {
-			renderer.reset(new RendererGL(*this, regs, externalRegs));
-			break;
-		}
-#endif
-#ifdef PANDA3DS_ENABLE_VULKAN
-		case RendererType::Vulkan: {
-			renderer.reset(new RendererVK(*this, regs, externalRegs));
-			break;
-		}
-#endif
-#ifdef PANDA3DS_ENABLE_METAL
-		case RendererType::Metal: {
-			renderer.reset(new RendererMTL(*this, regs, externalRegs));
-			break;
-		}
-#endif
 		default: {
-			Helpers::panic("Rendering backend not supported: %s", Renderer::typeToString(config.rendererType));
+			renderer.reset(new RendererSw(*this, regs, externalRegs));
 			break;
 		}
 	}

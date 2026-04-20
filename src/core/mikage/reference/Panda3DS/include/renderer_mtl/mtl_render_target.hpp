@@ -3,15 +3,15 @@
 #include <array>
 #include <string>
 
-#include "boost/icl/interval.hpp"
 #include "helpers.hpp"
+#include "interval.hpp"
 #include "math_util.hpp"
 #include "objc_helper.hpp"
 #include "opengl.hpp"
 #include "pica_to_mtl.hpp"
 
 template <typename T>
-using Interval = boost::icl::right_open_interval<T>;
+using Interval = RightOpenInterval<T>;
 
 namespace Metal {
 	template <typename Format_t>

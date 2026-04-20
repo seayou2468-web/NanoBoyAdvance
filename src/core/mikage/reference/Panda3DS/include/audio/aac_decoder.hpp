@@ -1,20 +1,30 @@
 #pragma once
 #include <functional>
+#include <vector>
 
 #include "audio/aac.hpp"
 #include "helpers.hpp"
 
-struct AAC_DECODER_INSTANCE;
+#if defined(__APPLE__)
+#include <AudioToolbox/AudioToolbox.h>
+#endif
 
 namespace Audio::AAC {
 	class Decoder {
-		using DecoderHandle = AAC_DECODER_INSTANCE*;
 		using PaddrCallback = std::function<u8*(u32)>;
+#if defined(__APPLE__)
+		AudioConverterRef converter = nullptr;
+		AudioStreamBasicDescription inputFormat {};
+		AudioStreamBasicDescription outputFormat {};
+		std::vector<u8> inputPacket;
+#endif
 
-		DecoderHandle decoderHandle = nullptr;
+		bool initialized = false;
+		u32 sampleRate = 48000;
+		u32 channelCount = 2;
 
-		bool isInitialized() { return decoderHandle != nullptr; }
-		void initialize();
+		bool isInitialized() const { return initialized; }
+		void initialize(u32 sampleRate, u32 channelCount);
 
 	  public:
 		// Decode function. Takes in a reference to the AAC response & request, and a callback for paddr -> pointer conversions

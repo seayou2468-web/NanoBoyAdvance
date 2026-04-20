@@ -1,9 +1,5 @@
 #include "emulator.hpp"
 
-#if !defined(__ANDROID__) && !defined(__LIBRETRO__)
-#include <SDL_filesystem.h>
-#endif
-
 #include <fstream>
 
 #include "renderdoc.hpp"
@@ -88,7 +84,6 @@ void Emulator::reset(ReloadOption reload) {
 	}
 }
 
-#ifndef __LIBRETRO__
 std::filesystem::path Emulator::getAndroidAppPath() {
 	// SDL_GetPrefPath fails to get the path due to no JNI environment
 	std::ifstream cmdline("/proc/self/cmdline");
@@ -111,7 +106,6 @@ std::filesystem::path Emulator::getConfigPath() {
 		}
 	}
 }
-#endif
 
 void Emulator::step() {}
 
@@ -193,31 +187,18 @@ void Emulator::pollScheduler() {
 	}
 }
 
-#ifndef __LIBRETRO__
 // Get path for saving files (AppData on Windows, /home/user/.local/share/ApplicationName on Linux, etc)
 // Inside that path, we be use a game-specific folder as well. Eg if we were loading a ROM called PenguinDemo.3ds, the savedata would be in
 // %APPDATA%/Alber/PenguinDemo/SaveData on Windows, and so on. We do this because games save data in their own filesystem on the cart.
 // If the portable build setting is enabled, then those saves go in the executable directory instead
 std::filesystem::path Emulator::getAppDataRoot() {
-	std::filesystem::path appDataPath;
-
 #ifdef __ANDROID__
-	appDataPath = getAndroidAppPath();
+	return getAndroidAppPath();
 #else
-	char* appData;
-	if (!config.usePortableBuild) {
-		appData = SDL_GetPrefPath(nullptr, "Alber");
-		appDataPath = std::filesystem::path(appData);
-	} else {
-		appData = SDL_GetBasePath();
-		appDataPath = std::filesystem::path(appData) / "Emulator Files";
-	}
-	SDL_free(appData);
+	const std::filesystem::path base = std::filesystem::current_path();
+	return base / "Emulator Files";
 #endif
-
-	return appDataPath;
 }
-#endif
 
 bool Emulator::loadROM(const std::filesystem::path& path) {
 	// Reset the emulator if we've already loaded a ROM

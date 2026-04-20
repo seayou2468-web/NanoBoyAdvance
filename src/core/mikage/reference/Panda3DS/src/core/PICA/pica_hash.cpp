@@ -4,6 +4,7 @@
 #ifdef PANDA3DS_PICA_CITYHASH
 #include "cityhash.hpp"
 #elif defined(PANDA3DS_PICA_XXHASH3)
+#define XXH_INLINE_ALL
 #include "xxhash/xxhash.h"
 #else
 #error No hashing algorithm defined for the PICA (See pica_hash.hpp for details)

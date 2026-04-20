@@ -1,12 +1,12 @@
 #include "services/dsp.hpp"
 
-#include <cryptopp/sha.h>
 #include <fmt/format.h>
 #include <fmt/ranges.h>
 
 #include <cstring>
 #include <fstream>
 
+#include "apple_crypto.hpp"
 #include "config.hpp"
 #include "ipc.hpp"
 #include "kernel.hpp"
@@ -334,10 +334,8 @@ void DSPService::printFirmwareInfo() {
 
 	const auto& firmwareDB = DSP::firmwareDB;
 	const usize firmwareSize = loadedComponent.size();
-	std::array<u8, CryptoPP::SHA256::DIGESTSIZE> hash;
-
-	CryptoPP::SHA256 sha;
-	sha.CalculateDigest(hash.data(), loadedComponent.data(), firmwareSize);
+	std::array<u8, AppleCrypto::SHA256DigestSize> hash;
+	AppleCrypto::sha256(loadedComponent.data(), firmwareSize, hash.data());
 
 	fmt::print("\nLoaded DSP firmware\n");
 	fmt::print("Firmware SHA-256 hash: {:X}\n", fmt::join(hash, ""));

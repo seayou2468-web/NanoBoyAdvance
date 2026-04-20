@@ -1,12 +1,12 @@
 #pragma once
 #include "PICA/regs.hpp"
-#include "boost/icl/interval.hpp"
 #include "helpers.hpp"
+#include "interval.hpp"
 #include "math_util.hpp"
 #include "opengl.hpp"
 
 template <typename T>
-using Interval = boost::icl::right_open_interval<T>;
+using Interval = RightOpenInterval<T>;
 
 struct ColourBuffer {
 	u32 location;
