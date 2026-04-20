@@ -1,7 +1,5 @@
 #include "PICA/shader_unit.hpp"
 
-#include "cityhash.hpp"
-
 void ShaderUnit::reset() {
 	vs.reset();
 	gs.reset();

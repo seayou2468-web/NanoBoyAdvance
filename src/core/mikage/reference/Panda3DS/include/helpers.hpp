@@ -87,13 +87,6 @@ namespace Helpers {
 		return false;
 	}
 
-	static constexpr bool isAndroid() {
-#ifdef __ANDROID__
-		return true;
-#endif
-		return false;
-	}
-
 	static void debug_printf(const char* fmt, ...) {
 		if constexpr (buildingInDebugMode()) {
 			std::va_list args;
@@ -148,7 +141,7 @@ namespace Helpers {
 		return getBits<offset, bits, ValueT, ValueT>(value);
 	}
 
-#if defined(HELPERS_APPLE_CLANG) || defined(__ANDROID__) || !defined(__cpp_lib_bit_cast)
+#if defined(HELPERS_APPLE_CLANG) || !defined(__cpp_lib_bit_cast)
 	template <class To, class From>
 	constexpr To bit_cast(const From& from) noexcept {
 		return *reinterpret_cast<const To*>(&from);

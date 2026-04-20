@@ -9,26 +9,25 @@
 #include <memory>
 #include <mutex>
 #include <queue>
+#include <string>
 #include <thread>
+#include <vector>
 
 #include "helpers.hpp"
 
 enum class HttpActionType { None, Screenshot, Key, TogglePause, Reset, LoadRom, Step };
 
 class Emulator;
-namespace httplib {
-	class Server;
-	struct Response;
-}  // namespace httplib
 
-// Wrapper for httplib::Response that allows the HTTP server to wait for the response to be ready
-struct DeferredResponseWrapper {
-	DeferredResponseWrapper(httplib::Response& response) : inner_response(response) {}
-
-	httplib::Response& inner_response;
+// Wrapper that allows the HTTP server thread to wait for emulator-side action completion
+struct DeferredHttpResponse {
 	std::mutex mutex;
 	std::condition_variable cv;
 	bool ready = false;
+	int status = 200;
+	std::string contentType = "text/plain";
+	std::string textBody{};
+	std::vector<char> binaryBody{};
 };
 
 // Actions derive from this class and are used to communicate with the HTTP server
@@ -41,12 +40,12 @@ class HttpAction {
 
 	HttpActionType getType() const { return type; }
 
-	static std::unique_ptr<HttpAction> createScreenshotAction(DeferredResponseWrapper& response);
+	static std::unique_ptr<HttpAction> createScreenshotAction(DeferredHttpResponse& response);
 	static std::unique_ptr<HttpAction> createKeyAction(u32 key, bool state);
-	static std::unique_ptr<HttpAction> createLoadRomAction(DeferredResponseWrapper& response, const std::filesystem::path& path, bool paused);
+	static std::unique_ptr<HttpAction> createLoadRomAction(DeferredHttpResponse& response, const std::filesystem::path& path, bool paused);
 	static std::unique_ptr<HttpAction> createTogglePauseAction();
 	static std::unique_ptr<HttpAction> createResetAction();
-	static std::unique_ptr<HttpAction> createStepAction(DeferredResponseWrapper& response, int frames);
+	static std::unique_ptr<HttpAction> createStepAction(DeferredHttpResponse& response, int frames);
 };
 
 struct HttpServer {
@@ -58,7 +57,8 @@ struct HttpServer {
 	static constexpr const char* httpServerScreenshotPath = "screenshot.png";
 
 	Emulator* emulator;
-	std::unique_ptr<httplib::Server> server;
+	std::atomic<bool> running{true};
+	int listenFd = -1;
 
 	std::thread httpServerThread;
 	std::queue<std::unique_ptr<HttpAction>> actionQueue;

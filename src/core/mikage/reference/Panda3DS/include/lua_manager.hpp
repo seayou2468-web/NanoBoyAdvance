@@ -17,8 +17,6 @@ extern "C" {
 #include <lauxlib.h>
 #include <lua.h>
 #include <lualib.h>
-
-#include "luajit.h"
 }
 
 class LuaManager {

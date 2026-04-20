@@ -2,10 +2,6 @@
 #include <cstdarg>
 #include <fstream>
 
-#ifdef __ANDROID__
-#include <android/log.h>
-#endif
-
 namespace Log {
 	// Our logger class
 	template <bool enabled>
@@ -16,11 +12,7 @@ namespace Log {
 
 			std::va_list args;
 			va_start(args, fmt);
-#ifdef __ANDROID__
-			__android_log_vprint(ANDROID_LOG_DEFAULT, "Panda3DS", fmt, args);
-#else
 			std::vprintf(fmt, args);
-#endif
 			va_end(args);
 		}
 	};
