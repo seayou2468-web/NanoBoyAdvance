@@ -5,6 +5,9 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <type_traits>
+#include <utility>
+#include <variant>
 
 #include "./termcolor.hpp"
 
@@ -158,3 +161,46 @@ namespace Helpers {
 constexpr size_t operator""_KB(unsigned long long int x) { return 1024ULL * x; }
 constexpr size_t operator""_MB(unsigned long long int x) { return 1024_KB * x; }
 constexpr size_t operator""_GB(unsigned long long int x) { return 1024_MB * x; }
+
+namespace Rust {
+	template <typename T>
+	struct OkValue {
+		T value;
+	};
+
+	template <typename E>
+	struct ErrValue {
+		E value;
+	};
+
+	template <typename T, typename E>
+	class Result {
+	  public:
+		Result(const OkValue<T>& ok) : data(ok.value), hasOk(true) {}
+		Result(OkValue<T>&& ok) : data(std::move(ok.value)), hasOk(true) {}
+		Result(const ErrValue<E>& err) : data(err.value), hasOk(false) {}
+		Result(ErrValue<E>&& err) : data(std::move(err.value)), hasOk(false) {}
+
+		[[nodiscard]] bool isOk() const { return hasOk; }
+		[[nodiscard]] bool isErr() const { return !hasOk; }
+
+		[[nodiscard]] T& unwrap() { return std::get<T>(data); }
+		[[nodiscard]] const T& unwrap() const { return std::get<T>(data); }
+		[[nodiscard]] E& unwrapErr() { return std::get<E>(data); }
+		[[nodiscard]] const E& unwrapErr() const { return std::get<E>(data); }
+
+	  private:
+		std::variant<T, E> data;
+		bool hasOk = false;
+	};
+}
+
+template <typename T>
+[[nodiscard]] Rust::OkValue<std::decay_t<T>> Ok(T&& value) {
+	return {std::forward<T>(value)};
+}
+
+template <typename E>
+[[nodiscard]] Rust::ErrValue<std::decay_t<E>> Err(E&& value) {
+	return {std::forward<E>(value)};
+}
