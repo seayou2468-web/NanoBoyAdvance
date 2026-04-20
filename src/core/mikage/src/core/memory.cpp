@@ -2,8 +2,10 @@
 
 #include <cassert>
 #include <chrono>  // For time since epoch
-#include "../../include/cmrc/cmrc.hpp"
 #include <ctime>
+#include <fstream>
+#include <iterator>
+#include <vector>
 
 #include "../../include/kernel/config_mem.hpp"
 #include "../../include/kernel/fcram.hpp"
@@ -11,9 +13,21 @@
 #include "../../include/services/fonts.hpp"
 #include "../../include/services/ptm.hpp"
 
-CMRC_DECLARE(ConsoleFonts);
-
 using namespace KernelMemoryTypes;
+
+namespace {
+
+std::vector<u8> LoadSharedFontReplacement() {
+	static constexpr const char* kSharedFontFile = "SharedFontReplacement.bin";
+	std::ifstream in(kSharedFontFile, std::ios::binary);
+	if (!in.good()) {
+		return {};
+	}
+
+	return std::vector<u8>(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
+}
+
+}  // namespace
 
 Memory::Memory(KFcram& fcramManager, const EmulatorConfig& config) : fcramManager(fcramManager), config(config) {
 	const bool fastmemEnabled = config.fastmemEnabled;
@@ -56,9 +70,8 @@ void Memory::reset() {
 	// Initialize shared memory blocks and reserve memory for them
 	for (auto& e : sharedMemBlocks) {
 		if (e.handle == KernelHandles::FontSharedMemHandle) {
-			// Read font size from the cmrc filesystem the font is stored in
-			auto fonts = cmrc::ConsoleFonts::get_filesystem();
-			e.size = fonts.open("SharedFontReplacement.bin").size();
+			// Font shared memory size depends on the external shared-font replacement file.
+			e.size = LoadSharedFontReplacement().size();
 		}
 
 		e.mapped = false;
@@ -615,9 +628,12 @@ Regions Memory::getConsoleRegion() {
 }
 
 void Memory::copySharedFont(u8* pointer, u32 vaddr) {
-	auto fonts = cmrc::ConsoleFonts::get_filesystem();
-	auto font = fonts.open("SharedFontReplacement.bin");
-	std::memcpy(pointer, font.begin(), font.size());
+	const std::vector<u8> font = LoadSharedFontReplacement();
+	if (font.empty()) {
+		Helpers::warn("SharedFontReplacement.bin not found or empty\n");
+		return;
+	}
+	std::memcpy(pointer, font.data(), font.size());
 
 	// Relocate shared font to the address it's being loaded to
 	HLE::Fonts::relocateSharedFont(pointer, vaddr);

@@ -13,8 +13,6 @@
   - 根拠: `xbyak/xbyak.h`, `xbyak/xbyak_util.h` を include。
 - **capstone**（逆アセンブラ）
   - 根拠: `capstone/capstone.h` を include。
-- **cmrc**（埋め込みリソース）
-  - 根拠: `cmrc/cmrc.hpp` を include し `cmrc::ConsoleFonts::get_filesystem()` を利用。
 
 ### プラットフォーム SDK / フレームワーク
 - **Apple CommonCrypto**
