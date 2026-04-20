@@ -1,0 +1,5664 @@
+{
+  "debugObjects" : {
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/fonts.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 54,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/fonts.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/ssl.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 34,
+          "severity" : 0,
+          "column" : 12
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/ssl.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/nim.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/nim.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/kernel\/resource_limits.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "severity" : 1,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "severity" : 1,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "severity" : 1,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "severity" : 1,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 13,
+          "severity" : 0,
+          "column" : 12
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/kernel\/resource_limits.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/host_memory\/host_memory.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 22,
+          "severity" : 0,
+          "column" : 12
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/host_memory\/host_memory.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/soc.cpp" : {
+      "debugItems" : [
+        {
+          "severity" : 1,
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "column" : 15
+        },
+        {
+          "severity" : 0,
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "column" : 13
+        },
+        {
+          "severity" : 0,
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/soc.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/ios\/AuroraIOS\/Views\/AURBackgroundView.m" : {
+      "debugItems" : [
+        {
+          "message" : "'tuple' file not found",
+          "line" : 5922,
+          "severity" : 2,
+          "column" : 10
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/ios\/AuroraIOS\/Views\/AURBackgroundView.m"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/applets\/software_keyboard.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 36,
+          "severity" : 0,
+          "column" : 12
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/applets\/software_keyboard.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/kernel\/directory_operations.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "severity" : 1,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "severity" : 1,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "severity" : 1,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "severity" : 1,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 13,
+          "severity" : 0,
+          "column" : 12
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/kernel\/directory_operations.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/ac.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 61,
+          "severity" : 0,
+          "column" : 12
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/ac.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/PICA\/gpu.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "severity" : 1,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "severity" : 1,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "severity" : 1,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "severity" : 1,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 244,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 145,
+          "severity" : 0,
+          "column" : 12
+        },
+        {
+          "message" : "in instantiation of function template specialization 'GPU::drawArrays<true, ShaderExecMode::Interpreter>' requested here",
+          "line" : 118,
+          "severity" : 0,
+          "column" : 4
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/PICA\/gpu.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/audio\/ios_audio_device.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 92,
+          "severity" : 0,
+          "column" : 12
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/audio\/ios_audio_device.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/action_replay.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 222,
+          "severity" : 0,
+          "column" : 15
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/action_replay.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/dlp_srvr.cpp" : {
+      "debugItems" : [
+        {
+          "severity" : 1,
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "column" : 15
+        },
+        {
+          "severity" : 0,
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "column" : 13
+        },
+        {
+          "severity" : 0,
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/dlp_srvr.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/loader\/3dsx.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/loader\/3dsx.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/dsp.cpp" : {
+      "debugItems" : [
+        {
+          "severity" : 1,
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "column" : 2
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "severity" : 1,
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "column" : 39
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "severity" : 1,
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "column" : 2
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "severity" : 1,
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "column" : 39
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "severity" : 1,
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "column" : 15
+        },
+        {
+          "severity" : 0,
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "column" : 13
+        },
+        {
+          "severity" : 0,
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "column" : 15
+        },
+        {
+          "severity" : 1,
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "column" : 15
+        },
+        {
+          "severity" : 0,
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 13,
+          "column" : 12
+        },
+        {
+          "severity" : 0,
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/dsp.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/fs\/ivfc.cpp" : {
+      "debugItems" : [
+        {
+          "severity" : 1,
+          "message" : "format specifies type 'unsigned long long' but the argument has type 'uintptr_t' (aka 'unsigned long')",
+          "line" : 61,
+          "column" : 60
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/fs\/ivfc.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/host_memory\/virtual_buffer.cpp" : {
+      "debugItems" : [
+        {
+          "severity" : 1,
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "column" : 15
+        },
+        {
+          "severity" : 0,
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 24,
+          "column" : 12
+        },
+        {
+          "severity" : 0,
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/host_memory\/virtual_buffer.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/PICA\/shader_interpreter.cpp" : {
+      "debugItems" : [
+        {
+          "severity" : 1,
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "column" : 2
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "severity" : 1,
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "column" : 39
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "severity" : 1,
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "column" : 2
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "severity" : 1,
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "column" : 39
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "severity" : 1,
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "column" : 15
+        },
+        {
+          "severity" : 0,
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 244,
+          "column" : 13
+        },
+        {
+          "severity" : 0,
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/PICA\/shader_interpreter.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/fs\/archive_self_ncch.cpp" : {
+      "debugItems" : [
+        {
+          "severity" : 1,
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "column" : 15
+        },
+        {
+          "severity" : 0,
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "column" : 13
+        },
+        {
+          "severity" : 0,
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "column" : 15
+        },
+        {
+          "severity" : 1,
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "column" : 15
+        },
+        {
+          "severity" : 0,
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 109,
+          "column" : 14
+        },
+        {
+          "severity" : 0,
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/fs\/archive_self_ncch.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/act.cpp" : {
+      "debugItems" : [
+        {
+          "severity" : 1,
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "column" : 15
+        },
+        {
+          "severity" : 0,
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "column" : 13
+        },
+        {
+          "severity" : 0,
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/act.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/cecd.cpp" : {
+      "debugItems" : [
+        {
+          "severity" : 1,
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "column" : 2
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "severity" : 1,
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "column" : 39
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "severity" : 1,
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "column" : 2
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "severity" : 1,
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "column" : 39
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "severity" : 1,
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "column" : 15
+        },
+        {
+          "severity" : 0,
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "column" : 13
+        },
+        {
+          "severity" : 0,
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "column" : 15
+        },
+        {
+          "severity" : 1,
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "column" : 15
+        },
+        {
+          "severity" : 0,
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 13,
+          "column" : 12
+        },
+        {
+          "severity" : 0,
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/cecd.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/applets\/mii_selector.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/applets\/mii_selector.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/fs\/archive_twl_sound.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 13,
+          "severity" : 0,
+          "column" : 12
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/fs\/archive_twl_sound.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/audio\/null_core.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 61,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/audio\/null_core.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/CPU\/cpu_interpreter.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "severity" : 1,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "severity" : 1,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "severity" : 1,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "severity" : 1,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 13,
+          "severity" : 0,
+          "column" : 12
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/CPU\/cpu_interpreter.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/ios\/AuroraIOS\/Metal.m" : {
+      "debugItems" : [
+        {
+          "message" : "'tuple' file not found",
+          "line" : 5922,
+          "severity" : 2,
+          "column" : 10
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/ios\/AuroraIOS\/Metal.m"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/kernel\/threads.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "severity" : 1,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "severity" : 1,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "severity" : 1,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "severity" : 1,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "8 enumeration values not handled in switch: 'Running', 'Ready', 'WaitArbiter'...",
+          "line" : 309,
+          "severity" : 1,
+          "column" : 10
+        },
+        {
+          "message" : "8 enumeration values not handled in switch: 'Running', 'Ready', 'WaitArbiter'...",
+          "line" : 342,
+          "severity" : 1,
+          "column" : 11
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 13,
+          "severity" : 0,
+          "column" : 12
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/kernel\/threads.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/ndm.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/ndm.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/kernel\/idle_thread.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "severity" : 1,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "severity" : 1,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "severity" : 1,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "severity" : 1,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 13,
+          "severity" : 0,
+          "column" : 12
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/kernel\/idle_thread.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/kernel\/events.cpp" : {
+      "debugItems" : [
+        {
+          "severity" : 1,
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "column" : 2
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "severity" : 1,
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "column" : 39
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "severity" : 1,
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "column" : 2
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "severity" : 1,
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "column" : 39
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "severity" : 1,
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "column" : 15
+        },
+        {
+          "severity" : 0,
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "column" : 13
+        },
+        {
+          "severity" : 0,
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "column" : 15
+        },
+        {
+          "severity" : 1,
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "column" : 15
+        },
+        {
+          "severity" : 0,
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 13,
+          "column" : 12
+        },
+        {
+          "severity" : 0,
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/kernel\/events.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/mcu\/mcu_hwc.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/mcu\/mcu_hwc.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/loader\/ncsd.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/loader\/ncsd.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/audio\/dsp_core.cpp" : {
+      "debugItems" : [
+        {
+          "severity" : 1,
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "column" : 15
+        },
+        {
+          "severity" : 0,
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "column" : 13
+        },
+        {
+          "severity" : 0,
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "column" : 15
+        },
+        {
+          "severity" : 1,
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "column" : 15
+        },
+        {
+          "severity" : 0,
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 20,
+          "column" : 13
+        },
+        {
+          "severity" : 0,
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/audio\/dsp_core.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/fs\/archive_system_save_data.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 9,
+          "severity" : 0,
+          "column" : 12
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/fs\/archive_system_save_data.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/kernel\/memory_management.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "severity" : 1,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "severity" : 1,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "severity" : 1,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "severity" : 1,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 13,
+          "severity" : 0,
+          "column" : 12
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/kernel\/memory_management.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/nfc.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "severity" : 1,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "severity" : 1,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "severity" : 1,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "severity" : 1,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 13,
+          "severity" : 0,
+          "column" : 12
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/nfc.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/io_file.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 105,
+          "severity" : 0,
+          "column" : 26
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/io_file.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/fs\/archive_save_data.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 88,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/fs\/archive_save_data.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/renderer_sw\/renderer_sw.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/renderer_sw\/renderer_sw.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/fs\/archive_card_spi.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 13,
+          "severity" : 0,
+          "column" : 12
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/fs\/archive_card_spi.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/memory.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 195,
+          "severity" : 0,
+          "column" : 16
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/memory.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/PICA\/draw_acceleration.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "severity" : 1,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "severity" : 1,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "severity" : 1,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "severity" : 1,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 244,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/PICA\/draw_acceleration.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/ptm.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 143,
+          "severity" : 0,
+          "column" : 11
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/ptm.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/csnd.cpp" : {
+      "debugItems" : [
+        {
+          "severity" : 1,
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "column" : 2
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "severity" : 1,
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "column" : 39
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "severity" : 1,
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "column" : 2
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "severity" : 1,
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "column" : 39
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "severity" : 1,
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "column" : 15
+        },
+        {
+          "severity" : 0,
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "column" : 13
+        },
+        {
+          "severity" : 0,
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "column" : 15
+        },
+        {
+          "severity" : 1,
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "column" : 15
+        },
+        {
+          "severity" : 0,
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 13,
+          "column" : 12
+        },
+        {
+          "severity" : 0,
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/csnd.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/news_u.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "declaration does not declare anything",
+          "line" : 6,
+          "severity" : 1,
+          "column" : 2
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/news_u.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/gsp_gpu.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "severity" : 1,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "severity" : 1,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "severity" : 1,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "severity" : 1,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 244,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 13,
+          "severity" : 0,
+          "column" : 12
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/gsp_gpu.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/screen_layout.cpp" : {
+      "debugItems" : [
+        {
+          "severity" : 1,
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "column" : 15
+        },
+        {
+          "severity" : 0,
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 118,
+          "column" : 12
+        },
+        {
+          "severity" : 0,
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/screen_layout.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/fs\/archive_ncch.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 93,
+          "severity" : 0,
+          "column" : 14
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/fs\/archive_ncch.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/loader\/ncch.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 25,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 88,
+          "severity" : 0,
+          "column" : 14
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/loader\/ncch.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/gsp_lcd.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/gsp_lcd.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/nwm_uds.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "severity" : 1,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "severity" : 1,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "severity" : 1,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "severity" : 1,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 13,
+          "severity" : 0,
+          "column" : 12
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/nwm_uds.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/audio\/hle_core.cpp" : {
+      "debugItems" : [
+        {
+          "severity" : 1,
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "column" : 15
+        },
+        {
+          "severity" : 0,
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "column" : 13
+        },
+        {
+          "severity" : 0,
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "column" : 15
+        },
+        {
+          "severity" : 1,
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "column" : 15
+        },
+        {
+          "severity" : 0,
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 90,
+          "column" : 13
+        },
+        {
+          "severity" : 0,
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/audio\/hle_core.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/ns.cpp" : {
+      "debugItems" : [
+        {
+          "severity" : 1,
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "column" : 15
+        },
+        {
+          "severity" : 0,
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "column" : 13
+        },
+        {
+          "severity" : 0,
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/ns.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/ldr_ro.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "severity" : 1,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "severity" : 1,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "severity" : 1,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "severity" : 1,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 13,
+          "severity" : 0,
+          "column" : 12
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/ldr_ro.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/fs\/archive_user_save_data.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 83,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/fs\/archive_user_save_data.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/fs.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "severity" : 1,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "severity" : 1,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "severity" : 1,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "severity" : 1,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 13,
+          "severity" : 0,
+          "column" : 12
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/fs.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/fs\/archive_twl_photo.cpp" : {
+      "debugItems" : [
+        {
+          "severity" : 1,
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "column" : 15
+        },
+        {
+          "severity" : 0,
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "column" : 13
+        },
+        {
+          "severity" : 0,
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "column" : 15
+        },
+        {
+          "severity" : 1,
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "column" : 15
+        },
+        {
+          "severity" : 0,
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 13,
+          "column" : 12
+        },
+        {
+          "severity" : 0,
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/fs\/archive_twl_photo.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/emulator.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "severity" : 1,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "severity" : 1,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "severity" : 1,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "severity" : 1,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 244,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 13,
+          "severity" : 0,
+          "column" : 12
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/emulator.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/audio\/aac_decoder.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 96,
+          "severity" : 0,
+          "column" : 12
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/audio\/aac_decoder.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/kernel\/error.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "severity" : 1,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "severity" : 1,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "severity" : 1,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "severity" : 1,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 13,
+          "severity" : 0,
+          "column" : 12
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/kernel\/error.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/kernel\/ports.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "severity" : 1,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "severity" : 1,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "severity" : 1,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "severity" : 1,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 13,
+          "severity" : 0,
+          "column" : 12
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/kernel\/ports.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/boss.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 83,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/boss.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/PICA\/shader_unit.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "severity" : 1,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "severity" : 1,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "severity" : 1,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "severity" : 1,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 244,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/PICA\/shader_unit.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/hid.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "severity" : 1,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "severity" : 1,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "severity" : 1,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "severity" : 1,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 13,
+          "severity" : 0,
+          "column" : 12
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/hid.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/apt.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "severity" : 1,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "severity" : 1,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "severity" : 1,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "severity" : 1,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 13,
+          "severity" : 0,
+          "column" : 12
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/apt.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/config.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/config.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/mic.cpp" : {
+      "debugItems" : [
+        {
+          "severity" : 1,
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "column" : 2
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "severity" : 1,
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "column" : 39
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "severity" : 1,
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "column" : 2
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "severity" : 1,
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "column" : 39
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "severity" : 1,
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "column" : 15
+        },
+        {
+          "severity" : 0,
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "column" : 13
+        },
+        {
+          "severity" : 0,
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "column" : 15
+        },
+        {
+          "severity" : 1,
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "column" : 15
+        },
+        {
+          "severity" : 0,
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 13,
+          "column" : 12
+        },
+        {
+          "severity" : 0,
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/mic.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/service_manager.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "severity" : 1,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "severity" : 1,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "severity" : 1,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "severity" : 1,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 13,
+          "severity" : 0,
+          "column" : 12
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/service_manager.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/core_adapter_registry.cpp" : {
+      "debugItems" : [
+        {
+          "severity" : 1,
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "column" : 2
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "severity" : 1,
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "column" : 39
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "severity" : 1,
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "column" : 2
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "severity" : 1,
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "column" : 39
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "severity" : 1,
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "column" : 15
+        },
+        {
+          "severity" : 0,
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 244,
+          "column" : 13
+        },
+        {
+          "severity" : 0,
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "column" : 15
+        },
+        {
+          "severity" : 1,
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "column" : 15
+        },
+        {
+          "severity" : 0,
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 13,
+          "column" : 12
+        },
+        {
+          "severity" : 0,
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/core_adapter_registry.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/cheats.cpp" : {
+      "debugItems" : [
+        {
+          "severity" : 1,
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "column" : 15
+        },
+        {
+          "severity" : 0,
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "column" : 13
+        },
+        {
+          "severity" : 0,
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/cheats.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/applets\/error_applet.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/applets\/error_applet.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/ios\/AuroraIOS\/Controllers\/AURLibraryViewController.m" : {
+      "debugItems" : [
+        {
+          "message" : "'tuple' file not found",
+          "line" : 5922,
+          "severity" : 2,
+          "column" : 10
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/ios\/AuroraIOS\/Controllers\/AURLibraryViewController.m"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/y2r.cpp" : {
+      "debugItems" : [
+        {
+          "severity" : 1,
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "column" : 2
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "severity" : 1,
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "column" : 39
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "severity" : 1,
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "column" : 2
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "severity" : 1,
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "column" : 39
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "severity" : 1,
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "column" : 15
+        },
+        {
+          "severity" : 0,
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "column" : 13
+        },
+        {
+          "severity" : 0,
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "column" : 15
+        },
+        {
+          "severity" : 1,
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "column" : 15
+        },
+        {
+          "severity" : 0,
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 13,
+          "column" : 12
+        },
+        {
+          "severity" : 0,
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/y2r.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/PICA\/regs.cpp" : {
+      "debugItems" : [
+        {
+          "severity" : 1,
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "column" : 2
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "severity" : 1,
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "column" : 39
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "severity" : 1,
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "column" : 2
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "severity" : 1,
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "column" : 39
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "severity" : 1,
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "column" : 15
+        },
+        {
+          "severity" : 0,
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 244,
+          "column" : 13
+        },
+        {
+          "severity" : 0,
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/PICA\/regs.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/ir\/crc8.cpp" : {
+      "debugItems" : [
+        {
+          "severity" : 1,
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "column" : 15
+        },
+        {
+          "severity" : 0,
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "column" : 13
+        },
+        {
+          "severity" : 0,
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/ir\/crc8.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/loader\/elf.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/loader\/elf.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/fs\/archive_ext_save_data.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 25,
+          "severity" : 0,
+          "column" : 12
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/fs\/archive_ext_save_data.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/ios\/AuroraIOS\/Managers\/AURSkinManager.m" : {
+      "debugItems" : [
+        {
+          "message" : "cannot initialize a variable of type 'const uint8_t *' (aka 'const unsigned char *') with an rvalue of type 'const void *'",
+          "line" : 133,
+          "severity" : 2,
+          "column" : 20
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/ios\/AuroraIOS\/Managers\/AURSkinManager.m"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/http.cpp" : {
+      "debugItems" : [
+        {
+          "severity" : 1,
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "column" : 15
+        },
+        {
+          "severity" : 0,
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "column" : 13
+        },
+        {
+          "severity" : 0,
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "column" : 15
+        },
+        {
+          "severity" : 1,
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "column" : 15
+        },
+        {
+          "severity" : 0,
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 38,
+          "column" : 12
+        },
+        {
+          "severity" : 0,
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/http.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/kernel\/address_arbiter.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "severity" : 1,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "severity" : 1,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "severity" : 1,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "severity" : 1,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 13,
+          "severity" : 0,
+          "column" : 12
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/kernel\/address_arbiter.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/kernel\/timers.cpp" : {
+      "debugItems" : [
+        {
+          "severity" : 1,
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "column" : 2
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "severity" : 1,
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "column" : 39
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "severity" : 1,
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "column" : 2
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "severity" : 1,
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "column" : 39
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "severity" : 1,
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "column" : 15
+        },
+        {
+          "severity" : 0,
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "column" : 13
+        },
+        {
+          "severity" : 0,
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "column" : 15
+        },
+        {
+          "severity" : 1,
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "column" : 15
+        },
+        {
+          "severity" : 0,
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 13,
+          "column" : 12
+        },
+        {
+          "severity" : 0,
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/kernel\/timers.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/ir\/circlepad_pro.cpp" : {
+      "debugItems" : [
+        {
+          "severity" : 1,
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "column" : 15
+        },
+        {
+          "severity" : 0,
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "column" : 13
+        },
+        {
+          "severity" : 0,
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "column" : 15
+        },
+        {
+          "severity" : 1,
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "column" : 15
+        },
+        {
+          "severity" : 0,
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 43,
+          "column" : 14
+        },
+        {
+          "severity" : 0,
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/ir\/circlepad_pro.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/cam.cpp" : {
+      "debugItems" : [
+        {
+          "severity" : 1,
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "column" : 2
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "severity" : 1,
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "column" : 39
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "severity" : 1,
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "column" : 2
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "severity" : 1,
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "column" : 39
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "severity" : 1,
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "column" : 15
+        },
+        {
+          "severity" : 0,
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "column" : 13
+        },
+        {
+          "severity" : 0,
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "column" : 15
+        },
+        {
+          "severity" : 1,
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "column" : 15
+        },
+        {
+          "severity" : 0,
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 13,
+          "column" : 12
+        },
+        {
+          "severity" : 0,
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/cam.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/audio\/teakra_core.cpp" : {
+      "debugItems" : [
+        {
+          "severity" : 1,
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "column" : 15
+        },
+        {
+          "severity" : 0,
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "column" : 13
+        },
+        {
+          "severity" : 0,
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "column" : 15
+        },
+        {
+          "severity" : 1,
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "column" : 15
+        },
+        {
+          "severity" : 0,
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 74,
+          "column" : 14
+        },
+        {
+          "severity" : 0,
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/audio\/teakra_core.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/fs\/archive_sdmc.cpp" : {
+      "debugItems" : [
+        {
+          "severity" : 1,
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "column" : 15
+        },
+        {
+          "severity" : 0,
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "column" : 13
+        },
+        {
+          "severity" : 0,
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "column" : 15
+        },
+        {
+          "severity" : 1,
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "column" : 15
+        },
+        {
+          "severity" : 0,
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 64,
+          "column" : 13
+        },
+        {
+          "severity" : 0,
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/fs\/archive_sdmc.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/PICA\/pica_hash.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "severity" : 1,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "severity" : 1,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "severity" : 1,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "severity" : 1,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 244,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/PICA\/pica_hash.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/kernel\/fcram.cpp" : {
+      "debugItems" : [
+        {
+          "severity" : 1,
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "column" : 15
+        },
+        {
+          "severity" : 0,
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "column" : 13
+        },
+        {
+          "severity" : 0,
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/kernel\/fcram.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/kernel\/kernel.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "severity" : 1,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "severity" : 1,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "severity" : 1,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "severity" : 1,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 13,
+          "severity" : 0,
+          "column" : 12
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/kernel\/kernel.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/applets\/applet_manager.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/applets\/applet_manager.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/ios\/AuroraIOS\/Models\/AURControllerSkinTraits.m" : {
+      "debugItems" : [
+        {
+          "severity" : 1,
+          "message" : "bitwise operation between different enumeration types ('AURControllerSkinOrientation' and 'AURControllerSkinDevice') is deprecated",
+          "line" : 28,
+          "column" : 29
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/ios\/AuroraIOS\/Models\/AURControllerSkinTraits.m"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/frd.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 165,
+          "severity" : 0,
+          "column" : 11
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/frd.cpp"
+    },
+    "Internal" : {
+      "debugItems" : [
+        {
+          "message" : "Failed to compile source code",
+          "line" : 0,
+          "severity" : 2,
+          "column" : 0
+        }
+      ],
+      "type" : {
+        "DebugMessage" : {
+
+        }
+      },
+      "title" : "Internal"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/include\/lua\/loslib.c" : {
+      "debugItems" : [
+        {
+          "severity" : 2,
+          "message" : "'system' is unavailable: not available on iOS",
+          "line" : 146,
+          "column" : 10
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro 'l_system'",
+          "line" : 137,
+          "column" : 23
+        },
+        {
+          "severity" : 0,
+          "message" : "'system' has been explicitly marked unavailable here",
+          "line" : 208,
+          "column" : 6
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/include\/lua\/loslib.c"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/cfg.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 229,
+          "severity" : 0,
+          "column" : 12
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/cfg.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/am.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 48,
+          "severity" : 0,
+          "column" : 11
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/am.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/include\/lua\/ldo.c" : {
+      "debugItems" : [
+        {
+          "message" : "cannot use 'throw' with exceptions disabled",
+          "line" : 114,
+          "severity" : 2,
+          "column" : 5
+        },
+        {
+          "message" : "expanded from macro 'LUAI_THROW'",
+          "line" : 58,
+          "severity" : 0,
+          "column" : 26
+        },
+        {
+          "message" : "cannot use 'try' with exceptions disabled",
+          "line" : 141,
+          "severity" : 2,
+          "column" : 3
+        },
+        {
+          "message" : "expanded from macro 'LUAI_TRY'",
+          "line" : 60,
+          "severity" : 0,
+          "column" : 2
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/include\/lua\/ldo.c"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/renderer.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "severity" : 1,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "severity" : 1,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "severity" : 1,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "severity" : 1,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/renderer.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/kernel\/file_operations.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "severity" : 1,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "severity" : 1,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "severity" : 1,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "severity" : 1,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 13,
+          "severity" : 0,
+          "column" : 12
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/kernel\/file_operations.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/PICA\/shader_decompiler.cpp" : {
+      "debugItems" : [
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "severity" : 1,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "severity" : 1,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "severity" : 1,
+          "column" : 2
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "severity" : 1,
+          "column" : 39
+        },
+        {
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "severity" : 0,
+          "column" : 24
+        },
+        {
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "severity" : 1,
+          "column" : 15
+        },
+        {
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 244,
+          "severity" : 0,
+          "column" : 13
+        },
+        {
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "severity" : 0,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/PICA\/shader_decompiler.cpp"
+    },
+    "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/ir\/ir_user.cpp" : {
+      "debugItems" : [
+        {
+          "severity" : 1,
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "column" : 2
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "severity" : 1,
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 321,
+          "column" : 39
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "severity" : 1,
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "column" : 2
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "severity" : 1,
+          "message" : "offset of on non-standard-layout type 'PICAShader'",
+          "line" : 322,
+          "column" : 39
+        },
+        {
+          "severity" : 0,
+          "message" : "expanded from macro 'offsetof'",
+          "line" : 16,
+          "column" : 24
+        },
+        {
+          "severity" : 1,
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 49,
+          "column" : 15
+        },
+        {
+          "severity" : 0,
+          "message" : "in instantiation of function template specialization 'Helpers::panic<>' requested here",
+          "line" : 95,
+          "column" : 13
+        },
+        {
+          "severity" : 0,
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 49,
+          "column" : 15
+        },
+        {
+          "severity" : 1,
+          "message" : "format string is not a string literal (potentially insecure)",
+          "line" : 68,
+          "column" : 15
+        },
+        {
+          "severity" : 0,
+          "message" : "in instantiation of function template specialization 'Helpers::warn<>' requested here",
+          "line" : 13,
+          "column" : 12
+        },
+        {
+          "severity" : 0,
+          "message" : "treat the string as an argument to avoid this",
+          "line" : 68,
+          "column" : 15
+        }
+      ],
+      "type" : {
+        "DebugFile" : {
+
+        }
+      },
+      "title" : "Projects\/D14D5E55-5706-4C0C-92D7-4AC88939A877\/src\/core\/mikage\/src\/core\/services\/ir\/ir_user.cpp"
+    }
+  }
+}
