@@ -15,6 +15,7 @@
 #include "./crypto/aes_engine.hpp"
 #include "./fs/romfs.hpp"
 #include "./io_file.hpp"
+#include "./kernel/kernel.hpp"
 #include "./lua_manager.hpp"
 #include "./memory.hpp"
 #include "./scheduler.hpp"
