@@ -14,25 +14,38 @@
 #include <cstring>
 #include <filesystem>
 #include <fstream>
+#include <memory>
 #include <string>
 #include <vector>
 
+#include "./include/emulator.hpp"
+#include "./include/services/hid.hpp"
+
 namespace {
 
-constexpr uint32_t kMikageFrameWidth = 400;
-constexpr uint32_t kMikageFrameHeight = 480;
+constexpr uint32_t kMikageFrameWidth = Emulator::width;
+constexpr uint32_t kMikageFrameHeight = Emulator::height;
 
 struct MikageRuntime {
   bool rom_loaded = false;
   std::vector<std::string> bios_paths;
   std::vector<uint32_t> rgba_frame;
   std::filesystem::path temp_rom_path;
+  std::unique_ptr<Emulator> emulator;
 };
 
 void* CreateRuntime() {
   auto* runtime = new MikageRuntime();
   runtime->rgba_frame.assign(static_cast<size_t>(kMikageFrameWidth) * static_cast<size_t>(kMikageFrameHeight),
                              0xFF000000u);
+
+  try {
+    runtime->emulator = std::make_unique<Emulator>();
+  } catch (...) {
+    delete runtime;
+    return nullptr;
+  }
+
   return runtime;
 }
 
@@ -53,6 +66,7 @@ void DestroyRuntime(void* opaque_runtime) {
   }
 
   RemoveTemporaryRomIfAny(runtime);
+  runtime->emulator.reset();
   delete runtime;
 }
 
@@ -101,7 +115,7 @@ std::string DecodeFileUrlPath(std::string path) {
 
 bool LoadRomFromPath(void* opaque_runtime, const char* rom_path, std::string& last_error) {
   auto* runtime = static_cast<MikageRuntime*>(opaque_runtime);
-  if (!runtime || !rom_path || rom_path[0] == '\0') {
+  if (!runtime || !runtime->emulator || !rom_path || rom_path[0] == '\0') {
     last_error = "Invalid 3DS ROM path";
     return false;
   }
@@ -119,6 +133,11 @@ bool LoadRomFromPath(void* opaque_runtime, const char* rom_path, std::string& la
   std::error_code ec;
   if (!std::filesystem::exists(fs_path, ec) || !std::filesystem::is_regular_file(fs_path, ec)) {
     last_error = "3DS ROM path does not exist or is not a file";
+    return false;
+  }
+
+  if (!runtime->emulator->loadROM(fs_path)) {
+    last_error = "Mikage failed to load 3DS ROM";
     return false;
   }
 
@@ -171,17 +190,48 @@ bool LoadRomFromMemory(void* opaque_runtime, const void* rom_data, size_t rom_si
   return true;
 }
 
+uint32_t CoreKeyToHidMask(int key) {
+  switch (key) {
+    case 0: return HID::Keys::A;
+    case 1: return HID::Keys::B;
+    case 2: return HID::Keys::Select;
+    case 3: return HID::Keys::Start;
+    case 4: return HID::Keys::Right;
+    case 5: return HID::Keys::Left;
+    case 6: return HID::Keys::Up;
+    case 7: return HID::Keys::Down;
+    case 8: return HID::Keys::R;
+    case 9: return HID::Keys::L;
+    default: return HID::Keys::Null;
+  }
+}
+
 void StepFrame(void* opaque_runtime, std::string& last_error) {
   auto* runtime = static_cast<MikageRuntime*>(opaque_runtime);
-  if (!runtime || !runtime->rom_loaded) {
+  if (!runtime || !runtime->emulator || !runtime->rom_loaded) {
     return;
   }
 
-  (void)last_error;
-  std::fill(runtime->rgba_frame.begin(), runtime->rgba_frame.end(), 0xFF101010u);
+  try {
+    runtime->emulator->runFrame();
+  } catch (...) {
+    last_error = "Mikage frame execution failed";
+  }
 }
 
-void SetKeyStatus(void*, int, bool) {
+void SetKeyStatus(void* opaque_runtime, int key, bool pressed) {
+  auto* runtime = static_cast<MikageRuntime*>(opaque_runtime);
+  if (!runtime || !runtime->emulator) {
+    return;
+  }
+
+  const uint32_t mask = CoreKeyToHidMask(key);
+  if (mask == HID::Keys::Null) {
+    return;
+  }
+
+  auto& hid = runtime->emulator->getServiceManager().getHID();
+  hid.setKey(mask, pressed);
 }
 
 bool GetVideoSpec(EmulatorVideoSpec* out_spec) {
