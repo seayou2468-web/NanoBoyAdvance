@@ -3,12 +3,12 @@
 // Refer to the license.txt file included.
 
 #include <algorithm>
-#include "common/logging/log.h"
-#include "common/swap.h"
+#include "../../../../../reference/Cytrus/Core/include/common/logging/log.h"
+#include "../../../../../reference/Cytrus/Core/include/common/swap.h"
 #include "../../../../../include/cytrus_arm/skyeye_common/armstate.h"
 #include "../../../../../include/cytrus_arm/skyeye_common/vfp/vfp.h"
 #include "../../../../../include/fmt/core.h"
-#include "core/memory.h"
+#include "../../../../../reference/Cytrus/Core/include/core/memory.h"
 
 ARMul_State::ARMul_State(Core::System& system_, Memory::MemorySystem& memory_,
                          PrivilegeMode initial_mode)

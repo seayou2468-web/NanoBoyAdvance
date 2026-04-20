@@ -52,7 +52,7 @@
  */
 
 #include <algorithm>
-#include "common/logging/log.h"
+#include "../../../../../../reference/Cytrus/Core/include/common/logging/log.h"
 #include "../../../../../../include/cytrus_arm/skyeye_common/vfp/asm_vfp.h"
 #include "../../../../../../include/cytrus_arm/skyeye_common/vfp/vfp.h"
 #include "../../../../../../include/cytrus_arm/skyeye_common/vfp/vfp_helper.h"
