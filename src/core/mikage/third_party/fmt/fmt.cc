@@ -104,19 +104,19 @@ extern "C++" {
 
 // All library-provided declarations and definitions must be in the module
 // purview to be exported.
-#include "fmt/args.h"
-#include "fmt/chrono.h"
-#include "fmt/color.h"
-#include "fmt/compile.h"
-#include "fmt/format.h"
+#include "../../include/fmt/args.h"
+#include "../../include/fmt/chrono.h"
+#include "../../include/fmt/color.h"
+#include "../../include/fmt/compile.h"
+#include "../../include/fmt/format.h"
 #if FMT_OS
-#  include "fmt/os.h"
+#  include "../../include/fmt/os.h"
 #endif
-#include "fmt/ostream.h"
-#include "fmt/printf.h"
-#include "fmt/ranges.h"
-#include "fmt/std.h"
-#include "fmt/xchar.h"
+#include "../../include/fmt/ostream.h"
+#include "../../include/fmt/printf.h"
+#include "../../include/fmt/ranges.h"
+#include "../../include/fmt/std.h"
+#include "../../include/fmt/xchar.h"
 
 #ifdef FMT_ATTACH_TO_GLOBAL_MODULE
 }
