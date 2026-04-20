@@ -1,5 +1,9 @@
 #import "AURSceneDelegate.h"
+#if defined(NBA_CI_MINIMAL_APP)
+#import <UIKit/UIKit.h>
+#else
 #import "Controllers/AURLibraryViewController.h"
+#endif
 
 @implementation AURSceneDelegate
 
@@ -18,8 +22,14 @@
 
     self.window = [[UIWindow alloc] initWithWindowScene:windowScene];
 
-    AURLibraryViewController *libraryVC = [[AURLibraryViewController alloc] init];
-    UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:libraryVC];
+#if defined(NBA_CI_MINIMAL_APP)
+    UIViewController *rootVC = [[UIViewController alloc] init];
+    rootVC.view.backgroundColor = [UIColor blackColor];
+    rootVC.title = @"Aurora CI";
+#else
+    AURLibraryViewController *rootVC = [[AURLibraryViewController alloc] init];
+#endif
+    UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:rootVC];
 
     // Delta-like appearance for Navigation Bar
     navController.navigationBar.prefersLargeTitles = YES;
