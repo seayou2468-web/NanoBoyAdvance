@@ -6,8 +6,8 @@
 #include "../../../include/cpu.hpp"
 #include "../../../include/kernel/kernel_types.hpp"
 
-Kernel::Kernel(CPU& cpu, Memory& mem, GPU& gpu, const EmulatorConfig& config, ScriptManager& scriptManager)
-	: cpu(cpu), regs(cpu.regs()), mem(mem), handleCounter(0), serviceManager(regs, mem, gpu, currentProcess, *this, config, scriptManager), fcramManager(mem) {
+Kernel::Kernel(CPU& cpu, Memory& mem, GPU& gpu, const EmulatorConfig& config)
+	: cpu(cpu), regs(cpu.regs()), mem(mem), handleCounter(0), serviceManager(regs, mem, gpu, currentProcess, *this, config), fcramManager(mem) {
 	objects.reserve(512);  // Make room for a few objects to avoid further memory allocs later
 	mutexHandles.reserve(8);
 	portHandles.reserve(32);

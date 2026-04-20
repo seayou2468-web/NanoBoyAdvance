@@ -7,9 +7,9 @@
 #include "../../../include/services/service_map.hpp"
 
 ServiceManager::ServiceManager(
-	std::span<u32, 16> regs, Memory& mem, GPU& gpu, u32& currentPID, Kernel& kernel, const EmulatorConfig& config, ScriptManager& scriptManager
+	std::span<u32, 16> regs, Memory& mem, GPU& gpu, u32& currentPID, Kernel& kernel, const EmulatorConfig& config
 )
-	: regs(regs), mem(mem), kernel(kernel), scriptManager(scriptManager), ac(mem), am(mem), boss(mem), act(mem), apt(mem, kernel), cam(mem, kernel), cecd(mem, kernel),
+	: regs(regs), mem(mem), kernel(kernel), ac(mem), am(mem), boss(mem), act(mem), apt(mem, kernel), cam(mem, kernel), cecd(mem, kernel),
 	  cfg(mem, config), csnd(mem, kernel), dlp_srvr(mem), dsp(mem, kernel, config), hid(mem, kernel), http(mem), ir_user(mem, hid, config, kernel),
 	  frd(mem), fs(mem, kernel, config), gsp_gpu(mem, gpu, kernel, currentPID), gsp_lcd(mem), ldr(mem, kernel), mcu_hwc(mem, config),
 	  mic(mem, kernel), nfc(mem, kernel), nim(mem), ndm(mem), news_u(mem), ns(mem), nwm_uds(mem, kernel), ptm(mem, config), soc(mem), ssl(mem),
@@ -150,7 +150,6 @@ static const ServiceMapEntry serviceMapArray[] = {
 // clang-format on
 
 static std::set<ServiceMapEntry, ServiceMapByNameComparator> serviceMapByName{std::begin(serviceMapArray), std::end(serviceMapArray)};
-static std::set<ServiceMapEntry, ServiceMapByHandleComparator> serviceMapByHandle{std::begin(serviceMapArray), std::end(serviceMapArray)};
 
 // https://www.3dbrew.org/wiki/SRV:GetServiceHandle
 void ServiceManager::getServiceHandle(u32 messagePointer) {
@@ -220,12 +219,6 @@ void ServiceManager::publishToSubscriber(u32 messagePointer) {
 }
 
 void ServiceManager::sendCommandToService(u32 messagePointer, Handle handle) {
-	if (haveServiceIntercepts) [[unlikely]] {
-		if (checkForIntercept(messagePointer, handle)) [[unlikely]] {
-			return;
-		}
-	}
-
 	switch (handle) {
 		// Breaking alphabetical order a bit to place the ones I think are most common at the top
 		case KernelHandles::GPU: [[likely]] gsp_gpu.handleSyncRequest(messagePointer); break;
@@ -269,22 +262,4 @@ void ServiceManager::sendCommandToService(u32 messagePointer, Handle handle) {
 		case KernelHandles::Y2R: y2r.handleSyncRequest(messagePointer); break;
 		default: Helpers::panic("Sent IPC message to unknown service %08X\n Command: %08X", handle, mem.read32(messagePointer));
 	}
-}
-
-bool ServiceManager::checkForIntercept(u32 messagePointer, Handle handle) {
-	// Check if there's a script handler for this function and call it
-	const u32 function = mem.read32(messagePointer);
-
-	if (auto service_it = serviceMapByHandle.find(handle); service_it != serviceMapByHandle.end()) {
-		auto intercept = InterceptedService(service_it->first, function);
-
-		if (auto intercept_it = interceptedServices.find(intercept); intercept_it != interceptedServices.end()) {
-			// If the script handler returns true, it means the service is handled entirely
-			// from script code, and we shouldn't do anything else here.
-			return scriptManager.signalInterceptedService(intercept.serviceName, function, messagePointer, intercept_it->second);
-		}
-	}
-
-	// Script manager did not intercept the service, so emulate it normally
-	return false;
 }

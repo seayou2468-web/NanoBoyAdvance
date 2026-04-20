@@ -14,7 +14,6 @@
 #include "../services/service_manager.hpp"
 
 class CPU;
-class ScriptManager;
 struct Scheduler;
 
 class Kernel {
@@ -206,7 +205,7 @@ class Kernel {
 	void readDirectory(u32 messagePointer, Handle directory);
 
   public:
-	Kernel(CPU& cpu, Memory& mem, GPU& gpu, const EmulatorConfig& config, ScriptManager& scriptManager);
+	Kernel(CPU& cpu, Memory& mem, GPU& gpu, const EmulatorConfig& config);
 	void initializeFS() { return serviceManager.initializeFS(); }
 	void setVersion(u8 major, u8 minor);
 	void serviceSVC(u32 svc);

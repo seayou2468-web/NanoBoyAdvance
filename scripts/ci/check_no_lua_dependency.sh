@@ -9,7 +9,7 @@ LUA_API_PATTERN='lua_State|luaL_|luaopen_|lauxlib\.h|lualib\.h|#include <lua|#in
 LUA_BUNDLED_PATH_PATTERN='src/core/mikage/reference/Panda3DS/include/lua'
 
 if rg -n "${LUA_API_PATTERN}" src/core/mikage src/core/api src/platform 2>/dev/null; then
-  echo "error: Lua API reference detected. Use JavaScriptCore-backed runtime instead." >&2
+  echo "error: Lua API reference detected. Lua runtime support has been removed." >&2
   exit 1
 fi
 

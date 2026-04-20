@@ -6,8 +6,7 @@
 #include "../kernel/handles.hpp"
 
 // Helpers for constructing std::maps to look up OS services.
-// We want to be able to map both service names -> services (Used for OS emulation)
-// And service handles -> services (for script service call intercepts)
+// We map service names -> service handles for OS emulation.
 using ServiceMapEntry = std::pair<std::string, HorizonHandle>;
 
 // Comparator for constructing a name->handle service map
@@ -18,12 +17,4 @@ struct ServiceMapByNameComparator {
 	bool operator()(const ServiceMapEntry& lhs, std::string_view rhs) const { return lhs.first < rhs; }
 	bool operator()(std::string_view lhs, const ServiceMapEntry& rhs) const { return lhs < rhs.first; }
 	bool operator()(const ServiceMapEntry& lhs, const ServiceMapEntry& rhs) const { return lhs.first < rhs.first; }
-};
-
-// Comparator for constructing a handle->name service map
-struct ServiceMapByHandleComparator {
-	using is_transparent = std::true_type;
-	bool operator()(const ServiceMapEntry& lhs, HorizonHandle rhs) const { return lhs.second < rhs; }
-	bool operator()(HorizonHandle lhs, const ServiceMapEntry& rhs) const { return lhs < rhs.second; }
-	bool operator()(const ServiceMapEntry& lhs, const ServiceMapEntry& rhs) const { return lhs.second < rhs.second; }
 };

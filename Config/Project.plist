@@ -77,8 +77,6 @@
 		<string>-framework</string>
 		<string>MapKit</string>
 		<string>-framework</string>
-		<string>JavaScriptCore</string>
-		<string>-framework</string>
 		<string>MobileCoreServices</string>
 		<string>-lclang_rt.ios</string>
 		<string>-framework</string>

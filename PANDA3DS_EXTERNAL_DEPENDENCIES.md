@@ -38,9 +38,9 @@
   - `src/core/mikage/reference/Panda3DS/include/elfio/elfio.hpp` を同梱。
 - **toml11**
   - `src/core/mikage/reference/Panda3DS/include/toml.hpp` および `src/core/mikage/reference/Panda3DS/include/toml/*` を同梱。
-- **JavaScriptCore（iOS SDK）**
-  - Lua 同梱実装は廃止し、iOS SDK の `JavaScriptCore.framework` が提供する同等機能へ置換。
-  - 依存はシステム SDK 供給とし、Panda3DS ツリー内への Lua ソース同梱は行わない。
+- **Lua / JavaScriptCore ランタイム**
+  - Lua 同梱実装および JavaScriptCore 置換実装は削除済み。
+  - Panda3DS ツリー内にスクリプト実行ランタイム依存は持ち込まない。
 - **HTTP サーバ / メモリマップ I/O**
   - 外部ライブラリ（cpp-httplib, mio）ではなく、プラットフォーム提供 API（ソケット + `mmap`/`msync`）へ置換済み。
 
