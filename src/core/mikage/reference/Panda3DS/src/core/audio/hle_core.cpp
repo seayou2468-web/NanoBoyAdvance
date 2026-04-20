@@ -1,0 +1,804 @@
+#include "audio/hle_core.hpp"
+
+#include <algorithm>
+#include <cassert>
+#include <iterator>
+#include <thread>
+#include <utility>
+
+#include "audio/aac_decoder.hpp"
+#include "audio/dsp_binary.hpp"
+#include "audio/dsp_simd.hpp"
+#include "config.hpp"
+#include "services/dsp.hpp"
+
+namespace Audio {
+	namespace DSPPipeType {
+		enum : u32 {
+			Debug = 0,
+			DMA = 1,
+			Audio = 2,
+			Binary = 3,
+		};
+	}
+
+	HLE_DSP::HLE_DSP(Memory& mem, Scheduler& scheduler, DSPService& dspService, EmulatorConfig& config)
+		: DSPCore(mem, scheduler, dspService, config), dspRam(*(Audio::HLE::DspMemory*)mem.getDSPMem()) {
+		// Set up source indices
+		for (int i = 0; i < sources.size(); i++) {
+			sources[i].index = i;
+		}
+
+		aacDecoder.reset(new Audio::AAC::Decoder());
+	}
+
+	void HLE_DSP::resetAudioPipe() {
+#define DSPOffset(var) (0x8000 + offsetof(Audio::HLE::SharedMemory, var) / 2)
+
+		// These are DSP shared memory offsets for various variables
+		// https://www.3dbrew.org/wiki/DSP_Memory_Region
+		static constexpr std::array<u16, 16> responses = {
+			0x000F,                             // Number of responses
+			DSPOffset(frameCounter),            // Frame counter
+			DSPOffset(sourceConfigurations),    // Source configs
+			DSPOffset(sourceStatuses),          // Source statuses
+			DSPOffset(adpcmCoefficients),       // ADPCM coefficients
+			DSPOffset(dspConfiguration),        // DSP configs
+			DSPOffset(dspStatus),               // DSP status
+			DSPOffset(finalSamples),            // Final samples
+			DSPOffset(intermediateMixSamples),  // Intermediate mix samples
+			DSPOffset(compressor),              // Compressor
+			DSPOffset(dspDebug),                // Debug
+			DSPOffset(unknown10),               // ??
+			DSPOffset(unknown11),               // ??
+			DSPOffset(unknown12),               // ??
+			DSPOffset(unknown13),               // Surround sound biquad filter 1
+			DSPOffset(unknown14)                // Surround sound biquad filter 2
+		};
+#undef DSPOffset
+
+		std::vector<u8>& audioPipe = pipeData[DSPPipeType::Audio];
+		audioPipe.resize(responses.size() * sizeof(u16));
+
+		// Push back every response to the audio pipe
+		size_t index = 0;
+		for (auto e : responses) {
+			audioPipe[index++] = e & 0xff;
+			audioPipe[index++] = e >> 8;
+		}
+	}
+
+	void HLE_DSP::reset() {
+		dspState = DSPState::Off;
+		loaded = false;
+
+		for (auto& e : pipeData) {
+			e.clear();
+		}
+
+		for (auto& source : sources) {
+			source.reset();
+		}
+
+		mixer.reset();
+		// Note: Reset audio pipe AFTER resetting all pipes, otherwise the new data will be yeeted
+		resetAudioPipe();
+	}
+
+	void HLE_DSP::loadComponent(std::vector<u8>& data, u32 programMask, u32 dataMask) {
+		if (loaded) {
+			Helpers::warn("Loading DSP component when already loaded");
+		}
+
+		// We load the DSP binary into DSP memory even though we don't use it in HLE, so that we can
+		// still see the DSP code in the DSP debugger
+		u8* dspCode = dspRam.rawMemory.data();
+		u8* dspData = dspCode + 0x40000;
+
+		Dsp1 dsp1;
+		std::memcpy(&dsp1, data.data(), sizeof(dsp1));
+
+		// TODO: verify DSP1 signature & hashes
+		// Load DSP segments to DSP RAM
+		for (uint i = 0; i < dsp1.segmentCount; i++) {
+			auto& segment = dsp1.segments[i];
+			u32 addr = segment.dspAddr << 1;
+			u8* src = data.data() + segment.offs;
+			u8* dst = nullptr;
+
+			switch (segment.type) {
+				case 0:
+				case 1: dst = dspCode + addr; break;
+				default: dst = dspData + addr; break;
+			}
+
+			std::memcpy(dst, src, segment.size);
+		}
+
+		bool loadSpecialSegment = (dsp1.flags >> 1) & 0x1;
+		if (loadSpecialSegment) {
+			log("LoadComponent: special segment not supported");
+		}
+
+		loaded = true;
+		scheduler.addEvent(Scheduler::EventType::RunDSP, scheduler.currentTimestamp + Audio::cyclesPerFrame);
+	}
+
+	void HLE_DSP::unloadComponent() {
+		if (!loaded) {
+			Helpers::warn("Audio: unloadComponent called without a running program");
+		}
+
+		loaded = false;
+		scheduler.removeEvent(Scheduler::EventType::RunDSP);
+	}
+
+	void HLE_DSP::runAudioFrame(u64 eventTimestamp) {
+		// Signal audio pipe when an audio frame is done
+		if (dspState == DSPState::On) [[likely]] {
+			dspService.triggerPipeEvent(DSPPipeType::Audio);
+		}
+
+		// TODO: Should this be called if dspState != DSPState::On?
+		outputFrame();
+
+		// How many cycles we were late
+		const u64 cycleDrift = scheduler.currentTimestamp - eventTimestamp;
+		scheduler.addEvent(Scheduler::EventType::RunDSP, scheduler.currentTimestamp + Audio::cyclesPerFrame - cycleDrift);
+	}
+
+	u16 HLE_DSP::recvData(u32 regId) {
+		if (regId != 0) {
+			Helpers::panic("Audio: invalid register in HLE frontend");
+		}
+
+		return dspState != DSPState::On;
+	}
+
+	void HLE_DSP::writeProcessPipe(u32 channel, u32 size, u32 buffer) {
+		enum class StateChange : u8 {
+			Initialize = 0,
+			Shutdown = 1,
+			Wakeup = 2,
+			Sleep = 3,
+		};
+
+		switch (channel) {
+			case DSPPipeType::Audio: {
+				if (size != 4) {
+					printf("Invalid size written to DSP Audio Pipe\n");
+					break;
+				}
+
+				// Get new state
+				const u8 state = mem.read8(buffer);
+				if (state > 3) {
+					log("WriteProcessPipe::Audio: Unknown state change type");
+				} else {
+					switch (static_cast<StateChange>(state)) {
+						case StateChange::Initialize:
+							// TODO: Other initialization stuff here
+							dspState = DSPState::On;
+							resetAudioPipe();
+
+							dspService.triggerPipeEvent(DSPPipeType::Audio);
+							break;
+
+						case StateChange::Shutdown: dspState = DSPState::Off; break;
+						default: Helpers::panic("Unimplemented DSP audio pipe state change %d", state);
+					}
+				}
+				break;
+			}
+
+			case DSPPipeType::Binary: {
+				log("Unimplemented write to binary pipe! Size: %d\n", size);
+
+				AAC::Message request;
+				if (size == sizeof(request)) {
+					std::array<u8, sizeof(request)> raw;
+					for (uint i = 0; i < size; i++) {
+						raw[i] = mem.read32(buffer + i);
+					}
+
+					std::memcpy(&request, raw.data(), sizeof(request));
+					handleAACRequest(request);
+				} else {
+					Helpers::warn("Invalid size for AAC request");
+				}
+
+				// This pipe and interrupt are normally used for requests like AAC decode
+				dspService.triggerPipeEvent(DSPPipeType::Binary);
+				break;
+			}
+
+			default: log("Audio::HLE_DSP: Wrote to unimplemented pipe %d\n", channel); break;
+		}
+	}
+
+	std::vector<u8> HLE_DSP::readPipe(u32 pipe, u32 peer, u32 size, u32 buffer) {
+		if (size & 1) Helpers::panic("Tried to read odd amount of bytes from DSP pipe");
+		if (pipe >= pipeCount || size > 0xffff) {
+			return {};
+		}
+
+		if (pipe != DSPPipeType::Audio) {
+			log("Reading from non-audio pipe! This might be broken, might need to check what pipe is being read from and implement writing to it\n");
+		}
+
+		std::vector<u8>& data = pipeData[pipe];
+		size = std::min<u32>(size, data.size());  // Clamp size to the maximum available data size
+
+		if (size == 0) {
+			return {};
+		}
+
+		// Return "size" bytes from the audio pipe and erase them
+		std::vector<u8> out(data.begin(), data.begin() + size);
+		data.erase(data.begin(), data.begin() + size);
+		return out;
+	}
+
+	void HLE_DSP::outputFrame() {
+		StereoFrame<s16> frame;
+		generateFrame(frame);
+
+		if (audioEnabled) {
+			// Wait until we've actually got room to push our frame
+			while (sampleBuffer.size() + frame.size() * 2 > sampleBuffer.Capacity()) {
+				std::this_thread::sleep_for(std::chrono::milliseconds{1});
+			}
+
+			sampleBuffer.push(frame.data(), frame.size() * 2);
+		}
+	}
+
+	void HLE_DSP::generateFrame(StereoFrame<s16>& frame) {
+		using namespace Audio::HLE;
+		SharedMemory& read = readRegion();
+		SharedMemory& write = writeRegion();
+
+		// TODO: Properly implement mixers
+		// The DSP checks the DSP configuration dirty bits on every frame, applies them, and clears them
+		read.dspConfiguration.dirtyRaw = 0;
+		read.dspConfiguration.dirtyRaw2 = 0;
+
+		// The intermediate mix buffer is aligned to 16 for SIMD purposes
+		alignas(16) std::array<IntermediateMix, 3> mixes{};
+
+		for (int i = 0; i < sourceCount; i++) {
+			// Update source configuration from the read region of shared memory
+			auto& config = read.sourceConfigurations.config[i];
+			auto& source = sources[i];
+			updateSourceConfig(source, config, read.adpcmCoefficients.coeff[i]);
+
+			// Generate audio
+			if (source.enabled) {
+				generateFrame(source);
+			}
+
+			// Update write region of shared memory
+			auto& status = write.sourceStatuses.status[i];
+			status.enabled = source.enabled;
+			status.syncCount = source.syncCount;
+			status.currentBufferIDDirty = (source.isBufferIDDirty ? 1 : 0);
+			status.currentBufferID = source.currentBufferID;
+			status.previousBufferID = source.previousBufferID;
+			status.samplePosition = source.samplePosition;
+
+			source.isBufferIDDirty = false;
+
+			// If the source is still enabled, mix its output into the intermediate mix buffers
+			if (source.enabled) {
+				for (int mix = 0; mix < mixes.size(); mix++) {
+					// Check if this stage is passthrough, and if it is, then skip it
+					if ((source.enabledMixStages & (1u << mix)) == 0) {
+						continue;
+					}
+
+					IntermediateMix& intermediateMix = mixes[mix];
+					const std::array<float, 4>& gains = source.gains[mix];
+
+					DSP::MixIntoQuad::mix(intermediateMix, source.currentFrame, gains.data());
+				}
+			}
+		}
+
+		for (int i = 0; i < Audio::samplesInFrame; i++) {
+			auto& mix0 = mixes[0];
+			auto& sample = mix0[i];
+			frame[i] = {s16(sample[0]), s16(sample[1])};
+		}
+
+		performMix(read, write);
+	}
+
+	void HLE_DSP::updateSourceConfig(Source& source, HLE::SourceConfiguration::Configuration& config, s16_le* adpcmCoefficients) {
+		// Check if the any dirty bit is set, otherwise exit early
+		if (!config.dirtyRaw) {
+			return;
+		}
+
+		// The reset flags take priority, as you can reset a source and set it up to be played again at the same time
+		if (config.resetFlag) {
+			config.resetFlag = 0;
+			source.reset();
+		}
+
+		if (config.partialResetFlag) {
+			config.partialResetFlag = 0;
+			source.buffers = {};
+		}
+
+		if (config.enableDirty) {
+			config.enableDirty = 0;
+			source.enabled = config.enable != 0;
+		}
+
+		if (config.syncCountDirty) {
+			config.syncCountDirty = 0;
+			source.syncCount = config.syncCount;
+		}
+
+		if (config.adpcmCoefficientsDirty) {
+			config.adpcmCoefficientsDirty = 0;
+			// Convert the ADPCM coefficients in DSP shared memory from s16_le to s16 and cache them in source.adpcmCoefficients
+			std::transform(
+				adpcmCoefficients, adpcmCoefficients + source.adpcmCoefficients.size(), source.adpcmCoefficients.begin(),
+				[](const s16_le& input) -> s16 { return s16(input); }
+			);
+		}
+
+		// TODO: Should we check bufferQueueDirty here too?
+		if (config.formatDirty || config.embeddedBufferDirty) {
+			source.sampleFormat = config.format;
+		}
+
+		if (config.monoOrStereoDirty || config.embeddedBufferDirty) {
+			source.sourceType = config.monoOrStereo;
+		}
+
+		if (config.interpolationDirty) {
+			source.interpolationMode = config.interpolationMode;
+		}
+
+		if (config.rateMultiplierDirty) {
+			source.rateMultiplier = (config.rateMultiplier > 0.f) ? config.rateMultiplier : 1.f;
+		}
+
+		if (config.embeddedBufferDirty) {
+			// Annoyingly, and only for embedded buffer, whether we use config.playPosition depends on the relevant dirty bit
+			const u32 playPosition = config.playPositionDirty ? config.playPosition : 0;
+
+			config.embeddedBufferDirty = 0;
+			if (s32(config.length) >= 0) [[likely]] {
+				// TODO: Add sample format and channel count
+				Source::Buffer buffer{
+					.paddr = config.physicalAddress,
+					.sampleCount = config.length,
+					.adpcmScale = u8(config.adpcm_ps),
+					.previousSamples = {s16(config.adpcm_yn[0]), s16(config.adpcm_yn[1])},
+					.adpcmDirty = config.adpcmDirty != 0,
+					.looping = config.isLooping != 0,
+					.bufferID = config.bufferID,
+					.playPosition = playPosition,
+					.format = source.sampleFormat,
+					.sourceType = source.sourceType,
+					.fromQueue = false,
+					.hasPlayedOnce = false,
+				};
+
+				source.buffers.emplace(std::move(buffer));
+			} else {
+				log("Invalid embedded buffer size for DSP voice %d\n", source.index);
+			}
+		}
+
+		if (config.partialEmbeddedBufferDirty) {
+			config.partialEmbeddedBufferDirty = 0;
+
+			const u8* data = getPointerPhys<u8>(source.currentBufferPaddr & ~0x3);
+
+			if (data != nullptr) {
+				switch (source.sampleFormat) {
+					case SampleFormat::PCM8: source.currentSamples = decodePCM8(data, config.length, source); break;
+					case SampleFormat::PCM16: source.currentSamples = decodePCM16(data, config.length, source); break;
+					case SampleFormat::ADPCM: source.currentSamples = decodeADPCM(data, config.length, source); break;
+
+					default:
+						Helpers::warn("Invalid DSP sample format");
+						source.currentSamples = {};
+						break;
+				}
+
+				// We're skipping the first samplePosition samples, so remove them from the buffer so as not to consume them later
+				if (source.samplePosition > 0) {
+					auto start = source.currentSamples.begin();
+					auto end = std::next(start, source.samplePosition);
+					source.currentSamples.erase(start, end);
+				}
+			}
+		}
+
+		if (config.bufferQueueDirty) {
+			// printf("Buffer queue dirty for voice %d\n", source.index);
+
+			u16 dirtyBuffers = config.buffersDirty;
+			config.bufferQueueDirty = 0;
+			config.buffersDirty = 0;
+
+			for (int i = 0; i < 4; i++) {
+				bool dirty = ((dirtyBuffers >> i) & 1) != 0;
+				if (dirty) {
+					const auto& buffer = config.buffers[i];
+
+					if (s32(buffer.length) >= 0) [[likely]] {
+						// TODO: Add sample format and channel count
+						Source::Buffer newBuffer{
+							.paddr = buffer.physicalAddress,
+							.sampleCount = buffer.length,
+							.adpcmScale = u8(buffer.adpcm_ps),
+							.previousSamples = {s16(buffer.adpcm_yn[0]), s16(buffer.adpcm_yn[1])},
+							.adpcmDirty = buffer.adpcmDirty != 0,
+							.looping = buffer.isLooping != 0,
+							.bufferID = buffer.bufferID,
+							.playPosition = 0,
+							.format = source.sampleFormat,
+							.sourceType = source.sourceType,
+							.fromQueue = true,
+							.hasPlayedOnce = false,
+						};
+
+						source.buffers.emplace(std::move(newBuffer));
+					} else {
+						printf("Buffer queue dirty: Invalid buffer size for DSP voice %d\n", source.index);
+					}
+				}
+			}
+		}
+
+#define CONFIG_GAIN(index)                                                          \
+	if (config.gain##index##Dirty) {                                                \
+		auto& dest = source.gains[index];                                           \
+		auto& sourceGain = config.gain[index];                                      \
+                                                                                    \
+		dest[0] = float(sourceGain[0]);                                             \
+		dest[1] = float(sourceGain[1]);                                             \
+		dest[2] = float(sourceGain[2]);                                             \
+		dest[3] = float(sourceGain[3]);                                             \
+                                                                                    \
+		if (dest[0] == 0.f && dest[1] == 0.f && dest[2] == 0.f && dest[3] == 0.f) { \
+			source.enabledMixStages &= ~(1u << index);                              \
+		} else {                                                                    \
+			source.enabledMixStages |= (1u << index);                               \
+		}                                                                           \
+	}
+
+		CONFIG_GAIN(0);
+		CONFIG_GAIN(1);
+		CONFIG_GAIN(2);
+#undef CONFIG_GAIN
+
+		config.dirtyRaw = 0;
+	}
+
+	void HLE_DSP::decodeBuffer(DSPSource& source) {
+		if (source.buffers.empty()) {
+			// No queued buffers, there's nothing to decode so return
+			return;
+		}
+
+		DSPSource::Buffer buffer = source.popBuffer();
+		if (buffer.adpcmDirty) {
+			source.history1 = buffer.previousSamples[0];
+			source.history2 = buffer.previousSamples[1];
+		}
+
+		const u8* data = getPointerPhys<u8>(buffer.paddr);
+		if (data == nullptr) {
+			return;
+		}
+
+		source.currentBufferPaddr = buffer.paddr;
+		source.currentBufferID = buffer.bufferID;
+		source.previousBufferID = 0;
+		// For looping buffers, this is only set for the first time we play it. Loops do not set the dirty bit.
+		source.isBufferIDDirty = !buffer.hasPlayedOnce && buffer.fromQueue;
+
+		if (buffer.hasPlayedOnce) {
+			source.samplePosition = 0;
+		} else {
+			// Mark that the buffer has already been played once, needed for looping buffers
+			buffer.hasPlayedOnce = true;
+			// Play position is only used for the initial time the buffer is played. Loops will start from the beginning of the buffer.
+			source.samplePosition = buffer.playPosition;
+		}
+
+		switch (buffer.format) {
+			case SampleFormat::PCM8: source.currentSamples = decodePCM8(data, buffer.sampleCount, source); break;
+			case SampleFormat::PCM16: source.currentSamples = decodePCM16(data, buffer.sampleCount, source); break;
+			case SampleFormat::ADPCM: source.currentSamples = decodeADPCM(data, buffer.sampleCount, source); break;
+
+			default:
+				Helpers::warn("Invalid DSP sample format");
+				source.currentSamples = {};
+				break;
+		}
+
+		// If the buffer is a looping buffer, re-push it
+		if (buffer.looping) {
+			source.pushBuffer(buffer);
+		}
+
+		// We're skipping the first samplePosition samples, so remove them from the buffer so as not to consume them later
+		if (source.samplePosition > 0) {
+			auto start = source.currentSamples.begin();
+			auto end = std::next(start, source.samplePosition);
+			source.currentSamples.erase(start, end);
+		}
+	}
+
+	void HLE_DSP::generateFrame(DSPSource& source) {
+		// Zero out all output samples at first. TODO: Don't zero out the entire frame initially, rather only zero-out the "unwritten" samples when
+		// the frame is done being processed.
+		source.currentFrame = {};
+
+		if (source.currentSamples.empty()) {
+			// There's no audio left to play, turn the voice off
+			if (source.buffers.empty()) {
+				source.enabled = false;
+				source.isBufferIDDirty = true;
+				source.previousBufferID = source.currentBufferID;
+				source.currentBufferID = 0;
+
+				return;
+			}
+
+			decodeBuffer(source);
+		} else {
+			usize outputCount = 0;
+			static constexpr usize maxSamples = Audio::samplesInFrame;
+
+			while (outputCount < maxSamples) {
+				if (source.currentSamples.empty()) {
+					if (source.buffers.empty()) {
+						break;
+					} else {
+						decodeBuffer(source);
+					}
+				}
+
+				switch (source.interpolationMode) {
+					case Source::InterpolationMode::Linear:
+						Audio::Interpolation::linear(
+							source.interpolationState, source.currentSamples, source.rateMultiplier, source.currentFrame, outputCount
+						);
+						break;
+					case Source::InterpolationMode::None:
+						Audio::Interpolation::none(
+							source.interpolationState, source.currentSamples, source.rateMultiplier, source.currentFrame, outputCount
+						);
+						break;
+
+					case Source::InterpolationMode::Polyphase:
+						// Currently stubbed to be the same as linear
+						Audio::Interpolation::polyphase(
+							source.interpolationState, source.currentSamples, source.rateMultiplier, source.currentFrame, outputCount
+						);
+						break;
+				}
+			}
+
+			source.samplePosition += u32(outputCount * source.rateMultiplier);
+		}
+	}
+
+	void HLE_DSP::performMix(Audio::HLE::SharedMemory& readRegion, Audio::HLE::SharedMemory& writeRegion) {
+		updateMixerConfig(readRegion);
+		// TODO: Do the actual audio mixing
+
+		auto& dspStatus = writeRegion.dspStatus;
+		// Stub the DSP status. It's unknown what the "unknown" field is but Citra sets it to 0, so we do too to be safe
+		dspStatus.droppedFrames = 0;
+		dspStatus.unknown = 0;
+	}
+
+	void HLE_DSP::updateMixerConfig(Audio::HLE::SharedMemory& sharedMem) {
+		auto& config = sharedMem.dspConfiguration;
+		// No configs have been changed, so there's nothing to update
+		if (config.dirtyRaw == 0) {
+			return;
+		}
+
+		if (config.outputFormatDirty) {
+			mixer.channelFormat = config.outputFormat;
+		}
+
+		if (config.masterVolumeDirty) {
+			mixer.volumes[0] = config.masterVolume;
+		}
+
+		if (config.auxVolume0Dirty) {
+			mixer.volumes[1] = config.auxVolumes[0];
+		}
+
+		if (config.auxVolume1Dirty) {
+			mixer.volumes[2] = config.auxVolumes[1];
+		}
+
+		if (config.auxBusEnable0Dirty) {
+			mixer.enableAuxStages[0] = config.auxBusEnable[0] != 0;
+		}
+
+		if (config.auxBusEnable1Dirty) {
+			mixer.enableAuxStages[1] = config.auxBusEnable[1] != 0;
+		}
+
+		config.dirtyRaw = 0;
+	}
+
+	HLE_DSP::SampleBuffer HLE_DSP::decodePCM8(const u8* data, usize sampleCount, Source& source) {
+		SampleBuffer decodedSamples(sampleCount);
+
+		if (source.sourceType == SourceType::Stereo) {
+			for (usize i = 0; i < sampleCount; i++) {
+				const s16 left = s16(u16(*data++) << 8);
+				const s16 right = s16(u16(*data++) << 8);
+				decodedSamples[i] = {left, right};
+			}
+		} else {
+			// Mono
+			for (usize i = 0; i < sampleCount; i++) {
+				const s16 sample = s16(u16(*data++) << 8);
+				decodedSamples[i] = {sample, sample};
+			}
+		}
+
+		return decodedSamples;
+	}
+
+	HLE_DSP::SampleBuffer HLE_DSP::decodePCM16(const u8* data, usize sampleCount, Source& source) {
+		SampleBuffer decodedSamples(sampleCount);
+		const s16* data16 = reinterpret_cast<const s16*>(data);
+
+		if (source.sourceType == SourceType::Stereo) {
+			for (usize i = 0; i < sampleCount; i++) {
+				const s16 left = *data16++;
+				const s16 right = *data16++;
+				decodedSamples[i] = {left, right};
+			}
+		} else {
+			// Mono
+			for (usize i = 0; i < sampleCount; i++) {
+				const s16 sample = *data16++;
+				decodedSamples[i] = {sample, sample};
+			}
+		}
+
+		return decodedSamples;
+	}
+
+	HLE_DSP::SampleBuffer HLE_DSP::decodeADPCM(const u8* data, usize sampleCount, Source& source) {
+		static constexpr uint samplesPerBlock = 14;
+		// An ADPCM block is comprised of a single header which contains the scale and predictor value for the block, and then 14 4bpp samples (hence
+		// the / 2)
+		static constexpr usize blockSize = sizeof(u8) + samplesPerBlock / 2;
+
+		// How many ADPCM blocks we'll be consuming. It's sampleCount / samplesPerBlock, rounded up.
+		const usize blockCount = (sampleCount + (samplesPerBlock - 1)) / samplesPerBlock;
+		const usize outputSize = sampleCount + (sampleCount & 1);  // Bump the output size to a multiple of 2
+
+		usize outputCount = 0;  // How many stereo samples have we output thus far?
+		SampleBuffer decodedSamples(outputSize);
+
+		s16 history1 = source.history1;
+		s16 history2 = source.history2;
+
+		// Decode samples in frames. Stop when we reach sampleCount samples
+		for (uint blockIndex = 0; blockIndex < blockCount; blockIndex++) {
+			const u8 scaleAndPredictor = *data++;
+
+			const u32 scale = 1 << u32(scaleAndPredictor & 0xF);
+			// This is referred to as 4-bit in some documentation, but I am pretty sure that's a mistake
+			const u32 predictor = (scaleAndPredictor >> 4) & 0x7;
+
+			// Fixed point (s5.11) coefficients for the history samples
+			const s32 weight1 = source.adpcmCoefficients[predictor * 2];
+			const s32 weight2 = source.adpcmCoefficients[predictor * 2 + 1];
+
+			// Decode samples in batches of 2
+			// Each 4 bit ADPCM differential corresponds to 1 mono sample which will be output from both the left and right channel
+			// So each byte of ADPCM data ends up generating 2 stereo samples
+			for (uint sampleIndex = 0; sampleIndex < samplesPerBlock && outputCount < sampleCount; sampleIndex += 2) {
+				const auto decode = [&](s32 nibble) -> s16 {
+					static constexpr s32 ONE = 0x800;     // 1.0 in S5.11 fixed point
+					static constexpr s32 HALF = ONE / 2;  // 0.5 similarly
+
+					// Sign extend our nibble from s4 to s32
+					nibble = (nibble << 28) >> 28;
+
+					// Scale the extended nibble by the scale specified in the ADPCM block header, to get the real value of the sample's differential
+					const s32 diff = nibble * scale;
+
+					// Convert ADPCM to PCM using y[n] = x[n] + 0.5 + coeff1 * y[n - 1] + coeff2 * y[n - 2]
+					// The coefficients are in s5.11 fixed point so we also perform the proper conversions
+					s32 output = ((diff << 11) + HALF + weight1 * history1 + weight2 * history2) >> 11;
+					output = std::clamp<s32>(output, -32768, 32767);
+
+					// Write back new history samples
+					history2 = history1;  // y[n-2] = y[n-1]
+					history1 = output;    // y[n-1] = y[n]
+
+					return s16(output);
+				};
+
+				const u8 samples = *data++;                   // Fetch the byte containing 2 4-bpp samples
+				const s32 topNibble = s32(samples) >> 4;      // First sample
+				const s32 bottomNibble = s32(samples) & 0xF;  // Second sample
+
+				// Decode and write first sample, then the second one
+				const s16 sample1 = decode(topNibble);
+				decodedSamples[outputCount].fill(sample1);
+
+				const s16 sample2 = decode(bottomNibble);
+				decodedSamples[outputCount + 1].fill(sample2);
+
+				outputCount += 2;
+			}
+		}
+
+		// Store new history samples in the DSP source and return samples
+		source.history1 = history1;
+		source.history2 = history2;
+		return decodedSamples;
+	}
+
+	void HLE_DSP::handleAACRequest(const AAC::Message& request) {
+		AAC::Message response;
+
+		switch (request.command) {
+			case AAC::Command::EncodeDecode:
+				aacDecoder->decode(response, request, [this](u32 paddr) { return getPointerPhys<u8>(paddr); }, settings.aacEnabled);
+				break;
+
+			case AAC::Command::Init:
+			case AAC::Command::Shutdown:
+			case AAC::Command::LoadState:
+			case AAC::Command::SaveState:
+				response = request;
+				response.resultCode = AAC::ResultCode::Success;
+				break;
+
+			default: Helpers::warn("Unknown AAC command type"); break;
+		}
+
+		// Copy response data to the binary pipe
+		auto& pipe = pipeData[DSPPipeType::Binary];
+		pipe.resize(sizeof(response));
+		std::memcpy(&pipe[0], &response, sizeof(response));
+	}
+
+	void DSPSource::reset() {
+		enabled = false;
+		isBufferIDDirty = false;
+
+		// Initialize these to some sane defaults
+		sampleFormat = SampleFormat::ADPCM;
+		sourceType = SourceType::Stereo;
+		interpolationMode = InterpolationMode::Linear;
+
+		samplePosition = 0;
+		currentBufferPaddr = 0;
+		previousBufferID = 0;
+		currentBufferID = 0;
+		syncCount = 0;
+		rateMultiplier = 1.f;
+
+		buffers = {};
+		interpolationState = {};
+		currentSamples.clear();
+
+		gains.fill({});
+		enabledMixStages = 0;
+	}
+}  // namespace Audio
