@@ -26,6 +26,99 @@ constexpr u32 LR_INDEX = 14;
 	const u32 shift = 32 - bits;
 	return static_cast<u32>(static_cast<s32>(value << shift) >> shift);
 }
+
+class VfpCoreExecutor {
+public:
+	static std::pair<u32, u32> VectorShape(u32 fpscr, u32 reg, bool is_double_precision) {
+		const u32 fpscr_len = (fpscr >> 16) & 0x7u;
+		const u32 bank_mask = is_double_precision ? ~3u : ~7u;
+		const u32 vec_elements = ((reg & bank_mask) == 0 || fpscr_len == 0) ? 1u : (fpscr_len + 1u);
+		const u32 vec_stride = ((fpscr >> 20) & 0x3u) == 0x3u ? 2u : 1u;
+		return {vec_elements, vec_stride};
+	}
+
+	static bool IsSubnormalF32(u32 bits) {
+		return (bits & 0x7F800000u) == 0 && (bits & 0x007FFFFFu) != 0;
+	}
+
+	static bool IsSubnormalF64(u64 bits) {
+		return (bits & 0x7FF0000000000000ull) == 0 && (bits & 0x000FFFFFFFFFFFFFull) != 0;
+	}
+
+	static void ApplyExceptionModel(u32& fpscr, u32& vfpFPEXC, u32& vfpFPINST, u32& vfpFPINST2,
+									int host_exceptions, u32 fault_inst, int host_vfp_idc) {
+		const auto raise = [&](u32 cumulative_bit, u32 enable_bit, u32 fpexc_trap_bit) {
+			fpscr |= cumulative_bit;
+			if ((fpscr & enable_bit) && (vfpFPEXC & (1u << 30))) {
+				const bool first_fault = (vfpFPEXC & (1u << 31)) == 0;
+				vfpFPEXC |= (1u << 31) | (1u << 29) | fpexc_trap_bit;
+				if (first_fault) {
+					vfpFPINST = fault_inst;
+					vfpFPINST2 = 0;
+				}
+			}
+		};
+
+		if (host_exceptions & FE_INVALID) raise(1u << 0, 1u << 8, 1u << 0);
+		if (host_exceptions & FE_DIVBYZERO) raise(1u << 1, 1u << 9, 1u << 1);
+		if (host_exceptions & FE_OVERFLOW) raise(1u << 2, 1u << 10, 1u << 2);
+		if (host_exceptions & FE_UNDERFLOW) raise(1u << 3, 1u << 11, 1u << 3);
+		if (host_exceptions & FE_INEXACT) raise(1u << 4, 1u << 12, 1u << 4);
+		if (host_exceptions & host_vfp_idc) raise(1u << 7, 1u << 15, 1u << 7);
+	}
+};
+
+class Coproc10Decoder {
+public:
+	enum class Class : u32 {
+		DataProc,
+		MemTransfer,
+		RegTransfer,
+		Unknown
+	};
+
+	struct MemDecode {
+		bool load;
+		bool add;
+		bool write_back;
+		bool interleaved;
+		u32 interleave_factor;
+		u32 rn;
+		u32 vd;
+		u32 transfer_words;
+		u32 base;
+		u32 address;
+	};
+
+	static Class DecodeClass(u32 opcode) {
+		if ((opcode & 0x0F000010u) == 0x0E000000u) return Class::DataProc;
+		if ((opcode & 0x0F000000u) == 0x0C000000u || (opcode & 0x0F000000u) == 0x0D000000u) {
+			return Class::MemTransfer;
+		}
+		if ((opcode & 0x0F000010u) == 0x0E000010u || (opcode & 0x0F0000F0u) == 0x0C400000u ||
+			(opcode & 0x0F0000F0u) == 0x0C500000u) {
+			return Class::RegTransfer;
+		}
+		return Class::Unknown;
+	}
+
+	template <typename GetRegFn>
+	static MemDecode DecodeMem(u32 opcode, u32 old_pc, GetRegFn&& get_reg_operand) {
+		MemDecode dec{};
+		dec.load = (opcode & (1u << 20)) != 0;
+		dec.add = (opcode & (1u << 23)) != 0;
+		dec.write_back = (opcode & (1u << 21)) != 0;
+		dec.rn = (opcode >> 16) & 0xFu;
+		dec.vd = ((opcode >> 12) & 0xFu) | (((opcode >> 22) & 1u) << 4);
+		const u32 words = opcode & 0xFFu;
+		dec.transfer_words = words == 0 ? 1u : words;
+		dec.interleaved = (opcode & (1u << 5)) != 0;
+		dec.interleave_factor = dec.interleaved ? (((opcode & (1u << 6)) != 0) ? 4u : 2u) : 1u;
+		dec.base = (dec.rn == PC_INDEX) ? ((old_pc + 8) & ~3u) : get_reg_operand(dec.rn);
+		dec.address = dec.add ? dec.base : (dec.base - dec.transfer_words * 4);
+		return dec;
+	}
+};
 }  // namespace
 
 CPU::CPU(Memory& mem, Kernel& kernel, Emulator& emu)
@@ -151,23 +244,19 @@ u32 CPU::executeArm(u32 inst) {
 		exclusiveSize = 0;
 	};
 
+	constexpr int HOST_VFP_IDC = 1 << 30;
 	const auto apply_vfp_exception_model = [&](int host_exceptions, u32 fault_inst) {
-		const auto raise = [&](u32 cumulative_bit, u32 enable_bit, u32 fpexc_trap_bit) {
-			fpscr |= cumulative_bit;
-			// Trap latching follows enable gating in both FPSCR and FPEXC.EN.
-			if ((fpscr & enable_bit) && (vfpFPEXC & (1u << 30))) {
-				// Keep caller-controlled EN state as-is, but latch trap/exception state.
-				vfpFPEXC |= (1u << 31) | (1u << 29) | fpexc_trap_bit;  // EX|DEX|trap
-				vfpFPINST = fault_inst;
-				vfpFPINST2 = 0;
-			}
-		};
-
-		if (host_exceptions & FE_INVALID) raise(1u << 0, 1u << 8, 1u << 0);      // IOC/IOE/IOF
-		if (host_exceptions & FE_DIVBYZERO) raise(1u << 1, 1u << 9, 1u << 1);    // DZC/DZE/DZF
-		if (host_exceptions & FE_OVERFLOW) raise(1u << 2, 1u << 10, 1u << 2);    // OFC/OFE/OFF
-		if (host_exceptions & FE_UNDERFLOW) raise(1u << 3, 1u << 11, 1u << 3);   // UFC/UFE/UFF
-		if (host_exceptions & FE_INEXACT) raise(1u << 4, 1u << 12, 1u << 4);      // IXC/IXE/IXF
+		VfpCoreExecutor::ApplyExceptionModel(fpscr, vfpFPEXC, vfpFPINST, vfpFPINST2, host_exceptions,
+											 fault_inst, HOST_VFP_IDC);
+	};
+	const auto vfp_vector_shape = [&](u32 reg, bool is_double_precision) {
+		return VfpCoreExecutor::VectorShape(fpscr, reg, is_double_precision);
+	};
+	const auto is_subnormal_f32 = [](u32 bits) {
+		return VfpCoreExecutor::IsSubnormalF32(bits);
+	};
+	const auto is_subnormal_f64 = [](u64 bits) {
+		return VfpCoreExecutor::IsSubnormalF64(bits);
 	};
 
 	if ((inst & 0x0F000000u) == 0x0F000000u) {
@@ -1068,18 +1157,22 @@ u32 CPU::executeArm(u32 inst) {
 					return freg_bank(reg) | ((freg_index(reg) + stride) & 7u);
 				};
 
-				const u32 fpscr_len = (fpscr >> 16) & 0x7u;
-				const u32 vec_elements = (freg_bank(sd) == 0 || fpscr_len == 0) ? 1u : (fpscr_len + 1u);
-				const u32 vec_stride = ((fpscr >> 20) & 0x3u) == 0x3u ? 2u : 1u;
+					const auto [vec_elements, vec_stride] = vfp_vector_shape(sd, false);
 
-				u32 curr_sd = sd;
-				u32 curr_sn = sn;
-				u32 curr_sm = sm;
-				const int previous_round = apply_fpscr_rounding();
-				std::feclearexcept(FE_ALL_EXCEPT);
-				for (u32 i = 0; i < vec_elements; i++) {
-					const float lhs = std::bit_cast<float>(extRegs[curr_sn]);
-					const float rhs = std::bit_cast<float>(extRegs[curr_sm]);
+					u32 curr_sd = sd;
+					u32 curr_sn = sn;
+					u32 curr_sm = sm;
+					const int previous_round = apply_fpscr_rounding();
+					std::feclearexcept(FE_ALL_EXCEPT);
+					int local_exceptions = 0;
+					for (u32 i = 0; i < vec_elements; i++) {
+						const u32 lhs_bits = extRegs[curr_sn];
+						const u32 rhs_bits = extRegs[curr_sm];
+						if (is_subnormal_f32(lhs_bits) || is_subnormal_f32(rhs_bits)) {
+							local_exceptions |= HOST_VFP_IDC;
+						}
+						const float lhs = std::bit_cast<float>(lhs_bits);
+						const float rhs = std::bit_cast<float>(rhs_bits);
 					float result = lhs;
 					if (is_div) {
 						result = lhs / rhs;  // VDIV
@@ -1109,7 +1202,8 @@ u32 CPU::executeArm(u32 inst) {
 						curr_sm = advance_freg(curr_sm, vec_stride);
 					}
 				}
-				apply_vfp_exception_model(std::fetestexcept(FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW | FE_INEXACT), inst);
+					local_exceptions |= std::fetestexcept(FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW | FE_INEXACT);
+					apply_vfp_exception_model(local_exceptions, inst);
 				restore_rounding(previous_round);
 				gprs[PC_INDEX] = old_pc + 4;
 				return 2;
@@ -1124,19 +1218,21 @@ u32 CPU::executeArm(u32 inst) {
 				const auto advance_dreg = [&](u32 reg, u32 stride) {
 					return dreg_bank(reg) | ((dreg_index(reg) + stride) & 3u);
 				};
-				const u32 fpscr_len = (fpscr >> 16) & 0x7u;
-				const u32 vec_elements = (dreg_bank(dd) == 0 || fpscr_len == 0) ? 1u : (fpscr_len + 1u);
-				const u32 vec_stride = ((fpscr >> 20) & 0x3u) == 0x3u ? 2u : 1u;
-				u32 curr_dd = dd;
-				u32 curr_dn = dn;
-				u32 curr_dm = dm;
-				const int previous_round = apply_fpscr_rounding();
-				std::feclearexcept(FE_ALL_EXCEPT);
-				for (u32 i = 0; i < vec_elements; i++) {
-					const u64 lhs_bits = static_cast<u64>(extRegs[curr_dn * 2]) | (static_cast<u64>(extRegs[curr_dn * 2 + 1]) << 32);
-					const u64 rhs_bits = static_cast<u64>(extRegs[curr_dm * 2]) | (static_cast<u64>(extRegs[curr_dm * 2 + 1]) << 32);
-					const double lhs = std::bit_cast<double>(lhs_bits);
-					const double rhs = std::bit_cast<double>(rhs_bits);
+					const auto [vec_elements, vec_stride] = vfp_vector_shape(dd, true);
+					u32 curr_dd = dd;
+					u32 curr_dn = dn;
+					u32 curr_dm = dm;
+					const int previous_round = apply_fpscr_rounding();
+					std::feclearexcept(FE_ALL_EXCEPT);
+					int local_exceptions = 0;
+					for (u32 i = 0; i < vec_elements; i++) {
+						const u64 lhs_bits = static_cast<u64>(extRegs[curr_dn * 2]) | (static_cast<u64>(extRegs[curr_dn * 2 + 1]) << 32);
+						const u64 rhs_bits = static_cast<u64>(extRegs[curr_dm * 2]) | (static_cast<u64>(extRegs[curr_dm * 2 + 1]) << 32);
+						if (is_subnormal_f64(lhs_bits) || is_subnormal_f64(rhs_bits)) {
+							local_exceptions |= HOST_VFP_IDC;
+						}
+						const double lhs = std::bit_cast<double>(lhs_bits);
+						const double rhs = std::bit_cast<double>(rhs_bits);
 					double result = lhs;
 					if (is_div) {
 						result = lhs / rhs;  // VDIV.F64
@@ -1168,7 +1264,8 @@ u32 CPU::executeArm(u32 inst) {
 						curr_dm = advance_dreg(curr_dm, vec_stride);
 					}
 				}
-				apply_vfp_exception_model(std::fetestexcept(FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW | FE_INEXACT), inst);
+					local_exceptions |= std::fetestexcept(FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW | FE_INEXACT);
+					apply_vfp_exception_model(local_exceptions, inst);
 				restore_rounding(previous_round);
 				gprs[PC_INDEX] = old_pc + 4;
 				return 4;
@@ -1190,8 +1287,6 @@ u32 CPU::executeArm(u32 inst) {
 		const auto advance_dreg = [&](u32 reg, u32 stride) {
 			return dreg_bank(reg) | ((dreg_index(reg) + stride) & 3u);
 		};
-		const u32 fpscr_len = (fpscr >> 16) & 0x7u;
-		const u32 vec_stride = ((fpscr >> 20) & 0x3u) == 0x3u ? 2u : 1u;
 		if (!double_precision) {
 			const u32 sd = (((inst >> 12) & 0xF) << 1) | ((inst >> 22) & 1u);
 			if (sd < 32) {
@@ -1200,7 +1295,7 @@ u32 CPU::executeArm(u32 inst) {
 				const u32 exp = ((~b & 1u) << 7) | (b << 6) | (b << 5) | (b << 4) | (b << 3) | (b << 2) |
 								((imm8 >> 4) & 0x3);
 				const u32 frac = (imm8 & 0xFu) << 19;
-				const u32 vec_elements = (freg_bank(sd) == 0 || fpscr_len == 0) ? 1u : (fpscr_len + 1u);
+					const auto [vec_elements, vec_stride] = vfp_vector_shape(sd, false);
 				const u32 value = (sign << 31) | (exp << 23) | frac;
 				u32 curr_sd = sd;
 				for (u32 i = 0; i < vec_elements; i++) {
@@ -1219,7 +1314,7 @@ u32 CPU::executeArm(u32 inst) {
 								(b << 4) | (b << 3) | (b << 2) | ((imm8 >> 4) & 0x3u);
 				const u64 frac = static_cast<u64>(imm8 & 0xFu) << 48;
 				const u64 value = (sign << 63) | (exp << 52) | frac;
-				const u32 vec_elements = (dreg_bank(dd) == 0 || fpscr_len == 0) ? 1u : (fpscr_len + 1u);
+					const auto [vec_elements, vec_stride] = vfp_vector_shape(dd, true);
 				u32 curr_dd = dd;
 				for (u32 i = 0; i < vec_elements; i++) {
 					extRegs[curr_dd * 2] = static_cast<u32>(value);
@@ -1247,13 +1342,11 @@ u32 CPU::executeArm(u32 inst) {
 		const auto advance_dreg = [&](u32 reg, u32 stride) {
 			return dreg_bank(reg) | ((dreg_index(reg) + stride) & 3u);
 		};
-		const u32 fpscr_len = (fpscr >> 16) & 0x7u;
-		const u32 vec_stride = ((fpscr >> 20) & 0x3u) == 0x3u ? 2u : 1u;
 		if (to_double) {
 			const u32 dd = ((inst >> 12) & 0xF) | (((inst >> 22) & 1u) << 4);
 			const u32 sm = ((inst & 0xF) << 1) | ((inst >> 5) & 1u);
 			if (dd < 32 && sm < 32) {
-				const u32 vec_elements = (dreg_bank(dd) == 0 || fpscr_len == 0) ? 1u : (fpscr_len + 1u);
+					const auto [vec_elements, vec_stride] = vfp_vector_shape(dd, true);
 				u32 curr_dd = dd;
 				u32 curr_sm = sm;
 				for (u32 i = 0; i < vec_elements; i++) {
@@ -1274,7 +1367,7 @@ u32 CPU::executeArm(u32 inst) {
 			const u32 sd = (((inst >> 12) & 0xF) << 1) | ((inst >> 22) & 1u);
 			const u32 dm = (inst & 0xF) | (((inst >> 5) & 1u) << 4);
 			if (sd < 32 && dm < 32) {
-				const u32 vec_elements = (freg_bank(sd) == 0 || fpscr_len == 0) ? 1u : (fpscr_len + 1u);
+					const auto [vec_elements, vec_stride] = vfp_vector_shape(sd, false);
 				u32 curr_sd = sd;
 				u32 curr_dm = dm;
 				for (u32 i = 0; i < vec_elements; i++) {
@@ -1297,8 +1390,7 @@ u32 CPU::executeArm(u32 inst) {
 	if ((inst & 0x0FB80E50u) == 0x0EB80A40u || (inst & 0x0FBA0E40u) == 0x0EBA0A40u) {
 		const bool double_precision = (inst & (1u << 8)) != 0;
 		const bool fixed_point = (inst & 0x00400000u) != 0;  // VCVTBFF family
-		const u32 imm5 = ((inst >> 5) & 1u) << 4 | (inst & 0xFu);
-		// ARM fixed-point VCVT scaling uses fracbits = 32 - imm5 (imm5==0 encodes 32 fraction bits).
+		const u32 imm5 = (((inst >> 5) & 1u) << 4) | (inst & 0xFu);
 		const u32 frac_bits = 32u - imm5;
 		const double fixed_scale = std::ldexp(1.0, static_cast<int>(frac_bits));
 		const u32 fext = inst & 0x000F0080u;
@@ -1308,31 +1400,39 @@ u32 CPU::executeArm(u32 inst) {
 		const bool force_to_zero = (fext == 0x000C0080u) || (fext == 0x000D0080u);
 		const auto freg_bank = [](u32 reg) { return reg & ~7u; };
 		const auto freg_index = [](u32 reg) { return reg & 7u; };
-		const auto advance_freg = [&](u32 reg, u32 stride) {
-			return freg_bank(reg) | ((freg_index(reg) + stride) & 7u);
+		const auto dreg_bank = [](u32 reg) { return reg & ~3u; };
+		const auto dreg_index = [](u32 reg) { return reg & 3u; };
+		const auto advance_freg = [&](u32 reg, u32 stride) { return freg_bank(reg) | ((freg_index(reg) + stride) & 7u); };
+		const auto advance_dreg = [&](u32 reg, u32 stride) { return dreg_bank(reg) | ((dreg_index(reg) + stride) & 3u); };
+		const auto rounding_guard = [&](bool to_zero) {
+			const int previous = std::fegetround();
+			if (to_zero) {
+				std::fesetround(FE_TOWARDZERO);
+			} else {
+				switch ((fpscr >> 22) & 0x3u) {
+					case 0x0: std::fesetround(FE_TONEAREST); break;
+					case 0x1: std::fesetround(FE_UPWARD); break;
+					case 0x2: std::fesetround(FE_DOWNWARD); break;
+					default: std::fesetround(FE_TOWARDZERO); break;
+				}
+			}
+			return previous;
 		};
-		const u32 fpscr_len = (fpscr >> 16) & 0x7u;
-		const u32 vec_stride = ((fpscr >> 20) & 0x3u) == 0x3u ? 2u : 1u;
 
 		if (to_float) {
 			if (!double_precision) {
 				const u32 sd = (((inst >> 12) & 0xF) << 1) | ((inst >> 22) & 1u);
 				const u32 sm = ((inst & 0xF) << 1) | ((inst >> 5) & 1u);
 				if (sd < 32 && sm < 32) {
-					const u32 vec_elements = (freg_bank(sd) == 0 || fpscr_len == 0) ? 1u : (fpscr_len + 1u);
+					const auto [vec_elements, vec_stride] = vfp_vector_shape(sd, false);
 					u32 curr_sd = sd;
 					u32 curr_sm = sm;
 					for (u32 i = 0; i < vec_elements; i++) {
-						const u32 src = extRegs[curr_sm];
-						double out = is_unsigned ? static_cast<double>(src) : static_cast<double>(static_cast<s32>(src));
-						if (fixed_point) {
-							out /= fixed_scale;
-						}
+						double out = is_unsigned ? static_cast<double>(extRegs[curr_sm]) : static_cast<double>(static_cast<s32>(extRegs[curr_sm]));
+						if (fixed_point) out /= fixed_scale;
 						extRegs[curr_sd] = std::bit_cast<u32>(static_cast<float>(out));
 						curr_sd = advance_freg(curr_sd, vec_stride);
-						if (freg_bank(curr_sm) != 0) {
-							curr_sm = advance_freg(curr_sm, vec_stride);
-						}
+						if (freg_bank(curr_sm) != 0) curr_sm = advance_freg(curr_sm, vec_stride);
 					}
 					gprs[PC_INDEX] = old_pc + 4;
 					return 1;
@@ -1341,121 +1441,91 @@ u32 CPU::executeArm(u32 inst) {
 				const u32 dd = ((inst >> 12) & 0xF) | (((inst >> 22) & 1u) << 4);
 				const u32 sm = ((inst & 0xF) << 1) | ((inst >> 5) & 1u);
 				if (dd < 32 && sm < 32) {
-					const auto dreg_bank = [](u32 reg) { return reg & ~3u; };
-					const auto dreg_index = [](u32 reg) { return reg & 3u; };
-					const auto advance_dreg = [&](u32 reg, u32 stride) {
-						return dreg_bank(reg) | ((dreg_index(reg) + stride) & 3u);
-					};
-					const u32 vec_elements = (dreg_bank(dd) == 0 || fpscr_len == 0) ? 1u : (fpscr_len + 1u);
+					const auto [vec_elements, vec_stride] = vfp_vector_shape(dd, true);
 					u32 curr_dd = dd;
 					u32 curr_sm = sm;
 					for (u32 i = 0; i < vec_elements; i++) {
-						const u32 src = extRegs[curr_sm];
-						double out = is_unsigned ? static_cast<double>(src) : static_cast<double>(static_cast<s32>(src));
-						if (fixed_point) {
-							out /= fixed_scale;
-						}
+						double out = is_unsigned ? static_cast<double>(extRegs[curr_sm]) : static_cast<double>(static_cast<s32>(extRegs[curr_sm]));
+						if (fixed_point) out /= fixed_scale;
 						const u64 bits = std::bit_cast<u64>(out);
 						extRegs[curr_dd * 2] = static_cast<u32>(bits);
 						extRegs[curr_dd * 2 + 1] = static_cast<u32>(bits >> 32);
 						curr_dd = advance_dreg(curr_dd, vec_stride);
-						if (freg_bank(curr_sm) != 0) {
-							curr_sm = advance_freg(curr_sm, vec_stride);
-						}
+						if (freg_bank(curr_sm) != 0) curr_sm = advance_freg(curr_sm, vec_stride);
 					}
 					gprs[PC_INDEX] = old_pc + 4;
 					return 1;
 				}
 			}
 		} else if (to_int) {
-			const auto apply_rounding = [&]() {
-				const int previous = std::fegetround();
-				if (force_to_zero) {
-					std::fesetround(FE_TOWARDZERO);
-				} else {
-					switch ((fpscr >> 22) & 0x3u) {
-						case 0x0: std::fesetround(FE_TONEAREST); break;
-						case 0x1: std::fesetround(FE_UPWARD); break;
-						case 0x2: std::fesetround(FE_DOWNWARD); break;
-						case 0x3: std::fesetround(FE_TOWARDZERO); break;
-					}
+			int local_exceptions = 0;
+			const auto convert_to_u32 = [&](double value) -> u32 {
+				if (std::fpclassify(value) == FP_SUBNORMAL) local_exceptions |= HOST_VFP_IDC;
+				if (std::isnan(value) || value < 0.0 || value > static_cast<double>(std::numeric_limits<u32>::max())) {
+					local_exceptions |= FE_INVALID;
+					return 0;
 				}
-				return previous;
+				const double rounded = std::nearbyint(value);
+				if (rounded != value) local_exceptions |= FE_INEXACT;
+				return static_cast<u32>(rounded);
 			};
-			const auto restore_rounding = [&](int previous) { std::fesetround(previous); };
-
-				auto convert_to_u32 = [&](double value) -> u32 {
-					if (std::isnan(value) || value < 0.0 || value > static_cast<double>(std::numeric_limits<u32>::max())) {
-						apply_vfp_exception_model(FE_INVALID, inst);
-						return 0;
-					}
-					return static_cast<u32>(std::nearbyint(value));
-				};
-				auto convert_to_s32 = [&](double value) -> u32 {
-					if (std::isnan(value) || value < static_cast<double>(std::numeric_limits<s32>::min()) ||
-						value > static_cast<double>(std::numeric_limits<s32>::max())) {
-						apply_vfp_exception_model(FE_INVALID, inst);
-						return 0;
-					}
-				return static_cast<u32>(static_cast<s32>(std::nearbyint(value)));
+			const auto convert_to_s32 = [&](double value) -> u32 {
+				if (std::fpclassify(value) == FP_SUBNORMAL) local_exceptions |= HOST_VFP_IDC;
+				if (std::isnan(value) || value < static_cast<double>(std::numeric_limits<s32>::min()) ||
+					value > static_cast<double>(std::numeric_limits<s32>::max())) {
+					local_exceptions |= FE_INVALID;
+					return 0;
+				}
+				const double rounded = std::nearbyint(value);
+				if (rounded != value) local_exceptions |= FE_INEXACT;
+				return static_cast<u32>(static_cast<s32>(rounded));
 			};
 
-				const int previous = apply_rounding();
-				std::feclearexcept(FE_ALL_EXCEPT);
-				if (!double_precision) {
-					const u32 sd = (((inst >> 12) & 0xF) << 1) | ((inst >> 22) & 1u);
-					const u32 sm = ((inst & 0xF) << 1) | ((inst >> 5) & 1u);
-					if (sd < 32 && sm < 32) {
-						const u32 vec_elements = (freg_bank(sd) == 0 || fpscr_len == 0) ? 1u : (fpscr_len + 1u);
-						u32 curr_sd = sd;
-						u32 curr_sm = sm;
-						for (u32 i = 0; i < vec_elements; i++) {
-							double in = static_cast<double>(std::bit_cast<float>(extRegs[curr_sm]));
-							if (fixed_point) {
-								in *= fixed_scale;
-							}
-							extRegs[curr_sd] = is_unsigned ? convert_to_u32(in) : convert_to_s32(in);
-							curr_sd = advance_freg(curr_sd, vec_stride);
-							if (freg_bank(curr_sm) != 0) {
-								curr_sm = advance_freg(curr_sm, vec_stride);
-							}
-						}
-						restore_rounding(previous);
-						apply_vfp_exception_model(std::fetestexcept(FE_INVALID | FE_OVERFLOW | FE_UNDERFLOW | FE_INEXACT), inst);
-						gprs[PC_INDEX] = old_pc + 4;
-						return 1;
+			const int previous = rounding_guard(force_to_zero);
+			std::feclearexcept(FE_ALL_EXCEPT);
+			if (!double_precision) {
+				const u32 sd = (((inst >> 12) & 0xF) << 1) | ((inst >> 22) & 1u);
+				const u32 sm = ((inst & 0xF) << 1) | ((inst >> 5) & 1u);
+				if (sd < 32 && sm < 32) {
+					const auto [vec_elements, vec_stride] = vfp_vector_shape(sd, false);
+					u32 curr_sd = sd;
+					u32 curr_sm = sm;
+					for (u32 i = 0; i < vec_elements; i++) {
+						double in = static_cast<double>(std::bit_cast<float>(extRegs[curr_sm]));
+						if (fixed_point) in *= fixed_scale;
+						extRegs[curr_sd] = is_unsigned ? convert_to_u32(in) : convert_to_s32(in);
+						curr_sd = advance_freg(curr_sd, vec_stride);
+						if (freg_bank(curr_sm) != 0) curr_sm = advance_freg(curr_sm, vec_stride);
+					}
+					std::fesetround(previous);
+					local_exceptions |= std::fetestexcept(FE_INVALID | FE_OVERFLOW | FE_UNDERFLOW | FE_INEXACT);
+					apply_vfp_exception_model(local_exceptions, inst);
+					gprs[PC_INDEX] = old_pc + 4;
+					return 1;
 				}
 			} else {
 				const u32 sd = (((inst >> 12) & 0xF) << 1) | ((inst >> 22) & 1u);
 				const u32 dm = (inst & 0xF) | (((inst >> 5) & 1u) << 4);
 				if (sd < 32 && dm < 32) {
-					const auto dreg_bank = [](u32 reg) { return reg & ~3u; };
-					const auto dreg_index = [](u32 reg) { return reg & 3u; };
-					const auto advance_dreg = [&](u32 reg, u32 stride) {
-						return dreg_bank(reg) | ((dreg_index(reg) + stride) & 3u);
-					};
-					const u32 vec_elements = (freg_bank(sd) == 0 || fpscr_len == 0) ? 1u : (fpscr_len + 1u);
+					const auto [vec_elements, vec_stride] = vfp_vector_shape(sd, false);
 					u32 curr_sd = sd;
 					u32 curr_dm = dm;
 					for (u32 i = 0; i < vec_elements; i++) {
 						const u64 bits = static_cast<u64>(extRegs[curr_dm * 2]) | (static_cast<u64>(extRegs[curr_dm * 2 + 1]) << 32);
 						double in = std::bit_cast<double>(bits);
-						if (fixed_point) {
-							in *= fixed_scale;
-						}
+						if (fixed_point) in *= fixed_scale;
 						extRegs[curr_sd] = is_unsigned ? convert_to_u32(in) : convert_to_s32(in);
 						curr_sd = advance_freg(curr_sd, vec_stride);
-						if (dreg_bank(curr_dm) != 0) {
-							curr_dm = advance_dreg(curr_dm, vec_stride);
-						}
+						if (dreg_bank(curr_dm) != 0) curr_dm = advance_dreg(curr_dm, vec_stride);
 					}
-					restore_rounding(previous);
-					apply_vfp_exception_model(std::fetestexcept(FE_INVALID | FE_OVERFLOW | FE_UNDERFLOW | FE_INEXACT), inst);
+					std::fesetround(previous);
+					local_exceptions |= std::fetestexcept(FE_INVALID | FE_OVERFLOW | FE_UNDERFLOW | FE_INEXACT);
+					apply_vfp_exception_model(local_exceptions, inst);
 					gprs[PC_INDEX] = old_pc + 4;
 					return 1;
 				}
 			}
-			restore_rounding(previous);
+			std::fesetround(previous);
 		}
 	}
 
@@ -1471,9 +1541,7 @@ u32 CPU::executeArm(u32 inst) {
 				const auto advance_freg = [&](u32 reg, u32 stride) {
 					return freg_bank(reg) | ((freg_index(reg) + stride) & 7u);
 				};
-				const u32 fpscr_len = (fpscr >> 16) & 0x7u;
-				const u32 vec_elements = (freg_bank(sd) == 0 || fpscr_len == 0) ? 1u : (fpscr_len + 1u);
-				const u32 vec_stride = ((fpscr >> 20) & 0x3u) == 0x3u ? 2u : 1u;
+					const auto [vec_elements, vec_stride] = vfp_vector_shape(sd, false);
 				u32 curr_sd = sd;
 				u32 curr_sm = sm;
 				for (u32 i = 0; i < vec_elements; i++) {
@@ -1495,9 +1563,7 @@ u32 CPU::executeArm(u32 inst) {
 				const auto advance_dreg = [&](u32 reg, u32 stride) {
 					return dreg_bank(reg) | ((dreg_index(reg) + stride) & 3u);
 				};
-				const u32 fpscr_len = (fpscr >> 16) & 0x7u;
-				const u32 vec_elements = (dreg_bank(dd) == 0 || fpscr_len == 0) ? 1u : (fpscr_len + 1u);
-				const u32 vec_stride = ((fpscr >> 20) & 0x3u) == 0x3u ? 2u : 1u;
+					const auto [vec_elements, vec_stride] = vfp_vector_shape(dd, true);
 				u32 curr_dd = dd;
 				u32 curr_dm = dm;
 				for (u32 i = 0; i < vec_elements; i++) {
@@ -1546,21 +1612,25 @@ u32 CPU::executeArm(u32 inst) {
 					return freg_bank(reg) | ((freg_index(reg) + stride) & 7u);
 				};
 
-				const u32 fpscr_len = (fpscr >> 16) & 0x7u;
-				const u32 vec_elements = (freg_bank(sd) == 0 || fpscr_len == 0) ? 1u : (fpscr_len + 1u);
-				const u32 vec_stride = ((fpscr >> 20) & 0x3u) == 0x3u ? 2u : 1u;
-				u32 curr_sd = sd;
-				u32 curr_sm = sm;
-				for (u32 i = 0; i < vec_elements; i++) {
-					const float value = std::bit_cast<float>(extRegs[curr_sm]);
-					const float result = is_vsqrt ? std::sqrt(value) : (is_vneg ? -value : std::fabs(value));
-					extRegs[curr_sd] = std::bit_cast<u32>(result);
+					const auto [vec_elements, vec_stride] = vfp_vector_shape(sd, false);
+					u32 curr_sd = sd;
+					u32 curr_sm = sm;
+					int local_exceptions = 0;
+					for (u32 i = 0; i < vec_elements; i++) {
+						const u32 value_bits = extRegs[curr_sm];
+						if (is_subnormal_f32(value_bits)) {
+							local_exceptions |= HOST_VFP_IDC;
+						}
+						const float value = std::bit_cast<float>(value_bits);
+						const float result = is_vsqrt ? std::sqrt(value) : (is_vneg ? -value : std::fabs(value));
+						extRegs[curr_sd] = std::bit_cast<u32>(result);
 					curr_sd = advance_freg(curr_sd, vec_stride);
 					if (freg_bank(curr_sm) != 0) {
 						curr_sm = advance_freg(curr_sm, vec_stride);
 					}
 				}
-				apply_vfp_exception_model(std::fetestexcept(FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW | FE_INEXACT), inst);
+					local_exceptions |= std::fetestexcept(FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW | FE_INEXACT);
+					apply_vfp_exception_model(local_exceptions, inst);
 				restore_rounding(previous_round);
 				gprs[PC_INDEX] = old_pc + 4;
 				return 1;
@@ -1574,16 +1644,18 @@ u32 CPU::executeArm(u32 inst) {
 				const auto advance_dreg = [&](u32 reg, u32 stride) {
 					return dreg_bank(reg) | ((dreg_index(reg) + stride) & 3u);
 				};
-				const u32 fpscr_len = (fpscr >> 16) & 0x7u;
-				const u32 vec_elements = (dreg_bank(dd) == 0 || fpscr_len == 0) ? 1u : (fpscr_len + 1u);
-				const u32 vec_stride = ((fpscr >> 20) & 0x3u) == 0x3u ? 2u : 1u;
-				u32 curr_dd = dd;
-				u32 curr_dm = dm;
-				const int previous_round = apply_fpscr_rounding();
-				std::feclearexcept(FE_ALL_EXCEPT);
-				for (u32 i = 0; i < vec_elements; i++) {
-					const u64 bits = static_cast<u64>(extRegs[curr_dm * 2]) | (static_cast<u64>(extRegs[curr_dm * 2 + 1]) << 32);
-					const double value = std::bit_cast<double>(bits);
+					const auto [vec_elements, vec_stride] = vfp_vector_shape(dd, true);
+					u32 curr_dd = dd;
+					u32 curr_dm = dm;
+					const int previous_round = apply_fpscr_rounding();
+					std::feclearexcept(FE_ALL_EXCEPT);
+					int local_exceptions = 0;
+					for (u32 i = 0; i < vec_elements; i++) {
+						const u64 bits = static_cast<u64>(extRegs[curr_dm * 2]) | (static_cast<u64>(extRegs[curr_dm * 2 + 1]) << 32);
+						if (is_subnormal_f64(bits)) {
+							local_exceptions |= HOST_VFP_IDC;
+						}
+						const double value = std::bit_cast<double>(bits);
 					const double result = is_vsqrt ? std::sqrt(value) : (is_vneg ? -value : std::fabs(value));
 					const u64 out = std::bit_cast<u64>(result);
 					extRegs[curr_dd * 2] = static_cast<u32>(out);
@@ -1593,7 +1665,8 @@ u32 CPU::executeArm(u32 inst) {
 						curr_dm = advance_dreg(curr_dm, vec_stride);
 					}
 				}
-				apply_vfp_exception_model(std::fetestexcept(FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW | FE_INEXACT), inst);
+					local_exceptions |= std::fetestexcept(FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW | FE_INEXACT);
+					apply_vfp_exception_model(local_exceptions, inst);
 				restore_rounding(previous_round);
 				gprs[PC_INDEX] = old_pc + 4;
 				return 2;
@@ -1620,7 +1693,7 @@ u32 CPU::executeArm(u32 inst) {
 		};
 		const bool double_precision = (inst & (1u << 8)) != 0;
 		u32 nzcv = 0;
-		if (!double_precision) {
+			if (!double_precision) {
 			const u32 sd = (((inst >> 12) & 0xF) << 1) | ((inst >> 22) & 1u);
 			const u32 sm = ((inst & 0xF) << 1) | ((inst >> 5) & 1u);
 			if (sd < 32 && (is_vcmp_zero || sm < 32)) {
@@ -1629,20 +1702,22 @@ u32 CPU::executeArm(u32 inst) {
 				const auto advance_freg = [&](u32 reg, u32 stride) {
 					return freg_bank(reg) | ((freg_index(reg) + stride) & 7u);
 				};
-				const u32 fpscr_len = (fpscr >> 16) & 0x7u;
-				const u32 vec_elements = (freg_bank(sd) == 0 || fpscr_len == 0) ? 1u : (fpscr_len + 1u);
-				const u32 vec_stride = ((fpscr >> 20) & 0x3u) == 0x3u ? 2u : 1u;
+					const auto [vec_elements, vec_stride] = vfp_vector_shape(sd, false);
 				u32 curr_sd = sd;
 				u32 curr_sm = sm;
+				int local_exceptions = 0;
 					for (u32 i = 0; i < vec_elements; i++) {
 						const u32 lhs_bits = extRegs[curr_sd];
 						const u32 rhs_bits = is_vcmp_zero ? 0u : extRegs[curr_sm];
+						if (is_subnormal_f32(lhs_bits) || (!is_vcmp_zero && is_subnormal_f32(rhs_bits))) {
+							local_exceptions |= HOST_VFP_IDC;
+						}
 						const float lhs = std::bit_cast<float>(lhs_bits);
 						const float rhs = std::bit_cast<float>(rhs_bits);
 						if (std::isnan(lhs) || std::isnan(rhs)) {
 							nzcv = 0x30000000u;  // unordered
 							if (signaling_compare || is_snan_f32(lhs_bits) || is_snan_f32(rhs_bits)) {
-								apply_vfp_exception_model(FE_INVALID, inst);
+								local_exceptions |= FE_INVALID;
 							}
 						} else if (lhs == rhs) {
 							nzcv = 0x60000000u;  // Z=1,C=1
@@ -1655,6 +1730,9 @@ u32 CPU::executeArm(u32 inst) {
 					if (!is_vcmp_zero && freg_bank(curr_sm) != 0) {
 						curr_sm = advance_freg(curr_sm, vec_stride);
 					}
+					}
+				if (local_exceptions != 0) {
+					apply_vfp_exception_model(local_exceptions, inst);
 				}
 				fpscr = (fpscr & ~0xF0000000u) | nzcv;
 				gprs[PC_INDEX] = old_pc + 4;
@@ -1669,20 +1747,22 @@ u32 CPU::executeArm(u32 inst) {
 				const auto advance_dreg = [&](u32 reg, u32 stride) {
 					return dreg_bank(reg) | ((dreg_index(reg) + stride) & 3u);
 				};
-				const u32 fpscr_len = (fpscr >> 16) & 0x7u;
-				const u32 vec_elements = (dreg_bank(dd) == 0 || fpscr_len == 0) ? 1u : (fpscr_len + 1u);
-				const u32 vec_stride = ((fpscr >> 20) & 0x3u) == 0x3u ? 2u : 1u;
+					const auto [vec_elements, vec_stride] = vfp_vector_shape(dd, true);
 				u32 curr_dd = dd;
 				u32 curr_dm = dm;
+				int local_exceptions = 0;
 					for (u32 i = 0; i < vec_elements; i++) {
 						const u64 lhs_bits = static_cast<u64>(extRegs[curr_dd * 2]) | (static_cast<u64>(extRegs[curr_dd * 2 + 1]) << 32);
 						const u64 rhs_bits = is_vcmp_zero ? 0ull : (static_cast<u64>(extRegs[curr_dm * 2]) | (static_cast<u64>(extRegs[curr_dm * 2 + 1]) << 32));
+						if (is_subnormal_f64(lhs_bits) || (!is_vcmp_zero && is_subnormal_f64(rhs_bits))) {
+							local_exceptions |= HOST_VFP_IDC;
+						}
 						const double lhs = std::bit_cast<double>(lhs_bits);
 						const double rhs = std::bit_cast<double>(rhs_bits);
 						if (std::isnan(lhs) || std::isnan(rhs)) {
 							nzcv = 0x30000000u;
 							if (signaling_compare || is_snan_f64(lhs_bits) || is_snan_f64(rhs_bits)) {
-								apply_vfp_exception_model(FE_INVALID, inst);
+								local_exceptions |= FE_INVALID;
 							}
 						} else if (lhs == rhs) {
 							nzcv = 0x60000000u;
@@ -1695,6 +1775,9 @@ u32 CPU::executeArm(u32 inst) {
 					if (!is_vcmp_zero && dreg_bank(curr_dm) != 0) {
 						curr_dm = advance_dreg(curr_dm, vec_stride);
 					}
+					}
+				if (local_exceptions != 0) {
+					apply_vfp_exception_model(local_exceptions, inst);
 				}
 				fpscr = (fpscr & ~0xF0000000u) | nzcv;
 				gprs[PC_INDEX] = old_pc + 4;
@@ -1803,25 +1886,31 @@ u32 CPU::executeArm(u32 inst) {
 	if ((inst & 0x0F000000u) == 0x0C000000u || (inst & 0x0F000000u) == 0x0D000000u || (inst & 0x0F000010u) == 0x0E000000u) {
 		const u32 coproc = (inst >> 8) & 0xF;
 		if (coproc == 10 || coproc == 11) {
-			// NEON/CDP subset: simple D-register 2x32-bit lane ALU on cp10/cp11.
-			// This is a compatibility subset for common vector integer ops.
-			if ((inst & 0x0F000010u) == 0x0E000000u) {
+			const Coproc10Decoder::Class coproc_class = Coproc10Decoder::DecodeClass(inst);
+			// NEON/CDP subset: D/Q register integer ALU paths on cp10/cp11.
+			// Decode/coverage expanded from Azahar-style interpreter behavior.
+			if (coproc_class == Coproc10Decoder::Class::DataProc) {
 				const u32 op = (inst >> 20) & 0xFu;
 				const u32 op5 = (inst >> 5) & 0x1u;
 				const u32 op6 = (inst >> 6) & 0x1u;
 				const u32 elem_size = (inst >> 18) & 0x3u;  // minimal NEON element-size decode subset
+				const bool use_q = (inst & (1u << 6)) != 0;
 				const u32 vd = ((inst >> 12) & 0xFu) | (((inst >> 22) & 1u) << 4);
 				const u32 vn = ((inst >> 16) & 0xFu) | (((inst >> 7) & 1u) << 4);
 				const u32 vm = (inst & 0xFu) | (((inst >> 5) & 1u) << 4);
-				if (vd < 32 && vn < 32 && vm < 32) {
-					const u32 n0 = extRegs[vn * 2];
-					const u32 n1 = extRegs[vn * 2 + 1];
-					const u32 m0 = extRegs[vm * 2];
-					const u32 m1 = extRegs[vm * 2 + 1];
-					u32 d0 = n0;
-					u32 d1 = n1;
-					const u32 old_d0 = extRegs[vd * 2];
-					const u32 old_d1 = extRegs[vd * 2 + 1];
+				const u32 reg_words = use_q ? 4u : 2u;
+				if (vd < 32 && vn < 32 && vm < 32 && (vd * 2 + reg_words) <= 64 && (vn * 2 + reg_words) <= 64 &&
+					(vm * 2 + reg_words) <= 64) {
+					std::array<u32, 4> src_n{};
+					std::array<u32, 4> src_m{};
+					std::array<u32, 4> src_d_old{};
+					std::array<u32, 4> dst{};
+					for (u32 i = 0; i < reg_words; i++) {
+						src_n[i] = extRegs[vn * 2 + i];
+						src_m[i] = extRegs[vm * 2 + i];
+						src_d_old[i] = extRegs[vd * 2 + i];
+						dst[i] = src_n[i];
+					}
 					const auto lane_op = [&](u32 a, u32 b, bool sub, bool mul) -> u32 {
 						switch (elem_size) {
 							case 0: {  // 8-bit lanes
@@ -1850,69 +1939,272 @@ u32 CPU::executeArm(u32 inst) {
 								return mul ? (a * b) : (sub ? (a - b) : (a + b));
 						}
 					};
+						const auto lane_shift = [&](u32 a, u32 shift, bool right, bool arithmetic) -> u32 {
+						switch (elem_size) {
+							case 0: {
+								u32 out = 0;
+								for (u32 i = 0; i < 4; i++) {
+									const u32 s = std::min<u32>(shift & 0xFFu, 8u);
+									const u32 part = (a >> (i * 8)) & 0xFFu;
+									u32 rv = part;
+									if (right) {
+										if (arithmetic && (part & 0x80u)) {
+											const s32 signed_part = static_cast<s32>(static_cast<s8>(part));
+											rv = static_cast<u32>(signed_part >> s) & 0xFFu;
+										} else {
+											rv = part >> s;
+										}
+									} else {
+										rv = (part << s) & 0xFFu;
+									}
+									out |= (rv & 0xFFu) << (i * 8);
+								}
+								return out;
+							}
+							case 1: {
+								u32 out = 0;
+								for (u32 i = 0; i < 2; i++) {
+									const u32 s = std::min<u32>(shift & 0xFFu, 16u);
+									const u32 part = (a >> (i * 16)) & 0xFFFFu;
+									u32 rv = part;
+									if (right) {
+										if (arithmetic && (part & 0x8000u)) {
+											const s32 signed_part = static_cast<s32>(static_cast<s16>(part));
+											rv = static_cast<u32>(signed_part >> s) & 0xFFFFu;
+										} else {
+											rv = part >> s;
+										}
+									} else {
+										rv = (part << s) & 0xFFFFu;
+									}
+									out |= (rv & 0xFFFFu) << (i * 16);
+								}
+								return out;
+							}
+							default: {
+								const u32 s = std::min<u32>(shift & 0xFFu, 32u);
+								if (right) {
+									if (s == 32) {
+										return arithmetic && (a & 0x80000000u) ? 0xFFFFFFFFu : 0u;
+									}
+									if (arithmetic) {
+										return static_cast<u32>(static_cast<s32>(a) >> s);
+									}
+									return a >> s;
+								}
+								return s == 32 ? 0u : (a << s);
+							}
+						}
+						};
+						const auto lane_minmax = [&](u32 a, u32 b, bool signed_cmp, bool take_max) -> u32 {
+							switch (elem_size) {
+								case 0: {
+									u32 out = 0;
+									for (u32 i = 0; i < 4; i++) {
+										const u32 shift = i * 8;
+										const u8 av = static_cast<u8>((a >> shift) & 0xFFu);
+										const u8 bv = static_cast<u8>((b >> shift) & 0xFFu);
+										const bool pick_a = signed_cmp
+											? (take_max ? static_cast<s8>(av) >= static_cast<s8>(bv)
+													   : static_cast<s8>(av) <= static_cast<s8>(bv))
+											: (take_max ? av >= bv : av <= bv);
+										out |= static_cast<u32>(pick_a ? av : bv) << shift;
+									}
+									return out;
+								}
+								case 1: {
+									u32 out = 0;
+									for (u32 i = 0; i < 2; i++) {
+										const u32 shift = i * 16;
+										const u16 av = static_cast<u16>((a >> shift) & 0xFFFFu);
+										const u16 bv = static_cast<u16>((b >> shift) & 0xFFFFu);
+										const bool pick_a = signed_cmp
+											? (take_max ? static_cast<s16>(av) >= static_cast<s16>(bv)
+													   : static_cast<s16>(av) <= static_cast<s16>(bv))
+											: (take_max ? av >= bv : av <= bv);
+										out |= static_cast<u32>(pick_a ? av : bv) << shift;
+									}
+									return out;
+								}
+								default: {
+									if (signed_cmp) {
+										const s32 av = static_cast<s32>(a);
+										const s32 bv = static_cast<s32>(b);
+										return static_cast<u32>(take_max ? std::max(av, bv) : std::min(av, bv));
+									}
+									return take_max ? std::max(a, b) : std::min(a, b);
+								}
+							}
+						};
+						const auto lane_qaddsub = [&](u32 a, u32 b, bool sub, bool signed_sat) -> u32 {
+							switch (elem_size) {
+								case 0: {
+									u32 out = 0;
+									for (u32 i = 0; i < 4; i++) {
+										const u32 shift = i * 8;
+										if (signed_sat) {
+											const s32 av = static_cast<s8>((a >> shift) & 0xFFu);
+											const s32 bv = static_cast<s8>((b >> shift) & 0xFFu);
+											const s32 rv = sub ? (av - bv) : (av + bv);
+											const s32 sat = std::clamp(rv, -128, 127);
+											out |= static_cast<u32>(static_cast<u8>(static_cast<s8>(sat))) << shift;
+											if (rv != sat) cpsr |= CPSR::StickyOverflow;
+										} else {
+											const s32 av = (a >> shift) & 0xFFu;
+											const s32 bv = (b >> shift) & 0xFFu;
+											const s32 rv = sub ? (av - bv) : (av + bv);
+											const s32 sat = std::clamp(rv, 0, 255);
+											out |= static_cast<u32>(sat) << shift;
+											if (rv != sat) cpsr |= CPSR::StickyOverflow;
+										}
+									}
+									return out;
+								}
+								case 1: {
+									u32 out = 0;
+									for (u32 i = 0; i < 2; i++) {
+										const u32 shift = i * 16;
+										if (signed_sat) {
+											const s32 av = static_cast<s16>((a >> shift) & 0xFFFFu);
+											const s32 bv = static_cast<s16>((b >> shift) & 0xFFFFu);
+											const s32 rv = sub ? (av - bv) : (av + bv);
+											const s32 sat = std::clamp(rv, -32768, 32767);
+											out |= static_cast<u32>(static_cast<u16>(static_cast<s16>(sat))) << shift;
+											if (rv != sat) cpsr |= CPSR::StickyOverflow;
+										} else {
+											const s32 av = (a >> shift) & 0xFFFFu;
+											const s32 bv = (b >> shift) & 0xFFFFu;
+											const s32 rv = sub ? (av - bv) : (av + bv);
+											const s32 sat = std::clamp(rv, 0, 65535);
+											out |= static_cast<u32>(sat) << shift;
+											if (rv != sat) cpsr |= CPSR::StickyOverflow;
+										}
+									}
+									return out;
+								}
+								default: {
+									if (signed_sat) {
+										const s64 av = static_cast<s32>(a);
+										const s64 bv = static_cast<s32>(b);
+										const s64 rv = sub ? (av - bv) : (av + bv);
+										const s64 sat = std::clamp<s64>(rv, std::numeric_limits<s32>::min(), std::numeric_limits<s32>::max());
+										if (rv != sat) cpsr |= CPSR::StickyOverflow;
+										return static_cast<u32>(static_cast<s32>(sat));
+									}
+									const s64 av = a;
+									const s64 bv = b;
+									const s64 rv = sub ? (av - bv) : (av + bv);
+									const s64 sat = std::clamp<s64>(rv, 0, std::numeric_limits<u32>::max());
+									if (rv != sat) cpsr |= CPSR::StickyOverflow;
+									return static_cast<u32>(sat);
+								}
+							}
+						};
 
-					switch (op) {
-						case 0x0: d0 = n0 & m0; d1 = n1 & m1; break;       // VAND (subset)
-						case 0x1: d0 = n0 & ~m0; d1 = n1 & ~m1; break;     // VBIC (subset)
-						case 0x8: d0 = lane_op(n0, m0, false, false); d1 = lane_op(n1, m1, false, false); break;  // VADD.I{8,16,32} (subset)
-						case 0x9: d0 = lane_op(n0, m0, true, false); d1 = lane_op(n1, m1, true, false); break;    // VSUB.I{8,16,32} (subset)
-						case 0xA: d0 = n0 ^ m0; d1 = n1 ^ m1; break;       // VEOR (subset)
-						case 0xB: d0 = n0 | m0; d1 = n1 | m1; break;       // VORR (subset)
-						case 0xC: d0 = ~n0 | m0; d1 = ~n1 | m1; break;     // VORN (subset)
-						case 0xD: d0 = ~m0; d1 = ~m1; break;               // VMVN (subset)
+						switch (op) {
+						case 0x0:
+							for (u32 i = 0; i < reg_words; i++) dst[i] = src_n[i] & src_m[i];
+							break;  // VAND
+							case 0x1:
+								for (u32 i = 0; i < reg_words; i++) dst[i] = src_n[i] & ~src_m[i];
+								break;  // VBIC
+								case 0x2:
+									for (u32 i = 0; i < reg_words; i++) dst[i] = lane_minmax(src_n[i], src_m[i], op5, true);
+									break;  // VMAX.{U,S}
+								case 0x3:
+									for (u32 i = 0; i < reg_words; i++) dst[i] = lane_minmax(src_n[i], src_m[i], op5, false);
+									break;  // VMIN.{U,S}
+								case 0x4:
+									for (u32 i = 0; i < reg_words; i++) dst[i] = lane_qaddsub(src_n[i], src_m[i], false, op5);
+									break;  // VQADD.{U,S}
+								case 0x5:
+									for (u32 i = 0; i < reg_words; i++) dst[i] = lane_qaddsub(src_n[i], src_m[i], true, op5);
+									break;  // VQSUB.{U,S}
+						case 0x6:
+							for (u32 i = 0; i < reg_words; i++) dst[i] = lane_shift(src_n[i], src_m[i], true, false);
+							break;  // VSHR (subset)
+						case 0x7:
+							for (u32 i = 0; i < reg_words; i++) dst[i] = lane_shift(src_n[i], src_m[i], true, true);
+							break;  // VSRA (subset)
+						case 0x8:
+							for (u32 i = 0; i < reg_words; i++) dst[i] = lane_op(src_n[i], src_m[i], false, false);
+							break;  // VADD
+						case 0x9:
+							for (u32 i = 0; i < reg_words; i++) dst[i] = lane_op(src_n[i], src_m[i], true, false);
+							break;  // VSUB
+						case 0xA:
+							for (u32 i = 0; i < reg_words; i++) dst[i] = src_n[i] ^ src_m[i];
+							break;  // VEOR
+						case 0xB:
+							for (u32 i = 0; i < reg_words; i++) dst[i] = src_n[i] | src_m[i];
+							break;  // VORR
+						case 0xC:
+							for (u32 i = 0; i < reg_words; i++) dst[i] = ~src_n[i] | src_m[i];
+							break;  // VORN
+						case 0xD:
+							for (u32 i = 0; i < reg_words; i++) dst[i] = ~src_m[i];
+							break;  // VMVN
 						case 0xE:
 							if (!op6 && !op5) {
-								d0 = (old_d0 & n0) | (~old_d0 & m0);
-								d1 = (old_d1 & n1) | (~old_d1 & m1);  // VBSL (subset)
+								for (u32 i = 0; i < reg_words; i++) dst[i] = (src_d_old[i] & src_n[i]) | (~src_d_old[i] & src_m[i]);  // VBSL
 							} else if (!op6 && op5) {
-								d0 = (m0 & n0) | (~m0 & old_d0);
-								d1 = (m1 & n1) | (~m1 & old_d1);  // VBIT (subset)
+								for (u32 i = 0; i < reg_words; i++) dst[i] = (src_m[i] & src_n[i]) | (~src_m[i] & src_d_old[i]);  // VBIT
 							} else {
-								d0 = (old_d0 & m0) | (~old_d0 & n0);
-								d1 = (old_d1 & m1) | (~old_d1 & n1);  // VBIF (subset)
+								for (u32 i = 0; i < reg_words; i++) dst[i] = (src_d_old[i] & src_m[i]) | (~src_d_old[i] & src_n[i]);  // VBIF
 							}
 							break;
-						case 0xF: d0 = lane_op(n0, m0, false, true); d1 = lane_op(n1, m1, false, true); break;    // VMUL.I{8,16,32} (subset)
+						case 0xF:
+							for (u32 i = 0; i < reg_words; i++) dst[i] = lane_op(src_n[i], src_m[i], false, true);
+							break;  // VMUL
 						default: break;
 					}
 
-					extRegs[vd * 2] = d0;
-					extRegs[vd * 2 + 1] = d1;
+					for (u32 i = 0; i < reg_words; i++) {
+						extRegs[vd * 2 + i] = dst[i];
+					}
 					gprs[PC_INDEX] = old_pc + 4;
 					return 1;
 				}
 			}
 
 			// NEON structured load/store subset via LDC/STC-style forms: contiguous S-lane transfer.
-			if ((inst & 0x0F000000u) == 0x0C000000u || (inst & 0x0F000000u) == 0x0D000000u) {
-				const bool load = (inst & (1u << 20)) != 0;
-				const bool add = (inst & (1u << 23)) != 0;
-				const bool write_back = (inst & (1u << 21)) != 0;
-				const u32 rn = (inst >> 16) & 0xFu;
-				const u32 vd = ((inst >> 12) & 0xFu) | (((inst >> 22) & 1u) << 4);
-				const u32 words = inst & 0xFFu;
-				const u32 transfer_words = words == 0 ? 1u : words;
-				const bool interleaved = (inst & (1u << 5)) != 0;  // minimal VLD2/VST2-style toggle
-				const u32 interleave_factor = interleaved ? (((inst & (1u << 6)) != 0) ? 4u : 2u) : 1u;
-				const u32 base = (rn == PC_INDEX) ? ((old_pc + 8) & ~3u) : get_reg_operand(rn);
-				u32 address = base;
-				if (!add) {
-					address -= transfer_words * 4;
-				}
+			if (coproc_class == Coproc10Decoder::Class::MemTransfer) {
+				const auto mem_dec = Coproc10Decoder::DecodeMem(inst, old_pc, get_reg_operand);
+				const bool load = mem_dec.load;
+				const bool add = mem_dec.add;
+				const bool write_back = mem_dec.write_back;
+				const u32 rn = mem_dec.rn;
+				const u32 vd = mem_dec.vd;
+				const u32 transfer_words = mem_dec.transfer_words;
+				const bool interleaved = mem_dec.interleaved;
+				const u32 interleave_factor = mem_dec.interleave_factor;
+				const u32 base = mem_dec.base;
+				u32 address = mem_dec.address;
 
-					const u32 max_words = (interleaved && transfer_words == 1) ? interleave_factor : transfer_words;
-					if (vd * 2 + max_words <= 64) {
-						if (interleaved && transfer_words == 1) {
-							if (load) {
-								const u32 value = mem.read32(address);
-								for (u32 lane = 0; lane < interleave_factor; lane++) {
-									extRegs[vd * 2 + lane] = value;
+					const u32 max_words = (interleaved && transfer_words <= interleave_factor) ? interleave_factor : transfer_words;
+						if (vd * 2 + max_words <= 64) {
+							if (interleaved && transfer_words <= interleave_factor) {
+								const u32 lane_width = 32u / interleave_factor;
+								const u32 lane_mask = (1u << lane_width) - 1u;
+								for (u32 i = 0; i < transfer_words; i++) {
+									const u32 lane_shift = i * lane_width;
+								if (load) {
+										const u32 value = mem.read32(address + i * 4);
+										for (u32 lane = 0; lane < interleave_factor; lane++) {
+											const u32 old = extRegs[vd * 2 + lane];
+											const u32 lane_value = (value >> lane_shift) & lane_mask;
+											extRegs[vd * 2 + lane] = (old & ~(lane_mask << lane_shift)) | (lane_value << lane_shift);
+										}
+									} else {
+										u32 packed = 0;
+									for (u32 lane = 0; lane < interleave_factor; lane++) {
+											packed |= ((extRegs[vd * 2 + lane] >> lane_shift) & lane_mask) << lane_shift;
+										}
+										mem.write32(address + i * 4, packed);
+										clear_exclusive();
+									}
 								}
 							} else {
-								mem.write32(address, extRegs[vd * 2]);
-								clear_exclusive();
-							}
-						} else {
 							for (u32 i = 0; i < transfer_words; i++) {
 								u32 reg_index = vd * 2 + i;
 								if (interleaved && transfer_words >= interleave_factor) {
