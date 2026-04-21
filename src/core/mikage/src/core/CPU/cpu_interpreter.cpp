@@ -1,13 +1,13 @@
-#include "../../include/cpu_interpreter.hpp"
+#include "../../../include/cpu_interpreter.hpp"
 
 #include <bit>
 #include <cfenv>
 #include <cmath>
 #include <optional>
 
-#include "../../include/arm_defs.hpp"
-#include "../../include/emulator.hpp"
-#include "../../include/kernel/kernel.hpp"
+#include "../../../include/arm_defs.hpp"
+#include "../../../include/emulator.hpp"
+#include "../../../include/kernel/kernel.hpp"
 
 namespace {
 constexpr u32 PC_INDEX = 15;
