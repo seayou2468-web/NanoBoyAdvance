@@ -31,7 +31,7 @@ add_executable(AuroraIOS MACOSX_BUNDLE
 )
 
 set_source_files_properties(Resources/fonts/SharedFontReplacement.bin PROPERTIES
-  MACOSX_PACKAGE_LOCATION "Resources/fonts"
+  MACOSX_PACKAGE_LOCATION "fonts"
 )
 
 set_target_properties(AuroraIOS PROPERTIES

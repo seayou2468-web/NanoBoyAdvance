@@ -41,26 +41,33 @@ std::vector<u8> LoadSharedFontFromBundle() {
 
 	CFStringRef resourceName = CFSTR("SharedFontReplacement");
 	CFStringRef resourceType = CFSTR("bin");
-	CFStringRef subdir = CFSTR("fonts");
-	CFURLRef resourceURL = CFBundleCopyResourceURL(bundle, resourceName, resourceType, subdir);
-	if (resourceURL == nullptr) {
-		return {};
+	constexpr CFStringRef subdirs[] = {CFSTR("fonts"), CFSTR("Resources/fonts"), nullptr};
+
+	for (CFStringRef subdir : subdirs) {
+		CFURLRef resourceURL = CFBundleCopyResourceURL(bundle, resourceName, resourceType, subdir);
+		if (resourceURL == nullptr) {
+			continue;
+		}
+
+		CFStringRef pathRef = CFURLCopyFileSystemPath(resourceURL, kCFURLPOSIXPathStyle);
+		CFRelease(resourceURL);
+		if (pathRef == nullptr) {
+			continue;
+		}
+
+		char pathBuffer[4096];
+		const Boolean ok = CFStringGetCString(pathRef, pathBuffer, sizeof(pathBuffer), kCFStringEncodingUTF8);
+		CFRelease(pathRef);
+		if (!ok) {
+			continue;
+		}
+
+		if (std::vector<u8> data = LoadFile(pathBuffer); !data.empty()) {
+			return data;
+		}
 	}
 
-	CFStringRef pathRef = CFURLCopyFileSystemPath(resourceURL, kCFURLPOSIXPathStyle);
-	CFRelease(resourceURL);
-	if (pathRef == nullptr) {
-		return {};
-	}
-
-	char pathBuffer[4096];
-	const Boolean ok = CFStringGetCString(pathRef, pathBuffer, sizeof(pathBuffer), kCFStringEncodingUTF8);
-	CFRelease(pathRef);
-	if (!ok) {
-		return {};
-	}
-
-	return LoadFile(pathBuffer);
+	return {};
 }
 #endif
 
@@ -127,7 +134,13 @@ void Memory::reset() {
 	for (auto& e : sharedMemBlocks) {
 		if (e.handle == KernelHandles::FontSharedMemHandle) {
 			// Font shared memory size depends on the external shared-font replacement file.
-			e.size = LoadSharedFontReplacement().size();
+			const std::vector<u8> font = LoadSharedFontReplacement();
+			if (font.empty()) {
+				Helpers::warn("SharedFontReplacement.bin not found or empty, reserving 1 page for font shared memory\n");
+				e.size = pageSize;
+			} else {
+				e.size = static_cast<u32>((font.size() + pageMask) & ~size_t(pageMask));
+			}
 		}
 
 		e.mapped = false;
