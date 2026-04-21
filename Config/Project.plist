@@ -90,6 +90,10 @@
 	<string>26.2</string>
 	<key>LDEProjectType</key>
 	<integer>1</integer>
+	<key>LDEResources</key>
+	<array>
+		<string>Resources/fonts/SharedFontReplacement.bin</string>
+	</array>
 	<key>LDEVersion</key>
 	<string>26.2</string>
 </dict>

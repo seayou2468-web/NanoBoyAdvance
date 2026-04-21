@@ -3,9 +3,15 @@
 #include <cassert>
 #include <chrono>  // For time since epoch
 #include <ctime>
+#include <filesystem>
 #include <fstream>
 #include <iterator>
+#include <string>
 #include <vector>
+
+#if defined(__APPLE__)
+#include <CoreFoundation/CoreFoundation.h>
+#endif
 
 #include "../../include/kernel/config_mem.hpp"
 #include "../../include/kernel/fcram.hpp"
@@ -17,14 +23,64 @@ using namespace KernelMemoryTypes;
 
 namespace {
 
-std::vector<u8> LoadSharedFontReplacement() {
-	static constexpr const char* kSharedFontFile = "SharedFontReplacement.bin";
-	std::ifstream in(kSharedFontFile, std::ios::binary);
+std::vector<u8> LoadFile(const std::filesystem::path& path) {
+	std::ifstream in(path, std::ios::binary);
 	if (!in.good()) {
 		return {};
 	}
 
 	return std::vector<u8>(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
+}
+
+#if defined(__APPLE__)
+std::vector<u8> LoadSharedFontFromBundle() {
+	CFBundleRef bundle = CFBundleGetMainBundle();
+	if (bundle == nullptr) {
+		return {};
+	}
+
+	CFStringRef resourceName = CFSTR("SharedFontReplacement");
+	CFStringRef resourceType = CFSTR("bin");
+	CFStringRef subdir = CFSTR("fonts");
+	CFURLRef resourceURL = CFBundleCopyResourceURL(bundle, resourceName, resourceType, subdir);
+	if (resourceURL == nullptr) {
+		return {};
+	}
+
+	CFStringRef pathRef = CFURLCopyFileSystemPath(resourceURL, kCFURLPOSIXPathStyle);
+	CFRelease(resourceURL);
+	if (pathRef == nullptr) {
+		return {};
+	}
+
+	char pathBuffer[4096];
+	const Boolean ok = CFStringGetCString(pathRef, pathBuffer, sizeof(pathBuffer), kCFStringEncodingUTF8);
+	CFRelease(pathRef);
+	if (!ok) {
+		return {};
+	}
+
+	return LoadFile(pathBuffer);
+}
+#endif
+
+std::vector<u8> LoadSharedFontReplacement() {
+	// iOS/macOS app bundles first.
+#if defined(__APPLE__)
+	if (std::vector<u8> data = LoadSharedFontFromBundle(); !data.empty()) {
+		return data;
+	}
+#endif
+
+	// Fallbacks for local/dev runs.
+	if (std::vector<u8> data = LoadFile("SharedFontReplacement.bin"); !data.empty()) {
+		return data;
+	}
+	if (std::vector<u8> data = LoadFile("Resources/fonts/SharedFontReplacement.bin"); !data.empty()) {
+		return data;
+	}
+
+	return {};
 }
 
 }  // namespace

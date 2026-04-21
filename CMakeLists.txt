@@ -27,6 +27,11 @@ file(GLOB_RECURSE CORE_SOURCES CONFIGURE_DEPENDS
 add_executable(AuroraIOS MACOSX_BUNDLE
   ${AURORAIOS_SOURCES}
   ${CORE_SOURCES}
+  Resources/fonts/SharedFontReplacement.bin
+)
+
+set_source_files_properties(Resources/fonts/SharedFontReplacement.bin PROPERTIES
+  MACOSX_PACKAGE_LOCATION "Resources/fonts"
 )
 
 set_target_properties(AuroraIOS PROPERTIES
