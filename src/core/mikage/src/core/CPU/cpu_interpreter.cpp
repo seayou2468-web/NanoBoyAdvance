@@ -29,6 +29,11 @@ constexpr u32 LR_INDEX = 14;
 
 class VfpCoreExecutor {
 public:
+	static constexpr u32 kAzaharFPSID = 0x410120B4u;
+	static constexpr u32 kAzaharMVFR0 = 0x11111111u;
+	static constexpr u32 kAzaharMVFR1 = 0x00000000u;
+	static constexpr u32 kAzaharFPINSTReset = 0xEE000A00u;
+
 	static std::pair<u32, u32> VectorShape(u32 fpscr, u32 reg, bool is_double_precision) {
 		const u32 fpscr_len = (fpscr >> 16) & 0x7u;
 		const u32 bank_mask = is_double_precision ? ~3u : ~7u;
@@ -66,10 +71,30 @@ public:
 		if (host_exceptions & FE_INEXACT) raise(1u << 4, 1u << 12, 1u << 4);
 		if (host_exceptions & host_vfp_idc) raise(1u << 7, 1u << 15, 1u << 7);
 	}
+
+	static void ResetSystemRegs(u32& fpscr, u32& fpexc, u32& fpinst, u32& fpinst2,
+								u32& fpsid, u32& mvfr0, u32& mvfr1) {
+		fpscr = FPSCR::MainThreadDefault;
+		fpexc = 0;
+		fpinst = kAzaharFPINSTReset;
+		fpinst2 = 0;
+		fpsid = kAzaharFPSID;
+		mvfr0 = kAzaharMVFR0;
+		mvfr1 = kAzaharMVFR1;
+	}
 };
 
 class Coproc10Decoder {
 public:
+	enum class InstructionClass : u32 {
+		Cdp,
+		LdcStc,
+		StructuredLdcStc,
+		McrMrc,
+		McrrMrrc,
+		Other
+	};
+
 	enum class Class : u32 {
 		DataProc,
 		MemTransfer,
@@ -77,6 +102,22 @@ public:
 		RegTransfer,
 		Unknown
 	};
+
+	static InstructionClass DecodeInstructionClass(u32 opcode) {
+		if ((opcode & 0x0F0000F0u) == 0x0C400000u || (opcode & 0x0F0000F0u) == 0x0C500000u) {
+			return InstructionClass::McrrMrrc;
+		}
+		if ((opcode & 0x0F000010u) == 0x0E000010u) {
+			return InstructionClass::McrMrc;
+		}
+		if ((opcode & 0x0F000000u) == 0x0C000000u || (opcode & 0x0F000000u) == 0x0D000000u) {
+			return (opcode & (1u << 5)) ? InstructionClass::StructuredLdcStc : InstructionClass::LdcStc;
+		}
+		if ((opcode & 0x0F000010u) == 0x0E000000u) {
+			return InstructionClass::Cdp;
+		}
+		return InstructionClass::Other;
+	}
 
 	enum class StructuredKind : u32 {
 		None,
@@ -166,7 +207,6 @@ void CPU::reset() {
 	gprs.fill(0);
 	extRegs.fill(0);
 	cpsr = CPSR::UserMode;
-	fpscr = FPSCR::MainThreadDefault;
 	tlsBase = VirtualAddrs::TLSBase;
 	cp15SCTLR = 0x00C50078u;
 	cp15ACTLR = 0;
@@ -178,9 +218,8 @@ void CPU::reset() {
 	cp15IFSR = 0;
 	cp15DFAR = 0;
 	cp15IFAR = 0;
-	vfpFPEXC = 0;
-	vfpFPINST = 0xEE000A00u;
-	vfpFPINST2 = 0;
+	VfpCoreExecutor::ResetSystemRegs(fpscr, vfpFPEXC, vfpFPINST, vfpFPINST2, vfpFPSID, vfpMVFR0,
+									 vfpMVFR1);
 	exclusiveAddress = 0;
 	exclusiveSize = 0;
 	exclusiveValid = false;
@@ -1841,9 +1880,11 @@ u32 CPU::executeArm(u32 inst) {
 		return 1;
 	}
 
+	const auto cp1011_inst_class = Coproc10Decoder::DecodeInstructionClass(inst);
+
 	// Coprocessor 64-bit transfer (MRRC/MCRR) subset for CP15.
 	// Behavior adapted from Azahar DynCom's MRRC/MCRR instruction paths.
-	if ((inst & 0x0F0000F0u) == 0x0C400000u || (inst & 0x0F0000F0u) == 0x0C500000u) {
+	if (cp1011_inst_class == Coproc10Decoder::InstructionClass::McrrMrrc) {
 		const bool load = (inst & 0x00100000u) != 0;  // 1=MRRC, 0=MCRR
 		const u32 rt = (inst >> 12) & 0xF;
 		const u32 rt2 = (inst >> 16) & 0xF;
@@ -1919,7 +1960,9 @@ u32 CPU::executeArm(u32 inst) {
 	// LDC/STC/CDP subset handling.
 	// Imported in spirit from Azahar DynCom: keep decode-compatible behavior and
 	// treat unsupported coprocessor memory/data-processing ops as safe no-ops in HLE path.
-	if ((inst & 0x0F000000u) == 0x0C000000u || (inst & 0x0F000000u) == 0x0D000000u || (inst & 0x0F000010u) == 0x0E000000u) {
+	if (cp1011_inst_class == Coproc10Decoder::InstructionClass::LdcStc ||
+		cp1011_inst_class == Coproc10Decoder::InstructionClass::StructuredLdcStc ||
+		cp1011_inst_class == Coproc10Decoder::InstructionClass::Cdp) {
 		const u32 coproc = (inst >> 8) & 0xF;
 		if (coproc == 10 || coproc == 11) {
 			const Coproc10Decoder::Class coproc_class = Coproc10Decoder::DecodeClass(inst);
@@ -2334,7 +2377,7 @@ u32 CPU::executeArm(u32 inst) {
 	}
 
 	// Coprocessor register transfer (MRC/MCR) - implement required CP15 subset used by HLE/userland.
-	if ((inst & 0x0F000010u) == 0x0E000010u) {
+	if (cp1011_inst_class == Coproc10Decoder::InstructionClass::McrMrc) {
 		const bool load = (inst & (1u << 20)) != 0;  // 1=MRC, 0=MCR
 		const u32 crn = (inst >> 16) & 0xF;
 		const u32 rd = (inst >> 12) & 0xF;
@@ -2458,10 +2501,10 @@ u32 CPU::executeArm(u32 inst) {
 					u32 value = 0;
 					bool handled = true;
 					switch (crn) {
-						case 0: value = 0x410120B4u; break;   // FPSID
+						case 0: value = vfpFPSID; break;      // FPSID
 						case 1: value = fpscr; break;          // FPSCR
-						case 6: value = 0u; break;             // MVFR1
-						case 7: value = 0x11111111u; break;    // MVFR0
+						case 6: value = vfpMVFR1; break;       // MVFR1
+						case 7: value = vfpMVFR0; break;       // MVFR0
 						case 8: value = vfpFPEXC; break;       // FPEXC
 						case 9: value = vfpFPINST; break;      // FPINST
 						case 10: value = vfpFPINST2; break;    // FPINST2

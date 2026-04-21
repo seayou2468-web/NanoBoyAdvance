@@ -33,6 +33,9 @@ class CPU {
 	u32 vfpFPEXC = 0;
 	u32 vfpFPINST = 0;
 	u32 vfpFPINST2 = 0;
+	u32 vfpFPSID = 0;
+	u32 vfpMVFR0 = 0;
+	u32 vfpMVFR1 = 0;
 	u32 exclusiveAddress = 0;
 	u32 exclusiveSize = 0;
 	bool exclusiveValid = false;

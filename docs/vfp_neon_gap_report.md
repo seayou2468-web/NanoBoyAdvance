@@ -14,6 +14,7 @@ This document tracks what is still missing after the current Azahar-derived VFP 
 - VFP memory/register transfer subsets:
   - `VLDR/VSTR`, `VSTM/VLDM` (+ VPUSH/VPOP forms through same path).
   - `VMRS/VMSR` system-register family.
+  - VFP system register reset/read path now follows Azahar values for `FPSID/MVFR0/MVFR1/FPINST`.
   - `VMOVBRS`, `VMOVBRC/VMOVBCR`, `VMOVBRRSS`, `VMOVBRRD`.
 
 ## Still missing / incomplete
