@@ -12,27 +12,61 @@ class Emulator;
 class Kernel;
 
 // ARM11 interpreter backend.
-// Full Cytrus/Citra DynCom sources are transplanted under cytrus_arm/.
+// Azahar CPU sources are vendored under third_party/azahar_cpu/ for ongoing integration.
 // This front-end keeps Panda3DS CPU-facing API stable while executing through interpreter semantics.
 class CPU {
+	struct AzaharCPUBridgeState {
+		u32 cp15SCTLR = 0;
+		u32 cp15ACTLR = 0;
+		u32 cp15TTBR0 = 0;
+		u32 cp15TTBR1 = 0;
+		u32 cp15TTBCR = 0;
+		u32 cp15DACR = 0;
+		u32 cp15DFSR = 0;
+		u32 cp15IFSR = 0;
+		u32 cp15DFAR = 0;
+		u32 cp15IFAR = 0;
+		u32 exclusiveAddress = 0;
+		u32 exclusiveSize = 0;
+		bool exclusiveValid = false;
+
+		void reset() {
+			cp15SCTLR = 0x00C50078u;
+			cp15ACTLR = 0;
+			cp15TTBR0 = 0;
+			cp15TTBR1 = 0;
+			cp15TTBCR = 0;
+			cp15DACR = 0;
+			cp15DFSR = 0;
+			cp15IFSR = 0;
+			cp15DFAR = 0;
+			cp15IFAR = 0;
+			clearExclusive();
+		}
+
+		void setExclusive(u32 address, u32 size) {
+			exclusiveAddress = address;
+			exclusiveSize = size;
+			exclusiveValid = true;
+		}
+
+		bool checkExclusive(u32 address, u32 size) const {
+			return exclusiveValid && exclusiveAddress == address && exclusiveSize == size;
+		}
+
+		void clearExclusive() {
+			exclusiveAddress = 0;
+			exclusiveSize = 0;
+			exclusiveValid = false;
+		}
+	};
+
 	std::array<u32, 16> gprs{};
 	std::array<u32, 64> extRegs{};
 	u32 cpsr = CPSR::UserMode;
 	u32 fpscr = FPSCR::MainThreadDefault;
 	u32 tlsBase = 0;
-	u32 cp15SCTLR = 0;
-	u32 cp15ACTLR = 0;
-	u32 cp15TTBR0 = 0;
-	u32 cp15TTBR1 = 0;
-	u32 cp15TTBCR = 0;
-	u32 cp15DACR = 0;
-	u32 cp15DFSR = 0;
-	u32 cp15IFSR = 0;
-	u32 cp15DFAR = 0;
-	u32 cp15IFAR = 0;
-	u32 exclusiveAddress = 0;
-	u32 exclusiveSize = 0;
-	bool exclusiveValid = false;
+	AzaharCPUBridgeState bridgeState{};
 	u8 itCond = 0;
 	u8 itMask = 0;
 

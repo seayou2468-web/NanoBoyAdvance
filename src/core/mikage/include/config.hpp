@@ -31,8 +31,8 @@ struct AudioDeviceConfig {
 	static const char* volumeCurveToString(VolumeCurve curve);
 };
 
-	// Remember to initialize every field here to its default value otherwise bad things will happen
-	struct EmulatorConfig {
+// Remember to initialize every field here to its default value otherwise bad things will happen
+struct EmulatorConfig {
 	static constexpr bool ubershaderDefault = false;
 	static constexpr bool accelerateShadersDefault = true;
 	static constexpr bool audioEnabledDefault = true;

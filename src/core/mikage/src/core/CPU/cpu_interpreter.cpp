@@ -38,19 +38,7 @@ void CPU::reset() {
 	cpsr = CPSR::UserMode;
 	fpscr = FPSCR::MainThreadDefault;
 	tlsBase = VirtualAddrs::TLSBase;
-	cp15SCTLR = 0x00C50078u;
-	cp15ACTLR = 0;
-	cp15TTBR0 = 0;
-	cp15TTBR1 = 0;
-	cp15TTBCR = 0;
-	cp15DACR = 0;
-	cp15DFSR = 0;
-	cp15IFSR = 0;
-	cp15DFAR = 0;
-	cp15IFAR = 0;
-	exclusiveAddress = 0;
-	exclusiveSize = 0;
-	exclusiveValid = false;
+	bridgeState.reset();
 	itCond = 0;
 	itMask = 0;
 }
@@ -142,9 +130,7 @@ u32 CPU::executeArm(u32 inst) {
 	};
 
 	const auto clear_exclusive = [&]() {
-		exclusiveValid = false;
-		exclusiveAddress = 0;
-		exclusiveSize = 0;
+		bridgeState.clearExclusive();
 	};
 
 	if ((inst & 0x0F000000u) == 0x0F000000u) {
@@ -348,16 +334,14 @@ u32 CPU::executeArm(u32 inst) {
 		switch (op) {
 			case 0x19: {  // LDREX
 				write_reg(rd, mem.read32(base));
-				exclusiveAddress = base;
-				exclusiveSize = 4;
-				exclusiveValid = true;
+				bridgeState.setExclusive(base, 4);
 				if (rd != PC_INDEX) {
 					gprs[PC_INDEX] = old_pc + 4;
 				}
 				return 3;
 			}
 			case 0x18: {  // STREX
-				const bool success = exclusiveValid && exclusiveAddress == base && exclusiveSize == 4;
+				const bool success = bridgeState.checkExclusive(base, 4);
 				if (success) {
 					mem.write32(base, get_reg_operand(rm));
 					write_reg(rd, 0);
@@ -372,16 +356,14 @@ u32 CPU::executeArm(u32 inst) {
 			}
 			case 0x1D: {  // LDREXB
 				write_reg(rd, mem.read8(base));
-				exclusiveAddress = base;
-				exclusiveSize = 1;
-				exclusiveValid = true;
+				bridgeState.setExclusive(base, 1);
 				if (rd != PC_INDEX) {
 					gprs[PC_INDEX] = old_pc + 4;
 				}
 				return 3;
 			}
 			case 0x1C: {  // STREXB
-				const bool success = exclusiveValid && exclusiveAddress == base && exclusiveSize == 1;
+				const bool success = bridgeState.checkExclusive(base, 1);
 				if (success) {
 					mem.write8(base, static_cast<u8>(get_reg_operand(rm)));
 					write_reg(rd, 0);
@@ -396,16 +378,14 @@ u32 CPU::executeArm(u32 inst) {
 			}
 			case 0x1F: {  // LDREXH
 				write_reg(rd, mem.read16(base));
-				exclusiveAddress = base;
-				exclusiveSize = 2;
-				exclusiveValid = true;
+				bridgeState.setExclusive(base, 2);
 				if (rd != PC_INDEX) {
 					gprs[PC_INDEX] = old_pc + 4;
 				}
 				return 3;
 			}
 			case 0x1E: {  // STREXH
-				const bool success = exclusiveValid && exclusiveAddress == base && exclusiveSize == 2;
+				const bool success = bridgeState.checkExclusive(base, 2);
 				if (success) {
 					mem.write16(base, static_cast<u16>(get_reg_operand(rm)));
 					write_reg(rd, 0);
@@ -423,16 +403,14 @@ u32 CPU::executeArm(u32 inst) {
 					write_reg(rd, mem.read32(base));
 					write_reg(rd + 1, mem.read32(base + 4));
 				}
-				exclusiveAddress = base;
-				exclusiveSize = 8;
-				exclusiveValid = true;
+				bridgeState.setExclusive(base, 8);
 				if (rd != PC_INDEX && rd + 1 != PC_INDEX) {
 					gprs[PC_INDEX] = old_pc + 4;
 				}
 				return 4;
 			}
 			case 0x1A: {  // STREXD
-				const bool success = exclusiveValid && exclusiveAddress == base && exclusiveSize == 8;
+				const bool success = bridgeState.checkExclusive(base, 8);
 				if (success && (rm & 1u) == 0 && rm != LR_INDEX) {
 					mem.write32(base, gprs[rm]);
 					mem.write32(base + 4, gprs[rm + 1]);
@@ -1180,59 +1158,59 @@ u32 CPU::executeArm(u32 inst) {
 				if (crn == 0 && crm == 0 && opc1 == 0 && opc2 == 5) return 0u;           // MPIDR (single-core view)
 
 				// System control and MMU registers
-				if (crn == 1 && crm == 0 && opc1 == 0 && opc2 == 0) return cp15SCTLR;
-				if (crn == 1 && crm == 0 && opc1 == 0 && opc2 == 1) return cp15ACTLR;
-				if (crn == 2 && crm == 0 && opc1 == 0 && opc2 == 0) return cp15TTBR0;
-				if (crn == 2 && crm == 0 && opc1 == 0 && opc2 == 1) return cp15TTBR1;
-				if (crn == 2 && crm == 0 && opc1 == 0 && opc2 == 2) return cp15TTBCR;
-				if (crn == 3 && crm == 0 && opc1 == 0 && opc2 == 0) return cp15DACR;
+				if (crn == 1 && crm == 0 && opc1 == 0 && opc2 == 0) return bridgeState.cp15SCTLR;
+				if (crn == 1 && crm == 0 && opc1 == 0 && opc2 == 1) return bridgeState.cp15ACTLR;
+				if (crn == 2 && crm == 0 && opc1 == 0 && opc2 == 0) return bridgeState.cp15TTBR0;
+				if (crn == 2 && crm == 0 && opc1 == 0 && opc2 == 1) return bridgeState.cp15TTBR1;
+				if (crn == 2 && crm == 0 && opc1 == 0 && opc2 == 2) return bridgeState.cp15TTBCR;
+				if (crn == 3 && crm == 0 && opc1 == 0 && opc2 == 0) return bridgeState.cp15DACR;
 
 				// Fault status/address registers
-				if (crn == 5 && crm == 0 && opc1 == 0 && opc2 == 0) return cp15DFSR;
-				if (crn == 5 && crm == 0 && opc1 == 0 && opc2 == 1) return cp15IFSR;
-				if (crn == 6 && crm == 0 && opc1 == 0 && opc2 == 0) return cp15DFAR;
-				if (crn == 6 && crm == 0 && opc1 == 0 && opc2 == 2) return cp15IFAR;
+				if (crn == 5 && crm == 0 && opc1 == 0 && opc2 == 0) return bridgeState.cp15DFSR;
+				if (crn == 5 && crm == 0 && opc1 == 0 && opc2 == 1) return bridgeState.cp15IFSR;
+				if (crn == 6 && crm == 0 && opc1 == 0 && opc2 == 0) return bridgeState.cp15DFAR;
+				if (crn == 6 && crm == 0 && opc1 == 0 && opc2 == 2) return bridgeState.cp15IFAR;
 				return std::nullopt;
 			};
 			const auto cp15_write = [&](u32 value) -> bool {
 				if (crn == 1 && crm == 0 && opc1 == 0 && opc2 == 0) {
-					cp15SCTLR = value;
+					bridgeState.cp15SCTLR = value;
 					return true;
 				}
 				if (crn == 1 && crm == 0 && opc1 == 0 && opc2 == 1) {
-					cp15ACTLR = value;
+					bridgeState.cp15ACTLR = value;
 					return true;
 				}
 				if (crn == 2 && crm == 0 && opc1 == 0 && opc2 == 0) {
-					cp15TTBR0 = value;
+					bridgeState.cp15TTBR0 = value;
 					return true;
 				}
 				if (crn == 2 && crm == 0 && opc1 == 0 && opc2 == 1) {
-					cp15TTBR1 = value;
+					bridgeState.cp15TTBR1 = value;
 					return true;
 				}
 				if (crn == 2 && crm == 0 && opc1 == 0 && opc2 == 2) {
-					cp15TTBCR = value;
+					bridgeState.cp15TTBCR = value;
 					return true;
 				}
 				if (crn == 3 && crm == 0 && opc1 == 0 && opc2 == 0) {
-					cp15DACR = value;
+					bridgeState.cp15DACR = value;
 					return true;
 				}
 				if (crn == 5 && crm == 0 && opc1 == 0 && opc2 == 0) {
-					cp15DFSR = value;
+					bridgeState.cp15DFSR = value;
 					return true;
 				}
 				if (crn == 5 && crm == 0 && opc1 == 0 && opc2 == 1) {
-					cp15IFSR = value;
+					bridgeState.cp15IFSR = value;
 					return true;
 				}
 				if (crn == 6 && crm == 0 && opc1 == 0 && opc2 == 0) {
-					cp15DFAR = value;
+					bridgeState.cp15DFAR = value;
 					return true;
 				}
 				if (crn == 6 && crm == 0 && opc1 == 0 && opc2 == 2) {
-					cp15IFAR = value;
+					bridgeState.cp15IFAR = value;
 					return true;
 				}
 				return false;
@@ -2168,7 +2146,7 @@ u32 CPU::executeThumb(u16 inst) {
 			if (byte) mem.write8(addr, static_cast<u8>(gprs[rd]));
 			else if (half) mem.write16(addr, static_cast<u16>(gprs[rd]));
 			else mem.write32(addr, gprs[rd]);
-			exclusiveValid = false;
+			bridgeState.clearExclusive();
 		}
 		gprs[PC_INDEX] = old_pc + 2;
 		return 2;
@@ -2273,7 +2251,7 @@ u32 CPU::executeThumb(u16 inst) {
 				if (reg_list & (1u << i)) {
 					gprs[13] -= 4;
 					mem.write32(gprs[13], gprs[static_cast<size_t>(i)]);
-					exclusiveValid = false;
+					bridgeState.clearExclusive();
 				}
 			}
 		}
@@ -2293,7 +2271,7 @@ u32 CPU::executeThumb(u16 inst) {
 				if (load) gprs[i] = mem.read32(addr);
 				else {
 					mem.write32(addr, gprs[i]);
-					exclusiveValid = false;
+					bridgeState.clearExclusive();
 				}
 				addr += 4;
 			}
