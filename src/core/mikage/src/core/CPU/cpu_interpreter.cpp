@@ -5,6 +5,7 @@
 #include <cmath>
 #include <limits>
 #include <optional>
+#include <string_view>
 
 #include "../../../include/arm_defs.hpp"
 #include "../../../include/emulator.hpp"
@@ -305,7 +306,6 @@ u32 CPU::executeArm(u32 inst) {
 		return 1;
 	}
 	const ReferenceArmClassPattern* ref_class = DecodeReferenceArmClass(inst);
-	(void)ref_class;
 
 	const auto get_reg_operand = [&](u32 index) {
 		if (index == PC_INDEX) {
@@ -338,6 +338,80 @@ u32 CPU::executeArm(u32 inst) {
 		exclusiveAddress = 0;
 		exclusiveSize = 0;
 	};
+
+	if (ref_class != nullptr) {
+		const std::string_view class_name(ref_class->name);
+		if (class_name == "pld" || class_name == "setend" ||
+			class_name == "nop" || class_name == "yield" || class_name == "wfe" ||
+			class_name == "wfi" || class_name == "sev" || class_name == "bkpt") {
+			gprs[PC_INDEX] = old_pc + 4;
+			return 1;
+		}
+		if (class_name == "cps") {
+			// CPS (Change Processor State) class integration.
+			// Supports interrupt mask set/clear bits in a profile-safe way for this frontend.
+			const bool enable = (inst & (1u << 18)) != 0;
+			const bool disable = (inst & (1u << 19)) != 0;
+			const bool affect_f = (inst & (1u << 6)) != 0;
+			const bool affect_i = (inst & (1u << 7)) != 0;
+			if (enable && !disable) {
+				if (affect_f) cpsr &= ~CPSR::FIQDisable;
+				if (affect_i) cpsr &= ~CPSR::IRQDisable;
+			} else if (disable && !enable) {
+				if (affect_f) cpsr |= CPSR::FIQDisable;
+				if (affect_i) cpsr |= CPSR::IRQDisable;
+			}
+			gprs[PC_INDEX] = old_pc + 4;
+			return 1;
+		}
+		if (class_name == "clrex") {
+			clear_exclusive();
+			gprs[PC_INDEX] = old_pc + 4;
+			return 1;
+		}
+		if (class_name == "rfe") {
+			const u32 rn = (inst >> 16) & 0xFu;
+			const bool p = (inst & (1u << 24)) != 0;
+			const bool u = (inst & (1u << 23)) != 0;
+			const bool w = (inst & (1u << 21)) != 0;
+			const u32 base = get_reg_operand(rn);
+			u32 addr = base;
+			if (u) {
+				addr = p ? (base + 4) : base;
+			} else {
+				addr = p ? (base - 8) : (base - 4);
+			}
+			const u32 new_pc = mem.read32(addr);
+			const u32 new_cpsr = mem.read32(addr + 4);
+			cpsr = new_cpsr;
+			gprs[PC_INDEX] = new_pc & ~1u;
+			if (new_pc & 1u) cpsr |= CPSR::Thumb;
+			else cpsr &= ~CPSR::Thumb;
+			if (w && rn != PC_INDEX) {
+				gprs[rn] = u ? (base + 8) : (base - 8);
+			}
+			return 3;
+		}
+		if (class_name == "srs") {
+			const bool p = (inst & (1u << 24)) != 0;
+			const bool u = (inst & (1u << 23)) != 0;
+			const bool w = (inst & (1u << 21)) != 0;
+			const u32 sp = gprs[13];
+			u32 addr = sp;
+			if (u) {
+				addr = p ? (sp + 4) : sp;
+			} else {
+				addr = p ? (sp - 8) : (sp - 4);
+			}
+			mem.write32(addr, gprs[LR_INDEX]);
+			mem.write32(addr + 4, cpsr);
+			if (w) {
+				gprs[13] = u ? (sp + 8) : (sp - 8);
+			}
+			gprs[PC_INDEX] = old_pc + 4;
+			return 3;
+		}
+	}
 
 	constexpr int HOST_VFP_IDC = 1 << 30;
 	const auto apply_vfp_exception_model = [&](int host_exceptions, u32 fault_inst) {
