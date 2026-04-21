@@ -51,12 +51,12 @@ This document tracks what is still missing after the current Azahar-derived VFP 
    - Full Advanced SIMD decode/execute parity is still not present.
 
 6. **NEON structured loads/stores and lane/dup/ext/zip/unzip/trn/rev family are partially implemented.**
-   - Added a minimal contiguous/interleaved LDC/STC-derived structured transfer subset on cp11.
-   - Zero-count encodings are now treated as single-word transfers in this subset path.
-   - Interleaved mapping now supports minimal 2-way and 4-way word-lane distribution patterns.
-   - Added a minimal single-word interleaved load duplicate/store-first compatibility behavior.
-   - Writeback now supports a post-index register delta compatibility form for this subset.
-   - Most advanced structured/lane permutation forms are still missing.
+   - LDC/STC-derived structured transfer path is now class-decoded (`VLD/VST` 1/2/3/4 structure classes)
+     rather than a single ad-hoc subset branch.
+   - Structured decode now routes through dedicated class handling for packed-lane and grouped-register forms.
+   - Zero-count encodings are treated as single-word transfers in both plain and structured transfer paths.
+   - Writeback supports a post-index register delta compatibility form for structured transfer assembler forms.
+   - Most advanced lane permutation families (`ZIP/UZP/TRN/REV/EXT`) are still missing.
 
 ## Practical note
 

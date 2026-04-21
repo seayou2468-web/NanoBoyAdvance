@@ -73,8 +73,21 @@ public:
 	enum class Class : u32 {
 		DataProc,
 		MemTransfer,
+		StructuredMemTransfer,
 		RegTransfer,
 		Unknown
+	};
+
+	enum class StructuredKind : u32 {
+		None,
+		VLD1,
+		VLD2,
+		VLD3,
+		VLD4,
+		VST1,
+		VST2,
+		VST3,
+		VST4,
 	};
 
 	struct MemDecode {
@@ -88,11 +101,16 @@ public:
 		u32 transfer_words;
 		u32 base;
 		u32 address;
+		StructuredKind structured_kind;
+		u32 structure_regs;
 	};
 
 	static Class DecodeClass(u32 opcode) {
 		if ((opcode & 0x0F000010u) == 0x0E000000u) return Class::DataProc;
 		if ((opcode & 0x0F000000u) == 0x0C000000u || (opcode & 0x0F000000u) == 0x0D000000u) {
+			if ((opcode & (1u << 5)) != 0) {
+				return Class::StructuredMemTransfer;
+			}
 			return Class::MemTransfer;
 		}
 		if ((opcode & 0x0F000010u) == 0x0E000010u || (opcode & 0x0F0000F0u) == 0x0C400000u ||
@@ -114,6 +132,24 @@ public:
 		dec.transfer_words = words == 0 ? 1u : words;
 		dec.interleaved = (opcode & (1u << 5)) != 0;
 		dec.interleave_factor = dec.interleaved ? (((opcode & (1u << 6)) != 0) ? 4u : 2u) : 1u;
+		dec.structure_regs = dec.interleave_factor;
+		dec.structured_kind = StructuredKind::None;
+		if (dec.interleaved) {
+			if (dec.interleave_factor == 2) {
+				dec.structured_kind = dec.load ? StructuredKind::VLD2 : StructuredKind::VST2;
+			} else if (dec.interleave_factor == 4) {
+				dec.structured_kind = dec.load ? StructuredKind::VLD4 : StructuredKind::VST4;
+			}
+			if (dec.transfer_words > dec.interleave_factor) {
+				if (dec.interleave_factor == 2) {
+					dec.structured_kind = dec.load ? StructuredKind::VLD3 : StructuredKind::VST3;
+					dec.structure_regs = 3;
+				} else {
+					dec.structured_kind = dec.load ? StructuredKind::VLD1 : StructuredKind::VST1;
+					dec.structure_regs = 1;
+				}
+			}
+		}
 		dec.base = (dec.rn == PC_INDEX) ? ((old_pc + 8) & ~3u) : get_reg_operand(dec.rn);
 		dec.address = dec.add ? dec.base : (dec.base - dec.transfer_words * 4);
 		return dec;
@@ -2167,8 +2203,8 @@ u32 CPU::executeArm(u32 inst) {
 				}
 			}
 
-			// NEON structured load/store subset via LDC/STC-style forms: contiguous S-lane transfer.
-			if (coproc_class == Coproc10Decoder::Class::MemTransfer) {
+			if (coproc_class == Coproc10Decoder::Class::MemTransfer ||
+				coproc_class == Coproc10Decoder::Class::StructuredMemTransfer) {
 				const auto mem_dec = Coproc10Decoder::DecodeMem(inst, old_pc, get_reg_operand);
 				const bool load = mem_dec.load;
 				const bool add = mem_dec.add;
@@ -2181,30 +2217,82 @@ u32 CPU::executeArm(u32 inst) {
 				const u32 base = mem_dec.base;
 				u32 address = mem_dec.address;
 
-					const u32 max_words = (interleaved && transfer_words <= interleave_factor) ? interleave_factor : transfer_words;
-						if (vd * 2 + max_words <= 64) {
-							if (interleaved && transfer_words <= interleave_factor) {
-								const u32 lane_width = 32u / interleave_factor;
-								const u32 lane_mask = (1u << lane_width) - 1u;
-								for (u32 i = 0; i < transfer_words; i++) {
-									const u32 lane_shift = i * lane_width;
+				const u32 max_words = (interleaved && transfer_words <= interleave_factor) ? interleave_factor : transfer_words;
+				if (vd * 2 + max_words <= 64) {
+					if (coproc_class == Coproc10Decoder::Class::StructuredMemTransfer) {
+						// Decode/execute by structured transfer class (VLD/VST 1-4 structures).
+						const auto kind = mem_dec.structured_kind;
+						const bool packed_lanes = transfer_words <= interleave_factor;
+						if (packed_lanes) {
+							const u32 lane_width = 32u / interleave_factor;
+							const u32 lane_mask = (1u << lane_width) - 1u;
+							for (u32 i = 0; i < transfer_words; i++) {
+								const u32 lane_shift = i * lane_width;
 								if (load) {
-										const u32 value = mem.read32(address + i * 4);
-										for (u32 lane = 0; lane < interleave_factor; lane++) {
-											const u32 old = extRegs[vd * 2 + lane];
-											const u32 lane_value = (value >> lane_shift) & lane_mask;
-											extRegs[vd * 2 + lane] = (old & ~(lane_mask << lane_shift)) | (lane_value << lane_shift);
-										}
-									} else {
-										u32 packed = 0;
+									const u32 value = mem.read32(address + i * 4);
 									for (u32 lane = 0; lane < interleave_factor; lane++) {
-											packed |= ((extRegs[vd * 2 + lane] >> lane_shift) & lane_mask) << lane_shift;
-										}
-										mem.write32(address + i * 4, packed);
-										clear_exclusive();
+										const u32 old = extRegs[vd * 2 + lane];
+										const u32 lane_value = (value >> lane_shift) & lane_mask;
+										extRegs[vd * 2 + lane] = (old & ~(lane_mask << lane_shift)) | (lane_value << lane_shift);
 									}
+								} else {
+									u32 packed = 0;
+									for (u32 lane = 0; lane < interleave_factor; lane++) {
+										packed |= ((extRegs[vd * 2 + lane] >> lane_shift) & lane_mask) << lane_shift;
+									}
+									mem.write32(address + i * 4, packed);
+									clear_exclusive();
 								}
-							} else {
+							}
+						} else {
+							u32 structure_regs = mem_dec.structure_regs;
+							switch (kind) {
+								case Coproc10Decoder::StructuredKind::VLD1:
+								case Coproc10Decoder::StructuredKind::VST1: structure_regs = 1; break;
+								case Coproc10Decoder::StructuredKind::VLD2:
+								case Coproc10Decoder::StructuredKind::VST2: structure_regs = 2; break;
+								case Coproc10Decoder::StructuredKind::VLD3:
+								case Coproc10Decoder::StructuredKind::VST3: structure_regs = 3; break;
+								case Coproc10Decoder::StructuredKind::VLD4:
+								case Coproc10Decoder::StructuredKind::VST4: structure_regs = 4; break;
+								default: break;
+							}
+							for (u32 i = 0; i < transfer_words; i++) {
+								const u32 group = i / structure_regs;
+								const u32 lane = i % structure_regs;
+								const u32 group_words = (transfer_words + structure_regs - 1) / structure_regs;
+								const u32 reg_index = vd * 2 + lane * group_words + group;
+								if (load) {
+									extRegs[reg_index] = mem.read32(address + i * 4);
+								} else {
+									mem.write32(address + i * 4, extRegs[reg_index]);
+									clear_exclusive();
+								}
+							}
+						}
+					} else {
+						if (interleaved && transfer_words <= interleave_factor) {
+							const u32 lane_width = 32u / interleave_factor;
+							const u32 lane_mask = (1u << lane_width) - 1u;
+							for (u32 i = 0; i < transfer_words; i++) {
+								const u32 lane_shift = i * lane_width;
+								if (load) {
+									const u32 value = mem.read32(address + i * 4);
+									for (u32 lane = 0; lane < interleave_factor; lane++) {
+										const u32 old = extRegs[vd * 2 + lane];
+										const u32 lane_value = (value >> lane_shift) & lane_mask;
+										extRegs[vd * 2 + lane] = (old & ~(lane_mask << lane_shift)) | (lane_value << lane_shift);
+									}
+								} else {
+									u32 packed = 0;
+									for (u32 lane = 0; lane < interleave_factor; lane++) {
+										packed |= ((extRegs[vd * 2 + lane] >> lane_shift) & lane_mask) << lane_shift;
+									}
+									mem.write32(address + i * 4, packed);
+									clear_exclusive();
+								}
+							}
+						} else {
 							for (u32 i = 0; i < transfer_words; i++) {
 								u32 reg_index = vd * 2 + i;
 								if (interleaved && transfer_words >= interleave_factor) {
@@ -2222,9 +2310,10 @@ u32 CPU::executeArm(u32 inst) {
 								}
 							}
 						}
-						if (write_back && rn != PC_INDEX) {
-							// LDC/STC post-index style addressing: when the low nibble encodes a valid ARM register,
-							// use it as post-index source for compatibility with structured transfer assembler forms.
+					}
+					if (write_back && rn != PC_INDEX) {
+						// LDC/STC post-index style addressing: when the low nibble encodes a valid ARM register,
+						// use it as post-index source for compatibility with structured transfer assembler forms.
 						const u32 post_rm = inst & 0xFu;
 						u32 writeback_delta = transfer_words * 4;
 						if (post_rm != 0xDu && post_rm != PC_INDEX) {
