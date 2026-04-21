@@ -197,6 +197,23 @@ public:
 		return dec;
 	}
 };
+
+struct ReferenceArmClassPattern {
+	const char* name;
+	u32 mask;
+	u32 value;
+};
+
+#include "./reference_arm_class_table.inc"
+
+[[nodiscard]] const ReferenceArmClassPattern* DecodeReferenceArmClass(u32 inst) {
+	for (const auto& pattern : kReferenceArmClassTable) {
+		if ((inst & pattern.mask) == pattern.value) {
+			return &pattern;
+		}
+	}
+	return nullptr;
+}
 }  // namespace
 
 CPU::CPU(Memory& mem, Kernel& kernel, Emulator& emu)
@@ -287,6 +304,8 @@ u32 CPU::executeArm(u32 inst) {
 		gprs[PC_INDEX] = old_pc + 4;
 		return 1;
 	}
+	const ReferenceArmClassPattern* ref_class = DecodeReferenceArmClass(inst);
+	(void)ref_class;
 
 	const auto get_reg_operand = [&](u32 index) {
 		if (index == PC_INDEX) {
@@ -348,6 +367,17 @@ u32 CPU::executeArm(u32 inst) {
 		if (inst & (1u << 5)) {
 			gprs[LR_INDEX] = old_pc + 4;
 		}
+		gprs[PC_INDEX] = target & ~1u;
+		if (target & 1u) cpsr |= CPSR::Thumb;
+		else cpsr &= ~CPSR::Thumb;
+		return 3;
+	}
+
+	// BXJ (Jazelle branch and exchange): ARM11 MPCore does not implement Jazelle, so behave as BX fallback.
+	// Reference integration note: DynCom executes BXJ identically to BX when Jazelle is unavailable.
+	if ((inst & 0x0FFFFFF0u) == 0x012FFF20u) {
+		const u32 rm = inst & 0xF;
+		const u32 target = get_reg_operand(rm);
 		gprs[PC_INDEX] = target & ~1u;
 		if (target & 1u) cpsr |= CPSR::Thumb;
 		else cpsr &= ~CPSR::Thumb;
@@ -450,6 +480,106 @@ u32 CPU::executeArm(u32 inst) {
 		return 3;
 	}
 
+	// UMAAL (Unsigned Multiply Accumulate Accumulate Long)
+	if ((inst & 0x0FF000F0u) == 0x00400090u) {
+		const u32 rd_hi = (inst >> 16) & 0xF;
+		const u32 rd_lo = (inst >> 12) & 0xF;
+		const u32 rs = (inst >> 8) & 0xF;
+		const u32 rm = inst & 0xF;
+		const u64 product = static_cast<u64>(get_reg_operand(rm)) * static_cast<u64>(get_reg_operand(rs));
+		const u64 result = product + static_cast<u64>(gprs[rd_lo]) + static_cast<u64>(gprs[rd_hi]);
+		write_reg(rd_lo, static_cast<u32>(result));
+		write_reg(rd_hi, static_cast<u32>(result >> 32));
+		if (rd_hi != PC_INDEX && rd_lo != PC_INDEX) {
+			gprs[PC_INDEX] = old_pc + 4;
+		}
+		return 3;
+	}
+
+	// SMLAxy / SMULxy / SMLALxy families (halfword multiply variants).
+	// Encoding group imported from dyncom reference classes.
+	if ((inst & 0x0FF00090u) == 0x01000080u || (inst & 0x0FF00090u) == 0x01400080u || (inst & 0x0FF00090u) == 0x01600080u) {
+		const u32 rd_hi_or_rn = (inst >> 16) & 0xF;
+		const u32 rd_or_ra = (inst >> 12) & 0xF;
+		const u32 rs = (inst >> 8) & 0xF;
+		const u32 y = (inst >> 6) & 1u;
+		const u32 x = (inst >> 5) & 1u;
+		const u32 rm = inst & 0xF;
+		const u32 opcode = (inst >> 20) & 0xFFu;
+
+		auto select_half_signed = [](u32 value, u32 high) -> s32 {
+			return static_cast<s16>(high ? (value >> 16) : (value & 0xFFFFu));
+		};
+		const s64 lhs = select_half_signed(get_reg_operand(rm), x);
+		const s64 rhs = select_half_signed(get_reg_operand(rs), y);
+		const s64 product = lhs * rhs;
+
+		if (opcode == 0x10u) { // SMLAxy
+			const u32 rd = rd_hi_or_rn;
+			const u32 ra = rd_or_ra;
+			const s64 acc = static_cast<s64>(static_cast<s32>(gprs[ra]));
+			const s64 result = product + acc;
+			write_reg(rd, static_cast<u32>(result));
+			if (rd != PC_INDEX) {
+				gprs[PC_INDEX] = old_pc + 4;
+			}
+			return 2;
+		}
+
+		if (opcode == 0x16u) { // SMULxy
+			const u32 rd = rd_hi_or_rn;
+			write_reg(rd, static_cast<u32>(product));
+			if (rd != PC_INDEX) {
+				gprs[PC_INDEX] = old_pc + 4;
+			}
+			return 2;
+		}
+
+		// SMLALxy
+		const u32 rd_hi = rd_hi_or_rn;
+		const u32 rd_lo = rd_or_ra;
+		const s64 acc = static_cast<s64>((static_cast<u64>(gprs[rd_hi]) << 32) | gprs[rd_lo]);
+		const s64 result = acc + product;
+		write_reg(rd_lo, static_cast<u32>(result));
+		write_reg(rd_hi, static_cast<u32>(static_cast<u64>(result) >> 32));
+		if (rd_hi != PC_INDEX && rd_lo != PC_INDEX) {
+			gprs[PC_INDEX] = old_pc + 4;
+		}
+		return 3;
+	}
+
+	// SMLAW / SMULW
+	if ((inst & 0x0FF000B0u) == 0x01200080u || (inst & 0x0FF000B0u) == 0x012000A0u) {
+		const bool mul_only = (inst & 0x20u) != 0;
+		const bool high = (inst & 0x40u) != 0;
+		const u32 rd_or_rn = (inst >> 16) & 0xF;
+		const u32 ra_or_rd = (inst >> 12) & 0xF;
+		const u32 rs = (inst >> 8) & 0xF;
+		const u32 rm = inst & 0xF;
+		const s64 lhs = static_cast<s32>(get_reg_operand(rm));
+		const s64 rhs = static_cast<s16>(high ? (get_reg_operand(rs) >> 16) : (get_reg_operand(rs) & 0xFFFFu));
+
+		if (mul_only) { // SMULW
+			const u32 rd = rd_or_rn;
+			const s64 result = lhs * rhs;
+			write_reg(rd, static_cast<u32>((result >> 16) & 0xFFFFFFFFu));
+			if (rd != PC_INDEX) {
+				gprs[PC_INDEX] = old_pc + 4;
+			}
+			return 2;
+		}
+
+		// SMLAW
+		const u32 rd = rd_or_rn;
+		const u32 ra = ra_or_rd;
+		const s64 result = lhs * rhs + (static_cast<s64>(static_cast<s32>(gprs[ra])) << 16);
+		write_reg(rd, static_cast<u32>((result >> 16) & 0xFFFFFFFFu));
+		if (rd != PC_INDEX) {
+			gprs[PC_INDEX] = old_pc + 4;
+		}
+		return 2;
+	}
+
 	// SDIV/UDIV
 	if ((inst & 0x0FE0F0F0u) == 0x0710F010u || (inst & 0x0FE0F0F0u) == 0x0730F010u) {
 		const bool is_unsigned = (inst & 0x00200000u) != 0;
@@ -478,6 +608,18 @@ u32 CPU::executeArm(u32 inst) {
 		const u32 imm16 = ((inst >> 4) & 0xF000u) | (inst & 0x0FFFu);
 		const u32 value = top ? ((gprs[rd] & 0x0000FFFFu) | (imm16 << 16)) : imm16;
 		write_reg(rd, value);
+		if (rd != PC_INDEX) {
+			gprs[PC_INDEX] = old_pc + 4;
+		}
+		return 1;
+	}
+
+	// CPY (ARMv6 alias of MOV register, no shift).
+	// Reference class keeps this as a distinct decode, so keep explicit handler.
+	if ((inst & 0x0FF00FF0u) == 0x01A00000u) {
+		const u32 rd = (inst >> 12) & 0xF;
+		const u32 rm = inst & 0xF;
+		write_reg(rd, get_reg_operand(rm));
 		if (rd != PC_INDEX) {
 			gprs[PC_INDEX] = old_pc + 4;
 		}
@@ -1037,14 +1179,186 @@ u32 CPU::executeArm(u32 inst) {
 		return 1;
 	}
 
+	// ARMv6 DSP dual multiply families:
+	// SMUAD/SMUSD/SMLAD/SMLSD, SMLALD/SMLSLD, SMMUL/SMMLA/SMMLS.
+	// Encodings and arithmetic behavior integrated from reference dyncom instruction classes.
+	if ((inst & 0x0F000090u) == 0x07000010u && (inst & 0x10u) != 0) {
+		const u32 major = (inst >> 20) & 0xFFu;
+		const u32 rd_hi_or_rn = (inst >> 16) & 0xF;
+		const u32 ra_or_rdlo = (inst >> 12) & 0xF;
+		const u32 rm = inst & 0xF;
+		const u32 rn = (inst >> 8) & 0xF;
+		const bool swap = (inst & (1u << 5)) != 0;
+		const u32 op2 = (inst >> 6) & 0x3u;
+
+		auto swap_halves = [](u32 v) { return (v << 16) | (v >> 16); };
+		const auto lhs = get_reg_operand(rn);
+		u32 rhs = get_reg_operand(rm);
+		if (swap) rhs = swap_halves(rhs);
+
+		const s32 lhs_lo = static_cast<s16>(lhs & 0xFFFFu);
+		const s32 lhs_hi = static_cast<s16>((lhs >> 16) & 0xFFFFu);
+		const s32 rhs_lo = static_cast<s16>(rhs & 0xFFFFu);
+		const s32 rhs_hi = static_cast<s16>((rhs >> 16) & 0xFFFFu);
+
+		// 0x70: SMUAD/SMUSD/SMLAD/SMLSD
+		if (major == 0x70u) {
+			const s64 p1 = static_cast<s64>(lhs_lo) * rhs_lo;
+			const s64 p2 = static_cast<s64>(lhs_hi) * rhs_hi;
+			s64 acc = (op2 & 0x1u) ? (p1 - p2) : (p1 + p2);
+			const bool with_acc = ra_or_rdlo != PC_INDEX;
+			if (with_acc) {
+				acc += static_cast<s64>(static_cast<s32>(gprs[ra_or_rdlo]));
+			}
+			const u32 out = static_cast<u32>(acc);
+			write_reg(rd_hi_or_rn, out);
+			if (rd_hi_or_rn != PC_INDEX) {
+				gprs[PC_INDEX] = old_pc + 4;
+			}
+			return 1;
+		}
+
+		// 0x74: SMLALD/SMLSLD (long accumulate dual)
+		if (major == 0x74u) {
+			const u32 rd_hi = rd_hi_or_rn;
+			const u32 rd_lo = ra_or_rdlo;
+			const s64 p1 = static_cast<s64>(lhs_lo) * rhs_lo;
+			const s64 p2 = static_cast<s64>(lhs_hi) * rhs_hi;
+			const s64 pair = (op2 & 0x1u) ? (p1 - p2) : (p1 + p2);
+			const s64 acc = static_cast<s64>((static_cast<u64>(gprs[rd_hi]) << 32) | gprs[rd_lo]);
+			const s64 result = pair + acc;
+			write_reg(rd_lo, static_cast<u32>(result));
+			write_reg(rd_hi, static_cast<u32>(static_cast<u64>(result) >> 32));
+			if (rd_hi != PC_INDEX && rd_lo != PC_INDEX) {
+				gprs[PC_INDEX] = old_pc + 4;
+			}
+			return 2;
+		}
+
+		// 0x75: SMMUL / SMMLA / SMMLS
+		if (major == 0x75u) {
+			const u32 rd = rd_hi_or_rn;
+			const u32 ra = ra_or_rdlo;
+			const s64 product = static_cast<s64>(static_cast<s32>(lhs)) * static_cast<s64>(static_cast<s32>(rhs));
+			s64 result = product;
+			if (ra != PC_INDEX) {
+				const s64 ra64 = static_cast<s64>(static_cast<u64>(gprs[ra]) << 32);
+				result = (op2 == 0x3u) ? (ra64 - product) : (product + ra64);
+			}
+			if (swap) {
+				result += 0x80000000ll;  // rounding bit in this encoding family
+			}
+			write_reg(rd, static_cast<u32>(static_cast<u64>(result) >> 32));
+			if (rd != PC_INDEX) {
+				gprs[PC_INDEX] = old_pc + 4;
+			}
+			return 1;
+		}
+	}
+
+	// ARMv6 media parallel signed saturating / halving family.
+	// Integrated from reference dyncom class units:
+	//   QADD16/QASX/QSAX/QSUB16, QADD8/QSUB8
+	//   SHADD16/SHASX/SHSAX/SHSUB16, SHADD8/SHSUB8
+	const u32 media_key = inst & 0x0FF00FF0u;
+	const bool is_q_parallel = media_key == 0x06200F10u || media_key == 0x06200F30u || media_key == 0x06200F50u ||
+							   media_key == 0x06200F70u || media_key == 0x06200F90u || media_key == 0x06200FF0u;
+	const bool is_sh_parallel = media_key == 0x06300F10u || media_key == 0x06300F30u || media_key == 0x06300F50u ||
+								media_key == 0x06300F70u || media_key == 0x06300F90u || media_key == 0x06300FF0u;
+	if (is_q_parallel || is_sh_parallel) {
+		const u32 rd = (inst >> 12) & 0xF;
+		const u32 rn = (inst >> 16) & 0xF;
+		const u32 rm = inst & 0xF;
+		const u32 lhs = get_reg_operand(rn);
+		const u32 rhs = get_reg_operand(rm);
+		u32 result = 0;
+		const auto qsat8 = [&](s32 v) -> u32 {
+			if (v > 127) {
+				cpsr |= CPSR::StickyOverflow;
+				return 127;
+			}
+			if (v < -128) {
+				cpsr |= CPSR::StickyOverflow;
+				return 0x80u;
+			}
+			return static_cast<u32>(static_cast<s8>(v)) & 0xFFu;
+		};
+		const auto qsat16 = [&](s32 v) -> u32 {
+			if (v > 32767) {
+				cpsr |= CPSR::StickyOverflow;
+				return 32767u;
+			}
+			if (v < -32768) {
+				cpsr |= CPSR::StickyOverflow;
+				return 0x8000u;
+			}
+			return static_cast<u32>(static_cast<s16>(v)) & 0xFFFFu;
+		};
+
+		if (media_key == 0x06200F90u || media_key == 0x06200FF0u || media_key == 0x06300F90u || media_key == 0x06300FF0u) {
+			for (u32 lane = 0; lane < 4; lane++) {
+				const s32 a = static_cast<s8>((lhs >> (lane * 8)) & 0xFFu);
+				const s32 b = static_cast<s8>((rhs >> (lane * 8)) & 0xFFu);
+				u32 out = 0;
+				if (is_q_parallel) {
+					out = (media_key == 0x06200F90u) ? qsat8(a + b) : qsat8(a - b);
+				} else {
+					const s32 half = (media_key == 0x06300F90u) ? ((a + b) >> 1) : ((a - b) >> 1);
+					out = static_cast<u32>(half) & 0xFFu;
+				}
+				result |= out << (lane * 8);
+			}
+		} else {
+			const s32 lo_a = static_cast<s16>(lhs & 0xFFFFu);
+			const s32 hi_a = static_cast<s16>((lhs >> 16) & 0xFFFFu);
+			const s32 lo_b = static_cast<s16>(rhs & 0xFFFFu);
+			const s32 hi_b = static_cast<s16>((rhs >> 16) & 0xFFFFu);
+
+			s32 out_lo = 0;
+			s32 out_hi = 0;
+			if (media_key == 0x06200F10u || media_key == 0x06300F10u) {          // ADD16
+				out_lo = lo_a + lo_b;
+				out_hi = hi_a + hi_b;
+				} else if (media_key == 0x06200F30u || media_key == 0x06300F30u) {   // ASX (QADDSUBX/SHADDSUBX)
+				out_lo = lo_a - hi_b;
+				out_hi = hi_a + lo_b;
+				} else if (media_key == 0x06200F50u || media_key == 0x06300F50u) {   // SAX (QSUBADDX/SHSUBADDX)
+				out_lo = lo_a + hi_b;
+				out_hi = hi_a - lo_b;
+			} else {                                                               // SUB16
+				out_lo = lo_a - lo_b;
+				out_hi = hi_a - hi_b;
+			}
+
+			u32 lo_bits = 0;
+			u32 hi_bits = 0;
+			if (is_q_parallel) {
+				lo_bits = qsat16(out_lo);
+				hi_bits = qsat16(out_hi);
+			} else {
+				lo_bits = static_cast<u32>(out_lo >> 1) & 0xFFFFu;
+				hi_bits = static_cast<u32>(out_hi >> 1) & 0xFFFFu;
+			}
+			result = lo_bits | (hi_bits << 16);
+		}
+
+		write_reg(rd, result);
+		if (rd != PC_INDEX) {
+			gprs[PC_INDEX] = old_pc + 4;
+		}
+		return 1;
+	}
+
 	// Parallel add/sub family (8-bit + 16-bit subsets).
 	// These encodings are in the ARM media instruction space and use Rd/Rn/Rm with opcode-select in [24:20] and [7:4].
 	if ((inst & 0x0FF00FF0u) == 0x06100F90u || (inst & 0x0FF00FF0u) == 0x06100FF0u || (inst & 0x0FF00FF0u) == 0x06500F90u ||
 		(inst & 0x0FF00FF0u) == 0x06500FF0u || (inst & 0x0FF00FF0u) == 0x06700F90u || (inst & 0x0FF00FF0u) == 0x06700FF0u ||
 		(inst & 0x0FF00FF0u) == 0x06600F90u || (inst & 0x0FF00FF0u) == 0x06600FF0u || (inst & 0x0FF00FF0u) == 0x06100F10u ||
-		(inst & 0x0FF00FF0u) == 0x06100F70u || (inst & 0x0FF00FF0u) == 0x06500F10u || (inst & 0x0FF00FF0u) == 0x06500F70u ||
+		(inst & 0x0FF00FF0u) == 0x06100F30u || (inst & 0x0FF00FF0u) == 0x06100F50u || (inst & 0x0FF00FF0u) == 0x06100F70u ||
+		(inst & 0x0FF00FF0u) == 0x06500F10u || (inst & 0x0FF00FF0u) == 0x06500F30u || (inst & 0x0FF00FF0u) == 0x06500F50u || (inst & 0x0FF00FF0u) == 0x06500F70u ||
 		(inst & 0x0FF00FF0u) == 0x06700F10u || (inst & 0x0FF00FF0u) == 0x06700F70u || (inst & 0x0FF00FF0u) == 0x06600F10u ||
-		(inst & 0x0FF00FF0u) == 0x06600F70u) {
+		(inst & 0x0FF00FF0u) == 0x06700F30u || (inst & 0x0FF00FF0u) == 0x06700F50u || (inst & 0x0FF00FF0u) == 0x06600F30u ||
+		(inst & 0x0FF00FF0u) == 0x06600F50u || (inst & 0x0FF00FF0u) == 0x06600F70u) {
 		const u32 rd = (inst >> 12) & 0xF;
 		const u32 rn = (inst >> 16) & 0xF;
 		const u32 rm = inst & 0xF;
@@ -1060,53 +1374,99 @@ u32 CPU::executeArm(u32 inst) {
 		};
 
 		// 16-bit lanes
-		if (key == 0x06100F10u || key == 0x06100F70u || key == 0x06500F10u || key == 0x06500F70u || key == 0x06700F10u ||
-			key == 0x06700F70u || key == 0x06600F10u || key == 0x06600F70u) {
-			for (u32 lane = 0; lane < 2; lane++) {
-				const u32 shift = lane * 16;
-				const u32 a = (lhs >> shift) & 0xFFFFu;
-				const u32 b = (rhs >> shift) & 0xFFFFu;
-				u32 out = 0;
+			if (key == 0x06100F10u || key == 0x06100F30u || key == 0x06100F50u || key == 0x06100F70u ||
+				key == 0x06500F10u || key == 0x06500F30u || key == 0x06500F50u || key == 0x06500F70u ||
+				key == 0x06700F10u || key == 0x06700F30u || key == 0x06700F50u || key == 0x06700F70u ||
+				key == 0x06600F10u || key == 0x06600F30u || key == 0x06600F50u || key == 0x06600F70u) {
+				for (u32 lane = 0; lane < 2; lane++) {
+					const u32 shift = lane * 16;
+					const u32 a = (lhs >> shift) & 0xFFFFu;
+					const u32 b = (rhs >> shift) & 0xFFFFu;
+					const u32 b_x = (rhs >> ((1u - lane) * 16)) & 0xFFFFu; // cross-lane for ASX/SAX families
+					u32 out = 0;
 
-				if (key == 0x06100F10u) {  // SADD16
-					const s32 sum = static_cast<s32>(static_cast<s16>(a)) + static_cast<s32>(static_cast<s16>(b));
-					out = static_cast<u32>(sum) & 0xFFFFu;
-					write_ge_lane(lane * 2, sum >= 0);
-					write_ge_lane(lane * 2 + 1, sum >= 0);
-				} else if (key == 0x06100F70u) {  // SSUB16
-					const s32 diff = static_cast<s32>(static_cast<s16>(a)) - static_cast<s32>(static_cast<s16>(b));
-					out = static_cast<u32>(diff) & 0xFFFFu;
-					write_ge_lane(lane * 2, diff >= 0);
-					write_ge_lane(lane * 2 + 1, diff >= 0);
-				} else if (key == 0x06500F10u) {  // UADD16
-					const u32 sum = a + b;
-					out = sum & 0xFFFFu;
-					write_ge_lane(lane * 2, sum > 0xFFFFu);
-					write_ge_lane(lane * 2 + 1, sum > 0xFFFFu);
-				} else if (key == 0x06500F70u) {  // USUB16
-					const u32 diff = (a - b) & 0x1FFFFu;
-					out = diff & 0xFFFFu;
-					write_ge_lane(lane * 2, a >= b);
-					write_ge_lane(lane * 2 + 1, a >= b);
-				} else if (key == 0x06700F10u) {  // UHADD16
-					out = (a + b) >> 1;
-				} else if (key == 0x06700F70u) {  // UHSUB16
-					out = (a - b) >> 1;
-					} else if (key == 0x06600F10u) {  // UQADD16
+					if (key == 0x06100F10u) {  // SADD16
+						const s32 sum = static_cast<s32>(static_cast<s16>(a)) + static_cast<s32>(static_cast<s16>(b));
+						out = static_cast<u32>(sum) & 0xFFFFu;
+						write_ge_lane(lane * 2, sum >= 0);
+						write_ge_lane(lane * 2 + 1, sum >= 0);
+					} else if (key == 0x06100F30u) { // SASX (SADDSUBX)
+						const s32 mixed = (lane == 0)
+											  ? (static_cast<s32>(static_cast<s16>(a)) - static_cast<s32>(static_cast<s16>(b_x)))
+											  : (static_cast<s32>(static_cast<s16>(a)) + static_cast<s32>(static_cast<s16>(b_x)));
+						out = static_cast<u32>(mixed) & 0xFFFFu;
+						write_ge_lane(lane * 2, mixed >= 0);
+						write_ge_lane(lane * 2 + 1, mixed >= 0);
+					} else if (key == 0x06100F50u) { // SSAX (SSUBADDX)
+						const s32 mixed = (lane == 0)
+											  ? (static_cast<s32>(static_cast<s16>(a)) + static_cast<s32>(static_cast<s16>(b_x)))
+											  : (static_cast<s32>(static_cast<s16>(a)) - static_cast<s32>(static_cast<s16>(b_x)));
+						out = static_cast<u32>(mixed) & 0xFFFFu;
+						write_ge_lane(lane * 2, mixed >= 0);
+						write_ge_lane(lane * 2 + 1, mixed >= 0);
+					} else if (key == 0x06100F70u) {  // SSUB16
+						const s32 diff = static_cast<s32>(static_cast<s16>(a)) - static_cast<s32>(static_cast<s16>(b));
+						out = static_cast<u32>(diff) & 0xFFFFu;
+						write_ge_lane(lane * 2, diff >= 0);
+						write_ge_lane(lane * 2 + 1, diff >= 0);
+					} else if (key == 0x06500F10u) {  // UADD16
 						const u32 sum = a + b;
-						if (sum > 0xFFFFu) {
+						out = sum & 0xFFFFu;
+						write_ge_lane(lane * 2, sum > 0xFFFFu);
+						write_ge_lane(lane * 2 + 1, sum > 0xFFFFu);
+					} else if (key == 0x06500F30u) { // UASX (UADDSUBX)
+						const s32 mixed = (lane == 0) ? static_cast<s32>(a) - static_cast<s32>(b_x) : static_cast<s32>(a) + static_cast<s32>(b_x);
+						out = static_cast<u32>(mixed) & 0xFFFFu;
+						write_ge_lane(lane * 2, mixed >= 0);
+						write_ge_lane(lane * 2 + 1, mixed >= 0);
+					} else if (key == 0x06500F50u) { // USAX (USUBADDX)
+						const s32 mixed = (lane == 0) ? static_cast<s32>(a) + static_cast<s32>(b_x) : static_cast<s32>(a) - static_cast<s32>(b_x);
+						out = static_cast<u32>(mixed) & 0xFFFFu;
+						write_ge_lane(lane * 2, mixed >= 0);
+						write_ge_lane(lane * 2 + 1, mixed >= 0);
+					} else if (key == 0x06500F70u) {  // USUB16
+						const u32 diff = (a - b) & 0x1FFFFu;
+						out = diff & 0xFFFFu;
+						write_ge_lane(lane * 2, a >= b);
+						write_ge_lane(lane * 2 + 1, a >= b);
+					} else if (key == 0x06700F10u) {  // UHADD16
+						out = (a + b) >> 1;
+					} else if (key == 0x06700F30u) { // UHASX (UHADDSUBX)
+						const s32 mixed = (lane == 0) ? static_cast<s32>(a) - static_cast<s32>(b_x) : static_cast<s32>(a) + static_cast<s32>(b_x);
+						out = static_cast<u32>(mixed >> 1) & 0xFFFFu;
+					} else if (key == 0x06700F50u) { // UHSAX (UHSUBADDX)
+						const s32 mixed = (lane == 0) ? static_cast<s32>(a) + static_cast<s32>(b_x) : static_cast<s32>(a) - static_cast<s32>(b_x);
+						out = static_cast<u32>(mixed >> 1) & 0xFFFFu;
+					} else if (key == 0x06700F70u) {  // UHSUB16
+						out = (a - b) >> 1;
+					} else if (key == 0x06600F10u) {  // UQADD16
+							const u32 sum = a + b;
+							if (sum > 0xFFFFu) {
+								out = 0xFFFFu;
+								cpsr |= CPSR::StickyOverflow;
+							} else {
+								out = sum;
+							}
+					} else if (key == 0x06600F30u || key == 0x06600F50u) { // UQASX/UQSAX (UQADDSUBX/UQSUBADDX)
+						const s32 mixed = (key == 0x06600F30u)
+											  ? ((lane == 0) ? static_cast<s32>(a) - static_cast<s32>(b_x) : static_cast<s32>(a) + static_cast<s32>(b_x))
+											  : ((lane == 0) ? static_cast<s32>(a) + static_cast<s32>(b_x) : static_cast<s32>(a) - static_cast<s32>(b_x));
+						if (mixed < 0) {
+							out = 0;
+							cpsr |= CPSR::StickyOverflow;
+						} else if (mixed > 0xFFFF) {
 							out = 0xFFFFu;
 							cpsr |= CPSR::StickyOverflow;
 						} else {
-							out = sum;
+							out = static_cast<u32>(mixed);
 						}
 					} else {  // 0x06600F70u => UQSUB16
-						if (a < b) {
-							out = 0;
-							cpsr |= CPSR::StickyOverflow;
-						} else {
-							out = a - b;
-						}
+							if (a < b) {
+								out = 0;
+								cpsr |= CPSR::StickyOverflow;
+							} else {
+								out = a - b;
+							}
 					}
 
 				result |= (out & 0xFFFFu) << shift;
@@ -1750,7 +2110,7 @@ u32 CPU::executeArm(u32 inst) {
 		}
 	}
 
-	// VFP compare subset: VCMP/VCMPE and compare-with-zero forms (single/double), updates FPSCR NZCV.
+	// VFP compare subset: VCMP/VCMPE/VCMP2 and compare-with-zero forms (single/double), updates FPSCR NZCV.
 	const bool is_vcmp_reg = (inst & 0x0FBF0E50u) == 0x0EB40A40u;
 	const bool is_vcmp_zero = (inst & 0x0FBF0E7Fu) == 0x0EB50A40u;
 	if (is_vcmp_reg || is_vcmp_zero) {
@@ -2625,6 +2985,18 @@ u32 CPU::executeArm(u32 inst) {
 		return 1;
 	}
 
+	// SETEND LE/BE: update CPSR.E.
+	// In this little-endian-focused emulator path this is metadata-only, matching reference behavior.
+	if ((inst & 0x0FFFFF7Fu) == 0x01010000u) {
+		if (inst & (1u << 9)) {
+			cpsr |= (1u << 9);
+		} else {
+			cpsr &= ~(1u << 9);
+		}
+		gprs[PC_INDEX] = old_pc + 4;
+		return 1;
+	}
+
 	// CPS[IE/ID] AIF,#mode
 	// Pattern and semantics adapted from Azahar DynCom's CPS_INST handling.
 	if ((inst & 0x0FF1FE00u) == 0x01000000u) {
@@ -2934,6 +3306,107 @@ u32 CPU::executeArm(u32 inst) {
 		return 2 + count;
 	}
 
+	// STRT/STRBT/LDRBT/LDRT (unprivileged post-index single data transfer class).
+	// Kept as explicit class decode to mirror reference naming and behavior.
+	if ((inst & 0x0D300000u) == 0x04200000u || (inst & 0x0D300000u) == 0x04600000u ||
+		(inst & 0x0D300000u) == 0x04700000u || (inst & 0x0D300000u) == 0x04300000u) {
+		const bool immediate = (inst & (1u << 25)) == 0;
+		const bool up = (inst & (1u << 23)) != 0;
+		const bool byte = (inst & (1u << 22)) != 0; // STRBT/LDRBT
+		const bool load = (inst & (1u << 20)) != 0; // LDRBT/LDRT
+		const u32 rn = (inst >> 16) & 0xF;
+		const u32 rd = (inst >> 12) & 0xF;
+
+		u32 offset = 0;
+		if (immediate) {
+			offset = inst & 0xFFFu;
+		} else {
+			const u32 rm = inst & 0xF;
+			const u32 shift_type = (inst >> 5) & 0x3;
+			const u32 shift_imm = (inst >> 7) & 0x1F;
+			u32 rm_val = get_reg_operand(rm);
+			switch (shift_type) {
+				case 0: offset = rm_val << shift_imm; break;
+				case 1: offset = (shift_imm == 0) ? 0u : (rm_val >> shift_imm); break;
+				case 2:
+					offset = (shift_imm == 0) ? (((rm_val >> 31) & 1u) ? 0xFFFFFFFFu : 0u)
+											  : static_cast<u32>(static_cast<s32>(rm_val) >> shift_imm);
+					break;
+				default:
+					offset = (shift_imm == 0) ? (((cpsr & CPSR::Carry) ? 1u : 0u) << 31) | (rm_val >> 1)
+											  : ror32(rm_val, shift_imm);
+					break;
+			}
+		}
+
+		const u32 base = get_reg_operand(rn);
+		const u32 effective = base; // post-index access uses base first
+		if (load) {
+			const u32 value = byte ? static_cast<u32>(mem.read8(effective)) : mem.read32(effective);
+			write_reg(rd, value);
+		} else {
+			const u32 value = (rd == PC_INDEX) ? old_pc + 12 : gprs[rd];
+			if (byte) mem.write8(effective, static_cast<u8>(value));
+			else mem.write32(effective, value);
+			clear_exclusive();
+		}
+		gprs[rn] = up ? (base + offset) : (base - offset);
+		if (!(load && rd == PC_INDEX)) {
+			gprs[PC_INDEX] = old_pc + 4;
+		}
+		return 2;
+	}
+
+	// LDRCOND explicit class (condition != AL) from reference decoder table.
+	// This is a class-level alias for conditional single data transfer and mirrors LDR addressing behavior.
+	if ((inst & 0x0E500000u) == 0x04100000u && ((inst >> 28) & 0xFu) != 0xEu) {
+		const bool immediate = (inst & (1u << 25)) == 0;
+		const bool pre = (inst & (1u << 24)) != 0;
+		const bool up = (inst & (1u << 23)) != 0;
+		const bool byte = (inst & (1u << 22)) != 0;
+		const bool write_back = (inst & (1u << 21)) != 0;
+		const u32 rn = (inst >> 16) & 0xF;
+		const u32 rd = (inst >> 12) & 0xF;
+
+		u32 offset = 0;
+		if (immediate) {
+			offset = inst & 0xFFFu;
+		} else {
+			const u32 rm = inst & 0xF;
+			const u32 shift_type = (inst >> 5) & 0x3;
+			const u32 shift_imm = (inst >> 7) & 0x1F;
+			u32 rm_val = get_reg_operand(rm);
+			switch (shift_type) {
+				case 0: offset = rm_val << shift_imm; break;
+				case 1: offset = (shift_imm == 0) ? 0u : (rm_val >> shift_imm); break;
+				case 2:
+					offset = (shift_imm == 0) ? (((rm_val >> 31) & 1u) ? 0xFFFFFFFFu : 0u)
+											  : static_cast<u32>(static_cast<s32>(rm_val) >> shift_imm);
+					break;
+				default:
+					offset = (shift_imm == 0) ? (((cpsr & CPSR::Carry) ? 1u : 0u) << 31) | (rm_val >> 1)
+											  : ror32(rm_val, shift_imm);
+					break;
+			}
+		}
+
+		const u32 base = get_reg_operand(rn);
+		u32 effective = pre ? (up ? (base + offset) : (base - offset)) : base;
+		const u32 value = byte ? static_cast<u32>(mem.read8(effective)) : mem.read32(effective);
+		write_reg(rd, value);
+		if (!pre) {
+			effective = up ? (base + offset) : (base - offset);
+		}
+		if (write_back || !pre) {
+			gprs[rn] = effective;
+		}
+		if (rd != PC_INDEX) {
+			gprs[PC_INDEX] = old_pc + 4;
+		}
+		return 2;
+	}
+
+	// LDR/STR/LDRB/STRB/LDRCOND and related single-data-transfer class.
 	if ((inst & 0x0C000000u) == 0x04000000u) {
 		const bool immediate = (inst & (1u << 25)) == 0;
 		const bool pre = (inst & (1u << 24)) != 0;
@@ -3149,7 +3622,7 @@ u32 CPU::executeArm(u32 inst) {
 					break;
 				}
 				case 0x6:
-				case 0x7: {
+				case 0x7: {                                                // RSC
 					const u32 rhs = (opcode == 0x6) ? op2 : lhs;
 					const u32 l = (opcode == 0x6) ? lhs : op2;
 					setNZFlags(result);
