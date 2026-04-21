@@ -3865,11 +3865,11 @@ SUB_INST: {
 SWI_INST: {
     if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
         swi_inst* const inst_cream = (swi_inst*)inst_base->component;
-        cpu->system.GetRunningCore().GetTimer().AddTicks(num_instrs);
+        cpu->system.AddTicks(num_instrs);
         cpu->NumInstrsToExecute =
             num_instrs >= cpu->NumInstrsToExecute ? 0 : cpu->NumInstrsToExecute - num_instrs;
         num_instrs = 0;
-        Kernel::SVCContext{cpu->system}.CallSVC(inst_cream->num & 0xFFFF);
+        cpu->system.CallSVC(inst_cream->num & 0xFFFF);
         // The kernel would call ERET to get here, which clears exclusive memory state.
         cpu->UnsetExclusiveMemoryAddress();
     }

@@ -601,20 +601,6 @@ void ARMul_State::WriteCP15Register(u32 value, u32 crn, u32 opcode_1, u32 crm, u
 }
 
 void ARMul_State::ServeBreak() {
-    if (!GDBStub::IsServerEnabled()) {
-        return;
-    }
-
-    if (last_bkpt_hit && last_bkpt.type == GDBStub::BreakpointType::Execute) {
-        DEBUG_ASSERT(Reg[15] == last_bkpt.address);
-    }
-
-    Kernel::Thread* thread = system.Kernel().GetCurrentThreadManager().GetCurrentThread();
-    system.GetRunningCore().SaveContext(thread->context);
-
-    if (last_bkpt_hit || GDBStub::IsMemoryBreak() || GDBStub::GetCpuStepFlag()) {
-        last_bkpt_hit = false;
-        GDBStub::Break();
-        GDBStub::SendTrap(thread, 5);
-    }
+    // GDB integration is intentionally disabled in this compatibility build.
+    last_bkpt_hit = false;
 }

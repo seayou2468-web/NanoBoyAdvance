@@ -24,6 +24,10 @@ file(GLOB_RECURSE CORE_SOURCES CONFIGURE_DEPENDS
   "src/core/mikage/*.c"
 )
 
+list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/mikage/src/core/CPU/cpu_interpreter\\.cpp$")
+list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/mikage/include/cytrus_arm/.*\\.cpp$")
+list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/mikage/third_party/azahar_cpu/arm/dynarmic/.*\\.cpp$")
+
 add_executable(AuroraIOS MACOSX_BUNDLE
   ${AURORAIOS_SOURCES}
   ${CORE_SOURCES}

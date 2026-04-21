@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <memory>
 #include <span>
 
 #include "./arm_defs.hpp"
@@ -74,6 +75,8 @@ class CPU {
 	Scheduler& scheduler;
 	Kernel& kernel;
 	Emulator& emu;
+	struct AzaharBackend;
+	std::unique_ptr<AzaharBackend> azahar;
 
 	bool conditionPassed(u32 cond) const;
 	void setNZFlags(u32 value);
