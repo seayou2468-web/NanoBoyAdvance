@@ -9,6 +9,7 @@
 #include "../../../include/arm_defs.hpp"
 #include "../../../include/emulator.hpp"
 #include "../../../include/kernel/kernel.hpp"
+#include "./azahar_cp1011_decoder.hpp"
 
 namespace {
 constexpr u32 PC_INDEX = 15;
@@ -2494,9 +2495,11 @@ u32 CPU::executeArm(u32 inst) {
 
 		// VFP/NEON register transfers (VMRS/VMSR/VMOV scalar transfer subset).
 		if (coproc == 10 || coproc == 11) {
+			const auto azahar_cp1011_op = AzaharCp1011Decoder::Decode(inst);
 			// VMRS / VMSR system register transfer family.
 			// Matches Azahar DynCom's register map for reg selectors in CRn.
-			if (crm == 0 && opc2 == 0 && opc1 == 7) {
+			if (azahar_cp1011_op == AzaharCp1011Decoder::Op::Vmrs ||
+				azahar_cp1011_op == AzaharCp1011Decoder::Op::Vmsr) {
 				if (load) {  // VMRS
 					u32 value = 0;
 					bool handled = true;

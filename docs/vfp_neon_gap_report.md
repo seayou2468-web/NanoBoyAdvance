@@ -15,6 +15,7 @@ This document tracks what is still missing after the current Azahar-derived VFP 
   - `VLDR/VSTR`, `VSTM/VLDM` (+ VPUSH/VPOP forms through same path).
   - `VMRS/VMSR` system-register family.
   - VFP system register reset/read path now follows Azahar values for `FPSID/MVFR0/MVFR1/FPINST`.
+  - Added Azahar table-driven cp10/cp11 opcode classification helper (`vmla...vldm`) and hooked VMRS/VMSR path to it.
   - `VMOVBRS`, `VMOVBRC/VMOVBCR`, `VMOVBRRSS`, `VMOVBRRD`.
 
 ## Still missing / incomplete
