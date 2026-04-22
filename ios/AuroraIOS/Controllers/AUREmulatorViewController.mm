@@ -7,6 +7,7 @@
 #import "../Metal.h"
 #import <QuartzCore/QuartzCore.h>
 #import <stdarg.h>
+#include <algorithm>
 #include <array>
 #include <cstring>
 
@@ -25,6 +26,7 @@
 @property (nonatomic, strong) NSURL *logFileURL;
 @property (nonatomic, assign) uint64_t frameCounter;
 @property (nonatomic, assign) uint64_t lastStatusLogFrame;
+@property (nonatomic, assign) uint64_t consecutiveMostlyBlackSamples;
 @property (nonatomic, strong) NSLayoutConstraint *imageHeightConstraint;
 @end
 
@@ -32,6 +34,8 @@
 
 static const NSUInteger kAURMaxLogFileBytes = 2 * 1024 * 1024;
 static const uint64_t kAURStatusLogFrameInterval = 120;
+static const uint64_t kAURBlackSampleInterval = 60;
+static const uint64_t kAURBlackSampleWarnThreshold = 8;
 
 - (NSURL *)prepareLogFileURL {
     NSFileManager *fm = [NSFileManager defaultManager];
@@ -121,6 +125,10 @@ static const uint64_t kAURStatusLogFrameInterval = 120;
     if (fileSize == 0) {
         if (reason) *reason = @"ROM ファイルサイズが 0 byte です";
         return NO;
+    }
+
+    if ([path containsString:@"/Documents/Data/Application/"]) {
+        [self emuLog:@"ROM path looks re-imported/nested inside Documents: %@ (this is supported but may indicate duplicate import history)", path];
     }
 
     [self emuLog:@"ROM preflight ok. path=%@ size=%llu", path, fileSize];
@@ -218,6 +226,7 @@ static const uint64_t kAURStatusLogFrameInterval = 120;
     [self stopEmulator];
     self.frameCounter = 0;
     self.lastStatusLogFrame = 0;
+    self.consecutiveMostlyBlackSamples = 0;
     _core = EmulatorCore_Create(_coreType);
     if (!_core) {
         [self emuLog:@"Failed to create core: %d", (int)_coreType];
@@ -325,6 +334,33 @@ static const uint64_t kAURStatusLogFrameInterval = 120;
     if (pixelCount < expectedPixels) {
         [self emuLog:@"Frame %llu framebuffer underflow: got %zu expected %zu", self.frameCounter, pixelCount, expectedPixels];
         return;
+    }
+
+    if ((self.frameCounter % kAURBlackSampleInterval) == 0) {
+        const size_t sampleCols = 8;
+        const size_t sampleRows = 8;
+        const size_t stepX = std::max<size_t>(1, _videoSpec.width / sampleCols);
+        const size_t stepY = std::max<size_t>(1, _videoSpec.height / sampleRows);
+        size_t nonBlackSamples = 0;
+        for (size_t y = 0; y < _videoSpec.height; y += stepY) {
+            for (size_t x = 0; x < _videoSpec.width; x += stepX) {
+                const uint32_t px = frameRGBA[y * _videoSpec.width + x];
+                if ((px & 0x00FFFFFFu) != 0) {
+                    nonBlackSamples += 1;
+                }
+            }
+        }
+
+        if (nonBlackSamples == 0) {
+            self.consecutiveMostlyBlackSamples += 1;
+            if (self.consecutiveMostlyBlackSamples >= kAURBlackSampleWarnThreshold) {
+                [self emuLog:@"Frame sample diagnostic: framebuffer remains mostly black for %llu checks. Possible causes: title-specific boot stall, missing keys/seeddb for encrypted content, or missing GPU screen buffers (check mikage_runtime.log).",
+                 self.consecutiveMostlyBlackSamples];
+                self.consecutiveMostlyBlackSamples = 0;
+            }
+        } else {
+            self.consecutiveMostlyBlackSamples = 0;
+        }
     }
 
     if ((self.frameCounter - self.lastStatusLogFrame) >= kAURStatusLogFrameInterval) {
