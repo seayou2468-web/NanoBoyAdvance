@@ -8,7 +8,6 @@
 #import "../Models/AURGame.h"
 #import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 #import <Compression/Compression.h>
-#import <objc/message.h>
 
 static BOOL AURCoreTypeForExtension(NSString *ext, EmulatorCoreType *outType) {
     if (ext == nil || outType == nil) {
@@ -96,7 +95,20 @@ static BOOL AURTrySystemUnzipAndPickFirstROM(NSFileManager *fileManager,
 
     NSError *unzipError = nil;
     NSURL *destinationURL = [NSURL fileURLWithPath:importDir isDirectory:YES];
-    BOOL unzipOK = ((BOOL (*)(id, SEL, NSURL *, NSURL *, NSError **))objc_msgSend)(fileManager, unzipSel, zipURL, destinationURL, &unzipError);
+    NSMethodSignature *signature = [fileManager methodSignatureForSelector:unzipSel];
+    if (!signature) {
+        NSLog(@"[AUR][Library] ZIP extraction failed: system unzip API signature unavailable.");
+        return NO;
+    }
+    NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signature];
+    invocation.selector = unzipSel;
+    invocation.target = fileManager;
+    [invocation setArgument:&zipURL atIndex:2];
+    [invocation setArgument:&destinationURL atIndex:3];
+    [invocation setArgument:&unzipError atIndex:4];
+    [invocation invoke];
+    BOOL unzipOK = NO;
+    [invocation getReturnValue:&unzipOK];
     if (!unzipOK || unzipError) {
         NSString *message = unzipError.localizedDescription.length > 0 ? unzipError.localizedDescription : @"unknown";
         NSLog(@"[AUR][Library] ZIP extraction failed via system unzip API: %@", message);
