@@ -142,7 +142,8 @@ static const uint64_t kAURStatusLogFrameInterval = 120;
     [super viewDidLoad];
     self.view.backgroundColor = [UIColor blackColor];
     self.logFileURL = [self prepareLogFileURL];
-    [self emuLog:@"Session start. core=%d rom=%@", (int)_coreType, self.romURL.path ?: @"(null)"];
+    NSString *romPath = self.romURL.path.length > 0 ? self.romURL.path : @"(null)";
+    [self emuLog:@"Session start. core=%d rom=%@", (int)_coreType, romPath];
 
     // Setup Metal View(s)
     self.imageView = [[AURMetalView alloc] initWithFrame:CGRectZero];
@@ -232,9 +233,11 @@ static const uint64_t kAURStatusLogFrameInterval = 120;
     void (^loadBiosIfPresent)(NSString *, NSString *) = ^(NSString *identifier, NSString *path) {
         if (path.length == 0) return;
         if (!EmulatorCore_LoadBIOSFromPath(_core, path.UTF8String)) {
-            [self emuLog:@"BIOS load failed (%@): %s", identifier, EmulatorCore_GetLastError(_core) ?: "unknown error"];
+            const char *biosError = EmulatorCore_GetLastError(_core);
+            [self emuLog:@"BIOS load failed (%@): %s", identifier, biosError ? biosError : "unknown error"];
         } else {
-            [self emuLog:@"BIOS load ok (%@): %@", identifier, path.lastPathComponent ?: @"(unknown)");
+            NSString *displayName = path.lastPathComponent.length > 0 ? path.lastPathComponent : @"(unknown)";
+            [self emuLog:@"BIOS load ok (%@): %@", identifier, displayName];
         }
     };
     loadBiosIfPresent(@"3ds_boot9", boot9);
@@ -242,8 +245,12 @@ static const uint64_t kAURStatusLogFrameInterval = 120;
     loadBiosIfPresent(@"3ds_firmware", firmware);
     loadBiosIfPresent(@"3ds_shared_font", sharedFont);
 
+    NSString *boot9Display = boot9.length > 0 ? boot9 : @"(null)";
+    NSString *boot11Display = boot11.length > 0 ? boot11 : @"(null)";
+    NSString *firmwareDisplay = firmware.length > 0 ? firmware : @"(null)";
+    NSString *sharedFontDisplay = sharedFont.length > 0 ? sharedFont : @"(null)";
     [self emuLog:@"BIOS paths boot9=%@ boot11=%@ firmware=%@ shared_font=%@",
-     boot9 ?: @"(null)", boot11 ?: @"(null)", firmware ?: @"(null)", sharedFont ?: @"(null)"];
+     boot9Display, boot11Display, firmwareDisplay, sharedFontDisplay];
     if (!boot9 && !boot11 && !firmware) {
         [self emuLog:@"3DS BIOS/Firmware not set. Attempting HLE boot without external firmware."];
     }
@@ -262,7 +269,8 @@ static const uint64_t kAURStatusLogFrameInterval = 120;
     }
     NSString *preflightReason = nil;
     if (![self validateROMURL:self.romURL reason:&preflightReason]) {
-        [self emuLog:@"ROM preflight failed: %@", preflightReason ?: @"unknown"];
+        NSString *reasonText = preflightReason.length > 0 ? preflightReason : @"unknown";
+        [self emuLog:@"ROM preflight failed: %@", reasonText];
         [self stopEmulator];
         return;
     }
@@ -280,7 +288,8 @@ static const uint64_t kAURStatusLogFrameInterval = 120;
         self.displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(gameLoop)];
         [self.displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
     } else {
-        [self emuLog:@"ROM load failed (%@): %s", self.romURL.lastPathComponent, EmulatorCore_GetLastError(_core) ?: "unknown error"];
+        const char *loadError = EmulatorCore_GetLastError(_core);
+        [self emuLog:@"ROM load failed (%@): %s", self.romURL.lastPathComponent, loadError ? loadError : "unknown error"];
         [self stopEmulator];
     }
 }
