@@ -184,6 +184,7 @@ void RendererSw::displayTransfer(u32 inputAddr, u32 outputAddr, u32 inputSize, u
 
 	const bool flipVertically = (flags & (1u << 0)) != 0;
 	const bool inputLinear = (flags & (1u << 1)) != 0;
+	const bool cropInputLines = (flags & (1u << 2)) != 0;
 	const bool dontSwizzle = (flags & (1u << 5)) != 0;
 
 	const u32 scalingMode = (flags >> 24) & 0x3;  // 0:none,1:2x1,2:2x2
@@ -203,8 +204,15 @@ void RendererSw::displayTransfer(u32 inputAddr, u32 outputAddr, u32 inputSize, u
 		return;
 	}
 
+	u32 adjustedOutputAddr = outputAddr;
+	// Azahar/Citra compatibility quirk:
+	// flip_vertically + crop_input_lines skews destination addressing on hardware.
+	if (flipVertically && cropInputLines && inputWidth > outputWidthRaw && outputHeightRaw > 0) {
+		adjustedOutputAddr += (inputWidth - outputWidthRaw) * (outputHeightRaw - 1) * dstBpp;
+	}
+
 	u8* src = gpu.getPointerPhys<u8>(inputAddr);
-	u8* dst = gpu.getPointerPhys<u8>(outputAddr);
+	u8* dst = gpu.getPointerPhys<u8>(adjustedOutputAddr);
 	if (src == nullptr || dst == nullptr) {
 		return;
 	}
