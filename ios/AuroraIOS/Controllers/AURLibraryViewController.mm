@@ -7,7 +7,7 @@
 #import "../Managers/AURBoxArtManager.h"
 #import "../Models/AURGame.h"
 #import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
-#import <Compression.h>
+#import <compression.h>
 
 static BOOL AURCoreTypeForExtension(NSString *ext, EmulatorCoreType *outType) {
     if (ext == nil || outType == nil) {

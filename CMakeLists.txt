@@ -61,6 +61,7 @@ target_compile_options(AuroraIOS PRIVATE
 
 find_library(AVFOUNDATION_FRAMEWORK AVFoundation REQUIRED)
 find_library(AUDIOTOOLBOX_FRAMEWORK AudioToolbox REQUIRED)
+find_library(COMPRESSION_FRAMEWORK Compression)
 
 target_link_libraries(AuroraIOS PRIVATE
   ${AVFOUNDATION_FRAMEWORK}
@@ -82,3 +83,9 @@ target_link_libraries(AuroraIOS PRIVATE
   "-lz"
   "-liconv"
 )
+
+if(COMPRESSION_FRAMEWORK)
+  target_link_libraries(AuroraIOS PRIVATE ${COMPRESSION_FRAMEWORK})
+else()
+  target_link_libraries(AuroraIOS PRIVATE "-lcompression")
+endif()
