@@ -6,6 +6,7 @@
 #include <cfenv>
 #include <cmath>
 #include <bit>
+#include <limits>
 #include <optional>
 
 u32 CPU::executeArm(u32 inst) {
@@ -18,8 +19,9 @@ u32 CPU::executeArm(u32 inst) {
 
 	const InstructionDecoding* decoding = DecodeArmInstruction(inst);
 	if (!decoding) {
-		gprs[PC_INDEX] = old_pc + 4;
-		return 1;
+		// Keep uncommon/unaliased ARM classes wired to the coprocessor-side
+		// class decoder (e.g. unprivileged transfer aliases).
+		return executeCoproc(inst);
 	}
 
 	const auto get_reg_operand = [&](u32 index) { return getRegOperand(index, old_pc); };
@@ -103,7 +105,7 @@ ADD_INST:
     if (cond == 0xE || conditionPassed(cond)) {
 
 
-        u32 rn_val = (((((inst >> 16) == 15) ? (old_pc + 8) : gprs[((inst >> 16]) & 0xFu));
+        u32 rn_val = ((((inst >> 16) & 0xFu) == 15) ? (old_pc + 8) : gprs[(inst >> 16) & 0xFu]);
 
         bool carry;
         bool overflow;
@@ -184,8 +186,37 @@ B_INST:
 }
     goto END;
 BFC_INST:
+{
+    if (cond == 0xE || conditionPassed(cond)) {
+        const u32 rd = (inst >> 12) & 0xFu;
+        const u32 lsb = (inst >> 7) & 0x1Fu;
+        const u32 msb = (inst >> 16) & 0x1Fu;
+        if (rd != PC_INDEX && msb >= lsb) {
+            const u32 width = msb - lsb + 1;
+            const u32 mask = (width >= 32) ? 0xFFFFFFFFu : ((1u << width) - 1u) << lsb;
+            gprs[rd] &= ~mask;
+        }
+    }
+    gprs[15] += 4;
+    return 1;
+}
     goto END;
 BFI_INST:
+{
+    if (cond == 0xE || conditionPassed(cond)) {
+        const u32 rd = (inst >> 12) & 0xFu;
+        const u32 rn = inst & 0xFu;
+        const u32 lsb = (inst >> 7) & 0x1Fu;
+        const u32 msb = (inst >> 16) & 0x1Fu;
+        if (rd != PC_INDEX && rn != PC_INDEX && msb >= lsb) {
+            const u32 width = msb - lsb + 1;
+            const u32 mask = (width >= 32) ? 0xFFFFFFFFu : ((1u << width) - 1u) << lsb;
+            gprs[rd] = (gprs[rd] & ~mask) | ((gprs[rn] << lsb) & mask);
+        }
+    }
+    gprs[15] += 4;
+    return 1;
+}
     goto END;
 BIC_INST:
 {
@@ -541,6 +572,11 @@ LDM_INST:
     goto END;
 LDR_INST:
 {
+    // LDRT/LDRBT unprivileged post-index aliases are not represented as
+    // dedicated entries in the ARM table; route to class decoder.
+    if ((inst & 0x0D300000u) == 0x04300000u || (inst & 0x0D300000u) == 0x04700000u) {
+        return executeCoproc(inst);
+    }
     ldst_inst* inst_cream = (ldst_inst*)component;
     get_addr(cpu, inst, addr);
 
@@ -642,6 +678,11 @@ LDREXH_INST:
     goto END;
 LDRH_INST:
 {
+    // LDRD alias lives in halfword/signed transfer class decode.
+    if ((inst & 0x0E000090u) == 0x00000090u && (inst & 0x0C000000u) == 0x00000000u &&
+        (inst & 0xF0u) == 0xD0u && (((inst >> 12) & 1u) == 0)) {
+        return executeCoproc(inst);
+    }
     if (cond == 0xE || conditionPassed(cond)) {
         ldst_inst* inst_cream = (ldst_inst*)component;
         get_addr(cpu, inst, addr);
@@ -739,8 +780,30 @@ MOV_INST:
 }
     goto END;
 MOVT_INST:
+{
+    if (cond == 0xE || conditionPassed(cond)) {
+        const u32 rd = (inst >> 12) & 0xFu;
+        const u32 imm16 = ((inst >> 4) & 0xF000u) | (inst & 0x0FFFu);
+        if (rd != PC_INDEX) {
+            gprs[rd] = (gprs[rd] & 0x0000FFFFu) | (imm16 << 16);
+        }
+    }
+    gprs[15] += 4;
+    return 1;
+}
     goto END;
 MOVW_INST:
+{
+    if (cond == 0xE || conditionPassed(cond)) {
+        const u32 rd = (inst >> 12) & 0xFu;
+        const u32 imm16 = ((inst >> 4) & 0xF000u) | (inst & 0x0FFFu);
+        if (rd != PC_INDEX) {
+            gprs[rd] = imm16;
+        }
+    }
+    gprs[15] += 4;
+    return 1;
+}
     goto END;
 MRS_INST:
 {
@@ -1775,6 +1838,20 @@ SBC_INST:
 }
     goto END;
 SBFX_INST:
+{
+    if (cond == 0xE || conditionPassed(cond)) {
+        const u32 rd = (inst >> 12) & 0xFu;
+        const u32 rn = inst & 0xFu;
+        const u32 lsb = (inst >> 7) & 0x1Fu;
+        const u32 widthm1 = (inst >> 16) & 0x1Fu;
+        const u32 width = widthm1 + 1;
+        if (rd != PC_INDEX && width <= 32 && lsb + width <= 32) {
+            gprs[rd] = signExtend(gprs[rn] >> lsb, width);
+        }
+    }
+    gprs[15] += 4;
+    return 1;
+}
     goto END;
 SEL_INST:
 {
@@ -1816,6 +1893,25 @@ SEL_INST:
 }
     goto END;
 SMLAXY_INST:
+{
+    if (cond == 0xE || conditionPassed(cond)) {
+        const u32 rd = (inst >> 16) & 0xFu;
+        const u32 rn = (inst >> 12) & 0xFu;
+        const u32 rs = (inst >> 8) & 0xFu;
+        const u32 rm = inst & 0xFu;
+        const bool x = (inst & (1u << 5)) != 0;
+        const bool y = (inst & (1u << 6)) != 0;
+        const s32 rm_half = static_cast<s16>((gprs[rm] >> (x ? 16 : 0)) & 0xFFFFu);
+        const s32 rs_half = static_cast<s16>((gprs[rs] >> (y ? 16 : 0)) & 0xFFFFu);
+        const s64 result64 = static_cast<s64>(rm_half) * static_cast<s64>(rs_half) + static_cast<s64>(gprs[rn]);
+        gprs[rd] = static_cast<u32>(result64);
+        if (result64 > std::numeric_limits<s32>::max() || result64 < std::numeric_limits<s32>::min()) {
+            cpsr |= CPSR::StickyOverflow;
+        }
+    }
+    gprs[15] += 4;
+    return 1;
+}
     goto END;
 SMLAL_INST:
 {
@@ -2301,6 +2397,11 @@ STM_INST:
     goto END;
 STR_INST:
 {
+    // STRT/STRBT unprivileged post-index aliases are not represented as
+    // dedicated entries in the ARM table; route to class decoder.
+    if ((inst & 0x0D300000u) == 0x04200000u || (inst & 0x0D300000u) == 0x04600000u) {
+        return executeCoproc(inst);
+    }
     if (cond == 0xE || conditionPassed(cond)) {
         ldst_inst* inst_cream = (ldst_inst*)component;
         get_addr(cpu, inst, addr);
@@ -2429,6 +2530,11 @@ STREXH_INST:
     goto END;
 STRH_INST:
 {
+    // STRD alias lives in halfword/signed transfer class decode.
+    if ((inst & 0x0E000090u) == 0x00000090u && (inst & 0x0C000000u) == 0x00000000u &&
+        (inst & 0xF0u) == 0xD0u && (((inst >> 12) & 1u) == 0)) {
+        return executeCoproc(inst);
+    }
     if (cond == 0xE || conditionPassed(cond)) {
         ldst_inst* inst_cream = (ldst_inst*)component;
         get_addr(cpu, inst, addr);
@@ -2447,7 +2553,7 @@ SUB_INST:
     if (cond == 0xE || conditionPassed(cond)) {
 
 
-        u32 rn_val = (((((inst >> 16) == 15) ? (old_pc + 8) : gprs[((inst >> 16]) & 0xFu));
+        u32 rn_val = ((((inst >> 16) & 0xFu) == 15) ? (old_pc + 8) : gprs[(inst >> 16) & 0xFu]);
 
         bool carry;
         bool overflow;
@@ -2692,6 +2798,21 @@ TST_INST:
 }
     goto END;
 UBFX_INST:
+{
+    if (cond == 0xE || conditionPassed(cond)) {
+        const u32 rd = (inst >> 12) & 0xFu;
+        const u32 rn = inst & 0xFu;
+        const u32 lsb = (inst >> 7) & 0x1Fu;
+        const u32 widthm1 = (inst >> 16) & 0x1Fu;
+        const u32 width = widthm1 + 1;
+        if (rd != PC_INDEX && width <= 32 && lsb + width <= 32) {
+            const u32 mask = (width == 32) ? 0xFFFFFFFFu : ((1u << width) - 1u);
+            gprs[rd] = (gprs[rn] >> lsb) & mask;
+        }
+    }
+    gprs[15] += 4;
+    return 1;
+}
     goto END;
 UMAAL_INST:
 {

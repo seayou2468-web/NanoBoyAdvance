@@ -1,11 +1,36 @@
 #include "../../../include/cpu_interpreter.hpp"
 #include "./cpu_interpreter_internal.hpp"
 u32 CPU::executeCoproc(u32 inst) {
+	const u32 old_pc = gprs[PC_INDEX];
 	const auto get_reg_operand = [&](u32 index) { return getRegOperand(index, old_pc); };
 	const auto set_carry = [&](bool value) { setCarry(value); };
 	const auto write_reg = [&](u32 index, u32 value) { writeReg(index, value); };
 	const auto clear_exclusive = [&]() { clearExclusive(); };
-	const u32 old_pc = gprs[PC_INDEX];
+	const auto normalize_fpscr = [](u32 value) {
+		// Keep architectural bits and sanitize vector length/stride fields.
+		// 3 is a reserved encoding for stride and behaves as scalar stride (1).
+		value &= 0xF7FFFFFFu;
+		u32 stride = (value & FPSCR::StrideMask) >> 20;
+		const u32 length = (value & FPSCR::LengthMask) >> 16;
+		if (stride == 0x3u) {
+			stride = 0u;
+			value = (value & ~FPSCR::StrideMask) | (stride << 20);
+		}
+		// LEN==0 must behave as scalar mode, so force stride to scalar as well.
+		if (length == 0) {
+			value &= ~FPSCR::StrideMask;
+		}
+		return value;
+	};
+	const auto normalize_fpexc = [](u32 value) {
+		// Keep architecturally visible bits used by this interpreter model.
+		value &= 0xFC00009Fu;  // EX/EN/DEX/FP2V/VV/TFV + trap bits
+		if ((value & (1u << 30)) == 0) {
+			// If VFP is disabled, clear deferred/exception latches.
+			value &= ~((1u << 31) | (1u << 29) | (1u << 27) | (1u << 26) | 0x9Fu);
+		}
+		return value;
+	};
 	const auto cp1011_inst_class = Coproc10Decoder::DecodeInstructionClass(inst);
 
 	// Coprocessor 64-bit transfer (MRRC/MCRR) subset for CP15.
@@ -654,8 +679,8 @@ u32 CPU::executeCoproc(u32 inst) {
 					const u32 value = get_reg_operand(rd);
 					bool handled = true;
 					switch (crn) {
-						case 1: fpscr = value; break;        // FPSCR
-						case 8: vfpFPEXC = value; break;     // FPEXC
+						case 1: fpscr = normalize_fpscr(value); break;        // FPSCR
+						case 8: vfpFPEXC = normalize_fpexc(value); break;     // FPEXC
 						case 9: vfpFPINST = value; break;    // FPINST
 						case 10: vfpFPINST2 = value; break;  // FPINST2
 						default: handled = false; break;
