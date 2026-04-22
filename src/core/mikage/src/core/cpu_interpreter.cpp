@@ -115,6 +115,7 @@ void CPU::reportMMUFault(u32 fsr, u32 far, bool instruction_fault) {
     const u32 old_pc = gprs[15];
     const bool was_thumb = (old_cpsr & CPSR::Thumb) != 0;
     const u32 vector = instruction_fault ? 0x0C : 0x10;  // Prefetch abort / Data abort vectors
+    lastFaultWasInstruction = instruction_fault;
     lastAbortReturnAdjust = instruction_fault ? (was_thumb ? 2u : 4u) : 8u;
     const u32 lr_abort = old_pc + lastAbortReturnAdjust;
     abortReturnPending = true;
@@ -162,14 +163,43 @@ void CPU::finalizeAbortReturnIfNeeded() {
         return;
     }
 
-    const u32 expected_pc = gprs[14] - lastAbortReturnAdjust;
-    if (gprs[15] != expected_pc) {
-        Helpers::warn("Adjusting abort return PC from %08X to %08X", gprs[15], expected_pc);
-        gprs[15] = expected_pc;
-        if (dyncomState) {
-            dyncomState->Reg[15] = expected_pc;
+    const u32 lr = gprs[14];
+    const u32 pc = gprs[15];
+
+    // Resolve return-instruction pattern:
+    //  - MOVS   PC, LR        -> PC == LR
+    //  - SUBS   PC, LR, #imm  -> PC == LR - imm
+    // For abort handlers, imm is typically 4 (prefetch) or 8 (data).
+    auto apply_pc = [&](u32 value, u32 adjust, const char* reason) {
+        if (pc != value) {
+            Helpers::warn("Adjusting abort return PC (%s): %08X -> %08X", reason, pc, value);
+            gprs[15] = value;
+            if (dyncomState) {
+                dyncomState->Reg[15] = value;
+            }
         }
+        lastAbortReturnAdjust = adjust;
+        abortReturnPending = false;
+    };
+
+    if (pc == lr) {
+        apply_pc(lr, 0, "MOVS PC, LR");
+        return;
+    }
+    if (pc == (lr - 4)) {
+        apply_pc(lr - 4, 4, "SUBS PC, LR, #4");
+        return;
+    }
+    if (pc == (lr - 8)) {
+        apply_pc(lr - 8, 8, "SUBS PC, LR, #8");
+        return;
+    }
+    if (lastFaultWasInstruction && pc == (lr - 2)) {
+        apply_pc(lr - 2, 2, "SUBS PC, LR, #2 (thumb prefetch)");
+        return;
     }
 
-    abortReturnPending = false;
+    const u32 fallback_pc = lr - lastAbortReturnAdjust;
+    apply_pc(fallback_pc, lastAbortReturnAdjust, "fallback");
+    return;
 }

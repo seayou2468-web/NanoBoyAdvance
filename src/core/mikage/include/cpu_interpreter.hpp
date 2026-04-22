@@ -57,6 +57,7 @@ class CPU {
 	u32 vfpFPINST2 = 0;
 	u32 vfpFPSID = 0;
 	u32 lastAbortReturnAdjust = 0;
+	bool lastFaultWasInstruction = false;
 	bool abortReturnPending = false;
 	u32 vfpMVFR0 = 0;
 	u32 vfpMVFR1 = 0;
