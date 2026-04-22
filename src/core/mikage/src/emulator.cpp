@@ -412,8 +412,42 @@ bool Emulator::copyCompositeFrameRGBA(std::span<u32> out_pixels) {
 	const u8* top_ptr = gpu.getPointerPhys<u8>(top_addr);
 	const u8* bottom_ptr = gpu.getPointerPhys<u8>(bottom_addr);
 
-	BlitRotatedScreenToComposite(out_pixels, 0, top_ptr, top_width, top_height, top_stride, top_format);
-	BlitRotatedScreenToComposite(out_pixels, kTopScreenTargetHeight, bottom_ptr, bottom_width, bottom_height, bottom_stride, bottom_format);
+	const u32 top_bpp = static_cast<u32>(PICA::sizePerPixel(top_format));
+	const u32 bottom_bpp = static_cast<u32>(PICA::sizePerPixel(bottom_format));
+
+	const u32 safe_top_width = top_width != 0 ? top_width : 240;
+	const u32 safe_top_height = top_height != 0 ? top_height : 400;
+	const u32 safe_bottom_width = bottom_width != 0 ? bottom_width : 240;
+	const u32 safe_bottom_height = bottom_height != 0 ? bottom_height : 320;
+	const u32 safe_top_stride = (top_stride != 0) ? top_stride : (safe_top_width * std::max<u32>(1, top_bpp));
+	const u32 safe_bottom_stride = (bottom_stride != 0) ? bottom_stride : (safe_bottom_width * std::max<u32>(1, bottom_bpp));
+
+	static u64 missing_fb_warn_counter = 0;
+	auto logMissingScreen = [&](const char* screen_name, u32 addr, u32 width, u32 height, u32 stride, u32 format) {
+		missing_fb_warn_counter++;
+		if ((missing_fb_warn_counter % 120) == 1) {
+			Helpers::warn(
+				"Composite frame missing %s screen buffer (addr=%08X size=%ux%u stride=%u format=%u). Keeping other screen.\n",
+				screen_name, addr, width, height, stride, format
+			);
+		}
+	};
+
+	if (top_ptr != nullptr) {
+		BlitRotatedScreenToComposite(out_pixels, 0, top_ptr, safe_top_width, safe_top_height, safe_top_stride, top_format);
+	} else {
+		logMissingScreen("top", top_addr, safe_top_width, safe_top_height, safe_top_stride, static_cast<u32>(top_format));
+	}
+
+	if (bottom_ptr != nullptr) {
+		BlitRotatedScreenToComposite(
+			out_pixels, kTopScreenTargetHeight, bottom_ptr, safe_bottom_width, safe_bottom_height, safe_bottom_stride, bottom_format
+		);
+	} else {
+		logMissingScreen(
+			"bottom", bottom_addr, safe_bottom_width, safe_bottom_height, safe_bottom_stride, static_cast<u32>(bottom_format)
+		);
+	}
 
 	return true;
 }
