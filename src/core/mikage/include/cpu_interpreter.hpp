@@ -99,6 +99,7 @@ class CPU {
 	static constexpr u64 ticksPerSec = Scheduler::arm11Clock;
 
 	CPU(Memory& mem, Kernel& kernel, Emulator& emu);
+	~CPU();
 	void reset();
 
 		void setReg(int index, u32 value) { gprs[static_cast<size_t>(index)] = value; }

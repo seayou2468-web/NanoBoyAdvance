@@ -9,6 +9,8 @@ CPU::CPU(Memory& mem, Kernel& kernel, Emulator& emu)
     reset();
 }
 
+CPU::~CPU() = default;
+
 void CPU::reset() {
     gprs.fill(0);
     extRegs.fill(0);
