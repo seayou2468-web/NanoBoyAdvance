@@ -365,6 +365,7 @@ class Memory {
 	void* getVMManagerOpaque() { return &vmManager; }
 	void* ensureProcessVM(u32 process_handle);
 	void activateProcessVM(u32 process_handle);
+	void snapshotActiveVMAsCanonical() { vmManager = activeVM(); }
 	void setMMUFaultCallback(std::function<void(u32 fsr, u32 far, bool instruction_fault)> callback) {
 		mmuFaultCallback = std::move(callback);
 	}

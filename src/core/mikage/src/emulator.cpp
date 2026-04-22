@@ -333,6 +333,7 @@ bool Emulator::loadROM(const std::filesystem::path& path) {
 
 	if (success) {
 		romPath = path;
+		memory.snapshotActiveVMAsCanonical();
 	} else {
 		romPath = std::nullopt;
 		romType = ROMType::None;
