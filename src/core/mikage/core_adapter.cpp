@@ -95,6 +95,45 @@ bool StageSysdataFileIfRecognized(MikageRuntime* runtime, const std::filesystem:
   return true;
 }
 
+void TryAutoStageSysdataFromCandidates(MikageRuntime* runtime,
+                                       const std::vector<std::filesystem::path>& directories,
+                                       std::string& last_error) {
+  if (!runtime || !runtime->emulator) {
+    return;
+  }
+
+  std::error_code ec;
+  for (const auto& dir : directories) {
+    if (dir.empty() || !std::filesystem::exists(dir, ec) || !std::filesystem::is_directory(dir, ec)) {
+      continue;
+    }
+
+    // Scan only known filenames to keep this fast and deterministic.
+    static constexpr const char* kCandidates[] = {
+        "aes_keys.txt",
+        "keys.txt",
+        "seeddb.bin",
+        "boot9.bin",
+        "boot11.bin",
+    };
+
+    for (const char* name : kCandidates) {
+      const std::filesystem::path candidate = dir / name;
+      if (!std::filesystem::exists(candidate, ec) || !std::filesystem::is_regular_file(candidate, ec)) {
+        continue;
+      }
+
+      std::string stage_error;
+      if (!StageSysdataFileIfRecognized(runtime, candidate, stage_error)) {
+        // Keep going for other candidates, but preserve the first non-empty error for diagnostics.
+        if (!stage_error.empty() && last_error.empty()) {
+          last_error = stage_error;
+        }
+      }
+    }
+  }
+}
+
 void* CreateRuntime() {
   auto* runtime = new MikageRuntime();
   runtime->rgba_frame.assign(static_cast<size_t>(kMikageFrameWidth) * static_cast<size_t>(kMikageFrameHeight),
@@ -289,6 +328,20 @@ bool LoadRomFromPath(void* opaque_runtime, const char* rom_path, std::string& la
   }
 
   const std::filesystem::path app_data_root = runtime->emulator->getAppDataRoot();
+  const std::filesystem::path bios_dir = app_data_root / "BIOS";
+
+  // Best-effort auto-staging to reduce boot stalls caused by missing keys/seeddb.
+  // We keep this non-fatal and still rely on explicit errors below if keys are absent.
+  std::string autostage_error;
+  std::vector<std::filesystem::path> auto_stage_dirs;
+  auto_stage_dirs.emplace_back(fs_path.parent_path());
+  if (!fs_path.parent_path().empty()) {
+    auto_stage_dirs.emplace_back(fs_path.parent_path().parent_path());
+  }
+  auto_stage_dirs.emplace_back(bios_dir);
+  auto_stage_dirs.emplace_back(app_data_root / "sysdata");
+  TryAutoStageSysdataFromCandidates(runtime, auto_stage_dirs, autostage_error);
+
   const std::filesystem::path sysdata_dir = app_data_root / "sysdata";
   const bool has_aes_keys = std::filesystem::exists(sysdata_dir / "aes_keys.txt", ec);
   const bool has_seeddb = std::filesystem::exists(sysdata_dir / "seeddb.bin", ec);
@@ -296,8 +349,12 @@ bool LoadRomFromPath(void* opaque_runtime, const char* rom_path, std::string& la
   try {
     if (!runtime->emulator->loadROM(fs_path)) {
       if (!has_aes_keys) {
-        last_error =
-            "ROM decryption failed: sysdata/aes_keys.txt is missing. Import AES keys and retry.";
+        if (!autostage_error.empty()) {
+          last_error = std::string("ROM decryption failed: sysdata/aes_keys.txt is missing. Auto-stage attempt also failed: ") + autostage_error;
+        } else {
+          last_error =
+              "ROM decryption failed: sysdata/aes_keys.txt is missing. Import AES keys and retry.";
+        }
       } else {
         last_error = has_seeddb
                          ? "ROM load failed in NCCH/RomFS parse path after decryption. Verify ROM integrity/corruption and header validity."

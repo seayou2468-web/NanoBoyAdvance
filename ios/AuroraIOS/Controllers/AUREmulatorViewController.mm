@@ -266,6 +266,8 @@ static const uint64_t kAURBlackSampleWarmupFrames = 1200;
     NSString *boot11 = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"3ds_boot11"];
     NSString *firmware = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"3ds_firmware"];
     NSString *sharedFont = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"3ds_shared_font"];
+    NSString *aesKeys = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"3ds_aes_keys"];
+    NSString *seeddb = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"3ds_seeddb"];
     if (firmware.length > 0) {
         [self emuLog:@"3ds_firmware was set (%@), but this core currently expects boot9/boot11 and sysdata keys/seeddb. Standalone firmware files are not directly consumed in this load path.", firmware.lastPathComponent];
     }
@@ -284,13 +286,17 @@ static const uint64_t kAURBlackSampleWarmupFrames = 1200;
     loadBiosIfPresent(@"3ds_boot11", boot11);
     loadBiosIfPresent(@"3ds_firmware", firmware);
     loadBiosIfPresent(@"3ds_shared_font", sharedFont);
+    loadBiosIfPresent(@"3ds_aes_keys", aesKeys);
+    loadBiosIfPresent(@"3ds_seeddb", seeddb);
 
     NSString *boot9Display = boot9.length > 0 ? boot9 : @"(null)";
     NSString *boot11Display = boot11.length > 0 ? boot11 : @"(null)";
     NSString *firmwareDisplay = firmware.length > 0 ? firmware : @"(null)";
     NSString *sharedFontDisplay = sharedFont.length > 0 ? sharedFont : @"(null)";
-    [self emuLog:@"BIOS paths boot9=%@ boot11=%@ firmware=%@ shared_font=%@",
-     boot9Display, boot11Display, firmwareDisplay, sharedFontDisplay];
+    NSString *aesKeysDisplay = aesKeys.length > 0 ? aesKeys : @"(null)";
+    NSString *seeddbDisplay = seeddb.length > 0 ? seeddb : @"(null)";
+    [self emuLog:@"BIOS paths boot9=%@ boot11=%@ firmware=%@ shared_font=%@ aes_keys=%@ seeddb=%@",
+     boot9Display, boot11Display, firmwareDisplay, sharedFontDisplay, aesKeysDisplay, seeddbDisplay];
     if (!boot9 && !boot11 && !firmware) {
         [self emuLog:@"3DS BIOS/Firmware not set. Attempting HLE boot without external firmware."];
     }
