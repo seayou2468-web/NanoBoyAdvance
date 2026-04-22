@@ -337,9 +337,14 @@ bool Emulator::loadROM(const std::filesystem::path& path) {
 		const bool inExecutableRange =
 			(entrypointAddr >= VirtualAddrs::ExecutableStart) && (entrypointAddr < VirtualAddrs::ExecutableEnd);
 		const bool mapped = memory.getReadPointer(entrypointAddr) != nullptr;
-		if (!inExecutableRange || !mapped || entrypointAddr == 0) {
-			Helpers::warn("Invalid or unmapped entrypoint detected after ROM load: entry=%08X (range_ok=%d, mapped=%d)\n",
-			              entrypoint, int(inExecutableRange), int(mapped));
+		KernelMemoryTypes::MemoryInfo entryInfo;
+		const bool queryOk = memory.queryMemory(entryInfo, entrypointAddr).isSuccess();
+		const bool executablePerm = queryOk && ((entryInfo.perms & KernelMemoryTypes::MemoryState::PERMISSION_X) != 0);
+		if (!inExecutableRange || !mapped || !executablePerm || entrypointAddr == 0) {
+			Helpers::warn(
+				"Invalid entrypoint detected after ROM load: entry=%08X (range_ok=%d, mapped=%d, exec_perm=%d)\n", entrypoint,
+				int(inExecutableRange), int(mapped), int(executablePerm)
+			);
 			success = false;
 			romType = ROMType::None;
 			romPath = std::nullopt;

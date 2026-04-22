@@ -135,6 +135,7 @@ HorizonHandle Kernel::makeThread(u32 entrypoint, u32 initialSP, u32 priority, Pr
 	objects[ret].data = &t;
 
 	const bool isThumb = (entrypoint & 1) != 0;  // Whether the thread starts in thumb mode or not
+	const u32 canonicalEntrypoint = entrypoint & ~1u;
 
 	// Set up initial thread context
 	t.gprs.fill(0);
@@ -142,11 +143,11 @@ HorizonHandle Kernel::makeThread(u32 entrypoint, u32 initialSP, u32 priority, Pr
 
 	t.arg = arg;
 	t.initialSP = initialSP;
-	t.entrypoint = entrypoint;
+	t.entrypoint = canonicalEntrypoint;
 
 	t.gprs[0] = arg;
 	t.gprs[13] = initialSP;
-	t.gprs[15] = entrypoint;
+	t.gprs[15] = canonicalEntrypoint;
 	t.priority = priority;
 	t.processorID = id;
 	t.status = status;

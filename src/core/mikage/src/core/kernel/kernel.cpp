@@ -82,6 +82,24 @@ void Kernel::serviceSVC(u32 svc) {
 	evalReschedule();
 }
 
+
+void Kernel::setMainThreadEntrypointAndSP(u32 entrypoint, u32 initialSP) {
+	auto& t = threads[0];
+	const bool isThumb = (entrypoint & 1) != 0;
+	const u32 canonicalEntrypoint = entrypoint & ~1u;
+
+	t.entrypoint = canonicalEntrypoint;
+	t.initialSP = initialSP;
+	t.gprs[13] = initialSP;
+	t.gprs[15] = canonicalEntrypoint;
+	t.cpsr = CPSR::UserMode | (isThumb ? CPSR::Thumb : 0);
+	if (currentThreadIndex == 0) {
+		cpu.setReg(13, initialSP);
+		cpu.setReg(15, canonicalEntrypoint);
+		cpu.setCPSR(t.cpsr);
+	}
+}
+
 void Kernel::setVersion(u8 major, u8 minor) {
 	u16 descriptor = (u16(major) << 8) | u16(minor);
 

@@ -1,8 +1,15 @@
+#pragma once
+
 #include "../renderer.hpp"
 
+#include <memory>
+
 class GPU;
+class SwRasterizer;
 
 class RendererSw final : public Renderer {
+	std::unique_ptr<SwRasterizer> rasterizer;
+
   public:
 	RendererSw(GPU& gpu, const std::array<u32, regNum>& internalRegs, const std::array<u32, extRegNum>& externalRegs);
 	~RendererSw() override;
