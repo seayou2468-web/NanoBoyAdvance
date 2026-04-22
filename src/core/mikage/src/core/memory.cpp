@@ -308,6 +308,15 @@ void Memory::write8(u32 vaddr, u8 value) {
 	if (pointer != 0) [[likely]] {
 		*(u8*)(pointer + offset) = value;
 	} else {
+		if (vaddr == 0) {
+			static int nullWriteWarningCount8 = 0;
+			if (nullWriteWarningCount8 < 5) {
+				nullWriteWarningCount8++;
+				Helpers::warn("Ignoring 8-bit null write, val: %02X", value);
+			}
+			return;
+		}
+
 		// VRAM write
 		if (vaddr >= VirtualAddrs::VramStart && vaddr < VirtualAddrs::VramStart + VirtualAddrs::VramSize) {
 			// TODO: Invalidate renderer caches here
@@ -328,6 +337,15 @@ void Memory::write16(u32 vaddr, u16 value) {
 	if (pointer != 0) [[likely]] {
 		*(u16*)(pointer + offset) = value;
 	} else {
+		if (vaddr == 0) {
+			static int nullWriteWarningCount16 = 0;
+			if (nullWriteWarningCount16 < 5) {
+				nullWriteWarningCount16++;
+				Helpers::warn("Ignoring 16-bit null write, val: %04X", value);
+			}
+			return;
+		}
+
 		Helpers::panic("Unimplemented 16-bit write, addr: %08X, val: %08X", vaddr, value);
 	}
 }
