@@ -75,7 +75,7 @@ class CPU {
 
 	Memory& mem;
 	Scheduler* scheduler = nullptr;
-	Kernel& kernel;
+	Kernel* kernel = nullptr;
 	Emulator& emu;
 
 	bool conditionPassed(u32 cond) const;
@@ -98,9 +98,10 @@ class CPU {
   public:
 	static constexpr u64 ticksPerSec = Scheduler::arm11Clock;
 
-	CPU(Memory& mem, Kernel& kernel, Emulator& emu);
+	CPU(Memory& mem, Emulator& emu);
 	~CPU();
 	void bindScheduler(Scheduler& schedulerRef) { scheduler = &schedulerRef; }
+	void bindKernel(Kernel& kernelRef) { kernel = &kernelRef; }
 	void reset();
 
 		void setReg(int index, u32 value) { gprs[static_cast<size_t>(index)] = value; }

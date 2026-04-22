@@ -79,11 +79,12 @@ void BlitRotatedScreenToComposite(std::span<u32> out_pixels, u32 composite_y_off
 }  // namespace
 
 Emulator::Emulator()
-		: config(getConfigPath()), kernel(cpu, memory, gpu, config), cpu(memory, kernel, *this), gpu(memory, config),
+		: config(getConfigPath()), kernel(cpu, memory, gpu, config), cpu(memory, *this), gpu(memory, config),
 		  memory(kernel.fcramManager, config), cheats(memory, kernel.getServiceManager().getHID()), audioDevice(config.audioDeviceConfig),
 		  running(false)
 {
 	cpu.bindScheduler(scheduler);
+	cpu.bindKernel(kernel);
 
 	DSPService& dspService = kernel.getServiceManager().getDSP();
 

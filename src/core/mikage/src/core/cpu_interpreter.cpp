@@ -4,8 +4,8 @@
 #include "CPU/dyncom/arm_dyncom_interpreter.h"
 #include "CPU/skyeye_common/armstate.h"
 
-CPU::CPU(Memory& mem, Kernel& kernel, Emulator& emu)
-    : mem(mem), kernel(kernel), emu(emu) {
+CPU::CPU(Memory& mem, Emulator& emu)
+    : mem(mem), emu(emu) {
     reset();
 }
 
@@ -24,7 +24,12 @@ void CPU::reset() {
             scheduler->currentTimestamp += ticks;
         }
     };
-    dyncomState->svc_callback = [this](u32 svc) { kernel.serviceSVC(svc); };
+    dyncomState->svc_callback = [this](u32 svc) {
+        if (kernel == nullptr) {
+            Helpers::panic("CPU kernel is not bound");
+        }
+        kernel->serviceSVC(svc);
+    };
     dyncomState->VFP[VFP_FPSCR] = fpscr;
     dyncomState->CP15[CP15_THREAD_UPRW] = tlsBase;
 }
