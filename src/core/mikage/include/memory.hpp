@@ -106,6 +106,11 @@ namespace KernelMemoryTypes {
 }  // namespace KernelMemoryTypes
 
 class Memory {
+	enum class PageType : u8 {
+		Unmapped = 0,
+		Memory = 1,
+	};
+
 	// Used internally by changeMemoryState
 	struct Operation {
 		KernelMemoryTypes::MemoryState newState = KernelMemoryTypes::MemoryState::Free;
@@ -130,6 +135,7 @@ class Memory {
 
 	// vaddr->paddr translation table
 	std::vector<u32> paddrTable;
+	std::vector<PageType> pageTableAttrs;
 
 	// This tracks our OS' memory allocations
 	std::list<KernelMemoryTypes::MemoryInfo> memoryInfo;

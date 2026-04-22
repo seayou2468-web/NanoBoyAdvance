@@ -43,6 +43,14 @@ bool ShouldLogUnmappedMemoryAccess() {
 	return false;
 }
 
+void LogUnmappedRead(u32 bits, u32 vaddr) {
+	if (!ShouldLogUnmappedMemoryAccess()) {
+		return;
+	}
+
+	Helpers::warn("Returning 0 from unmapped %u-bit read, addr: %08X", bits, vaddr);
+}
+
 void LogUnmappedWrite(u32 bits, u32 vaddr, u32 value) {
 	if (!ShouldLogUnmappedMemoryAccess()) {
 		return;
@@ -129,6 +137,7 @@ Memory::Memory(KFcram& fcramManager, const EmulatorConfig& config) : fcramManage
 	readTable.resize(totalPageCount, 0);
 	writeTable.resize(totalPageCount, 0);
 	paddrTable.resize(totalPageCount, 0);
+	pageTableAttrs.resize(totalPageCount, PageType::Unmapped);
 
 	fcram = arena->BackingBasePointer() + FASTMEM_FCRAM_OFFSET;
 	dspRam = arena->BackingBasePointer() + FASTMEM_DSP_RAM_OFFSET;
@@ -153,6 +162,7 @@ void Memory::reset() {
 		readTable[i] = 0;
 		writeTable[i] = 0;
 		paddrTable[i] = 0;
+		pageTableAttrs[i] = PageType::Unmapped;
 	}
 
 	// Allocate 512 bytes of TLS for each thread. Since the smallest allocatable unit is 4 KB, that means allocating one page for every 8 threads
@@ -240,7 +250,9 @@ u8 Memory::read8(u32 vaddr) {
 			case ConfigMem::WifiMac + 4:
 			case ConfigMem::WifiMac + 5: return MACAddress[vaddr - ConfigMem::WifiMac];
 
-			default: Helpers::panic("Unimplemented 8-bit read, addr: %08X", vaddr);
+			default:
+				LogUnmappedRead(8, vaddr);
+				return 0;
 		}
 	}
 }
@@ -255,7 +267,9 @@ u16 Memory::read16(u32 vaddr) {
 	} else {
 		switch (vaddr) {
 			case ConfigMem::WifiMac + 4: return (MACAddress[5] << 8) | MACAddress[4];  // Wifi MAC: Last 2 bytes of MAC Address
-			default: Helpers::panic("Unimplemented 16-bit read, addr: %08X", vaddr);
+			default:
+				LogUnmappedRead(16, vaddr);
+				return 0;
 		}
 	}
 }
@@ -305,8 +319,8 @@ u32 Memory::read32(u32 vaddr) {
 					return *(u32*)&vram[vaddr - VirtualAddrs::VramStart];
 				}
 
-				Helpers::panic("Unimplemented 32-bit read, addr: %08X", vaddr);
-				break;
+				LogUnmappedRead(32, vaddr);
+				return 0;
 		}
 	}
 }
@@ -539,6 +553,7 @@ void Memory::mapPhysicalMemory(u32 vaddr, u32 paddr, s32 pages, bool r, bool w, 
 	for (int i = 0; i < pages; i++) {
 		u32 index = (vaddr >> 12) + i;
 		paddrTable[index] = paddr + (i << 12);
+		pageTableAttrs[index] = PageType::Memory;
 		if (r)
 			readTable[index] = (uintptr_t)(hostPtr + (i << 12));
 		else
@@ -555,6 +570,7 @@ void Memory::unmapPhysicalMemory(u32 vaddr, u32 paddr, s32 pages) {
 	for (int i = 0; i < pages; i++) {
 		u32 index = (vaddr >> 12) + i;
 		paddrTable[index] = 0;
+		pageTableAttrs[index] = PageType::Unmapped;
 		readTable[index] = 0;
 		writeTable[index] = 0;
 	}
