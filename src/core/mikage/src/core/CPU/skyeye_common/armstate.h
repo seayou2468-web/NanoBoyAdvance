@@ -18,18 +18,14 @@
 #pragma once
 
 #include <array>
+#include <functional>
 #include <unordered_map>
 #include "common/common_types.h"
 #include "core/arm/skyeye_common/arm_regformat.h"
 #include "core/gdbstub/gdbstub.h"
 
-namespace Core {
-class System;
-}
+ #include "../../../../include/memory.hpp"
 
-namespace Memory {
-class MemorySystem;
-}
 
 // Signal levels
 enum { LOW = 0, HIGH = 1, LOWHIGH = 1, HIGHLOW = 2 };
@@ -147,8 +143,7 @@ enum {
 
 struct ARMul_State final {
 public:
-    explicit ARMul_State(Core::System& system, Memory::MemorySystem& memory,
-                         PrivilegeMode initial_mode);
+    explicit ARMul_State(Memory& memory, PrivilegeMode initial_mode);
 
     void ChangePrivilegeMode(u32 new_mode);
     void Reset();
@@ -206,8 +201,9 @@ public:
 
     void ServeBreak();
 
-    Core::System& system;
-    Memory::MemorySystem& memory;
+    Memory& memory;
+    std::function<void(u64)> add_ticks_callback;
+    std::function<void(u32)> svc_callback;
 
     std::array<u32, 16> Reg{}; // The current register file
     std::array<u32, 2> Reg_usr{};

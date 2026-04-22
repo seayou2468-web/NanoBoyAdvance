@@ -26,6 +26,8 @@ file(GLOB_RECURSE CORE_SOURCES CONFIGURE_DEPENDS
 
 # Exclude reference interpreter files which have external dependencies not present in build env
 list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/mikage/src/core/CPU/reference/.*")
+list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/mikage/src/core/CPU/dyncom/arm_dyncom\.cpp")
+
 
 add_executable(AuroraIOS MACOSX_BUNDLE
   ${AURORAIOS_SOURCES}

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <memory>
 #include <span>
 
 #include "./arm_defs.hpp"
@@ -10,6 +11,7 @@
 
 class Emulator;
 class Kernel;
+struct ARMul_State;
 
 class ExclusiveMonitor {
 public:
@@ -67,6 +69,8 @@ class CPU {
 	u32 VFlag = 0;
 	u32 TFlag = 0;
 
+
+	std::unique_ptr<ARMul_State> dyncomState;
 	ExclusiveMonitor exclusiveMonitor;
 
 	Memory& mem;
@@ -97,7 +101,7 @@ class CPU {
 	CPU(Memory& mem, Kernel& kernel, Emulator& emu);
 	void reset();
 
-	void setReg(int index, u32 value) { gprs[static_cast<size_t>(index)] = value; }
+		void setReg(int index, u32 value) { gprs[static_cast<size_t>(index)] = value; }
 	u32 getReg(int index) { return gprs[static_cast<size_t>(index)]; }
 
 	std::span<u32, 16> regs() { return gprs; }
