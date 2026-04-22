@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cctype>
 #include <cstdint>
 #include <cstdlib>
 #include <fstream>
@@ -15,6 +16,42 @@ namespace {
 constexpr u32 kCompositeWidth = Emulator::width;
 constexpr u32 kCompositeHeight = Emulator::height;
 constexpr u32 kTopScreenTargetHeight = 240;
+
+enum class ContainerProbeType {
+	Unknown,
+	NCSD,
+	NCCH,
+	ELF,
+	_3DSX,
+};
+
+static ContainerProbeType ProbeContainerType(const std::filesystem::path& path) {
+	std::ifstream file(path, std::ios::binary);
+	if (!file) {
+		return ContainerProbeType::Unknown;
+	}
+
+	std::array<u8, 0x220> header{};
+	file.read(reinterpret_cast<char*>(header.data()), static_cast<std::streamsize>(header.size()));
+	const std::streamsize read = file.gcount();
+	if (read < 4) {
+		return ContainerProbeType::Unknown;
+	}
+
+	if (header[0] == 0x7F && header[1] == 'E' && header[2] == 'L' && header[3] == 'F') {
+		return ContainerProbeType::ELF;
+	}
+	if (header[0] == '3' && header[1] == 'D' && header[2] == 'S' && header[3] == 'X') {
+		return ContainerProbeType::_3DSX;
+	}
+	if (read >= 0x104 && header[0x100] == 'N' && header[0x101] == 'C' && header[0x102] == 'S' && header[0x103] == 'D') {
+		return ContainerProbeType::NCSD;
+	}
+	if (read >= 0x104 && header[0x100] == 'N' && header[0x101] == 'C' && header[0x102] == 'C' && header[0x103] == 'H') {
+		return ContainerProbeType::NCCH;
+	}
+	return ContainerProbeType::Unknown;
+}
 
 std::filesystem::path ResolveWritableBasePath() {
 #if defined(__APPLE__) && TARGET_OS_IPHONE
@@ -316,8 +353,20 @@ bool Emulator::loadROM(const std::filesystem::path& path) {
 	}
 
 	kernel.initializeFS();
-	auto extension = path.extension();
-	if (extension == ".toml" || path.filename() == "config.toml") {
+	std::string extension = path.extension().string();
+	std::transform(extension.begin(), extension.end(), extension.begin(), [](unsigned char c) {
+		return static_cast<char>(std::tolower(c));
+	});
+	const std::string filename = path.filename().string();
+	const std::string filenameLower = [&] {
+		std::string s = filename;
+		std::transform(s.begin(), s.end(), s.begin(), [](unsigned char c) {
+			return static_cast<char>(std::tolower(c));
+		});
+		return s;
+	}();
+
+	if (extension == ".toml" || filenameLower == "config.toml") {
 		Helpers::warn("Refusing to open config file as ROM: %s\n", path.string().c_str());
 		romPath = std::nullopt;
 		romType = ROMType::None;
@@ -325,17 +374,30 @@ bool Emulator::loadROM(const std::filesystem::path& path) {
 	}
 	bool success;  // Tracks if we loaded the ROM successfully
 
-	if (extension == ".elf" || extension == ".axf")
+	ContainerProbeType probeType = ContainerProbeType::Unknown;
+	// Prefer extension dispatch when known, and use probe as fallback/validation.
+	if (extension == ".elf" || extension == ".axf") {
 		success = loadELF(path);
-	else if (extension == ".3ds" || extension == ".cci")
+	} else if (extension == ".3ds" || extension == ".cci") {
 		success = loadNCSD(path, ROMType::NCSD);
-	else if (extension == ".cxi" || extension == ".app" || extension == ".ncch")
+	} else if (extension == ".cxi" || extension == ".app" || extension == ".ncch") {
 		success = loadNCSD(path, ROMType::CXI);
-	else if (extension == ".3dsx")
+	} else if (extension == ".3dsx") {
 		success = load3DSX(path);
-	else {
-		printf("Unknown file type\n");
-		success = false;
+	} else {
+		probeType = ProbeContainerType(path);
+		Helpers::warn("ROM extension dispatch fallback: extension=\"%s\" probe=%d path=%s\n",
+			extension.c_str(), int(probeType), path.string().c_str());
+		switch (probeType) {
+			case ContainerProbeType::ELF: success = loadELF(path); break;
+			case ContainerProbeType::_3DSX: success = load3DSX(path); break;
+			case ContainerProbeType::NCSD: success = loadNCSD(path, ROMType::NCSD); break;
+			case ContainerProbeType::NCCH: success = loadNCSD(path, ROMType::CXI); break;
+			default:
+				printf("Unknown file type and unsupported container magic\n");
+				success = false;
+				break;
+		}
 	}
 
 	if (success) {
