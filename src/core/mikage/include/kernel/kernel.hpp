@@ -272,5 +272,13 @@ class Kernel {
 		auto& t = threads[0];
 		t.entrypoint = entrypoint;
 		t.initialSP = initialSP;
+		t.gprs[13] = initialSP;
+		t.gprs[15] = entrypoint;
+		t.cpsr = CPSR::UserMode | ((entrypoint & 1) ? CPSR::Thumb : 0);
+		if (currentThreadIndex == 0) {
+			cpu.setReg(13, initialSP);
+			cpu.setReg(15, entrypoint);
+			cpu.setCPSR(t.cpsr);
+		}
 	}
 };

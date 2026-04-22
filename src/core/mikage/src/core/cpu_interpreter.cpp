@@ -60,6 +60,11 @@ void CPU::runFrame() {
     if (scheduler == nullptr) {
         Helpers::panic("CPU scheduler is not bound");
     }
+    const u32 current_pc = gprs[15] & ~1u;
+    if (mem.getReadPointer(current_pc) == nullptr) {
+        reportMMUFault(0x5, current_pc, true);
+        return;
+    }
 
     dyncomState->Reg = gprs;
     dyncomState->ExtReg = extRegs;
