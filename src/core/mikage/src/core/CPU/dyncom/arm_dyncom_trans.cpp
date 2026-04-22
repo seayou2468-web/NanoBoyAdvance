@@ -1,10 +1,10 @@
 #include <cstdlib>
-#include "common/assert.h"
-#include "common/common_types.h"
-#include "core/arm/dyncom/arm_dyncom_trans.h"
-#include "core/arm/skyeye_common/armstate.h"
-#include "core/arm/skyeye_common/armsupp.h"
-#include "core/arm/skyeye_common/vfp/vfp.h"
+#include "../../../../include/common/assert.h"
+#include "../../../../include/common/common_types.h"
+#include "./arm_dyncom_trans.h"
+#include "../skyeye_common/armstate.h"
+#include "../skyeye_common/armsupp.h"
+#include "../skyeye_common/vfp/vfp.h"
 
 char trans_cache_buf[TRANS_CACHE_SIZE];
 size_t trans_cache_buf_top = 0;
@@ -1804,7 +1804,7 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(yield)(unsigned int inst, int index) {
 
 // Floating point VFPv3 instructions
 #define VFP_INTERPRETER_TRANS
-#include "core/arm/skyeye_common/vfp/vfpinstr.cpp"
+#include "../skyeye_common/vfp/vfpinstr.cpp"
 #undef VFP_INTERPRETER_TRANS
 
 const transop_fp_t arm_instruction_trans[] = {

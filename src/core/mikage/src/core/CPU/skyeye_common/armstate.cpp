@@ -3,10 +3,10 @@
 // Refer to the license.txt file included.
 
 #include <algorithm>
-#include "common/logging/log.h"
-#include "common/swap.h"
-#include "core/arm/skyeye_common/armstate.h"
-#include "core/arm/skyeye_common/vfp/vfp.h"
+#include "../../../../include/common/logging/log.h"
+#include "../../../../include/common/swap.h"
+#include "./armstate.h"
+#include "./vfp/vfp.h"
 #include "../../../../include/memory.hpp"
 
 ARMul_State::ARMul_State(Memory& memory_, PrivilegeMode initial_mode)

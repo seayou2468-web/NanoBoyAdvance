@@ -9,11 +9,11 @@
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/split_member.hpp>
 #include <boost/serialization/version.hpp>
-#include "common/common_types.h"
-#include "core/arm/skyeye_common/arm_regformat.h"
-#include "core/arm/skyeye_common/vfp/asm_vfp.h"
-#include "core/core_timing.h"
-#include "core/memory.h"
+#include "../../../include/common/common_types.h"
+#include "./skyeye_common/arm_regformat.h"
+#include "./skyeye_common/vfp/asm_vfp.h"
+#include "../../../include/core/core_timing.h"
+#include "../../../include/core/memory.h"
 
 namespace Memory {
 struct PageTable;

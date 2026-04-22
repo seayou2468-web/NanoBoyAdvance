@@ -20,11 +20,11 @@
 #include <array>
 #include <functional>
 #include <unordered_map>
-#include "common/common_types.h"
-#include "core/arm/skyeye_common/arm_regformat.h"
-#include "core/gdbstub/gdbstub.h"
+#include "../../../../include/common/common_types.h"
+#include "./arm_regformat.h"
+#include "../../../../include/core/gdbstub/gdbstub.h"
 
- #include "../../../../include/memory.hpp"
+#include "../../../../include/memory.hpp"
 
 
 // Signal levels

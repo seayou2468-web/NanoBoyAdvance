@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "common/common_types.h"
+#include "../../../../include/common/common_types.h"
 
 enum class ARMDecodeStatus { SUCCESS, FAILURE };
 

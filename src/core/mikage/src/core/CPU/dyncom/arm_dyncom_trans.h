@@ -5,7 +5,7 @@
 #endif
 
 #include <cstddef>
-#include "common/common_types.h"
+#include "../../../../include/common/common_types.h"
 
 struct ARMul_State;
 typedef unsigned int (*shtop_fp_t)(ARMul_State* cpu, unsigned int sht_oper);
@@ -477,7 +477,7 @@ struct pkh_inst {
 
 // Floating point VFPv3 structures
 #define VFP_INTERPRETER_STRUCT
-#include "core/arm/skyeye_common/vfp/vfpinstr.cpp"
+#include "../skyeye_common/vfp/vfpinstr.cpp"
 #undef VFP_INTERPRETER_STRUCT
 
 typedef void (*get_addr_fp_t)(ARMul_State* cpu, unsigned int inst, unsigned int& virt_addr);

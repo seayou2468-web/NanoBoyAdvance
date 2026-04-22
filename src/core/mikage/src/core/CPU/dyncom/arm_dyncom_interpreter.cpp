@@ -6,18 +6,18 @@
 
 #include <algorithm>
 #include <cstdio>
-#include "common/common_types.h"
-#include "common/logging/log.h"
-#include "common/microprofile.h"
-#include "core/arm/dyncom/arm_dyncom_dec.h"
-#include "core/arm/dyncom/arm_dyncom_interpreter.h"
-#include "core/arm/dyncom/arm_dyncom_run.h"
-#include "core/arm/dyncom/arm_dyncom_thumb.h"
-#include "core/arm/dyncom/arm_dyncom_trans.h"
-#include "core/arm/skyeye_common/armstate.h"
-#include "core/arm/skyeye_common/armsupp.h"
-#include "core/arm/skyeye_common/vfp/vfp.h"
-#include "core/gdbstub/gdbstub.h"
+#include "../../../../include/common/common_types.h"
+#include "../../../../include/common/logging/log.h"
+#include "../../../../include/common/microprofile.h"
+#include "./arm_dyncom_dec.h"
+#include "./arm_dyncom_interpreter.h"
+#include "./arm_dyncom_run.h"
+#include "./arm_dyncom_thumb.h"
+#include "./arm_dyncom_trans.h"
+#include "../skyeye_common/armstate.h"
+#include "../skyeye_common/armsupp.h"
+#include "../skyeye_common/vfp/vfp.h"
+#include "../../../../include/core/gdbstub/gdbstub.h"
 
 #define RM BITS(sht_oper, 0, 3)
 #define RS BITS(sht_oper, 8, 11)
@@ -4571,7 +4571,7 @@ YIELD_INST: {
 }
 
 #define VFP_INTERPRETER_IMPL
-#include "core/arm/skyeye_common/vfp/vfpinstr.cpp"
+#include "../skyeye_common/vfp/vfpinstr.cpp"
 #undef VFP_INTERPRETER_IMPL
 
 END: {
