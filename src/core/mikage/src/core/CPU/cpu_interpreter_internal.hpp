@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../../include/common_types.hpp"
+#include "../../../include/helpers.hpp"
 #include "../../../include/arm_defs.hpp"
 #include <utility>
 #include <string_view>
@@ -31,7 +31,6 @@ public:
 	static void ResetSystemRegs(u32& fpscr, u32& fpexc, u32& fpinst, u32& fpinst2,
 								u32& fpsid, u32& mvfr0, u32& mvfr1);
 };
-
 
 class Coproc10Decoder {
 public:

@@ -253,7 +253,7 @@ BLX_INST:
     if ((cond == 0xE) || conditionPassed(cond)) {
         unsigned int inst = inst;
         if (BITS(inst, 20, 27) == 0x12 && BITS(inst, 4, 7) == 0x3) {
-            const u32 jump_address = gprs[val.Rm];
+            const u32 jump_address = gprs[(inst & 0xFu)];
             gprs[14] = (gprs[15] + 4);
             if (TFlag)
                 gprs[14] |= 0x1;
@@ -262,7 +262,7 @@ BLX_INST:
         } else {
             gprs[14] = (gprs[15] + 4);
             TFlag = 0x1;
-            int signed_int = val.signed_immed_24;
+            int signed_int = static_cast<s32>(signExtend(inst & 0xFFFFFF, 24));
             signed_int = (signed_int & 0x800000) ? (0x3F000000 | signed_int) : signed_int;
             signed_int = signed_int << 2;
             gprs[15] = gprs[15] + 8 + signed_int + (BIT(inst, 24) << 1);
@@ -281,7 +281,7 @@ BLX_IMM_INST:
     if ((cond == 0xE) || conditionPassed(cond)) {
         unsigned int inst = inst;
         if (BITS(inst, 20, 27) == 0x12 && BITS(inst, 4, 7) == 0x3) {
-            const u32 jump_address = gprs[val.Rm];
+            const u32 jump_address = gprs[(inst & 0xFu)];
             gprs[14] = (gprs[15] + 4);
             if (TFlag)
                 gprs[14] |= 0x1;
@@ -290,7 +290,7 @@ BLX_IMM_INST:
         } else {
             gprs[14] = (gprs[15] + 4);
             TFlag = 0x1;
-            int signed_int = val.signed_immed_24;
+            int signed_int = static_cast<s32>(signExtend(inst & 0xFFFFFF, 24));
             signed_int = (signed_int & 0x800000) ? (0x3F000000 | signed_int) : signed_int;
             signed_int = signed_int << 2;
             gprs[15] = gprs[15] + 8 + signed_int + (BIT(inst, 24) << 1);
