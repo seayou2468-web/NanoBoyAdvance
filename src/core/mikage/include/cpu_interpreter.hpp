@@ -57,6 +57,7 @@ class CPU {
 	u32 vfpFPINST2 = 0;
 	u32 vfpFPSID = 0;
 	u32 lastAbortReturnAdjust = 0;
+	bool abortReturnPending = false;
 	u32 vfpMVFR0 = 0;
 	u32 vfpMVFR1 = 0;
 	u32 exclusiveAddress = 0;
@@ -126,6 +127,7 @@ class CPU {
 	void addTicks(u64 ticks);
 	void reportMMUFault(u32 fsr, u32 far, bool instruction_fault);
 	u32 getLastAbortReturnAdjust() const { return lastAbortReturnAdjust; }
+	void finalizeAbortReturnIfNeeded();
 
 	void clearCache() {}
 	void clearCacheRange(u32, u32) {}

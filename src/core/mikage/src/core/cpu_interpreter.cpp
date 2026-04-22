@@ -79,6 +79,7 @@ void CPU::runFrame() {
     cpsr = dyncomState->Cpsr;
     fpscr = dyncomState->VFP[VFP_FPSCR];
     tlsBase = dyncomState->CP15[CP15_THREAD_UPRW];
+    finalizeAbortReturnIfNeeded();
 }
 
 u64 CPU::getTicks() {
@@ -116,6 +117,7 @@ void CPU::reportMMUFault(u32 fsr, u32 far, bool instruction_fault) {
     const u32 vector = instruction_fault ? 0x0C : 0x10;  // Prefetch abort / Data abort vectors
     lastAbortReturnAdjust = instruction_fault ? (was_thumb ? 2u : 4u) : 8u;
     const u32 lr_abort = old_pc + lastAbortReturnAdjust;
+    abortReturnPending = true;
 
     if (instruction_fault) {
         cp15IFSR = fsr;
@@ -148,4 +150,26 @@ void CPU::reportMMUFault(u32 fsr, u32 far, bool instruction_fault) {
         dyncomState->Reg[14] = gprs[14];
         dyncomState->Reg[15] = gprs[15];
     }
+}
+
+void CPU::finalizeAbortReturnIfNeeded() {
+    if (!abortReturnPending) {
+        return;
+    }
+
+    const u32 mode = cpsr & 0x1Fu;
+    if (mode == CPSR::AbortMode) {
+        return;
+    }
+
+    const u32 expected_pc = gprs[14] - lastAbortReturnAdjust;
+    if (gprs[15] != expected_pc) {
+        Helpers::warn("Adjusting abort return PC from %08X to %08X", gprs[15], expected_pc);
+        gprs[15] = expected_pc;
+        if (dyncomState) {
+            dyncomState->Reg[15] = expected_pc;
+        }
+    }
+
+    abortReturnPending = false;
 }
