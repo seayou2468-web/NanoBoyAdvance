@@ -231,7 +231,14 @@ bool NCCH::loadFromHeader(Crypto::AESEngine &aesEngine, IOFile& file, const FSIn
 
 					// A file offset of 0 means our file is located right after the ExeFS header
 					// So in the ROM, files are located at (file offset + exeFS offset + exeFS header size)
-					readFromFile(file, info, tmp.data(), fileOffset + exeFSHeaderSize, fileSize);
+					auto [readOk, readBytes] = readFromFile(file, info, tmp.data(), fileOffset + exeFSHeaderSize, fileSize);
+					if (!readOk || readBytes != fileSize) {
+						printf(
+							"Failed to read compressed .code file (ok=%d, bytes=%zu, expected=%u, offset=%08X)\n", int(readOk),
+							readBytes, fileSize, fileOffset + exeFSHeaderSize
+						);
+						return false;
+					}
 					
 					// Decompress .code file from the tmp vector to the "code" vector
 					if (!CartLZ77::decompress(codeFile, tmp)) {
@@ -240,12 +247,26 @@ bool NCCH::loadFromHeader(Crypto::AESEngine &aesEngine, IOFile& file, const FSIn
 					}
 				} else {
 					codeFile.resize(fileSize);
-					readFromFile(file, info, codeFile.data(), fileOffset + exeFSHeaderSize, fileSize);
+					auto [readOk, readBytes] = readFromFile(file, info, codeFile.data(), fileOffset + exeFSHeaderSize, fileSize);
+					if (!readOk || readBytes != fileSize) {
+						printf(
+							"Failed to read .code file (ok=%d, bytes=%zu, expected=%u, offset=%08X)\n", int(readOk), readBytes,
+							fileSize, fileOffset + exeFSHeaderSize
+						);
+						return false;
+					}
 				}
 			} else if (std::strcmp(name, "icon") == 0) {
 				// Parse icon file to extract region info and more in the future (logo, etc)
 				smdh.resize(fileSize);
-				readFromFile(file, exeFS, smdh.data(), fileOffset + exeFSHeaderSize, fileSize);
+				auto [readOk, readBytes] = readFromFile(file, exeFS, smdh.data(), fileOffset + exeFSHeaderSize, fileSize);
+				if (!readOk || readBytes != fileSize) {
+					printf(
+						"Failed to read SMDH icon (ok=%d, bytes=%zu, expected=%u, offset=%08X)\n", int(readOk), readBytes,
+						fileSize, fileOffset + exeFSHeaderSize
+					);
+					return false;
+				}
 
 				if (!parseSMDH(smdh)) {
 					printf("Failed to parse SMDH!\n");

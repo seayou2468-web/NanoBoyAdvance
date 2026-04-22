@@ -344,6 +344,10 @@ bool Emulator::loadROM(const std::filesystem::path& path) {
 		KernelMemoryTypes::MemoryInfo entryInfo;
 		const bool queryOk = memory.queryMemory(entryInfo, entrypointAddr).isSuccess();
 		const bool executablePerm = queryOk && ((entryInfo.perms & KernelMemoryTypes::MemoryState::PERMISSION_X) != 0);
+		Helpers::warn(
+			"ROM entrypoint probe: rom_type=%d entry=%08X canonical=%08X mapped=%d query_ok=%d exec_perm=%d\n",
+			int(romType), entrypoint, entrypointAddr, int(mapped), int(queryOk), int(executablePerm)
+		);
 		if (!mapped || entrypointAddr == 0) {
 			Helpers::warn(
 				"Invalid entrypoint detected after ROM load: entry=%08X (mapped=%d, query_ok=%d, exec_perm=%d)\n", entrypoint,
