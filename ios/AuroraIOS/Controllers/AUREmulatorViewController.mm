@@ -26,6 +26,7 @@
 @property (nonatomic, strong) NSURL *logFileURL;
 @property (nonatomic, assign) uint64_t frameCounter;
 @property (nonatomic, assign) uint64_t lastStatusLogFrame;
+@property (nonatomic, strong) NSLayoutConstraint *imageHeightConstraint;
 @end
 
 @implementation AUREmulatorViewController
@@ -93,6 +94,40 @@ static const uint64_t kAURStatusLogFrameInterval = 120;
     }
 }
 
+- (BOOL)validateROMURL:(NSURL *)url reason:(NSString * _Nullable __autoreleasing *)reason {
+    if (!url || !url.isFileURL) {
+        if (reason) *reason = @"ROM URL が無効です（file URL ではありません）";
+        return NO;
+    }
+
+    NSString *path = url.path;
+    NSFileManager *fm = [NSFileManager defaultManager];
+    BOOL isDir = NO;
+    if (![fm fileExistsAtPath:path isDirectory:&isDir] || isDir) {
+        if (reason) *reason = @"ROM パスが存在しないか、通常ファイルではありません";
+        return NO;
+    }
+    if (![fm isReadableFileAtPath:path]) {
+        if (reason) *reason = @"ROM ファイルに読み取り権限がありません";
+        return NO;
+    }
+
+    NSError *attrError = nil;
+    NSDictionary<NSFileAttributeKey, id> *attrs = [fm attributesOfItemAtPath:path error:&attrError];
+    unsigned long long fileSize = [attrs fileSize];
+    if (attrError) {
+        if (reason) *reason = [NSString stringWithFormat:@"ROM 属性の取得に失敗: %@", attrError.localizedDescription];
+        return NO;
+    }
+    if (fileSize == 0) {
+        if (reason) *reason = @"ROM ファイルサイズが 0 byte です";
+        return NO;
+    }
+
+    [self emuLog:@"ROM preflight ok. path=%@ size=%llu", path, fileSize];
+    return YES;
+}
+
 - (instancetype)initWithROMURL:(NSURL *)romURL coreType:(EmulatorCoreType)coreType {
     self = [super init];
     if (self) {
@@ -147,13 +182,30 @@ static const uint64_t kAURStatusLogFrameInterval = 120;
     self.controllerView.translatesAutoresizingMaskIntoConstraints = NO;
 
     CGFloat aspectMultiplier = (480.0 / 400.0);
+    self.imageHeightConstraint = [self.imageView.heightAnchor constraintEqualToAnchor:self.imageView.widthAnchor multiplier:aspectMultiplier];
+    self.imageHeightConstraint.priority = UILayoutPriorityRequired;
+
+    NSLayoutConstraint *imageMaxHeight = [self.imageView.heightAnchor constraintLessThanOrEqualToAnchor:self.view.safeAreaLayoutGuide.heightAnchor multiplier:0.55];
+    NSLayoutConstraint *controllerMinHeight = [self.controllerView.heightAnchor constraintGreaterThanOrEqualToConstant:180.0];
+    NSLayoutConstraint *imageBottomToController = [self.imageView.bottomAnchor constraintLessThanOrEqualToAnchor:self.controllerView.topAnchor constant:-8.0];
+    NSLayoutConstraint *controllerTopFromImage = [self.controllerView.topAnchor constraintGreaterThanOrEqualToAnchor:self.imageView.bottomAnchor constant:8.0];
+
+    NSLayoutConstraint *preferredImageWidth = [self.imageView.widthAnchor constraintEqualToAnchor:self.view.widthAnchor constant:-40.0];
+    preferredImageWidth.priority = UILayoutPriorityDefaultHigh;
+
     [NSLayoutConstraint activateConstraints:@[
         [self.imageView.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor constant:20.0],
-        [self.imageView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor constant:20.0],
-        [self.imageView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor constant:-20.0],
-        [self.imageView.heightAnchor constraintEqualToAnchor:self.imageView.widthAnchor multiplier:aspectMultiplier],
+        [self.imageView.centerXAnchor constraintEqualToAnchor:self.view.centerXAnchor],
+        [self.imageView.leadingAnchor constraintGreaterThanOrEqualToAnchor:self.view.leadingAnchor constant:20.0],
+        [self.imageView.trailingAnchor constraintLessThanOrEqualToAnchor:self.view.trailingAnchor constant:-20.0],
+        [self.imageView.widthAnchor constraintLessThanOrEqualToAnchor:self.view.widthAnchor constant:-40.0],
+        preferredImageWidth,
+        self.imageHeightConstraint,
+        imageMaxHeight,
+        imageBottomToController,
 
-        [self.controllerView.topAnchor constraintEqualToAnchor:self.imageView.bottomAnchor],
+        controllerTopFromImage,
+        controllerMinHeight,
         [self.controllerView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
         [self.controllerView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],
         [self.controllerView.bottomAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.bottomAnchor]
@@ -196,6 +248,12 @@ static const uint64_t kAURStatusLogFrameInterval = 120;
     }
     if (![allowed containsObject:ext]) {
         [self emuLog:@"Unsupported ROM extension: %@", ext];
+        [self stopEmulator];
+        return;
+    }
+    NSString *preflightReason = nil;
+    if (![self validateROMURL:self.romURL reason:&preflightReason]) {
+        [self emuLog:@"ROM preflight failed: %@", preflightReason ?: @"unknown"];
         [self stopEmulator];
         return;
     }
