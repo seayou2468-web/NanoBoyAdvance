@@ -150,6 +150,7 @@ void CPU::reportMMUFault(u32 fsr, u32 far, bool instruction_fault) {
         dyncomState->Cpsr = cpsr;
         dyncomState->Reg[14] = gprs[14];
         dyncomState->Reg[15] = gprs[15];
+        dyncomState->NumInstrsToExecute = 0;
     }
 }
 

@@ -147,8 +147,7 @@ void ClearSharedFontReplacementOverridePath() {
 void* Memory::ensureProcessVM(u32 process_handle) {
 	auto [it, inserted] = processAddressSpaces.try_emplace(process_handle);
 	if (inserted) {
-		it->second.resize(totalPageCount);
-		it->second.clear();
+		it->second = vmManager;
 	}
 	return &it->second;
 }
@@ -156,8 +155,7 @@ void* Memory::ensureProcessVM(u32 process_handle) {
 void Memory::activateProcessVM(u32 process_handle) {
 	auto [it, inserted] = processAddressSpaces.try_emplace(process_handle);
 	if (inserted) {
-		it->second.resize(totalPageCount);
-		it->second.clear();
+		it->second = vmManager;
 	}
 	activeVmManager = &it->second;
 }
@@ -221,6 +219,8 @@ void Memory::reset() {
 
 	// Later adjusted based on ROM header when possible
 	region = Regions::USA;
+	// Keep a canonical VM snapshot so newly created processes inherit baseline mappings.
+	vmManager = activeVM();
 }
 
 bool Memory::allocateMainThreadStack(u32 size) {
