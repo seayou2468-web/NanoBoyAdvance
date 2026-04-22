@@ -3,13 +3,32 @@
 #include <algorithm>
 #include <array>
 #include <cstdint>
+#include <cstdlib>
 #include <fstream>
+
+#if defined(__APPLE__)
+#include <TargetConditionals.h>
+#endif
 
 namespace {
 
 constexpr u32 kCompositeWidth = Emulator::width;
 constexpr u32 kCompositeHeight = Emulator::height;
 constexpr u32 kTopScreenTargetHeight = 240;
+
+std::filesystem::path ResolveWritableBasePath() {
+#if defined(__APPLE__) && TARGET_OS_IPHONE
+	if (const char* home = std::getenv("HOME"); home != nullptr && home[0] != '\0') {
+		return std::filesystem::path(home) / "Documents";
+	}
+#endif
+
+	if (const char* home = std::getenv("HOME"); home != nullptr && home[0] != '\0') {
+		return std::filesystem::path(home);
+	}
+
+	return std::filesystem::current_path();
+}
 
 u32 ConvertToRGBA8888(const u8* pixel, PICA::ColorFmt format) {
 	switch (format) {
@@ -142,7 +161,13 @@ std::filesystem::path Emulator::getConfigPath() {
 	if (std::filesystem::exists(localPath)) {
 		return localPath;
 	} else {
-		return getAppDataRoot() / "config.toml";
+		const auto appDataRoot = getAppDataRoot();
+		std::error_code ec;
+		std::filesystem::create_directories(appDataRoot, ec);
+		if (ec) {
+			Helpers::warn("Failed to create app data directory %s (error: %s)\n", appDataRoot.string().c_str(), ec.message().c_str());
+		}
+		return appDataRoot / "config.toml";
 	}
 }
 
@@ -230,7 +255,7 @@ void Emulator::pollScheduler() {
 // %APPDATA%/Alber/PenguinDemo/SaveData on Windows, and so on. We do this because games save data in their own filesystem on the cart.
 // If the portable build setting is enabled, then those saves go in the executable directory instead
 std::filesystem::path Emulator::getAppDataRoot() {
-	const std::filesystem::path base = std::filesystem::current_path();
+	const std::filesystem::path base = ResolveWritableBasePath();
 	return base / "Emulator Files";
 }
 
@@ -249,11 +274,16 @@ bool Emulator::loadROM(const std::filesystem::path& path) {
 	const std::filesystem::path aesKeysPath = appDataPath / "sysdata" / "aes_keys.txt";
 	const std::filesystem::path seedDBPath = appDataPath / "sysdata" / "seeddb.bin";
 
+	std::error_code ec;
+	std::filesystem::create_directories(dataPath, ec);
+	if (ec) {
+		Helpers::warn("Failed to create game data directory %s (error: %s)\n", dataPath.string().c_str(), ec.message().c_str());
+	}
+
 	IOFile::setAppDataDir(dataPath);
 
 	// Open the text file containing our AES keys if it exists. We use the std::filesystem::exists overload that takes an error code param to
 	// avoid the call throwing exceptions
-	std::error_code ec;
 	if (std::filesystem::exists(aesKeysPath, ec) && !ec) {
 		aesEngine.loadKeys(aesKeysPath);
 	}
