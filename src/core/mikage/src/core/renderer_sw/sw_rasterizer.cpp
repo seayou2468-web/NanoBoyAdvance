@@ -380,8 +380,14 @@ void SwRasterizer::drawTriangles(
 	const u32 texHeight = ((texSizeReg >> 16) & 0x7FF) + 1;
 	const auto texFormat = static_cast<PICA::TextureFmt>(texParamReg & 0xF);
 	const u32 texBpp = static_cast<u32>(PICA::sizePerPixel(texFormat));
-	const WrapMode wrapS = static_cast<WrapMode>((texParamReg >> 8) & 0x3);
-	const WrapMode wrapT = static_cast<WrapMode>((texParamReg >> 12) & 0x3);
+	const WrapMode wrapS = static_cast<WrapMode>((texParamReg >> 12) & 0x3);
+	const WrapMode wrapT = static_cast<WrapMode>((texParamReg >> 8) & 0x3);
+	const bool magLinear = ((texParamReg >> 1) & 1u) != 0;
+	const u32 minFilter = (texParamReg >> 2) & 0x7;
+	const bool minLinear = (minFilter & 1u) != 0;
+	const u32 borderRaw = regs[PICA::InternalRegs::Tex0BorderColor];
+	const RGBA8 borderColor{static_cast<u8>(borderRaw & 0xFF), static_cast<u8>((borderRaw >> 8) & 0xFF),
+		static_cast<u8>((borderRaw >> 16) & 0xFF), static_cast<u8>((borderRaw >> 24) & 0xFF)};
 	u8* tex = (textureEnable && texAddr != 0 && texWidth > 0 && texHeight > 0 && texBpp > 0) ? gpu.getPointerPhys<u8>(texAddr) : nullptr;
 
 	std::array<PICA::TexEnvConfig, 6> tev = {
@@ -501,12 +507,47 @@ void SwRasterizer::drawTriangles(
 				if (tex != nullptr) {
 					float u = w0 * v0.u + w1 * v1.u + w2 * v2.u;
 					float v = w0 * v0.v + w1 * v1.v + w2 * v2.v;
-					u = wrapCoord(u, wrapS);
-					v = wrapCoord(v, wrapT);
-					const u32 tx = std::clamp(static_cast<int>(u * float(texWidth)), 0, int(texWidth - 1));
-					const u32 ty = std::clamp(static_cast<int>(v * float(texHeight)), 0, int(texHeight - 1));
-					const u32 toff = (ty * texWidth + tx) * texBpp;
-					texel = readTexel(texFormat, tex + toff);
+
+					auto fetchTexel = [&](float uu, float vv) -> RGBA8 {
+						const bool outOfRange = (uu < 0.0f || uu > 1.0f || vv < 0.0f || vv > 1.0f);
+						if ((wrapS == WrapMode::ClampToBorder || wrapT == WrapMode::ClampToBorder) && outOfRange) {
+							return borderColor;
+						}
+						uu = wrapCoord(uu, wrapS);
+						vv = wrapCoord(vv, wrapT);
+						const u32 tx = std::clamp(static_cast<int>(uu * float(texWidth)), 0, int(texWidth - 1));
+						const u32 ty = std::clamp(static_cast<int>(vv * float(texHeight)), 0, int(texHeight - 1));
+						const u32 toff = (ty * texWidth + tx) * texBpp;
+						return readTexel(texFormat, tex + toff);
+					};
+
+					const bool linear = magLinear || minLinear;
+					if (!linear) {
+						texel = fetchTexel(u, v);
+					} else {
+						const float fx = u * float(texWidth) - 0.5f;
+						const float fy = v * float(texHeight) - 0.5f;
+						const float x0 = std::floor(fx) / float(texWidth);
+						const float y0 = std::floor(fy) / float(texHeight);
+						const float x1 = (std::floor(fx) + 1.0f) / float(texWidth);
+						const float y1 = (std::floor(fy) + 1.0f) / float(texHeight);
+						const float txf = fx - std::floor(fx);
+						const float tyf = fy - std::floor(fy);
+						const RGBA8 c00 = fetchTexel(x0, y0);
+						const RGBA8 c10 = fetchTexel(x1, y0);
+						const RGBA8 c01 = fetchTexel(x0, y1);
+						const RGBA8 c11 = fetchTexel(x1, y1);
+						auto lerp = [&](float a, float b, float t) { return a + (b - a) * t; };
+						const float r0 = lerp(c00.r, c10.r, txf);
+						const float g0 = lerp(c00.g, c10.g, txf);
+						const float b0 = lerp(c00.b, c10.b, txf);
+						const float a0 = lerp(c00.a, c10.a, txf);
+						const float r1 = lerp(c01.r, c11.r, txf);
+						const float g1 = lerp(c01.g, c11.g, txf);
+						const float b1 = lerp(c01.b, c11.b, txf);
+						const float a1 = lerp(c01.a, c11.a, txf);
+						texel = RGBA8{clampByte(lerp(r0, r1, tyf)), clampByte(lerp(g0, g1, tyf)), clampByte(lerp(b0, b1, tyf)), clampByte(lerp(a0, a1, tyf))};
+					}
 				}
 
 				RGBAf previous = toFloat(primary);
