@@ -1,6 +1,82 @@
 #include "../include/emulator.hpp"
 
+#include <algorithm>
+#include <array>
+#include <cstdint>
 #include <fstream>
+
+namespace {
+
+constexpr u32 kCompositeWidth = Emulator::width;
+constexpr u32 kCompositeHeight = Emulator::height;
+constexpr u32 kTopScreenTargetHeight = 240;
+
+u32 ConvertToRGBA8888(const u8* pixel, PICA::ColorFmt format) {
+	switch (format) {
+		case PICA::ColorFmt::RGBA8:
+			return (static_cast<u32>(pixel[0]) << 24) | (static_cast<u32>(pixel[1]) << 16) |
+			       (static_cast<u32>(pixel[2]) << 8) | static_cast<u32>(pixel[3]);
+		case PICA::ColorFmt::RGB8:
+			return 0xFF000000u | (static_cast<u32>(pixel[0]) << 16) | (static_cast<u32>(pixel[1]) << 8) |
+			       static_cast<u32>(pixel[2]);
+		case PICA::ColorFmt::RGBA5551: {
+			const u16 raw = static_cast<u16>(pixel[0] | (static_cast<u16>(pixel[1]) << 8));
+			const u8 r = static_cast<u8>(((raw >> 11) & 0x1F) * 255 / 31);
+			const u8 g = static_cast<u8>(((raw >> 6) & 0x1F) * 255 / 31);
+			const u8 b = static_cast<u8>(((raw >> 1) & 0x1F) * 255 / 31);
+			const u8 a = (raw & 0x1) ? 0xFF : 0x00;
+			return (static_cast<u32>(a) << 24) | (static_cast<u32>(r) << 16) | (static_cast<u32>(g) << 8) |
+			       static_cast<u32>(b);
+		}
+		case PICA::ColorFmt::RGB565: {
+			const u16 raw = static_cast<u16>(pixel[0] | (static_cast<u16>(pixel[1]) << 8));
+			const u8 r = static_cast<u8>(((raw >> 11) & 0x1F) * 255 / 31);
+			const u8 g = static_cast<u8>(((raw >> 5) & 0x3F) * 255 / 63);
+			const u8 b = static_cast<u8>((raw & 0x1F) * 255 / 31);
+			return 0xFF000000u | (static_cast<u32>(r) << 16) | (static_cast<u32>(g) << 8) | static_cast<u32>(b);
+		}
+		case PICA::ColorFmt::RGBA4: {
+			const u16 raw = static_cast<u16>(pixel[0] | (static_cast<u16>(pixel[1]) << 8));
+			const u8 r = static_cast<u8>(((raw >> 12) & 0xF) * 17);
+			const u8 g = static_cast<u8>(((raw >> 8) & 0xF) * 17);
+			const u8 b = static_cast<u8>(((raw >> 4) & 0xF) * 17);
+			const u8 a = static_cast<u8>((raw & 0xF) * 17);
+			return (static_cast<u32>(a) << 24) | (static_cast<u32>(r) << 16) | (static_cast<u32>(g) << 8) |
+			       static_cast<u32>(b);
+		}
+		default: return 0xFF000000u;
+	}
+}
+
+void BlitRotatedScreenToComposite(std::span<u32> out_pixels, u32 composite_y_offset, const u8* src_base, u32 src_width,
+                                  u32 src_height, u32 src_stride, PICA::ColorFmt format) {
+	if (!src_base || src_width == 0 || src_height == 0) {
+		return;
+	}
+
+	const u32 bpp = static_cast<u32>(PICA::sizePerPixel(format));
+	if (bpp == 0 || src_stride < src_width * bpp) {
+		return;
+	}
+
+	const u32 rotated_width = src_height;
+	const u32 rotated_height = src_width;
+	const u32 clamped_width = std::min<u32>(rotated_width, kCompositeWidth);
+	const u32 clamped_height = std::min<u32>(rotated_height, kCompositeHeight - composite_y_offset);
+	const u32 x_offset = (kCompositeWidth > clamped_width) ? (kCompositeWidth - clamped_width) / 2 : 0;
+
+	for (u32 y = 0; y < clamped_height; ++y) {
+		for (u32 x = 0; x < clamped_width; ++x) {
+			const u32 src_x = y;
+			const u32 src_y = src_height - 1 - x;
+			const u8* src_pixel = src_base + src_y * src_stride + src_x * bpp;
+			const u32 dst_index = (composite_y_offset + y) * kCompositeWidth + (x_offset + x);
+			out_pixels[dst_index] = ConvertToRGBA8888(src_pixel, format);
+		}
+	}
+}
+
+}  // namespace
 
 Emulator::Emulator()
 		: config(getConfigPath()), kernel(cpu, memory, gpu, config), cpu(memory, kernel, *this), gpu(memory, config),
@@ -217,6 +293,45 @@ bool Emulator::loadROM(const std::filesystem::path& path) {
 
 	resume();  // Start the emulator
 	return success;
+}
+
+bool Emulator::copyCompositeFrameRGBA(std::span<u32> out_pixels) {
+	if (out_pixels.size() < static_cast<size_t>(kCompositeWidth) * static_cast<size_t>(kCompositeHeight)) {
+		return false;
+	}
+
+	std::fill(out_pixels.begin(), out_pixels.end(), 0xFF000000u);
+
+	using namespace PICA::ExternalRegs;
+	auto& regs = gpu.getExtRegisters();
+
+	const bool top_select_b = (regs[Framebuffer0Select] & 0x1) != 0;
+	const bool bottom_select_b = (regs[Framebuffer1Select] & 0x1) != 0;
+
+	const u32 top_addr = top_select_b ? regs[Framebuffer0BFirstAddr] : regs[Framebuffer0AFirstAddr];
+	const u32 bottom_addr = bottom_select_b ? regs[Framebuffer1BFirstAddr] : regs[Framebuffer1AFirstAddr];
+
+	const u32 top_size = regs[Framebuffer0Size];
+	const u32 bottom_size = regs[Framebuffer1Size];
+
+	const u32 top_width = top_size & 0xFFFF;
+	const u32 top_height = top_size >> 16;
+	const u32 bottom_width = bottom_size & 0xFFFF;
+	const u32 bottom_height = bottom_size >> 16;
+
+	const auto top_format = static_cast<PICA::ColorFmt>(regs[Framebuffer0Config] & 0x7);
+	const auto bottom_format = static_cast<PICA::ColorFmt>(regs[Framebuffer1Config] & 0x7);
+
+	const u32 top_stride = regs[Framebuffer0Stride];
+	const u32 bottom_stride = regs[Framebuffer1Stride];
+
+	const u8* top_ptr = gpu.getPointerPhys<u8>(top_addr);
+	const u8* bottom_ptr = gpu.getPointerPhys<u8>(bottom_addr);
+
+	BlitRotatedScreenToComposite(out_pixels, 0, top_ptr, top_width, top_height, top_stride, top_format);
+	BlitRotatedScreenToComposite(out_pixels, kTopScreenTargetHeight, bottom_ptr, bottom_width, bottom_height, bottom_stride, bottom_format);
+
+	return true;
 }
 
 bool Emulator::loadAmiibo(const std::filesystem::path& path) {

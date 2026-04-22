@@ -16,6 +16,7 @@
 #include <filesystem>
 #include <fstream>
 #include <memory>
+#include <span>
 #include <string>
 #include <vector>
 
@@ -169,6 +170,7 @@ bool LoadRomFromPath(void* opaque_runtime, const char* rom_path, std::string& la
   }
 
   runtime->rom_loaded = true;
+  runtime->emulator->copyCompositeFrameRGBA(std::span<uint32_t>(runtime->rgba_frame));
   return true;
 }
 
@@ -243,6 +245,12 @@ void StepFrame(void* opaque_runtime, std::string& last_error) {
     runtime->emulator->runFrame();
   } catch (...) {
     last_error = "Mikage frame execution failed";
+  }
+
+  if (!runtime->emulator->copyCompositeFrameRGBA(std::span<uint32_t>(runtime->rgba_frame))) {
+    if (last_error.empty()) {
+      last_error = "Mikage failed to compose 3DS frame";
+    }
   }
 }
 

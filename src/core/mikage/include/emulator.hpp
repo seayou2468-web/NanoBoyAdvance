@@ -112,6 +112,7 @@ class Emulator {
 
 	RendererType getRendererType() const { return config.rendererType; }
 	Renderer* getRenderer() { return gpu.getRenderer(); }
+	bool copyCompositeFrameRGBA(std::span<u32> out_pixels);
 	u64 getTicks() { return cpu.getTicks(); }
 
 	std::filesystem::path getConfigPath();
