@@ -4,11 +4,9 @@
 
 #pragma once
 
+#include <array>
 #include <cstddef>
 #include <memory>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/split_member.hpp>
-#include <boost/serialization/version.hpp>
 #include "../../../include/common/common_types.h"
 #include "./skyeye_common/arm_regformat.h"
 #include "./skyeye_common/vfp/asm_vfp.h"
@@ -56,11 +54,11 @@ public:
         u32 fpscr{};
         u32 fpexc{};
 
-    private:
-        friend class boost::serialization::access;
+        static constexpr unsigned int kSerializationVersion = 1;
 
         template <class Archive>
         void serialize(Archive& ar, const unsigned int file_version) {
+            (void)file_version;
             ar & cpu_registers;
             ar & fpu_registers;
             ar & cpsr;
@@ -207,10 +205,10 @@ protected:
 private:
     u32 id;
 
-    friend class boost::serialization::access;
-
+public:
     template <class Archive>
     void save(Archive& ar, const unsigned int file_version) const {
+        (void)file_version;
         ar << timer;
         ar << id;
         const auto page_table = GetPageTable();
@@ -255,6 +253,7 @@ private:
 
     template <class Archive>
     void load(Archive& ar, const unsigned int file_version) {
+        (void)file_version;
         ClearInstructionCache();
         ar >> timer;
         ar >> id;
@@ -298,10 +297,8 @@ private:
         }
     }
 
-    BOOST_SERIALIZATION_SPLIT_MEMBER()
+public:
+    static constexpr unsigned int kSerializationVersion = 1;
 };
 
 } // namespace Core
-
-BOOST_CLASS_VERSION(Core::ARM_Interface, 1)
-BOOST_CLASS_VERSION(Core::ARM_Interface::ThreadContext, 1)
