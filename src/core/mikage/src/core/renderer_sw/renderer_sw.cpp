@@ -185,7 +185,19 @@ void RendererSw::displayTransfer(u32 inputAddr, u32 outputAddr, u32 inputSize, u
 	const bool flipVertically = (flags & (1u << 0)) != 0;
 	const bool inputLinear = (flags & (1u << 1)) != 0;
 	const bool cropInputLines = (flags & (1u << 2)) != 0;
+	const bool isTextureCopy = (flags & (1u << 3)) != 0;
 	const bool dontSwizzle = (flags & (1u << 5)) != 0;
+	const bool block32 = (flags & (1u << 16)) != 0;
+
+	// Azahar/Citra exposes this flag in display-transfer config. In this codebase
+	// texture copy is delivered via a dedicated command path, so treat this as diagnostic.
+	if (isTextureCopy) {
+		Helpers::warn("RendererSw::displayTransfer: texture-copy flag set on display transfer path (flags=%08X)\n", flags);
+	}
+	if (block32) {
+		Helpers::warn("RendererSw::displayTransfer: 32x32 block swizzle mode is not implemented in SW path (flags=%08X)\n", flags);
+		return;
+	}
 
 	const u32 scalingMode = (flags >> 24) & 0x3;  // 0:none,1:2x1,2:2x2
 	if (scalingMode > 2) {
