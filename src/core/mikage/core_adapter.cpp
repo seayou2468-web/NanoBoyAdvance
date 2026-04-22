@@ -6,6 +6,8 @@
 
 #include "../core_adapter.hpp"
 
+#include <array>
+
 #include <algorithm>
 #include <cctype>
 #include <cstdint>
@@ -133,6 +135,38 @@ std::string DecodeFileUrlPath(std::string path) {
   return decoded;
 }
 
+
+
+static bool IsLikelySupportedRomPath(const std::filesystem::path& path) {
+  const std::string ext = path.extension().string();
+  if (ext == ".3ds" || ext == ".cci" || ext == ".cxi" || ext == ".app" || ext == ".ncch" || ext == ".3dsx" || ext == ".elf" ||
+      ext == ".axf") {
+    return true;
+  }
+
+  if (ext == ".toml" || path.filename() == "config.toml") {
+    return false;
+  }
+
+  std::ifstream file(path, std::ios::binary);
+  if (!file) {
+    return false;
+  }
+
+  std::array<u8, 0x110> header{};
+  file.read(reinterpret_cast<char*>(header.data()), static_cast<std::streamsize>(header.size()));
+  const std::streamsize read = file.gcount();
+  if (read < 0x40) {
+    return false;
+  }
+
+  const bool isElf = header[0] == 0x7F && header[1] == 'E' && header[2] == 'L' && header[3] == 'F';
+  const bool isNcch = read >= 0x104 && header[0x100] == 'N' && header[0x101] == 'C' && header[0x102] == 'C' && header[0x103] == 'H';
+  const bool isNcsd = read >= 0x104 && header[0x100] == 'N' && header[0x101] == 'C' && header[0x102] == 'S' && header[0x103] == 'D';
+  const bool is3dsx = read >= 4 && header[0] == '3' && header[1] == 'D' && header[2] == 'S' && header[3] == 'X';
+  return isElf || isNcch || isNcsd || is3dsx;
+}
+
 bool LoadRomFromPath(void* opaque_runtime, const char* rom_path, std::string& last_error) {
   auto* runtime = static_cast<MikageRuntime*>(opaque_runtime);
   if (!runtime || !runtime->emulator || !rom_path || rom_path[0] == '\0') {
@@ -153,6 +187,11 @@ bool LoadRomFromPath(void* opaque_runtime, const char* rom_path, std::string& la
   std::error_code ec;
   if (!std::filesystem::exists(fs_path, ec) || !std::filesystem::is_regular_file(fs_path, ec)) {
     last_error = "3DS ROM path does not exist or is not a file";
+    return false;
+  }
+
+  if (!IsLikelySupportedRomPath(fs_path)) {
+    last_error = "Selected file is not a supported ROM image (did you pass config.toml?)";
     return false;
   }
 

@@ -316,6 +316,12 @@ bool Emulator::loadROM(const std::filesystem::path& path) {
 
 	kernel.initializeFS();
 	auto extension = path.extension();
+	if (extension == ".toml" || path.filename() == "config.toml") {
+		Helpers::warn("Refusing to open config file as ROM: %s\n", path.string().c_str());
+		romPath = std::nullopt;
+		romType = ROMType::None;
+		return false;
+	}
 	bool success;  // Tracks if we loaded the ROM successfully
 
 	if (extension == ".elf" || extension == ".axf")

@@ -112,6 +112,19 @@
         NSLog(@"[AUR][Emu] 3DS BIOS/Firmware not set. Attempting HLE boot without external firmware.");
     }
 
+    NSString *ext = self.romURL.pathExtension.lowercaseString;
+    NSSet<NSString *> *allowed = [NSSet setWithArray:@[@"3ds", @"cci", @"cxi", @"app", @"ncch", @"3dsx", @"elf", @"axf"]];
+    if ([ext isEqualToString:@"toml"] || [self.romURL.lastPathComponent.lowercaseString isEqualToString:@"config.toml"]) {
+        NSLog(@"[AUR][Emu] Refusing to load config file as ROM: %@", self.romURL.path);
+        [self stopEmulator];
+        return;
+    }
+    if (![allowed containsObject:ext]) {
+        NSLog(@"[AUR][Emu] Unsupported ROM extension: %@", ext);
+        [self stopEmulator];
+        return;
+    }
+
     const char *path = self.romURL.path.fileSystemRepresentation;
     if (path && EmulatorCore_LoadROMFromPath(_core, path)) {
         EmulatorCore_GetVideoSpec(_core, &_videoSpec);
@@ -149,6 +162,12 @@
     size_t pixelCount = 0;
     const uint32_t* frameRGBA = EmulatorCore_GetFrameBufferRGBA(_core, &pixelCount);
     if (!frameRGBA) return;
+
+    const size_t expectedPixels = (size_t)_videoSpec.width * (size_t)_videoSpec.height;
+    if (pixelCount < expectedPixels) {
+        NSLog(@"[AUR][Emu] Framebuffer underflow from core: got %zu expected %zu", pixelCount, expectedPixels);
+        return;
+    }
 
     [self.imageView displayFrameRGBA:frameRGBA width:_videoSpec.width height:_videoSpec.height];
 }
