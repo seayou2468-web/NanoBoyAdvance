@@ -1,2 +1,6 @@
 #pragma once
-#include "../../src/core/CPU/reference/common/common_funcs.h"
+#include "../helpers.hpp"
+
+[[noreturn]] inline void Crash() {
+    Helpers::panic("Crash() called");
+}
