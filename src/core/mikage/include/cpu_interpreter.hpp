@@ -42,6 +42,8 @@ class CPU {
 	u8 itCond = 0;
 	u8 itMask = 0;
 
+	ExclusiveMonitor exclusiveMonitor;
+
 	Memory& mem;
 	Scheduler& scheduler;
 	Kernel& kernel;
@@ -84,4 +86,7 @@ class CPU {
 	void clearCacheRange(u32, u32) {}
 
 	void runFrame();
+
+	void loadNZCVT();
+	void saveNZCVT();
 };
