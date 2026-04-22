@@ -251,20 +251,33 @@ static inline RGBA8 readTexel(PICA::TextureFmt fmt, const u8* p) {
 	}
 }
 
-static inline float wrapCoord(float t, WrapMode mode) {
+// Azahar/Citra software texturing semantics for integer texel coordinate wrapping.
+static inline int wrapTexelCoord(WrapMode mode, int value, u32 size) {
+	if (size == 0) {
+		return 0;
+	}
 	switch (mode) {
-		case WrapMode::ClampToEdge:
-		case WrapMode::ClampToBorder: return std::clamp(t, 0.0f, 1.0f);
+		case WrapMode::ClampToEdge: return std::clamp(value, 0, int(size) - 1);
+		case WrapMode::ClampToBorder: return value;
 		case WrapMode::Repeat: {
-			float f = t - std::floor(t);
-			return f < 0.0f ? f + 1.0f : f;
+			int wrapped = value % int(size);
+			if (wrapped < 0) {
+				wrapped += int(size);
+			}
+			return wrapped;
 		}
 		case WrapMode::Mirror: {
-			float f = std::fmod(std::abs(t), 2.0f);
-			if (f > 1.0f) f = 2.0f - f;
-			return f;
+			const int period = int(size) * 2;
+			int coord = value % period;
+			if (coord < 0) {
+				coord += period;
+			}
+			if (coord >= int(size)) {
+				coord = period - 1 - coord;
+			}
+			return coord;
 		}
-		default: return t;
+		default: return value;
 	}
 }
 
@@ -581,14 +594,17 @@ void SwRasterizer::drawTriangles(
 					float v = w0 * v0.v + w1 * v1.v + w2 * v2.v;
 
 					auto fetchTexel = [&](float uu, float vv) -> RGBA8 {
-						const bool outOfRange = (uu < 0.0f || uu > 1.0f || vv < 0.0f || vv > 1.0f);
-						if ((wrapS == WrapMode::ClampToBorder || wrapT == WrapMode::ClampToBorder) && outOfRange) {
+						const int sx = static_cast<int>(std::floor(uu * float(texWidth)));
+						const int sy = static_cast<int>(std::floor(vv * float(texHeight)));
+
+						const bool borderS = (wrapS == WrapMode::ClampToBorder) && (sx < 0 || sx >= int(texWidth));
+						const bool borderT = (wrapT == WrapMode::ClampToBorder) && (sy < 0 || sy >= int(texHeight));
+						if (borderS || borderT) {
 							return borderColor;
 						}
-						uu = wrapCoord(uu, wrapS);
-						vv = wrapCoord(vv, wrapT);
-						const u32 tx = std::clamp(static_cast<int>(uu * float(texWidth)), 0, int(texWidth - 1));
-						const u32 ty = std::clamp(static_cast<int>(vv * float(texHeight)), 0, int(texHeight - 1));
+
+						const u32 tx = static_cast<u32>(wrapTexelCoord(wrapS, sx, texWidth));
+						const u32 ty = static_cast<u32>(wrapTexelCoord(wrapT, sy, texHeight));
 						if (texFormat == PICA::TextureFmt::ETC1 || texFormat == PICA::TextureFmt::ETC1A4) {
 							const u32 blocksWide = (texWidth + 3) / 4;
 							const u32 bx = tx / 4;
