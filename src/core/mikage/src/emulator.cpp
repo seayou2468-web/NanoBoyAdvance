@@ -49,28 +49,30 @@ std::filesystem::path ResolveWritableBasePath() {
 }
 
 u32 ConvertToRGBA8888(const u8* pixel, PICA::ColorFmt format) {
+	auto packRGBA = [](u8 r, u8 g, u8 b, u8 a) -> u32 {
+		// Keep the returned u32 in little-endian byte layout [R, G, B, A]
+		// so frontends that upload as RGBA8 consume it without channel swapping.
+		return (static_cast<u32>(a) << 24) | (static_cast<u32>(b) << 16) | (static_cast<u32>(g) << 8) | static_cast<u32>(r);
+	};
 	switch (format) {
 		case PICA::ColorFmt::RGBA8:
-			return (static_cast<u32>(pixel[0]) << 24) | (static_cast<u32>(pixel[1]) << 16) |
-			       (static_cast<u32>(pixel[2]) << 8) | static_cast<u32>(pixel[3]);
+			return packRGBA(pixel[0], pixel[1], pixel[2], pixel[3]);
 		case PICA::ColorFmt::RGB8:
-			return 0xFF000000u | (static_cast<u32>(pixel[0]) << 16) | (static_cast<u32>(pixel[1]) << 8) |
-			       static_cast<u32>(pixel[2]);
+			return packRGBA(pixel[0], pixel[1], pixel[2], 0xFF);
 		case PICA::ColorFmt::RGBA5551: {
 			const u16 raw = static_cast<u16>(pixel[0] | (static_cast<u16>(pixel[1]) << 8));
 			const u8 r = static_cast<u8>(((raw >> 11) & 0x1F) * 255 / 31);
 			const u8 g = static_cast<u8>(((raw >> 6) & 0x1F) * 255 / 31);
 			const u8 b = static_cast<u8>(((raw >> 1) & 0x1F) * 255 / 31);
 			const u8 a = (raw & 0x1) ? 0xFF : 0x00;
-			return (static_cast<u32>(a) << 24) | (static_cast<u32>(r) << 16) | (static_cast<u32>(g) << 8) |
-			       static_cast<u32>(b);
+			return packRGBA(r, g, b, a);
 		}
 		case PICA::ColorFmt::RGB565: {
 			const u16 raw = static_cast<u16>(pixel[0] | (static_cast<u16>(pixel[1]) << 8));
 			const u8 r = static_cast<u8>(((raw >> 11) & 0x1F) * 255 / 31);
 			const u8 g = static_cast<u8>(((raw >> 5) & 0x3F) * 255 / 63);
 			const u8 b = static_cast<u8>((raw & 0x1F) * 255 / 31);
-			return 0xFF000000u | (static_cast<u32>(r) << 16) | (static_cast<u32>(g) << 8) | static_cast<u32>(b);
+			return packRGBA(r, g, b, 0xFF);
 		}
 		case PICA::ColorFmt::RGBA4: {
 			const u16 raw = static_cast<u16>(pixel[0] | (static_cast<u16>(pixel[1]) << 8));
@@ -78,8 +80,7 @@ u32 ConvertToRGBA8888(const u8* pixel, PICA::ColorFmt format) {
 			const u8 g = static_cast<u8>(((raw >> 8) & 0xF) * 17);
 			const u8 b = static_cast<u8>(((raw >> 4) & 0xF) * 17);
 			const u8 a = static_cast<u8>((raw & 0xF) * 17);
-			return (static_cast<u32>(a) << 24) | (static_cast<u32>(r) << 16) | (static_cast<u32>(g) << 8) |
-			       static_cast<u32>(b);
+			return packRGBA(r, g, b, a);
 		}
 		default: return 0xFF000000u;
 	}
