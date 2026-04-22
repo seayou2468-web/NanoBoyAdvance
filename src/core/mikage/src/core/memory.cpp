@@ -340,6 +340,17 @@ void Memory::write32(u32 vaddr, u32 value) {
 	if (pointer != 0) [[likely]] {
 		*(u32*)(pointer + offset) = value;
 	} else {
+		// Some titles hit a null write during boot while probing optional pointers.
+		// Real hardware ignores writes to unmapped null addresses in this context; don't hard-crash the emulator.
+		if (vaddr == 0) {
+			static int nullWriteWarningCount = 0;
+			if (nullWriteWarningCount < 5) {
+				nullWriteWarningCount++;
+				Helpers::warn("Ignoring 32-bit null write, val: %08X", value);
+			}
+			return;
+		}
+
 		Helpers::panic("Unimplemented 32-bit write, addr: %08X, val: %08X", vaddr, value);
 	}
 }

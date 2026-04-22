@@ -18,8 +18,26 @@ constexpr u32 kTopScreenTargetHeight = 240;
 
 std::filesystem::path ResolveWritableBasePath() {
 #if defined(__APPLE__) && TARGET_OS_IPHONE
+	std::error_code ec;
+	const std::filesystem::path cwd = std::filesystem::current_path(ec);
+	if (!ec && cwd.is_absolute()) {
+		if (cwd.filename() == "Documents") {
+			return cwd;
+		}
+		const std::filesystem::path docs = cwd / "Documents";
+		if (std::filesystem::exists(docs, ec) && !ec) {
+			return docs;
+		}
+	}
+
 	if (const char* home = std::getenv("HOME"); home != nullptr && home[0] != '\0') {
-		return std::filesystem::path(home) / "Documents";
+		std::filesystem::path home_path(home);
+		if (home_path.is_absolute()) {
+			if (home_path.filename() == "Documents") {
+				return home_path;
+			}
+			return home_path / "Documents";
+		}
 	}
 #endif
 
