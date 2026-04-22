@@ -463,9 +463,14 @@ bool Emulator::copyCompositeFrameRGBA(std::span<u32> out_pixels) {
 	const bool bottom_select_b = (regs[Framebuffer1Select] & 0x1) != 0;
 
 	const u32 top_primary_addr = top_select_b ? regs[Framebuffer0BFirstAddr] : regs[Framebuffer0AFirstAddr];
+	const u32 top_primary_second_addr = top_select_b ? regs[Framebuffer0BSecondAddr] : regs[Framebuffer0ASecondAddr];
 	const u32 top_fallback_addr = top_select_b ? regs[Framebuffer0AFirstAddr] : regs[Framebuffer0BFirstAddr];
+	const u32 top_fallback_second_addr = top_select_b ? regs[Framebuffer0ASecondAddr] : regs[Framebuffer0BSecondAddr];
+
 	const u32 bottom_primary_addr = bottom_select_b ? regs[Framebuffer1BFirstAddr] : regs[Framebuffer1AFirstAddr];
+	const u32 bottom_primary_second_addr = bottom_select_b ? regs[Framebuffer1BSecondAddr] : regs[Framebuffer1ASecondAddr];
 	const u32 bottom_fallback_addr = bottom_select_b ? regs[Framebuffer1AFirstAddr] : regs[Framebuffer1BFirstAddr];
+	const u32 bottom_fallback_second_addr = bottom_select_b ? regs[Framebuffer1ASecondAddr] : regs[Framebuffer1BSecondAddr];
 
 	const u32 top_size = regs[Framebuffer0Size];
 	const u32 bottom_size = regs[Framebuffer1Size];
@@ -486,20 +491,36 @@ bool Emulator::copyCompositeFrameRGBA(std::span<u32> out_pixels) {
 	u32 top_addr = top_primary_addr;
 	u32 bottom_addr = bottom_primary_addr;
 
-	// Some titles/frontends can transiently expose an empty selected FB while the other buffer is valid.
-	// Fall back to the opposite buffer to avoid long black-screen streaks.
+	// Some titles/frontends can transiently expose an empty selected FB while another eye/buffer is valid.
+	// Fall back across first/second and A/B buffers to avoid long black-screen streaks.
 	if (top_ptr == nullptr) {
-		const u8* alt = gpu.getPointerPhys<u8>(top_fallback_addr);
-		if (alt != nullptr) {
-			top_ptr = alt;
-			top_addr = top_fallback_addr;
+		const std::array<u32, 3> top_candidates = {
+			top_primary_second_addr,
+			top_fallback_addr,
+			top_fallback_second_addr,
+		};
+		for (u32 candidate_addr : top_candidates) {
+			const u8* alt = gpu.getPointerPhys<u8>(candidate_addr);
+			if (alt != nullptr) {
+				top_ptr = alt;
+				top_addr = candidate_addr;
+				break;
+			}
 		}
 	}
 	if (bottom_ptr == nullptr) {
-		const u8* alt = gpu.getPointerPhys<u8>(bottom_fallback_addr);
-		if (alt != nullptr) {
-			bottom_ptr = alt;
-			bottom_addr = bottom_fallback_addr;
+		const std::array<u32, 3> bottom_candidates = {
+			bottom_primary_second_addr,
+			bottom_fallback_addr,
+			bottom_fallback_second_addr,
+		};
+		for (u32 candidate_addr : bottom_candidates) {
+			const u8* alt = gpu.getPointerPhys<u8>(candidate_addr);
+			if (alt != nullptr) {
+				bottom_ptr = alt;
+				bottom_addr = candidate_addr;
+				break;
+			}
 		}
 	}
 
