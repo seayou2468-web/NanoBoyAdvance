@@ -93,9 +93,12 @@ u32 ConvertToRGBA8888(const u8* pixel, PICA::ColorFmt format) {
 	};
 	switch (format) {
 		case PICA::ColorFmt::RGBA8:
-			return packRGBA(pixel[0], pixel[1], pixel[2], pixel[3]);
+			// PICA software path stores 32-bit colour as A,B,G,R byte order in memory.
+			// Mirror RendererSw decode order to avoid channel/alpha mismatch when composing.
+			return packRGBA(pixel[3], pixel[2], pixel[1], pixel[0]);
 		case PICA::ColorFmt::RGB8:
-			return packRGBA(pixel[0], pixel[1], pixel[2], 0xFF);
+			// PICA software path stores 24-bit colour as B,G,R.
+			return packRGBA(pixel[2], pixel[1], pixel[0], 0xFF);
 		case PICA::ColorFmt::RGBA5551: {
 			const u16 raw = static_cast<u16>(pixel[0] | (static_cast<u16>(pixel[1]) << 8));
 			const u8 r = static_cast<u8>(((raw >> 11) & 0x1F) * 255 / 31);
@@ -459,8 +462,10 @@ bool Emulator::copyCompositeFrameRGBA(std::span<u32> out_pixels) {
 	const bool top_select_b = (regs[Framebuffer0Select] & 0x1) != 0;
 	const bool bottom_select_b = (regs[Framebuffer1Select] & 0x1) != 0;
 
-	const u32 top_addr = top_select_b ? regs[Framebuffer0BFirstAddr] : regs[Framebuffer0AFirstAddr];
-	const u32 bottom_addr = bottom_select_b ? regs[Framebuffer1BFirstAddr] : regs[Framebuffer1AFirstAddr];
+	const u32 top_primary_addr = top_select_b ? regs[Framebuffer0BFirstAddr] : regs[Framebuffer0AFirstAddr];
+	const u32 top_fallback_addr = top_select_b ? regs[Framebuffer0AFirstAddr] : regs[Framebuffer0BFirstAddr];
+	const u32 bottom_primary_addr = bottom_select_b ? regs[Framebuffer1BFirstAddr] : regs[Framebuffer1AFirstAddr];
+	const u32 bottom_fallback_addr = bottom_select_b ? regs[Framebuffer1AFirstAddr] : regs[Framebuffer1BFirstAddr];
 
 	const u32 top_size = regs[Framebuffer0Size];
 	const u32 bottom_size = regs[Framebuffer1Size];
@@ -476,8 +481,27 @@ bool Emulator::copyCompositeFrameRGBA(std::span<u32> out_pixels) {
 	const u32 top_stride = regs[Framebuffer0Stride];
 	const u32 bottom_stride = regs[Framebuffer1Stride];
 
-	const u8* top_ptr = gpu.getPointerPhys<u8>(top_addr);
-	const u8* bottom_ptr = gpu.getPointerPhys<u8>(bottom_addr);
+	const u8* top_ptr = gpu.getPointerPhys<u8>(top_primary_addr);
+	const u8* bottom_ptr = gpu.getPointerPhys<u8>(bottom_primary_addr);
+	u32 top_addr = top_primary_addr;
+	u32 bottom_addr = bottom_primary_addr;
+
+	// Some titles/frontends can transiently expose an empty selected FB while the other buffer is valid.
+	// Fall back to the opposite buffer to avoid long black-screen streaks.
+	if (top_ptr == nullptr) {
+		const u8* alt = gpu.getPointerPhys<u8>(top_fallback_addr);
+		if (alt != nullptr) {
+			top_ptr = alt;
+			top_addr = top_fallback_addr;
+		}
+	}
+	if (bottom_ptr == nullptr) {
+		const u8* alt = gpu.getPointerPhys<u8>(bottom_fallback_addr);
+		if (alt != nullptr) {
+			bottom_ptr = alt;
+			bottom_addr = bottom_fallback_addr;
+		}
+	}
 
 	const u32 top_bpp = static_cast<u32>(PICA::sizePerPixel(top_format));
 	const u32 bottom_bpp = static_cast<u32>(PICA::sizePerPixel(bottom_format));
