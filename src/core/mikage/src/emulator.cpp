@@ -438,8 +438,11 @@ bool Emulator::copyCompositeFrameRGBA(std::span<u32> out_pixels) {
 		}
 	};
 
+	bool drewAnyScreen = false;
+
 	if (top_ptr != nullptr) {
 		BlitRotatedScreenToComposite(out_pixels, 0, top_ptr, safe_top_width, safe_top_height, safe_top_stride, top_format);
+		drewAnyScreen = true;
 	} else {
 		logMissingScreen("top", top_addr, safe_top_width, safe_top_height, safe_top_stride, static_cast<u32>(top_format));
 	}
@@ -448,13 +451,14 @@ bool Emulator::copyCompositeFrameRGBA(std::span<u32> out_pixels) {
 		BlitRotatedScreenToComposite(
 			out_pixels, kTopScreenTargetHeight, bottom_ptr, safe_bottom_width, safe_bottom_height, safe_bottom_stride, bottom_format
 		);
+		drewAnyScreen = true;
 	} else {
 		logMissingScreen(
 			"bottom", bottom_addr, safe_bottom_width, safe_bottom_height, safe_bottom_stride, static_cast<u32>(bottom_format)
 		);
 	}
 
-	return true;
+	return drewAnyScreen;
 }
 
 bool Emulator::loadAmiibo(const std::filesystem::path& path) {

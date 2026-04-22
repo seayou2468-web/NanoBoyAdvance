@@ -288,7 +288,7 @@ void StepFrame(void* opaque_runtime, std::string& last_error) {
 
   if (!runtime->emulator->copyCompositeFrameRGBA(std::span<uint32_t>(runtime->rgba_frame))) {
     if (last_error.empty()) {
-      last_error = "Mikage failed to compose 3DS frame";
+      last_error = "Mikage failed to compose 3DS frame (both top/bottom framebuffers unavailable)";
     }
   }
 }
