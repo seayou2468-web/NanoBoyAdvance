@@ -7,6 +7,8 @@
 
 #pragma once
 
+#include "common/common_types.h"
+
 // ARM11 MPCore FPSID Information
 // Note that these are used as values and not as flags.
 enum : u32 {
