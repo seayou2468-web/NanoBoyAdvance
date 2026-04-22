@@ -36,6 +36,7 @@ static const NSUInteger kAURMaxLogFileBytes = 2 * 1024 * 1024;
 static const uint64_t kAURStatusLogFrameInterval = 120;
 static const uint64_t kAURBlackSampleInterval = 60;
 static const uint64_t kAURBlackSampleWarnThreshold = 8;
+static const uint64_t kAURBlackSampleWarmupFrames = 1200;
 
 - (NSURL *)prepareLogFileURL {
     NSFileManager *fm = [NSFileManager defaultManager];
@@ -173,7 +174,9 @@ static const uint64_t kAURBlackSampleWarnThreshold = 8;
     self.view.backgroundColor = [UIColor blackColor];
     self.logFileURL = [self prepareLogFileURL];
     NSString *romPath = self.romURL.path.length > 0 ? self.romURL.path : @"(null)";
-    [self emuLog:@"Session start. core=%d rom=%@", (int)_coreType, romPath];
+    const char *coreNameC = EmulatorCoreTypeName(_coreType);
+    NSString *coreName = coreNameC ? [NSString stringWithUTF8String:coreNameC] : @"(unknown)";
+    [self emuLog:@"Session start. core=%d core_name=%@ rom=%@", (int)_coreType, coreName, romPath];
 
     // Setup Metal View(s)
     self.imageView = [[AURMetalView alloc] initWithFrame:CGRectZero];
@@ -254,6 +257,9 @@ static const uint64_t kAURBlackSampleWarnThreshold = 8;
         [self emuLog:@"Failed to create core: %d", (int)_coreType];
         return;
     }
+    if (_coreType == EMULATOR_CORE_TYPE_3DS) {
+        [self emuLog:@"Renderer note: 3DS core uses software rasterizer path in this build (RendererSw fallback)."];
+    }
 
     // Load 3DS BIOS files from DatabaseManager (persisted in Documents)
     NSString *boot9 = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"3ds_boot9"];
@@ -317,8 +323,9 @@ static const uint64_t kAURBlackSampleWarnThreshold = 8;
     const char *path = self.romURL.path.fileSystemRepresentation;
     if (path && EmulatorCore_LoadROMFromPath(_core, path)) {
         EmulatorCore_GetVideoSpec(_core, &_videoSpec);
-        [self emuLog:@"ROM loaded successfully. video=%ux%u pixel_format=%d",
-         (unsigned)_videoSpec.width, (unsigned)_videoSpec.height, (int)_videoSpec.pixel_format];
+        NSString *pixelFormat = (_videoSpec.pixel_format == EMULATOR_PIXEL_FORMAT_ARGB8888) ? @"ARGB8888" : @"RGBA8888";
+        [self emuLog:@"ROM loaded successfully. video=%ux%u pixel_format=%d(%@)",
+         (unsigned)_videoSpec.width, (unsigned)_videoSpec.height, (int)_videoSpec.pixel_format, pixelFormat];
         AURFramePixelFormat framePixelFormat = (_videoSpec.pixel_format == EMULATOR_PIXEL_FORMAT_ARGB8888)
             ? AURFramePixelFormatBGRA8888
             : AURFramePixelFormatRGBA8888;
@@ -366,7 +373,8 @@ static const uint64_t kAURBlackSampleWarnThreshold = 8;
         return;
     }
 
-    if ((self.frameCounter % kAURBlackSampleInterval) == 0) {
+    if (self.frameCounter >= kAURBlackSampleWarmupFrames &&
+        (self.frameCounter % kAURBlackSampleInterval) == 0) {
         const size_t sampleCols = 8;
         const size_t sampleRows = 8;
         const size_t stepX = std::max<size_t>(1, _videoSpec.width / sampleCols);
@@ -384,8 +392,8 @@ static const uint64_t kAURBlackSampleWarnThreshold = 8;
         if (nonBlackSamples == 0) {
             self.consecutiveMostlyBlackSamples += 1;
             if (self.consecutiveMostlyBlackSamples >= kAURBlackSampleWarnThreshold) {
-                [self emuLog:@"Frame sample diagnostic: framebuffer remains mostly black for %llu checks. Possible causes: title-specific boot stall, missing keys/seeddb for encrypted content, or missing GPU screen buffers (check mikage_runtime.log).",
-                 self.consecutiveMostlyBlackSamples];
+                [self emuLog:@"Frame sample diagnostic: framebuffer remains mostly black for %llu checks after warmup(%llu frames). Possible causes: title-specific boot stall, missing keys/seeddb for encrypted content, or missing GPU screen buffers (check mikage_runtime.log).",
+                 self.consecutiveMostlyBlackSamples, kAURBlackSampleWarmupFrames];
                 self.consecutiveMostlyBlackSamples = 0;
             }
         } else {
