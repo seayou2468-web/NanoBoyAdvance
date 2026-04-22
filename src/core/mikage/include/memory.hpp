@@ -1,4 +1,5 @@
 #pragma once
+#include <algorithm>
 #include <array>
 #include <filesystem>
 #include <fstream>
@@ -131,11 +132,28 @@ class Memory {
 	KFcram& fcramManager;
 
 	// CPU core uses page tables for reads and writes with 4096 byte pages
-	std::vector<uintptr_t> readTable, writeTable;
+	struct VMManager {
+		std::vector<uintptr_t> readTable;
+		std::vector<uintptr_t> writeTable;
+		std::vector<u32> paddrTable;
+		std::vector<PageType> pageTableAttrs;
 
-	// vaddr->paddr translation table
-	std::vector<u32> paddrTable;
-	std::vector<PageType> pageTableAttrs;
+		void resize(std::size_t pageCount) {
+			readTable.resize(pageCount, 0);
+			writeTable.resize(pageCount, 0);
+			paddrTable.resize(pageCount, 0);
+			pageTableAttrs.resize(pageCount, PageType::Unmapped);
+		}
+
+		void clear() {
+			std::fill(readTable.begin(), readTable.end(), 0);
+			std::fill(writeTable.begin(), writeTable.end(), 0);
+			std::fill(paddrTable.begin(), paddrTable.end(), 0);
+			std::fill(pageTableAttrs.begin(), pageTableAttrs.end(), PageType::Unmapped);
+		}
+	};
+
+	VMManager vmManager;
 
 	// This tracks our OS' memory allocations
 	std::list<KernelMemoryTypes::MemoryInfo> memoryInfo;

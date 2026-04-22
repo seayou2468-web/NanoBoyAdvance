@@ -134,11 +134,7 @@ Memory::Memory(KFcram& fcramManager, const EmulatorConfig& config) : fcramManage
 	const bool fastmemEnabled = config.fastmemEnabled;
 	arena = new Common::HostMemory(FASTMEM_BACKING_SIZE, FASTMEM_VIRTUAL_SIZE, fastmemEnabled);
 
-	readTable.resize(totalPageCount, 0);
-	writeTable.resize(totalPageCount, 0);
-	paddrTable.resize(totalPageCount, 0);
-	pageTableAttrs.resize(totalPageCount, PageType::Unmapped);
-
+	vmManager.resize(totalPageCount);
 	fcram = arena->BackingBasePointer() + FASTMEM_FCRAM_OFFSET;
 	dspRam = arena->BackingBasePointer() + FASTMEM_DSP_RAM_OFFSET;
 	useFastmem = fastmemEnabled && arena->VirtualBasePointer() != nullptr;
@@ -158,12 +154,7 @@ void Memory::reset() {
 		arena->Unmap(0, 4_GB, false);
 	}
 
-	for (u32 i = 0; i < totalPageCount; i++) {
-		readTable[i] = 0;
-		writeTable[i] = 0;
-		paddrTable[i] = 0;
-		pageTableAttrs[i] = PageType::Unmapped;
-	}
+	vmManager.clear();
 
 	// Allocate 512 bytes of TLS for each thread. Since the smallest allocatable unit is 4 KB, that means allocating one page for every 8 threads
 	// Note that TLS is always allocated in the Base region
@@ -211,7 +202,7 @@ u8 Memory::read8(u32 vaddr) {
 	const u32 page = vaddr >> pageShift;
 	const u32 offset = vaddr & pageMask;
 
-	uintptr_t pointer = readTable[page];
+	uintptr_t pointer = vmManager.readTable[page];
 	if (pointer != 0) [[likely]] {
 		return *(u8*)(pointer + offset);
 	} else {
@@ -261,7 +252,7 @@ u16 Memory::read16(u32 vaddr) {
 	const u32 page = vaddr >> pageShift;
 	const u32 offset = vaddr & pageMask;
 
-	uintptr_t pointer = readTable[page];
+	uintptr_t pointer = vmManager.readTable[page];
 	if (pointer != 0) [[likely]] {
 		return *(u16*)(pointer + offset);
 	} else {
@@ -278,7 +269,7 @@ u32 Memory::read32(u32 vaddr) {
 	const u32 page = vaddr >> pageShift;
 	const u32 offset = vaddr & pageMask;
 
-	uintptr_t pointer = readTable[page];
+	uintptr_t pointer = vmManager.readTable[page];
 	if (pointer != 0) [[likely]] {
 		return *(u32*)(pointer + offset);
 	} else {
@@ -335,7 +326,7 @@ void Memory::write8(u32 vaddr, u8 value) {
 	const u32 page = vaddr >> pageShift;
 	const u32 offset = vaddr & pageMask;
 
-	uintptr_t pointer = writeTable[page];
+	uintptr_t pointer = vmManager.writeTable[page];
 	if (pointer != 0) [[likely]] {
 		*(u8*)(pointer + offset) = value;
 	} else {
@@ -364,7 +355,7 @@ void Memory::write16(u32 vaddr, u16 value) {
 	const u32 page = vaddr >> pageShift;
 	const u32 offset = vaddr & pageMask;
 
-	uintptr_t pointer = writeTable[page];
+	uintptr_t pointer = vmManager.writeTable[page];
 	if (pointer != 0) [[likely]] {
 		*(u16*)(pointer + offset) = value;
 	} else {
@@ -385,7 +376,7 @@ void Memory::write32(u32 vaddr, u32 value) {
 	const u32 page = vaddr >> pageShift;
 	const u32 offset = vaddr & pageMask;
 
-	uintptr_t pointer = writeTable[page];
+	uintptr_t pointer = vmManager.writeTable[page];
 	if (pointer != 0) [[likely]] {
 		*(u32*)(pointer + offset) = value;
 	} else {
@@ -413,7 +404,7 @@ void* Memory::getReadPointer(u32 address) {
 	const u32 page = address >> pageShift;
 	const u32 offset = address & pageMask;
 
-	uintptr_t pointer = readTable[page];
+	uintptr_t pointer = vmManager.readTable[page];
 	if (pointer == 0) return nullptr;
 	return (void*)(pointer + offset);
 }
@@ -422,7 +413,7 @@ void* Memory::getWritePointer(u32 address) {
 	const u32 page = address >> pageShift;
 	const u32 offset = address & pageMask;
 
-	uintptr_t pointer = writeTable[page];
+	uintptr_t pointer = vmManager.writeTable[page];
 	if (pointer == 0) return nullptr;
 	return (void*)(pointer + offset);
 }
@@ -516,7 +507,7 @@ void Memory::queryPhysicalBlocks(FcramBlockList& outList, u32 vaddr, s32 pages) 
 
 		if (!(vaddr >= blockStart && vaddr < blockEnd)) continue;
 
-		s32 blockPaddr = paddrTable[vaddr >> 12];
+		s32 blockPaddr = vmManager.paddrTable[vaddr >> 12];
 		s32 blockPages = alloc.pages - ((vaddr - blockStart) >> 12);
 		blockPages = std::min(srcPages, blockPages);
 		FcramBlock physicalBlock(blockPaddr, blockPages);
@@ -552,27 +543,27 @@ void Memory::mapPhysicalMemory(u32 vaddr, u32 paddr, s32 pages, bool r, bool w, 
 
 	for (int i = 0; i < pages; i++) {
 		u32 index = (vaddr >> 12) + i;
-		paddrTable[index] = paddr + (i << 12);
-		pageTableAttrs[index] = PageType::Memory;
+		vmManager.paddrTable[index] = paddr + (i << 12);
+		vmManager.pageTableAttrs[index] = PageType::Memory;
 		if (r)
-			readTable[index] = (uintptr_t)(hostPtr + (i << 12));
+			vmManager.readTable[index] = (uintptr_t)(hostPtr + (i << 12));
 		else
-			readTable[index] = 0;
+			vmManager.readTable[index] = 0;
 
 		if (w)
-			writeTable[index] = (uintptr_t)(hostPtr + (i << 12));
+			vmManager.writeTable[index] = (uintptr_t)(hostPtr + (i << 12));
 		else
-			writeTable[index] = 0;
+			vmManager.writeTable[index] = 0;
 	}
 }
 
 void Memory::unmapPhysicalMemory(u32 vaddr, u32 paddr, s32 pages) {
 	for (int i = 0; i < pages; i++) {
 		u32 index = (vaddr >> 12) + i;
-		paddrTable[index] = 0;
-		pageTableAttrs[index] = PageType::Unmapped;
-		readTable[index] = 0;
-		writeTable[index] = 0;
+		vmManager.paddrTable[index] = 0;
+		vmManager.pageTableAttrs[index] = PageType::Unmapped;
+		vmManager.readTable[index] = 0;
+		vmManager.writeTable[index] = 0;
 	}
 
 	if (useFastmem) {
@@ -701,7 +692,7 @@ Result::HorizonResult Memory::testMemoryState(u32 vaddr, s32 pages, MemoryState 
 
 void Memory::copyToVaddr(u32 dstVaddr, const u8* srcHost, s32 size) {
 	// TODO: check for noncontiguous allocations
-	u8* dstHost = (u8*)readTable[dstVaddr >> 12] + (dstVaddr & 0xFFF);
+	u8* dstHost = (u8*)vmManager.readTable[dstVaddr >> 12] + (dstVaddr & 0xFFF);
 	memcpy(dstHost, srcHost, size);
 }
 
