@@ -8,6 +8,7 @@
 #import "../Models/AURGame.h"
 #import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 #import <Compression/Compression.h>
+#import <objc/message.h>
 
 static BOOL AURCoreTypeForExtension(NSString *ext, EmulatorCoreType *outType) {
     if (ext == nil || outType == nil) {
@@ -79,6 +80,50 @@ static NSData * _Nullable AURInflateRawDeflateWithCompressionFramework(const uin
 
     compression_stream_destroy(&stream);
     return outData;
+}
+
+static BOOL AURTrySystemUnzipAndPickFirstROM(NSFileManager *fileManager,
+                                             NSURL *zipURL,
+                                             NSString *importDir,
+                                             NSURL * _Nullable * _Nonnull outURL,
+                                             EmulatorCoreType *outCoreType,
+                                             NSString * _Nullable * _Nonnull outTitle) {
+    SEL unzipSel = NSSelectorFromString(@"unzipItemAtURL:toURL:error:");
+    if (![fileManager respondsToSelector:unzipSel]) {
+        NSLog(@"[AUR][Library] ZIP extraction failed: system unzip API unavailable.");
+        return NO;
+    }
+
+    NSError *unzipError = nil;
+    NSURL *destinationURL = [NSURL fileURLWithPath:importDir isDirectory:YES];
+    BOOL unzipOK = ((BOOL (*)(id, SEL, NSURL *, NSURL *, NSError **))objc_msgSend)(fileManager, unzipSel, zipURL, destinationURL, &unzipError);
+    if (!unzipOK || unzipError) {
+        NSString *message = unzipError.localizedDescription.length > 0 ? unzipError.localizedDescription : @"unknown";
+        NSLog(@"[AUR][Library] ZIP extraction failed via system unzip API: %@", message);
+        return NO;
+    }
+
+    NSDirectoryEnumerator<NSString *> *enumerator = [fileManager enumeratorAtPath:importDir];
+    for (NSString *relativePath in enumerator) {
+        NSString *fullPath = [importDir stringByAppendingPathComponent:relativePath];
+        BOOL isDir = NO;
+        if ([fileManager fileExistsAtPath:fullPath isDirectory:&isDir] && isDir) {
+            continue;
+        }
+        EmulatorCoreType type = EMULATOR_CORE_TYPE_3DS;
+        NSString *entryExt = relativePath.pathExtension.lowercaseString;
+        if (!AURCoreTypeForExtension(entryExt, &type)) {
+            continue;
+        }
+        *outCoreType = type;
+        *outURL = [NSURL fileURLWithPath:fullPath];
+        *outTitle = relativePath.lastPathComponent.stringByDeletingPathExtension;
+        NSLog(@"[AUR][Library] ZIP extraction succeeded via system unzip fallback. Selected ROM: %@", relativePath);
+        return YES;
+    }
+
+    NSLog(@"[AUR][Library] ZIP extraction failed: system unzip succeeded but no supported ROM found.");
+    return NO;
 }
 
 @interface AURLibraryViewController () <UICollectionViewDelegate, UICollectionViewDataSource, UIDocumentPickerDelegate>
@@ -268,6 +313,7 @@ static NSData * _Nullable AURInflateRawDeflateWithCompressionFramework(const uin
     size_t offset = 0;
     BOOL success = NO;
 
+    BOOL needsSystemUnzipFallback = NO;
     while (offset + 30 <= totalSize) {
         const uint32_t signature = AURReadLE32(bytes + offset);
         if (signature == 0x02014B50 || signature == 0x06054B50) {
@@ -299,7 +345,8 @@ static NSData * _Nullable AURInflateRawDeflateWithCompressionFramework(const uin
         }
 
         if ((flags & 0x0008) != 0) {
-            NSLog(@"[AUR][Library] ZIP extraction failed: data-descriptor ZIP entries are not supported (%@)", entryName);
+            NSLog(@"[AUR][Library] ZIP extraction info: data-descriptor entry detected (%@). Switching to system unzip fallback.", entryName);
+            needsSystemUnzipFallback = YES;
             break;
         }
 
@@ -328,6 +375,12 @@ static NSData * _Nullable AURInflateRawDeflateWithCompressionFramework(const uin
             decoded = [NSData dataWithBytes:payloadPtr length:compressedSize];
         } else if (method == 8) {
             decoded = AURInflateRawDeflateWithCompressionFramework(payloadPtr, compressedSize);
+            if (!decoded || decoded.length == 0) {
+                // ZIP Deflate は raw stream のため Compression.framework(ZLIB) だけでは失敗する場合がある。
+                NSLog(@"[AUR][Library] ZIP extraction info: Compression.framework inflate failed for %@. Switching to system unzip fallback.", entryName);
+                needsSystemUnzipFallback = YES;
+                break;
+            }
         } else {
             NSLog(@"[AUR][Library] ZIP extraction failed: unsupported compression method=%u for %@", (unsigned)method, entryName);
             offset = dataStart + compressedSize;
@@ -354,6 +407,10 @@ static NSData * _Nullable AURInflateRawDeflateWithCompressionFramework(const uin
         success = YES;
         NSLog(@"[AUR][Library] ZIP extraction succeeded via Compression.framework. Selected ROM: %@", entryName);
         break;
+    }
+
+    if (!success && needsSystemUnzipFallback) {
+        success = AURTrySystemUnzipAndPickFirstROM(fileManager, zipURL, importDir, outURL, outCoreType, outTitle);
     }
 
     if (!success) {
