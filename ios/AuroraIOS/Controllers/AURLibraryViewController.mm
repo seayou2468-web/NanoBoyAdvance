@@ -308,6 +308,12 @@ static BOOL AURTrySystemUnzipAndPickFirstROM(NSFileManager *fileManager,
     [fileManager removeItemAtPath:importDir error:nil];
     [fileManager createDirectoryAtPath:importDir withIntermediateDirectories:YES attributes:nil error:nil];
 
+    // まず iOS システム unzip API を最優先で使用（data-descriptor/生 deflate 互換のため）
+    if (AURTrySystemUnzipAndPickFirstROM(fileManager, zipURL, importDir, outURL, outCoreType, outTitle)) {
+        return YES;
+    }
+    NSLog(@"[AUR][Library] System unzip path failed; attempting Compression.framework parser fallback.");
+
     const uint8_t *bytes = (const uint8_t *)zipData.bytes;
     const size_t totalSize = zipData.length;
     size_t offset = 0;
