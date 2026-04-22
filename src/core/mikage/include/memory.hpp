@@ -6,6 +6,7 @@
 #include <functional>
 #include <list>
 #include <optional>
+#include <unordered_map>
 #include <vector>
 
 #include "./config.hpp"
@@ -155,7 +156,12 @@ class Memory {
 	};
 
 	VMManager vmManager;
+	std::unordered_map<u32, VMManager> processAddressSpaces;
+	VMManager* activeVmManager = &vmManager;
 	std::function<void(u32 fsr, u32 far, bool instruction_fault)> mmuFaultCallback;
+
+	VMManager& activeVM() { return (activeVmManager != nullptr) ? *activeVmManager : vmManager; }
+	const VMManager& activeVM() const { return (activeVmManager != nullptr) ? *activeVmManager : vmManager; }
 
 	// This tracks our OS' memory allocations
 	std::list<KernelMemoryTypes::MemoryInfo> memoryInfo;
@@ -357,6 +363,8 @@ class Memory {
 	bool isFastmemEnabled() { return useFastmem; }
 	u8* getFastmemArenaBase() { return arena->VirtualBasePointer(); }
 	void* getVMManagerOpaque() { return &vmManager; }
+	void* ensureProcessVM(u32 process_handle);
+	void activateProcessVM(u32 process_handle);
 	void setMMUFaultCallback(std::function<void(u32 fsr, u32 far, bool instruction_fault)> callback) {
 		mmuFaultCallback = std::move(callback);
 	}

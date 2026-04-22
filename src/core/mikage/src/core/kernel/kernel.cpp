@@ -96,7 +96,7 @@ HorizonHandle Kernel::makeProcess(u32 id) {
 	// Allocate data
 	objects[processHandle].data = new Process(id);
 	const auto processData = objects[processHandle].getData<Process>();
-	processData->vmManager = mem.getVMManagerOpaque();
+	processData->vmManager = mem.ensureProcessVM(processHandle);
 
 	// Link resource limit object with its parent process
 	objects[resourceLimitHandle].data = &processData->limits;
@@ -185,6 +185,7 @@ void Kernel::reset() {
 	// Allocate handle #0 to a dummy object and make a main process object
 	makeObject(KernelObjectType::Dummy);
 	currentProcess = makeProcess(1);  // Use ID = 1 for main process
+	mem.activateProcessVM(currentProcess);
 
 	// Make main thread object. We do not have to set the entrypoint and SP for it as the ROM loader does.
 	// Main thread seems to have a priority of 0x30. TODO: This creates a dummy context for thread 0,

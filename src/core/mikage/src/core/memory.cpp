@@ -64,6 +64,15 @@ constexpr u32 MakeDataFaultStatus(bool is_write) {
 	return kTranslationFault | (is_write ? (1u << 11) : 0);
 }
 
+constexpr u32 MakeInstructionFaultStatus() {
+	constexpr u32 kInstructionTranslationFault = 0x5;
+	return kInstructionTranslationFault;
+}
+
+constexpr bool IsLikelyInstructionFetch(u32 vaddr) {
+	return vaddr >= VirtualAddrs::ExecutableStart && vaddr < VirtualAddrs::ExecutableEnd;
+}
+
 #if defined(__APPLE__)
 std::vector<u8> LoadSharedFontFromBundle() {
 	CFBundleRef bundle = CFBundleGetMainBundle();
@@ -135,6 +144,24 @@ void ClearSharedFontReplacementOverridePath() {
 	g_sharedFontReplacementOverridePath = std::nullopt;
 }
 
+void* Memory::ensureProcessVM(u32 process_handle) {
+	auto [it, inserted] = processAddressSpaces.try_emplace(process_handle);
+	if (inserted) {
+		it->second.resize(totalPageCount);
+		it->second.clear();
+	}
+	return &it->second;
+}
+
+void Memory::activateProcessVM(u32 process_handle) {
+	auto [it, inserted] = processAddressSpaces.try_emplace(process_handle);
+	if (inserted) {
+		it->second.resize(totalPageCount);
+		it->second.clear();
+	}
+	activeVmManager = &it->second;
+}
+
 Memory::Memory(KFcram& fcramManager, const EmulatorConfig& config) : fcramManager(fcramManager), config(config) {
 	const bool fastmemEnabled = config.fastmemEnabled;
 	arena = new Common::HostMemory(FASTMEM_BACKING_SIZE, FASTMEM_VIRTUAL_SIZE, fastmemEnabled);
@@ -159,7 +186,7 @@ void Memory::reset() {
 		arena->Unmap(0, 4_GB, false);
 	}
 
-	vmManager.clear();
+	activeVM().clear();
 
 	// Allocate 512 bytes of TLS for each thread. Since the smallest allocatable unit is 4 KB, that means allocating one page for every 8 threads
 	// Note that TLS is always allocated in the Base region
@@ -207,7 +234,7 @@ u8 Memory::read8(u32 vaddr) {
 	const u32 page = vaddr >> pageShift;
 	const u32 offset = vaddr & pageMask;
 
-	uintptr_t pointer = vmManager.readTable[page];
+	uintptr_t pointer = activeVM().readTable[page];
 	if (pointer != 0) [[likely]] {
 		return *(u8*)(pointer + offset);
 	} else {
@@ -249,7 +276,9 @@ u8 Memory::read8(u32 vaddr) {
 				default:
 					LogUnmappedRead(8, vaddr);
 					if (mmuFaultCallback) {
-						mmuFaultCallback(MakeDataFaultStatus(false), vaddr, false);
+						const bool instruction_fault = IsLikelyInstructionFetch(vaddr);
+						mmuFaultCallback(instruction_fault ? MakeInstructionFaultStatus() : MakeDataFaultStatus(false), vaddr,
+						                instruction_fault);
 					}
 					return 0;
 			}
@@ -260,7 +289,7 @@ u16 Memory::read16(u32 vaddr) {
 	const u32 page = vaddr >> pageShift;
 	const u32 offset = vaddr & pageMask;
 
-	uintptr_t pointer = vmManager.readTable[page];
+	uintptr_t pointer = activeVM().readTable[page];
 	if (pointer != 0) [[likely]] {
 		return *(u16*)(pointer + offset);
 	} else {
@@ -269,7 +298,9 @@ u16 Memory::read16(u32 vaddr) {
 			default:
 				LogUnmappedRead(16, vaddr);
 				if (mmuFaultCallback) {
-					mmuFaultCallback(MakeDataFaultStatus(false), vaddr, false);
+					const bool instruction_fault = IsLikelyInstructionFetch(vaddr);
+					mmuFaultCallback(instruction_fault ? MakeInstructionFaultStatus() : MakeDataFaultStatus(false), vaddr,
+					                instruction_fault);
 				}
 				return 0;
 		}
@@ -280,7 +311,7 @@ u32 Memory::read32(u32 vaddr) {
 	const u32 page = vaddr >> pageShift;
 	const u32 offset = vaddr & pageMask;
 
-	uintptr_t pointer = vmManager.readTable[page];
+	uintptr_t pointer = activeVM().readTable[page];
 	if (pointer != 0) [[likely]] {
 		return *(u32*)(pointer + offset);
 	} else {
@@ -321,11 +352,13 @@ u32 Memory::read32(u32 vaddr) {
 					return *(u32*)&vram[vaddr - VirtualAddrs::VramStart];
 				}
 
-				LogUnmappedRead(32, vaddr);
-				if (mmuFaultCallback) {
-					mmuFaultCallback(MakeDataFaultStatus(false), vaddr, false);
-				}
-				return 0;
+					LogUnmappedRead(32, vaddr);
+					if (mmuFaultCallback) {
+						const bool instruction_fault = IsLikelyInstructionFetch(vaddr);
+						mmuFaultCallback(instruction_fault ? MakeInstructionFaultStatus() : MakeDataFaultStatus(false), vaddr,
+						                instruction_fault);
+					}
+					return 0;
 		}
 	}
 }
@@ -340,7 +373,7 @@ void Memory::write8(u32 vaddr, u8 value) {
 	const u32 page = vaddr >> pageShift;
 	const u32 offset = vaddr & pageMask;
 
-	uintptr_t pointer = vmManager.writeTable[page];
+	uintptr_t pointer = activeVM().writeTable[page];
 	if (pointer != 0) [[likely]] {
 		*(u8*)(pointer + offset) = value;
 	} else {
@@ -372,7 +405,7 @@ void Memory::write16(u32 vaddr, u16 value) {
 	const u32 page = vaddr >> pageShift;
 	const u32 offset = vaddr & pageMask;
 
-	uintptr_t pointer = vmManager.writeTable[page];
+	uintptr_t pointer = activeVM().writeTable[page];
 	if (pointer != 0) [[likely]] {
 		*(u16*)(pointer + offset) = value;
 	} else {
@@ -396,7 +429,7 @@ void Memory::write32(u32 vaddr, u32 value) {
 	const u32 page = vaddr >> pageShift;
 	const u32 offset = vaddr & pageMask;
 
-	uintptr_t pointer = vmManager.writeTable[page];
+	uintptr_t pointer = activeVM().writeTable[page];
 	if (pointer != 0) [[likely]] {
 		*(u32*)(pointer + offset) = value;
 	} else {
@@ -427,7 +460,7 @@ void* Memory::getReadPointer(u32 address) {
 	const u32 page = address >> pageShift;
 	const u32 offset = address & pageMask;
 
-	uintptr_t pointer = vmManager.readTable[page];
+	uintptr_t pointer = activeVM().readTable[page];
 	if (pointer == 0) return nullptr;
 	return (void*)(pointer + offset);
 }
@@ -436,7 +469,7 @@ void* Memory::getWritePointer(u32 address) {
 	const u32 page = address >> pageShift;
 	const u32 offset = address & pageMask;
 
-	uintptr_t pointer = vmManager.writeTable[page];
+	uintptr_t pointer = activeVM().writeTable[page];
 	if (pointer == 0) return nullptr;
 	return (void*)(pointer + offset);
 }
@@ -530,7 +563,7 @@ void Memory::queryPhysicalBlocks(FcramBlockList& outList, u32 vaddr, s32 pages) 
 
 		if (!(vaddr >= blockStart && vaddr < blockEnd)) continue;
 
-		s32 blockPaddr = vmManager.paddrTable[vaddr >> 12];
+		s32 blockPaddr = activeVM().paddrTable[vaddr >> 12];
 		s32 blockPages = alloc.pages - ((vaddr - blockStart) >> 12);
 		blockPages = std::min(srcPages, blockPages);
 		FcramBlock physicalBlock(blockPaddr, blockPages);
@@ -566,27 +599,27 @@ void Memory::mapPhysicalMemory(u32 vaddr, u32 paddr, s32 pages, bool r, bool w, 
 
 	for (int i = 0; i < pages; i++) {
 		u32 index = (vaddr >> 12) + i;
-		vmManager.paddrTable[index] = paddr + (i << 12);
-		vmManager.pageTableAttrs[index] = PageType::Memory;
+		activeVM().paddrTable[index] = paddr + (i << 12);
+		activeVM().pageTableAttrs[index] = PageType::Memory;
 		if (r)
-			vmManager.readTable[index] = (uintptr_t)(hostPtr + (i << 12));
+			activeVM().readTable[index] = (uintptr_t)(hostPtr + (i << 12));
 		else
-			vmManager.readTable[index] = 0;
+			activeVM().readTable[index] = 0;
 
 		if (w)
-			vmManager.writeTable[index] = (uintptr_t)(hostPtr + (i << 12));
+			activeVM().writeTable[index] = (uintptr_t)(hostPtr + (i << 12));
 		else
-			vmManager.writeTable[index] = 0;
+			activeVM().writeTable[index] = 0;
 	}
 }
 
 void Memory::unmapPhysicalMemory(u32 vaddr, u32 paddr, s32 pages) {
 	for (int i = 0; i < pages; i++) {
 		u32 index = (vaddr >> 12) + i;
-		vmManager.paddrTable[index] = 0;
-		vmManager.pageTableAttrs[index] = PageType::Unmapped;
-		vmManager.readTable[index] = 0;
-		vmManager.writeTable[index] = 0;
+		activeVM().paddrTable[index] = 0;
+		activeVM().pageTableAttrs[index] = PageType::Unmapped;
+		activeVM().readTable[index] = 0;
+		activeVM().writeTable[index] = 0;
 	}
 
 	if (useFastmem) {
@@ -715,7 +748,7 @@ Result::HorizonResult Memory::testMemoryState(u32 vaddr, s32 pages, MemoryState 
 
 void Memory::copyToVaddr(u32 dstVaddr, const u8* srcHost, s32 size) {
 	// TODO: check for noncontiguous allocations
-	u8* dstHost = (u8*)vmManager.readTable[dstVaddr >> 12] + (dstVaddr & 0xFFF);
+	u8* dstHost = (u8*)activeVM().readTable[dstVaddr >> 12] + (dstVaddr & 0xFFF);
 	memcpy(dstHost, srcHost, size);
 }
 
