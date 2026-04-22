@@ -36,6 +36,8 @@ void Kernel::switchThread(int newThreadIndex) {
 	cpu.setCPSR(newThread.cpsr);                                                     // Load CPSR
 	cpu.setFPSCR(newThread.fpscr);                                                   // Load FPSCR
 	cpu.setTLSBase(newThread.tlsBase);                                               // Load CP15 thread-local-storage pointer register
+	currentProcess = newThread.ownerProcess;
+	mem.activateProcessVM(currentProcess);
 
 	currentThreadIndex = newThreadIndex;
 }
@@ -149,6 +151,7 @@ HorizonHandle Kernel::makeThread(u32 entrypoint, u32 initialSP, u32 priority, Pr
 	t.processorID = id;
 	t.status = status;
 	t.handle = ret;
+	t.ownerProcess = currentProcess;
 	t.waitingAddress = 0;
 	t.threadsWaitingForTermination = 0;  // Thread just spawned, no other threads waiting for it to terminate
 

@@ -142,6 +142,7 @@ struct Thread {
 	ProcessorID processorID;
 	ThreadStatus status;
 	Handle handle;  // OS handle for this thread
+	Handle ownerProcess;  // Process that owns this thread
 	int index;      // Index of the thread. 0 for the first thread, 1 for the second, and so on
 
 	// The waiting address for threads that are waiting on an AddressArbiter

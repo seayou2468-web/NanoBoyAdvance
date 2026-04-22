@@ -110,6 +110,9 @@ void CPU::addTicks(u64 ticks) {
 }
 
 void CPU::reportMMUFault(u32 fsr, u32 far, bool instruction_fault) {
+    const u32 old_pc = gprs[15];
+    const u32 vector = instruction_fault ? 0x0C : 0x10;  // Prefetch abort / Data abort vectors
+
     if (instruction_fault) {
         cp15IFSR = fsr;
         cp15IFAR = far;
@@ -124,5 +127,18 @@ void CPU::reportMMUFault(u32 fsr, u32 far, bool instruction_fault) {
             dyncomState->CP15[CP15_FAULT_STATUS] = fsr;
             dyncomState->CP15[CP15_FAULT_ADDRESS] = far;
         }
+    }
+
+    // Approximate ARM abort exception semantics: switch to Abort mode, mask IRQ, clear Thumb, branch to abort vector.
+    cpsr = (cpsr & ~0x1Fu) | CPSR::AbortMode;
+    cpsr |= CPSR::IRQDisable;
+    cpsr &= ~CPSR::Thumb;
+    gprs[14] = old_pc;
+    gprs[15] = vector;
+
+    if (dyncomState) {
+        dyncomState->Cpsr = cpsr;
+        dyncomState->Reg[14] = gprs[14];
+        dyncomState->Reg[15] = gprs[15];
     }
 }
