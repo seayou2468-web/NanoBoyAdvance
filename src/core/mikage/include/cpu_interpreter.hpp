@@ -123,6 +123,7 @@ class CPU {
 	Scheduler& getScheduler();
 
 	void addTicks(u64 ticks);
+	void reportMMUFault(u32 fsr, u32 far, bool instruction_fault);
 
 	void clearCache() {}
 	void clearCacheRange(u32, u32) {}

@@ -70,6 +70,13 @@ struct Process {
 	ResourceLimits limits;
 	// Process ID
 	u32 id;
+	// Opaque pointer to currently attached VM manager (owned by Memory)
+	void* vmManager = nullptr;
+	// MMU fault snapshot for this process (last seen)
+	u32 dataFaultStatus = 0;
+	u32 dataFaultAddress = 0;
+	u32 instrFaultStatus = 0;
+	u32 instrFaultAddress = 0;
 
 	Process(u32 id) : id(id) {}
 };

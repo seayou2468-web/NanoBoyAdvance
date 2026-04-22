@@ -96,11 +96,28 @@ HorizonHandle Kernel::makeProcess(u32 id) {
 	// Allocate data
 	objects[processHandle].data = new Process(id);
 	const auto processData = objects[processHandle].getData<Process>();
+	processData->vmManager = mem.getVMManagerOpaque();
 
 	// Link resource limit object with its parent process
 	objects[resourceLimitHandle].data = &processData->limits;
 	processData->limits.handle = resourceLimitHandle;
 	return processHandle;
+}
+
+void Kernel::reportMMUFault(u32 fsr, u32 far, bool instruction_fault) {
+	auto* current = getObject(currentProcess, KernelObjectType::Process);
+	if (current == nullptr) {
+		return;
+	}
+
+	auto* process = current->getData<Process>();
+	if (instruction_fault) {
+		process->instrFaultStatus = fsr;
+		process->instrFaultAddress = far;
+	} else {
+		process->dataFaultStatus = fsr;
+		process->dataFaultAddress = far;
+	}
 }
 
 // Get a pointer to the process indicated by handle, taking into account that 0xFFFF8001 always refers to the current process

@@ -121,6 +121,10 @@ Emulator::Emulator()
 		  running(false)
 {
 	cpu.bindKernel(kernel);
+	memory.setMMUFaultCallback([this](u32 fsr, u32 far, bool instruction_fault) {
+		cpu.reportMMUFault(fsr, far, instruction_fault);
+		kernel.reportMMUFault(fsr, far, instruction_fault);
+	});
 
 	DSPService& dspService = kernel.getServiceManager().getDSP();
 

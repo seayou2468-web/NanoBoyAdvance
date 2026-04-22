@@ -59,6 +59,11 @@ void LogUnmappedWrite(u32 bits, u32 vaddr, u32 value) {
 	Helpers::warn("Ignoring unmapped %u-bit write, addr: %08X, val: %08X", bits, vaddr, value);
 }
 
+constexpr u32 MakeDataFaultStatus(bool is_write) {
+	constexpr u32 kTranslationFault = 0x5;
+	return kTranslationFault | (is_write ? (1u << 11) : 0);
+}
+
 #if defined(__APPLE__)
 std::vector<u8> LoadSharedFontFromBundle() {
 	CFBundleRef bundle = CFBundleGetMainBundle();
@@ -241,11 +246,14 @@ u8 Memory::read8(u32 vaddr) {
 			case ConfigMem::WifiMac + 4:
 			case ConfigMem::WifiMac + 5: return MACAddress[vaddr - ConfigMem::WifiMac];
 
-			default:
-				LogUnmappedRead(8, vaddr);
-				return 0;
+				default:
+					LogUnmappedRead(8, vaddr);
+					if (mmuFaultCallback) {
+						mmuFaultCallback(MakeDataFaultStatus(false), vaddr, false);
+					}
+					return 0;
+			}
 		}
-	}
 }
 
 u16 Memory::read16(u32 vaddr) {
@@ -260,6 +268,9 @@ u16 Memory::read16(u32 vaddr) {
 			case ConfigMem::WifiMac + 4: return (MACAddress[5] << 8) | MACAddress[4];  // Wifi MAC: Last 2 bytes of MAC Address
 			default:
 				LogUnmappedRead(16, vaddr);
+				if (mmuFaultCallback) {
+					mmuFaultCallback(MakeDataFaultStatus(false), vaddr, false);
+				}
 				return 0;
 		}
 	}
@@ -311,6 +322,9 @@ u32 Memory::read32(u32 vaddr) {
 				}
 
 				LogUnmappedRead(32, vaddr);
+				if (mmuFaultCallback) {
+					mmuFaultCallback(MakeDataFaultStatus(false), vaddr, false);
+				}
 				return 0;
 		}
 	}
@@ -347,6 +361,9 @@ void Memory::write8(u32 vaddr, u8 value) {
 
 		else {
 			LogUnmappedWrite(8, vaddr, value);
+			if (mmuFaultCallback) {
+				mmuFaultCallback(MakeDataFaultStatus(true), vaddr, false);
+			}
 		}
 	}
 }
@@ -369,6 +386,9 @@ void Memory::write16(u32 vaddr, u16 value) {
 		}
 
 		LogUnmappedWrite(16, vaddr, value);
+		if (mmuFaultCallback) {
+			mmuFaultCallback(MakeDataFaultStatus(true), vaddr, false);
+		}
 	}
 }
 
@@ -392,6 +412,9 @@ void Memory::write32(u32 vaddr, u32 value) {
 		}
 
 		LogUnmappedWrite(32, vaddr, value);
+		if (mmuFaultCallback) {
+			mmuFaultCallback(MakeDataFaultStatus(true), vaddr, false);
+		}
 	}
 }
 

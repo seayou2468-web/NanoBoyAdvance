@@ -3,6 +3,7 @@
 #include <array>
 #include <filesystem>
 #include <fstream>
+#include <functional>
 #include <list>
 #include <optional>
 #include <vector>
@@ -154,6 +155,7 @@ class Memory {
 	};
 
 	VMManager vmManager;
+	std::function<void(u32 fsr, u32 far, bool instruction_fault)> mmuFaultCallback;
 
 	// This tracks our OS' memory allocations
 	std::list<KernelMemoryTypes::MemoryInfo> memoryInfo;
@@ -354,4 +356,8 @@ class Memory {
 
 	bool isFastmemEnabled() { return useFastmem; }
 	u8* getFastmemArenaBase() { return arena->VirtualBasePointer(); }
+	void* getVMManagerOpaque() { return &vmManager; }
+	void setMMUFaultCallback(std::function<void(u32 fsr, u32 far, bool instruction_fault)> callback) {
+		mmuFaultCallback = std::move(callback);
+	}
 };

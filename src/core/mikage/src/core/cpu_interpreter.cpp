@@ -108,3 +108,21 @@ void CPU::addTicks(u64 ticks) {
     }
     scheduler->currentTimestamp += ticks;
 }
+
+void CPU::reportMMUFault(u32 fsr, u32 far, bool instruction_fault) {
+    if (instruction_fault) {
+        cp15IFSR = fsr;
+        cp15IFAR = far;
+        if (dyncomState) {
+            dyncomState->CP15[CP15_INSTR_FAULT_STATUS] = fsr;
+            dyncomState->CP15[CP15_IFAR] = far;
+        }
+    } else {
+        cp15DFSR = fsr;
+        cp15DFAR = far;
+        if (dyncomState) {
+            dyncomState->CP15[CP15_FAULT_STATUS] = fsr;
+            dyncomState->CP15[CP15_FAULT_ADDRESS] = far;
+        }
+    }
+}
