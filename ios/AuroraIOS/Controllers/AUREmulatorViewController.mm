@@ -6,6 +6,7 @@
 #import "../Managers/AURExternalControllerManager.h"
 #import "../Metal.h"
 #import <QuartzCore/QuartzCore.h>
+#import <stdarg.h>
 #include <algorithm>
 #include <array>
 #include <cstring>
@@ -22,15 +23,83 @@
 @property (nonatomic, strong) AURControllerView *controllerView;
 @property (nonatomic, strong) CADisplayLink *displayLink;
 @property (nonatomic, strong) NSURL *romURL;
+@property (nonatomic, strong) NSURL *logFileURL;
+@property (nonatomic, assign) uint64_t frameCounter;
+@property (nonatomic, assign) uint64_t lastStatusLogFrame;
 @end
 
 @implementation AUREmulatorViewController
+
+static const NSUInteger kAURMaxLogFileBytes = 2 * 1024 * 1024;
+static const uint64_t kAURStatusLogFrameInterval = 120;
+
+- (NSURL *)prepareLogFileURL {
+    NSFileManager *fm = [NSFileManager defaultManager];
+    NSURL *docs = [fm URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask].firstObject;
+    if (!docs) return nil;
+
+    NSURL *logsDir = [docs URLByAppendingPathComponent:@"Logs" isDirectory:YES];
+    NSError *dirError = nil;
+    [fm createDirectoryAtURL:logsDir withIntermediateDirectories:YES attributes:nil error:&dirError];
+    if (dirError) {
+        NSLog(@"[AUR][Emu] Failed to create Logs directory: %@", dirError.localizedDescription);
+        return nil;
+    }
+
+    NSURL *logURL = [logsDir URLByAppendingPathComponent:@"mikage_runtime.log"];
+    NSDictionary<NSFileAttributeKey, id> *attrs = [fm attributesOfItemAtPath:logURL.path error:nil];
+    unsigned long long size = [attrs[NSFileSize] unsignedLongLongValue];
+    if (size > kAURMaxLogFileBytes) {
+        NSURL *oldURL = [logsDir URLByAppendingPathComponent:@"mikage_runtime.previous.log"];
+        [fm removeItemAtURL:oldURL error:nil];
+        [fm moveItemAtURL:logURL toURL:oldURL error:nil];
+    }
+
+    if (![fm fileExistsAtPath:logURL.path]) {
+        [@"" writeToURL:logURL atomically:YES encoding:NSUTF8StringEncoding error:nil];
+    }
+    return logURL;
+}
+
+- (void)emuLog:(NSString *)format, ... NS_FORMAT_FUNCTION(1,2) {
+    va_list args;
+    va_start(args, format);
+    NSString *body = [[NSString alloc] initWithFormat:format arguments:args];
+    va_end(args);
+
+    NSString *line = [NSString stringWithFormat:@"[AUR][Emu] %@", body];
+    NSLog(@"%@", line);
+
+    if (!self.logFileURL) return;
+
+    static NSDateFormatter *fmt = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        fmt = [[NSDateFormatter alloc] init];
+        fmt.locale = [NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"];
+        fmt.dateFormat = @"yyyy-MM-dd HH:mm:ss.SSS";
+    });
+    NSString *timestamp = [fmt stringFromDate:[NSDate date]];
+    NSString *record = [NSString stringWithFormat:@"%@ %@\n", timestamp, line];
+
+    NSFileHandle *fh = [NSFileHandle fileHandleForWritingToURL:self.logFileURL error:nil];
+    if (!fh) return;
+    @try {
+        [fh seekToEndOfFile];
+        [fh writeData:[record dataUsingEncoding:NSUTF8StringEncoding]];
+    } @catch (__unused NSException *ex) {
+    } @finally {
+        [fh closeFile];
+    }
+}
 
 - (instancetype)initWithROMURL:(NSURL *)romURL coreType:(EmulatorCoreType)coreType {
     self = [super init];
     if (self) {
         _romURL = romURL;
         _coreType = coreType;
+        _frameCounter = 0;
+        _lastStatusLogFrame = 0;
     }
     return self;
 }
@@ -38,6 +107,8 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.view.backgroundColor = [UIColor blackColor];
+    self.logFileURL = [self prepareLogFileURL];
+    [self emuLog:@"Session start. core=%d rom=%@", (int)_coreType, self.romURL.path ?: @"(null)"];
 
     // Setup Metal View(s)
     self.imageView = [[AURMetalView alloc] initWithFrame:CGRectZero];
@@ -93,9 +164,11 @@
 
 - (void)startEmulator {
     [self stopEmulator];
+    self.frameCounter = 0;
+    self.lastStatusLogFrame = 0;
     _core = EmulatorCore_Create(_coreType);
     if (!_core) {
-        NSLog(@"[AUR][Emu] Failed to create core: %d", (int)_coreType);
+        [self emuLog:@"Failed to create core: %d", (int)_coreType];
         return;
     }
 
@@ -108,19 +181,21 @@
     if (boot11) EmulatorCore_LoadBIOSFromPath(_core, boot11.UTF8String);
     if (firmware) EmulatorCore_LoadBIOSFromPath(_core, firmware.UTF8String);
     if (sharedFont) EmulatorCore_LoadBIOSFromPath(_core, sharedFont.UTF8String);
+    [self emuLog:@"BIOS paths boot9=%@ boot11=%@ firmware=%@ shared_font=%@",
+     boot9 ?: @"(null)", boot11 ?: @"(null)", firmware ?: @"(null)", sharedFont ?: @"(null)"];
     if (!boot9 && !boot11 && !firmware) {
-        NSLog(@"[AUR][Emu] 3DS BIOS/Firmware not set. Attempting HLE boot without external firmware.");
+        [self emuLog:@"3DS BIOS/Firmware not set. Attempting HLE boot without external firmware."];
     }
 
     NSString *ext = self.romURL.pathExtension.lowercaseString;
     NSSet<NSString *> *allowed = [NSSet setWithArray:@[@"3ds", @"cci", @"cxi", @"app", @"ncch", @"3dsx", @"elf", @"axf"]];
     if ([ext isEqualToString:@"toml"] || [self.romURL.lastPathComponent.lowercaseString isEqualToString:@"config.toml"]) {
-        NSLog(@"[AUR][Emu] Refusing to load config file as ROM: %@", self.romURL.path);
+        [self emuLog:@"Refusing to load config file as ROM: %@", self.romURL.path];
         [self stopEmulator];
         return;
     }
     if (![allowed containsObject:ext]) {
-        NSLog(@"[AUR][Emu] Unsupported ROM extension: %@", ext);
+        [self emuLog:@"Unsupported ROM extension: %@", ext];
         [self stopEmulator];
         return;
     }
@@ -128,6 +203,8 @@
     const char *path = self.romURL.path.fileSystemRepresentation;
     if (path && EmulatorCore_LoadROMFromPath(_core, path)) {
         EmulatorCore_GetVideoSpec(_core, &_videoSpec);
+        [self emuLog:@"ROM loaded successfully. video=%ux%u pixel_format=%d",
+         (unsigned)_videoSpec.width, (unsigned)_videoSpec.height, (int)_videoSpec.pixel_format];
         AURFramePixelFormat framePixelFormat = (_videoSpec.pixel_format == EMULATOR_PIXEL_FORMAT_ARGB8888)
             ? AURFramePixelFormatBGRA8888
             : AURFramePixelFormatRGBA8888;
@@ -136,7 +213,7 @@
         self.displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(gameLoop)];
         [self.displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
     } else {
-        NSLog(@"[AUR][Emu] ROM load failed (%@): %s", self.romURL.lastPathComponent, EmulatorCore_GetLastError(_core) ?: "unknown error");
+        [self emuLog:@"ROM load failed (%@): %s", self.romURL.lastPathComponent, EmulatorCore_GetLastError(_core) ?: "unknown error"];
         [self stopEmulator];
     }
 }
@@ -146,6 +223,7 @@
     [self.displayLink invalidate];
     self.displayLink = nil;
     if (_core) {
+        [self emuLog:@"Destroying emulator core."];
         EmulatorCore_Destroy(_core);
         _core = nullptr;
     }
@@ -153,20 +231,28 @@
 
 - (void)gameLoop {
     if (!_running || !_core) return;
+    self.frameCounter += 1;
     EmulatorCore_StepFrame(_core);
     const char *stepError = EmulatorCore_GetLastError(_core);
     if (stepError && stepError[0] != '\0') {
-        NSLog(@"[AUR][Emu] frame step warning: %s", stepError);
+        [self emuLog:@"Frame %llu step warning: %s", self.frameCounter, stepError];
     }
 
     size_t pixelCount = 0;
     const uint32_t* frameRGBA = EmulatorCore_GetFrameBufferRGBA(_core, &pixelCount);
-    if (!frameRGBA) return;
+    if (!frameRGBA) {
+        [self emuLog:@"Frame %llu missing framebuffer pointer from core.", self.frameCounter];
+        return;
+    }
 
     const size_t expectedPixels = (size_t)_videoSpec.width * (size_t)_videoSpec.height;
     if (pixelCount < expectedPixels) {
-        NSLog(@"[AUR][Emu] Framebuffer underflow from core: got %zu expected %zu", pixelCount, expectedPixels);
+        [self emuLog:@"Frame %llu framebuffer underflow: got %zu expected %zu", self.frameCounter, pixelCount, expectedPixels];
         return;
+    }
+    if ((self.frameCounter - self.lastStatusLogFrame) >= kAURStatusLogFrameInterval) {
+        self.lastStatusLogFrame = self.frameCounter;
+        [self emuLog:@"Frame %llu status ok. pixels=%zu expected=%zu", self.frameCounter, pixelCount, expectedPixels];
     }
 
     [self.imageView displayFrameRGBA:frameRGBA width:_videoSpec.width height:_videoSpec.height];
