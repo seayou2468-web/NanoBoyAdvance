@@ -26,6 +26,7 @@
 @property (nonatomic, strong) NSURL *logFileURL;
 @property (nonatomic, assign) uint64_t frameCounter;
 @property (nonatomic, assign) uint64_t lastStatusLogFrame;
+@property (nonatomic, assign) uint64_t consecutiveMostlyBlackSamples;
 @property (nonatomic, strong) NSLayoutConstraint *imageHeightConstraint;
 @end
 
@@ -33,6 +34,8 @@
 
 static const NSUInteger kAURMaxLogFileBytes = 2 * 1024 * 1024;
 static const uint64_t kAURStatusLogFrameInterval = 120;
+static const uint64_t kAURBlackSampleInterval = 60;
+static const uint64_t kAURBlackSampleWarnThreshold = 8;
 
 - (NSURL *)prepareLogFileURL {
     NSFileManager *fm = [NSFileManager defaultManager];
@@ -124,6 +127,32 @@ static const uint64_t kAURStatusLogFrameInterval = 120;
         return NO;
     }
 
+    NSFileHandle *fh = [NSFileHandle fileHandleForReadingAtPath:path];
+    NSData *headerData = nil;
+    if (fh) {
+        @try {
+            headerData = [fh readDataOfLength:4];
+        } @catch (__unused NSException *ex) {
+            headerData = nil;
+        } @finally {
+            [fh closeFile];
+        }
+    }
+    if (headerData.length >= 4) {
+        const uint8_t *bytes = (const uint8_t *)headerData.bytes;
+        const BOOL isZip = bytes[0] == 0x50 && bytes[1] == 0x4B && bytes[2] == 0x03 && bytes[3] == 0x04;
+        const BOOL is7z = bytes[0] == 0x37 && bytes[1] == 0x7A && bytes[2] == 0xBC && bytes[3] == 0xAF;
+        const BOOL isRar = bytes[0] == 0x52 && bytes[1] == 0x61 && bytes[2] == 0x72 && bytes[3] == 0x21;
+        if (isZip || is7z || isRar) {
+            if (reason) *reason = @"ROMが圧縮アーカイブのままです。zip/7z/rar を展開して .3ds/.cci/.cxi/.app/.ncch/.3dsx/.elf/.axf を指定してください";
+            return NO;
+        }
+    }
+
+    if ([path containsString:@"/Documents/Data/Application/"]) {
+        [self emuLog:@"ROM path looks re-imported/nested inside Documents: %@ (this is supported but may indicate duplicate import history)", path];
+    }
+
     [self emuLog:@"ROM preflight ok. path=%@ size=%llu", path, fileSize];
     return YES;
 }
@@ -143,7 +172,8 @@ static const uint64_t kAURStatusLogFrameInterval = 120;
     [super viewDidLoad];
     self.view.backgroundColor = [UIColor blackColor];
     self.logFileURL = [self prepareLogFileURL];
-    [self emuLog:@"Session start. core=%d rom=%@", (int)_coreType, self.romURL.path ?: @"(null)"];
+    NSString *romPath = self.romURL.path.length > 0 ? self.romURL.path : @"(null)";
+    [self emuLog:@"Session start. core=%d rom=%@", (int)_coreType, romPath];
 
     // Setup Metal View(s)
     self.imageView = [[AURMetalView alloc] initWithFrame:CGRectZero];
@@ -218,6 +248,7 @@ static const uint64_t kAURStatusLogFrameInterval = 120;
     [self stopEmulator];
     self.frameCounter = 0;
     self.lastStatusLogFrame = 0;
+    self.consecutiveMostlyBlackSamples = 0;
     _core = EmulatorCore_Create(_coreType);
     if (!_core) {
         [self emuLog:@"Failed to create core: %d", (int)_coreType];
@@ -229,12 +260,31 @@ static const uint64_t kAURStatusLogFrameInterval = 120;
     NSString *boot11 = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"3ds_boot11"];
     NSString *firmware = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"3ds_firmware"];
     NSString *sharedFont = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"3ds_shared_font"];
-    if (boot9) EmulatorCore_LoadBIOSFromPath(_core, boot9.UTF8String);
-    if (boot11) EmulatorCore_LoadBIOSFromPath(_core, boot11.UTF8String);
-    if (firmware) EmulatorCore_LoadBIOSFromPath(_core, firmware.UTF8String);
-    if (sharedFont) EmulatorCore_LoadBIOSFromPath(_core, sharedFont.UTF8String);
+    if (firmware.length > 0) {
+        [self emuLog:@"3ds_firmware was set (%@), but this core currently expects boot9/boot11 and sysdata keys/seeddb. Standalone firmware files are not directly consumed in this load path.", firmware.lastPathComponent];
+    }
+
+    void (^loadBiosIfPresent)(NSString *, NSString *) = ^(NSString *identifier, NSString *path) {
+        if (path.length == 0) return;
+        if (!EmulatorCore_LoadBIOSFromPath(_core, path.UTF8String)) {
+            const char *biosError = EmulatorCore_GetLastError(_core);
+            [self emuLog:@"BIOS load failed (%@): %s", identifier, biosError ? biosError : "unknown error"];
+        } else {
+            NSString *displayName = path.lastPathComponent.length > 0 ? path.lastPathComponent : @"(unknown)";
+            [self emuLog:@"BIOS load ok (%@): %@", identifier, displayName];
+        }
+    };
+    loadBiosIfPresent(@"3ds_boot9", boot9);
+    loadBiosIfPresent(@"3ds_boot11", boot11);
+    loadBiosIfPresent(@"3ds_firmware", firmware);
+    loadBiosIfPresent(@"3ds_shared_font", sharedFont);
+
+    NSString *boot9Display = boot9.length > 0 ? boot9 : @"(null)";
+    NSString *boot11Display = boot11.length > 0 ? boot11 : @"(null)";
+    NSString *firmwareDisplay = firmware.length > 0 ? firmware : @"(null)";
+    NSString *sharedFontDisplay = sharedFont.length > 0 ? sharedFont : @"(null)";
     [self emuLog:@"BIOS paths boot9=%@ boot11=%@ firmware=%@ shared_font=%@",
-     boot9 ?: @"(null)", boot11 ?: @"(null)", firmware ?: @"(null)", sharedFont ?: @"(null)"];
+     boot9Display, boot11Display, firmwareDisplay, sharedFontDisplay];
     if (!boot9 && !boot11 && !firmware) {
         [self emuLog:@"3DS BIOS/Firmware not set. Attempting HLE boot without external firmware."];
     }
@@ -253,7 +303,8 @@ static const uint64_t kAURStatusLogFrameInterval = 120;
     }
     NSString *preflightReason = nil;
     if (![self validateROMURL:self.romURL reason:&preflightReason]) {
-        [self emuLog:@"ROM preflight failed: %@", preflightReason ?: @"unknown"];
+        NSString *reasonText = preflightReason.length > 0 ? preflightReason : @"unknown";
+        [self emuLog:@"ROM preflight failed: %@", reasonText];
         [self stopEmulator];
         return;
     }
@@ -271,7 +322,8 @@ static const uint64_t kAURStatusLogFrameInterval = 120;
         self.displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(gameLoop)];
         [self.displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
     } else {
-        [self emuLog:@"ROM load failed (%@): %s", self.romURL.lastPathComponent, EmulatorCore_GetLastError(_core) ?: "unknown error"];
+        const char *loadError = EmulatorCore_GetLastError(_core);
+        [self emuLog:@"ROM load failed (%@): %s", self.romURL.lastPathComponent, loadError ? loadError : "unknown error"];
         [self stopEmulator];
     }
 }
@@ -308,6 +360,34 @@ static const uint64_t kAURStatusLogFrameInterval = 120;
         [self emuLog:@"Frame %llu framebuffer underflow: got %zu expected %zu", self.frameCounter, pixelCount, expectedPixels];
         return;
     }
+
+    if ((self.frameCounter % kAURBlackSampleInterval) == 0) {
+        const size_t sampleCols = 8;
+        const size_t sampleRows = 8;
+        const size_t stepX = std::max<size_t>(1, _videoSpec.width / sampleCols);
+        const size_t stepY = std::max<size_t>(1, _videoSpec.height / sampleRows);
+        size_t nonBlackSamples = 0;
+        for (size_t y = 0; y < _videoSpec.height; y += stepY) {
+            for (size_t x = 0; x < _videoSpec.width; x += stepX) {
+                const uint32_t px = frameRGBA[y * _videoSpec.width + x];
+                if ((px & 0x00FFFFFFu) != 0) {
+                    nonBlackSamples += 1;
+                }
+            }
+        }
+
+        if (nonBlackSamples == 0) {
+            self.consecutiveMostlyBlackSamples += 1;
+            if (self.consecutiveMostlyBlackSamples >= kAURBlackSampleWarnThreshold) {
+                [self emuLog:@"Frame sample diagnostic: framebuffer remains mostly black for %llu checks. Possible causes: title-specific boot stall, missing keys/seeddb for encrypted content, or missing GPU screen buffers (check mikage_runtime.log).",
+                 self.consecutiveMostlyBlackSamples];
+                self.consecutiveMostlyBlackSamples = 0;
+            }
+        } else {
+            self.consecutiveMostlyBlackSamples = 0;
+        }
+    }
+
     if ((self.frameCounter - self.lastStatusLogFrame) >= kAURStatusLogFrameInterval) {
         self.lastStatusLogFrame = self.frameCounter;
         [self emuLog:@"Frame %llu status ok. pixels=%zu expected=%zu", self.frameCounter, pixelCount, expectedPixels];
