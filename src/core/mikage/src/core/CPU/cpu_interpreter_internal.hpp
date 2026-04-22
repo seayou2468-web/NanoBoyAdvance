@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../../include/common_types.hpp"
+#include "../../../include/helpers.hpp"
 #include "../../../include/arm_defs.hpp"
 #include <utility>
 #include <string_view>
@@ -32,24 +32,6 @@ public:
 								u32& fpsid, u32& mvfr0, u32& mvfr1);
 };
 
-class ExclusiveMonitor {
-public:
-	void Set(u32 addr, u32 size = 4) {
-		address = addr;
-		size_mask = ~(size - 1);
-		valid = true;
-	}
-	bool TryWrite(u32 addr) {
-		if (!valid || (addr & size_mask) != (address & size_mask)) return false;
-		valid = false;
-		return true;
-	}
-	void Clear() { valid = false; }
-private:
-	u32 address = 0;
-	u32 size_mask = 0;
-	bool valid = false;
-};
 
 class Coproc10Decoder {
 public:

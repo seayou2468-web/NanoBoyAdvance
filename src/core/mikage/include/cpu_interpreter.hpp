@@ -11,6 +11,26 @@
 class Emulator;
 class Kernel;
 
+class ExclusiveMonitor {
+public:
+	void Set(u32 addr, u32 size = 4) {
+		address = addr;
+		size_mask = ~(size - 1);
+		valid = true;
+	}
+	bool TryWrite(u32 addr) {
+		if (!valid || (addr & size_mask) != (address & size_mask)) return false;
+		valid = false;
+		return true;
+	}
+	void Clear() { valid = false; }
+
+private:
+	u32 address = 0;
+	u32 size_mask = 0;
+	bool valid = false;
+};
+
 // ARM11 interpreter backend.
 // Full Cytrus/Citra DynCom sources are transplanted under cytrus_arm/.
 // This front-end keeps Panda3DS CPU-facing API stable while executing through interpreter semantics.
@@ -41,6 +61,11 @@ class CPU {
 	bool exclusiveValid = false;
 	u8 itCond = 0;
 	u8 itMask = 0;
+	u32 NFlag = 0;
+	u32 ZFlag = 1;
+	u32 CFlag = 0;
+	u32 VFlag = 0;
+	u32 TFlag = 0;
 
 	ExclusiveMonitor exclusiveMonitor;
 
@@ -53,8 +78,18 @@ class CPU {
 	void setNZFlags(u32 value);
 	void setAddFlags(u32 lhs, u32 rhs, u32 result);
 	void setSubFlags(u32 lhs, u32 rhs, u32 result);
+	u32 getRegOperand(u32 index, u32 old_pc);
+	void setCarry(bool value);
+	void writeReg(u32 index, u32 value);
+	u32 getShifterOperand(u32 inst, bool& shifter_carry);
+	bool CurrentModeHasSPSR() const;
+	void ChangePrivilegeMode(u32 mode);
 	u32 executeArm(u32 inst);
 	u32 executeThumb(u16 inst);
+	u32 executeCoproc(u32 inst);
+	u32 executeVfp(u32 inst);
+	u32 executeNeon(u32 inst);
+	u32 getAddr(u32 inst, u32 old_pc);
 
   public:
 	static constexpr u64 ticksPerSec = Scheduler::arm11Clock;
@@ -84,6 +119,7 @@ class CPU {
 
 	void clearCache() {}
 	void clearCacheRange(u32, u32) {}
+	void clearExclusive();
 
 	void runFrame();
 

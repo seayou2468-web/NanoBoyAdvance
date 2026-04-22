@@ -28,6 +28,7 @@ u32 CPU::executeArm(u32 inst) {
 	const auto set_carry = [&](bool value) { setCarry(value); };
 	const auto write_reg = [&](u32 index, u32 value) { writeReg(index, value); };
 	const auto clear_exclusive = [&]() { clearExclusive(); };
+	bool shifter_carry = (cpsr & CPSR::Carry) != 0;
 
     // Jump Table using Computed Goto
                 static const void* InstLabel[] = {
