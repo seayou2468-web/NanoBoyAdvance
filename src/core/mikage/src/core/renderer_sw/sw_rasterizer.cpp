@@ -268,6 +268,78 @@ static inline float wrapCoord(float t, WrapMode mode) {
 	}
 }
 
+
+
+static inline u8 expand4(u8 v) { return (v << 4) | v; }
+static inline u8 expand5(u8 v) { return (v << 3) | (v >> 2); }
+static inline int signExtend3(u8 v) { return (v & 0x4) ? int(v) - 8 : int(v); }
+
+static RGBA8 decodeETC1Texel(const u8* blockPtr, u32 x, u32 y, bool hasAlpha) {
+	static constexpr int modifiers[8][4] = {
+		{2, 8, -2, -8}, {5, 17, -5, -17}, {9, 29, -9, -29}, {13, 42, -13, -42},
+		{18, 60, -18, -60}, {24, 80, -24, -80}, {33, 106, -33, -106}, {47, 183, -47, -183},
+	};
+
+	u64 alphaBlock = 0;
+	u64 block = 0;
+	if (hasAlpha) {
+		for (int i = 0; i < 8; ++i) {
+			alphaBlock |= u64(blockPtr[i]) << (i * 8);
+			block |= u64(blockPtr[8 + i]) << (i * 8);
+		}
+	} else {
+		for (int i = 0; i < 8; ++i) {
+			block |= u64(blockPtr[i]) << (i * 8);
+		}
+	}
+
+	const u32 diffBit = (block >> 33) & 1u;
+	const u32 flipBit = (block >> 32) & 1u;
+	const u32 table0 = (block >> 37) & 0x7u;
+	const u32 table1 = (block >> 34) & 0x7u;
+
+	u8 r0, g0, b0, r1, g1, b1;
+	if (diffBit) {
+		const int br = (block >> 59) & 0x1F;
+		const int bg = (block >> 51) & 0x1F;
+		const int bb = (block >> 43) & 0x1F;
+		const int dr = signExtend3((block >> 56) & 0x7);
+		const int dg = signExtend3((block >> 48) & 0x7);
+		const int db = signExtend3((block >> 40) & 0x7);
+		r0 = expand5(u8(br));
+		g0 = expand5(u8(bg));
+		b0 = expand5(u8(bb));
+		r1 = expand5(u8(std::clamp(br + dr, 0, 31)));
+		g1 = expand5(u8(std::clamp(bg + dg, 0, 31)));
+		b1 = expand5(u8(std::clamp(bb + db, 0, 31)));
+	} else {
+		r0 = expand4((block >> 60) & 0xF);
+		r1 = expand4((block >> 56) & 0xF);
+		g0 = expand4((block >> 52) & 0xF);
+		g1 = expand4((block >> 48) & 0xF);
+		b0 = expand4((block >> 44) & 0xF);
+		b1 = expand4((block >> 40) & 0xF);
+	}
+
+	const bool subblock1 = flipBit ? (y >= 2) : (x >= 2);
+	const u8 baseR = subblock1 ? r1 : r0;
+	const u8 baseG = subblock1 ? g1 : g0;
+	const u8 baseB = subblock1 ? b1 : b0;
+	const int table = modifiers[subblock1 ? table1 : table0][((block >> (x * 4 + y + 16)) & 1u) * 2 + ((block >> (x * 4 + y)) & 1u)];
+
+	const u8 outR = static_cast<u8>(std::clamp(int(baseR) + table, 0, 255));
+	const u8 outG = static_cast<u8>(std::clamp(int(baseG) + table, 0, 255));
+	const u8 outB = static_cast<u8>(std::clamp(int(baseB) + table, 0, 255));
+
+	u8 outA = 0xFF;
+	if (hasAlpha) {
+		const u32 p = x * 4 + y;
+		outA = static_cast<u8>(((alphaBlock >> (p * 4)) & 0xFu) * 17u);
+	}
+
+	return RGBA8{outR, outG, outB, outA};
+}
+
 static inline RGBAf applyColorOperand(PICA::TexEnvConfig::ColorOperand op, const RGBAf& s) {
 	switch (op) {
 		case PICA::TexEnvConfig::ColorOperand::SourceColor: return RGBAf{s.r, s.g, s.b, s.a};
@@ -517,6 +589,15 @@ void SwRasterizer::drawTriangles(
 						vv = wrapCoord(vv, wrapT);
 						const u32 tx = std::clamp(static_cast<int>(uu * float(texWidth)), 0, int(texWidth - 1));
 						const u32 ty = std::clamp(static_cast<int>(vv * float(texHeight)), 0, int(texHeight - 1));
+						if (texFormat == PICA::TextureFmt::ETC1 || texFormat == PICA::TextureFmt::ETC1A4) {
+							const u32 blocksWide = (texWidth + 3) / 4;
+							const u32 bx = tx / 4;
+							const u32 by = ty / 4;
+							const u32 blockIndex = by * blocksWide + bx;
+							const u32 blockSize = (texFormat == PICA::TextureFmt::ETC1A4) ? 16 : 8;
+							const u32 boff = blockIndex * blockSize;
+							return decodeETC1Texel(tex + boff, tx % 4, ty % 4, texFormat == PICA::TextureFmt::ETC1A4);
+						}
 						const u32 toff = (ty * texWidth + tx) * texBpp;
 						return readTexel(texFormat, tex + toff);
 					};
