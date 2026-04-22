@@ -77,6 +77,7 @@ target_link_libraries(AuroraIOS PRIVATE
   "-framework PencilKit"
   "-framework LocalAuthentication"
   "-framework UniformTypeIdentifiers"
+  "-framework Compression"
   "-framework CoreServices"
   "-framework CoreLocation"
   "-framework MapKit"
