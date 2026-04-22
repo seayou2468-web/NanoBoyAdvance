@@ -340,21 +340,27 @@ bool Emulator::loadROM(const std::filesystem::path& path) {
 	if (success) {
 		const u32 entrypoint = cpu.getReg(15);
 		const u32 entrypointAddr = entrypoint & ~1u;  // Ignore Thumb bit
-		const bool inExecutableRange =
-			(entrypointAddr >= VirtualAddrs::ExecutableStart) && (entrypointAddr < VirtualAddrs::ExecutableEnd);
 		const bool mapped = memory.getReadPointer(entrypointAddr) != nullptr;
 		KernelMemoryTypes::MemoryInfo entryInfo;
 		const bool queryOk = memory.queryMemory(entryInfo, entrypointAddr).isSuccess();
 		const bool executablePerm = queryOk && ((entryInfo.perms & KernelMemoryTypes::MemoryState::PERMISSION_X) != 0);
-		if (!inExecutableRange || !mapped || !executablePerm || entrypointAddr == 0) {
+		if (!mapped || entrypointAddr == 0) {
 			Helpers::warn(
-				"Invalid entrypoint detected after ROM load: entry=%08X (range_ok=%d, mapped=%d, exec_perm=%d)\n", entrypoint,
-				int(inExecutableRange), int(mapped), int(executablePerm)
+				"Invalid entrypoint detected after ROM load: entry=%08X (mapped=%d, query_ok=%d, exec_perm=%d)\n", entrypoint,
+				int(mapped), int(queryOk), int(executablePerm)
 			);
 			success = false;
 			romType = ROMType::None;
 			romPath = std::nullopt;
 		} else {
+			// Some ROM types/boot flows may not expose executable permissions in a way we can
+			// reliably validate at this layer yet. Keep this as diagnostics, not a hard failure.
+			if (!queryOk || !executablePerm) {
+				Helpers::warn(
+					"Entrypoint permission check inconclusive: entry=%08X (query_ok=%d, exec_perm=%d). Continuing ROM boot.\n",
+					entrypoint, int(queryOk), int(executablePerm)
+				);
+			}
 			romPath = path;
 		}
 	} else {
