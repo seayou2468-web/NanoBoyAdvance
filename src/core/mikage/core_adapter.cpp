@@ -220,6 +220,40 @@ static bool IsLikelySupportedRomPath(const std::filesystem::path& path) {
   return isElf || isNcch || isNcsd || is3dsx;
 }
 
+enum class ContainerMagicType {
+  Unknown = 0,
+  NCSD,
+  NCCH,
+  ELF,
+  _3DSX,
+};
+
+ContainerMagicType DetectContainerMagic(const std::filesystem::path& path) {
+  std::ifstream file(path, std::ios::binary);
+  if (!file) {
+    return ContainerMagicType::Unknown;
+  }
+  std::array<u8, 0x220> header{};
+  file.read(reinterpret_cast<char*>(header.data()), static_cast<std::streamsize>(header.size()));
+  const std::streamsize read = file.gcount();
+  if (read < 4) {
+    return ContainerMagicType::Unknown;
+  }
+  if (header[0] == 0x7F && header[1] == 'E' && header[2] == 'L' && header[3] == 'F') {
+    return ContainerMagicType::ELF;
+  }
+  if (header[0] == '3' && header[1] == 'D' && header[2] == 'S' && header[3] == 'X') {
+    return ContainerMagicType::_3DSX;
+  }
+  if (read >= 0x104 && header[0x100] == 'N' && header[0x101] == 'C' && header[0x102] == 'S' && header[0x103] == 'D') {
+    return ContainerMagicType::NCSD;
+  }
+  if (read >= 0x104 && header[0x100] == 'N' && header[0x101] == 'C' && header[0x102] == 'C' && header[0x103] == 'H') {
+    return ContainerMagicType::NCCH;
+  }
+  return ContainerMagicType::Unknown;
+}
+
 bool LoadRomFromPath(void* opaque_runtime, const char* rom_path, std::string& last_error) {
   auto* runtime = static_cast<MikageRuntime*>(opaque_runtime);
   if (!runtime || !runtime->emulator || !rom_path || rom_path[0] == '\0') {
@@ -245,6 +279,12 @@ bool LoadRomFromPath(void* opaque_runtime, const char* rom_path, std::string& la
 
   if (!IsLikelySupportedRomPath(fs_path)) {
     last_error = "Selected file is not a supported ROM image (did you pass config.toml?)";
+    return false;
+  }
+
+  const ContainerMagicType magic_type = DetectContainerMagic(fs_path);
+  if (magic_type == ContainerMagicType::Unknown) {
+    last_error = "ROM container parse precheck failed: NCSD/NCCH/ELF/3DSX magic not found. File may be corrupted or not fully extracted.";
     return false;
   }
 
