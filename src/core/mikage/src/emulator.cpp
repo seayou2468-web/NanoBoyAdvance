@@ -332,8 +332,20 @@ bool Emulator::loadROM(const std::filesystem::path& path) {
 	}
 
 	if (success) {
-		romPath = path;
-		memory.snapshotActiveVMAsCanonical();
+		const u32 entrypoint = cpu.getReg(15);
+		const u32 entrypointAddr = entrypoint & ~1u;  // Ignore Thumb bit
+		const bool inExecutableRange =
+			(entrypointAddr >= VirtualAddrs::ExecutableStart) && (entrypointAddr < VirtualAddrs::ExecutableEnd);
+		const bool mapped = memory.getReadPointer(entrypointAddr) != nullptr;
+		if (!inExecutableRange || !mapped || entrypointAddr == 0) {
+			Helpers::warn("Invalid or unmapped entrypoint detected after ROM load: entry=%08X (range_ok=%d, mapped=%d)\n",
+			              entrypoint, int(inExecutableRange), int(mapped));
+			success = false;
+			romType = ROMType::None;
+			romPath = std::nullopt;
+		} else {
+			romPath = path;
+		}
 	} else {
 		romPath = std::nullopt;
 		romType = ROMType::None;
@@ -342,6 +354,8 @@ bool Emulator::loadROM(const std::filesystem::path& path) {
 	if (success) {
 		// Update the main thread entrypoint and SP so that the thread debugger can display them.
 		kernel.setMainThreadEntrypointAndSP(cpu.getReg(15), cpu.getReg(13));
+		// Snapshot canonical VM only after entrypoint and mapping validation.
+		memory.snapshotActiveVMAsCanonical();
 	}
 
 	resume();  // Start the emulator
