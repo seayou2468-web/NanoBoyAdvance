@@ -183,11 +183,15 @@ void RendererSw::displayTransfer(u32 inputAddr, u32 outputAddr, u32 inputSize, u
 	}
 
 	const bool flipVertically = (flags & (1u << 0)) != 0;
-	const bool inputLinear = (flags & (1u << 1)) != 0;   // linear -> tiled
-	const bool tiledToTiled = (flags & (1u << 5)) != 0;  // overrides others
+	const bool inputLinear = (flags & (1u << 1)) != 0;
+	const bool dontSwizzle = (flags & (1u << 5)) != 0;
 
 	const u32 scalingMode = (flags >> 24) & 0x3;  // 0:none,1:2x1,2:2x2
 	if (scalingMode > 2) {
+		return;
+	}
+	if (inputLinear && scalingMode != 0) {
+		Helpers::warn("RendererSw::displayTransfer: scaling with linear input is unsupported in SW path (flags=%08X)\n", flags);
 		return;
 	}
 
@@ -213,7 +217,12 @@ void RendererSw::displayTransfer(u32 inputAddr, u32 outputAddr, u32 inputSize, u
 		return;
 	}
 
-	const bool outputTiled = inputLinear || tiledToTiled;
+	// Match Azahar/Citra sw blitter transfer semantics:
+	// - input linear + dont_swizzle=0 => output tiled
+	// - input linear + dont_swizzle=1 => output linear
+	// - input tiled  + dont_swizzle=0 => output linear
+	// - input tiled  + dont_swizzle=1 => output tiled
+	const bool outputTiled = inputLinear ? !dontSwizzle : dontSwizzle;
 	const bool sourceTiled = !inputLinear;
 
 	for (u32 y = 0; y < outputHeight; ++y) {
