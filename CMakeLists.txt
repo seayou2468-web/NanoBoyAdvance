@@ -24,6 +24,9 @@ file(GLOB_RECURSE CORE_SOURCES CONFIGURE_DEPENDS
   "src/core/mikage/*.c"
 )
 
+# Exclude reference interpreter files which have external dependencies not present in build env
+list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/mikage/src/core/CPU/reference/.*")
+
 add_executable(AuroraIOS MACOSX_BUNDLE
   ${AURORAIOS_SOURCES}
   ${CORE_SOURCES}
