@@ -98,7 +98,7 @@ class CPU {
   public:
 	static constexpr u64 ticksPerSec = Scheduler::arm11Clock;
 
-	CPU(Memory& mem, Emulator& emu);
+	CPU(Memory& mem, Emulator& emu, Scheduler& schedulerRef);
 	~CPU();
 	void bindScheduler(Scheduler& schedulerRef) { scheduler = &schedulerRef; }
 	void bindKernel(Kernel& kernelRef) { kernel = &kernelRef; }

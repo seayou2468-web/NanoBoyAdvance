@@ -4,8 +4,8 @@
 #include "CPU/dyncom/arm_dyncom_interpreter.h"
 #include "CPU/skyeye_common/armstate.h"
 
-CPU::CPU(Memory& mem, Emulator& emu)
-    : mem(mem), emu(emu) {
+CPU::CPU(Memory& mem, Emulator& emu, Scheduler& schedulerRef)
+    : mem(mem), scheduler(&schedulerRef), emu(emu) {
     reset();
 }
 
