@@ -6,6 +6,7 @@
 - (NSArray<AURGame *> *)gamesForCoreType:(EmulatorCoreType)coreType;
 - (void)addGame:(AURGame *)game;
 - (void)removeGame:(AURGame *)game removeROMFile:(BOOL)removeROMFile;
+- (NSString *)persistImportedROMAtURL:(NSURL *)url;
 - (void)setBIOSPath:(NSString *)path forCoreType:(EmulatorCoreType)coreType;
 - (void)setBIOSURL:(NSURL *)url forCoreType:(EmulatorCoreType)coreType;
 - (NSString *)BIOSPathForCoreType:(EmulatorCoreType)coreType;

@@ -103,9 +103,11 @@
     NSString *boot9 = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"3ds_boot9"];
     NSString *boot11 = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"3ds_boot11"];
     NSString *firmware = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"3ds_firmware"];
+    NSString *sharedFont = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"3ds_shared_font"];
     if (boot9) EmulatorCore_LoadBIOSFromPath(_core, boot9.UTF8String);
     if (boot11) EmulatorCore_LoadBIOSFromPath(_core, boot11.UTF8String);
     if (firmware) EmulatorCore_LoadBIOSFromPath(_core, firmware.UTF8String);
+    if (sharedFont) EmulatorCore_LoadBIOSFromPath(_core, sharedFont.UTF8String);
     if (!boot9 && !boot11 && !firmware) {
         NSLog(@"[AUR][Emu] 3DS BIOS/Firmware not set. Attempting HLE boot without external firmware.");
     }

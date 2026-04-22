@@ -23,6 +23,8 @@ using namespace KernelMemoryTypes;
 
 namespace {
 
+std::optional<std::filesystem::path> g_sharedFontReplacementOverridePath;
+
 std::vector<u8> LoadFile(const std::filesystem::path& path) {
 	std::ifstream in(path, std::ios::binary);
 	if (!in.good()) {
@@ -65,6 +67,12 @@ std::vector<u8> LoadSharedFontFromBundle() {
 #endif
 
 std::vector<u8> LoadSharedFontReplacement() {
+	if (g_sharedFontReplacementOverridePath.has_value()) {
+		if (std::vector<u8> data = LoadFile(*g_sharedFontReplacementOverridePath); !data.empty()) {
+			return data;
+		}
+	}
+
 	// iOS/macOS app bundles first.
 #if defined(__APPLE__)
 	if (std::vector<u8> data = LoadSharedFontFromBundle(); !data.empty()) {
@@ -84,6 +92,18 @@ std::vector<u8> LoadSharedFontReplacement() {
 }
 
 }  // namespace
+
+void SetSharedFontReplacementOverridePath(const std::filesystem::path& path) {
+	if (path.empty()) {
+		g_sharedFontReplacementOverridePath = std::nullopt;
+		return;
+	}
+	g_sharedFontReplacementOverridePath = path;
+}
+
+void ClearSharedFontReplacementOverridePath() {
+	g_sharedFontReplacementOverridePath = std::nullopt;
+}
 
 Memory::Memory(KFcram& fcramManager, const EmulatorConfig& config) : fcramManager(fcramManager), config(config) {
 	const bool fastmemEnabled = config.fastmemEnabled;

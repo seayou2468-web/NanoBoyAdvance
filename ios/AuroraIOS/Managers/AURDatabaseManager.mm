@@ -101,6 +101,53 @@
     return [self.allGames filteredArrayUsingPredicate:predicate];
 }
 
+- (NSString *)persistImportedROMAtURL:(NSURL *)url {
+    if (!url || !url.isFileURL) {
+        return nil;
+    }
+
+    NSString *sourcePath = url.path;
+    if (sourcePath.length == 0) {
+        return nil;
+    }
+
+    NSString *documents = [self documentsDirectory];
+    if ([sourcePath hasPrefix:documents]) {
+        return sourcePath;
+    }
+
+    BOOL didAccess = [url startAccessingSecurityScopedResource];
+
+    NSString *romsDir = [documents stringByAppendingPathComponent:@"ROMs/Library"];
+    [[NSFileManager defaultManager] createDirectoryAtPath:romsDir withIntermediateDirectories:YES attributes:nil error:nil];
+
+    NSString *baseName = url.lastPathComponent.length > 0 ? url.lastPathComponent : @"imported.rom";
+    NSString *destinationPath = [romsDir stringByAppendingPathComponent:baseName];
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+
+    if ([fileManager fileExistsAtPath:destinationPath]) {
+        NSString *name = [baseName stringByDeletingPathExtension];
+        NSString *ext = [baseName pathExtension];
+        NSString *unique = [NSString stringWithFormat:@"%@_%@%@", name, NSUUID.UUID.UUIDString.lowercaseString,
+                            ext.length > 0 ? [@"." stringByAppendingString:ext] : @""];
+        destinationPath = [romsDir stringByAppendingPathComponent:unique];
+    }
+
+    NSError *copyError = nil;
+    [fileManager copyItemAtURL:url toURL:[NSURL fileURLWithPath:destinationPath] error:&copyError];
+
+    if (didAccess) {
+        [url stopAccessingSecurityScopedResource];
+    }
+
+    if (copyError) {
+        NSLog(@"[AUR][DB] ROM copy failed from %@ to %@: %@", sourcePath, destinationPath, copyError.localizedDescription);
+        return nil;
+    }
+
+    return destinationPath;
+}
+
 - (void)addGame:(AURGame *)game {
     if (!game || game.romPath.length == 0) {
         return;
@@ -155,6 +202,7 @@
     if ([identifier isEqualToString:@"3ds_boot9"]) return @2001;
     if ([identifier isEqualToString:@"3ds_boot11"]) return @2002;
     if ([identifier isEqualToString:@"3ds_firmware"]) return @2003;
+    if ([identifier isEqualToString:@"3ds_shared_font"]) return @2004;
     return nil;
 }
 

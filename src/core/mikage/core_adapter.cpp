@@ -12,6 +12,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <exception>
 #include <filesystem>
 #include <fstream>
 #include <memory>
@@ -19,6 +20,7 @@
 #include <vector>
 
 #include "./include/emulator.hpp"
+#include "./include/memory.hpp"
 #include "./include/services/hid.hpp"
 
 namespace {
@@ -85,6 +87,22 @@ bool LoadBiosFromPath(void* opaque_runtime, const char* bios_path, std::string& 
     return false;
   }
 
+  std::string file_name = path.filename().string();
+  std::transform(file_name.begin(), file_name.end(), file_name.begin(), [](unsigned char c) {
+    return static_cast<char>(std::tolower(c));
+  });
+  std::string extension = path.extension().string();
+  std::transform(extension.begin(), extension.end(), extension.begin(), [](unsigned char c) {
+    return static_cast<char>(std::tolower(c));
+  });
+  const bool is_font_override = extension == ".bin" &&
+                                (file_name.find("font") != std::string::npos ||
+                                 file_name.find("shared_font") != std::string::npos);
+  if (is_font_override) {
+    SetSharedFontReplacementOverridePath(path);
+    return true;
+  }
+
   runtime->bios_paths.emplace_back(bios_path);
   return true;
 }
@@ -137,8 +155,16 @@ bool LoadRomFromPath(void* opaque_runtime, const char* rom_path, std::string& la
     return false;
   }
 
-  if (!runtime->emulator->loadROM(fs_path)) {
-    last_error = "Mikage failed to load 3DS ROM";
+  try {
+    if (!runtime->emulator->loadROM(fs_path)) {
+      last_error = "Mikage failed to load 3DS ROM";
+      return false;
+    }
+  } catch (const std::exception& ex) {
+    last_error = std::string("Mikage threw while loading 3DS ROM: ") + ex.what();
+    return false;
+  } catch (...) {
+    last_error = "Mikage threw while loading 3DS ROM";
     return false;
   }
 

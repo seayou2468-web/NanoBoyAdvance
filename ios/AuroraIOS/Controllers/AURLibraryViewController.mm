@@ -165,8 +165,12 @@ static BOOL AURCoreTypeForExtension(NSString *ext, EmulatorCoreType *outType) {
             if (!AURCoreTypeForExtension(ext, &detectedType)) {
                 detectedType = EMULATOR_CORE_TYPE_3DS;
             }
+            NSString *persistedROMPath = [[AURDatabaseManager sharedManager] persistImportedROMAtURL:url];
+            if (persistedROMPath.length == 0) {
+                return;
+            }
             game.coreType = detectedType;
-            game.romPath = [url path];
+            game.romPath = persistedROMPath;
             game.title = [[url lastPathComponent] stringByDeletingPathExtension];
         }
 

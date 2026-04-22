@@ -58,6 +58,9 @@ namespace VirtualAddrs {
 	};
 }
 
+void SetSharedFontReplacementOverridePath(const std::filesystem::path& path);
+void ClearSharedFontReplacementOverridePath();
+
 // Types for svcQueryMemory
 namespace KernelMemoryTypes {
 	// This makes no sense
