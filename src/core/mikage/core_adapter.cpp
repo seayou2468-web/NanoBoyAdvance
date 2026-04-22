@@ -18,6 +18,7 @@
 #include <filesystem>
 #include <fstream>
 #include <memory>
+#include <optional>
 #include <span>
 #include <string>
 #include <vector>
@@ -39,6 +40,63 @@ struct MikageRuntime {
   std::filesystem::path temp_rom_path;
   std::unique_ptr<Emulator> emulator;
 };
+
+std::string Lowercase(std::string value) {
+  std::transform(value.begin(), value.end(), value.begin(), [](unsigned char c) {
+    return static_cast<char>(std::tolower(c));
+  });
+  return value;
+}
+
+std::optional<std::string> CanonicalSysdataNameForInputPath(const std::filesystem::path& path) {
+  const std::string name = Lowercase(path.filename().string());
+  if (name.find("aes_keys") != std::string::npos || name == "keys.txt") {
+    return std::string("aes_keys.txt");
+  }
+  if (name.find("seeddb") != std::string::npos) {
+    return std::string("seeddb.bin");
+  }
+  if (name.find("boot9") != std::string::npos) {
+    return std::string("boot9.bin");
+  }
+  if (name.find("boot11") != std::string::npos) {
+    return std::string("boot11.bin");
+  }
+  if (name.find("firmware") != std::string::npos || name.find("firm") != std::string::npos) {
+    return std::string("firmware.bin");
+  }
+  return std::nullopt;
+}
+
+bool StageSysdataFileIfRecognized(MikageRuntime* runtime, const std::filesystem::path& source_path,
+                                  std::string& last_error) {
+  if (!runtime || !runtime->emulator) {
+    return false;
+  }
+
+  const auto canonical_name = CanonicalSysdataNameForInputPath(source_path);
+  if (!canonical_name.has_value()) {
+    return false;
+  }
+
+  std::error_code ec;
+  const std::filesystem::path app_data_root = runtime->emulator->getAppDataRoot();
+  const std::filesystem::path sysdata_dir = app_data_root / "sysdata";
+  std::filesystem::create_directories(sysdata_dir, ec);
+  if (ec) {
+    last_error = "Failed to create sysdata directory for staged system files";
+    return false;
+  }
+
+  const std::filesystem::path target = sysdata_dir / *canonical_name;
+  std::filesystem::copy_file(source_path, target, std::filesystem::copy_options::overwrite_existing, ec);
+  if (ec) {
+    last_error = "Failed to stage system file into app-data sysdata directory";
+    return false;
+  }
+
+  return true;
+}
 
 void* CreateRuntime() {
   auto* runtime = new MikageRuntime();
@@ -90,20 +148,18 @@ bool LoadBiosFromPath(void* opaque_runtime, const char* bios_path, std::string& 
     return false;
   }
 
-  std::string file_name = path.filename().string();
-  std::transform(file_name.begin(), file_name.end(), file_name.begin(), [](unsigned char c) {
-    return static_cast<char>(std::tolower(c));
-  });
-  std::string extension = path.extension().string();
-  std::transform(extension.begin(), extension.end(), extension.begin(), [](unsigned char c) {
-    return static_cast<char>(std::tolower(c));
-  });
+  std::string file_name = Lowercase(path.filename().string());
+  std::string extension = Lowercase(path.extension().string());
   const bool is_font_override = extension == ".bin" &&
                                 (file_name.find("font") != std::string::npos ||
                                  file_name.find("shared_font") != std::string::npos);
   if (is_font_override) {
     SetSharedFontReplacementOverridePath(path);
     return true;
+  }
+
+  if (!StageSysdataFileIfRecognized(runtime, path, last_error) && !last_error.empty()) {
+    return false;
   }
 
   runtime->bios_paths.emplace_back(bios_path);
@@ -197,7 +253,9 @@ bool LoadRomFromPath(void* opaque_runtime, const char* rom_path, std::string& la
 
   try {
     if (!runtime->emulator->loadROM(fs_path)) {
-      last_error = "Mikage failed to load 3DS ROM";
+      last_error =
+          "Mikage failed to load 3DS ROM. If this title is encrypted, ensure sysdata/aes_keys.txt "
+          "(and optional sysdata/seeddb.bin) exist in the emulator app data directory.";
       return false;
     }
   } catch (const std::exception& ex) {

@@ -7,7 +7,6 @@
 #import "../Metal.h"
 #import <QuartzCore/QuartzCore.h>
 #import <stdarg.h>
-#include <algorithm>
 #include <array>
 #include <cstring>
 
@@ -229,10 +228,20 @@ static const uint64_t kAURStatusLogFrameInterval = 120;
     NSString *boot11 = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"3ds_boot11"];
     NSString *firmware = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"3ds_firmware"];
     NSString *sharedFont = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"3ds_shared_font"];
-    if (boot9) EmulatorCore_LoadBIOSFromPath(_core, boot9.UTF8String);
-    if (boot11) EmulatorCore_LoadBIOSFromPath(_core, boot11.UTF8String);
-    if (firmware) EmulatorCore_LoadBIOSFromPath(_core, firmware.UTF8String);
-    if (sharedFont) EmulatorCore_LoadBIOSFromPath(_core, sharedFont.UTF8String);
+
+    void (^loadBiosIfPresent)(NSString *, NSString *) = ^(NSString *identifier, NSString *path) {
+        if (path.length == 0) return;
+        if (!EmulatorCore_LoadBIOSFromPath(_core, path.UTF8String)) {
+            [self emuLog:@"BIOS load failed (%@): %s", identifier, EmulatorCore_GetLastError(_core) ?: "unknown error"];
+        } else {
+            [self emuLog:@"BIOS load ok (%@): %@", identifier, path.lastPathComponent ?: @"(unknown)");
+        }
+    };
+    loadBiosIfPresent(@"3ds_boot9", boot9);
+    loadBiosIfPresent(@"3ds_boot11", boot11);
+    loadBiosIfPresent(@"3ds_firmware", firmware);
+    loadBiosIfPresent(@"3ds_shared_font", sharedFont);
+
     [self emuLog:@"BIOS paths boot9=%@ boot11=%@ firmware=%@ shared_font=%@",
      boot9 ?: @"(null)", boot11 ?: @"(null)", firmware ?: @"(null)", sharedFont ?: @"(null)"];
     if (!boot9 && !boot11 && !firmware) {
@@ -308,6 +317,7 @@ static const uint64_t kAURStatusLogFrameInterval = 120;
         [self emuLog:@"Frame %llu framebuffer underflow: got %zu expected %zu", self.frameCounter, pixelCount, expectedPixels];
         return;
     }
+
     if ((self.frameCounter - self.lastStatusLogFrame) >= kAURStatusLogFrameInterval) {
         self.lastStatusLogFrame = self.frameCounter;
         [self emuLog:@"Frame %llu status ok. pixels=%zu expected=%zu", self.frameCounter, pixelCount, expectedPixels];
