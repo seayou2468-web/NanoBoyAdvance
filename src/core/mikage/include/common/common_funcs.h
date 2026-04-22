@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "common/common_types.h"
+#include "common_types.h"
 #include <type_traits>
 
 /// Textually concatenates two tokens. The double-expansion is required by the C preprocessor.
