@@ -30,6 +30,16 @@
     return NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES).firstObject;
 }
 
+- (NSString *)virtualNANDRootDirectory {
+    return [[self documentsDirectory] stringByAppendingPathComponent:@"Emulator Files/SharedFiles/NAND"];
+}
+
+- (NSString *)virtualNANDROMLibraryDirectory {
+    // 実機の title/content 構造に寄せた保存先（imported cartridge image 用）
+    // NAND/title/00040000/imported/content/<rom>
+    return [[self virtualNANDRootDirectory] stringByAppendingPathComponent:@"title/00040000/imported/content"];
+}
+
 - (void)loadDatabase {
     NSString *dbPath = [[self documentsDirectory] stringByAppendingPathComponent:@"aurora_database.plist"];
     NSDictionary *payload = [NSDictionary dictionaryWithContentsOfFile:dbPath];
@@ -111,15 +121,17 @@
         return nil;
     }
 
-    NSString *documents = [self documentsDirectory];
-    if ([sourcePath hasPrefix:documents]) {
-        return sourcePath;
-    }
-
     BOOL didAccess = [url startAccessingSecurityScopedResource];
 
-    NSString *romsDir = [documents stringByAppendingPathComponent:@"ROMs/Library"];
+    NSString *romsDir = [self virtualNANDROMLibraryDirectory];
     [[NSFileManager defaultManager] createDirectoryAtPath:romsDir withIntermediateDirectories:YES attributes:nil error:nil];
+
+    if ([sourcePath hasPrefix:romsDir]) {
+        if (didAccess) {
+            [url stopAccessingSecurityScopedResource];
+        }
+        return sourcePath;
+    }
 
     NSString *baseName = url.lastPathComponent.length > 0 ? url.lastPathComponent : @"imported.rom";
     NSString *destinationPath = [romsDir stringByAppendingPathComponent:baseName];
@@ -144,6 +156,8 @@
         NSLog(@"[AUR][DB] ROM copy failed from %@ to %@: %@", sourcePath, destinationPath, copyError.localizedDescription);
         return nil;
     }
+
+    NSLog(@"[AUR][DB] ROM persisted into virtual NAND library: %@", destinationPath);
 
     return destinationPath;
 }

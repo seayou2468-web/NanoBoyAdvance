@@ -6,8 +6,8 @@
 #import "../Managers/AURDatabaseManager.h"
 #import "../Managers/AURBoxArtManager.h"
 #import "../Models/AURGame.h"
-#import "../External/miniz/miniz.h"
 #import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
+#import <Compression/Compression.h>
 
 static BOOL AURCoreTypeForExtension(NSString *ext, EmulatorCoreType *outType) {
     if (ext == nil || outType == nil) {
@@ -21,6 +21,64 @@ static BOOL AURCoreTypeForExtension(NSString *ext, EmulatorCoreType *outType) {
         return YES;
     }
     return NO;
+}
+
+static uint16_t AURReadLE16(const uint8_t *p) {
+    return (uint16_t)p[0] | ((uint16_t)p[1] << 8);
+}
+
+static uint32_t AURReadLE32(const uint8_t *p) {
+    return (uint32_t)p[0] | ((uint32_t)p[1] << 8) | ((uint32_t)p[2] << 16) | ((uint32_t)p[3] << 24);
+}
+
+static NSData * _Nullable AURInflateRawDeflateWithCompressionFramework(const uint8_t *input, size_t inputSize) {
+    if (!input || inputSize == 0) {
+        return nil;
+    }
+
+    compression_stream stream;
+    memset(&stream, 0, sizeof(stream));
+    if (compression_stream_init(&stream, COMPRESSION_STREAM_DECODE, COMPRESSION_ZLIB) != COMPRESSION_STATUS_OK) {
+        return nil;
+    }
+
+    NSMutableData *outData = [NSMutableData data];
+    if (!outData) {
+        compression_stream_destroy(&stream);
+        return nil;
+    }
+
+    static const size_t kChunkSize = 64 * 1024;
+    stream.src_ptr = input;
+    stream.src_size = inputSize;
+
+    while (true) {
+        NSUInteger oldLen = outData.length;
+        [outData setLength:oldLen + kChunkSize];
+        stream.dst_ptr = (uint8_t *)outData.mutableBytes + oldLen;
+        stream.dst_size = kChunkSize;
+
+        compression_status status = compression_stream_process(&stream, COMPRESSION_STREAM_FINALIZE);
+        if (status == COMPRESSION_STATUS_ERROR) {
+            compression_stream_destroy(&stream);
+            return nil;
+        }
+
+        const size_t written = kChunkSize - stream.dst_size;
+        [outData setLength:oldLen + written];
+
+        if (status == COMPRESSION_STATUS_END) {
+            break;
+        }
+
+        if (status != COMPRESSION_STATUS_OK) {
+            compression_stream_destroy(&stream);
+            return nil;
+        }
+    }
+
+    compression_stream_destroy(&stream);
+    return outData;
 }
 
 @interface AURLibraryViewController () <UICollectionViewDelegate, UICollectionViewDataSource, UIDocumentPickerDelegate>
@@ -156,7 +214,8 @@ static BOOL AURCoreTypeForExtension(NSString *ext, EmulatorCoreType *outType) {
             if ([self extractFirstROMFromZipURL:url extractedURL:&extractedURL coreType:&extractedType title:&extractedTitle]) {
                 game.romPath = extractedURL.path;
                 game.coreType = extractedType;
-                game.title = extractedTitle ?: [[extractedURL lastPathComponent] stringByDeletingPathExtension];
+                NSString *fallbackTitle = [[extractedURL lastPathComponent] stringByDeletingPathExtension];
+                game.title = extractedTitle.length > 0 ? extractedTitle : fallbackTitle;
             } else {
                 return;
             }
@@ -184,6 +243,7 @@ static BOOL AURCoreTypeForExtension(NSString *ext, EmulatorCoreType *outType) {
                          coreType:(EmulatorCoreType *)outCoreType
                             title:(NSString * _Nullable * _Nonnull)outTitle {
     if (!zipURL || !outURL || !outCoreType || !outTitle) {
+        NSLog(@"[AUR][Library] ZIP extraction failed: invalid arguments");
         return NO;
     }
 
@@ -192,67 +252,113 @@ static BOOL AURCoreTypeForExtension(NSString *ext, EmulatorCoreType *outType) {
 
     NSData *zipData = [NSData dataWithContentsOfFile:zipURL.path];
     if (!zipData || zipData.length == 0) {
-        return NO;
-    }
-
-    mz_zip_archive archive;
-    memset(&archive, 0, sizeof(archive));
-    if (!mz_zip_reader_init_mem(&archive, zipData.bytes, zipData.length, 0)) {
+        NSLog(@"[AUR][Library] ZIP extraction failed: cannot read zip data at %@", zipURL.path);
         return NO;
     }
 
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSString *documents = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES).firstObject;
-    NSString *importDir = [[documents stringByAppendingPathComponent:@"ROMs/Imported"] stringByAppendingPathComponent:zipURL.lastPathComponent.stringByDeletingPathExtension];
+    NSString *virtualNANDImportedRoot = [documents stringByAppendingPathComponent:@"Emulator Files/SharedFiles/NAND/title/00040000/imported/extracted"];
+    NSString *importDir = [virtualNANDImportedRoot stringByAppendingPathComponent:zipURL.lastPathComponent.stringByDeletingPathExtension];
+    [fileManager removeItemAtPath:importDir error:nil];
     [fileManager createDirectoryAtPath:importDir withIntermediateDirectories:YES attributes:nil error:nil];
 
+    const uint8_t *bytes = (const uint8_t *)zipData.bytes;
+    const size_t totalSize = zipData.length;
+    size_t offset = 0;
     BOOL success = NO;
-    mz_uint fileCount = mz_zip_reader_get_num_files(&archive);
-    for (mz_uint i = 0; i < fileCount; i++) {
-        mz_zip_archive_file_stat stat;
-        if (!mz_zip_reader_file_stat(&archive, i, &stat)) {
-            continue;
+
+    while (offset + 30 <= totalSize) {
+        const uint32_t signature = AURReadLE32(bytes + offset);
+        if (signature == 0x02014B50 || signature == 0x06054B50) {
+            break;
         }
-        if (mz_zip_reader_is_file_a_directory(&archive, i)) {
-            continue;
+        if (signature != 0x04034B50) {
+            NSLog(@"[AUR][Library] ZIP extraction failed: invalid local header signature at offset=%zu", offset);
+            break;
         }
 
-        NSString *entryName = [NSString stringWithUTF8String:stat.m_filename];
+        const uint16_t flags = AURReadLE16(bytes + offset + 6);
+        const uint16_t method = AURReadLE16(bytes + offset + 8);
+        const uint32_t compressedSize = AURReadLE32(bytes + offset + 18);
+        const uint32_t uncompressedSize = AURReadLE32(bytes + offset + 22);
+        const uint16_t nameLen = AURReadLE16(bytes + offset + 26);
+        const uint16_t extraLen = AURReadLE16(bytes + offset + 28);
+
+        const size_t headerEnd = offset + 30;
+        const size_t nameEnd = headerEnd + nameLen;
+        const size_t dataStart = nameEnd + extraLen;
+        if (dataStart > totalSize) {
+            NSLog(@"[AUR][Library] ZIP extraction failed: malformed entry header at offset=%zu", offset);
+            break;
+        }
+
+        NSString *entryName = [[NSString alloc] initWithBytes:(bytes + headerEnd) length:nameLen encoding:NSUTF8StringEncoding];
         if (entryName.length == 0) {
+            entryName = [NSString stringWithFormat:@"entry_%zu", offset];
+        }
+
+        if ((flags & 0x0008) != 0) {
+            NSLog(@"[AUR][Library] ZIP extraction failed: data-descriptor ZIP entries are not supported (%@)", entryName);
+            break;
+        }
+
+        if ((size_t)compressedSize > (totalSize - dataStart)) {
+            NSLog(@"[AUR][Library] ZIP extraction failed: compressed size overflow for %@", entryName);
+            break;
+        }
+
+        const BOOL isDirectory = [entryName hasSuffix:@"/"];
+        const uint8_t *payloadPtr = bytes + dataStart;
+
+        if (isDirectory) {
+            offset = dataStart + compressedSize;
             continue;
         }
 
-        NSString *entryFileName = entryName.lastPathComponent;
-        NSString *entryExt = entryFileName.pathExtension.lowercaseString;
+        NSString *entryExt = entryName.pathExtension.lowercaseString;
         EmulatorCoreType type = EMULATOR_CORE_TYPE_3DS;
         if (!AURCoreTypeForExtension(entryExt, &type)) {
+            offset = dataStart + compressedSize;
             continue;
         }
 
-        size_t extractedSize = 0;
-        void *extractedData = mz_zip_reader_extract_to_heap(&archive, i, &extractedSize, 0);
-        if (!extractedData || extractedSize == 0) {
-            if (extractedData) {
-                mz_free(extractedData);
-            }
+        NSData *decoded = nil;
+        if (method == 0) {
+            decoded = [NSData dataWithBytes:payloadPtr length:compressedSize];
+        } else if (method == 8) {
+            decoded = AURInflateRawDeflateWithCompressionFramework(payloadPtr, compressedSize);
+        } else {
+            NSLog(@"[AUR][Library] ZIP extraction failed: unsupported compression method=%u for %@", (unsigned)method, entryName);
+            offset = dataStart + compressedSize;
             continue;
         }
 
-        NSString *safeName = entryFileName.length > 0 ? entryFileName : [NSString stringWithFormat:@"entry_%u.%@", i, entryExt];
-        NSString *destinationPath = [importDir stringByAppendingPathComponent:safeName];
-        NSData *payload = [NSData dataWithBytesNoCopy:extractedData length:extractedSize freeWhenDone:YES];
-        if (![payload writeToFile:destinationPath atomically:YES]) {
+        if (!decoded || decoded.length == 0) {
+            NSLog(@"[AUR][Library] ZIP extraction failed: decode error for %@ (method=%u, csize=%u, usize=%u)",
+                  entryName, (unsigned)method, (unsigned)compressedSize, (unsigned)uncompressedSize);
+            offset = dataStart + compressedSize;
+            continue;
+        }
+
+        NSString *destinationPath = [importDir stringByAppendingPathComponent:entryName.lastPathComponent];
+        if (![decoded writeToFile:destinationPath atomically:YES]) {
+            NSLog(@"[AUR][Library] ZIP extraction failed: cannot write %@", destinationPath);
+            offset = dataStart + compressedSize;
             continue;
         }
 
         *outCoreType = type;
         *outURL = [NSURL fileURLWithPath:destinationPath];
-        *outTitle = [safeName stringByDeletingPathExtension];
+        *outTitle = entryName.lastPathComponent.stringByDeletingPathExtension;
         success = YES;
+        NSLog(@"[AUR][Library] ZIP extraction succeeded via Compression.framework. Selected ROM: %@", entryName);
         break;
     }
 
-    mz_zip_reader_end(&archive);
+    if (!success) {
+        NSLog(@"[AUR][Library] ZIP extraction failed: no supported ROM found in archive %@", zipURL.lastPathComponent);
+    }
     return success;
 }
 
