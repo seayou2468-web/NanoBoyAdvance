@@ -34,6 +34,23 @@ std::vector<u8> LoadFile(const std::filesystem::path& path) {
 	return std::vector<u8>(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
 }
 
+bool ShouldLogUnmappedMemoryAccess() {
+	static int count = 0;
+	if (count < 20) {
+		count++;
+		return true;
+	}
+	return false;
+}
+
+void LogUnmappedWrite(u32 bits, u32 vaddr, u32 value) {
+	if (!ShouldLogUnmappedMemoryAccess()) {
+		return;
+	}
+
+	Helpers::warn("Ignoring unmapped %u-bit write, addr: %08X, val: %08X", bits, vaddr, value);
+}
+
 #if defined(__APPLE__)
 std::vector<u8> LoadSharedFontFromBundle() {
 	CFBundleRef bundle = CFBundleGetMainBundle();
@@ -324,7 +341,7 @@ void Memory::write8(u32 vaddr, u8 value) {
 		}
 
 		else {
-			Helpers::panic("Unimplemented 8-bit write, addr: %08X, val: %02X", vaddr, value);
+			LogUnmappedWrite(8, vaddr, value);
 		}
 	}
 }
@@ -346,7 +363,7 @@ void Memory::write16(u32 vaddr, u16 value) {
 			return;
 		}
 
-		Helpers::panic("Unimplemented 16-bit write, addr: %08X, val: %08X", vaddr, value);
+		LogUnmappedWrite(16, vaddr, value);
 	}
 }
 
@@ -369,7 +386,7 @@ void Memory::write32(u32 vaddr, u32 value) {
 			return;
 		}
 
-		Helpers::panic("Unimplemented 32-bit write, addr: %08X, val: %08X", vaddr, value);
+		LogUnmappedWrite(32, vaddr, value);
 	}
 }
 
