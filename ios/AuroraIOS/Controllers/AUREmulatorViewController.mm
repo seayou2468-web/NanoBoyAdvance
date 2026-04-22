@@ -301,6 +301,11 @@ static const uint64_t kAURBlackSampleWarnThreshold = 8;
         [self stopEmulator];
         return;
     }
+    if ([ext isEqualToString:@"3ds"] || [ext isEqualToString:@"cci"] ||
+        [ext isEqualToString:@"cxi"] || [ext isEqualToString:@"app"] ||
+        [ext isEqualToString:@"ncch"]) {
+        [self emuLog:@"ROM format %@ is loaded as a container directly (NCCH/RomFS are parsed by core at runtime; no pre-extraction step).", ext];
+    }
     NSString *preflightReason = nil;
     if (![self validateROMURL:self.romURL reason:&preflightReason]) {
         NSString *reasonText = preflightReason.length > 0 ? preflightReason : @"unknown";
