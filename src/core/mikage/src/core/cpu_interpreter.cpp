@@ -114,7 +114,8 @@ void CPU::reportMMUFault(u32 fsr, u32 far, bool instruction_fault) {
     const u32 old_pc = gprs[15];
     const bool was_thumb = (old_cpsr & CPSR::Thumb) != 0;
     const u32 vector = instruction_fault ? 0x0C : 0x10;  // Prefetch abort / Data abort vectors
-    const u32 lr_abort = instruction_fault ? (old_pc + (was_thumb ? 2 : 4)) : (old_pc + (was_thumb ? 4 : 8));
+    lastAbortReturnAdjust = instruction_fault ? (was_thumb ? 2u : 4u) : 8u;
+    const u32 lr_abort = old_pc + lastAbortReturnAdjust;
 
     if (instruction_fault) {
         cp15IFSR = fsr;

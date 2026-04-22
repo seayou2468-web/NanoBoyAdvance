@@ -77,6 +77,7 @@ struct Process {
 	u32 dataFaultAddress = 0;
 	u32 instrFaultStatus = 0;
 	u32 instrFaultAddress = 0;
+	u32 abortReturnAdjust = 0;
 
 	Process(u32 id) : id(id) {}
 };

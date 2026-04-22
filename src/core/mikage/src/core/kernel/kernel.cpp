@@ -104,7 +104,7 @@ HorizonHandle Kernel::makeProcess(u32 id) {
 	return processHandle;
 }
 
-void Kernel::reportMMUFault(u32 fsr, u32 far, bool instruction_fault) {
+void Kernel::reportMMUFault(u32 fsr, u32 far, bool instruction_fault, u32 abort_return_adjust) {
 	auto* current = getObject(currentProcess, KernelObjectType::Process);
 	if (current == nullptr) {
 		return;
@@ -118,6 +118,7 @@ void Kernel::reportMMUFault(u32 fsr, u32 far, bool instruction_fault) {
 		process->dataFaultStatus = fsr;
 		process->dataFaultAddress = far;
 	}
+	process->abortReturnAdjust = abort_return_adjust;
 }
 
 // Get a pointer to the process indicated by handle, taking into account that 0xFFFF8001 always refers to the current process

@@ -210,7 +210,7 @@ class Kernel {
 	void setVersion(u8 major, u8 minor);
 	void serviceSVC(u32 svc);
 	void reset();
-	void reportMMUFault(u32 fsr, u32 far, bool instruction_fault);
+	void reportMMUFault(u32 fsr, u32 far, bool instruction_fault, u32 abort_return_adjust = 0);
 
 	void requireReschedule() { needReschedule = true; }
 
