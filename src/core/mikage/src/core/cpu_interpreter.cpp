@@ -5,7 +5,7 @@
 #include "CPU/skyeye_common/armstate.h"
 
 CPU::CPU(Memory& mem, Kernel& kernel, Emulator& emu)
-    : mem(mem), scheduler(kernel.getScheduler()), kernel(kernel), emu(emu) {
+    : mem(mem), kernel(kernel), emu(emu) {
     reset();
 }
 
@@ -19,7 +19,11 @@ void CPU::reset() {
     tlsBase = 0;
 
     dyncomState = std::make_unique<ARMul_State>(mem, SVC32MODE);
-    dyncomState->add_ticks_callback = [this](u64 ticks) { scheduler.currentTimestamp += ticks; };
+    dyncomState->add_ticks_callback = [this](u64 ticks) {
+        if (scheduler != nullptr) {
+            scheduler->currentTimestamp += ticks;
+        }
+    };
     dyncomState->svc_callback = [this](u32 svc) { kernel.serviceSVC(svc); };
     dyncomState->VFP[VFP_FPSCR] = fpscr;
     dyncomState->CP15[CP15_THREAD_UPRW] = tlsBase;
@@ -48,6 +52,9 @@ void CPU::saveNZCVT() {
 
 void CPU::runFrame() {
     if (!dyncomState) return;
+    if (scheduler == nullptr) {
+        Helpers::panic("CPU scheduler is not bound");
+    }
 
     dyncomState->Reg = gprs;
     dyncomState->ExtReg = extRegs;
@@ -55,16 +62,44 @@ void CPU::runFrame() {
     dyncomState->VFP[VFP_FPSCR] = fpscr;
     dyncomState->CP15[CP15_THREAD_UPRW] = tlsBase;
 
-    const u64 budget = (scheduler.nextTimestamp > scheduler.currentTimestamp)
-                           ? (scheduler.nextTimestamp - scheduler.currentTimestamp)
+    const u64 budget = (scheduler->nextTimestamp > scheduler->currentTimestamp)
+                           ? (scheduler->nextTimestamp - scheduler->currentTimestamp)
                            : 1;
     dyncomState->NumInstrsToExecute = budget;
     const u32 executed = InterpreterMainLoop(dyncomState.get());
-    scheduler.currentTimestamp += executed;
+    scheduler->currentTimestamp += executed;
 
     gprs = dyncomState->Reg;
     extRegs = dyncomState->ExtReg;
     cpsr = dyncomState->Cpsr;
     fpscr = dyncomState->VFP[VFP_FPSCR];
     tlsBase = dyncomState->CP15[CP15_THREAD_UPRW];
+}
+
+u64 CPU::getTicks() {
+    if (scheduler == nullptr) {
+        Helpers::panic("CPU scheduler is not bound");
+    }
+    return scheduler->currentTimestamp;
+}
+
+u64& CPU::getTicksRef() {
+    if (scheduler == nullptr) {
+        Helpers::panic("CPU scheduler is not bound");
+    }
+    return scheduler->currentTimestamp;
+}
+
+Scheduler& CPU::getScheduler() {
+    if (scheduler == nullptr) {
+        Helpers::panic("CPU scheduler is not bound");
+    }
+    return *scheduler;
+}
+
+void CPU::addTicks(u64 ticks) {
+    if (scheduler == nullptr) {
+        Helpers::panic("CPU scheduler is not bound");
+    }
+    scheduler->currentTimestamp += ticks;
 }

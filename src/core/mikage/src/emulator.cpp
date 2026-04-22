@@ -7,6 +7,8 @@ Emulator::Emulator()
 		  memory(kernel.fcramManager, config), cheats(memory, kernel.getServiceManager().getHID()), audioDevice(config.audioDeviceConfig),
 		  running(false)
 {
+	cpu.bindScheduler(scheduler);
+
 	DSPService& dspService = kernel.getServiceManager().getDSP();
 
 	dsp = Audio::makeDSPCore(config, memory, scheduler, dspService);

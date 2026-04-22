@@ -74,7 +74,7 @@ class CPU {
 	ExclusiveMonitor exclusiveMonitor;
 
 	Memory& mem;
-	Scheduler& scheduler;
+	Scheduler* scheduler = nullptr;
 	Kernel& kernel;
 	Emulator& emu;
 
@@ -100,6 +100,7 @@ class CPU {
 
 	CPU(Memory& mem, Kernel& kernel, Emulator& emu);
 	~CPU();
+	void bindScheduler(Scheduler& schedulerRef) { scheduler = &schedulerRef; }
 	void reset();
 
 		void setReg(int index, u32 value) { gprs[static_cast<size_t>(index)] = value; }
@@ -116,11 +117,11 @@ class CPU {
 
 	void setTLSBase(u32 value) { tlsBase = value; }
 
-	u64 getTicks() { return scheduler.currentTimestamp; }
-	u64& getTicksRef() { return scheduler.currentTimestamp; }
-	Scheduler& getScheduler() { return scheduler; }
+	u64 getTicks();
+	u64& getTicksRef();
+	Scheduler& getScheduler();
 
-	void addTicks(u64 ticks) { scheduler.currentTimestamp += ticks; }
+	void addTicks(u64 ticks);
 
 	void clearCache() {}
 	void clearCacheRange(u32, u32) {}
