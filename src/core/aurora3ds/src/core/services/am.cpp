@@ -98,6 +98,15 @@ static void writeResult(Memory& mem, u32 messagePointer, u32 commandID, u32 word
 	mem.write32(messagePointer + 4, Result::Success);
 }
 
+static u32 pickOutputPointer(Memory& mem, u32 messagePointer) {
+	const u32 candidates[] = {mem.read32(messagePointer + 16), mem.read32(messagePointer + 20), mem.read32(messagePointer + 24),
+							  mem.read32(messagePointer + 28), mem.read32(messagePointer + 32)};
+	for (u32 ptr : candidates) {
+		if (ptr != 0) return ptr;
+	}
+	return 0;
+}
+
 void AMService::respondNotImplemented(u32 messagePointer, u32 command) {
 	const u32 commandID = command >> 16;
 	log("AM command %04X [stubbed: NotImplemented]\n", commandID);
@@ -171,8 +180,19 @@ void AMService::handleSyncRequest(u32 messagePointer) {
 			return;
 
 		case AMCommands::GetProgramList:
+		{
+			const u32 requestedCount = mem.read32(messagePointer + 4);
+			const u32 out = pickOutputPointer(mem, messagePointer);
+			const u32 outCount = std::min<u32>(requestedCount, static_cast<u32>(installedPrograms.size()));
+			for (u32 i = 0; i < outCount && out != 0; i++) {
+				mem.write64(out + i * sizeof(u64), installedPrograms[i]);
+			}
+			writeResult(mem, messagePointer, commandID, 2);
+			mem.write32(messagePointer + 8, outCount);
+			return;
+		}
+
 		case AMCommands::GetProgramInfos:
-		case AMCommands::GetTicketList:
 		case AMCommands::GetImportTitleContextList:
 		case AMCommands::GetImportTitleContexts:
 		case AMCommands::GetImportContentContextList:
@@ -181,13 +201,59 @@ void AMService::handleSyncRequest(u32 messagePointer) {
 		case AMCommands::GetCurrentImportTitleContexts:
 		case AMCommands::GetCurrentImportContentContextList:
 		case AMCommands::GetCurrentImportContentContexts:
-		case AMCommands::GetTicketIdList:
-		case AMCommands::ListTicketInfos:
 		case AMCommands::FindCurrentContentInfos:
 		case AMCommands::ListCurrentContentInfos:
 			writeResult(mem, messagePointer, commandID, 2);
 			mem.write32(messagePointer + 8, 0);
 			return;
+
+		case AMCommands::GetTicketList: {
+			const u32 requestedCount = mem.read32(messagePointer + 4);
+			const u32 out = pickOutputPointer(mem, messagePointer);
+			u32 i = 0;
+			for (const auto& entry : ticketMap) {
+				if (i >= requestedCount) break;
+				if (out != 0) mem.write64(out + i * sizeof(u64), entry.first);
+				i++;
+			}
+			writeResult(mem, messagePointer, commandID, 2);
+			mem.write32(messagePointer + 8, i);
+			return;
+		}
+
+		case AMCommands::GetTicketIdList: {
+			const u32 requestedCount = mem.read32(messagePointer + 4);
+			const u64 titleID = mem.read64(messagePointer + 8);
+			const u32 out = pickOutputPointer(mem, messagePointer);
+			const auto [begin, end] = ticketMap.equal_range(titleID);
+			u32 i = 0;
+			for (auto it = begin; it != end && i < requestedCount; ++it, ++i) {
+				if (out != 0) mem.write64(out + i * sizeof(u64), it->second);
+			}
+			writeResult(mem, messagePointer, commandID, 2);
+			mem.write32(messagePointer + 8, i);
+			return;
+		}
+
+		case AMCommands::ListTicketInfos: {
+			const u32 requestedCount = mem.read32(messagePointer + 4);
+			const u64 titleID = mem.read64(messagePointer + 8);
+			const u32 out = pickOutputPointer(mem, messagePointer);
+			const auto [begin, end] = ticketMap.equal_range(titleID);
+			u32 i = 0;
+			for (auto it = begin; it != end && i < requestedCount; ++it, ++i) {
+				const u32 ptr = out + i * 24;
+				if (out == 0) break;
+				mem.write64(ptr, titleID);
+				mem.write64(ptr + 8, it->second);
+				mem.write16(ptr + 16, 0);
+				mem.write16(ptr + 18, 0);
+				mem.write32(ptr + 20, 0);
+			}
+			writeResult(mem, messagePointer, commandID, 2);
+			mem.write32(messagePointer + 8, i);
+			return;
+		}
 
 		case AMCommands::DoCleanup:
 		case AMCommands::DeleteImportTitleContext:
@@ -240,7 +306,9 @@ void AMService::handleSyncRequest(u32 messagePointer) {
 			const u32 handle = mem.read32(messagePointer + 4);
 			importTicketHandles.erase(handle);
 			// Deterministic placeholder ticket so list/count APIs become stateful.
-			ticketMap.emplace(0, static_cast<u64>(handle));
+			const u64 titleID = 0x0004000000000000ULL | static_cast<u64>(handle);
+			const u64 ticketID = 0x9000000000000000ULL | static_cast<u64>(handle);
+			ticketMap.emplace(titleID, ticketID);
 			writeResult(mem, messagePointer, commandID, 1);
 			return;
 		}
@@ -260,15 +328,17 @@ void AMService::handleSyncRequest(u32 messagePointer) {
 			return;
 
 		case AMCommands::CancelImportProgram:
-		case AMCommands::EndImportProgram:
-		case AMCommands::EndImportProgramWithoutCommit: {
-			const u32 handle = mem.read32(messagePointer + 4);
-			importProgramHandles.erase(handle);
-			if (command == AMCommands::EndImportProgram || command == AMCommands::EndImportProgramWithoutCommit) {
-				installedPrograms.push_back(0x0004000000000000ULL | static_cast<u64>(handle));
-			}
-			writeResult(mem, messagePointer, commandID, 1);
-			return;
+			case AMCommands::EndImportProgram:
+			case AMCommands::EndImportProgramWithoutCommit: {
+				const u32 handle = mem.read32(messagePointer + 4);
+				importProgramHandles.erase(handle);
+				if (command == AMCommands::EndImportProgram || command == AMCommands::EndImportProgramWithoutCommit) {
+					const u64 titleID = 0x0004000000000000ULL | static_cast<u64>(handle);
+					installedPrograms.push_back(titleID);
+					ticketMap.emplace(titleID, 0x9000000000000000ULL | static_cast<u64>(handle));
+				}
+				writeResult(mem, messagePointer, commandID, 1);
+				return;
 		}
 
 		case AMCommands::GetSystemMenuDataFromCia:
