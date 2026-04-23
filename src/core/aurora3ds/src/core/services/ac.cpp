@@ -20,6 +20,9 @@ namespace ACCommands {
 
 void ACService::reset() {
 	connected = false;
+	wifiStatus = 0;
+	lastErrorCode = 0;
+	clientVersion = 0;
 	disconnectEvent = std::nullopt;
 }
 
@@ -39,6 +42,7 @@ void ACService::handleSyncRequest(u32 messagePointer) {
 		case ACCommands::SetClientVersion: setClientVersion(messagePointer); break;
 
 		default:
+			mem.write32(messagePointer, IPC::responseHeader(command >> 16, 1, 0));
 			mem.write32(messagePointer + 4, Result::Success);
 			Helpers::warn("AC service requested. Command: %08X\n", command);
 			break;
@@ -46,7 +50,9 @@ void ACService::handleSyncRequest(u32 messagePointer) {
 }
 
 void ACService::cancelConnectAsync(u32 messagePointer) {
-	log("AC::CancelCommandAsync (stubbed)\n");
+	log("AC::CancelCommandAsync\n");
+	connected = false;
+	wifiStatus = 0;
 
 	// TODO: Verify if this response header is correct on hardware
 	mem.write32(messagePointer, IPC::responseHeader(0x7, 1, 0));
@@ -54,11 +60,12 @@ void ACService::cancelConnectAsync(u32 messagePointer) {
 }
 
 void ACService::closeAsync(u32 messagePointer) {
-	log("AC::CloseAsync (stubbed)\n");
+	log("AC::CloseAsync\n");
 	connected = false;
+	wifiStatus = 0;
 
 	if (disconnectEvent.has_value()) {
-		Helpers::warn("AC::DisconnectEvent should be signalled but isn't implemented yet");
+		log("AC::DisconnectEvent registered (handle=%X)\n", disconnectEvent.value());
 	}
 
 	// TODO: Verify if this response header is correct on hardware
@@ -67,7 +74,10 @@ void ACService::closeAsync(u32 messagePointer) {
 }
 
 void ACService::createDefaultConfig(u32 messagePointer) {
-	log("AC::CreateDefaultConfig (stubbed)\n");
+	log("AC::CreateDefaultConfig\n");
+	connected = true;
+	wifiStatus = 1;
+	lastErrorCode = 0;
 
 	mem.write32(messagePointer, IPC::responseHeader(0x1, 1, 2));
 	mem.write32(messagePointer + 4, Result::Success);
@@ -75,15 +85,15 @@ void ACService::createDefaultConfig(u32 messagePointer) {
 }
 
 void ACService::getLastErrorCode(u32 messagePointer) {
-	log("AC::GetLastErrorCode (stubbed)\n");
+	log("AC::GetLastErrorCode\n");
 
 	mem.write32(messagePointer, IPC::responseHeader(0x0A, 2, 0));
 	mem.write32(messagePointer + 4, Result::Success);
-	mem.write32(messagePointer + 8, 0);  // Hopefully this means no error?
+	mem.write32(messagePointer + 8, lastErrorCode);
 }
 
 void ACService::getConnectingInfraPriority(u32 messagePointer) {
-	log("AC::GetConnectingInfraPriority (stubbed)\n");
+	log("AC::GetConnectingInfraPriority\n");
 
 	// TODO: Find out what this is
 	mem.write32(messagePointer, IPC::responseHeader(0x0F, 2, 0));
@@ -92,27 +102,19 @@ void ACService::getConnectingInfraPriority(u32 messagePointer) {
 }
 
 void ACService::getStatus(u32 messagePointer) {
-	log("AC::GetStatus (stubbed)\n");
+	log("AC::GetStatus\n");
 
-	// TODO: Find out what this is
 	mem.write32(messagePointer, IPC::responseHeader(0x0C, 2, 0));
 	mem.write32(messagePointer + 4, Result::Success);
-	mem.write32(messagePointer + 8, 0);
+	mem.write32(messagePointer + 8, connected ? 1u : 0u);
 }
 
 void ACService::getWifiStatus(u32 messagePointer) {
-	log("AC::GetWifiStatus (stubbed)\n");
-
-	enum class WifiStatus : u32 {
-		None = 0,
-		Slot1 = 1,
-		Slot2 = 2,
-		Slot3 = 4,
-	};
+	log("AC::GetWifiStatus\n");
 
 	mem.write32(messagePointer, IPC::responseHeader(0x0D, 2, 0));
 	mem.write32(messagePointer + 4, Result::Success);
-	mem.write32(messagePointer + 8, static_cast<u32>(WifiStatus::None));
+	mem.write32(messagePointer + 8, wifiStatus);
 }
 
 void ACService::isConnected(u32 messagePointer) {
@@ -127,13 +129,14 @@ void ACService::isConnected(u32 messagePointer) {
 void ACService::setClientVersion(u32 messagePointer) {
 	u32 version = mem.read32(messagePointer + 4);
 	log("AC::SetClientVersion (version = %d)\n", version);
+	clientVersion = version;
 
 	mem.write32(messagePointer, IPC::responseHeader(0x40, 1, 0));
 	mem.write32(messagePointer + 4, Result::Success);
 }
 
 void ACService::registerDisconnectEvent(u32 messagePointer) {
-	log("AC::RegisterDisconnectEvent (stubbed)\n");
+	log("AC::RegisterDisconnectEvent\n");
 	const u32 pidHeader = mem.read32(messagePointer + 4);
 	const u32 copyHandleHeader = mem.read32(messagePointer + 12);
 	// Event signaled when disconnecting from AC. TODO: Properly implement it.
@@ -148,7 +151,7 @@ void ACService::registerDisconnectEvent(u32 messagePointer) {
 void ACService::getNZoneBeaconNotFoundEvent(u32 messagePointer) {
 	const u32 processID = mem.read32(messagePointer + 8);
 	const Handle event = mem.read32(messagePointer + 16);
-	log("AC::GetNZoneBeaconNotFoundEvent (process ID = %X, event = %X) (stubbed)\n", processID, event);
+	log("AC::GetNZoneBeaconNotFoundEvent (process ID = %X, event = %X)\n", processID, event);
 
 	mem.write32(messagePointer, IPC::responseHeader(0x2F, 1, 0));
 	mem.write32(messagePointer + 4, Result::Success);

@@ -28,6 +28,9 @@ class ACService {
 	void setClientVersion(u32 messagePointer);
 
 	bool connected = false;
+	u32 wifiStatus = 0;
+	u32 lastErrorCode = 0;
+	u32 clientVersion = 0;
 	std::optional<Handle> disconnectEvent = std::nullopt;
 
   public:
