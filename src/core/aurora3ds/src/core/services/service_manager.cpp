@@ -12,8 +12,8 @@ ServiceManager::ServiceManager(
 	: regs(regs), mem(mem), kernel(kernel), ac(mem), am(mem), boss(mem), act(mem), apt(mem, kernel), cam(mem, kernel), cecd(mem, kernel),
 	  cfg(mem, config), csnd(mem, kernel), dlp_srvr(mem), dsp(mem, kernel, config), hid(mem, kernel), http(mem), ir_user(mem, hid, config, kernel),
 	  frd(mem), fs(mem, kernel, config), gsp_gpu(mem, gpu, kernel, currentPID), gsp_lcd(mem), ldr(mem, kernel), mcu_hwc(mem, config),
-	  mic(mem, kernel), nfc(mem, kernel), nim(mem), ndm(mem), news_u(mem), ns(mem), nwm_uds(mem, kernel), ptm(mem, config), soc(mem), ssl(mem),
-	  y2r(mem, kernel) {}
+	  mic(mem, kernel), nfc(mem, kernel), nim(mem), ndm(mem), news_u(mem), ns(mem), nwm_uds(mem, kernel), ptm(mem, config), pm(mem), ps_ps(mem),
+	  mvd_std(mem), plgldr(mem), soc(mem), ssl(mem), y2r(mem, kernel) {}
 
 static constexpr int MAX_NOTIFICATION_COUNT = 16;
 
@@ -46,6 +46,10 @@ void ServiceManager::reset() {
 	nim.reset();
 	ns.reset();
 	ptm.reset();
+	pm.reset();
+	ps_ps.reset();
+	mvd_std.reset();
+	plgldr.reset();
 	soc.reset();
 	ssl.reset();
 	y2r.reset();
@@ -105,25 +109,36 @@ static const ServiceMapEntry serviceMapArray[] = {
 	{ "act:a", KernelHandles::ACT },
 	{ "act:u", KernelHandles::ACT },
 	{ "am:app", KernelHandles::AM },
+	{ "am:net", KernelHandles::AM },
 	{ "am:sys", KernelHandles::AM },
+	{ "am:u", KernelHandles::AM },
 	{ "APT:S", KernelHandles::APT }, // TODO: APT:A, APT:S and APT:U are slightly different
 	{ "APT:A", KernelHandles::APT },
 	{ "APT:U", KernelHandles::APT },
 	{ "boss:U", KernelHandles::BOSS },
 	{ "boss:P", KernelHandles::BOSS },
 	{ "cam:u", KernelHandles::CAM },
+	{ "cam:c", KernelHandles::CAM },
+	{ "cam:q", KernelHandles::CAM },
+	{ "cam:s", KernelHandles::CAM },
 	{ "cecd:u", KernelHandles::CECD },
+	{ "cecd:s", KernelHandles::CECD },
+	{ "cecd:ndm", KernelHandles::CECD },
 	{ "cfg:u", KernelHandles::CFG_U },
 	{ "cfg:i", KernelHandles::CFG_I },
 	{ "cfg:s", KernelHandles::CFG_S },
 	{ "cfg:nor", KernelHandles::CFG_NOR },
 	{ "csnd:SND", KernelHandles::CSND },
 	{ "dlp:SRVR", KernelHandles::DLP_SRVR },
+	{ "dlp:CLNT", KernelHandles::DLP_SRVR },
+	{ "dlp:FKCL", KernelHandles::DLP_SRVR },
 	{ "dsp::DSP", KernelHandles::DSP },
 	{ "hid:USER", KernelHandles::HID },
 	{ "hid:SPVR", KernelHandles::HID },
 	{ "http:C", KernelHandles::HTTP },
 	{ "ir:USER", KernelHandles::IR_USER },
+	{ "ir:rst", KernelHandles::IR_USER },
+	{ "ir:u", KernelHandles::IR_USER },
 	{ "frd:a", KernelHandles::FRD_A },
 	{ "frd:u", KernelHandles::FRD_U },
 	{ "fs:USER", KernelHandles::FS },
@@ -134,18 +149,40 @@ static const ServiceMapEntry serviceMapArray[] = {
 	{ "mic:u", KernelHandles::MIC },
 	{ "ndm:u", KernelHandles::NDM },
 	{ "news:u", KernelHandles::NEWS_U },
+	{ "news:s", KernelHandles::NEWS_U },
 	{ "nfc:u", KernelHandles::NFC },
+	{ "nfc:m", KernelHandles::NFC },
 	{ "ns:s", KernelHandles::NS_S },
+	{ "ns:c", KernelHandles::NS_C },
 	{ "nwm::EXT", KernelHandles::NWM_EXT },
+	{ "nwm::CEC", KernelHandles::NWM_EXT },
+	{ "nwm::INF", KernelHandles::NWM_EXT },
+	{ "nwm::SAP", KernelHandles::NWM_EXT },
+	{ "nwm::SOC", KernelHandles::NWM_EXT },
+	{ "nwm::TST", KernelHandles::NWM_EXT },
 	{ "nwm::UDS", KernelHandles::NWM_UDS },
 	{ "nim:aoc", KernelHandles::NIM },
+	{ "nim:s", KernelHandles::NIM },
+	{ "nim:u", KernelHandles::NIM },
 	{ "ptm:u", KernelHandles::PTM_U }, // TODO: ptm:u and ptm:sysm have very different command sets
+	{ "ptm:s", KernelHandles::PTM_SYSM },
 	{ "ptm:sysm", KernelHandles::PTM_SYSM },
 	{ "ptm:play", KernelHandles::PTM_PLAY },
 	{ "ptm:gets", KernelHandles::PTM_GETS },
+	{ "ptm:sets", KernelHandles::PTM_SETS },
 	{ "soc:U", KernelHandles::SOC },
 	{ "ssl:C", KernelHandles::SSL },
 	{ "y2r:u", KernelHandles::Y2R },
+	{ "mcu::RTC", KernelHandles::MCU_HWC },
+	{ "plg:ldr", KernelHandles::PLG_LDR },
+	{ "mvd:std", KernelHandles::MVD_STD },
+	{ "ps:ps", KernelHandles::PS_PS },
+	{ "pm:app", KernelHandles::PM_APP },
+	{ "pm:dbg", KernelHandles::PM_DBG },
+	{ "qtm:c", KernelHandles::CAM },
+	{ "qtm:s", KernelHandles::CAM },
+	{ "qtm:sp", KernelHandles::CAM },
+	{ "qtm:u", KernelHandles::CAM },
 };
 // clang-format on
 
@@ -252,11 +289,19 @@ void ServiceManager::sendCommandToService(u32 messagePointer, Handle handle) {
 		case KernelHandles::NDM: ndm.handleSyncRequest(messagePointer); break;
 		case KernelHandles::NEWS_U: news_u.handleSyncRequest(messagePointer); break;
 		case KernelHandles::NS_S: ns.handleSyncRequest(messagePointer, NSService::Type::S); break;
+		case KernelHandles::NS_C: ns.handleSyncRequest(messagePointer, NSService::Type::C); break;
+		case KernelHandles::NWM_EXT: nwm_uds.handleSyncRequest(messagePointer); break;
 		case KernelHandles::NWM_UDS: nwm_uds.handleSyncRequest(messagePointer); break;
 		case KernelHandles::PTM_PLAY: ptm.handleSyncRequest(messagePointer, PTMService::Type::PLAY); break;
 		case KernelHandles::PTM_SYSM: ptm.handleSyncRequest(messagePointer, PTMService::Type::SYSM); break;
 		case KernelHandles::PTM_U: ptm.handleSyncRequest(messagePointer, PTMService::Type::U); break;
 		case KernelHandles::PTM_GETS: ptm.handleSyncRequest(messagePointer, PTMService::Type::GETS); break;
+		case KernelHandles::PTM_SETS: ptm.handleSyncRequest(messagePointer, PTMService::Type::SETS); break;
+		case KernelHandles::PM_APP: pm.handleSyncRequest(messagePointer, PMService::Type::App); break;
+		case KernelHandles::PM_DBG: pm.handleSyncRequest(messagePointer, PMService::Type::Debug); break;
+		case KernelHandles::PS_PS: ps_ps.handleSyncRequest(messagePointer); break;
+		case KernelHandles::MVD_STD: mvd_std.handleSyncRequest(messagePointer); break;
+		case KernelHandles::PLG_LDR: plgldr.handleSyncRequest(messagePointer); break;
 		case KernelHandles::SOC: soc.handleSyncRequest(messagePointer); break;
 		case KernelHandles::SSL: ssl.handleSyncRequest(messagePointer); break;
 		case KernelHandles::Y2R: y2r.handleSyncRequest(messagePointer); break;

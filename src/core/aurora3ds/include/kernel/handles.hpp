@@ -39,6 +39,7 @@ namespace KernelHandles {
 		NIM,       // Updates, DLC, etc
 		NDM,       // ?????
 		NS_S,      // Nintendo Shell service
+		NS_C,      // Nintendo Shell content service
 		NWM_EXT,   // ?????
 		NWM_UDS,   // Local multiplayer
 		NEWS_S,    // news:u on steroids
@@ -47,12 +48,18 @@ namespace KernelHandles {
 		PTM_SYSM,  // PTM system service
 		PTM_PLAY,  // PTM Play service, used for retrieving play history
 		PTM_GETS,  // PTM RTC service (GetSystemTime)
+		PTM_SETS,  // PTM RTC service (SetSystemTime)
 		SOC,       // Socket service
 		SSL,       // SSL service (Totally didn't expect that)
 		Y2R,       // Also does camera stuff
+		MVD_STD,   // Video decoder service
+		PLG_LDR,   // Plugin loader service
+		PM_APP,    // Process manager app service
+		PM_DBG,    // Process manager debug service
+		PS_PS,     // Platform service
 
 		MinServiceHandle = AC,
-		MaxServiceHandle = Y2R,
+		MaxServiceHandle = PS_PS,
 
 		GSPSharedMemHandle = MaxServiceHandle + 1, // Handle for the GSP shared memory
 		FontSharedMemHandle,
@@ -103,6 +110,7 @@ namespace KernelHandles {
 			case MCU_HWC: return "MCU::HWC";
 			case MIC: return "MIC";
 			case NDM: return "NDM";
+			case NS_C: return "NS:C";
 			case NEWS_S: return "NEWS_S";
 			case NEWS_U: return "NEWS_U";
 			case NWM_EXT: return "nwm::EXT";
@@ -113,9 +121,15 @@ namespace KernelHandles {
 			case PTM_SYSM: return "PTM:SYSM";
 			case PTM_PLAY: return "PTM:PLAY";
 			case PTM_GETS: return "PTM:GETS";
+			case PTM_SETS: return "PTM:SETS";
 			case SOC: return "SOC";
 			case SSL: return "SSL";
 			case Y2R: return "Y2R";
+			case MVD_STD: return "MVD:STD";
+			case PLG_LDR: return "PLG:LDR";
+			case PM_APP: return "PM:APP";
+			case PM_DBG: return "PM:DBG";
+			case PS_PS: return "PS:PS";
 			default: return "Unknown";
 		}
 	}

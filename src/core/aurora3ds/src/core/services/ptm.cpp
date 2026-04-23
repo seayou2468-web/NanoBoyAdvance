@@ -18,6 +18,7 @@ namespace PTMCommands {
 
 		// ptm:gets functions
 		GetSystemTime = 0x04010000,
+		SetSystemTime = 0x00010040,
 
 		// ptm:play functions
 		GetPlayHistory = 0x08070082,
@@ -67,6 +68,11 @@ void PTMService::handleSyncRequest(u32 messagePointer, PTMService::Type type) {
 					case PTMCommands::GetSystemTime: getSystemTime(messagePointer); break;
 
 					default: Helpers::panic("PTM GETS service requested. Command: %08X\n", command); break;
+				}
+			} else if (type == Type::SETS) {
+				switch (command) {
+					case PTMCommands::SetSystemTime: setSystemTime(messagePointer); break;
+					default: Helpers::panic("PTM SETS service requested. Command: %08X\n", command); break;
 				}
 			} else if (type == Type::SYSM) {
 				switch (command) {
@@ -177,5 +183,12 @@ void PTMService::getSoftwareClosedFlag(u32 messagePointer) {
 void PTMService::clearSoftwareClosedFlag(u32 messagePointer) {
 	log("PTM::ClearSoftwareClosedFlag\n");
 	mem.write32(messagePointer, IPC::responseHeader(0x810, 1, 0));
+	mem.write32(messagePointer + 4, Result::Success);
+}
+
+void PTMService::setSystemTime(u32 messagePointer) {
+	const u64 newTime = mem.read64(messagePointer + 4);
+	log("PTM::SetSystemTime (new time = %llu) [stubbed]\n", newTime);
+	mem.write32(messagePointer, IPC::responseHeader(0x1, 1, 0));
 	mem.write32(messagePointer + 4, Result::Success);
 }

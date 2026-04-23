@@ -24,6 +24,7 @@ class PTMService {
 	void getStepHistory(u32 messagePointer);
 	void getStepHistoryAll(u32 messagePointer);
 	void getSystemTime(u32 messagePointer);
+	void setSystemTime(u32 messagePointer);
 	void getTotalStepCount(u32 messagePointer);
 
   public:
@@ -32,6 +33,7 @@ class PTMService {
 		U,     // ptm:u
 		SYSM,  // ptm:sysm
 		PLAY,  // ptm:play
+		SETS,  // ptm:sets
 	};
 
 	PTMService(Memory& mem, const EmulatorConfig& config) : mem(mem), config(config) {}

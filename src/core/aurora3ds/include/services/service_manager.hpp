@@ -35,9 +35,13 @@
 #include "./ns.hpp"
 #include "./nwm_uds.hpp"
 #include "./ptm.hpp"
+#include "./pm.hpp"
 #include "./soc.hpp"
 #include "./ssl.hpp"
 #include "./y2r.hpp"
+#include "./ps_ps.hpp"
+#include "./mvd_std.hpp"
+#include "./plgldr.hpp"
 
 struct EmulatorConfig;
 // More circular dependencies!!
@@ -81,6 +85,10 @@ class ServiceManager {
 	NIMService nim;
 	NSService ns;
 	PTMService ptm;
+	PMService pm;
+	PSPSService ps_ps;
+	MVDStdService mvd_std;
+	PLGLDRService plgldr;
 	SOCService soc;
 	SSLService ssl;
 	Y2RService y2r;
