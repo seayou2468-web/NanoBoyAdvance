@@ -118,9 +118,18 @@ void NDMService::resumeDaemons(u32 messagePointer) {
 		if ((bitMask & (1u << i)) == 0) {
 			continue;
 		}
-		if (daemonSuspendCount[i] > 0) {
-			daemonSuspendCount[i]--;
+		if (daemonSuspendCount[i] == 0) {
+			mem.write32(messagePointer, IPC::responseHeader(0x7, 1, 0));
+			mem.write32(messagePointer + 4, Result::OS::InvalidCombination);
+			return;
 		}
+	}
+
+	for (u32 i = 0; i < daemonStatuses.size(); i++) {
+		if ((bitMask & (1u << i)) == 0) {
+			continue;
+		}
+		daemonSuspendCount[i]--;
 		if (daemonSuspendCount[i] == 0) {
 			daemonStatuses[i] = DaemonStatus::Idle;
 		}
@@ -188,15 +197,31 @@ void NDMService::unlockState(u32 messagePointer) {
 }
 
 void NDMService::queryStatus(u32 messagePointer) {
-	const u32 daemon = mem.read8(messagePointer + 4) & 3;
+	const u32 daemon = mem.read8(messagePointer + 4);
 	log("NDM::QueryStatus daemon=%u\n", daemon);
+
+	if (daemon >= daemonStatuses.size()) {
+		mem.write32(messagePointer, IPC::responseHeader(0xD, 2, 0));
+		mem.write32(messagePointer + 4, Result::OS::InvalidCombination);
+		mem.write32(messagePointer + 8, 0);
+		return;
+	}
+
 	mem.write32(messagePointer, IPC::responseHeader(0xD, 2, 0));
 	mem.write32(messagePointer + 4, Result::Success);
 	mem.write32(messagePointer + 8, static_cast<u32>(daemonStatuses[daemon]));
 }
 
 void NDMService::getDaemonDisableCount(u32 messagePointer) {
-	const u32 daemon = mem.read8(messagePointer + 4) & 3;
+	const u32 daemon = mem.read8(messagePointer + 4);
+	if (daemon >= daemonSuspendCount.size()) {
+		mem.write32(messagePointer, IPC::responseHeader(0xE, 3, 0));
+		mem.write32(messagePointer + 4, Result::OS::InvalidCombination);
+		mem.write32(messagePointer + 8, 0);
+		mem.write32(messagePointer + 12, 0);
+		return;
+	}
+
 	const u32 count = daemonSuspendCount[daemon];
 	log("NDM::GetDaemonDisableCount daemon=%u count=%u\n", daemon, count);
 	mem.write32(messagePointer, IPC::responseHeader(0xE, 3, 0));

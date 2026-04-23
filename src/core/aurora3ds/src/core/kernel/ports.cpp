@@ -1,5 +1,6 @@
 #include <cstring>
 
+#include "../../../include/ipc.hpp"
 #include "../../../include/kernel/kernel.hpp"
 
 HorizonHandle Kernel::makePort(const char* name) {
@@ -20,6 +21,14 @@ HorizonHandle Kernel::makeSession(Handle portHandle) {
 	const Handle ret = makeObject(KernelObjectType::Session);
 	objects[ret].data = new Session(portHandle);
 	return ret;
+}
+
+HorizonHandle Kernel::makeNamedPort(const char* name) {
+	return makePort(name);
+}
+
+HorizonHandle Kernel::makePortSession(Handle portHandle) {
+	return makeSession(portHandle);
 }
 
 // Get the handle of a port based on its name
@@ -126,6 +135,10 @@ void Kernel::sendSyncRequest() {
 		handleErrorSyncRequest(messagePointer);
 	} else {
 		const auto portData = objects[portHandle].getData<Port>();
-		Helpers::panic("SendSyncRequest targetting port %s\n", portData->name);
+		Helpers::warn("SendSyncRequest targetting unsupported port %s", portData->name);
+		regs[0] = Result::Success;
+		const u32 command = mem.read32(messagePointer);
+		mem.write32(messagePointer, IPC::responseHeader(command >> 16, 1, 0));
+		mem.write32(messagePointer + 4, Result::OS::NotImplemented);
 	}
 }

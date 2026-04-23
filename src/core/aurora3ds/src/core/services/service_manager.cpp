@@ -14,7 +14,7 @@ ServiceManager::ServiceManager(
 	  ir_user(mem, hid, config, kernel),
 		  frd(mem), fs(mem, kernel, config), gsp_gpu(mem, gpu, kernel, currentPID), gsp_lcd(mem), ldr(mem, kernel), mcu_hwc(mem, config),
 		  mic(mem, kernel), nfc(mem, kernel), nwm_ext(mem), nim(mem), ndm(mem), news_u(mem), ns(mem), nwm_uds(mem, kernel), ptm(mem, config), pm(mem),
-		  pxi_dev(mem), qtm(mem), ps_ps(mem), mvd_std(mem), plgldr(mem), soc(mem), ssl(mem), y2r(mem, kernel) {}
+		  pxi_dev(mem), qtm(mem), ps_ps(mem), mvd_std(mem), plgldr(mem), soc(mem), ssl(mem), y2r(mem, kernel), peripheral_bus(mem) {}
 
 static constexpr int MAX_NOTIFICATION_COUNT = 16;
 
@@ -48,6 +48,7 @@ void ServiceManager::reset() {
 	nwm_ext.reset();
 	nim.reset();
 	ns.reset();
+	peripheral_bus.reset();
 	ptm.reset();
 	pm.reset();
 	pxi_dev.reset();
@@ -63,6 +64,7 @@ void ServiceManager::reset() {
 	pendingNotifications.clear();
 	subscribedNotifications.clear();
 	userRegisteredServices.clear();
+	userRegisteredPorts.clear();
 }
 
 // Match IPC messages to a "srv:" command based on their header
@@ -210,15 +212,12 @@ static const ServiceMapEntry serviceMapArray[] = {
 	{ "qtm:s", KernelHandles::QTM_S },
 	{ "qtm:sp", KernelHandles::QTM_SP },
 	{ "qtm:u", KernelHandles::QTM_U },
-	// Reference module list (CDC/GPIO/I2C/MP/PDN/SPI) has no Aurora HLE yet.
-	// Route these well-known ports to a single generic fallback so titles can
-	// continue booting while we progressively implement their command sets.
-	{ "cdc:U", KernelHandles::OS_STUB },
-	{ "gpio:U", KernelHandles::OS_STUB },
-	{ "i2c:U", KernelHandles::OS_STUB },
-	{ "mp:U", KernelHandles::OS_STUB },
-	{ "pdn:U", KernelHandles::OS_STUB },
-	{ "spi:U", KernelHandles::OS_STUB },
+	{ "cdc:U", KernelHandles::CDC_U },
+	{ "gpio:U", KernelHandles::GPIO_U },
+	{ "i2c:U", KernelHandles::I2C_U },
+	{ "mp:U", KernelHandles::MP_U },
+	{ "pdn:U", KernelHandles::PDN_U },
+	{ "spi:U", KernelHandles::SPI_U },
 };
 // clang-format on
 
@@ -244,10 +243,10 @@ void ServiceManager::getServiceHandle(u32 messagePointer) {
 
 	// Allow dynamically registered services to appear as valid without crashing.
 	// We don't expose server sessions yet, so return a graceful NotImplemented result.
-	if (userRegisteredServices.contains(service)) {
+	if (auto it = userRegisteredServices.find(service); it != userRegisteredServices.end()) {
 		mem.write32(messagePointer, IPC::responseHeader(0x5, 1, 2));
-		mem.write32(messagePointer + 4, Result::OS::NotImplemented);
-		mem.write32(messagePointer + 12, 0);
+		mem.write32(messagePointer + 4, Result::Success);
+		mem.write32(messagePointer + 12, kernel.makePortSession(it->second));
 		return;
 	}
 
@@ -346,13 +345,19 @@ void ServiceManager::registerService(u32 messagePointer) {
 
 	// Built-in service names cannot be overridden.
 	if (serviceMapByName.find(service) == serviceMapByName.end()) {
-		userRegisteredServices.insert(service);
+		if (!userRegisteredServices.contains(service)) {
+			userRegisteredServices.emplace(service, kernel.makeNamedPort(service.c_str()));
+		}
 	}
 
 	mem.write32(messagePointer, IPC::responseHeader(0x3, 1, 2));
 	mem.write32(messagePointer + 4, Result::Success);
-	mem.write32(messagePointer + 8, 0);   // Translation descriptor
-	mem.write32(messagePointer + 12, 0);  // Handle (not exposed in Aurora yet)
+	mem.write32(messagePointer + 8, 0);  // Translation descriptor
+	if (auto it = userRegisteredServices.find(service); it != userRegisteredServices.end()) {
+		mem.write32(messagePointer + 12, it->second);
+	} else {
+		mem.write32(messagePointer + 12, 0);
+	}
 }
 
 void ServiceManager::unregisterService(u32 messagePointer) {
@@ -366,7 +371,7 @@ void ServiceManager::unregisterService(u32 messagePointer) {
 
 void ServiceManager::isServiceRegistered(u32 messagePointer) {
 	std::string service = mem.readString(messagePointer + 4, 8);
-	bool registered = serviceMapByName.find(service) != serviceMapByName.end() || userRegisteredServices.contains(service);
+	bool registered = serviceMapByName.find(service) != serviceMapByName.end() || userRegisteredServices.find(service) != userRegisteredServices.end();
 	log("srv::IsServiceRegistered (service = %s, registered = %d)\n", service.c_str(), registered ? 1 : 0);
 
 	mem.write32(messagePointer, IPC::responseHeader(0xE, 2, 0));
@@ -376,24 +381,48 @@ void ServiceManager::isServiceRegistered(u32 messagePointer) {
 
 void ServiceManager::registerPort(u32 messagePointer) {
 	std::string port = mem.readString(messagePointer + 4, 8);
-	log("srv::RegisterPort (port = %s) [not implemented]\n", port.c_str());
+	const u32 nameLength = mem.read32(messagePointer + 12);
+	const u32 maxSessions = mem.read32(messagePointer + 16);
+	log("srv::RegisterPort (port = %s, nameLength = %u, maxSessions = %u)\n", port.c_str(), nameLength, maxSessions);
+
+	if (nameLength == 0 || nameLength > 8 || maxSessions == 0) {
+		mem.write32(messagePointer, IPC::responseHeader(0x6, 1, 2));
+		mem.write32(messagePointer + 4, Result::OS::InvalidCombination);
+		mem.write32(messagePointer + 8, 0);
+		mem.write32(messagePointer + 12, 0);
+		return;
+	}
+
+	if (!userRegisteredPorts.contains(port)) {
+		userRegisteredPorts.emplace(port, kernel.makeNamedPort(port.c_str()));
+	}
+
 	mem.write32(messagePointer, IPC::responseHeader(0x6, 1, 2));
-	mem.write32(messagePointer + 4, Result::OS::NotImplemented);
-	mem.write32(messagePointer + 8, 0);
-	mem.write32(messagePointer + 12, 0);
+	mem.write32(messagePointer + 4, Result::Success);
+	mem.write32(messagePointer + 8, 0); // Translation descriptor
+	mem.write32(messagePointer + 12, userRegisteredPorts.at(port));
 }
 
 void ServiceManager::unregisterPort(u32 messagePointer) {
 	std::string port = mem.readString(messagePointer + 4, 8);
-	log("srv::UnregisterPort (port = %s) [not implemented]\n", port.c_str());
+	log("srv::UnregisterPort (port = %s)\n", port.c_str());
+	userRegisteredPorts.erase(port);
 	mem.write32(messagePointer, IPC::responseHeader(0x7, 1, 0));
-	mem.write32(messagePointer + 4, Result::OS::NotImplemented);
+	mem.write32(messagePointer + 4, Result::Success);
 }
 
 void ServiceManager::getPort(u32 messagePointer) {
 	std::string port = mem.readString(messagePointer + 4, 8);
-	log("srv::GetPort (port = %s) [not implemented]\n", port.c_str());
+	log("srv::GetPort (port = %s)\n", port.c_str());
 	mem.write32(messagePointer, IPC::responseHeader(0x8, 1, 2));
+
+	if (auto it = userRegisteredPorts.find(port); it != userRegisteredPorts.end()) {
+		mem.write32(messagePointer + 4, Result::Success);
+		mem.write32(messagePointer + 8, 0); // Translation descriptor
+		mem.write32(messagePointer + 12, kernel.makePortSession(it->second));
+		return;
+	}
+
 	mem.write32(messagePointer + 4, Result::OS::NotImplemented);
 	mem.write32(messagePointer + 8, 0);
 	mem.write32(messagePointer + 12, 0);
@@ -436,6 +465,12 @@ void ServiceManager::sendCommandToService(u32 messagePointer, Handle handle) {
 		case KernelHandles::DLP_SRVR: dlp_srvr.handleSyncRequest(messagePointer, DlpSrvrService::Type::SRVR); break;
 		case KernelHandles::DLP_CLNT: dlp_srvr.handleSyncRequest(messagePointer, DlpSrvrService::Type::CLNT); break;
 		case KernelHandles::DLP_FKCL: dlp_srvr.handleSyncRequest(messagePointer, DlpSrvrService::Type::FKCL); break;
+		case KernelHandles::CDC_U: peripheral_bus.handleSyncRequest(messagePointer, PeripheralBusService::Type::CDC); break;
+		case KernelHandles::GPIO_U: peripheral_bus.handleSyncRequest(messagePointer, PeripheralBusService::Type::GPIO); break;
+		case KernelHandles::I2C_U: peripheral_bus.handleSyncRequest(messagePointer, PeripheralBusService::Type::I2C); break;
+		case KernelHandles::MP_U: peripheral_bus.handleSyncRequest(messagePointer, PeripheralBusService::Type::MP); break;
+		case KernelHandles::PDN_U: peripheral_bus.handleSyncRequest(messagePointer, PeripheralBusService::Type::PDN); break;
+		case KernelHandles::SPI_U: peripheral_bus.handleSyncRequest(messagePointer, PeripheralBusService::Type::SPI); break;
 		case KernelHandles::ERR_F: err_f.handleSyncRequest(messagePointer); break;
 		case KernelHandles::HID: hid.handleSyncRequest(messagePointer); break;
 		case KernelHandles::HTTP: http.handleSyncRequest(messagePointer); break;

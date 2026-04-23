@@ -81,6 +81,8 @@ class Kernel {
 	Handle makeSemaphore(u32 initialCount, u32 maximumCount);
 	bool releaseSemaphore(Handle handle, s32 releaseCount, s32* previousCount = nullptr);
 	Handle makeTimer(ResetType resetType);
+	Handle makeNamedPort(const char* name);
+	Handle makePortSession(Handle portHandle);
 	void pollTimers();
 
 	// Signals an event, returns true on success or false if the event does not exist

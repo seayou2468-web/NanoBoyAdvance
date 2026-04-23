@@ -65,6 +65,12 @@ namespace KernelHandles {
 		PXI_DEV,   // PXI developer service
 		DLP_CLNT,  // Download Play: Client interface
 		DLP_FKCL,  // Download Play: Fake client interface
+		CDC_U,     // CDC user service
+		GPIO_U,    // GPIO user service
+		I2C_U,     // I2C user service
+		MP_U,      // MP user service
+		PDN_U,     // Power management user service
+		SPI_U,     // SPI user service
 		OS_STUB,   // Generic fallback for not-yet-implemented OS service ports
 
 		MinServiceHandle = AC,
@@ -110,6 +116,12 @@ namespace KernelHandles {
 			case DLP_SRVR: return "DLP::SRVR";
 			case DLP_CLNT: return "DLP::CLNT";
 			case DLP_FKCL: return "DLP::FKCL";
+			case CDC_U: return "CDC:U";
+			case GPIO_U: return "GPIO:U";
+			case I2C_U: return "I2C:U";
+			case MP_U: return "MP:U";
+			case PDN_U: return "PDN:U";
+			case SPI_U: return "SPI:U";
 			case HID: return "HID";
 			case HTTP: return "HTTP";
 			case IR_USER: return "IR:USER";

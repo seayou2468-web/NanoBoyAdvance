@@ -3,6 +3,7 @@
 #include <deque>
 #include <optional>
 #include <span>
+#include <unordered_map>
 #include <unordered_set>
 #include <string>
 
@@ -38,6 +39,7 @@
 #include "./ns.hpp"
 #include "./nwm_ext.hpp"
 #include "./nwm_uds.hpp"
+#include "./peripheral_bus.hpp"
 #include "./ptm.hpp"
 #include "./pm.hpp"
 #include "./pxi_dev.hpp"
@@ -92,6 +94,7 @@ class ServiceManager {
 	NwmUdsService nwm_uds;
 	NIMService nim;
 	NSService ns;
+	PeripheralBusService peripheral_bus;
 	PTMService ptm;
 	PMService pm;
 	PXIDevService pxi_dev;
@@ -124,7 +127,8 @@ class ServiceManager {
 
 	std::deque<u32> pendingNotifications;
 	std::unordered_set<u32> subscribedNotifications;
-	std::unordered_set<std::string> userRegisteredServices;
+	std::unordered_map<std::string, Handle> userRegisteredServices;
+	std::unordered_map<std::string, Handle> userRegisteredPorts;
 
   public:
 	ServiceManager(std::span<u32, 16> regs, Memory& mem, GPU& gpu, u32& currentPID, Kernel& kernel, const EmulatorConfig& config);
