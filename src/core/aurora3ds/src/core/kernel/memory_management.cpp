@@ -64,10 +64,20 @@ void Kernel::controlMemory() {
 		return;
 	}
 
-	if (!isAligned(addr0) || !isAligned(addr1)) {
-		Helpers::warn("ControlMemory: Unaligned parameters Addr0=%08X Addr1=%08X Size=%08X", addr0, addr1, size);
-		regs[0] = Result::OS::MisalignedAddress;
-		return;
+	// Official kernel truncates non-page-aligned sizes, so a zero page count is effectively a no-op.
+	// In that case, callers may pass sentinel/un-aligned addresses and should not be rejected here.
+	const u32 opBase = operation & 0xFF;
+	if (pages != 0) {
+		const bool addr0NeedsAlignment = opBase == Operation::Commit || opBase == Operation::Map || opBase == Operation::Unmap || opBase == Operation::Protect;
+		const bool addr1NeedsAlignment = opBase == Operation::Map || opBase == Operation::Unmap;
+
+		const bool addr0Misaligned = addr0NeedsAlignment && !isAligned(addr0);
+		const bool addr1Misaligned = addr1NeedsAlignment && !isAligned(addr1);
+		if (addr0Misaligned || addr1Misaligned) {
+			Helpers::warn("ControlMemory: Unaligned parameters Addr0=%08X Addr1=%08X Size=%08X", addr0, addr1, size);
+			regs[0] = Result::OS::MisalignedAddress;
+			return;
+		}
 	}
 
 	logSVC(
