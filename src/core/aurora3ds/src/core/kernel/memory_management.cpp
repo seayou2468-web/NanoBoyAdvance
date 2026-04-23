@@ -49,7 +49,7 @@ void Kernel::controlMemory() {
 
 	if (perms == MemoryPermissions::DontCare) {
 		perms = MemoryPermissions::ReadWrite;  // We make "don't care" equivalent to read-write
-		Helpers::panic("Unimplemented allocation permission: DONTCARE");
+		Helpers::warn("ControlMemory: permission=DONTCARE treated as RW");
 	}
 
 	// Naturally the bits are in reverse order
@@ -59,11 +59,15 @@ void Kernel::controlMemory() {
 	bool linear = operation & Operation::Linear;
 
 	if (x) {
-		Helpers::panic("ControlMemory: attempted to allocate executable memory");
+		Helpers::warn("ControlMemory: attempted to allocate executable memory");
+		regs[0] = Result::OS::InvalidCombination;
+		return;
 	}
 
 	if (!isAligned(addr0) || !isAligned(addr1)) {
-		Helpers::panic("ControlMemory: Unaligned parameters\nAddr0: %08X\nAddr1: %08X\nSize: %08X", addr0, addr1, size);
+		Helpers::warn("ControlMemory: Unaligned parameters Addr0=%08X Addr1=%08X Size=%08X", addr0, addr1, size);
+		regs[0] = Result::OS::MisalignedAddress;
+		return;
 	}
 
 	logSVC(
@@ -79,11 +83,15 @@ void Kernel::controlMemory() {
 			u32 outAddr = 0;
 			if (linear) {
 				if (!mem.allocMemoryLinear(outAddr, addr0, pages, region, r, w, false)) {
-					Helpers::panic("ControlMemory: Failed to allocate linear memory");
+					Helpers::warn("ControlMemory: Failed to allocate linear memory");
+					regs[0] = Result::OS::OutOfRange;
+					return;
 				}
 			} else {
 				if (!mem.allocMemory(addr0, pages, region, r, w, false, MemoryState::Private)) {
-					Helpers::panic("ControlMemory: Failed to allocate memory");
+					Helpers::warn("ControlMemory: Failed to allocate memory");
+					regs[0] = Result::OS::OutOfRange;
+					return;
 				}
 
 				outAddr = addr0;
@@ -97,8 +105,11 @@ void Kernel::controlMemory() {
 			// Official kernel only allows Private regions to be mapped to Free regions. An Alias or Aliased region cannot be mapped again
 			if (!mem.mapVirtualMemory(
 					addr0, addr1, pages, r, w, false, MemoryState::Free, MemoryState::Private, MemoryState::Alias, MemoryState::Aliased
-				))
-				Helpers::panic("ControlMemory: Failed to map memory");
+				)) {
+				Helpers::warn("ControlMemory: Failed to map memory");
+				regs[0] = Result::OS::InvalidCombination;
+				return;
+			}
 			break;
 
 		case Operation::Unmap:
@@ -106,7 +117,9 @@ void Kernel::controlMemory() {
 			if (!mem.mapVirtualMemory(
 					addr0, addr1, pages, false, false, false, MemoryState::Alias, MemoryState::Aliased, MemoryState::Free, MemoryState::Private
 				)) {
-				Helpers::panic("ControlMemory: Failed to unmap memory");
+				Helpers::warn("ControlMemory: Failed to unmap memory");
+				regs[0] = Result::OS::InvalidCombination;
+				return;
 			}
 			break;
 
