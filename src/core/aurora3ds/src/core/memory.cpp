@@ -70,6 +70,10 @@ constexpr bool IsLikelyInstructionFetch(u32 vaddr) {
 	return vaddr >= VirtualAddrs::ExecutableStart && vaddr < VirtualAddrs::ExecutableEnd;
 }
 
+constexpr bool IsNullPageAccess(u32 vaddr) {
+	return vaddr < 0x1000;
+}
+
 std::vector<u8> LoadSharedFontReplacement() {
 	if (g_sharedFontReplacementOverridePath.has_value()) {
 		if (std::vector<u8> data = LoadFile(*g_sharedFontReplacementOverridePath); !data.empty()) {
@@ -240,7 +244,7 @@ u8 Memory::read8(u32 vaddr) {
 
 				default:
 					LogUnmappedRead(8, vaddr);
-					if (mmuFaultCallback) {
+					if (mmuFaultCallback && !IsNullPageAccess(vaddr)) {
 						const bool instruction_fault = IsLikelyInstructionFetch(vaddr);
 						mmuFaultCallback(instruction_fault ? MakeInstructionFaultStatus() : MakeDataFaultStatus(false), vaddr,
 						                instruction_fault);
@@ -260,14 +264,14 @@ u16 Memory::read16(u32 vaddr) {
 	} else {
 		switch (vaddr) {
 			case ConfigMem::WifiMac + 4: return (MACAddress[5] << 8) | MACAddress[4];  // Wifi MAC: Last 2 bytes of MAC Address
-			default:
-				LogUnmappedRead(16, vaddr);
-				if (mmuFaultCallback) {
-					const bool instruction_fault = IsLikelyInstructionFetch(vaddr);
-					mmuFaultCallback(instruction_fault ? MakeInstructionFaultStatus() : MakeDataFaultStatus(false), vaddr,
-					                instruction_fault);
-				}
-				return 0;
+				default:
+					LogUnmappedRead(16, vaddr);
+					if (mmuFaultCallback && !IsNullPageAccess(vaddr)) {
+						const bool instruction_fault = IsLikelyInstructionFetch(vaddr);
+						mmuFaultCallback(instruction_fault ? MakeInstructionFaultStatus() : MakeDataFaultStatus(false), vaddr,
+						                instruction_fault);
+					}
+					return 0;
 		}
 	}
 }
@@ -318,7 +322,7 @@ u32 Memory::read32(u32 vaddr) {
 				}
 
 					LogUnmappedRead(32, vaddr);
-					if (mmuFaultCallback) {
+					if (mmuFaultCallback && !IsNullPageAccess(vaddr)) {
 						const bool instruction_fault = IsLikelyInstructionFetch(vaddr);
 						mmuFaultCallback(instruction_fault ? MakeInstructionFaultStatus() : MakeDataFaultStatus(false), vaddr,
 						                instruction_fault);
@@ -357,13 +361,13 @@ void Memory::write8(u32 vaddr, u8 value) {
 			vram[vaddr - VirtualAddrs::VramStart] = value;
 		}
 
-		else {
-			LogUnmappedWrite(8, vaddr, value);
-			if (mmuFaultCallback) {
-				mmuFaultCallback(MakeDataFaultStatus(true), vaddr, false);
+			else {
+				LogUnmappedWrite(8, vaddr, value);
+				if (mmuFaultCallback && !IsNullPageAccess(vaddr)) {
+					mmuFaultCallback(MakeDataFaultStatus(true), vaddr, false);
+				}
 			}
 		}
-	}
 }
 
 void Memory::write16(u32 vaddr, u16 value) {
@@ -383,12 +387,12 @@ void Memory::write16(u32 vaddr, u16 value) {
 			return;
 		}
 
-		LogUnmappedWrite(16, vaddr, value);
-		if (mmuFaultCallback) {
-			mmuFaultCallback(MakeDataFaultStatus(true), vaddr, false);
+			LogUnmappedWrite(16, vaddr, value);
+			if (mmuFaultCallback && !IsNullPageAccess(vaddr)) {
+				mmuFaultCallback(MakeDataFaultStatus(true), vaddr, false);
+			}
 		}
 	}
-}
 
 void Memory::write32(u32 vaddr, u32 value) {
 	const u32 page = vaddr >> pageShift;
@@ -409,12 +413,12 @@ void Memory::write32(u32 vaddr, u32 value) {
 			return;
 		}
 
-		LogUnmappedWrite(32, vaddr, value);
-		if (mmuFaultCallback) {
-			mmuFaultCallback(MakeDataFaultStatus(true), vaddr, false);
+			LogUnmappedWrite(32, vaddr, value);
+			if (mmuFaultCallback && !IsNullPageAccess(vaddr)) {
+				mmuFaultCallback(MakeDataFaultStatus(true), vaddr, false);
+			}
 		}
 	}
-}
 
 void Memory::write64(u32 vaddr, u64 value) {
 	write32(vaddr, u32(value));
