@@ -1,4 +1,7 @@
 #pragma once
+#include <array>
+#include <optional>
+
 #include "../helpers.hpp"
 #include "../kernel/kernel_types.hpp"
 #include "../logger.hpp"
@@ -14,8 +17,10 @@ class ACTService {
 
 	// Service commands
 	void initialize(u32 messagePointer);
-	void generateUUID(u32 messagePointer);
 	void getAccountDataBlock(u32 messagePointer);
+	void generateUUID(u32 messagePointer);
+	void getCommonInfo(u32 messagePointer);
+	void getAccountInfo(u32 messagePointer);
 
   public:
 	ACTService(Memory& mem) : mem(mem) {}

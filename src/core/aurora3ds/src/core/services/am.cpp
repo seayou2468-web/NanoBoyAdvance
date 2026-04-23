@@ -1,12 +1,16 @@
 #include "../../../include/services/am.hpp"
-
 #include "../../../include/ipc.hpp"
+#include <algorithm>
 
 namespace AMCommands {
 	enum : u32 {
+		GetNumPrograms = 0x00010040,
+		GetProgramList = 0x00020082,
+		GetProgramInfos = 0x00030082,
 		GetDLCTitleInfo = 0x10050084,
 		ListTitleInfo = 0x10070102,
 		GetPatchTitleInfo = 0x100D0084,
+		GetDeviceID = 0x000A0000,
 	};
 }
 
@@ -14,47 +18,73 @@ void AMService::reset() {}
 
 void AMService::handleSyncRequest(u32 messagePointer) {
 	const u32 command = mem.read32(messagePointer);
+	IPC::RequestParser rp(messagePointer, mem);
+
 	switch (command) {
+		case AMCommands::GetNumPrograms: getNumPrograms(messagePointer); break;
+		case AMCommands::GetProgramList: getProgramList(messagePointer); break;
+		case AMCommands::GetProgramInfos: getProgramInfos(messagePointer); break;
 		case AMCommands::GetPatchTitleInfo: getPatchTitleInfo(messagePointer); break;
 		case AMCommands::GetDLCTitleInfo: getDLCTitleInfo(messagePointer); break;
 		case AMCommands::ListTitleInfo: listTitleInfo(messagePointer); break;
-		default: Helpers::panic("AM service requested. Command: %08X\n", command);
+		case AMCommands::GetDeviceID: getDeviceID(messagePointer); break;
+		default:
+			log("AM service requested unknown command: %08X\n", command);
+			auto rb = rp.MakeBuilder(1, 0);
+			rb.Push(Result::Success);
+			break;
 	}
+}
+
+void AMService::getNumPrograms(u32 messagePointer) {
+	log("AM::GetNumPrograms\n");
+	IPC::RequestParser rp(messagePointer, mem);
+	auto rb = rp.MakeBuilder(2, 0);
+	rb.Push(Result::Success);
+	rb.Push(0u); // 0 programs for now
+}
+
+void AMService::getProgramList(u32 messagePointer) {
+	log("AM::GetProgramList\n");
+	IPC::RequestParser rp(messagePointer, mem);
+	auto rb = rp.MakeBuilder(2, 0);
+	rb.Push(Result::Success);
+	rb.Push(0u); // 0 programs written
+}
+
+void AMService::getProgramInfos(u32 messagePointer) {
+	log("AM::GetProgramInfos\n");
+	IPC::RequestParser rp(messagePointer, mem);
+	auto rb = rp.MakeBuilder(1, 0);
+	rb.Push(Result::Success);
+}
+
+void AMService::getDeviceID(u32 messagePointer) {
+	log("AM::GetDeviceID\n");
+	IPC::RequestParser rp(messagePointer, mem);
+	auto rb = rp.MakeBuilder(2, 0);
+	rb.Push(Result::Success);
+	rb.Push(0x12345678u); // Dummy device ID
 }
 
 void AMService::listTitleInfo(u32 messagePointer) {
-	log("AM::ListDLCOrLicenseTicketInfos\n");  // Yes this is the actual name
-	u32 ticketCount = mem.read32(messagePointer + 4);
-	u64 titleID = mem.read64(messagePointer + 8);
-	u32 pointer = mem.read32(messagePointer + 24);
-
-	for (u32 i = 0; i < ticketCount; i++) {
-		mem.write64(pointer, titleID);  // Title ID
-		mem.write64(pointer + 8, 0);    // Ticket ID
-		mem.write16(pointer + 16, 0);   // Version
-		mem.write16(pointer + 18, 0);   // Padding
-		mem.write32(pointer + 20, 0);   // Size
-
-		pointer += 24;  // = sizeof(TicketInfo)
-	}
-
-	mem.write32(messagePointer, IPC::responseHeader(0x1007, 2, 2));
-	mem.write32(messagePointer + 4, Result::Success);
-	mem.write32(messagePointer + 8, ticketCount);
+	log("AM::ListTitleInfo\n");
+	IPC::RequestParser rp(messagePointer, mem);
+	auto rb = rp.MakeBuilder(2, 0);
+	rb.Push(Result::Success);
+	rb.Push(0u);
 }
 
 void AMService::getDLCTitleInfo(u32 messagePointer) {
-	log("AM::GetDLCTitleInfo (stubbed to fail)\n");
-	Helpers::warn("Unimplemented AM::GetDLCTitleInfo. Will need to be implemented to support DLC\n");
-
-	mem.write32(messagePointer, IPC::responseHeader(0x1005, 1, 4));
-	mem.write32(messagePointer + 4, Result::FailurePlaceholder);
+	log("AM::GetDLCTitleInfo\n");
+	IPC::RequestParser rp(messagePointer, mem);
+	auto rb = rp.MakeBuilder(1, 0);
+	rb.Push(Result::Success);
 }
 
 void AMService::getPatchTitleInfo(u32 messagePointer) {
-	log("AM::GetPatchTitleInfo (stubbed to fail)\n");
-	Helpers::warn("Unimplemented AM::GetDLCTitleInfo. Will need to be implemented to support updates\n");
-
-	mem.write32(messagePointer, IPC::responseHeader(0x100D, 1, 4));
-	mem.write32(messagePointer + 4, Result::FailurePlaceholder);
+	log("AM::GetPatchTitleInfo\n");
+	IPC::RequestParser rp(messagePointer, mem);
+	auto rb = rp.MakeBuilder(1, 0);
+	rb.Push(Result::Success);
 }

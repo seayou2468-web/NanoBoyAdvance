@@ -13,9 +13,13 @@ class AMService {
 	MAKE_LOG_FUNCTION(log, amLogger)
 
 	// Service commands
+	void getNumPrograms(u32 messagePointer);
+	void getProgramList(u32 messagePointer);
+	void getProgramInfos(u32 messagePointer);
 	void getDLCTitleInfo(u32 messagePointer);
 	void getPatchTitleInfo(u32 messagePointer);
 	void listTitleInfo(u32 messagePointer);
+	void getDeviceID(u32 messagePointer);
 
   public:
 	AMService(Memory& mem) : mem(mem) {}

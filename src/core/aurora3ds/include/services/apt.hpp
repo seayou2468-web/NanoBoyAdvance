@@ -1,5 +1,6 @@
 #pragma once
 #include <optional>
+#include <vector>
 
 #include "../applets/applet_manager.hpp"
 #include "../helpers.hpp"
@@ -16,28 +17,34 @@ enum class ConsoleModel : u32 {
 	New3DS,
 };
 
-// https://www.3dbrew.org/wiki/NS_and_APT_Services#Command
-namespace APT::Transitions {
-	enum : u32 {
-		None = 0,
-		Wakeup = 1,
-		Request = 2,
-		Response = 3,
-		Exit = 4,
-		Message = 5,
-		HomeButtonSingle = 6,
-		HomeButtonDouble = 7,
-		DSPSleep = 8,
-		DSPWakeup = 9,
-		WakeupByExit = 10,
-		WakuepByPause = 11,
-		WakeupByCancel = 12,
-		WakeupByCancelAll = 13,
-		WakeupByPowerButton = 14,
-		WakeupToJumpHome = 15,
-		RequestForApplet = 16,
-		WakeupToLaunchApp = 17,
-		ProcessDed = 0x41
+namespace APT {
+	enum class AppletId : u32 {
+		None = 0x0,
+		Any = 0x1,
+		Application = 0x300,
+		HomeMenu = 0x101,
+		AlternateMenu = 0x103,
+		MiiSelector = 0x110,
+		SoftwareKeyboard = 0x111,
+		ErrDisp = 0x112,
+		FriendsList = 0x113,
+		SettingsApplet = 0x114,
+		WebBrowser = 0x115,
+		Miiverse = 0x116,
+		NintendoZone = 0x117,
+		PhotoViewer = 0x118,
+		SystemSettings = 0x119,
+		AppletUtility = 0x11A,
+		EShop = 0x11B,
+		TrainingLabel = 0x11C,
+		Passport = 0x11D,
+		Ar = 0x11E,
+		FaceRaiders = 0x11F,
+		MiiMaker = 0x120,
+		SystemUpdate = 0x121,
+		NintendoStore = 0x122,
+		InstructionManual = 0x123,
+		DreamLog = 0x124,
 	};
 }
 
@@ -50,6 +57,7 @@ class APTService {
 
 	std::optional<Handle> lockHandle = std::nullopt;
 	std::optional<Handle> notificationEvent = std::nullopt;
+	std::optional<Handle> parameterEvent = std::nullopt;
 	std::optional<Handle> resumeEvent = std::nullopt;
 
 	ConsoleModel model = ConsoleModel::Old3DS;
@@ -81,26 +89,13 @@ class APTService {
 	void sendParameter(u32 messagePointer);
 	void startLibraryApplet(u32 messagePointer);
 	void theSmashBrosFunction(u32 messagePointer);
+	void getProgramId(u32 messagePointer);
+	void getTargetPlatform(u32 messagePointer);
 
 	// Percentage of the syscore available to the application, between 5% and 89%
-	u32 cpuTimeLimit;
-
-	enum class NotificationType : u32 {
-		None = 0,
-		HomeButton1 = 1,
-		HomeButton2 = 2,
-		SleepQuery = 3,
-		SleepCanceledByOpen = 4,
-		SleepAccepted = 5,
-		SleepAwake = 6,
-		Shutdown = 7,
-		PowerButtonClick = 8,
-		PowerButtonClear = 9,
-		TrySleep = 10,
-		OrderToClose = 11
-	};
-
-	u32 screencapPostPermission;
+	u32 cpuTimeLimit = 0;
+	u32 screencapPostPermission = 0;
+	std::vector<u8> wirelessRebootInfo;
 
   public:
 	APTService(Memory& mem, Kernel& kernel) : mem(mem), kernel(kernel), appletManager(mem) {}

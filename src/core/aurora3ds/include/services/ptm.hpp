@@ -1,64 +1,65 @@
 #pragma once
-#include "../config.hpp"
+
 #include "../helpers.hpp"
-#include "../kernel/kernel_types.hpp"
 #include "../logger.hpp"
 #include "../memory.hpp"
 #include "../result/result.hpp"
+#include "../config.hpp"
 
 class PTMService {
+	using Handle = HorizonHandle;
+
 	Memory& mem;
+	const EmulatorConfig& config;
 	MAKE_LOG_FUNCTION(log, ptmLogger)
 
-	const EmulatorConfig& config;
-
-	// Service commands
-	void clearSoftwareClosedFlag(u32 messagePointer);
-	void configureNew3DSCPU(u32 messagePointer);
-	void getAdapterState(u32 messagePointer);
-	void getBatteryChargeState(u32 messagePointer);
-	void getBatteryLevel(u32 messagePointer);
-	void getShellState(u32 messagePointer);
-	void getSoftwareClosedFlag(u32 messagePointer);
-	void getPedometerState(u32 messagePointer);
-	void getStepHistory(u32 messagePointer);
-	void getStepHistoryAll(u32 messagePointer);
-	void getSystemTime(u32 messagePointer);
-	void setSystemTime(u32 messagePointer);
-	void getTotalStepCount(u32 messagePointer);
+	// Internal state
+	bool shellOpen = true;
+	bool batteryCharging = false;
+	bool pedometerCounting = true;
 
   public:
 	enum class Type {
-		GETS,  // ptm:gets
-		U,     // ptm:u
-		SYSM,  // ptm:sysm
-		PLAY,  // ptm:play
-		SETS,  // ptm:sets
+		U,
+		SYSM,
+		PLAY,
+		GETS,
+		SETS,
 	};
 
 	PTMService(Memory& mem, const EmulatorConfig& config) : mem(mem), config(config) {}
 	void reset();
 	void handleSyncRequest(u32 messagePointer, Type type);
 
-	// 0% -> 0 (shutting down)
-	// 1-5% -> 1
-	// 6-10% -> 2
-	// 11-30% -> 3
-	// 31-60% -> 4
-	// 61-100% -> 5
-	static constexpr u8 batteryPercentToLevel(u8 percent) {
-		if (percent == 0) {
-			return 0;
-		} else if (percent >= 1 && percent <= 5) {
-			return 1;
-		} else if (percent >= 6 && percent <= 10) {
-			return 2;
-		} else if (percent >= 11 && percent <= 30) {
-			return 3;
-		} else if (percent >= 31 && percent <= 60) {
-			return 4;
-		} else {
-			return 5;
-		}
+  private:
+	// Service commands
+	void getAdapterState(u32 messagePointer);
+	void getShellState(u32 messagePointer);
+	void getBatteryLevel(u32 messagePointer);
+	void getBatteryChargeState(u32 messagePointer);
+	void getPedometerState(u32 messagePointer);
+	void getStepHistory(u32 messagePointer);
+	void getTotalStepCount(u32 messagePointer);
+	void getStepHistoryAll(u32 messagePointer);
+	void configureNew3DSCPU(u32 messagePointer);
+	void getSystemTime(u32 messagePointer);
+	void setSystemTime(u32 messagePointer);
+	void getSoftwareClosedFlag(u32 messagePointer);
+	void clearSoftwareClosedFlag(u32 messagePointer);
+
+	// New ones from reference
+	void checkNew3DS(u32 messagePointer);
+	void getPlayHistory(u32 messagePointer);
+	void getPlayHistoryStart(u32 messagePointer);
+	void getPlayHistoryLength(u32 messagePointer);
+	void calcPlayHistoryStart(u32 messagePointer);
+
+	static constexpr u8 batteryPercentToLevel(u32 percentage) {
+		if (percentage > 80) return 5;
+		if (percentage > 60) return 4;
+		if (percentage > 40) return 3;
+		if (percentage > 20) return 2;
+		if (percentage > 5) return 1;
+		return 0;
 	}
 };

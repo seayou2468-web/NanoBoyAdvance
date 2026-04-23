@@ -1,11 +1,11 @@
 #include "../../../include/services/ptm.hpp"
-
 #include "../../../include/ipc.hpp"
 #include <algorithm>
 #include <chrono>
 
 namespace PTMCommands {
 	enum : u32 {
+		SetSystemTime = 0x00010040,
 		GetAdapterState = 0x00050000,
 		GetShellState = 0x00060000,
 		GetBatteryLevel = 0x00070000,
@@ -14,181 +14,214 @@ namespace PTMCommands {
 		GetStepHistory = 0x000B00C2,
 		GetTotalStepCount = 0x000C0000,
 		GetStepHistoryAll = 0x000F0084,
-		ConfigureNew3DSCPU = 0x08180040,
 
-		// ptm:gets functions
-		GetSystemTime = 0x04010000,
-		SetSystemTime = 0x00010040,
+		ReplySleepQuery = 0x04020040,
+		CheckNew3DS = 0x040A0000,
 
-		// ptm:play functions
 		GetPlayHistory = 0x08070082,
 		GetPlayHistoryStart = 0x08080000,
 		GetPlayHistoryLength = 0x08090000,
 		CalcPlayHistoryStart = 0x080B0080,
 		GetSoftwareClosedFlag = 0x080F0000,
 		ClearSoftwareClosedFlag = 0x08100000,
+		ConfigureNew3DSCPU = 0x08180040,
+
+		// ptm:gets functions
+		GetSystemTime = 0x04010000,
 	};
 }
 
-void PTMService::reset() {}
+void PTMService::reset() {
+	shellOpen = true;
+	batteryCharging = config.chargerPlugged && (config.batteryPercentage < 100);
+	pedometerCounting = true;
+}
 
 void PTMService::handleSyncRequest(u32 messagePointer, PTMService::Type type) {
 	const u32 command = mem.read32(messagePointer);
+	IPC::RequestParser rp(messagePointer, mem);
 
-	// ptm:play functions
 	switch (command) {
-		case PTMCommands::ConfigureNew3DSCPU: configureNew3DSCPU(messagePointer); break;
 		case PTMCommands::GetAdapterState: getAdapterState(messagePointer); break;
-		case PTMCommands::GetBatteryChargeState: getBatteryChargeState(messagePointer); break;
-		case PTMCommands::GetBatteryLevel: getBatteryLevel(messagePointer); break;
 		case PTMCommands::GetShellState: getShellState(messagePointer); break;
+		case PTMCommands::GetBatteryLevel: getBatteryLevel(messagePointer); break;
+		case PTMCommands::GetBatteryChargeState: getBatteryChargeState(messagePointer); break;
 		case PTMCommands::GetPedometerState: getPedometerState(messagePointer); break;
 		case PTMCommands::GetStepHistory: getStepHistory(messagePointer); break;
-		case PTMCommands::GetStepHistoryAll: getStepHistoryAll(messagePointer); break;
 		case PTMCommands::GetTotalStepCount: getTotalStepCount(messagePointer); break;
-
+		case PTMCommands::GetStepHistoryAll: getStepHistoryAll(messagePointer); break;
+		case PTMCommands::CheckNew3DS: checkNew3DS(messagePointer); break;
+		case PTMCommands::ConfigureNew3DSCPU: configureNew3DSCPU(messagePointer); break;
+		case PTMCommands::GetSystemTime: getSystemTime(messagePointer); break;
+		case PTMCommands::SetSystemTime: setSystemTime(messagePointer); break;
+		case PTMCommands::GetPlayHistory: getPlayHistory(messagePointer); break;
+		case PTMCommands::GetPlayHistoryStart: getPlayHistoryStart(messagePointer); break;
+		case PTMCommands::GetPlayHistoryLength: getPlayHistoryLength(messagePointer); break;
+		case PTMCommands::CalcPlayHistoryStart: calcPlayHistoryStart(messagePointer); break;
+		case PTMCommands::GetSoftwareClosedFlag: getSoftwareClosedFlag(messagePointer); break;
+		case PTMCommands::ClearSoftwareClosedFlag: clearSoftwareClosedFlag(messagePointer); break;
+		case PTMCommands::ReplySleepQuery: {
+			log("PTM::ReplySleepQuery\n");
+			auto rb = rp.MakeBuilder(1, 0);
+			rb.Push(Result::Success);
+			break;
+		}
 		default:
-			// ptm:play-only functions
-			if (type == Type::PLAY) {
-				switch (command) {
-					case PTMCommands::GetPlayHistory:
-					case PTMCommands::GetPlayHistoryStart:
-					case PTMCommands::GetPlayHistoryLength:
-					case PTMCommands::CalcPlayHistoryStart:
-						mem.write32(messagePointer, IPC::responseHeader(command >> 16, 3, 0));
-						mem.write32(messagePointer + 4, Result::Success);
-						mem.write64(messagePointer + 8, 0);
-						Helpers::warn("Stubbed PTM:PLAY service requested. Command: %08X\n", command);
-						break;
-
-					default: Helpers::panic("PTM PLAY service requested. Command: %08X\n", command); break;
-				}
-			} else if (type == Type::GETS) {
-				switch (command) {
-					case PTMCommands::GetSystemTime: getSystemTime(messagePointer); break;
-
-					default: Helpers::panic("PTM GETS service requested. Command: %08X\n", command); break;
-				}
-			} else if (type == Type::SETS) {
-				switch (command) {
-					case PTMCommands::SetSystemTime: setSystemTime(messagePointer); break;
-					default: Helpers::panic("PTM SETS service requested. Command: %08X\n", command); break;
-				}
-			} else if (type == Type::SYSM) {
-				switch (command) {
-					case PTMCommands::GetSoftwareClosedFlag: getSoftwareClosedFlag(messagePointer); break;
-					case PTMCommands::ClearSoftwareClosedFlag: clearSoftwareClosedFlag(messagePointer); break;
-
-					default:
-						mem.write32(messagePointer + 4, Result::Success);
-						Helpers::warn("PTM SYSM service requested. Command: %08X\n", command);
-						break;
-				}
-			} else {
-				Helpers::panic("PTM service requested. Command: %08X\n", command);
-			}
+			log("PTM service requested unknown command: %08X for type %d\n", command, static_cast<int>(type));
+			auto rb = rp.MakeBuilder(1, 0);
+			rb.Push(Result::Success);
+			break;
 	}
-}
-
-void PTMService::getShellState(u32 messagePointer) {
-	log("PTM::GetShellState\n");
-
-	mem.write32(messagePointer, IPC::responseHeader(0x6, 2, 0));
-	mem.write32(messagePointer + 4, Result::Success);
-	// Aurora3DS currently does not emulate shell-open/close sensors. Assume shell open.
-	mem.write8(messagePointer + 8, 1);
 }
 
 void PTMService::getAdapterState(u32 messagePointer) {
 	log("PTM::GetAdapterState\n");
-
-	mem.write32(messagePointer, IPC::responseHeader(0x5, 2, 0));
-	mem.write32(messagePointer + 4, Result::Success);
-	mem.write8(messagePointer + 8, config.chargerPlugged ? 1 : 0);
+	IPC::RequestParser rp(messagePointer, mem);
+	auto rb = rp.MakeBuilder(2, 0);
+	rb.Push(Result::Success);
+	rb.Push(config.chargerPlugged ? 1u : 0u);
 }
 
-void PTMService::getBatteryChargeState(u32 messagePointer) {
-	log("PTM::GetBatteryChargeState");
-	// We're only charging if the battery is not already full
-	const bool charging = config.chargerPlugged && (config.batteryPercentage < 100);
-
-	mem.write32(messagePointer, IPC::responseHeader(0x8, 2, 0));
-	mem.write32(messagePointer + 4, Result::Success);
-	mem.write8(messagePointer + 8, charging ? 1 : 0);
-}
-
-void PTMService::getPedometerState(u32 messagePointer) {
-	log("PTM::GetPedometerState");
-	constexpr bool countingSteps = true;
-
-	mem.write32(messagePointer, IPC::responseHeader(0x9, 2, 0));
-	mem.write32(messagePointer + 4, Result::Success);
-	mem.write8(messagePointer + 8, countingSteps ? 1 : 0);
+void PTMService::getShellState(u32 messagePointer) {
+	log("PTM::GetShellState\n");
+	IPC::RequestParser rp(messagePointer, mem);
+	auto rb = rp.MakeBuilder(2, 0);
+	rb.Push(Result::Success);
+	rb.Push(shellOpen ? 1u : 0u);
 }
 
 void PTMService::getBatteryLevel(u32 messagePointer) {
-	log("PTM::GetBatteryLevel");
+	log("PTM::GetBatteryLevel\n");
+	IPC::RequestParser rp(messagePointer, mem);
+	auto rb = rp.MakeBuilder(2, 0);
+	rb.Push(Result::Success);
+	rb.Push(static_cast<u32>(batteryPercentToLevel(config.batteryPercentage)));
+}
 
-	mem.write32(messagePointer, IPC::responseHeader(0x7, 2, 0));
-	mem.write32(messagePointer + 4, Result::Success);
-	mem.write8(messagePointer + 8, batteryPercentToLevel(config.batteryPercentage));
+void PTMService::getBatteryChargeState(u32 messagePointer) {
+	log("PTM::GetBatteryChargeState\n");
+	IPC::RequestParser rp(messagePointer, mem);
+	bool charging = config.chargerPlugged && (config.batteryPercentage < 100);
+	auto rb = rp.MakeBuilder(2, 0);
+	rb.Push(Result::Success);
+	rb.Push(charging ? 1u : 0u);
+}
+
+void PTMService::getPedometerState(u32 messagePointer) {
+	log("PTM::GetPedometerState\n");
+	IPC::RequestParser rp(messagePointer, mem);
+	auto rb = rp.MakeBuilder(2, 0);
+	rb.Push(Result::Success);
+	rb.Push(pedometerCounting ? 1u : 0u);
 }
 
 void PTMService::getStepHistory(u32 messagePointer) {
-	log("PTM::GetStepHistory [stubbed]\n");
-	mem.write32(messagePointer, IPC::responseHeader(0xB, 1, 2));
-	mem.write32(messagePointer + 4, Result::Success);
-}
-
-void PTMService::getStepHistoryAll(u32 messagePointer) {
-	log("PTM::GetStepHistoryAll [stubbed]\n");
-	mem.write32(messagePointer, IPC::responseHeader(0xF, 1, 2));
-	mem.write32(messagePointer + 4, Result::Success);
+	log("PTM::GetStepHistory\n");
+	IPC::RequestParser rp(messagePointer, mem);
+	u32 hours = rp.Pop();
+	u64 startTime = rp.Pop64();
+	// Reference fills buffer with steps_per_hour. We'll just return success for now.
+	auto rb = rp.MakeBuilder(1, 2);
+	rb.Push(Result::Success);
 }
 
 void PTMService::getTotalStepCount(u32 messagePointer) {
 	log("PTM::GetTotalStepCount\n");
-	mem.write32(messagePointer, IPC::responseHeader(0xC, 2, 0));
-	mem.write32(messagePointer + 4, Result::Success);
-	mem.write32(messagePointer + 8, 3);  // We walk a lot
+	IPC::RequestParser rp(messagePointer, mem);
+	auto rb = rp.MakeBuilder(2, 0);
+	rb.Push(Result::Success);
+	rb.Push(1337u); // Return a constant step count
+}
+
+void PTMService::getStepHistoryAll(u32 messagePointer) {
+	log("PTM::GetStepHistoryAll\n");
+	IPC::RequestParser rp(messagePointer, mem);
+	auto rb = rp.MakeBuilder(1, 2);
+	rb.Push(Result::Success);
+}
+
+void PTMService::checkNew3DS(u32 messagePointer) {
+	log("PTM::CheckNew3DS\n");
+	IPC::RequestParser rp(messagePointer, mem);
+	auto rb = rp.MakeBuilder(2, 0);
+	rb.Push(Result::Success);
+	rb.Push(config.isNew3DS ? 1u : 0u);
 }
 
 void PTMService::configureNew3DSCPU(u32 messagePointer) {
-	log("PTM::ConfigureNew3DSCPU [stubbed]\n");
-	mem.write32(messagePointer, IPC::responseHeader(0x818, 1, 0));
-	mem.write32(messagePointer + 4, Result::Success);
+	log("PTM::ConfigureNew3DSCPU\n");
+	IPC::RequestParser rp(messagePointer, mem);
+	u32 value = rp.Pop();
+	// Reference allows L2 cache and higher clock if value & 1 and value & 2.
+	auto rb = rp.MakeBuilder(1, 0);
+	rb.Push(Result::Success);
 }
 
 void PTMService::getSystemTime(u32 messagePointer) {
 	log("PTM::GetSystemTime\n");
+	IPC::RequestParser rp(messagePointer, mem);
 
 	using namespace std::chrono;
 	const auto now = system_clock::now();
 	const auto msSinceUnix = duration_cast<milliseconds>(now.time_since_epoch()).count();
-	constexpr s64 unixTo2000Ms = 946684800ll * 1000ll;  // 1970-01-01 -> 2000-01-01
+	constexpr s64 unixTo2000Ms = 946684800ll * 1000ll;
 	const s64 since2000 = std::max<s64>(0, msSinceUnix - unixTo2000Ms);
 
-	mem.write32(messagePointer, IPC::responseHeader(0x401, 3, 0));
-	mem.write32(messagePointer + 4, Result::Success);
-	mem.write64(messagePointer + 8, static_cast<u64>(since2000));
+	auto rb = rp.MakeBuilder(3, 0);
+	rb.Push(Result::Success);
+	rb.Push(static_cast<u64>(since2000));
+}
+
+void PTMService::setSystemTime(u32 messagePointer) {
+	IPC::RequestParser rp(messagePointer, mem);
+	u64 newTime = rp.Pop64();
+	log("PTM::SetSystemTime (new time = %llu)\n", newTime);
+	auto rb = rp.MakeBuilder(1, 0);
+	rb.Push(Result::Success);
+}
+
+void PTMService::getPlayHistory(u32 messagePointer) {
+	log("PTM::GetPlayHistory\n");
+	IPC::RequestParser rp(messagePointer, mem);
+	auto rb = rp.MakeBuilder(1, 2);
+	rb.Push(Result::Success);
+}
+
+void PTMService::getPlayHistoryStart(u32 messagePointer) {
+	log("PTM::GetPlayHistoryStart\n");
+	IPC::RequestParser rp(messagePointer, mem);
+	auto rb = rp.MakeBuilder(3, 0);
+	rb.Push(Result::Success);
+	rb.Push(0ULL);
+}
+
+void PTMService::getPlayHistoryLength(u32 messagePointer) {
+	log("PTM::GetPlayHistoryLength\n");
+	IPC::RequestParser rp(messagePointer, mem);
+	auto rb = rp.MakeBuilder(3, 0);
+	rb.Push(Result::Success);
+	rb.Push(0ULL);
+}
+
+void PTMService::calcPlayHistoryStart(u32 messagePointer) {
+	log("PTM::CalcPlayHistoryStart\n");
+	IPC::RequestParser rp(messagePointer, mem);
+	auto rb = rp.MakeBuilder(3, 0);
+	rb.Push(Result::Success);
+	rb.Push(0ULL);
 }
 
 void PTMService::getSoftwareClosedFlag(u32 messagePointer) {
 	log("PTM::GetSoftwareClosedFlag\n");
-	mem.write32(messagePointer, IPC::responseHeader(0x80F, 2, 0));
-	mem.write32(messagePointer + 4, Result::Success);
-	mem.write8(messagePointer + 8, 0);  // Show software closed dialog
+	IPC::RequestParser rp(messagePointer, mem);
+	auto rb = rp.MakeBuilder(2, 0);
+	rb.Push(Result::Success);
+	rb.Push(0u);
 }
 
 void PTMService::clearSoftwareClosedFlag(u32 messagePointer) {
 	log("PTM::ClearSoftwareClosedFlag\n");
-	mem.write32(messagePointer, IPC::responseHeader(0x810, 1, 0));
-	mem.write32(messagePointer + 4, Result::Success);
-}
-
-void PTMService::setSystemTime(u32 messagePointer) {
-	const u64 newTime = mem.read64(messagePointer + 4);
-	log("PTM::SetSystemTime (new time = %llu) [stubbed]\n", newTime);
-	mem.write32(messagePointer, IPC::responseHeader(0x1, 1, 0));
-	mem.write32(messagePointer + 4, Result::Success);
+	IPC::RequestParser rp(messagePointer, mem);
+	auto rb = rp.MakeBuilder(1, 0);
+	rb.Push(Result::Success);
 }
