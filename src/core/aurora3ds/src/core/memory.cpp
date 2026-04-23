@@ -168,8 +168,9 @@ void Memory::reset() {
 	exceptionVectors[0x0C / sizeof(u32)] = kArmReturnPrefetchAbort;
 	exceptionVectors[0x10 / sizeof(u32)] = kArmReturnDataAbort;
 	activeVM().readTable[0] = reinterpret_cast<uintptr_t>(exceptionVectorPage.data());
-	// Keep page 0 non-writable so null writes still fault instead of silently mutating vectors.
-	activeVM().writeTable[0] = 0;
+	// Match Citra/Azahar behavior for userland startup code that repopulates low vectors
+	// during ROM initialization: keep the first page writable while it is mapped.
+	activeVM().writeTable[0] = reinterpret_cast<uintptr_t>(exceptionVectorPage.data());
 	activeVM().pageTableAttrs[0] = PageType::Memory;
 
 	// Allocate 512 bytes of TLS for each thread. Since the smallest allocatable unit is 4 KB, that means allocating one page for every 8 threads
