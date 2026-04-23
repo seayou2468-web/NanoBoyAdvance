@@ -120,6 +120,7 @@ class ServiceManager {
 
 	std::deque<u32> pendingNotifications;
 	std::unordered_set<u32> subscribedNotifications;
+	std::unordered_set<std::string> userRegisteredServices;
 
   public:
 	ServiceManager(std::span<u32, 16> regs, Memory& mem, GPU& gpu, u32& currentPID, Kernel& kernel, const EmulatorConfig& config);

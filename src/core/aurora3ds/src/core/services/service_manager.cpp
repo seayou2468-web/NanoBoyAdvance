@@ -62,6 +62,7 @@ void ServiceManager::reset() {
 	notificationSemaphore = std::nullopt;
 	pendingNotifications.clear();
 	subscribedNotifications.clear();
+	userRegisteredServices.clear();
 }
 
 // Match IPC messages to a "srv:" command based on their header
@@ -174,6 +175,7 @@ static const ServiceMapEntry serviceMapArray[] = {
 	{ "nfc:m", KernelHandles::NFC },
 	{ "ns:s", KernelHandles::NS_S },
 	{ "ns:c", KernelHandles::NS_C },
+	{ "ns:p", KernelHandles::NS_C },
 	{ "nwm::EXT", KernelHandles::NWM_EXT },
 	{ "nwm::CEC", KernelHandles::NWM_EXT },
 	{ "nwm::INF", KernelHandles::NWM_EXT },
@@ -219,14 +221,26 @@ void ServiceManager::getServiceHandle(u32 messagePointer) {
 	log("srv::getServiceHandle (Service: %s, nameLength: %d, flags: %d)\n", service.c_str(), nameLength, flags);
 
 	// Look up service handle in map, panic if it does not exist
-	if (auto search = serviceMapByName.find(service); search != serviceMapByName.end())
+	if (auto search = serviceMapByName.find(service); search != serviceMapByName.end()) {
 		handle = search->second;
-	else
-		Helpers::panic("srv: GetServiceHandle with unknown service %s", service.c_str());
+		mem.write32(messagePointer, IPC::responseHeader(0x5, 1, 2));
+		mem.write32(messagePointer + 4, Result::Success);
+		mem.write32(messagePointer + 12, handle);
+		return;
+	}
+
+	// Allow dynamically registered services to appear as valid without crashing.
+	// We don't expose server sessions yet, so return a graceful NotImplemented result.
+	if (userRegisteredServices.contains(service)) {
+		mem.write32(messagePointer, IPC::responseHeader(0x5, 1, 2));
+		mem.write32(messagePointer + 4, Result::OS::NotImplemented);
+		mem.write32(messagePointer + 12, 0);
+		return;
+	}
 
 	mem.write32(messagePointer, IPC::responseHeader(0x5, 1, 2));
-	mem.write32(messagePointer + 4, Result::Success);
-	mem.write32(messagePointer + 12, handle);
+	mem.write32(messagePointer + 4, Result::OS::NotImplemented);
+	mem.write32(messagePointer + 12, 0);
 }
 
 void ServiceManager::enableNotification(u32 messagePointer) {
@@ -296,7 +310,20 @@ void ServiceManager::registerService(u32 messagePointer) {
 	std::string service = mem.readString(messagePointer + 4, 8);
 	u32 nameLength = mem.read32(messagePointer + 12);
 	u32 maxSessions = mem.read32(messagePointer + 16);
-	log("srv::RegisterService (service = %s, nameLength = %d, maxSessions = %d) (stubbed)\n", service.c_str(), nameLength, maxSessions);
+	log("srv::RegisterService (service = %s, nameLength = %d, maxSessions = %d)\n", service.c_str(), nameLength, maxSessions);
+
+	if (nameLength > 8 || nameLength == 0 || maxSessions == 0) {
+		mem.write32(messagePointer, IPC::responseHeader(0x3, 1, 2));
+		mem.write32(messagePointer + 4, Result::OS::InvalidCombination);
+		mem.write32(messagePointer + 8, 0);
+		mem.write32(messagePointer + 12, 0);
+		return;
+	}
+
+	// Built-in service names cannot be overridden.
+	if (serviceMapByName.find(service) == serviceMapByName.end()) {
+		userRegisteredServices.insert(service);
+	}
 
 	mem.write32(messagePointer, IPC::responseHeader(0x3, 1, 2));
 	mem.write32(messagePointer + 4, Result::Success);
@@ -306,7 +333,8 @@ void ServiceManager::registerService(u32 messagePointer) {
 
 void ServiceManager::unregisterService(u32 messagePointer) {
 	std::string service = mem.readString(messagePointer + 4, 8);
-	log("srv::UnregisterService (service = %s) (stubbed)\n", service.c_str());
+	log("srv::UnregisterService (service = %s)\n", service.c_str());
+	userRegisteredServices.erase(service);
 
 	mem.write32(messagePointer, IPC::responseHeader(0x4, 1, 0));
 	mem.write32(messagePointer + 4, Result::Success);
@@ -314,7 +342,7 @@ void ServiceManager::unregisterService(u32 messagePointer) {
 
 void ServiceManager::isServiceRegistered(u32 messagePointer) {
 	std::string service = mem.readString(messagePointer + 4, 8);
-	bool registered = serviceMapByName.find(service) != serviceMapByName.end();
+	bool registered = serviceMapByName.find(service) != serviceMapByName.end() || userRegisteredServices.contains(service);
 	log("srv::IsServiceRegistered (service = %s, registered = %d)\n", service.c_str(), registered ? 1 : 0);
 
 	mem.write32(messagePointer, IPC::responseHeader(0xE, 2, 0));

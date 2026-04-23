@@ -19,11 +19,13 @@ class NewsUService {
 	u32 totalNotifications = 0;
 	bool automaticSyncFlag = false;
 	std::array<std::array<u8, 0x70>, MaxNotifications> notificationHeaders{};
+	std::array<std::array<u8, 0x70>, MaxNotifications> notificationHeadersOther{};
 	std::array<std::vector<u8>, MaxNotifications> messages{};
 	std::array<std::vector<u8>, MaxNotifications> images{};
 	std::array<u8, 0x10> newsDBHeader{};
 	std::array<u32, MaxNotifications> messageSizes{};
 	std::array<u32, MaxNotifications> imageSizes{};
+	u32 nextNotificationIndex = 0;
 
 	// Service commands
 	void addNotification(u32 messagePointer);

@@ -3,6 +3,7 @@
 #include "../kernel/kernel_types.hpp"
 #include "../logger.hpp"
 #include "../memory.hpp"
+#include "../result/result.hpp"
 
 class PMService {
 	using Handle = HorizonHandle;
@@ -11,6 +12,10 @@ class PMService {
 	Handle dbgHandle = KernelHandles::PM_DBG;
 	Memory& mem;
 	MAKE_LOG_FUNCTION(log, srvLogger)
+	u32 appCpuTimeLimit = 30;
+
+	void setAppResourceLimit(u32 messagePointer);
+	void getAppResourceLimit(u32 messagePointer);
 
   public:
 	enum class Type : u8 {
