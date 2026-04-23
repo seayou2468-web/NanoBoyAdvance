@@ -16,6 +16,9 @@ class QTMService {
   private:
 	Memory& mem;
 	MAKE_LOG_FUNCTION(log, qtmLogger)
+	bool hardwareReady = false;
+	bool irLedEnabled = false;
+	u32 sampleCounter = 0;
 
 	void initializeHardwareCheck(u32 messagePointer);
 	void setIrLedCheck(u32 messagePointer);
