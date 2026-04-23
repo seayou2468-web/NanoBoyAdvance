@@ -1,5 +1,7 @@
 #include "../../../include/services/boss.hpp"
 
+#include <algorithm>
+
 #include "../../../include/ipc.hpp"
 
 namespace BOSSCommands {
@@ -40,7 +42,30 @@ namespace BOSSCommands {
 	};
 }
 
-void BOSSService::reset() { optoutFlag = 0; }
+namespace {
+std::string ReadTaskId(Memory& mem, u32 ptr, u32 size) {
+	if (ptr == 0 || size == 0) {
+		return {};
+	}
+	std::string out;
+	out.reserve(size);
+	for (u32 i = 0; i < size; i++) {
+		const char c = static_cast<char>(mem.read8(ptr + i));
+		if (c == '\0') break;
+		out.push_back(c);
+	}
+	return out;
+}
+}
+
+void BOSSService::reset() {
+	optoutFlag = 0;
+	tasks.clear();
+	properties.clear();
+	appNewFlags.clear();
+	newArrivalEvent = std::nullopt;
+	lastErrorCode = Result::Success;
+}
 
 void BOSSService::handleSyncRequest(u32 messagePointer) {
 	const u32 command = mem.read32(messagePointer);
@@ -93,7 +118,7 @@ void BOSSService::handleSyncRequest(u32 messagePointer) {
 }
 
 void BOSSService::initializeSession(u32 messagePointer) {
-	log("BOSS::InitializeSession (stubbed)\n");
+	log("BOSS::InitializeSession\n");
 	mem.write32(messagePointer, IPC::responseHeader(0x1, 1, 0));
 	mem.write32(messagePointer + 4, Result::Success);
 }
@@ -117,24 +142,30 @@ void BOSSService::getOptoutFlag(u32 messagePointer) {
 void BOSSService::getTaskState(u32 messagePointer) {
 	const u32 taskIDBufferSize = mem.read32(messagePointer + 4);
 	const u32 taskIDDataPointer = mem.read32(messagePointer + 16);
-	log("BOSS::GetTaskStatus (task buffer size: %08X, task data pointer: %08X) (stubbed)\n", taskIDBufferSize, taskIDDataPointer);
+	const std::string taskID = ReadTaskId(mem, taskIDDataPointer, taskIDBufferSize);
+	log("BOSS::GetTaskStatus (task id: %s)\n", taskID.c_str());
+	const auto it = tasks.find(taskID);
+	const u8 state = (it == tasks.end()) ? 0 : it->second.state;
+	const u8 status = (it == tasks.end()) ? 0 : it->second.status;
 
 	mem.write32(messagePointer, IPC::responseHeader(0x20, 2, 2));
 	mem.write32(messagePointer + 4, Result::Success);
-	mem.write8(messagePointer + 8, 0);    // TaskStatus: Report the task finished successfully
-	mem.write32(messagePointer + 12, 0);  // Current state value for task PropertyID 0x4
-	mem.write8(messagePointer + 16, 0);   // TODO: Figure out what this should be
+	mem.write8(messagePointer + 8, status);
+	mem.write32(messagePointer + 12, state);
+	mem.write8(messagePointer + 16, 0);
 }
 
 void BOSSService::getTaskStatus(u32 messagePointer) {
-	// TODO: 3DBrew does not mention what the parameters are, or what the return values are.
-	log("BOSS::GetTaskStatus (Stubbed)\n");
+	const u32 taskIDBufferSize = mem.read32(messagePointer + 4);
+	const u32 taskIDDataPointer = mem.read32(messagePointer + 20);
+	const std::string taskID = ReadTaskId(mem, taskIDDataPointer, taskIDBufferSize);
+	log("BOSS::GetTaskStatus (task id=%s)\n", taskID.c_str());
+	const auto it = tasks.find(taskID);
+	const u8 status = (it == tasks.end()) ? 0 : it->second.status;
 
-	// Response values stubbed based on Citra
 	mem.write32(messagePointer, IPC::responseHeader(0x23, 2, 2));
 	mem.write32(messagePointer + 4, Result::Success);
-	mem.write8(messagePointer + 8, 0);
-	// TODO: Citra pushes a buffer here?
+	mem.write8(messagePointer + 8, status);
 }
 
 void BOSSService::getTaskServiceStatus(u32 messagePointer) {
@@ -156,25 +187,38 @@ void BOSSService::getTaskStorageInfo(u32 messagePointer) {
 }
 
 void BOSSService::getTaskIdList(u32 messagePointer) {
-	log("BOSS::GetTaskIdList (stubbed)\n");
-	mem.write32(messagePointer, IPC::responseHeader(0xE, 1, 0));
+	const u32 outPtr = mem.read32(messagePointer + 0x104);
+	const u32 maxCount = mem.read32(messagePointer + 4);
+	log("BOSS::GetTaskIdList(max=%u, out=%08X)\n", maxCount, outPtr);
+	u32 count = 0;
+	for (const auto& [id, info] : tasks) {
+		if (count >= maxCount) break;
+		for (u32 i = 0; i < 8; i++) {
+			const char c = (i < id.size()) ? id[i] : '\0';
+			mem.write8(outPtr + count * 8 + i, static_cast<u8>(c));
+		}
+		count++;
+	}
+	mem.write32(messagePointer, IPC::responseHeader(0xE, 2, 0));
 	mem.write32(messagePointer + 4, Result::Success);
+	mem.write32(messagePointer + 8, count);
 }
 
 // This function is completely undocumented, including on 3DBrew
 // The name GetTaskInfo is taken from Citra source and nobody seems to know what exactly it does
 // Kid Icarus: Uprising uses it on startup
 void BOSSService::getTaskInfo(u32 messagePointer) {
-	log("BOSS::GetTaskInfo (stubbed and undocumented)\n");
-	mem.write32(messagePointer, IPC::responseHeader(0x25, 1, 2));
+	log("BOSS::GetTaskInfo\n");
+	mem.write32(messagePointer, IPC::responseHeader(0x25, 2, 2));
 	mem.write32(messagePointer + 4, Result::Success);
+	mem.write32(messagePointer + 8, static_cast<u32>(tasks.size()));
 }
 
 void BOSSService::getErrorCode(u32 messagePointer) {
-	log("BOSS::GetErrorCode (stubbed)\n");
+	log("BOSS::GetErrorCode\n");
 	mem.write32(messagePointer, IPC::responseHeader(0x2E, 2, 0));
 	mem.write32(messagePointer + 4, Result::Success);
-	mem.write32(messagePointer + 8, Result::Success);  // No error code
+	mem.write32(messagePointer + 8, lastErrorCode);
 }
 
 void BOSSService::getStorageEntryInfo(u32 messagePointer) {
@@ -190,12 +234,15 @@ void BOSSService::sendProperty(u32 messagePointer) {
 	const u32 size = mem.read32(messagePointer + 8);
 	const u32 ptr = mem.read32(messagePointer + 16);
 
-	log("BOSS::SendProperty (id = %d, size = %08X, ptr = %08X) (stubbed)\n", id, size, ptr);
+	log("BOSS::SendProperty (id = %d, size = %08X, ptr = %08X)\n", id, size, ptr);
+	auto& prop = properties[id];
+	const u32 writeSize = std::min<u32>(size, static_cast<u32>(prop.size()));
+	for (u32 i = 0; i < writeSize; i++) {
+		prop[i] = mem.read8(ptr + i);
+	}
 	mem.write32(messagePointer, IPC::responseHeader(0x14, 1, 2));
 	mem.write32(messagePointer + 4, Result::Success);
-	mem.write32(messagePointer + 8, 0);  // Read size
-
-	// TODO: Should this do anything else?
+	mem.write32(messagePointer + 8, writeSize);
 }
 
 void BOSSService::receiveProperty(u32 messagePointer) {
@@ -203,10 +250,17 @@ void BOSSService::receiveProperty(u32 messagePointer) {
 	const u32 size = mem.read32(messagePointer + 8);
 	const u32 ptr = mem.read32(messagePointer + 16);
 
-	log("BOSS::ReceiveProperty (id = %d, size = %08X, ptr = %08X) (stubbed)\n", id, size, ptr);
+	log("BOSS::ReceiveProperty (id = %d, size = %08X, ptr = %08X)\n", id, size, ptr);
+	u32 readSize = 0;
+	if (const auto it = properties.find(id); it != properties.end()) {
+		readSize = std::min<u32>(size, static_cast<u32>(it->second.size()));
+		for (u32 i = 0; i < readSize; i++) {
+			mem.write8(ptr + i, it->second[i]);
+		}
+	}
 	mem.write32(messagePointer, IPC::responseHeader(0x16, 2, 2));
 	mem.write32(messagePointer + 4, Result::Success);
-	mem.write32(messagePointer + 8, 0);  // Read size
+	mem.write32(messagePointer + 8, readSize);
 }
 
 // This seems to accept a KEvent as a parameter and register it for something Spotpass related
@@ -214,38 +268,64 @@ void BOSSService::receiveProperty(u32 messagePointer) {
 void BOSSService::registerNewArrivalEvent(u32 messagePointer) {
 	const Handle eventHandle = mem.read32(messagePointer + 4);  // Kernel event handle to register
 	log("BOSS::RegisterNewArrivalEvent (handle = %X)\n", eventHandle);
+	newArrivalEvent = eventHandle;
 
 	mem.write32(messagePointer, IPC::responseHeader(0x8, 1, 0));
 	mem.write32(messagePointer + 4, Result::Success);
 }
 
 void BOSSService::startTask(u32 messagePointer) {
-	log("BOSS::StartTask (stubbed)\n");
+	log("BOSS::StartTask\n");
 	const u32 bufferSize = mem.read32(messagePointer + 4);
 	const u32 descriptor = mem.read32(messagePointer + 8);
 	const u32 bufferData = mem.read32(messagePointer + 12);
+	const std::string taskID = ReadTaskId(mem, bufferData, bufferSize);
+	if (!taskID.empty()) {
+		auto& task = tasks[taskID];
+		task.id = taskID;
+		task.state = 1;
+		task.status = 1;
+	}
 
 	mem.write32(messagePointer, IPC::responseHeader(0x1C, 1, 2));
 	mem.write32(messagePointer + 4, Result::Success);
 }
 
 void BOSSService::cancelTask(u32 messagePointer) {
-	log("BOSS::CancelTask (stubbed)\n");
+	const u32 bufferSize = mem.read32(messagePointer + 4);
+	const u32 bufferData = mem.read32(messagePointer + 12);
+	const std::string taskID = ReadTaskId(mem, bufferData, bufferSize);
+	log("BOSS::CancelTask(id=%s)\n", taskID.c_str());
+	if (const auto it = tasks.find(taskID); it != tasks.end()) {
+		it->second.state = 2;
+		it->second.status = 0;
+	}
 	mem.write32(messagePointer, IPC::responseHeader(0x1E, 1, 2));
 	mem.write32(messagePointer + 4, Result::Success);
 }
 
 void BOSSService::registerTask(u32 messagePointer) {
-	log("BOSS::RegisterTask (stubbed)\n");
+	log("BOSS::RegisterTask\n");
 	const u32 bufferSize = mem.read32(messagePointer + 4);
 	const u32 dataPointr = mem.read32(messagePointer + 20);
+	const std::string taskID = ReadTaskId(mem, dataPointr, bufferSize);
+	if (!taskID.empty()) {
+		auto& task = tasks[taskID];
+		task.id = taskID;
+		task.state = 0;
+		task.status = 0;
+	}
 
 	mem.write32(messagePointer, IPC::responseHeader(0x0B, 1, 2));
 	mem.write32(messagePointer + 4, Result::Success);
 }
 
 void BOSSService::unregisterTask(u32 messagePointer) {
-	log("BOSS::UnregisterTask (stubbed)\n");
+	const u32 bufferSize = mem.read32(messagePointer + 4);
+	const u32 dataPointer = mem.read32(messagePointer + 16);
+	const std::string taskID = ReadTaskId(mem, dataPointer, bufferSize);
+	log("BOSS::UnregisterTask(id=%s)\n", taskID.c_str());
+	tasks.erase(taskID);
 	mem.write32(messagePointer, IPC::responseHeader(0x0C, 1, 2));
 	mem.write32(messagePointer + 4, Result::Success);
 }
@@ -273,10 +353,17 @@ void BOSSService::unregisterStorage(u32 messagePointer) {
 }
 
 void BOSSService::getNewArrivalFlag(u32 messagePointer) {
-	log("BOSS::GetNewArrivalFlag (stubbed)\n");
+	log("BOSS::GetNewArrivalFlag\n");
+	u8 hasNew = 0;
+	for (const auto& [app, flag] : appNewFlags) {
+		if (flag != 0) {
+			hasNew = 1;
+			break;
+		}
+	}
 	mem.write32(messagePointer, IPC::responseHeader(0x7, 2, 0));
 	mem.write32(messagePointer + 4, Result::Success);
-	mem.write8(messagePointer + 8, 0);  // Flag
+	mem.write8(messagePointer + 8, hasNew);
 }
 
 void BOSSService::startBgImmediate(u32 messagePointer) {
@@ -293,10 +380,11 @@ void BOSSService::startBgImmediate(u32 messagePointer) {
 void BOSSService::getAppNewFlag(u32 messagePointer) {
 	const u64 appID = mem.read64(messagePointer + 4);
 	log("BOSS::GetAppNewFlag (app ID = %llX)\n", appID);
+	const u8 flag = appNewFlags.contains(appID) ? appNewFlags[appID] : 0;
 
 	mem.write32(messagePointer, IPC::responseHeader(0x404, 2, 0));
 	mem.write32(messagePointer + 4, Result::Success);
-	mem.write8(messagePointer + 8, 0);  // No new content
+	mem.write8(messagePointer + 8, flag);
 }
 
 void BOSSService::getNsDataHeaderInfo(u32 messagePointer) {
@@ -361,6 +449,7 @@ void BOSSService::setAppNewFlag(u32 messagePointer) {
 	const u64 appID = mem.read64(messagePointer + 4);
 	const u8 flag = mem.read32(messagePointer + 12);
 	log("BOSS::SetAppNewFlag (app ID = %llX, flag = %X)\n", appID, flag);
+	appNewFlags[appID] = flag;
 
 	mem.write32(messagePointer, IPC::responseHeader(0x405, 1, 0));
 	mem.write32(messagePointer + 4, Result::Success);

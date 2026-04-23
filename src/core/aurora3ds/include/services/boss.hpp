@@ -4,6 +4,10 @@
 #include "../logger.hpp"
 #include "../memory.hpp"
 #include "../result/result.hpp"
+#include <array>
+#include <optional>
+#include <string>
+#include <unordered_map>
 
 class BOSSService {
 	using Handle = HorizonHandle;
@@ -43,6 +47,17 @@ class BOSSService {
 	void unregisterStorage(u32 messagePointer);
 	void unregisterTask(u32 messagePointer);
 
+	struct TaskInfo {
+		std::string id;
+		u8 state = 0;
+		u8 status = 0;
+	};
+
+	std::unordered_map<std::string, TaskInfo> tasks;
+	std::unordered_map<u32, std::array<u8, 256>> properties;
+	std::unordered_map<u64, u8> appNewFlags;
+	std::optional<Handle> newArrivalEvent = std::nullopt;
+	u32 lastErrorCode = Result::Success;
 	s8 optoutFlag;
 
   public:

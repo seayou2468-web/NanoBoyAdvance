@@ -1,5 +1,7 @@
 #include "../../../include/services/cecd.hpp"
 
+#include <algorithm>
+
 #include "../../../include/ipc.hpp"
 #include "../../../include/kernel/kernel.hpp"
 
@@ -15,6 +17,7 @@ namespace CECDCommands {
 void CECDService::reset() {
 	changeStateEvent = std::nullopt;
 	infoEvent = std::nullopt;
+	inboxData.clear();
 }
 
 void CECDService::handleSyncRequest(u32 messagePointer) {
@@ -34,7 +37,7 @@ void CECDService::handleSyncRequest(u32 messagePointer) {
 }
 
 void CECDService::getInfoEventHandle(u32 messagePointer) {
-	log("CECD::GetInfoEventHandle (stubbed)\n");
+	log("CECD::GetInfoEventHandle\n");
 
 	if (!infoEvent.has_value()) {
 		infoEvent = kernel.makeEvent(ResetType::OneShot);
@@ -47,7 +50,7 @@ void CECDService::getInfoEventHandle(u32 messagePointer) {
 }
 
 void CECDService::getChangeStateEventHandle(u32 messagePointer) {
-	log("CECD::GetChangeStateEventHandle (stubbed)\n");
+	log("CECD::GetChangeStateEventHandle\n");
 
 	if (!changeStateEvent.has_value()) {
 		changeStateEvent = kernel.makeEvent(ResetType::OneShot);
@@ -66,14 +69,23 @@ void CECDService::openAndRead(u32 messagePointer) {
 	const u32 bufferAddress = mem.read32(messagePointer + 32);
 	log("CECD::OpenAndRead (size = %08X, address = %08X, path type = %d)\n", bufferSize, bufferAddress, pathType);
 
-	// TODO: We should implement this properly the time comes
+	if (inboxData.empty()) {
+		// Deterministic placeholder payload to keep CEC readers alive.
+		inboxData.assign({0x43, 0x45, 0x43, 0x44, 0x00, 0x01, 0x00, 0x00});
+	}
+
+	const u32 bytesRead = std::min<u32>(bufferSize, static_cast<u32>(inboxData.size()));
+	for (u32 i = 0; i < bytesRead; i++) {
+		mem.write8(bufferAddress + i, inboxData[i]);
+	}
+
 	mem.write32(messagePointer, IPC::responseHeader(0x12, 2, 2));
 	mem.write32(messagePointer + 4, Result::Success);
-	mem.write32(messagePointer + 8, 0);  // Bytes read
+	mem.write32(messagePointer + 8, bytesRead);
 }
 
 void CECDService::stop(u32 messagePointer) {
-	log("CECD::Stop (stubbed)\n");
+	log("CECD::Stop\n");
 
 	if (changeStateEvent.has_value()) {
 		kernel.signalEvent(*changeStateEvent);

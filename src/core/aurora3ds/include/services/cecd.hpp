@@ -1,5 +1,6 @@
 #pragma once
 #include <optional>
+#include <vector>
 
 #include "../helpers.hpp"
 #include "../kernel/kernel_types.hpp"
@@ -19,6 +20,7 @@ class CECDService {
 
 	std::optional<Handle> infoEvent;
 	std::optional<Handle> changeStateEvent;
+	std::vector<u8> inboxData;
 
 	// Service commands
 	void getChangeStateEventHandle(u32 messagePointer);
