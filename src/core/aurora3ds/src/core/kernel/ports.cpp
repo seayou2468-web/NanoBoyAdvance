@@ -69,9 +69,16 @@ void Kernel::connectToPort() {
 	}
 
 	if (!optionalHandle.has_value()) [[unlikely]] {
-		Helpers::warn("ConnectToPort: Port doesn't exist (%s)", port.c_str());
-		regs[0] = Result::Kernel::NotFound;
-		return;
+		// Allow boot to continue for unknown-but-service-like named ports.
+		// These ports are routed through OS_STUB in SendSyncRequest.
+		if (port.find(':') != std::string::npos && port.length() <= 8) {
+			Helpers::warn("ConnectToPort: Auto-creating fallback named port (%s)", port.c_str());
+			optionalHandle = makeNamedPort(port.c_str());
+		} else {
+			Helpers::warn("ConnectToPort: Port doesn't exist (%s)", port.c_str());
+			regs[0] = Result::Kernel::NotFound;
+			return;
+		}
 	}
 
 	Handle portHandle = optionalHandle.value();
@@ -148,8 +155,13 @@ void Kernel::sendSyncRequest() {
 		const auto portData = objects[portHandle].getData<Port>();
 		Helpers::warn("SendSyncRequest targetting unsupported port %s", portData->name);
 		regs[0] = Result::Success;
-		const u32 command = mem.read32(messagePointer);
-		mem.write32(messagePointer, IPC::responseHeader(command >> 16, 1, 0));
-		mem.write32(messagePointer + 4, Result::OS::NotImplemented);
+
+		if (std::strchr(portData->name, ':') != nullptr) {
+			serviceManager.sendCommandToService(messagePointer, KernelHandles::OS_STUB);
+		} else {
+			const u32 command = mem.read32(messagePointer);
+			mem.write32(messagePointer, IPC::responseHeader(command >> 16, 1, 0));
+			mem.write32(messagePointer + 4, Result::OS::NotImplemented);
+		}
 	}
 }
