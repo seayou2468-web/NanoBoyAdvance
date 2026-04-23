@@ -1,7 +1,9 @@
 #pragma once
 #include <array>
+#include <deque>
 #include <optional>
 #include <span>
+#include <unordered_set>
 #include <string>
 
 #include "../kernel/kernel_types.hpp"
@@ -108,10 +110,16 @@ class ServiceManager {
 	void enableNotification(u32 messagePointer);
 	void getServiceHandle(u32 messagePointer);
 	void publishToSubscriber(u32 messagePointer);
+	void registerService(u32 messagePointer);
+	void unregisterService(u32 messagePointer);
 	void receiveNotification(u32 messagePointer);
 	void registerClient(u32 messagePointer);
 	void subscribe(u32 messagePointer);
 	void unsubscribe(u32 messagePointer);
+	void isServiceRegistered(u32 messagePointer);
+
+	std::deque<u32> pendingNotifications;
+	std::unordered_set<u32> subscribedNotifications;
 
   public:
 	ServiceManager(std::span<u32, 16> regs, Memory& mem, GPU& gpu, u32& currentPID, Kernel& kernel, const EmulatorConfig& config);

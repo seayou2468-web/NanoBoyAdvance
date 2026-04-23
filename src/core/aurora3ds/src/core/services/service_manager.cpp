@@ -60,6 +60,8 @@ void ServiceManager::reset() {
 	y2r.reset();
 
 	notificationSemaphore = std::nullopt;
+	pendingNotifications.clear();
+	subscribedNotifications.clear();
 }
 
 // Match IPC messages to a "srv:" command based on their header
@@ -92,17 +94,29 @@ void ServiceManager::handleSyncRequest(u32 messagePointer) {
 		case Commands::EnableNotification: enableNotification(messagePointer); break;
 		case Commands::ReceiveNotification: receiveNotification(messagePointer); break;
 		case Commands::RegisterClient: registerClient(messagePointer); break;
+		case Commands::RegisterService: registerService(messagePointer); break;
+		case Commands::UnregisterService: unregisterService(messagePointer); break;
 		case Commands::GetServiceHandle: getServiceHandle(messagePointer); break;
 		case Commands::Subscribe: subscribe(messagePointer); break;
 		case Commands::Unsubscribe: unsubscribe(messagePointer); break;
 		case Commands::PublishToSubscriber: publishToSubscriber(messagePointer); break;
+		case Commands::IsServiceRegistered: isServiceRegistered(messagePointer); break;
 		default: Helpers::panic("Unknown \"srv:\" command: %08X", header); break;
 	}
 }
 
 // https://www.3dbrew.org/wiki/SRV:RegisterClient
 void ServiceManager::registerClient(u32 messagePointer) {
-	log("srv::registerClient (Stubbed)\n");
+	const u32 pidDescriptor = mem.read32(messagePointer + 4);
+	log("srv::registerClient(pid descriptor = %08X)\n", pidDescriptor);
+
+	// IPC CallingPidDesc, see IPC::RequestParser behaviour in reference HLE.
+	if (pidDescriptor != 0x20) {
+		mem.write32(messagePointer, IPC::responseHeader(0x1, 1, 0));
+		mem.write32(messagePointer + 4, Result::OS::InvalidCombination);
+		return;
+	}
+
 	mem.write32(messagePointer, IPC::responseHeader(0x1, 1, 0));
 	mem.write32(messagePointer + 4, Result::Success);
 }
@@ -231,16 +245,23 @@ void ServiceManager::enableNotification(u32 messagePointer) {
 }
 
 void ServiceManager::receiveNotification(u32 messagePointer) {
-	log("srv::ReceiveNotification() (STUBBED)\n");
+	log("srv::ReceiveNotification()\n");
+
+	u32 notificationID = 0;
+	if (!pendingNotifications.empty()) {
+		notificationID = pendingNotifications.front();
+		pendingNotifications.pop_front();
+	}
 
 	mem.write32(messagePointer, IPC::responseHeader(0xB, 2, 0));
 	mem.write32(messagePointer + 4, Result::Success);  // Result code
-	mem.write32(messagePointer + 8, 0);                // Notification ID
+	mem.write32(messagePointer + 8, notificationID);   // Notification ID
 }
 
 void ServiceManager::subscribe(u32 messagePointer) {
 	u32 id = mem.read32(messagePointer + 4);
-	log("srv::Subscribe (id = %d) (stubbed)\n", id);
+	log("srv::Subscribe (id = %d)\n", id);
+	subscribedNotifications.insert(id);
 
 	mem.write32(messagePointer, IPC::responseHeader(0x9, 1, 0));
 	mem.write32(messagePointer + 4, Result::Success);
@@ -248,7 +269,8 @@ void ServiceManager::subscribe(u32 messagePointer) {
 
 void ServiceManager::unsubscribe(u32 messagePointer) {
 	u32 id = mem.read32(messagePointer + 4);
-	log("srv::Unsubscribe (id = %d) (stubbed)\n", id);
+	log("srv::Unsubscribe (id = %d)\n", id);
+	subscribedNotifications.erase(id);
 
 	mem.write32(messagePointer, IPC::responseHeader(0xA, 1, 0));
 	mem.write32(messagePointer + 4, Result::Success);
@@ -256,10 +278,45 @@ void ServiceManager::unsubscribe(u32 messagePointer) {
 
 void ServiceManager::publishToSubscriber(u32 messagePointer) {
 	u32 id = mem.read32(messagePointer + 4);
-	log("srv::PublishToSubscriber (Notification ID = %d) (stubbed)\n", id);
+	u32 flags = mem.read32(messagePointer + 8);
+	log("srv::PublishToSubscriber (Notification ID = %d, flags = %08X)\n", id, flags);
+
+	if (subscribedNotifications.contains(id) && pendingNotifications.size() < MAX_NOTIFICATION_COUNT) {
+		pendingNotifications.push_back(id);
+	}
 
 	mem.write32(messagePointer, IPC::responseHeader(0xC, 1, 0));
 	mem.write32(messagePointer + 4, Result::Success);
+}
+
+void ServiceManager::registerService(u32 messagePointer) {
+	std::string service = mem.readString(messagePointer + 4, 8);
+	u32 nameLength = mem.read32(messagePointer + 12);
+	u32 maxSessions = mem.read32(messagePointer + 16);
+	log("srv::RegisterService (service = %s, nameLength = %d, maxSessions = %d) (stubbed)\n", service.c_str(), nameLength, maxSessions);
+
+	mem.write32(messagePointer, IPC::responseHeader(0x3, 1, 2));
+	mem.write32(messagePointer + 4, Result::Success);
+	mem.write32(messagePointer + 8, 0);   // Translation descriptor
+	mem.write32(messagePointer + 12, 0);  // Handle (not exposed in Aurora yet)
+}
+
+void ServiceManager::unregisterService(u32 messagePointer) {
+	std::string service = mem.readString(messagePointer + 4, 8);
+	log("srv::UnregisterService (service = %s) (stubbed)\n", service.c_str());
+
+	mem.write32(messagePointer, IPC::responseHeader(0x4, 1, 0));
+	mem.write32(messagePointer + 4, Result::Success);
+}
+
+void ServiceManager::isServiceRegistered(u32 messagePointer) {
+	std::string service = mem.readString(messagePointer + 4, 8);
+	bool registered = serviceMapByName.find(service) != serviceMapByName.end();
+	log("srv::IsServiceRegistered (service = %s, registered = %d)\n", service.c_str(), registered ? 1 : 0);
+
+	mem.write32(messagePointer, IPC::responseHeader(0xE, 2, 0));
+	mem.write32(messagePointer + 4, Result::Success);
+	mem.write32(messagePointer + 8, registered ? 1 : 0);
 }
 
 void ServiceManager::sendCommandToService(u32 messagePointer, Handle handle) {
