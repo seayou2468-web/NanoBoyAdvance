@@ -2,6 +2,8 @@
 
 #include "../../../include/ipc.hpp"
 
+#include <algorithm>
+
 namespace AMCommands {
 	enum : u32 {
 		GetNumPrograms = 0x00010040,
@@ -82,7 +84,14 @@ namespace AMCommands {
 	};
 }
 
-void AMService::reset() {}
+void AMService::reset() {
+	nextImportProgramHandle = 1;
+	nextImportTicketHandle = 1;
+	importProgramHandles.clear();
+	importTicketHandles.clear();
+	installedPrograms.clear();
+	ticketMap.clear();
+}
 
 static void writeResult(Memory& mem, u32 messagePointer, u32 commandID, u32 words) {
 	mem.write32(messagePointer, IPC::responseHeader(commandID, words, 0));
@@ -105,18 +114,40 @@ void AMService::handleSyncRequest(u32 messagePointer) {
 		case AMCommands::GetDLCTitleInfo: getDLCTitleInfo(messagePointer); return;
 		case AMCommands::ListTitleInfo: listTitleInfo(messagePointer); return;
 
-		case AMCommands::GetNumPrograms:
-		case AMCommands::GetNumTickets:
 		case AMCommands::GetNumImportTitleContexts:
 		case AMCommands::GetNumImportContentContexts:
 		case AMCommands::GetNumCurrentImportTitleContexts:
 		case AMCommands::GetNumCurrentImportContentContexts:
-		case AMCommands::GetNumTicketIds:
-		case AMCommands::GetNumTicketsOfProgram:
 		case AMCommands::GetNumCurrentContentInfos:
 			writeResult(mem, messagePointer, commandID, 2);
 			mem.write32(messagePointer + 8, 0);
 			return;
+
+		case AMCommands::GetNumPrograms:
+			writeResult(mem, messagePointer, commandID, 2);
+			mem.write32(messagePointer + 8, static_cast<u32>(installedPrograms.size()));
+			return;
+
+		case AMCommands::GetNumTickets:
+			writeResult(mem, messagePointer, commandID, 2);
+			mem.write32(messagePointer + 8, static_cast<u32>(ticketMap.size()));
+			return;
+
+		case AMCommands::GetNumTicketIds: {
+			const u64 titleID = mem.read64(messagePointer + 4);
+			const auto [begin, end] = ticketMap.equal_range(titleID);
+			writeResult(mem, messagePointer, commandID, 2);
+			mem.write32(messagePointer + 8, static_cast<u32>(std::distance(begin, end)));
+			return;
+		}
+
+		case AMCommands::GetNumTicketsOfProgram: {
+			const u64 titleID = mem.read64(messagePointer + 4);
+			const auto [begin, end] = ticketMap.equal_range(titleID);
+			writeResult(mem, messagePointer, commandID, 2);
+			mem.write32(messagePointer + 8, static_cast<u32>(std::distance(begin, end)));
+			return;
+		}
 
 		case AMCommands::GetStorageId:
 			writeResult(mem, messagePointer, commandID, 2);
@@ -158,15 +189,10 @@ void AMService::handleSyncRequest(u32 messagePointer) {
 			mem.write32(messagePointer + 8, 0);
 			return;
 
-		case AMCommands::DeleteUserProgram:
-		case AMCommands::DeleteTicket:
 		case AMCommands::DoCleanup:
 		case AMCommands::DeleteImportTitleContext:
-		case AMCommands::DeleteProgram:
 		case AMCommands::CommitImportPrograms:
 		case AMCommands::CommitImportProgramsAndUpdateFirmwareAuto:
-		case AMCommands::BeginImportTicket:
-		case AMCommands::EndImportTicket:
 		case AMCommands::BeginImportTitle:
 		case AMCommands::StopImportTitle:
 		case AMCommands::ResumeImportTitle:
@@ -187,6 +213,38 @@ void AMService::handleSyncRequest(u32 messagePointer) {
 			writeResult(mem, messagePointer, commandID, 1);
 			return;
 
+		case AMCommands::DeleteUserProgram:
+		case AMCommands::DeleteProgram: {
+			const u64 titleID = mem.read64(messagePointer + 8);
+			installedPrograms.erase(std::remove(installedPrograms.begin(), installedPrograms.end(), titleID), installedPrograms.end());
+			writeResult(mem, messagePointer, commandID, 1);
+			return;
+		}
+
+		case AMCommands::DeleteTicket: {
+			const u64 titleID = mem.read64(messagePointer + 8);
+			ticketMap.erase(titleID);
+			writeResult(mem, messagePointer, commandID, 1);
+			return;
+		}
+
+		case AMCommands::BeginImportTicket: {
+			const u32 handle = nextImportTicketHandle++;
+			importTicketHandles.insert(handle);
+			writeResult(mem, messagePointer, commandID, 2);
+			mem.write32(messagePointer + 8, handle);
+			return;
+		}
+
+		case AMCommands::EndImportTicket: {
+			const u32 handle = mem.read32(messagePointer + 4);
+			importTicketHandles.erase(handle);
+			// Deterministic placeholder ticket so list/count APIs become stateful.
+			ticketMap.emplace(0, static_cast<u64>(handle));
+			writeResult(mem, messagePointer, commandID, 1);
+			return;
+		}
+
 		case AMCommands::CalculateContextRequiredSize:
 			writeResult(mem, messagePointer, commandID, 2);
 			mem.write32(messagePointer + 8, 0x1000);
@@ -196,12 +254,23 @@ void AMService::handleSyncRequest(u32 messagePointer) {
 		case AMCommands::BeginImportProgram:
 		case AMCommands::BeginImportProgramTemporarily:
 			writeResult(mem, messagePointer, commandID, 2);
-			mem.write32(messagePointer + 8, 0);  // Placeholder import handle
+			mem.write32(messagePointer + 8, nextImportProgramHandle);
+			importProgramHandles.insert(nextImportProgramHandle);
+			nextImportProgramHandle++;
 			return;
 
 		case AMCommands::CancelImportProgram:
 		case AMCommands::EndImportProgram:
-		case AMCommands::EndImportProgramWithoutCommit:
+		case AMCommands::EndImportProgramWithoutCommit: {
+			const u32 handle = mem.read32(messagePointer + 4);
+			importProgramHandles.erase(handle);
+			if (command == AMCommands::EndImportProgram || command == AMCommands::EndImportProgramWithoutCommit) {
+				installedPrograms.push_back(0x0004000000000000ULL | static_cast<u64>(handle));
+			}
+			writeResult(mem, messagePointer, commandID, 1);
+			return;
+		}
+
 		case AMCommands::GetSystemMenuDataFromCia:
 		case AMCommands::GetDependencyListFromCia:
 		case AMCommands::GetMetaDataFromCia:
