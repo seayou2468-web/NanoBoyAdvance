@@ -2,6 +2,16 @@
 
 #include "../../../include/kernel/kernel.hpp"
 
+namespace {
+bool isValidResourceType(u32 resourceName) {
+	switch (resourceName) {
+		case ResourceType::Commit:
+		case ResourceType::Thread: return true;
+		default: return false;
+	}
+}
+}  // namespace
+
 // Result GetResourceLimit(Handle* resourceLimit, Handle process)
 // out: r0 -> result, r1 -> handle
 void Kernel::getResourceLimit() {
@@ -38,6 +48,11 @@ void Kernel::getResourceLimitLimitValues() {
 	// printf("[Warning] We do not currently support any resource maximum aside from the application ones");
 	while (count != 0) {
 		const u32 name = mem.read32(names);
+		if (!isValidResourceType(name)) [[unlikely]] {
+			Helpers::warn("GetResourceLimitLimitValues: Unknown resource type %u\n", name);
+			regs[0] = Result::Kernel::InvalidEnumValue;
+			return;
+		}
 		u32 max = getMaxForResource(limit, name);
 		mem.write64(values, u64(max));
 
@@ -66,6 +81,11 @@ void Kernel::getResourceLimitCurrentValues() {
 
 	while (count != 0) {
 		const u32 name = mem.read32(names);
+		if (!isValidResourceType(name)) [[unlikely]] {
+			Helpers::warn("GetResourceLimitCurrentValues: Unknown resource type %u\n", name);
+			regs[0] = Result::Kernel::InvalidEnumValue;
+			return;
+		}
 		// TODO: Unsure if this is supposed to be s32 or u32. Shouldn't matter as the kernel can't create so many resources
 		s32 value = getCurrentResourceValue(limit, name);
 		mem.write64(values, u64(value));
@@ -80,20 +100,27 @@ void Kernel::getResourceLimitCurrentValues() {
 }
 
 s32 Kernel::getCurrentResourceValue(const KernelObject* limit, u32 resourceName) {
-	const auto data = static_cast<ResourceLimits*>(limit->data);
+	(void)limit;
+
 	switch (resourceName) {
 		// TODO: needs to use the current amount of memory allocated by the process
 		case ResourceType::Commit: return fcramManager.getUsedCount(FcramRegion::App) * Memory::pageSize;
 
 		case ResourceType::Thread: return threadIndices.size();
-		default: Helpers::panic("Attempted to get current value of unknown kernel resource: %d\n", resourceName);
+		default:
+			Helpers::warn("Attempted to get current value of unknown kernel resource: %d\n", resourceName);
+			return 0;
 	}
 }
 
 u32 Kernel::getMaxForResource(const KernelObject* limit, u32 resourceName) {
+	(void)limit;
+
 	switch (resourceName) {
 		case ResourceType::Commit: return appResourceLimits.maxCommit;
 		case ResourceType::Thread: return appResourceLimits.maxThreads;
-		default: Helpers::panic("Attempted to get the max of unknown kernel resource: %d\n", resourceName);
+		default:
+			Helpers::warn("Attempted to get the max of unknown kernel resource: %d\n", resourceName);
+			return 0;
 	}
 }

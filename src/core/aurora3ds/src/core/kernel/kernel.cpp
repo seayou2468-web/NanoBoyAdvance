@@ -317,7 +317,10 @@ void Kernel::getProcessInfo() {
 			regs[2] = 0;
 			break;
 
-		default: Helpers::panic("GetProcessInfo: unimplemented type %d", type);
+		default:
+			Helpers::warn("GetProcessInfo: unknown type %d\n", type);
+			regs[0] = Result::Kernel::InvalidEnumValue;
+			return;
 	}
 
 	regs[0] = Result::Success;
