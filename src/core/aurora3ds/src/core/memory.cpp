@@ -70,6 +70,10 @@ constexpr bool IsLikelyInstructionFetch(u32 vaddr) {
 	return vaddr >= VirtualAddrs::ExecutableStart && vaddr < VirtualAddrs::ExecutableEnd;
 }
 
+constexpr u32 kArmBranchSelf = 0xEAFFFFFE;      // b .
+constexpr u32 kArmReturnPrefetchAbort = 0xE25EF004;  // subs pc, lr, #4
+constexpr u32 kArmReturnDataAbort = 0xE25EF008;      // subs pc, lr, #8
+
 std::vector<u8> LoadSharedFontReplacement() {
 	if (g_sharedFontReplacementOverridePath.has_value()) {
 		if (std::vector<u8> data = LoadFile(*g_sharedFontReplacementOverridePath); !data.empty()) {
@@ -152,12 +156,17 @@ void Memory::reset() {
 	activeVM().clear();
 	std::fill(exceptionVectorPage.begin(), exceptionVectorPage.end(), 0);
 	auto* exceptionVectors = reinterpret_cast<u32*>(exceptionVectorPage.data());
-	// Low exception vectors (ARM):
-	//   0x0C Prefetch abort -> return with SUBS PC, LR, #4
-	//   0x10 Data abort     -> return with SUBS PC, LR, #8
-	// These are real abort-return sequences instead of placeholder stubs.
-	exceptionVectors[0x0C / sizeof(u32)] = 0xE25EF004;
-	exceptionVectors[0x10 / sizeof(u32)] = 0xE25EF008;
+	// ARM low vectors @ 0x00000000:
+	// Reset/Undefined/SVC/Reserved/IRQ/FIQ loop forever unless explicitly handled.
+	exceptionVectors[0x00 / sizeof(u32)] = kArmBranchSelf;
+	exceptionVectors[0x04 / sizeof(u32)] = kArmBranchSelf;
+	exceptionVectors[0x08 / sizeof(u32)] = kArmBranchSelf;
+	exceptionVectors[0x14 / sizeof(u32)] = kArmBranchSelf;
+	exceptionVectors[0x18 / sizeof(u32)] = kArmBranchSelf;
+	exceptionVectors[0x1C / sizeof(u32)] = kArmBranchSelf;
+	// Abort vectors return according to ARM semantics.
+	exceptionVectors[0x0C / sizeof(u32)] = kArmReturnPrefetchAbort;
+	exceptionVectors[0x10 / sizeof(u32)] = kArmReturnDataAbort;
 	activeVM().readTable[0] = reinterpret_cast<uintptr_t>(exceptionVectorPage.data());
 	// Keep page 0 non-writable so null writes still fault instead of silently mutating vectors.
 	activeVM().writeTable[0] = 0;
@@ -354,20 +363,17 @@ void Memory::write8(u32 vaddr, u8 value) {
 	if (pointer != 0) [[likely]] {
 		*(u8*)(pointer + offset) = value;
 	} else {
-
 		// VRAM write
 		if (vaddr >= VirtualAddrs::VramStart && vaddr < VirtualAddrs::VramStart + VirtualAddrs::VramSize) {
 			// TODO: Invalidate renderer caches here
 			vram[vaddr - VirtualAddrs::VramStart] = value;
-		}
-
-			else {
-				LogUnmappedWrite(8, vaddr, value);
-				if (mmuFaultCallback) {
-					mmuFaultCallback(MakeDataFaultStatus(true), vaddr, false);
-				}
+		} else {
+			LogUnmappedWrite(8, vaddr, value);
+			if (mmuFaultCallback) {
+				mmuFaultCallback(MakeDataFaultStatus(true), vaddr, false);
 			}
 		}
+	}
 }
 
 void Memory::write16(u32 vaddr, u16 value) {
@@ -378,13 +384,12 @@ void Memory::write16(u32 vaddr, u16 value) {
 	if (pointer != 0) [[likely]] {
 		*(u16*)(pointer + offset) = value;
 	} else {
-
-			LogUnmappedWrite(16, vaddr, value);
-			if (mmuFaultCallback) {
-				mmuFaultCallback(MakeDataFaultStatus(true), vaddr, false);
-			}
+		LogUnmappedWrite(16, vaddr, value);
+		if (mmuFaultCallback) {
+			mmuFaultCallback(MakeDataFaultStatus(true), vaddr, false);
 		}
 	}
+}
 
 void Memory::write32(u32 vaddr, u32 value) {
 	const u32 page = vaddr >> pageShift;
@@ -394,13 +399,12 @@ void Memory::write32(u32 vaddr, u32 value) {
 	if (pointer != 0) [[likely]] {
 		*(u32*)(pointer + offset) = value;
 	} else {
-
-			LogUnmappedWrite(32, vaddr, value);
-			if (mmuFaultCallback) {
-				mmuFaultCallback(MakeDataFaultStatus(true), vaddr, false);
-			}
+		LogUnmappedWrite(32, vaddr, value);
+		if (mmuFaultCallback) {
+			mmuFaultCallback(MakeDataFaultStatus(true), vaddr, false);
 		}
 	}
+}
 
 void Memory::write64(u32 vaddr, u64 value) {
 	write32(vaddr, u32(value));
