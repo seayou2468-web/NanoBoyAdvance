@@ -4,6 +4,57 @@
 #include "../../../include/ipc.hpp"
 #include "../../../include/kernel/kernel.hpp"
 
+namespace {
+	constexpr u32 FramebufferWidth = 240;
+	constexpr u32 TopFramebufferHeight = 400;
+	constexpr u32 BottomFramebufferHeight = 320;
+
+	constexpr u32 FramebufferSaveAreaTopLeft = VirtualAddrs::VramStart;
+	constexpr u32 FramebufferSaveAreaTopRight = FramebufferSaveAreaTopLeft + FramebufferWidth * TopFramebufferHeight * 3;
+	constexpr u32 FramebufferSaveAreaBottom = FramebufferSaveAreaTopRight + FramebufferWidth * TopFramebufferHeight * 3;
+
+	constexpr std::array<u8, 8> BytesPerPixelByFormat = {
+		4, 3, 2, 2, 2, 0, 0, 0,
+	};
+
+	void copyFramebuffer(Memory& mem, u32 dstVaddr, u32 srcVaddr, u32 dstStride, u32 srcStride, u32 lines) {
+		if (dstStride == 0 || srcStride == 0 || lines == 0) {
+			return;
+		}
+
+		auto* dst = static_cast<u8*>(mem.getWritePointer(dstVaddr));
+		const auto* src = static_cast<const u8*>(mem.getReadPointer(srcVaddr));
+		if (dst == nullptr || src == nullptr) {
+			Helpers::warn("GSP::GPU framebuffer capture skipped because source/destination pointers are invalid");
+			return;
+		}
+
+		const u32 bytesPerLine = std::min(dstStride, srcStride);
+		for (u32 y = 0; y < lines; y++) {
+			std::memcpy(dst, src, bytesPerLine);
+			dst += dstStride;
+			src += srcStride;
+		}
+	}
+
+	void clearFramebuffer(Memory& mem, u32 dstVaddr, u32 dstStride, u32 lines) {
+		if (dstStride == 0 || lines == 0) {
+			return;
+		}
+
+		auto* dst = static_cast<u8*>(mem.getWritePointer(dstVaddr));
+		if (dst == nullptr) {
+			Helpers::warn("GSP::GPU framebuffer clear skipped because destination pointer is invalid");
+			return;
+		}
+
+		for (u32 y = 0; y < lines; y++) {
+			std::memset(dst, 0, dstStride);
+			dst += dstStride;
+		}
+	}
+}  // namespace
+
 // Commands used with SendSyncRequest targetted to the GSP::GPU service
 namespace ServiceCommands {
 	enum : u32 {
@@ -11,6 +62,7 @@ namespace ServiceCommands {
 		ReadHwRegs = 0x00040080,
 		AcquireRight = 0x00160042,
 		RegisterInterruptRelayQueue = 0x00130042,
+		UnregisterInterruptRelayQueue = 0x00140000,
 		WriteHwRegs = 0x00010082,
 		WriteHwRegsWithMask = 0x00020084,
 		SetBufferSwap = 0x00050200,
@@ -43,7 +95,9 @@ void GPUService::reset() {
 	privilegedProcess = 0xFFFFFFFF;  // Set the privileged process to an invalid handle
 	interruptEvent = std::nullopt;
 	gspThreadCount = 0;
+	firstInitialization = true;
 	sharedMem = nullptr;
+	savedVram.reset();
 }
 
 void GPUService::handleSyncRequest(u32 messagePointer) {
@@ -54,6 +108,7 @@ void GPUService::handleSyncRequest(u32 messagePointer) {
 		case ServiceCommands::FlushDataCache: flushDataCache(messagePointer); break;
 		case ServiceCommands::ImportDisplayCaptureInfo: importDisplayCaptureInfo(messagePointer); break;
 		case ServiceCommands::RegisterInterruptRelayQueue: registerInterruptRelayQueue(messagePointer); break;
+		case ServiceCommands::UnregisterInterruptRelayQueue: unregisterInterruptRelayQueue(messagePointer); break;
 		case ServiceCommands::ReleaseRight: releaseRight(messagePointer); break;
 		case ServiceCommands::RestoreVramSysArea: restoreVramSysArea(messagePointer); break;
 		case ServiceCommands::SaveVramSysArea: saveVramSysArea(messagePointer); break;
@@ -124,10 +179,22 @@ void GPUService::registerInterruptRelayQueue(u32 messagePointer) {
 	}
 
 	mem.write32(messagePointer, IPC::responseHeader(0x13, 2, 2));
-	mem.write32(messagePointer + 4, Result::GSP::SuccessRegisterIRQ);  // First init returns a unique result
+	if (firstInitialization) {
+		mem.write32(messagePointer + 4, Result::GSP::SuccessRegisterIRQ);  // First init returns a unique result
+		firstInitialization = false;
+	} else {
+		mem.write32(messagePointer + 4, Result::Success);
+	}
 	mem.write32(messagePointer + 8, 0);                                // TODO: GSP module thread index
 	mem.write32(messagePointer + 12, 0);                               // Translation descriptor
 	mem.write32(messagePointer + 16, KernelHandles::GSPSharedMemHandle);
+}
+
+void GPUService::unregisterInterruptRelayQueue(u32 messagePointer) {
+	log("GSP::GPU::UnregisterInterruptRelayQueue\n");
+	interruptEvent = std::nullopt;
+	mem.write32(messagePointer, IPC::responseHeader(0x14, 1, 0));
+	mem.write32(messagePointer + 4, Result::Success);
 }
 
 void GPUService::requestInterrupt(GPUInterrupt type) {
@@ -361,13 +428,14 @@ void GPUService::processCommandBuffer() {
 	constexpr int threadCount = 1;  // TODO: More than 1 thread can have GSP commands at a time
 	for (int t = 0; t < threadCount; t++) {
 		u8* cmdBuffer = &sharedMem[0x800 + t * 0x200];
+		u8& index = cmdBuffer[0];
 		u8& commandsLeft = cmdBuffer[1];
 		// Commands start at byte 0x20 of the command buffer, each being 0x20 bytes long
-		u32* cmd = reinterpret_cast<u32*>(&cmdBuffer[0x20]);
 
 		log("Processing %d GPU commands\n", commandsLeft);
 
 		while (commandsLeft != 0) {
+			u32* cmd = reinterpret_cast<u32*>(&cmdBuffer[0x20 + ((index & 0xF) * 0x20)]);
 			const u32 cmdID = cmd[0] & 0xff;
 			switch (cmdID) {
 				case GXCommands::ProcessCommandList: processCommandList(cmd); break;
@@ -379,6 +447,7 @@ void GPUService::processCommandBuffer() {
 				default: Helpers::panic("GSP::GPU::ProcessCommands: Unknown cmd ID %d", cmdID);
 			}
 
+			index = (index + 1) % 15;
 			commandsLeft--;
 		}
 	}
@@ -514,14 +583,77 @@ void GPUService::triggerTextureCopy(u32* cmd) {
 // Used when transitioning from the app to an OS applet, such as software keyboard, mii maker, mii selector, etc
 // Stubbed until we decide to support LLE applets
 void GPUService::saveVramSysArea(u32 messagePointer) {
-	Helpers::warn("GSP::GPU::SaveVramSysArea (stubbed)");
+	log("GSP::GPU::SaveVramSysArea\n");
+	auto* vram = static_cast<const u8*>(mem.getReadPointer(VirtualAddrs::VramStart));
+	if (vram != nullptr) {
+		auto& storage = savedVram.emplace(VirtualAddrs::VramSize);
+		std::memcpy(storage.data(), vram, storage.size());
+	}
+
+	if (sharedMem != nullptr) {
+		auto* topScreen = getTopFramebufferInfo();
+		auto* bottomScreen = getBottomFramebufferInfo();
+
+		auto captureScreen = [&](FramebufferUpdate* update, int screenId, u32 leftSaveArea, u32 rightSaveArea, u32 lines, bool hasRightBuffer) {
+			const auto& current = update->framebufferInfo[update->index];
+			const u32 formatIndex = current.format & 7;
+			const u32 bytesPerPixel = BytesPerPixelByFormat[formatIndex];
+			const u32 packedStride = FramebufferWidth * bytesPerPixel;
+			if (bytesPerPixel == 0 || packedStride == 0) {
+				clearFramebuffer(mem, leftSaveArea, packedStride, lines);
+				if (hasRightBuffer) {
+					clearFramebuffer(mem, rightSaveArea, packedStride, lines);
+				}
+				return;
+			}
+
+			if (current.leftFramebufferVaddr != 0) {
+				copyFramebuffer(mem, leftSaveArea, current.leftFramebufferVaddr, packedStride, current.stride, lines);
+			} else {
+				clearFramebuffer(mem, leftSaveArea, packedStride, lines);
+			}
+
+			if (hasRightBuffer) {
+				if (current.rightFramebufferVaddr != 0) {
+					copyFramebuffer(mem, rightSaveArea, current.rightFramebufferVaddr, packedStride, current.stride, lines);
+				} else {
+					clearFramebuffer(mem, rightSaveArea, packedStride, lines);
+				}
+			}
+
+			auto savedInfo = current;
+			savedInfo.leftFramebufferVaddr = leftSaveArea;
+			if (hasRightBuffer) {
+				savedInfo.rightFramebufferVaddr = rightSaveArea;
+			}
+			savedInfo.stride = packedStride;
+			setBufferSwapImpl(screenId, savedInfo);
+		};
+
+		captureScreen(topScreen, 0, FramebufferSaveAreaTopLeft, FramebufferSaveAreaTopRight, TopFramebufferHeight, true);
+		captureScreen(bottomScreen, 1, FramebufferSaveAreaBottom, 0, BottomFramebufferHeight, false);
+	}
 
 	mem.write32(messagePointer, IPC::responseHeader(0x19, 1, 0));
 	mem.write32(messagePointer + 4, Result::Success);
 }
 
 void GPUService::restoreVramSysArea(u32 messagePointer) {
-	Helpers::warn("GSP::GPU::RestoreVramSysArea (stubbed)");
+	log("GSP::GPU::RestoreVramSysArea\n");
+	if (savedVram.has_value()) {
+		auto* vram = static_cast<u8*>(mem.getWritePointer(VirtualAddrs::VramStart));
+		if (vram != nullptr) {
+			const auto& storage = savedVram.value();
+			std::memcpy(vram, storage.data(), storage.size());
+		}
+	}
+
+	if (sharedMem != nullptr) {
+		auto* topScreen = getTopFramebufferInfo();
+		auto* bottomScreen = getBottomFramebufferInfo();
+		setBufferSwapImpl(0, topScreen->framebufferInfo[topScreen->index]);
+		setBufferSwapImpl(1, bottomScreen->framebufferInfo[bottomScreen->index]);
+	}
 
 	mem.write32(messagePointer, IPC::responseHeader(0x1A, 1, 0));
 	mem.write32(messagePointer + 4, Result::Success);
@@ -529,7 +661,7 @@ void GPUService::restoreVramSysArea(u32 messagePointer) {
 
 // Used in similar fashion to the SaveVramSysArea function
 void GPUService::importDisplayCaptureInfo(u32 messagePointer) {
-	Helpers::warn("GSP::GPU::ImportDisplayCaptureInfo (stubbed)");
+	log("GSP::GPU::ImportDisplayCaptureInfo\n");
 
 	mem.write32(messagePointer, IPC::responseHeader(0x18, 9, 0));
 	mem.write32(messagePointer + 4, Result::Success);

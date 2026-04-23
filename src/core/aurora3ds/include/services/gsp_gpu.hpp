@@ -1,6 +1,7 @@
 #pragma once
 #include <cstring>
 #include <optional>
+#include <vector>
 
 #include "../PICA/gpu.hpp"
 #include "../helpers.hpp"
@@ -39,6 +40,8 @@ class GPUService {
 
 	// Number of threads registered via RegisterInterruptRelayQueue
 	u32 gspThreadCount = 0;
+	bool firstInitialization = true;
+	std::optional<std::vector<u8>> savedVram;
 
 	MAKE_LOG_FUNCTION(log, gspGPULogger)
 	void processCommandBuffer();
@@ -80,6 +83,7 @@ class GPUService {
 	void readHwRegs(u32 messagePointer);
 	void registerInterruptRelayQueue(u32 messagePointer);
 	void releaseRight(u32 messagePointer);
+	void unregisterInterruptRelayQueue(u32 messagePointer);
 	void restoreVramSysArea(u32 messagePointer);
 	void saveVramSysArea(u32 messagePointer);
 	void setAxiConfigQoSMode(u32 messagePointer);
