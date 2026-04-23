@@ -1,5 +1,8 @@
 #include "../../../include/services/fs.hpp"
 
+#include <cstdio>
+#include <filesystem>
+
 #include "../../../include/io_file.hpp"
 #include "../../../include/ipc.hpp"
 #include "../../../include/kernel/kernel.hpp"
@@ -47,6 +50,42 @@ namespace FSCommands {
 		TheGameboyVCFunction = 0x08750180,
 	};
 }
+
+namespace {
+enum : u8 {
+	MediaTypeNAND = 0,
+	MediaTypeSD = 1,
+	MediaTypeGamecard = 2,
+};
+
+std::filesystem::path getExtSaveRootForMediaType(u8 mediaType) {
+	switch (mediaType) {
+		case MediaTypeNAND: return IOFile::getSharedFiles() / "extdata";
+		case MediaTypeSD: return IOFile::getSDMC() / "extdata";
+		case MediaTypeGamecard:
+			// Gamecard extdata is not yet implemented in aurora3ds. Keep a deterministic directory for now.
+			return IOFile::getNAND() / "gamecard" / "extdata";
+		default: return "";
+	}
+}
+
+std::filesystem::path makeExtSavePath(u8 mediaType, u64 saveID) {
+	const auto root = getExtSaveRootForMediaType(mediaType);
+	if (root.empty()) {
+		return "";
+	}
+
+	const u32 low = static_cast<u32>(saveID & 0xFFFFFFFFull);
+	const u32 high = static_cast<u32>(saveID >> 32);
+
+	char lowBuf[9]{};
+	char highBuf[9]{};
+	std::snprintf(lowBuf, sizeof(lowBuf), "%08X", low);
+	std::snprintf(highBuf, sizeof(highBuf), "%08X", high);
+
+	return root / highBuf / lowBuf;
+}
+}  // namespace
 
 void FSService::reset() { priority = 0; }
 
@@ -503,21 +542,34 @@ void FSService::formatSaveData(u32 messagePointer) {
 }
 
 void FSService::deleteExtSaveData(u32 messagePointer) {
-	Helpers::warn("Stubbed call to FS::DeleteExtSaveData!");
 	// First 4 words of parameters are the ExtSaveData info
 	// https://www.3dbrew.org/wiki/Filesystem_services#ExtSaveDataInfo
 	const u8 mediaType = mem.read8(messagePointer + 4);
 	const u64 saveID = mem.read64(messagePointer + 8);
-	log("FS::DeleteExtSaveData (media type = %d, saveID = %llx) (stubbed)\n", mediaType, saveID);
+	log("FS::DeleteExtSaveData (media type = %d, saveID = %llx)\n", mediaType, saveID);
 
 	mem.write32(messagePointer, IPC::responseHeader(0x0852, 1, 0));
-	// TODO: We can't properly implement this yet until we properly support title/save IDs. We will stub this and insert a warning for now. Required
-	// for Planet Robobot When we properly implement it, it will just be a recursive directory deletion
+
+	const auto extSavePath = makeExtSavePath(mediaType, saveID);
+	if (extSavePath.empty()) [[unlikely]] {
+		Helpers::warn("FS::DeleteExtSaveData: Invalid media type %u\n", mediaType);
+		mem.write32(messagePointer + 4, Result::FS::InvalidPath);
+		return;
+	}
+
+	std::error_code ec;
+	std::filesystem::remove_all(extSavePath, ec);
+
+	if (ec) {
+		Helpers::warn("FS::DeleteExtSaveData: Failed to delete %s (error: %s)\n", extSavePath.string().c_str(), ec.message().c_str());
+		mem.write32(messagePointer + 4, Result::FS::NotFoundInvalid);
+		return;
+	}
+
 	mem.write32(messagePointer + 4, Result::Success);
 }
 
 void FSService::createExtSaveData(u32 messagePointer) {
-	Helpers::warn("Stubbed call to FS::CreateExtSaveData!");
 	// First 4 words of parameters are the ExtSaveData info
 	// https://www.3dbrew.org/wiki/Filesystem_services#ExtSaveDataInfo
 	// This creates the ExtSaveData with the specified saveid in the specified media type. It stores the SMDH as "icon" in the root of the created
@@ -530,10 +582,43 @@ void FSService::createExtSaveData(u32 messagePointer) {
 	const u32 smdhSize = mem.read32(messagePointer + 36);
 	const u32 smdhPointer = mem.read32(messagePointer + 44);
 
-	log("FS::CreateExtSaveData (stubbed)\n");
+	log("FS::CreateExtSaveData (media type = %u, saveID = %llx, dirs = %u, files = %u, size = %llx)\n",
+		mediaType, saveID, numOfDirectories, numOfFiles, sizeLimit);
 
 	mem.write32(messagePointer, IPC::responseHeader(0x0851, 1, 0));
-	// TODO: Similar to DeleteExtSaveData, we need to refactor how our ExtSaveData stuff works before properly implementing this
+
+	const auto extSavePath = makeExtSavePath(mediaType, saveID);
+	if (extSavePath.empty()) [[unlikely]] {
+		Helpers::warn("FS::CreateExtSaveData: Invalid media type %u\n", mediaType);
+		mem.write32(messagePointer + 4, Result::FS::InvalidPath);
+		return;
+	}
+
+	std::error_code ec;
+	std::filesystem::create_directories(extSavePath, ec);
+	if (ec) {
+		Helpers::warn("FS::CreateExtSaveData: Failed to create %s (error: %s)\n", extSavePath.string().c_str(), ec.message().c_str());
+		mem.write32(messagePointer + 4, Result::FS::NotFormatted);
+		return;
+	}
+
+	// When SMDH payload is provided, store it as icon in the root of extdata (reference behavior).
+	if (smdhSize != 0 && smdhPointer != 0) {
+		std::vector<u8> smdh;
+		smdh.resize(smdhSize);
+		for (u32 i = 0; i < smdhSize; i++) {
+			smdh[i] = mem.read8(smdhPointer + i);
+		}
+
+		IOFile file(extSavePath / "icon", "wb");
+		const auto [ok, written] = file.writeBytes(smdh.data(), smdh.size());
+		file.close();
+
+		if (!ok || written != smdh.size()) {
+			Helpers::warn("FS::CreateExtSaveData: Failed to write icon file\n");
+		}
+	}
+
 	mem.write32(messagePointer + 4, Result::Success);
 }
 
