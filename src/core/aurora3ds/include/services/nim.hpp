@@ -14,6 +14,8 @@ class NIMService {
 
 	// Service commands
 	void initialize(u32 messagePointer);
+	void commandStub(u32 messagePointer, u32 commandID);
+	void commandStubWithU32(u32 messagePointer, u32 commandID, u32 value);
 
   public:
 	NIMService(Memory& mem) : mem(mem) {}
