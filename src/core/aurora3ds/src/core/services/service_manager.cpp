@@ -88,6 +88,18 @@ namespace Commands {
 	};
 }
 
+namespace {
+std::optional<std::string> readIPCName(Memory& mem, u32 pointer, u32 nameLength) {
+	if (nameLength == 0 || nameLength > 8) {
+		return std::nullopt;
+	}
+
+	std::string name = mem.readString(pointer, 8);
+	name.resize(nameLength);
+	return name;
+}
+}
+
 // Handle an IPC message issued using the SendSyncRequest SVC
 // The parameters are stored in thread-local storage in this format: https://www.3dbrew.org/wiki/IPC#Message_Structure
 // messagePointer: The base pointer for the IPC message
@@ -214,11 +226,17 @@ static const ServiceMapEntry serviceMapArray[] = {
 	{ "qtm:sp", KernelHandles::QTM_SP },
 	{ "qtm:u", KernelHandles::QTM_U },
 	{ "cdc:U", KernelHandles::CDC_U },
+	{ "cdc:u", KernelHandles::CDC_U },
 	{ "gpio:U", KernelHandles::GPIO_U },
+	{ "gpio:u", KernelHandles::GPIO_U },
 	{ "i2c:U", KernelHandles::I2C_U },
+	{ "i2c:u", KernelHandles::I2C_U },
 	{ "mp:U", KernelHandles::MP_U },
+	{ "mp:u", KernelHandles::MP_U },
 	{ "pdn:U", KernelHandles::PDN_U },
+	{ "pdn:u", KernelHandles::PDN_U },
 	{ "spi:U", KernelHandles::SPI_U },
+	{ "spi:u", KernelHandles::SPI_U },
 };
 // clang-format on
 
@@ -229,8 +247,16 @@ void ServiceManager::getServiceHandle(u32 messagePointer) {
 	u32 nameLength = mem.read32(messagePointer + 12);
 	u32 flags = mem.read32(messagePointer + 16);
 	u32 handle = 0;
+	const std::optional<std::string> serviceOpt = readIPCName(mem, messagePointer + 4, nameLength);
 
-	std::string service = mem.readString(messagePointer + 4, 8);
+	if (!serviceOpt.has_value()) {
+		mem.write32(messagePointer, IPC::responseHeader(0x5, 1, 2));
+		mem.write32(messagePointer + 4, Result::OS::InvalidCombination);
+		mem.write32(messagePointer + 12, 0);
+		return;
+	}
+
+	const std::string& service = serviceOpt.value();
 	log("srv::getServiceHandle (Service: %s, nameLength: %d, flags: %d)\n", service.c_str(), nameLength, flags);
 
 	// Look up service handle in map, panic if it does not exist
@@ -331,18 +357,20 @@ void ServiceManager::publishToSubscriber(u32 messagePointer) {
 }
 
 void ServiceManager::registerService(u32 messagePointer) {
-	std::string service = mem.readString(messagePointer + 4, 8);
-	u32 nameLength = mem.read32(messagePointer + 12);
-	u32 maxSessions = mem.read32(messagePointer + 16);
-	log("srv::RegisterService (service = %s, nameLength = %d, maxSessions = %d)\n", service.c_str(), nameLength, maxSessions);
+	const u32 nameLength = mem.read32(messagePointer + 12);
+	const u32 maxSessions = mem.read32(messagePointer + 16);
+	const std::optional<std::string> serviceOpt = readIPCName(mem, messagePointer + 4, nameLength);
+	const char* serviceName = serviceOpt.has_value() ? serviceOpt->c_str() : "<invalid>";
+	log("srv::RegisterService (service = %s, nameLength = %d, maxSessions = %d)\n", serviceName, nameLength, maxSessions);
 
-	if (nameLength > 8 || nameLength == 0 || maxSessions == 0) {
+	if (!serviceOpt.has_value() || maxSessions == 0) {
 		mem.write32(messagePointer, IPC::responseHeader(0x3, 1, 2));
 		mem.write32(messagePointer + 4, Result::OS::InvalidCombination);
 		mem.write32(messagePointer + 8, 0);
 		mem.write32(messagePointer + 12, 0);
 		return;
 	}
+	const std::string& service = serviceOpt.value();
 
 	// Built-in service names cannot be overridden.
 	if (serviceMapByName.find(service) == serviceMapByName.end()) {
@@ -362,7 +390,15 @@ void ServiceManager::registerService(u32 messagePointer) {
 }
 
 void ServiceManager::unregisterService(u32 messagePointer) {
-	std::string service = mem.readString(messagePointer + 4, 8);
+	const u32 nameLength = mem.read32(messagePointer + 12);
+	const std::optional<std::string> serviceOpt = readIPCName(mem, messagePointer + 4, nameLength);
+	if (!serviceOpt.has_value()) {
+		mem.write32(messagePointer, IPC::responseHeader(0x4, 1, 0));
+		mem.write32(messagePointer + 4, Result::OS::InvalidCombination);
+		return;
+	}
+
+	const std::string& service = serviceOpt.value();
 	log("srv::UnregisterService (service = %s)\n", service.c_str());
 	userRegisteredServices.erase(service);
 
@@ -371,7 +407,15 @@ void ServiceManager::unregisterService(u32 messagePointer) {
 }
 
 void ServiceManager::isServiceRegistered(u32 messagePointer) {
-	std::string service = mem.readString(messagePointer + 4, 8);
+	const u32 nameLength = mem.read32(messagePointer + 12);
+	const std::optional<std::string> serviceOpt = readIPCName(mem, messagePointer + 4, nameLength);
+	if (!serviceOpt.has_value()) {
+		mem.write32(messagePointer, IPC::responseHeader(0xE, 1, 0));
+		mem.write32(messagePointer + 4, Result::OS::InvalidCombination);
+		return;
+	}
+
+	const std::string& service = serviceOpt.value();
 	bool registered = serviceMapByName.find(service) != serviceMapByName.end() || userRegisteredServices.find(service) != userRegisteredServices.end();
 	log("srv::IsServiceRegistered (service = %s, registered = %d)\n", service.c_str(), registered ? 1 : 0);
 
@@ -381,18 +425,20 @@ void ServiceManager::isServiceRegistered(u32 messagePointer) {
 }
 
 void ServiceManager::registerPort(u32 messagePointer) {
-	std::string port = mem.readString(messagePointer + 4, 8);
 	const u32 nameLength = mem.read32(messagePointer + 12);
 	const u32 maxSessions = mem.read32(messagePointer + 16);
-	log("srv::RegisterPort (port = %s, nameLength = %u, maxSessions = %u)\n", port.c_str(), nameLength, maxSessions);
+	const std::optional<std::string> portOpt = readIPCName(mem, messagePointer + 4, nameLength);
+	const char* portName = portOpt.has_value() ? portOpt->c_str() : "<invalid>";
+	log("srv::RegisterPort (port = %s, nameLength = %u, maxSessions = %u)\n", portName, nameLength, maxSessions);
 
-	if (nameLength == 0 || nameLength > 8 || maxSessions == 0) {
+	if (!portOpt.has_value() || maxSessions == 0) {
 		mem.write32(messagePointer, IPC::responseHeader(0x6, 1, 2));
 		mem.write32(messagePointer + 4, Result::OS::InvalidCombination);
 		mem.write32(messagePointer + 8, 0);
 		mem.write32(messagePointer + 12, 0);
 		return;
 	}
+	const std::string& port = portOpt.value();
 
 	if (!userRegisteredPorts.contains(port)) {
 		userRegisteredPorts.emplace(port, kernel.makeNamedPort(port.c_str()));
@@ -405,7 +451,15 @@ void ServiceManager::registerPort(u32 messagePointer) {
 }
 
 void ServiceManager::unregisterPort(u32 messagePointer) {
-	std::string port = mem.readString(messagePointer + 4, 8);
+	const u32 nameLength = mem.read32(messagePointer + 12);
+	const std::optional<std::string> portOpt = readIPCName(mem, messagePointer + 4, nameLength);
+	if (!portOpt.has_value()) {
+		mem.write32(messagePointer, IPC::responseHeader(0x7, 1, 0));
+		mem.write32(messagePointer + 4, Result::OS::InvalidCombination);
+		return;
+	}
+
+	const std::string& port = portOpt.value();
 	log("srv::UnregisterPort (port = %s)\n", port.c_str());
 	userRegisteredPorts.erase(port);
 	mem.write32(messagePointer, IPC::responseHeader(0x7, 1, 0));
@@ -413,7 +467,17 @@ void ServiceManager::unregisterPort(u32 messagePointer) {
 }
 
 void ServiceManager::getPort(u32 messagePointer) {
-	std::string port = mem.readString(messagePointer + 4, 8);
+	const u32 nameLength = mem.read32(messagePointer + 12);
+	const std::optional<std::string> portOpt = readIPCName(mem, messagePointer + 4, nameLength);
+	if (!portOpt.has_value()) {
+		mem.write32(messagePointer, IPC::responseHeader(0x8, 1, 2));
+		mem.write32(messagePointer + 4, Result::OS::InvalidCombination);
+		mem.write32(messagePointer + 8, 0);
+		mem.write32(messagePointer + 12, 0);
+		return;
+	}
+
+	const std::string& port = portOpt.value();
 	log("srv::GetPort (port = %s)\n", port.c_str());
 	mem.write32(messagePointer, IPC::responseHeader(0x8, 1, 2));
 
