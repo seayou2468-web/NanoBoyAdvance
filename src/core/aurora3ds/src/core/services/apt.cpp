@@ -11,15 +11,26 @@ namespace APTCommands {
 		GetLockHandle = 0x00010040,
 		Initialize = 0x00020080,
 		Enable = 0x00030040,
+		Finalize = 0x00040040,
+		GetAppletManInfo = 0x00050000,
 		GetAppletInfo = 0x00060040,
+		CountRegisteredApplet = 0x00080000,
 		IsRegistered = 0x00090040,
+		GetAttribute = 0x000A0040,
 		InquireNotification = 0x000B0040,
 		SendParameter = 0x000C0104,
 		ReceiveParameter = 0x000D0080,
 		GlanceParameter = 0x000E0080,
+		PrepareToStartApplication = 0x00150040,
 		PreloadLibraryApplet = 0x00160040,
 		PrepareToStartLibraryApplet = 0x00180040,
 		StartLibraryApplet = 0x001E0084,
+		PrepareToCloseApplication = 0x00220040,
+		CloseApplication = 0x00270044,
+		PrepareToJumpToHomeMenu = 0x002B0000,
+		JumpToHomeMenu = 0x002C0044,
+		PrepareToLeaveHomeMenu = 0x002D0000,
+		LeaveHomeMenu = 0x002E0044,
 		ReplySleepQuery = 0x003E0080,
 		NotifyToWait = 0x00430040,
 		GetSharedFont = 0x00440000,
@@ -27,16 +38,23 @@ namespace APTCommands {
 		AppletUtility = 0x004B00C2,
 		SetApplicationCpuTimeLimit = 0x004F0080,
 		GetApplicationCpuTimeLimit = 0x00500040,
+		GetStartupArgument = 0x00510040,
 		SetScreencapPostPermission = 0x00550040,
+		GetScreencapPostPermission = 0x00560000,
+		GetProgramID = 0x00580000,
 		CheckNew3DSApp = 0x01010000,
 		CheckNew3DS = 0x01020000,
-		TheSmashBrosFunction = 0x01030000
+		GetApplicationRunningMode = 0x01030000,
+		IsStandardMemoryLayout = 0x01040000,
+		IsTitleAllowed = 0x01050040,
+		TheSmashBrosFunction = 0x01060000
 	};
 }
 
 void APTService::reset() {
 	// Set the default CPU time limit to 0%. Appears to be the default value on hardware
 	cpuTimeLimit = 0;
+	screencapPostPermission = 0;
 
 	// Reset the handles for the various service objects
 	lockHandle = std::nullopt;
@@ -52,9 +70,19 @@ void APTService::handleSyncRequest(u32 messagePointer) {
 		case APTCommands::AppletUtility: appletUtility(messagePointer); break;
 		case APTCommands::CheckNew3DS: checkNew3DS(messagePointer); break;
 		case APTCommands::CheckNew3DSApp: checkNew3DSApp(messagePointer); break;
+		case APTCommands::Finalize: finalize(messagePointer); break;
 		case APTCommands::Enable: enable(messagePointer); break;
+		case APTCommands::GetAppletManInfo: getAppletManInfo(messagePointer); break;
+		case APTCommands::CountRegisteredApplet: countRegisteredApplet(messagePointer); break;
+		case APTCommands::GetAttribute: getAttribute(messagePointer); break;
 		case APTCommands::GetAppletInfo: getAppletInfo(messagePointer); break;
+		case APTCommands::GetProgramID: getProgramID(messagePointer); break;
+		case APTCommands::GetScreencapPostPermission: getScreenCapturePostPermission(messagePointer); break;
+		case APTCommands::GetStartupArgument: getStartupArgument(messagePointer); break;
 		case APTCommands::GetSharedFont: getSharedFont(messagePointer); break;
+		case APTCommands::GetApplicationRunningMode: getApplicationRunningMode(messagePointer); break;
+		case APTCommands::IsStandardMemoryLayout: isStandardMemoryLayout(messagePointer); break;
+		case APTCommands::IsTitleAllowed: isTitleAllowed(messagePointer); break;
 		case APTCommands::Initialize: initialize(messagePointer); break;
 		case APTCommands::InquireNotification: [[likely]] inquireNotification(messagePointer); break;
 		case APTCommands::IsRegistered: isRegistered(messagePointer); break;
@@ -64,7 +92,14 @@ void APTService::handleSyncRequest(u32 messagePointer) {
 		case APTCommands::GlanceParameter: glanceParameter(messagePointer); break;
 		case APTCommands::NotifyToWait: notifyToWait(messagePointer); break;
 		case APTCommands::PreloadLibraryApplet: preloadLibraryApplet(messagePointer); break;
+		case APTCommands::PrepareToStartApplication: prepareToStartApplication(messagePointer); break;
 		case APTCommands::PrepareToStartLibraryApplet: prepareToStartLibraryApplet(messagePointer); break;
+		case APTCommands::PrepareToCloseApplication: prepareToCloseApplication(messagePointer); break;
+		case APTCommands::CloseApplication: closeApplication(messagePointer); break;
+		case APTCommands::PrepareToJumpToHomeMenu: prepareToJumpToHomeMenu(messagePointer); break;
+		case APTCommands::JumpToHomeMenu: jumpToHomeMenu(messagePointer); break;
+		case APTCommands::PrepareToLeaveHomeMenu: prepareToLeaveHomeMenu(messagePointer); break;
+		case APTCommands::LeaveHomeMenu: leaveHomeMenu(messagePointer); break;
 		case APTCommands::StartLibraryApplet: startLibraryApplet(messagePointer); break;
 		case APTCommands::ReceiveParameter: [[likely]] receiveParameter(messagePointer); break;
 		case APTCommands::ReplySleepQuery: replySleepQuery(messagePointer); break;
@@ -202,6 +237,37 @@ void APTService::enable(u32 messagePointer) {
 	}
 }
 
+void APTService::finalize(u32 messagePointer) {
+	log("APT::Finalize\n");
+	mem.write32(messagePointer, IPC::responseHeader(0x4, 1, 0));
+	mem.write32(messagePointer + 4, Result::Success);
+}
+
+void APTService::getAppletManInfo(u32 messagePointer) {
+	log("APT::GetAppletManInfo\n");
+	mem.write32(messagePointer, IPC::responseHeader(0x5, 5, 0));
+	mem.write32(messagePointer + 4, Result::Success);
+	mem.write32(messagePointer + 8, 0);                              // menu applet id
+	mem.write32(messagePointer + 12, Applets::AppletIDs::Application);
+	mem.write32(messagePointer + 16, 0);                             // previous applet id
+	mem.write32(messagePointer + 20, 1);                             // state
+}
+
+void APTService::countRegisteredApplet(u32 messagePointer) {
+	log("APT::CountRegisteredApplet\n");
+	mem.write32(messagePointer, IPC::responseHeader(0x8, 2, 0));
+	mem.write32(messagePointer + 4, Result::Success);
+	mem.write32(messagePointer + 8, 1);  // Application
+}
+
+void APTService::getAttribute(u32 messagePointer) {
+	const u32 appID = mem.read32(messagePointer + 4);
+	log("APT::GetAttribute(appID=%X)\n", appID);
+	mem.write32(messagePointer, IPC::responseHeader(0xA, 2, 0));
+	mem.write32(messagePointer + 4, Result::Success);
+	mem.write32(messagePointer + 8, 0);
+}
+
 void APTService::initialize(u32 messagePointer) {
 	log("APT::Initialize\n");
 
@@ -217,6 +283,56 @@ void APTService::initialize(u32 messagePointer) {
 	mem.write32(messagePointer + 8, 0x04000000);                  // Translation descriptor
 	mem.write32(messagePointer + 12, notificationEvent.value());  // Notification Event Handle
 	mem.write32(messagePointer + 16, resumeEvent.value());        // Resume Event Handle
+}
+
+void APTService::prepareToStartApplication(u32 messagePointer) {
+	const u32 appID = mem.read32(messagePointer + 4);
+	log("APT::PrepareToStartApplication (appID=%X)\n", appID);
+	mem.write32(messagePointer, IPC::responseHeader(0x15, 1, 0));
+	mem.write32(messagePointer + 4, Result::Success);
+}
+
+void APTService::prepareToCloseApplication(u32 messagePointer) {
+	const u32 appID = mem.read32(messagePointer + 4);
+	log("APT::PrepareToCloseApplication(appID=%X)\n", appID);
+	mem.write32(messagePointer, IPC::responseHeader(0x22, 1, 0));
+	mem.write32(messagePointer + 4, Result::Success);
+}
+
+void APTService::closeApplication(u32 messagePointer) {
+	const u32 size = mem.read32(messagePointer + 4);
+	const u32 buffer = mem.read32(messagePointer + 20);
+	log("APT::CloseApplication(size=%u, buffer=%08X)\n", size, buffer);
+	mem.write32(messagePointer, IPC::responseHeader(0x27, 1, 0));
+	mem.write32(messagePointer + 4, Result::Success);
+}
+
+void APTService::prepareToJumpToHomeMenu(u32 messagePointer) {
+	log("APT::PrepareToJumpToHomeMenu\n");
+	mem.write32(messagePointer, IPC::responseHeader(0x2B, 1, 0));
+	mem.write32(messagePointer + 4, Result::Success);
+}
+
+void APTService::jumpToHomeMenu(u32 messagePointer) {
+	const u32 size = mem.read32(messagePointer + 4);
+	const u32 buffer = mem.read32(messagePointer + 20);
+	log("APT::JumpToHomeMenu(size=%u, buffer=%08X)\n", size, buffer);
+	mem.write32(messagePointer, IPC::responseHeader(0x2C, 1, 0));
+	mem.write32(messagePointer + 4, Result::Success);
+}
+
+void APTService::prepareToLeaveHomeMenu(u32 messagePointer) {
+	log("APT::PrepareToLeaveHomeMenu\n");
+	mem.write32(messagePointer, IPC::responseHeader(0x2D, 1, 0));
+	mem.write32(messagePointer + 4, Result::Success);
+}
+
+void APTService::leaveHomeMenu(u32 messagePointer) {
+	const u32 size = mem.read32(messagePointer + 4);
+	const u32 buffer = mem.read32(messagePointer + 20);
+	log("APT::LeaveHomeMenu(size=%u, buffer=%08X)\n", size, buffer);
+	mem.write32(messagePointer, IPC::responseHeader(0x2E, 1, 0));
+	mem.write32(messagePointer + 4, Result::Success);
 }
 
 void APTService::inquireNotification(u32 messagePointer) {
@@ -392,6 +508,55 @@ void APTService::setScreencapPostPermission(u32 messagePointer) {
 	// Apparently only 1-3 are valid values, but I see 0 used in some games like Pokemon Rumble
 	mem.write32(messagePointer + 4, Result::Success);
 	screencapPostPermission = perm;
+}
+
+void APTService::getScreenCapturePostPermission(u32 messagePointer) {
+	log("APT::GetScreenCapturePostPermission\n");
+	mem.write32(messagePointer, IPC::responseHeader(0x56, 2, 0));
+	mem.write32(messagePointer + 4, Result::Success);
+	mem.write32(messagePointer + 8, screencapPostPermission);
+}
+
+void APTService::getStartupArgument(u32 messagePointer) {
+	const u32 argType = mem.read32(messagePointer + 4);
+	const u32 maxSize = mem.read32(messagePointer + 8);
+	const u32 out = mem.read32(messagePointer + 0x100 + 4);
+	log("APT::GetStartupArgument(type=%u, max=%u, out=%08X)\n", argType, maxSize, out);
+	if (maxSize > 0 && out != 0) {
+		mem.write8(out, 0);
+	}
+	mem.write32(messagePointer, IPC::responseHeader(0x51, 2, 2));
+	mem.write32(messagePointer + 4, Result::Success);
+	mem.write32(messagePointer + 8, 0);
+}
+
+void APTService::getProgramID(u32 messagePointer) {
+	log("APT::GetProgramID\n");
+	mem.write32(messagePointer, IPC::responseHeader(0x58, 3, 0));
+	mem.write32(messagePointer + 4, Result::Success);
+	mem.write64(messagePointer + 8, 0x000400000FF40A00ULL);
+}
+
+void APTService::getApplicationRunningMode(u32 messagePointer) {
+	log("APT::GetApplicationRunningMode\n");
+	mem.write32(messagePointer, IPC::responseHeader(0x103, 2, 0));
+	mem.write32(messagePointer + 4, Result::Success);
+	mem.write32(messagePointer + 8, 0);
+}
+
+void APTService::isStandardMemoryLayout(u32 messagePointer) {
+	log("APT::IsStandardMemoryLayout\n");
+	mem.write32(messagePointer, IPC::responseHeader(0x104, 2, 0));
+	mem.write32(messagePointer + 4, Result::Success);
+	mem.write32(messagePointer + 8, 1);
+}
+
+void APTService::isTitleAllowed(u32 messagePointer) {
+	const u64 titleID = mem.read64(messagePointer + 4);
+	log("APT::IsTitleAllowed(%016llX)\n", titleID);
+	mem.write32(messagePointer, IPC::responseHeader(0x105, 2, 0));
+	mem.write32(messagePointer + 4, Result::Success);
+	mem.write32(messagePointer + 8, 1);
 }
 
 void APTService::getSharedFont(u32 messagePointer) {

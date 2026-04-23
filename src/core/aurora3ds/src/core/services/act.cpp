@@ -86,8 +86,9 @@ void ACTService::getAccountDataBlock(u32 messagePointer) {
 
 void ACTService::respondNotImplemented(u32 messagePointer, u32 command) {
 	const u32 commandID = command >> 16;
-	Helpers::warn("Undocumented ACT service requested. Command: %08X", command);
-	mem.write32(messagePointer, IPC::responseHeader(commandID, 1, 0));
-	mem.write32(messagePointer + 4, Result::OS::NotImplemented);
-	lastResultCode = Result::OS::NotImplemented;
+	Helpers::warn("Undocumented ACT service requested. Command: %08X (fallback-success)", command);
+	mem.write32(messagePointer, IPC::responseHeader(commandID, 2, 0));
+	mem.write32(messagePointer + 4, Result::Success);
+	mem.write32(messagePointer + 8, 0);
+	lastResultCode = Result::Success;
 }
