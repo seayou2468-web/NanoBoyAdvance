@@ -4,6 +4,7 @@
 #include "../logger.hpp"
 #include "../memory.hpp"
 #include "../result/result.hpp"
+#include <array>
 
 // Circular dependencies, yay
 class Kernel;
@@ -35,6 +36,14 @@ class MICService {
 	bool micEnabled = false;
 	bool shouldClamp = false;
 	bool currentlySampling = false;
+	u32 mappedSharedMemHandle = 0;
+	u32 mappedSharedMemSize = 0;
+	u32 sampleOffset = 0;
+	u32 sampleDataSize = 0;
+	u8 sampleEncoding = 0;
+	u8 sampleRate = 0;
+	bool sampleLoop = false;
+	std::array<u8, 128> iirFilterData {};
 
 	std::optional<Handle> eventHandle;
 

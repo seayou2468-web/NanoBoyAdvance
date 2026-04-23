@@ -1,5 +1,7 @@
 #include "../../../include/services/mic.hpp"
 
+#include <algorithm>
+
 #include "../../../include/ipc.hpp"
 #include "../../../include/kernel/kernel.hpp"
 
@@ -26,6 +28,14 @@ void MICService::reset() {
 	shouldClamp = false;
 	currentlySampling = false;
 	gain = 0;
+	mappedSharedMemHandle = 0;
+	mappedSharedMemSize = 0;
+	sampleOffset = 0;
+	sampleDataSize = 0;
+	sampleEncoding = 0;
+	sampleRate = 0;
+	sampleLoop = false;
+	iirFilterData.fill(0);
 
 	eventHandle = std::nullopt;
 }
@@ -54,13 +64,18 @@ void MICService::mapSharedMem(u32 messagePointer) {
 	u32 size = mem.read32(messagePointer + 4);
 	u32 handle = mem.read32(messagePointer + 12);
 
-	log("MIC::MapSharedMem (size = %08X, handle = %X) (stubbed)\n", size, handle);
+	log("MIC::MapSharedMem (size = %08X, handle = %X)\n", size, handle);
+	mappedSharedMemSize = size;
+	mappedSharedMemHandle = handle;
 	mem.write32(messagePointer, IPC::responseHeader(0x1, 1, 0));
 	mem.write32(messagePointer + 4, Result::Success);
 }
 
 void MICService::unmapSharedMem(u32 messagePointer) {
-	log("MIC::UnmapSharedMem (stubbed)\n");
+	log("MIC::UnmapSharedMem\n");
+	mappedSharedMemHandle = 0;
+	mappedSharedMemSize = 0;
+	currentlySampling = false;
 
 	mem.write32(messagePointer, IPC::responseHeader(0x2, 1, 0));
 	mem.write32(messagePointer + 4, Result::Success);
@@ -128,10 +143,20 @@ void MICService::startSampling(u32 messagePointer) {
 	u32 dataSize = mem.read32(messagePointer + 16);
 	bool loop = mem.read8(messagePointer + 20);
 
-	log("MIC::StartSampling (encoding = %d, sample rate = %d, offset = %08X, size = %08X, loop: %s) (stubbed)\n", encoding, sampleRate, offset,
+	log("MIC::StartSampling (encoding = %d, sample rate = %d, offset = %08X, size = %08X, loop: %s)\n", encoding, sampleRate, offset,
 		dataSize, loop ? "yes" : "no");
 
+	sampleEncoding = encoding;
+	this->sampleRate = sampleRate;
+	sampleOffset = offset;
+	sampleDataSize = dataSize;
+	sampleLoop = loop;
 	currentlySampling = true;
+
+	if (eventHandle.has_value()) {
+		kernel.signalEvent(eventHandle.value());
+	}
+
 	mem.write32(messagePointer, IPC::responseHeader(0x3, 1, 0));
 	mem.write32(messagePointer + 4, Result::Success);
 }
@@ -139,6 +164,9 @@ void MICService::startSampling(u32 messagePointer) {
 void MICService::stopSampling(u32 messagePointer) {
 	log("MIC::StopSampling\n");
 	currentlySampling = false;
+	if (eventHandle.has_value()) {
+		kernel.signalEvent(eventHandle.value());
+	}
 
 	mem.write32(messagePointer, IPC::responseHeader(0x5, 1, 0));
 	mem.write32(messagePointer + 4, Result::Success);
@@ -155,7 +183,11 @@ void MICService::isSampling(u32 messagePointer) {
 void MICService::setIirFilter(u32 messagePointer) {
 	const u32 size = mem.read32(messagePointer + 4);
 	const u32 pointer = mem.read32(messagePointer + 12);
-	log("MIC::SetIirFilter (size = %X, pointer = %08X) (Stubbed)\n", size, pointer);
+	log("MIC::SetIirFilter (size = %X, pointer = %08X)\n", size, pointer);
+	const u32 copySize = std::min<u32>(size, static_cast<u32>(iirFilterData.size()));
+	for (u32 i = 0; i < copySize; i++) {
+		iirFilterData[i] = mem.read8(pointer + i);
+	}
 
 	mem.write32(messagePointer, IPC::responseHeader(0x0C, 1, 2));
 	mem.write32(messagePointer + 4, Result::Success);
@@ -167,7 +199,10 @@ void MICService::setIirFilter(u32 messagePointer) {
 // Otherwise, value 0 is written there.Normally the input value is non - zero.
 // Citra calls it setClientVersion but no idea how they got that
 void MICService::theCaptainToadFunction(u32 messagePointer) {
-	log("MIC: Unknown function 0x00100040\n");
+	const u32 value = mem.read32(messagePointer + 4);
+	log("MIC: Unknown function 0x00100040(value=%u)\n", value);
+	// Known behavior from retail notes: input 0 enables, non-zero disables.
+	micEnabled = value == 0;
 
 	mem.write32(messagePointer, IPC::responseHeader(0x10, 1, 0));
 	mem.write32(messagePointer + 4, Result::Success);
