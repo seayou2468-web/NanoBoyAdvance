@@ -35,6 +35,8 @@ class NewsUService {
 	void getNotificationImage(u32 messagePointer);
 	void setAutomaticSyncFlag(u32 messagePointer);
 	void setNotificationHeaderOther(u32 messagePointer);
+	void syncArrivedNotifications(u32 messagePointer);
+	void syncOneArrivedNotification(u32 messagePointer);
 	void writeNewsDBSavedata(u32 messagePointer);
 	void getTotalArrivedNotifications(u32 messagePointer);
 

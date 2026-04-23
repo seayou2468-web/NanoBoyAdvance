@@ -16,6 +16,9 @@ class NIMService {
 	void initialize(u32 messagePointer);
 	void commandStub(u32 messagePointer, u32 commandID);
 	void commandStubWithU32(u32 messagePointer, u32 commandID, u32 value);
+	void commandStubWithHandle(u32 messagePointer, u32 commandID, Handle handle);
+	void getProgress(u32 messagePointer);
+	void getTitleDownloadProgress(u32 messagePointer);
 
   public:
 	NIMService(Memory& mem) : mem(mem) {}

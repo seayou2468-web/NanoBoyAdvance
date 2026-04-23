@@ -4,22 +4,24 @@
 
 namespace NewsCommands {
 	enum : u32 {
-		AddNotification = 0x000100C8,
-		AddNotificationSystem = 0x000100C6,
-		ResetNotifications = 0x00040000,
-		GetTotalNotifications = 0x00050000,
-		SetNewsDBHeader = 0x00060042,
-		SetNotificationHeader = 0x00070082,
-		SetNotificationMessage = 0x00080082,
-		SetNotificationImage = 0x00090082,
-		GetNewsDBHeader = 0x000A0042,
-		GetNotificationHeader = 0x000B0082,
-		GetNotificationMessage = 0x000C0082,
-		GetNotificationImage = 0x000D0082,
-		SetAutomaticSyncFlag = 0x00110040,
-		SetNotificationHeaderOther = 0x00120082,
-		WriteNewsDBSavedata = 0x00130000,
-		GetTotalArrivedNotifications = 0x00140000,
+		AddNotification = 0x0001,
+		ResetNotifications = 0x0004,
+		GetTotalNotifications = 0x0005,
+		SetNewsDBHeader = 0x0006,
+		SetNotificationHeader = 0x0007,
+		SetNotificationMessage = 0x0008,
+		SetNotificationImage = 0x0009,
+		GetNewsDBHeader = 0x000A,
+		GetNotificationHeader = 0x000B,
+		GetNotificationMessage = 0x000C,
+		GetNotificationImage = 0x000D,
+		SetInfoLEDPattern = 0x000E,
+		SyncArrivedNotifications = 0x000F,
+		SyncOneArrivedNotification = 0x0010,
+		SetAutomaticSyncFlag = 0x0011,
+		SetNotificationHeaderOther = 0x0012,
+		WriteNewsDBSavedata = 0x0013,
+		GetTotalArrivedNotifications = 0x0014,
 	};
 }
 
@@ -32,9 +34,8 @@ void NewsUService::reset() {
 
 void NewsUService::handleSyncRequest(u32 messagePointer) {
 	const u32 command = mem.read32(messagePointer);
-	switch (command) {
+	switch (command >> 16) {
 		case NewsCommands::AddNotification: addNotification(messagePointer); break;
-		case NewsCommands::AddNotificationSystem: addNotificationSystem(messagePointer); break;
 		case NewsCommands::ResetNotifications: resetNotifications(messagePointer); break;
 		case NewsCommands::GetTotalNotifications: getTotalNotifications(messagePointer); break;
 		case NewsCommands::SetNewsDBHeader: setNewsDBHeader(messagePointer); break;
@@ -45,6 +46,13 @@ void NewsUService::handleSyncRequest(u32 messagePointer) {
 		case NewsCommands::GetNotificationHeader: getNotificationHeader(messagePointer); break;
 		case NewsCommands::GetNotificationMessage: getNotificationMessage(messagePointer); break;
 		case NewsCommands::GetNotificationImage: getNotificationImage(messagePointer); break;
+		case NewsCommands::SetInfoLEDPattern:
+			log("NEWS::SetInfoLEDPattern (stubbed)\n");
+			mem.write32(messagePointer, IPC::responseHeader(0xE, 1, 0));
+			mem.write32(messagePointer + 4, Result::Success);
+			break;
+		case NewsCommands::SyncArrivedNotifications: syncArrivedNotifications(messagePointer); break;
+		case NewsCommands::SyncOneArrivedNotification: syncOneArrivedNotification(messagePointer); break;
 		case NewsCommands::SetAutomaticSyncFlag: setAutomaticSyncFlag(messagePointer); break;
 		case NewsCommands::SetNotificationHeaderOther: setNotificationHeaderOther(messagePointer); break;
 		case NewsCommands::WriteNewsDBSavedata: writeNewsDBSavedata(messagePointer); break;
@@ -66,6 +74,18 @@ void NewsUService::addNotification(u32 messagePointer) {
 void NewsUService::addNotificationSystem(u32 messagePointer) {
 	log("NEWS::AddNotificationSystem (stubbed)\n");
 	addNotification(messagePointer);
+}
+
+void NewsUService::syncArrivedNotifications(u32 messagePointer) {
+	log("NEWS::SyncArrivedNotifications (stubbed)\n");
+	mem.write32(messagePointer, IPC::responseHeader(0xF, 1, 0));
+	mem.write32(messagePointer + 4, Result::Success);
+}
+
+void NewsUService::syncOneArrivedNotification(u32 messagePointer) {
+	log("NEWS::SyncOneArrivedNotification (stubbed)\n");
+	mem.write32(messagePointer, IPC::responseHeader(0x10, 1, 0));
+	mem.write32(messagePointer + 4, Result::Success);
 }
 
 void NewsUService::resetNotifications(u32 messagePointer) {
