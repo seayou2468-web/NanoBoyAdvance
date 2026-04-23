@@ -7,7 +7,7 @@
 // Build Mikage adapter for iOS and Linux frontends.
 #if defined(__linux__) || (defined(__APPLE__) && TARGET_OS_IPHONE)
 #define NBA_ENABLE_MIKAGE_ADAPTER_IMPLEMENTATION 1
-#include "./mikage/core_adapter.cpp"
+#include "./aurora3ds/core_adapter.cpp"
 #endif
 
 namespace core {
