@@ -13,6 +13,7 @@ class AMService {
 	MAKE_LOG_FUNCTION(log, amLogger)
 
 	// Service commands
+	void respondNotImplemented(u32 messagePointer, u32 command);
 	void getDLCTitleInfo(u32 messagePointer);
 	void getPatchTitleInfo(u32 messagePointer);
 	void listTitleInfo(u32 messagePointer);
