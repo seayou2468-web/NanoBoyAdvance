@@ -1,8 +1,8 @@
-#include "../../include/cpu_interpreter.hpp"
+#include "../../../include/cpu_dyncom.hpp"
 
-#include "../../include/kernel/kernel.hpp"
-#include "CPU/dyncom/arm_dyncom_interpreter.h"
-#include "CPU/skyeye_common/armstate.h"
+#include "../../../include/kernel/kernel.hpp"
+#include "./dyncom/arm_dyncom_interpreter.h"
+#include "./skyeye_common/armstate.h"
 
 CPU::CPU(Memory& mem, Emulator& emu, Scheduler& schedulerRef)
     : mem(mem), scheduler(&schedulerRef), emu(emu) {
@@ -72,12 +72,37 @@ void CPU::runFrame() {
     dyncomState->VFP[VFP_FPSCR] = fpscr;
     dyncomState->CP15[CP15_THREAD_UPRW] = tlsBase;
 
-    const u64 budget = (scheduler->nextTimestamp > scheduler->currentTimestamp)
-                           ? (scheduler->nextTimestamp - scheduler->currentTimestamp)
-                           : 1;
-    dyncomState->NumInstrsToExecute = budget;
-    const u32 executed = InterpreterMainLoop(dyncomState.get());
-    scheduler->currentTimestamp += executed;
+    emu.frameDone = false;
+
+    // Execute in scheduler-sized slices until we hit VBlank.
+    // This mirrors the old Panda3DS frame pacing model and guarantees that
+    // pollScheduler() runs so GPU/HLE interrupts are delivered.
+    u32 safety_counter = 0;
+    while (!emu.frameDone) {
+        const u64 budget = (scheduler->nextTimestamp > scheduler->currentTimestamp)
+                               ? (scheduler->nextTimestamp - scheduler->currentTimestamp)
+                               : 1;
+        dyncomState->NumInstrsToExecute = budget;
+
+        const u64 ticks_before = scheduler->currentTimestamp;
+        const u32 executed = InterpreterMainLoop(dyncomState.get());
+        const u64 ticks_after = scheduler->currentTimestamp;
+
+        // Some dyncom paths may not invoke add_ticks_callback consistently.
+        // In that case, fall back to the interpreter's executed count.
+        if (ticks_after == ticks_before && executed != 0) {
+            scheduler->currentTimestamp += executed;
+        }
+
+        emu.pollScheduler();
+
+        // Avoid infinite loops if the guest gets stuck before scheduling VBlank.
+        if (++safety_counter > 200000) {
+            Helpers::warn("CPU::runFrame safety break: no VBlank after %u slices (pc=%08X, ticks=%llu, next=%llu)",
+                          safety_counter, dyncomState->Reg[15], scheduler->currentTimestamp, scheduler->nextTimestamp);
+            break;
+        }
+    }
 
     gprs = dyncomState->Reg;
     extRegs = dyncomState->ExtReg;

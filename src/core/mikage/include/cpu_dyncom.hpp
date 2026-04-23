@@ -33,9 +33,9 @@ private:
 	bool valid = false;
 };
 
-// ARM11 interpreter backend.
-// Full Cytrus/Citra DynCom sources are transplanted under cytrus_arm/.
-// This front-end keeps Panda3DS CPU-facing API stable while executing through interpreter semantics.
+// ARM11 DynCom backend wrapper.
+// Core execution uses src/core/mikage/src/core/CPU/dyncom/*.
+// This front-end keeps Panda3DS CPU-facing API stable.
 class CPU {
 	std::array<u32, 16> gprs{};
 	std::array<u32, 64> extRegs{};
