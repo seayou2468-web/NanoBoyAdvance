@@ -1,4 +1,7 @@
 #pragma once
+#include <unordered_map>
+#include <unordered_set>
+
 #include "../helpers.hpp"
 #include "../kernel/kernel_types.hpp"
 #include "../logger.hpp"
@@ -12,6 +15,8 @@ class HTTPService {
 	MAKE_LOG_FUNCTION(log, httpLogger)
 
 	bool initialized = false;
+	u32 nextRootCertChainHandle = 1;
+	std::unordered_map<u32, std::unordered_set<u32>> rootCertChains;
 
 	// Service commands
 	void createRootCertChain(u32 messagePointer);
