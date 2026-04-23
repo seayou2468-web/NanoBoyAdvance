@@ -1204,7 +1204,11 @@ void LDRService::handleSyncRequest(u32 messagePointer) {
 		case LDRCommands::UnloadCRO: unloadCRO(messagePointer); break;
 		case LDRCommands::LinkCRO: linkCRO(messagePointer); break;
 		case LDRCommands::LoadCRONew: loadCRO(messagePointer, true); break;
-		default: Helpers::panic("LDR::RO service requested. Command: %08X\n", command);
+		default:
+			Helpers::warn("LDR::RO service requested unknown command: %08X\n", command);
+			mem.write32(messagePointer, IPC::responseHeader(command >> 16, 1, 0));
+			mem.write32(messagePointer + 4, Result::OS::NotImplemented);
+			break;
 	}
 }
 
@@ -1215,26 +1219,33 @@ void LDRService::initialize(u32 messagePointer) {
 	const Handle process = mem.read32(messagePointer + 20);
 
 	log("LDR_RO::Initialize (buffer = %08X, size = %08X, vaddr = %08X, process = %X)\n", crsPointer, size, mapVaddr, process);
+	mem.write32(messagePointer, IPC::responseHeader(0x1, 1, 0));
 
 	// Sanity checks
 	if (loadedCRS != 0) {
-		Helpers::panic("CRS already loaded\n");
+		Helpers::warn("LDR_RO::Initialize failed: CRS already loaded");
+		mem.write32(messagePointer + 4, Result::OS::InvalidCombination);
+		return;
 	}
 
 	if (size < CRO_HEADER_SIZE) {
-		Helpers::panic("CRS too small\n");
+		mem.write32(messagePointer + 4, Result::OS::InvalidCombination);
+		return;
 	}
 
 	if (!mem.isAligned(size)) {
-		Helpers::panic("Unaligned CRS size\n");
+		mem.write32(messagePointer + 4, Result::OS::InvalidCombination);
+		return;
 	}
 
 	if (!mem.isAligned(crsPointer)) {
-		Helpers::panic("Unaligned CRS pointer\n");
+		mem.write32(messagePointer + 4, Result::OS::InvalidCombination);
+		return;
 	}
 
 	if (!mem.isAligned(mapVaddr)) {
-		Helpers::panic("Unaligned CRS output vaddr\n");
+		mem.write32(messagePointer + 4, Result::OS::InvalidCombination);
+		return;
 	}
 
 	// Map CRO to output address
@@ -1244,23 +1255,25 @@ void LDRService::initialize(u32 messagePointer) {
 	);
 
 	if (!succeeded) {
-		Helpers::panic("Failed to map CRS");
+		mem.write32(messagePointer + 4, Result::FailurePlaceholder);
+		return;
 	}
 
 	CRO crs(mem, mapVaddr, false);
 
 	if (!crs.load()) {
-		Helpers::panic("Failed to load CRS");
+		mem.write32(messagePointer + 4, Result::FailurePlaceholder);
+		return;
 	}
 
 	if (!crs.rebase(0, 0, 0)) {
-		Helpers::panic("Failed to rebase CRS");
+		mem.write32(messagePointer + 4, Result::FailurePlaceholder);
+		return;
 	}
 
 	kernel.clearInstructionCacheRange(mapVaddr, size);
 	loadedCRS = mapVaddr;
 
-	mem.write32(messagePointer, IPC::responseHeader(0x1, 1, 0));
 	mem.write32(messagePointer + 4, Result::Success);
 }
 
@@ -1269,13 +1282,16 @@ void LDRService::linkCRO(u32 messagePointer) {
 	const Handle process = mem.read32(messagePointer + 12);
 
 	log("LDR_RO::LinkCRO (vaddr = %X, process = %X)\n", mapVaddr, process);
+	mem.write32(messagePointer, IPC::responseHeader(0x6, 1, 0));
 
 	if (loadedCRS == 0) {
-		Helpers::panic("CRS not loaded");
+		mem.write32(messagePointer + 4, Result::OS::InvalidCombination);
+		return;
 	}
 
 	if (!mem.isAligned(mapVaddr)) {
-		Helpers::panic("Unaligned CRO vaddr\n");
+		mem.write32(messagePointer + 4, Result::OS::InvalidCombination);
+		return;
 	}
 
 	CRO cro(mem, mapVaddr, true);
@@ -1283,10 +1299,10 @@ void LDRService::linkCRO(u32 messagePointer) {
 	// TODO: check if CRO has been loaded prior to calling this
 
 	if (!cro.link(loadedCRS, false)) {
-		Helpers::panic("Failed to link CRO");
+		mem.write32(messagePointer + 4, Result::FailurePlaceholder);
+		return;
 	}
 
-	mem.write32(messagePointer, IPC::responseHeader(0x6, 1, 0));
 	mem.write32(messagePointer + 4, Result::Success);
 }
 
@@ -1315,22 +1331,35 @@ void LDRService::loadCRO(u32 messagePointer, bool isNew) {
 	log("LDR_RO::LoadCRO (isNew = %d, buffer = %08X, vaddr = %08X, size = %08X, .data vaddr = %08X, .data size = %08X, .bss vaddr = %08X, .bss size "
 		"= %08X, auto link = %d, fix level = %X, process = %X)\n",
 		isNew, croPointer, mapVaddr, size, dataVaddr, dataSize, bssVaddr, bssSize, autoLink, fixLevel, process);
+	if (isNew) {
+		mem.write32(messagePointer, IPC::responseHeader(0x9, 2, 0));
+	} else {
+		mem.write32(messagePointer, IPC::responseHeader(0x4, 2, 0));
+	}
 
 	// Sanity checks
 	if (size < CRO_HEADER_SIZE) {
-		Helpers::panic("CRO too small\n");
+		mem.write32(messagePointer + 4, Result::OS::InvalidCombination);
+		mem.write32(messagePointer + 8, 0);
+		return;
 	}
 
 	if (!mem.isAligned(size)) {
-		Helpers::panic("Unaligned CRO size\n");
+		mem.write32(messagePointer + 4, Result::OS::InvalidCombination);
+		mem.write32(messagePointer + 8, 0);
+		return;
 	}
 
 	if (!mem.isAligned(croPointer)) {
-		Helpers::panic("Unaligned CRO pointer\n");
+		mem.write32(messagePointer + 4, Result::OS::InvalidCombination);
+		mem.write32(messagePointer + 8, 0);
+		return;
 	}
 
 	if (!mem.isAligned(mapVaddr)) {
-		Helpers::panic("Unaligned CRO output vaddr\n");
+		mem.write32(messagePointer + 4, Result::OS::InvalidCombination);
+		mem.write32(messagePointer + 8, 0);
+		return;
 	}
 
 	// Map CRO to output address
@@ -1340,21 +1369,29 @@ void LDRService::loadCRO(u32 messagePointer, bool isNew) {
 	);
 
 	if (!succeeded) {
-		Helpers::panic("Failed to map CRO");
+		mem.write32(messagePointer + 4, Result::FailurePlaceholder);
+		mem.write32(messagePointer + 8, 0);
+		return;
 	}
 
 	CRO cro(mem, mapVaddr, true);
 
 	if (!cro.load()) {
-		Helpers::panic("Failed to load CRO");
+		mem.write32(messagePointer + 4, Result::FailurePlaceholder);
+		mem.write32(messagePointer + 8, 0);
+		return;
 	}
 
 	if (!cro.rebase(loadedCRS, dataVaddr, bssVaddr)) {
-		Helpers::panic("Failed to rebase CRO");
+		mem.write32(messagePointer + 4, Result::FailurePlaceholder);
+		mem.write32(messagePointer + 8, 0);
+		return;
 	}
 
 	if (!cro.link(loadedCRS, isNew)) {
-		Helpers::panic("Failed to link CRO");
+		mem.write32(messagePointer + 4, Result::FailurePlaceholder);
+		mem.write32(messagePointer + 8, 0);
+		return;
 	}
 
 	cro.registerCRO(loadedCRS, autoLink);
@@ -1362,12 +1399,6 @@ void LDRService::loadCRO(u32 messagePointer, bool isNew) {
 	// TODO: add fixing
 	cro.fix(fixLevel);
 	kernel.clearInstructionCacheRange(mapVaddr, size);
-
-	if (isNew) {
-		mem.write32(messagePointer, IPC::responseHeader(0x9, 2, 0));
-	} else {
-		mem.write32(messagePointer, IPC::responseHeader(0x4, 2, 0));
-	}
 
 	mem.write32(messagePointer + 4, Result::Success);
 	mem.write32(messagePointer + 8, size);
@@ -1379,26 +1410,31 @@ void LDRService::unloadCRO(u32 messagePointer) {
 	const Handle process = mem.read32(messagePointer + 20);
 
 	log("LDR_RO::UnloadCRO (vaddr = %08X, buffer = %08X, process = %X)\n", mapVaddr, croPointer, process);
+	mem.write32(messagePointer, IPC::responseHeader(0x5, 1, 0));
 
 	// TODO: is CRO loaded?
 
 	if (!mem.isAligned(croPointer)) {
-		Helpers::panic("Unaligned CRO pointer\n");
+		mem.write32(messagePointer + 4, Result::OS::InvalidCombination);
+		return;
 	}
 
 	if (!mem.isAligned(mapVaddr)) {
-		Helpers::panic("Unaligned CRO output vaddr\n");
+		mem.write32(messagePointer + 4, Result::OS::InvalidCombination);
+		return;
 	}
 
 	CRO cro(mem, mapVaddr, true);
 	cro.unregisterCRO(loadedCRS);
 
 	if (!cro.unlink(loadedCRS)) {
-		Helpers::panic("Failed to unlink CRO");
+		mem.write32(messagePointer + 4, Result::FailurePlaceholder);
+		return;
 	}
 
 	if (!cro.unrebase()) {
-		Helpers::panic("Failed to unrebase CRO");
+		mem.write32(messagePointer + 4, Result::FailurePlaceholder);
+		return;
 	}
 
 	u32 size = cro.getSize();
@@ -1408,11 +1444,11 @@ void LDRService::unloadCRO(u32 messagePointer) {
 	);
 
 	if (!succeeded) {
-		Helpers::panic("Failed to unmap CRO");
+		mem.write32(messagePointer + 4, Result::FailurePlaceholder);
+		return;
 	}
 
 	kernel.clearInstructionCacheRange(mapVaddr, cro.getFixedSize());
 
-	mem.write32(messagePointer, IPC::responseHeader(0x5, 1, 0));
 	mem.write32(messagePointer + 4, Result::Success);
 }
