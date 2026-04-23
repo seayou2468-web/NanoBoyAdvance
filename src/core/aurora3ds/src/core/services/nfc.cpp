@@ -225,15 +225,27 @@ void NFCService::stopCommunication(u32 messagePointer) {
 
 void NFCService::getTagInfo(u32 messagePointer) {
 	log("NFC::GetTagInfo\n");
-	Helpers::warn("Unimplemented NFC::GetTagInfo");
 
 	mem.write32(messagePointer, IPC::responseHeader(0x11, 12, 0));
 	mem.write32(messagePointer + 4, Result::Success);
+	mem.write32(messagePointer + 8, device.isLoaded() ? 1 : 0);  // in-range flag
+	mem.write32(messagePointer + 12, 2);                          // TagType::Type2
+	mem.write32(messagePointer + 16, 1);                          // TagProtocol::TypeA
+
+	const auto& uid = device.getUID();
+	for (u32 i = 0; i < uid.size(); i++) {
+		mem.write8(messagePointer + 20 + i, uid[i]);
+	}
+	mem.write8(messagePointer + 27, 0);  // Nintendo manufacturer ID high byte (placeholder)
+	mem.write16(messagePointer + 28, 0); // lock bytes placeholder
 }
 
 void NFCService::loadAmiiboPartially(u32 messagePointer) {
 	log("NFC::LoadAmiiboPartially\n");
-	Helpers::warn("Unimplemented NFC::LoadAmiiboPartially");
+	if (!device.isLoaded()) {
+		Helpers::warn("NFC::LoadAmiiboPartially called without a loaded amiibo");
+	}
+	tagStatus = device.isLoaded() ? TagStatus::Loaded : tagStatus;
 
 	mem.write32(messagePointer, IPC::responseHeader(0x1A, 1, 0));
 	mem.write32(messagePointer + 4, Result::Success);
@@ -241,8 +253,15 @@ void NFCService::loadAmiiboPartially(u32 messagePointer) {
 
 void NFCService::getModelInfo(u32 messagePointer) {
 	log("NFC::GetModelInfo\n");
-	Helpers::warn("Unimplemented NFC::GetModelInfo");
 
 	mem.write32(messagePointer, IPC::responseHeader(0x1B, 14, 0));
 	mem.write32(messagePointer + 4, Result::Success);
+	mem.write16(messagePointer + 8, device.getCharacterID());
+	mem.write8(messagePointer + 10, 0);                      // character variant
+	mem.write8(messagePointer + 11, 0);                      // AmiiboType::Figure
+	mem.write16(messagePointer + 12, device.getModelNumber());
+	mem.write8(messagePointer + 14, device.getSeries());     // AmiiboSeries
+	mem.write8(messagePointer + 15, 2);                      // PackedTagType::Type2
+	mem.write32(messagePointer + 16, 0);                     // reserved
+	mem.write32(messagePointer + 20, device.isLoaded() ? 1 : 0);
 }
