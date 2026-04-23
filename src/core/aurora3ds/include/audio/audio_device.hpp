@@ -27,6 +27,7 @@ class NoopAudioDevice final : public AudioDeviceInterface {
 
     void start() override { running = true; }
     void stop() override { running = false; }
+    bool isInitialized() const { return true; }
 };
 
 using AudioDevice = NoopAudioDevice;
