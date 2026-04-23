@@ -554,13 +554,14 @@ void GPUService::setBufferSwapImpl(u32 screenId, const FramebufferInfo& info) {
 	using namespace PICA::ExternalRegs;
 
 	static constexpr std::array<u32, 8> fbAddresses = {
-		Framebuffer0AFirstAddr,  Framebuffer0BFirstAddr,  Framebuffer1AFirstAddr,  Framebuffer1BFirstAddr,
-		Framebuffer0ASecondAddr, Framebuffer0BSecondAddr, Framebuffer1ASecondAddr, Framebuffer1BSecondAddr,
+		Framebuffer0AFirstAddr, Framebuffer0ASecondAddr, Framebuffer0BFirstAddr, Framebuffer0BSecondAddr,
+		Framebuffer1AFirstAddr, Framebuffer1ASecondAddr, Framebuffer1BFirstAddr, Framebuffer1BSecondAddr,
 	};
 
 	auto& regs = gpu.getExtRegisters();
 
-	const u32 fbIndex = info.activeFb * 4 + screenId * 2;
+	const u32 fbPair = screenId * 2 + (info.activeFb & 1);
+	const u32 fbIndex = fbPair * 2;
 	regs[fbAddresses[fbIndex]] = VaddrToPaddr(info.leftFramebufferVaddr);
 	regs[fbAddresses[fbIndex + 1]] = VaddrToPaddr(info.rightFramebufferVaddr);
 
