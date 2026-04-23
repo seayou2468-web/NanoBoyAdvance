@@ -18,6 +18,7 @@
 #include "./csnd.hpp"
 #include "./dlp_srvr.hpp"
 #include "./dsp.hpp"
+#include "./err_f.hpp"
 #include "./frd.hpp"
 #include "./fs.hpp"
 #include "./gsp_gpu.hpp"
@@ -37,6 +38,8 @@
 #include "./nwm_uds.hpp"
 #include "./ptm.hpp"
 #include "./pm.hpp"
+#include "./pxi_dev.hpp"
+#include "./qtm.hpp"
 #include "./soc.hpp"
 #include "./ssl.hpp"
 #include "./y2r.hpp"
@@ -70,6 +73,7 @@ class ServiceManager {
 	CSNDService csnd;
 	DlpSrvrService dlp_srvr;
 	DSPService dsp;
+	ErrFService err_f;
 	HIDService hid;
 	HTTPService http;
 	IRUserService ir_user;
@@ -88,6 +92,8 @@ class ServiceManager {
 	NSService ns;
 	PTMService ptm;
 	PMService pm;
+	PXIDevService pxi_dev;
+	QTMService qtm;
 	PSPSService ps_ps;
 	MVDStdService mvd_std;
 	PLGLDRService plgldr;

@@ -57,11 +57,18 @@ namespace KernelHandles {
 		PM_APP,    // Process manager app service
 		PM_DBG,    // Process manager debug service
 		PS_PS,     // Platform service
+		QTM_C,     // qtm:c calibration
+		QTM_S,     // qtm:s
+		QTM_SP,    // qtm:sp
+		QTM_U,     // qtm:u
+		ERR_F,     // Fatal error service
+		PXI_DEV,   // PXI developer service
 
 		MinServiceHandle = AC,
-		MaxServiceHandle = PS_PS,
+		MaxServiceHandle = PXI_DEV,
+		LegacyMaxServiceHandle = PS_PS,
 
-		GSPSharedMemHandle = MaxServiceHandle + 1, // Handle for the GSP shared memory
+		GSPSharedMemHandle = LegacyMaxServiceHandle + 1, // Keep shared-memory handles stable
 		FontSharedMemHandle,
 		CSNDSharedMemHandle,
 		APTCaptureSharedMemHandle, // Shared memory for display capture info,  
@@ -130,6 +137,12 @@ namespace KernelHandles {
 			case PM_APP: return "PM:APP";
 			case PM_DBG: return "PM:DBG";
 			case PS_PS: return "PS:PS";
+			case QTM_C: return "QTM:C";
+			case QTM_S: return "QTM:S";
+			case QTM_SP: return "QTM:SP";
+			case QTM_U: return "QTM:U";
+			case ERR_F: return "ERR:F";
+			case PXI_DEV: return "PXI:DEV";
 			default: return "Unknown";
 		}
 	}

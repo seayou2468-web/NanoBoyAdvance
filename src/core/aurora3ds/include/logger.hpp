@@ -41,6 +41,7 @@ namespace Log {
 	static Logger<false> csndLogger;
 	static Logger<false> dspServiceLogger;
 	static Logger<false> dlpSrvrLogger;
+	static Logger<false> errLogger;
 	static Logger<false> frdLogger;
 	static Logger<false> fsLogger;
 	static Logger<false> hidLogger;
@@ -57,6 +58,8 @@ namespace Log {
 	static Logger<false> nimLogger;
 	static Logger<false> ndmLogger;
 	static Logger<false> nsLogger;
+	static Logger<false> pxiLogger;
+	static Logger<false> qtmLogger;
 	static Logger<false> ptmLogger;
 	static Logger<false> socLogger;
 	static Logger<false> sslLogger;

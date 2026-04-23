@@ -10,10 +10,11 @@ ServiceManager::ServiceManager(
 	std::span<u32, 16> regs, Memory& mem, GPU& gpu, u32& currentPID, Kernel& kernel, const EmulatorConfig& config
 )
 	: regs(regs), mem(mem), kernel(kernel), ac(mem), am(mem), boss(mem), act(mem), apt(mem, kernel), cam(mem, kernel), cecd(mem, kernel),
-	  cfg(mem, config), csnd(mem, kernel), dlp_srvr(mem), dsp(mem, kernel, config), hid(mem, kernel), http(mem), ir_user(mem, hid, config, kernel),
-	  frd(mem), fs(mem, kernel, config), gsp_gpu(mem, gpu, kernel, currentPID), gsp_lcd(mem), ldr(mem, kernel), mcu_hwc(mem, config),
-	  mic(mem, kernel), nfc(mem, kernel), nwm_ext(mem), nim(mem), ndm(mem), news_u(mem), ns(mem), nwm_uds(mem, kernel), ptm(mem, config), pm(mem),
-	  ps_ps(mem), mvd_std(mem), plgldr(mem), soc(mem), ssl(mem), y2r(mem, kernel) {}
+	  cfg(mem, config), csnd(mem, kernel), dlp_srvr(mem), dsp(mem, kernel, config), err_f(mem), hid(mem, kernel), http(mem),
+	  ir_user(mem, hid, config, kernel),
+		  frd(mem), fs(mem, kernel, config), gsp_gpu(mem, gpu, kernel, currentPID), gsp_lcd(mem), ldr(mem, kernel), mcu_hwc(mem, config),
+		  mic(mem, kernel), nfc(mem, kernel), nwm_ext(mem), nim(mem), ndm(mem), news_u(mem), ns(mem), nwm_uds(mem, kernel), ptm(mem, config), pm(mem),
+		  pxi_dev(mem), qtm(mem), ps_ps(mem), mvd_std(mem), plgldr(mem), soc(mem), ssl(mem), y2r(mem, kernel) {}
 
 static constexpr int MAX_NOTIFICATION_COUNT = 16;
 
@@ -30,6 +31,7 @@ void ServiceManager::reset() {
 	csnd.reset();
 	dlp_srvr.reset();
 	dsp.reset();
+	err_f.reset();
 	hid.reset();
 	http.reset();
 	ir_user.reset();
@@ -48,6 +50,8 @@ void ServiceManager::reset() {
 	ns.reset();
 	ptm.reset();
 	pm.reset();
+	pxi_dev.reset();
+	qtm.reset();
 	ps_ps.reset();
 	mvd_std.reset();
 	plgldr.reset();
@@ -134,6 +138,7 @@ static const ServiceMapEntry serviceMapArray[] = {
 	{ "dlp:CLNT", KernelHandles::DLP_SRVR },
 	{ "dlp:FKCL", KernelHandles::DLP_SRVR },
 	{ "dsp::DSP", KernelHandles::DSP },
+	{ "err:f", KernelHandles::ERR_F },
 	{ "hid:USER", KernelHandles::HID },
 	{ "hid:SPVR", KernelHandles::HID },
 	{ "http:C", KernelHandles::HTTP },
@@ -178,12 +183,13 @@ static const ServiceMapEntry serviceMapArray[] = {
 	{ "plg:ldr", KernelHandles::PLG_LDR },
 	{ "mvd:std", KernelHandles::MVD_STD },
 	{ "ps:ps", KernelHandles::PS_PS },
+	{ "pxi:dev", KernelHandles::PXI_DEV },
 	{ "pm:app", KernelHandles::PM_APP },
 	{ "pm:dbg", KernelHandles::PM_DBG },
-	{ "qtm:c", KernelHandles::CAM },
-	{ "qtm:s", KernelHandles::CAM },
-	{ "qtm:sp", KernelHandles::CAM },
-	{ "qtm:u", KernelHandles::CAM },
+	{ "qtm:c", KernelHandles::QTM_C },
+	{ "qtm:s", KernelHandles::QTM_S },
+	{ "qtm:sp", KernelHandles::QTM_SP },
+	{ "qtm:u", KernelHandles::QTM_U },
 };
 // clang-format on
 
@@ -276,6 +282,7 @@ void ServiceManager::sendCommandToService(u32 messagePointer, Handle handle) {
 		case KernelHandles::CFG_NOR: cfg.handleSyncRequest(messagePointer, CFGService::Type::NOR); break;
 		case KernelHandles::CSND: csnd.handleSyncRequest(messagePointer); break;
 		case KernelHandles::DLP_SRVR: dlp_srvr.handleSyncRequest(messagePointer); break;
+		case KernelHandles::ERR_F: err_f.handleSyncRequest(messagePointer); break;
 		case KernelHandles::HID: hid.handleSyncRequest(messagePointer); break;
 		case KernelHandles::HTTP: http.handleSyncRequest(messagePointer); break;
 		case KernelHandles::IR_USER: ir_user.handleSyncRequest(messagePointer); break;
@@ -300,7 +307,12 @@ void ServiceManager::sendCommandToService(u32 messagePointer, Handle handle) {
 		case KernelHandles::PTM_SETS: ptm.handleSyncRequest(messagePointer, PTMService::Type::SETS); break;
 		case KernelHandles::PM_APP: pm.handleSyncRequest(messagePointer, PMService::Type::App); break;
 		case KernelHandles::PM_DBG: pm.handleSyncRequest(messagePointer, PMService::Type::Debug); break;
+		case KernelHandles::PXI_DEV: pxi_dev.handleSyncRequest(messagePointer); break;
 		case KernelHandles::PS_PS: ps_ps.handleSyncRequest(messagePointer); break;
+		case KernelHandles::QTM_C: qtm.handleSyncRequest(messagePointer, QTMService::Type::C); break;
+		case KernelHandles::QTM_S: qtm.handleSyncRequest(messagePointer, QTMService::Type::S); break;
+		case KernelHandles::QTM_SP: qtm.handleSyncRequest(messagePointer, QTMService::Type::SP); break;
+		case KernelHandles::QTM_U: qtm.handleSyncRequest(messagePointer, QTMService::Type::U); break;
 		case KernelHandles::MVD_STD: mvd_std.handleSyncRequest(messagePointer); break;
 		case KernelHandles::PLG_LDR: plgldr.handleSyncRequest(messagePointer); break;
 		case KernelHandles::SOC: soc.handleSyncRequest(messagePointer); break;
