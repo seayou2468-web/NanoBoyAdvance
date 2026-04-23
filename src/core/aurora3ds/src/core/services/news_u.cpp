@@ -1,5 +1,7 @@
 #include "../../../include/services/news_u.hpp"
 
+#include <algorithm>
+
 #include "../../../include/ipc.hpp"
 
 namespace NewsCommands {
@@ -28,6 +30,16 @@ namespace NewsCommands {
 void NewsUService::reset() {
 	totalNotifications = 0;
 	automaticSyncFlag = false;
+	for (auto& header : notificationHeaders) {
+		header.fill(0);
+	}
+	newsDBHeader.fill(0);
+	for (auto& message : messages) {
+		message.clear();
+	}
+	for (auto& image : images) {
+		image.clear();
+	}
 	messageSizes.fill(0);
 	imageSizes.fill(0);
 }
@@ -105,7 +117,13 @@ void NewsUService::getTotalNotifications(u32 messagePointer) {
 }
 
 void NewsUService::setNewsDBHeader(u32 messagePointer) {
+	const u32 size = mem.read32(messagePointer + 4);
+	const u32 pointer = mem.read32(messagePointer + 12);
 	log("NEWS::SetNewsDBHeader (stubbed)\n");
+	const u32 copySize = std::min<u32>(size, static_cast<u32>(newsDBHeader.size()));
+	for (u32 i = 0; i < copySize; i++) {
+		newsDBHeader[i] = mem.read8(pointer + i);
+	}
 
 	mem.write32(messagePointer, IPC::responseHeader(0x6, 1, 0));
 	mem.write32(messagePointer + 4, Result::Success);
@@ -113,7 +131,15 @@ void NewsUService::setNewsDBHeader(u32 messagePointer) {
 
 void NewsUService::setNotificationHeader(u32 messagePointer) {
 	const u32 index = mem.read32(messagePointer + 4);
+	const u32 size = mem.read32(messagePointer + 8);
+	const u32 pointer = mem.read32(messagePointer + 16);
 	log("NEWS::SetNotificationHeader (index=%u) (stubbed)\n", index);
+	if (index < MaxNotifications) {
+		const u32 copySize = std::min<u32>(size, static_cast<u32>(notificationHeaders[index].size()));
+		for (u32 i = 0; i < copySize; i++) {
+			notificationHeaders[index][i] = mem.read8(pointer + i);
+		}
+	}
 
 	mem.write32(messagePointer, IPC::responseHeader(0x7, 1, 0));
 	mem.write32(messagePointer + 4, Result::Success);
@@ -122,9 +148,14 @@ void NewsUService::setNotificationHeader(u32 messagePointer) {
 void NewsUService::setNotificationMessage(u32 messagePointer) {
 	const u32 index = mem.read32(messagePointer + 4);
 	const u32 size = mem.read32(messagePointer + 8);
+	const u32 pointer = mem.read32(messagePointer + 16);
 	log("NEWS::SetNotificationMessage (index=%u, size=%u) (stubbed)\n", index, size);
 
 	if (index < MaxNotifications) {
+		messages[index].resize(size);
+		for (u32 i = 0; i < size; i++) {
+			messages[index][i] = mem.read8(pointer + i);
+		}
 		messageSizes[index] = size;
 	}
 
@@ -135,9 +166,14 @@ void NewsUService::setNotificationMessage(u32 messagePointer) {
 void NewsUService::setNotificationImage(u32 messagePointer) {
 	const u32 index = mem.read32(messagePointer + 4);
 	const u32 size = mem.read32(messagePointer + 8);
+	const u32 pointer = mem.read32(messagePointer + 16);
 	log("NEWS::SetNotificationImage (index=%u, size=%u) (stubbed)\n", index, size);
 
 	if (index < MaxNotifications) {
+		images[index].resize(size);
+		for (u32 i = 0; i < size; i++) {
+			images[index][i] = mem.read8(pointer + i);
+		}
 		imageSizes[index] = size;
 	}
 
@@ -147,29 +183,49 @@ void NewsUService::setNotificationImage(u32 messagePointer) {
 
 void NewsUService::getNewsDBHeader(u32 messagePointer) {
 	const u32 outSize = mem.read32(messagePointer + 4);
+	const u32 pointer = mem.read32(messagePointer + 12);
 	log("NEWS::GetNewsDBHeader (size=%u) (stubbed)\n", outSize);
+	const u32 copySize = std::min<u32>(outSize, static_cast<u32>(newsDBHeader.size()));
+	for (u32 i = 0; i < copySize; i++) {
+		mem.write8(pointer + i, newsDBHeader[i]);
+	}
 
 	mem.write32(messagePointer, IPC::responseHeader(0xA, 2, 0));
 	mem.write32(messagePointer + 4, Result::Success);
-	mem.write32(messagePointer + 8, 0x10);
+	mem.write32(messagePointer + 8, copySize);
 }
 
 void NewsUService::getNotificationHeader(u32 messagePointer) {
 	const u32 index = mem.read32(messagePointer + 4);
 	const u32 outSize = mem.read32(messagePointer + 8);
+	const u32 pointer = mem.read32(messagePointer + 16);
 	log("NEWS::GetNotificationHeader (index=%u, size=%u) (stubbed)\n", index, outSize);
+	u32 copySize = 0;
+	if (index < MaxNotifications) {
+		copySize = std::min<u32>(outSize, static_cast<u32>(notificationHeaders[index].size()));
+		for (u32 i = 0; i < copySize; i++) {
+			mem.write8(pointer + i, notificationHeaders[index][i]);
+		}
+	}
 
 	mem.write32(messagePointer, IPC::responseHeader(0xB, 2, 0));
 	mem.write32(messagePointer + 4, Result::Success);
-	mem.write32(messagePointer + 8, 0x70);
+	mem.write32(messagePointer + 8, copySize);
 }
 
 void NewsUService::getNotificationMessage(u32 messagePointer) {
 	const u32 index = mem.read32(messagePointer + 4);
 	const u32 outSize = mem.read32(messagePointer + 8);
+	const u32 pointer = mem.read32(messagePointer + 16);
 	log("NEWS::GetNotificationMessage (index=%u, size=%u) (stubbed)\n", index, outSize);
 
 	const u32 returnedSize = (index < MaxNotifications) ? messageSizes[index] : 0;
+	if (index < MaxNotifications) {
+		const u32 copySize = std::min<u32>(outSize, static_cast<u32>(messages[index].size()));
+		for (u32 i = 0; i < copySize; i++) {
+			mem.write8(pointer + i, messages[index][i]);
+		}
+	}
 	mem.write32(messagePointer, IPC::responseHeader(0xC, 2, 0));
 	mem.write32(messagePointer + 4, Result::Success);
 	mem.write32(messagePointer + 8, returnedSize);
@@ -178,9 +234,16 @@ void NewsUService::getNotificationMessage(u32 messagePointer) {
 void NewsUService::getNotificationImage(u32 messagePointer) {
 	const u32 index = mem.read32(messagePointer + 4);
 	const u32 outSize = mem.read32(messagePointer + 8);
+	const u32 pointer = mem.read32(messagePointer + 16);
 	log("NEWS::GetNotificationImage (index=%u, size=%u) (stubbed)\n", index, outSize);
 
 	const u32 returnedSize = (index < MaxNotifications) ? imageSizes[index] : 0;
+	if (index < MaxNotifications) {
+		const u32 copySize = std::min<u32>(outSize, static_cast<u32>(images[index].size()));
+		for (u32 i = 0; i < copySize; i++) {
+			mem.write8(pointer + i, images[index][i]);
+		}
+	}
 	mem.write32(messagePointer, IPC::responseHeader(0xD, 2, 0));
 	mem.write32(messagePointer + 4, Result::Success);
 	mem.write32(messagePointer + 8, returnedSize);
