@@ -90,12 +90,31 @@ namespace Commands {
 
 namespace {
 std::optional<std::string> readIPCName(Memory& mem, u32 pointer, u32 nameLength) {
-	if (nameLength == 0 || nameLength > 8) {
+	std::array<char, 8> rawName{};
+	for (u32 i = 0; i < rawName.size(); i++) {
+		rawName[i] = static_cast<char>(mem.read8(pointer + i));
+	}
+
+	u32 nulTerminator = 8;
+	for (u32 i = 0; i < rawName.size(); i++) {
+		if (rawName[i] == '\0') {
+			nulTerminator = i;
+			break;
+		}
+	}
+
+	// Some titles pass unreliable nameLength values for SRV commands.
+	// Fall back to a nul-terminated parse instead of rejecting outright.
+	u32 effectiveLength = nameLength;
+	if (effectiveLength == 0 || effectiveLength > 8) {
+		effectiveLength = nulTerminator;
+	}
+
+	if (effectiveLength == 0 || effectiveLength > 8) {
 		return std::nullopt;
 	}
 
-	std::string name = mem.readString(pointer, 8);
-	name.resize(nameLength);
+	std::string name(rawName.data(), rawName.data() + effectiveLength);
 	return name;
 }
 }
