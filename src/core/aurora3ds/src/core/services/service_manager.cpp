@@ -12,8 +12,8 @@ ServiceManager::ServiceManager(
 	: regs(regs), mem(mem), kernel(kernel), ac(mem), am(mem), boss(mem), act(mem), apt(mem, kernel), cam(mem, kernel), cecd(mem, kernel),
 	  cfg(mem, config), csnd(mem, kernel), dlp_srvr(mem), dsp(mem, kernel, config), hid(mem, kernel), http(mem), ir_user(mem, hid, config, kernel),
 	  frd(mem), fs(mem, kernel, config), gsp_gpu(mem, gpu, kernel, currentPID), gsp_lcd(mem), ldr(mem, kernel), mcu_hwc(mem, config),
-	  mic(mem, kernel), nfc(mem, kernel), nim(mem), ndm(mem), news_u(mem), ns(mem), nwm_uds(mem, kernel), ptm(mem, config), pm(mem), ps_ps(mem),
-	  mvd_std(mem), plgldr(mem), soc(mem), ssl(mem), y2r(mem, kernel) {}
+	  mic(mem, kernel), nfc(mem, kernel), nwm_ext(mem), nim(mem), ndm(mem), news_u(mem), ns(mem), nwm_uds(mem, kernel), ptm(mem, config), pm(mem),
+	  ps_ps(mem), mvd_std(mem), plgldr(mem), soc(mem), ssl(mem), y2r(mem, kernel) {}
 
 static constexpr int MAX_NOTIFICATION_COUNT = 16;
 
@@ -43,6 +43,7 @@ void ServiceManager::reset() {
 	ndm.reset();
 	news_u.reset();
 	nfc.reset();
+	nwm_ext.reset();
 	nim.reset();
 	ns.reset();
 	ptm.reset();
@@ -290,7 +291,7 @@ void ServiceManager::sendCommandToService(u32 messagePointer, Handle handle) {
 		case KernelHandles::NEWS_U: news_u.handleSyncRequest(messagePointer); break;
 		case KernelHandles::NS_S: ns.handleSyncRequest(messagePointer, NSService::Type::S); break;
 		case KernelHandles::NS_C: ns.handleSyncRequest(messagePointer, NSService::Type::C); break;
-		case KernelHandles::NWM_EXT: nwm_uds.handleSyncRequest(messagePointer); break;
+		case KernelHandles::NWM_EXT: nwm_ext.handleSyncRequest(messagePointer); break;
 		case KernelHandles::NWM_UDS: nwm_uds.handleSyncRequest(messagePointer); break;
 		case KernelHandles::PTM_PLAY: ptm.handleSyncRequest(messagePointer, PTMService::Type::PLAY); break;
 		case KernelHandles::PTM_SYSM: ptm.handleSyncRequest(messagePointer, PTMService::Type::SYSM); break;

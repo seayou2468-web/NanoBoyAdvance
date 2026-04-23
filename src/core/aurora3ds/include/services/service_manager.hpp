@@ -33,6 +33,7 @@
 #include "./nfc.hpp"
 #include "./nim.hpp"
 #include "./ns.hpp"
+#include "./nwm_ext.hpp"
 #include "./nwm_uds.hpp"
 #include "./ptm.hpp"
 #include "./pm.hpp"
@@ -81,6 +82,7 @@ class ServiceManager {
 	NDMService ndm;
 	NewsUService news_u;
 	NFCService nfc;
+	NwmExtService nwm_ext;
 	NwmUdsService nwm_uds;
 	NIMService nim;
 	NSService ns;
