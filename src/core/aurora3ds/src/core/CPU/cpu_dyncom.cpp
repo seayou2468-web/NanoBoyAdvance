@@ -154,19 +154,6 @@ void CPU::addTicks(u64 ticks) {
 void CPU::reportMMUFault(u32 fsr, u32 far, bool instruction_fault) {
     const u32 old_cpsr = cpsr;
     const u32 old_pc = gprs[15];
-    static int mmu_fault_log_count = 0;
-    if (mmu_fault_log_count < 24) {
-        mmu_fault_log_count++;
-        Helpers::warn(
-            "MMU fault #%d: type=%s FSR=%08X FAR=%08X guestPC=%08X CPSR=%08X",
-            mmu_fault_log_count,
-            instruction_fault ? "instruction" : "data",
-            fsr,
-            far,
-            old_pc,
-            old_cpsr
-        );
-    }
     const bool was_thumb = (old_cpsr & CPSR::Thumb) != 0;
     const u32 vector = instruction_fault ? 0x0C : 0x10;  // Prefetch abort / Data abort vectors
     lastFaultWasInstruction = instruction_fault;

@@ -70,10 +70,6 @@ constexpr bool IsLikelyInstructionFetch(u32 vaddr) {
 	return vaddr >= VirtualAddrs::ExecutableStart && vaddr < VirtualAddrs::ExecutableEnd;
 }
 
-constexpr bool IsNullPageAccess(u32 vaddr) {
-	return vaddr < 0x1000;
-}
-
 std::vector<u8> LoadSharedFontReplacement() {
 	if (g_sharedFontReplacementOverridePath.has_value()) {
 		if (std::vector<u8> data = LoadFile(*g_sharedFontReplacementOverridePath); !data.empty()) {
@@ -154,6 +150,16 @@ void Memory::reset() {
 	}
 
 	activeVM().clear();
+	std::fill(exceptionVectorPage.begin(), exceptionVectorPage.end(), 0);
+	auto* exceptionVectors = reinterpret_cast<u32*>(exceptionVectorPage.data());
+	// Minimal low-vector stubs so abort vectors are always mapped and can return from exception mode.
+	// SUBS PC, LR, #4
+	constexpr u32 kReturnFromException = 0xE25EF004;
+	exceptionVectors[0x0C / sizeof(u32)] = kReturnFromException;  // Prefetch abort vector
+	exceptionVectors[0x10 / sizeof(u32)] = kReturnFromException;  // Data abort vector
+	activeVM().readTable[0] = reinterpret_cast<uintptr_t>(exceptionVectorPage.data());
+	activeVM().writeTable[0] = reinterpret_cast<uintptr_t>(exceptionVectorPage.data());
+	activeVM().pageTableAttrs[0] = PageType::Memory;
 
 	// Allocate 512 bytes of TLS for each thread. Since the smallest allocatable unit is 4 KB, that means allocating one page for every 8 threads
 	// Note that TLS is always allocated in the Base region
@@ -244,7 +250,7 @@ u8 Memory::read8(u32 vaddr) {
 
 				default:
 					LogUnmappedRead(8, vaddr);
-					if (mmuFaultCallback && !IsNullPageAccess(vaddr)) {
+					if (mmuFaultCallback) {
 						const bool instruction_fault = IsLikelyInstructionFetch(vaddr);
 						mmuFaultCallback(instruction_fault ? MakeInstructionFaultStatus() : MakeDataFaultStatus(false), vaddr,
 						                instruction_fault);
@@ -266,7 +272,7 @@ u16 Memory::read16(u32 vaddr) {
 			case ConfigMem::WifiMac + 4: return (MACAddress[5] << 8) | MACAddress[4];  // Wifi MAC: Last 2 bytes of MAC Address
 				default:
 					LogUnmappedRead(16, vaddr);
-					if (mmuFaultCallback && !IsNullPageAccess(vaddr)) {
+					if (mmuFaultCallback) {
 						const bool instruction_fault = IsLikelyInstructionFetch(vaddr);
 						mmuFaultCallback(instruction_fault ? MakeInstructionFaultStatus() : MakeDataFaultStatus(false), vaddr,
 						                instruction_fault);
@@ -321,11 +327,11 @@ u32 Memory::read32(u32 vaddr) {
 					return *(u32*)&vram[vaddr - VirtualAddrs::VramStart];
 				}
 
-					LogUnmappedRead(32, vaddr);
-					if (mmuFaultCallback && !IsNullPageAccess(vaddr)) {
-						const bool instruction_fault = IsLikelyInstructionFetch(vaddr);
-						mmuFaultCallback(instruction_fault ? MakeInstructionFaultStatus() : MakeDataFaultStatus(false), vaddr,
-						                instruction_fault);
+						LogUnmappedRead(32, vaddr);
+						if (mmuFaultCallback) {
+							const bool instruction_fault = IsLikelyInstructionFetch(vaddr);
+							mmuFaultCallback(instruction_fault ? MakeInstructionFaultStatus() : MakeDataFaultStatus(false), vaddr,
+							                instruction_fault);
 					}
 					return 0;
 		}
@@ -363,7 +369,7 @@ void Memory::write8(u32 vaddr, u8 value) {
 
 			else {
 				LogUnmappedWrite(8, vaddr, value);
-				if (mmuFaultCallback && !IsNullPageAccess(vaddr)) {
+				if (mmuFaultCallback) {
 					mmuFaultCallback(MakeDataFaultStatus(true), vaddr, false);
 				}
 			}
@@ -388,7 +394,7 @@ void Memory::write16(u32 vaddr, u16 value) {
 		}
 
 			LogUnmappedWrite(16, vaddr, value);
-			if (mmuFaultCallback && !IsNullPageAccess(vaddr)) {
+			if (mmuFaultCallback) {
 				mmuFaultCallback(MakeDataFaultStatus(true), vaddr, false);
 			}
 		}
@@ -414,7 +420,7 @@ void Memory::write32(u32 vaddr, u32 value) {
 		}
 
 			LogUnmappedWrite(32, vaddr, value);
-			if (mmuFaultCallback && !IsNullPageAccess(vaddr)) {
+			if (mmuFaultCallback) {
 				mmuFaultCallback(MakeDataFaultStatus(true), vaddr, false);
 			}
 		}

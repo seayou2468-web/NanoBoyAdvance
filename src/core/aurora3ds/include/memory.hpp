@@ -175,6 +175,7 @@ class Memory {
 		SharedMemoryBlock(0, 0x3000, KernelHandles::CSNDSharedMemHandle),         // CSND shared memory
 		SharedMemoryBlock(0, 0xE7000, KernelHandles::APTCaptureSharedMemHandle),  // APT Capture Buffer memory
 	};
+	std::array<u8, 4096> exceptionVectorPage {};
 
   public:
 	static constexpr u32 pageShift = 12;
