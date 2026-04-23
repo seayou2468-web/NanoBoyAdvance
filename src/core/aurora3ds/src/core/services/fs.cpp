@@ -52,33 +52,30 @@ void FSService::reset() { priority = 0; }
 
 // Creates directories for NAND, ExtSaveData, etc if they don't already exist. Should be executed after loading a new ROM.
 void FSService::initializeFilesystem() {
-	const auto sdmcPath = IOFile::getAppData() / "SDMC";  // Create SDMC directory
-	const auto nandSharedpath = IOFile::getAppData() / ".." / "SharedFiles" / "NAND";
-
-	const auto savePath = IOFile::getAppData() / "SaveData";      // Create SaveData
-	const auto formatPath = IOFile::getAppData() / "FormatInfo";  // Create folder for storing archive formatting info
-	const auto systemSaveDataPath = IOFile::getAppData() / ".." / "SharedFiles" / "SystemSaveData";
+	const auto nandPath = IOFile::getNAND();
+	const auto nandDataPath = IOFile::getNANDData();
+	const auto sdmcPath = IOFile::getSDMC();
+	const auto sharedFilesPath = IOFile::getSharedFiles();
+	const auto sysDataPath = IOFile::getSysData();
+	const auto titlePath = IOFile::getAppData();
+	const auto savePath = titlePath / "data";
+	const auto formatPath = titlePath / "format";
+	const auto systemSaveDataPath = nandDataPath / "sysdata";
+	const auto sharedExtDataPath = sharedFilesPath / "extdata";
+	const auto sdmcExtDataPath = sdmcPath / "extdata";
 	namespace fs = std::filesystem;
 
-	if (!fs::is_directory(nandSharedpath)) {
-		fs::create_directories(nandSharedpath);
-	}
-
-	if (!fs::is_directory(sdmcPath)) {
-		fs::create_directories(sdmcPath);
-	}
-
-	if (!fs::is_directory(savePath)) {
-		fs::create_directories(savePath);
-	}
-
-	if (!fs::is_directory(formatPath)) {
-		fs::create_directories(formatPath);
-	}
-
-	if (!fs::is_directory(systemSaveDataPath)) {
-		fs::create_directories(systemSaveDataPath);
-	}
+	fs::create_directories(nandPath);
+	fs::create_directories(nandDataPath);
+	fs::create_directories(sdmcPath);
+	fs::create_directories(sharedFilesPath);
+	fs::create_directories(sysDataPath);
+	fs::create_directories(titlePath);
+	fs::create_directories(savePath);
+	fs::create_directories(formatPath);
+	fs::create_directories(systemSaveDataPath);
+	fs::create_directories(sharedExtDataPath);
+	fs::create_directories(sdmcExtDataPath);
 }
 
 ArchiveBase* FSService::getArchiveFromID(u32 id, const FSPath& archivePath) {

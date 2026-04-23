@@ -9,7 +9,7 @@ HorizonResult SaveDataArchive::createFile(const FSPath& path, u64 size) {
 		if (!isPathSafe<PathType::UTF16>(path))
 			Helpers::panic("Unsafe path in SaveData::CreateFile");
 
-		fs::path p = IOFile::getAppData() / "SaveData";
+		fs::path p = IOFile::getAppData() / "data";
 		p += fs::path(path.utf16_string).make_preferred();
 
 		if (fs::exists(p)) {
@@ -44,7 +44,7 @@ HorizonResult SaveDataArchive::createDirectory(const FSPath& path) {
 			Helpers::panic("Unsafe path in SaveData::OpenFile");
 		}
 
-		fs::path p = IOFile::getAppData() / "SaveData";
+		fs::path p = IOFile::getAppData() / "data";
 		p += fs::path(path.utf16_string).make_preferred();
 
 		if (fs::is_directory(p)) {
@@ -68,7 +68,7 @@ HorizonResult SaveDataArchive::deleteFile(const FSPath& path) {
 			Helpers::panic("Unsafe path in SaveData::DeleteFile");
 		}
 
-		fs::path p = IOFile::getAppData() / "SaveData";
+		fs::path p = IOFile::getAppData() / "data";
 		p += fs::path(path.utf16_string).make_preferred();
 
 		if (fs::is_directory(p)) {
@@ -105,7 +105,7 @@ FileDescriptor SaveDataArchive::openFile(const FSPath& path, const FilePerms& pe
 			Helpers::panic("[SaveData] Unsupported flags for OpenFile");
 		}
 
-		fs::path p = IOFile::getAppData() / "SaveData";
+		fs::path p = IOFile::getAppData() / "data";
 		p += fs::path(path.utf16_string).make_preferred();
 
 		const char* permString = perms.write() ? "r+b" : "rb";
@@ -137,7 +137,7 @@ Rust::Result<DirectorySession, HorizonResult> SaveDataArchive::openDirectory(con
 			Helpers::panic("Unsafe path in SaveData::OpenDirectory");
 		}
 
-		fs::path p = IOFile::getAppData() / "SaveData";
+		fs::path p = IOFile::getAppData() / "data";
 		p += fs::path(path.utf16_string).make_preferred();
 
 		if (fs::is_regular_file(p)) {
@@ -178,7 +178,7 @@ Rust::Result<ArchiveBase::FormatInfo, HorizonResult> SaveDataArchive::getFormatI
 }
 
 void SaveDataArchive::format(const FSPath& path, const ArchiveBase::FormatInfo& info) {
-	const fs::path saveDataPath = IOFile::getAppData() / "SaveData";
+	const fs::path saveDataPath = IOFile::getAppData() / "data";
 	const fs::path formatInfoPath = getFormatInfoPath();
 
 	// Delete all contents by deleting the directory then recreating it

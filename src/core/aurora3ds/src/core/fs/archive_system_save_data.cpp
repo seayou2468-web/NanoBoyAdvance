@@ -23,7 +23,7 @@ FileDescriptor SystemSaveDataArchive::openFile(const FSPath& path, const FilePer
 			Helpers::panic("[SystemSaveData] Unsupported flags for OpenFile");
 		}
 
-		fs::path p = IOFile::getAppData() / ".." / "SharedFiles" / "SystemSaveData";
+		fs::path p = IOFile::getNANDData() / "sysdata";
 		p += fs::path(path.utf16_string).make_preferred();
 
 		const char* permString = perms.write() ? "r+b" : "rb";
@@ -55,7 +55,7 @@ HorizonResult SystemSaveDataArchive::createFile(const FSPath& path, u64 size) {
 			Helpers::panic("Unsafe path in SystemSaveData::CreateFile");
 		}
 
-		fs::path p = IOFile::getAppData() / ".." / "SharedFiles" / "SystemSaveData";
+		fs::path p = IOFile::getNANDData() / "sysdata";
 		p += fs::path(path.utf16_string).make_preferred();
 
 		if (fs::exists(p)) {
@@ -90,7 +90,7 @@ HorizonResult SystemSaveDataArchive::createDirectory(const FSPath& path) {
 			Helpers::panic("Unsafe path in SystemSaveData::CreateDirectory");
 		}
 
-		fs::path p = IOFile::getAppData() / ".." / "SharedFiles" / "SystemSaveData";
+		fs::path p = IOFile::getNANDData() / "sysdata";
 		p += fs::path(path.utf16_string).make_preferred();
 
 		if (fs::is_directory(p)) {
@@ -115,7 +115,7 @@ HorizonResult SystemSaveDataArchive::deleteFile(const FSPath& path) {
 			Helpers::panic("Unsafe path in SystemSaveData::DeleteFile");
 		}
 
-		fs::path p = IOFile::getAppData() / ".." / "SharedFiles" / "SystemSaveData";
+		fs::path p = IOFile::getNANDData() / "sysdata";
 		p += fs::path(path.utf16_string).make_preferred();
 
 		if (fs::is_directory(p)) {
@@ -149,7 +149,7 @@ Rust::Result<DirectorySession, HorizonResult> SystemSaveDataArchive::openDirecto
 			return Err(Result::FS::FileNotFoundAlt);
 		}
 
-		fs::path p = IOFile::getAppData() / ".." / "SharedFiles" / "SystemSaveData";
+		fs::path p = IOFile::getNANDData() / "sysdata";
 		p += fs::path(path.utf16_string).make_preferred();
 
 		if (fs::is_regular_file(p)) {

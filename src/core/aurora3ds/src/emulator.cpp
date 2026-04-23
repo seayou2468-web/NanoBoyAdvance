@@ -337,11 +337,17 @@ bool Emulator::loadROM(const std::filesystem::path& path) {
 	memory.loaded3DSX = std::nullopt;
 
 	const std::filesystem::path appDataPath = getAppDataRoot();
-	const std::filesystem::path dataPath = appDataPath / path.filename().stem();
-	const std::filesystem::path aesKeysPath = appDataPath / "sysdata" / "aes_keys.txt";
-	const std::filesystem::path seedDBPath = appDataPath / "sysdata" / "seeddb.bin";
+	IOFile::setUserDataDir(appDataPath);
+
+	const std::filesystem::path dataPath = IOFile::getNANDData() / "title" / path.filename().stem();
+	const std::filesystem::path aesKeysPath = IOFile::getSysData() / "aes_keys.txt";
+	const std::filesystem::path seedDBPath = IOFile::getSysData() / "seeddb.bin";
 
 	std::error_code ec;
+	std::filesystem::create_directories(IOFile::getNANDData(), ec);
+	std::filesystem::create_directories(IOFile::getSDMC(), ec);
+	std::filesystem::create_directories(IOFile::getSharedFiles(), ec);
+	std::filesystem::create_directories(IOFile::getSysData(), ec);
 	std::filesystem::create_directories(dataPath, ec);
 	if (ec) {
 		Helpers::warn("Failed to create game data directory %s (error: %s)\n", dataPath.string().c_str(), ec.message().c_str());

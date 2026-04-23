@@ -9,7 +9,7 @@ HorizonResult SDMCArchive::createFile(const FSPath& path, u64 size) {
 			Helpers::panic("Unsafe path in SDMC::CreateFile");
 		}
 
-		fs::path p = IOFile::getAppData() / "SDMC";
+		fs::path p = IOFile::getSDMC();
 		appendPath(p, path);
 
 		if (fs::exists(p)) {
@@ -44,7 +44,7 @@ HorizonResult SDMCArchive::deleteFile(const FSPath& path) {
 			Helpers::panic("Unsafe path in SDMC::DeleteFile");
 		}
 
-		fs::path p = IOFile::getAppData() / "SDMC";
+		fs::path p = IOFile::getSDMC();
 		appendPath(p, path);
 
 		if (fs::is_directory(p)) {
@@ -88,7 +88,7 @@ FileDescriptor SDMCArchive::openFile(const FSPath& path, const FilePerms& perms)
 		Helpers::panic("[SDMC] Unsupported flags for OpenFile");
 	}
 
-	std::filesystem::path p = IOFile::getAppData() / "SDMC";
+	std::filesystem::path p = IOFile::getSDMC();
 
 	switch (path.type) {
 		case PathType::ASCII:
@@ -130,7 +130,7 @@ FileDescriptor SDMCArchive::openFile(const FSPath& path, const FilePerms& perms)
 }
 
 HorizonResult SDMCArchive::createDirectory(const FSPath& path) {
-	std::filesystem::path p = IOFile::getAppData() / "SDMC";
+	std::filesystem::path p = IOFile::getSDMC();
 
 	switch (path.type) {
 		case PathType::ASCII:
@@ -176,7 +176,7 @@ Rust::Result<DirectorySession, HorizonResult> SDMCArchive::openDirectory(const F
 			Helpers::panic("Unsafe path in SDMC::OpenDirectory");
 		}
 
-		fs::path p = IOFile::getAppData() / "SDMC";
+		fs::path p = IOFile::getSDMC();
 		appendPath(p, path);
 
 		if (fs::is_regular_file(p)) {

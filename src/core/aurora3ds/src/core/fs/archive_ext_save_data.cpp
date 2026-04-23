@@ -12,7 +12,7 @@ HorizonResult ExtSaveDataArchive::createFile(const FSPath& path, u64 size) {
 			Helpers::panic("Unsafe path in ExtSaveData::OpenFile");
 		}
 
-		fs::path p = IOFile::getAppData() / backingFolder;
+		fs::path p = IOFile::getUserData() / backingFolder;
 		appendPath(p, path);
 
 		if (fs::exists(p))
@@ -38,7 +38,7 @@ HorizonResult ExtSaveDataArchive::deleteFile(const FSPath& path) {
 		if (!isSafeTextPath(path))
 			Helpers::panic("Unsafe path in ExtSaveData::DeleteFile");
 
-		fs::path p = IOFile::getAppData() / backingFolder;
+		fs::path p = IOFile::getUserData() / backingFolder;
 		appendPath(p, path);
 
 		if (fs::is_directory(p)) {
@@ -74,7 +74,7 @@ FileDescriptor ExtSaveDataArchive::openFile(const FSPath& path, const FilePerms&
 		if (perms.create())
 			Helpers::panic("[ExtSaveData] Can't open file with create flag");
 
-		fs::path p = IOFile::getAppData() / backingFolder;
+		fs::path p = IOFile::getUserData() / backingFolder;
 		appendPath(p, path);
 
 		if (fs::exists(p)) { // Return file descriptor if the file exists
@@ -99,7 +99,7 @@ HorizonResult ExtSaveDataArchive::renameFile(const FSPath& oldPath, const FSPath
 	}
 
 	// Construct host filesystem paths
-	fs::path sourcePath = IOFile::getAppData() / backingFolder;
+	fs::path sourcePath = IOFile::getUserData() / backingFolder;
 	fs::path destPath = sourcePath;
 
 	sourcePath += fs::path(oldPath.utf16_string).make_preferred();
@@ -132,7 +132,7 @@ HorizonResult ExtSaveDataArchive::createDirectory(const FSPath& path) {
 			Helpers::panic("Unsafe path in ExtSaveData::OpenFile");
 		}
 
-		fs::path p = IOFile::getAppData() / backingFolder;
+		fs::path p = IOFile::getUserData() / backingFolder;
 		appendPath(p, path);
 
 		if (fs::is_directory(p)) {
@@ -181,7 +181,7 @@ Rust::Result<DirectorySession, HorizonResult> ExtSaveDataArchive::openDirectory(
 		if (!isSafeTextPath(path))
 			Helpers::panic("Unsafe path in ExtSaveData::OpenDirectory");
 
-		fs::path p = IOFile::getAppData() / backingFolder;
+		fs::path p = IOFile::getUserData() / backingFolder;
 		appendPath(p, path);
 
 		if (fs::is_regular_file(p)) {

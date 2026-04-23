@@ -101,6 +101,17 @@ bool IOFile::flush() {
 bool IOFile::rewind() { return seek(0, SEEK_SET); }
 FILE* IOFile::getHandle() { return handle; }
 
+void IOFile::setUserDataDir(const std::filesystem::path& dir) {
+	if (dir == "") Helpers::panic("Failed to set user data directory");
+
+	userRoot = dir;
+	nandRoot = userRoot / "nand";
+	nandDataRoot = nandRoot / "data" / "00000000000000000000000000000000";
+	sdmcRoot = userRoot / "sdmc";
+	sharedFilesRoot = nandRoot / "sharedfiles";
+	sysDataRoot = userRoot / "sysdata";
+}
+
 void IOFile::setAppDataDir(const std::filesystem::path& dir) {
 	if (dir == "") Helpers::panic("Failed to set app data directory");
 	appData = dir;

@@ -21,7 +21,7 @@ class SaveDataArchive : public ArchiveBase {
 	Rust::Result<FormatInfo, HorizonResult> getFormatInfo(const FSPath& path) override;
 
 	std::filesystem::path getFormatInfoPath() {
-		return IOFile::getAppData() / "FormatInfo" / "SaveData.format";
+		return IOFile::getAppData() / "format" / "savedata.format";
 	}
 
 	// Returns whether the cart has save data or not

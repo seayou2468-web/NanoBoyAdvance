@@ -5,7 +5,13 @@
 
 class IOFile {
 	FILE* handle = nullptr;
-	static inline std::filesystem::path appData = "";  // Directory for holding app data. AppData on Windows
+	static inline std::filesystem::path appData = "";       // Per-title directory on virtual NAND.
+	static inline std::filesystem::path userRoot = "";      // Root directory containing virtual NAND/SDMC/sysdata.
+	static inline std::filesystem::path nandRoot = "";
+	static inline std::filesystem::path nandDataRoot = "";
+	static inline std::filesystem::path sdmcRoot = "";
+	static inline std::filesystem::path sharedFilesRoot = "";
+	static inline std::filesystem::path sysDataRoot = "";
 
   public:
 	IOFile() : handle(nullptr) {}
@@ -29,8 +35,15 @@ class IOFile {
 	bool rewind();
 	bool flush();
 	FILE* getHandle();
+	static void setUserDataDir(const std::filesystem::path& dir);
 	static void setAppDataDir(const std::filesystem::path& dir);
+	static std::filesystem::path getUserData() { return userRoot; }
 	static std::filesystem::path getAppData() { return appData; }
+	static std::filesystem::path getNAND() { return nandRoot; }
+	static std::filesystem::path getNANDData() { return nandDataRoot; }
+	static std::filesystem::path getSDMC() { return sdmcRoot; }
+	static std::filesystem::path getSharedFiles() { return sharedFilesRoot; }
+	static std::filesystem::path getSysData() { return sysDataRoot; }
 
 	// Sets the size of the file to "size" and returns whether it succeeded or not
 	bool setSize(std::uint64_t size);

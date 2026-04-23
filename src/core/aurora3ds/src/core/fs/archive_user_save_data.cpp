@@ -9,7 +9,7 @@ HorizonResult UserSaveDataArchive::createFile(const FSPath& path, u64 size) {
 	if (path.isUTF16()) {
 		if (!isPathSafe<PathType::UTF16>(path)) Helpers::panic("Unsafe path in UserSaveData::CreateFile");
 
-		fs::path p = IOFile::getAppData() / "SaveData";
+		fs::path p = IOFile::getAppData() / "data";
 		p += fs::path(path.utf16_string).make_preferred();
 
 		if (fs::exists(p)) {
@@ -44,7 +44,7 @@ HorizonResult UserSaveDataArchive::createDirectory(const FSPath& path) {
 			Helpers::panic("Unsafe path in UserSaveData::OpenFile");
 		}
 
-		fs::path p = IOFile::getAppData() / "SaveData";
+		fs::path p = IOFile::getAppData() / "data";
 		p += fs::path(path.utf16_string).make_preferred();
 
 		if (fs::is_directory(p)) return Result::FS::AlreadyExists;
@@ -63,7 +63,7 @@ HorizonResult UserSaveDataArchive::deleteFile(const FSPath& path) {
 	if (path.isUTF16()) {
 		if (!isPathSafe<PathType::UTF16>(path)) Helpers::panic("Unsafe path in UserSaveData::DeleteFile");
 
-		fs::path p = IOFile::getAppData() / "SaveData";
+		fs::path p = IOFile::getAppData() / "data";
 		p += fs::path(path.utf16_string).make_preferred();
 
 		if (fs::is_directory(p)) {
@@ -96,7 +96,7 @@ FileDescriptor UserSaveDataArchive::openFile(const FSPath& path, const FilePerms
 
 		if (perms.raw == 0 || (perms.create() && !perms.write())) Helpers::panic("[UserSaveData] Unsupported flags for OpenFile");
 
-		fs::path p = IOFile::getAppData() / "SaveData";
+		fs::path p = IOFile::getAppData() / "data";
 		p += fs::path(path.utf16_string).make_preferred();
 
 		const char* permString = perms.write() ? "r+b" : "rb";
@@ -126,7 +126,7 @@ Rust::Result<DirectorySession, HorizonResult> UserSaveDataArchive::openDirectory
 	if (path.isUTF16()) {
 		if (!isPathSafe<PathType::UTF16>(path)) Helpers::panic("Unsafe path in UserSaveData::OpenDirectory");
 
-		fs::path p = IOFile::getAppData() / "SaveData";
+		fs::path p = IOFile::getAppData() / "data";
 		p += fs::path(path.utf16_string).make_preferred();
 
 		if (fs::is_regular_file(p)) {
@@ -167,7 +167,7 @@ Rust::Result<ArchiveBase::FormatInfo, HorizonResult> UserSaveDataArchive::getFor
 }
 
 void UserSaveDataArchive::format(const FSPath& path, const ArchiveBase::FormatInfo& info) {
-	const fs::path saveDataPath = IOFile::getAppData() / "SaveData";
+	const fs::path saveDataPath = IOFile::getAppData() / "data";
 	const fs::path formatInfoPath = getFormatInfoPath();
 
 	// Delete all contents by deleting the directory then recreating it
