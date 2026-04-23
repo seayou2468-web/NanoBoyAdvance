@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <functional>
 #include <memory>
 #include <span>
 
@@ -9,7 +10,6 @@
 #include "./memory.hpp"
 #include "./scheduler.hpp"
 
-class Emulator;
 class Kernel;
 struct ARMul_State;
 
@@ -72,14 +72,15 @@ class CPU {
 	u32 VFlag = 0;
 	u32 TFlag = 0;
 
-
 	std::unique_ptr<ARMul_State> dyncomState;
 	ExclusiveMonitor exclusiveMonitor;
 
 	Memory& mem;
 	Scheduler* scheduler = nullptr;
 	Kernel* kernel = nullptr;
-	Emulator& emu;
+	std::function<void()> pollSchedulerCallback;
+	std::function<bool()> isFrameDoneCallback;
+	std::function<void(bool)> setFrameDoneCallback;
 
 	bool conditionPassed(u32 cond) const;
 	void setNZFlags(u32 value);
@@ -101,13 +102,14 @@ class CPU {
   public:
 	static constexpr u64 ticksPerSec = Scheduler::arm11Clock;
 
-	CPU(Memory& mem, Emulator& emu, Scheduler& schedulerRef);
+	CPU(Memory& mem, Scheduler& schedulerRef, std::function<void()> pollSchedulerCallback,
+		std::function<bool()> isFrameDoneCallback, std::function<void(bool)> setFrameDoneCallback);
 	~CPU();
 	void bindScheduler(Scheduler& schedulerRef) { scheduler = &schedulerRef; }
 	void bindKernel(Kernel& kernelRef) { kernel = &kernelRef; }
 	void reset();
 
-		void setReg(int index, u32 value) { gprs[static_cast<size_t>(index)] = value; }
+	void setReg(int index, u32 value) { gprs[static_cast<size_t>(index)] = value; }
 	u32 getReg(int index) { return gprs[static_cast<size_t>(index)]; }
 
 	std::span<u32, 16> regs() { return gprs; }

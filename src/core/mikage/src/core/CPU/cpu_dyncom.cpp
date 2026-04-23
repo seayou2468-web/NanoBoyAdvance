@@ -1,12 +1,18 @@
 #include "../../../include/cpu_dyncom.hpp"
 
-#include "../../../include/emulator.hpp"
+#include <utility>
+
 #include "../../../include/kernel/kernel.hpp"
 #include "./dyncom/arm_dyncom_interpreter.h"
 #include "./skyeye_common/armstate.h"
 
-CPU::CPU(Memory& mem, Emulator& emu, Scheduler& schedulerRef)
-    : mem(mem), scheduler(&schedulerRef), emu(emu) {
+CPU::CPU(Memory& mem, Scheduler& schedulerRef, std::function<void()> pollSchedulerCallback,
+         std::function<bool()> isFrameDoneCallback, std::function<void(bool)> setFrameDoneCallback)
+    : mem(mem),
+      scheduler(&schedulerRef),
+      pollSchedulerCallback(std::move(pollSchedulerCallback)),
+      isFrameDoneCallback(std::move(isFrameDoneCallback)),
+      setFrameDoneCallback(std::move(setFrameDoneCallback)) {
     reset();
 }
 
@@ -73,13 +79,17 @@ void CPU::runFrame() {
     dyncomState->VFP[VFP_FPSCR] = fpscr;
     dyncomState->CP15[CP15_THREAD_UPRW] = tlsBase;
 
-    emu.frameDone = false;
+    if (!pollSchedulerCallback || !isFrameDoneCallback || !setFrameDoneCallback) {
+        Helpers::panic("CPU frame callbacks are not bound");
+    }
+
+    setFrameDoneCallback(false);
 
     // Execute in scheduler-sized slices until we hit VBlank.
     // This mirrors the old Panda3DS frame pacing model and guarantees that
     // pollScheduler() runs so GPU/HLE interrupts are delivered.
     u32 safety_counter = 0;
-    while (!emu.frameDone) {
+    while (!isFrameDoneCallback()) {
         const u64 budget = (scheduler->nextTimestamp > scheduler->currentTimestamp)
                                ? (scheduler->nextTimestamp - scheduler->currentTimestamp)
                                : 1;
@@ -95,7 +105,7 @@ void CPU::runFrame() {
             scheduler->currentTimestamp += executed;
         }
 
-        emu.pollScheduler();
+        pollSchedulerCallback();
 
         // Avoid infinite loops if the guest gets stuck before scheduling VBlank.
         if (++safety_counter > 200000) {
