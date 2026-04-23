@@ -56,20 +56,6 @@ void LogUnmappedWrite(u32 bits, u32 vaddr, u32 value) {
 	Helpers::warn("Ignoring unmapped %u-bit write, addr: %08X, val: %08X", bits, vaddr, value);
 }
 
-constexpr u32 MakeDataFaultStatus(bool is_write) {
-	constexpr u32 kTranslationFault = 0x5;
-	return kTranslationFault | (is_write ? (1u << 11) : 0);
-}
-
-constexpr u32 MakeInstructionFaultStatus() {
-	constexpr u32 kInstructionTranslationFault = 0x5;
-	return kInstructionTranslationFault;
-}
-
-constexpr bool IsLikelyInstructionFetch(u32 vaddr) {
-	return vaddr >= VirtualAddrs::ExecutableStart && vaddr < VirtualAddrs::ExecutableEnd;
-}
-
 constexpr u32 kArmBranchSelf = 0xEAFFFFFE;      // b .
 constexpr u32 kArmReturnPrefetchAbort = 0xE25EF004;  // subs pc, lr, #4
 constexpr u32 kArmReturnDataAbort = 0xE25EF008;      // subs pc, lr, #8
@@ -262,11 +248,8 @@ u8 Memory::read8(u32 vaddr) {
 
 				default:
 					LogUnmappedRead(8, vaddr);
-					if (mmuFaultCallback) {
-						const bool instruction_fault = IsLikelyInstructionFetch(vaddr);
-						mmuFaultCallback(instruction_fault ? MakeInstructionFaultStatus() : MakeDataFaultStatus(false), vaddr,
-						                instruction_fault);
-					}
+					// Match Azahar/Citra behavior: data reads from unmapped regions return 0
+					// instead of taking a synchronous data abort in the guest.
 					return 0;
 			}
 		}
@@ -284,11 +267,7 @@ u16 Memory::read16(u32 vaddr) {
 			case ConfigMem::WifiMac + 4: return (MACAddress[5] << 8) | MACAddress[4];  // Wifi MAC: Last 2 bytes of MAC Address
 				default:
 					LogUnmappedRead(16, vaddr);
-					if (mmuFaultCallback) {
-						const bool instruction_fault = IsLikelyInstructionFetch(vaddr);
-						mmuFaultCallback(instruction_fault ? MakeInstructionFaultStatus() : MakeDataFaultStatus(false), vaddr,
-						                instruction_fault);
-					}
+					// Match Azahar/Citra behavior: data reads from unmapped regions return 0.
 					return 0;
 		}
 	}
@@ -340,12 +319,8 @@ u32 Memory::read32(u32 vaddr) {
 				}
 
 						LogUnmappedRead(32, vaddr);
-						if (mmuFaultCallback) {
-							const bool instruction_fault = IsLikelyInstructionFetch(vaddr);
-							mmuFaultCallback(instruction_fault ? MakeInstructionFaultStatus() : MakeDataFaultStatus(false), vaddr,
-							                instruction_fault);
-					}
-					return 0;
+						// Match Azahar/Citra behavior: data reads from unmapped regions return 0.
+						return 0;
 		}
 	}
 }
@@ -370,9 +345,6 @@ void Memory::write8(u32 vaddr, u8 value) {
 			vram[vaddr - VirtualAddrs::VramStart] = value;
 		} else {
 			LogUnmappedWrite(8, vaddr, value);
-			if (mmuFaultCallback) {
-				mmuFaultCallback(MakeDataFaultStatus(true), vaddr, false);
-			}
 		}
 	}
 }
@@ -386,9 +358,6 @@ void Memory::write16(u32 vaddr, u16 value) {
 		*(u16*)(pointer + offset) = value;
 	} else {
 		LogUnmappedWrite(16, vaddr, value);
-		if (mmuFaultCallback) {
-			mmuFaultCallback(MakeDataFaultStatus(true), vaddr, false);
-		}
 	}
 }
 
@@ -401,9 +370,6 @@ void Memory::write32(u32 vaddr, u32 value) {
 		*(u32*)(pointer + offset) = value;
 	} else {
 		LogUnmappedWrite(32, vaddr, value);
-		if (mmuFaultCallback) {
-			mmuFaultCallback(MakeDataFaultStatus(true), vaddr, false);
-		}
 	}
 }
 
