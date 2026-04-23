@@ -155,7 +155,7 @@ static const ServiceMapEntry serviceMapArray[] = {
 	{ "mic:u", KernelHandles::MIC },
 	{ "ndm:u", KernelHandles::NDM },
 	{ "news:u", KernelHandles::NEWS_U },
-	{ "news:s", KernelHandles::NEWS_U },
+	{ "news:s", KernelHandles::NEWS_S },
 	{ "nfc:u", KernelHandles::NFC },
 	{ "nfc:m", KernelHandles::NFC },
 	{ "ns:s", KernelHandles::NS_S },
@@ -295,7 +295,8 @@ void ServiceManager::sendCommandToService(u32 messagePointer, Handle handle) {
 		case KernelHandles::NFC: nfc.handleSyncRequest(messagePointer); break;
 		case KernelHandles::NIM: nim.handleSyncRequest(messagePointer); break;
 		case KernelHandles::NDM: ndm.handleSyncRequest(messagePointer); break;
-		case KernelHandles::NEWS_U: news_u.handleSyncRequest(messagePointer); break;
+		case KernelHandles::NEWS_U:
+		case KernelHandles::NEWS_S: news_u.handleSyncRequest(messagePointer); break;
 		case KernelHandles::NS_S: ns.handleSyncRequest(messagePointer, NSService::Type::S); break;
 		case KernelHandles::NS_C: ns.handleSyncRequest(messagePointer, NSService::Type::C); break;
 		case KernelHandles::NWM_EXT: nwm_ext.handleSyncRequest(messagePointer); break;
