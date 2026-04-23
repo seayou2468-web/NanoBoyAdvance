@@ -1,10 +1,13 @@
 #include "../../../include/services/ptm.hpp"
 
 #include "../../../include/ipc.hpp"
+#include <algorithm>
+#include <chrono>
 
 namespace PTMCommands {
 	enum : u32 {
 		GetAdapterState = 0x00050000,
+		GetShellState = 0x00060000,
 		GetBatteryLevel = 0x00070000,
 		GetBatteryChargeState = 0x00080000,
 		GetPedometerState = 0x00090000,
@@ -37,6 +40,7 @@ void PTMService::handleSyncRequest(u32 messagePointer, PTMService::Type type) {
 		case PTMCommands::GetAdapterState: getAdapterState(messagePointer); break;
 		case PTMCommands::GetBatteryChargeState: getBatteryChargeState(messagePointer); break;
 		case PTMCommands::GetBatteryLevel: getBatteryLevel(messagePointer); break;
+		case PTMCommands::GetShellState: getShellState(messagePointer); break;
 		case PTMCommands::GetPedometerState: getPedometerState(messagePointer); break;
 		case PTMCommands::GetStepHistory: getStepHistory(messagePointer); break;
 		case PTMCommands::GetStepHistoryAll: getStepHistoryAll(messagePointer); break;
@@ -49,6 +53,8 @@ void PTMService::handleSyncRequest(u32 messagePointer, PTMService::Type type) {
 					case PTMCommands::GetPlayHistory:
 					case PTMCommands::GetPlayHistoryStart:
 					case PTMCommands::GetPlayHistoryLength:
+					case PTMCommands::CalcPlayHistoryStart:
+						mem.write32(messagePointer, IPC::responseHeader(command >> 16, 3, 0));
 						mem.write32(messagePointer + 4, Result::Success);
 						mem.write64(messagePointer + 8, 0);
 						Helpers::warn("Stubbed PTM:PLAY service requested. Command: %08X\n", command);
@@ -76,6 +82,15 @@ void PTMService::handleSyncRequest(u32 messagePointer, PTMService::Type type) {
 				Helpers::panic("PTM service requested. Command: %08X\n", command);
 			}
 	}
+}
+
+void PTMService::getShellState(u32 messagePointer) {
+	log("PTM::GetShellState\n");
+
+	mem.write32(messagePointer, IPC::responseHeader(0x6, 2, 0));
+	mem.write32(messagePointer + 4, Result::Success);
+	// Aurora3DS currently does not emulate shell-open/close sensors. Assume shell open.
+	mem.write8(messagePointer + 8, 1);
 }
 
 void PTMService::getAdapterState(u32 messagePointer) {
@@ -139,12 +154,17 @@ void PTMService::configureNew3DSCPU(u32 messagePointer) {
 }
 
 void PTMService::getSystemTime(u32 messagePointer) {
-	log("PTM::GetSystemTime [stubbed]\n");
-	Helpers::warn("PTM::GetSystemTime called");
+	log("PTM::GetSystemTime\n");
+
+	using namespace std::chrono;
+	const auto now = system_clock::now();
+	const auto msSinceUnix = duration_cast<milliseconds>(now.time_since_epoch()).count();
+	constexpr s64 unixTo2000Ms = 946684800ll * 1000ll;  // 1970-01-01 -> 2000-01-01
+	const s64 since2000 = std::max<s64>(0, msSinceUnix - unixTo2000Ms);
 
 	mem.write32(messagePointer, IPC::responseHeader(0x401, 3, 0));
 	mem.write32(messagePointer + 4, Result::Success);
-	mem.write64(messagePointer + 8, 0);  // Milliseconds since 2000?
+	mem.write64(messagePointer + 8, static_cast<u64>(since2000));
 }
 
 void PTMService::getSoftwareClosedFlag(u32 messagePointer) {

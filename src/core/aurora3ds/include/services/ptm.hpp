@@ -18,6 +18,7 @@ class PTMService {
 	void getAdapterState(u32 messagePointer);
 	void getBatteryChargeState(u32 messagePointer);
 	void getBatteryLevel(u32 messagePointer);
+	void getShellState(u32 messagePointer);
 	void getSoftwareClosedFlag(u32 messagePointer);
 	void getPedometerState(u32 messagePointer);
 	void getStepHistory(u32 messagePointer);
