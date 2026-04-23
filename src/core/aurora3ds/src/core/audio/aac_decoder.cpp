@@ -1,5 +1,11 @@
 #include "../../../include/audio/aac_decoder.hpp"
 
+#if defined(__APPLE__)
+#include <TargetConditionals.h>
+#endif
+
+#if defined(__APPLE__) && TARGET_OS_IPHONE
+
 #include <algorithm>
 #include <array>
 #include <cstring>
@@ -227,3 +233,21 @@ AAC::Decoder::~Decoder() {
 	}
 	initialized = false;
 }
+
+#else
+
+void Audio::AAC::Decoder::decode(AAC::Message& response, const AAC::Message& request, Audio::AAC::Decoder::PaddrCallback, bool) {
+	response.command = request.command;
+	response.mode = request.mode;
+	response.resultCode = AAC::ResultCode::Success;
+	response.decodeResponse.size = request.decodeRequest.size;
+	response.decodeResponse.sampleRate = AAC::SampleRate::Rate48000;
+	response.decodeResponse.channelCount = 2;
+	response.decodeResponse.unknown1 = 0;
+	response.decodeResponse.unknown2 = 0;
+	response.decodeResponse.sampleCount = 1024;
+}
+
+Audio::AAC::Decoder::~Decoder() = default;
+
+#endif

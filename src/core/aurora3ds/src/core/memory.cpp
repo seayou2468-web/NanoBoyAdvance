@@ -9,15 +9,12 @@
 #include <string>
 #include <vector>
 
-#if defined(__APPLE__)
-#include <CoreFoundation/CoreFoundation.h>
-#endif
-
 #include "../../include/kernel/config_mem.hpp"
 #include "../../include/kernel/fcram.hpp"
 #include "../../include/kernel/resource_limits.hpp"
 #include "../../include/services/fonts.hpp"
 #include "../../include/services/ptm.hpp"
+#include "../../include/platform/shared_font_bundle.hpp"
 
 using namespace KernelMemoryTypes;
 
@@ -73,38 +70,6 @@ constexpr bool IsLikelyInstructionFetch(u32 vaddr) {
 	return vaddr >= VirtualAddrs::ExecutableStart && vaddr < VirtualAddrs::ExecutableEnd;
 }
 
-#if defined(__APPLE__)
-std::vector<u8> LoadSharedFontFromBundle() {
-	CFBundleRef bundle = CFBundleGetMainBundle();
-	if (bundle == nullptr) {
-		return {};
-	}
-
-	CFStringRef resourceName = CFSTR("SharedFontReplacement");
-	CFStringRef resourceType = CFSTR("bin");
-	CFStringRef subdir = CFSTR("fonts");
-	CFURLRef resourceURL = CFBundleCopyResourceURL(bundle, resourceName, resourceType, subdir);
-	if (resourceURL == nullptr) {
-		return {};
-	}
-
-	CFStringRef pathRef = CFURLCopyFileSystemPath(resourceURL, kCFURLPOSIXPathStyle);
-	CFRelease(resourceURL);
-	if (pathRef == nullptr) {
-		return {};
-	}
-
-	char pathBuffer[4096];
-	const Boolean ok = CFStringGetCString(pathRef, pathBuffer, sizeof(pathBuffer), kCFStringEncodingUTF8);
-	CFRelease(pathRef);
-	if (!ok) {
-		return {};
-	}
-
-	return LoadFile(pathBuffer);
-}
-#endif
-
 std::vector<u8> LoadSharedFontReplacement() {
 	if (g_sharedFontReplacementOverridePath.has_value()) {
 		if (std::vector<u8> data = LoadFile(*g_sharedFontReplacementOverridePath); !data.empty()) {
@@ -113,11 +78,11 @@ std::vector<u8> LoadSharedFontReplacement() {
 	}
 
 	// iOS/macOS app bundles first.
-#if defined(__APPLE__)
-	if (std::vector<u8> data = LoadSharedFontFromBundle(); !data.empty()) {
-		return data;
+	if (const auto bundleFontPath = Platform::GetSharedFontReplacementBundlePath(); bundleFontPath.has_value()) {
+		if (std::vector<u8> data = LoadFile(*bundleFontPath); !data.empty()) {
+			return data;
+		}
 	}
-#endif
 
 	// Fallbacks for local/dev runs.
 	if (std::vector<u8> data = LoadFile("SharedFontReplacement.bin"); !data.empty()) {
