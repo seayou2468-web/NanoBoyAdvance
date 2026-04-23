@@ -4,6 +4,7 @@
 #include "../logger.hpp"
 #include "../memory.hpp"
 #include "../result/result.hpp"
+#include <array>
 
 class PMService {
 	using Handle = HorizonHandle;
@@ -13,7 +14,25 @@ class PMService {
 	Memory& mem;
 	MAKE_LOG_FUNCTION(log, srvLogger)
 	u32 appCpuTimeLimit = 30;
+	bool titleRunning = false;
+	u64 runningTitleID = 0;
+	std::array<u8, 0x100> firmLaunchParams {};
+	u32 lastLaunchFlags = 0;
 
+	void launchTitle(u32 messagePointer);
+	void launchFirm(u32 messagePointer);
+	void terminateApplication(u32 messagePointer);
+	void terminateTitle(u32 messagePointer);
+	void terminateProcess(u32 messagePointer);
+	void prepareForReboot(u32 messagePointer);
+	void getFirmLaunchParams(u32 messagePointer);
+	void getTitleExheaderFlags(u32 messagePointer);
+	void setFirmLaunchParams(u32 messagePointer);
+	void unregisterProcess(u32 messagePointer);
+	void launchTitleUpdate(u32 messagePointer);
+	void launchAppDebug(u32 messagePointer);
+	void launchApp(u32 messagePointer);
+	void runQueuedProcess(u32 messagePointer);
 	void setAppResourceLimit(u32 messagePointer);
 	void getAppResourceLimit(u32 messagePointer);
 

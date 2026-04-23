@@ -14,7 +14,7 @@ ServiceManager::ServiceManager(
 	  ir_user(mem, hid, config, kernel),
 		  frd(mem), fs(mem, kernel, config), gsp_gpu(mem, gpu, kernel, currentPID), gsp_lcd(mem), ldr(mem, kernel), mcu_hwc(mem, config),
 		  mic(mem, kernel), nfc(mem, kernel), nwm_ext(mem), nim(mem), ndm(mem), news_u(mem), ns(mem), nwm_uds(mem, kernel), ptm(mem, config), pm(mem),
-		  pxi_dev(mem), qtm(mem), ps_ps(mem), mvd_std(mem), plgldr(mem), soc(mem), ssl(mem), y2r(mem, kernel), peripheral_bus(mem) {}
+		  pxi_dev(mem), qtm(mem), ps_ps(mem), mvd_std(mem), plgldr(mem), soc(mem), ssl(mem), y2r(mem, kernel), peripheral_bus(mem), os_ext(mem, kernel) {}
 
 static constexpr int MAX_NOTIFICATION_COUNT = 16;
 
@@ -49,6 +49,7 @@ void ServiceManager::reset() {
 	nim.reset();
 	ns.reset();
 	peripheral_bus.reset();
+	os_ext.reset();
 	ptm.reset();
 	pm.reset();
 	pxi_dev.reset();
@@ -498,10 +499,7 @@ void ServiceManager::sendCommandToService(u32 messagePointer, Handle handle) {
 		case KernelHandles::PM_APP: pm.handleSyncRequest(messagePointer, PMService::Type::App); break;
 		case KernelHandles::PM_DBG: pm.handleSyncRequest(messagePointer, PMService::Type::Debug); break;
 		case KernelHandles::PXI_DEV: pxi_dev.handleSyncRequest(messagePointer); break;
-		case KernelHandles::OS_STUB:
-			mem.write32(messagePointer, IPC::responseHeader(mem.read32(messagePointer) >> 16, 1, 0));
-			mem.write32(messagePointer + 4, Result::OS::NotImplemented);
-			break;
+		case KernelHandles::OS_STUB: os_ext.handleSyncRequest(messagePointer); break;
 		case KernelHandles::PS_PS: ps_ps.handleSyncRequest(messagePointer); break;
 		case KernelHandles::QTM_C: qtm.handleSyncRequest(messagePointer, QTMService::Type::C); break;
 		case KernelHandles::QTM_S: qtm.handleSyncRequest(messagePointer, QTMService::Type::S); break;

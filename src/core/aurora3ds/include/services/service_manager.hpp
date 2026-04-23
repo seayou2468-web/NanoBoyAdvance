@@ -39,6 +39,7 @@
 #include "./ns.hpp"
 #include "./nwm_ext.hpp"
 #include "./nwm_uds.hpp"
+#include "./os_ext.hpp"
 #include "./peripheral_bus.hpp"
 #include "./ptm.hpp"
 #include "./pm.hpp"
@@ -95,6 +96,7 @@ class ServiceManager {
 	NIMService nim;
 	NSService ns;
 	PeripheralBusService peripheral_bus;
+	OSExtService os_ext;
 	PTMService ptm;
 	PMService pm;
 	PXIDevService pxi_dev;

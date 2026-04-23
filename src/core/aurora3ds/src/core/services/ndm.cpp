@@ -67,8 +67,13 @@ void NDMService::handleSyncRequest(u32 messagePointer) {
 }
 
 void NDMService::enterExclusiveState(u32 messagePointer) {
-	log("NDM::EnterExclusiveState (stubbed)\n");
+	log("NDM::EnterExclusiveState\n");
 	const u32 state = mem.read32(messagePointer + 4);
+	if (stateLocked) {
+		mem.write32(messagePointer, IPC::responseHeader(0x1, 1, 0));
+		mem.write32(messagePointer + 4, Result::OS::InvalidCombination);
+		return;
+	}
 
 	// Check that the exclusive state config is valid
 	if (state > 4) {
@@ -82,7 +87,12 @@ void NDMService::enterExclusiveState(u32 messagePointer) {
 }
 
 void NDMService::exitExclusiveState(u32 messagePointer) {
-	log("NDM::ExitExclusiveState (stubbed)\n");
+	log("NDM::ExitExclusiveState\n");
+	if (stateLocked) {
+		mem.write32(messagePointer, IPC::responseHeader(0x2, 1, 0));
+		mem.write32(messagePointer + 4, Result::OS::InvalidCombination);
+		return;
+	}
 	exclusiveState = ExclusiveState::None;
 
 	mem.write32(messagePointer, IPC::responseHeader(0x2, 1, 0));
@@ -100,6 +110,11 @@ void NDMService::queryExclusiveState(u32 messagePointer) {
 void NDMService::overrideDefaultDaemons(u32 messagePointer) {
 	const u32 bitMask = mem.read32(messagePointer + 4) & 0xF;
 	log("NDM::OverrideDefaultDaemons (mask=%X)\n", bitMask);
+	if (stateLocked) {
+		mem.write32(messagePointer, IPC::responseHeader(0x14, 1, 0));
+		mem.write32(messagePointer + 4, Result::OS::InvalidCombination);
+		return;
+	}
 	defaultDaemonMask = bitMask;
 	daemonMask = bitMask;
 	for (u32 i = 0; i < daemonStatuses.size(); i++) {
@@ -113,6 +128,11 @@ void NDMService::overrideDefaultDaemons(u32 messagePointer) {
 void NDMService::resumeDaemons(u32 messagePointer) {
 	const u32 bitMask = mem.read32(messagePointer + 4) & 0xF;
 	log("NDM::resumeDaemons (mask=%X)\n", bitMask);
+	if (stateLocked) {
+		mem.write32(messagePointer, IPC::responseHeader(0x7, 1, 0));
+		mem.write32(messagePointer + 4, Result::OS::InvalidCombination);
+		return;
+	}
 
 	for (u32 i = 0; i < daemonStatuses.size(); i++) {
 		if ((bitMask & (1u << i)) == 0) {
@@ -143,6 +163,11 @@ void NDMService::resumeDaemons(u32 messagePointer) {
 void NDMService::suspendDaemons(u32 messagePointer) {
 	const u32 bitMask = mem.read32(messagePointer + 4) & 0xF;
 	log("NDM::SuspendDaemons (mask=%X)\n", bitMask);
+	if (stateLocked) {
+		mem.write32(messagePointer, IPC::responseHeader(0x6, 1, 0));
+		mem.write32(messagePointer + 4, Result::OS::InvalidCombination);
+		return;
+	}
 
 	daemonMask = defaultDaemonMask & ~bitMask;
 	for (u32 i = 0; i < daemonStatuses.size(); i++) {
@@ -159,6 +184,11 @@ void NDMService::suspendDaemons(u32 messagePointer) {
 
 void NDMService::resumeScheduler(u32 messagePointer) {
 	log("NDM::ResumeScheduler\n");
+	if (stateLocked) {
+		mem.write32(messagePointer, IPC::responseHeader(0x9, 1, 0));
+		mem.write32(messagePointer + 4, Result::OS::InvalidCombination);
+		return;
+	}
 	if (schedulerDisableCount > 0) {
 		schedulerDisableCount--;
 	}
@@ -170,6 +200,11 @@ void NDMService::resumeScheduler(u32 messagePointer) {
 void NDMService::suspendScheduler(u32 messagePointer) {
 	const u32 runInBackground = mem.read32(messagePointer + 4);
 	log("NDM::SuspendScheduler (runInBackground=%u)\n", runInBackground);
+	if (stateLocked) {
+		mem.write32(messagePointer, IPC::responseHeader(0x8, 1, 0));
+		mem.write32(messagePointer + 4, Result::OS::InvalidCombination);
+		return;
+	}
 	schedulerDisableCount++;
 
 	mem.write32(messagePointer, IPC::responseHeader(0x8, 1, 0));
@@ -177,7 +212,7 @@ void NDMService::suspendScheduler(u32 messagePointer) {
 }
 
 void NDMService::clearHalfAwakeMacFilter(u32 messagePointer) {
-	log("NDM::ClearHalfAwakeMacFilter (stubbed)\n");
+	log("NDM::ClearHalfAwakeMacFilter\n");
 	mem.write32(messagePointer, IPC::responseHeader(0x17, 1, 0));
 	mem.write32(messagePointer + 4, Result::Success);
 }
