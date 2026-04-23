@@ -250,6 +250,11 @@ struct KernelObject {
 		return static_cast<T*>(data);
 	}
 
+	template <typename T>
+	const T* getData() const {
+		return static_cast<const T*>(data);
+	}
+
 	const char* getTypeName() const { return kernelObjectTypeToString(type); }
 
 	// Retrieves a reference to the waitlist for a specified object
