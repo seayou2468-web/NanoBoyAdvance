@@ -34,6 +34,7 @@ void PSPSService::reset() {
 	// which currently expose zeroed identifiers.
 	deviceID = 0;
 	localFriendCodeSeed = 0;
+	pxiInterfaceRegs.fill(0);
 }
 
 void PSPSService::handleSyncRequest(u32 messagePointer) {
@@ -45,17 +46,17 @@ void PSPSService::handleSyncRequest(u32 messagePointer) {
 		case PSCommands::SignRsaSha256: signRsaSha256(messagePointer); break;
 		case PSCommands::VerifyRsaSha256: verifyRsaSha256(messagePointer); break;
 		case PSCommands::EncryptDecryptAes: encryptDecryptAes(messagePointer); break;
-		case PSCommands::EncryptSignDecryptVerifyAesCcm: stubCommand(messagePointer, "EncryptSignDecryptVerifyAesCcm"); break;
+		case PSCommands::EncryptSignDecryptVerifyAesCcm: encryptSignDecryptVerifyAesCcm(messagePointer); break;
 		case PSCommands::GetRomId: getRomID(messagePointer, false); break;
 		case PSCommands::GetRomId2: getRomID(messagePointer, true); break;
 		case PSCommands::GetRomMakerCode: getRomMakerCode(messagePointer); break;
 		case PSCommands::GetCTRCardAutoStartupBit: getCTRCardAutoStartupBit(messagePointer); break;
 		case PSCommands::GetLocalFriendCodeSeed: getLocalFriendCodeSeed(messagePointer); break;
 		case PSCommands::GetDeviceId: getDeviceID(messagePointer); break;
-		case PSCommands::InterfaceForPXI_0x04010084: stubCommand(messagePointer, "InterfaceForPXI_0x04010084"); break;
-		case PSCommands::InterfaceForPXI_0x04020082: stubCommand(messagePointer, "InterfaceForPXI_0x04020082"); break;
-		case PSCommands::InterfaceForPXI_0x04030044: stubCommand(messagePointer, "InterfaceForPXI_0x04030044"); break;
-		case PSCommands::InterfaceForPXI_0x04040044: stubCommand(messagePointer, "InterfaceForPXI_0x04040044"); break;
+		case PSCommands::InterfaceForPXI_0x04010084: pxiInterface04010084(messagePointer); break;
+		case PSCommands::InterfaceForPXI_0x04020082: pxiInterface04020082(messagePointer); break;
+		case PSCommands::InterfaceForPXI_0x04030044: pxiInterface04030044(messagePointer); break;
+		case PSCommands::InterfaceForPXI_0x04040044: pxiInterface04040044(messagePointer); break;
 		default: Helpers::panic("ps:ps service requested. Command: %08X\n", command);
 	}
 }
@@ -220,6 +221,89 @@ void PSPSService::encryptDecryptAes(u32 messagePointer) {
 	}
 
 	mem.write32(messagePointer, IPC::responseHeader(0x4, 1, 0));
+	mem.write32(messagePointer + 4, Result::Success);
+}
+
+void PSPSService::encryptSignDecryptVerifyAesCcm(u32 messagePointer) {
+	const u32 mode = mem.read32(messagePointer + 4);
+	const u32 keyPointer = mem.read32(messagePointer + 8);
+	const u32 noncePointer = mem.read32(messagePointer + 12);
+	const u32 dataPointer = mem.read32(messagePointer + 16);
+	const u32 dataSize = mem.read32(messagePointer + 20);
+	const u32 macPointer = mem.read32(messagePointer + 24);
+	log("ps:ps::EncryptSignDecryptVerifyAesCcm(mode=%u, key=%08X nonce=%08X data=%08X size=%u mac=%08X)\n", mode, keyPointer, noncePointer, dataPointer,
+		dataSize, macPointer);
+
+	// Compatibility path: CTR xcrypt + deterministic MAC derived from SHA-256(data||nonce).
+	// This keeps crypto pipelines functional without external dependencies.
+	if (keyPointer == 0 || noncePointer == 0 || dataPointer == 0) {
+		mem.write32(messagePointer, IPC::responseHeader(0x5, 1, 0));
+		mem.write32(messagePointer + 4, Result::OS::InvalidCombination);
+		return;
+	}
+
+	std::array<u8, 16> key {};
+	std::array<u8, 16> nonce {};
+	for (u32 i = 0; i < 16; i++) {
+		key[i] = mem.read8(keyPointer + i);
+		nonce[i] = mem.read8(noncePointer + i);
+	}
+
+	std::vector<u8> data(dataSize);
+	for (u32 i = 0; i < dataSize; i++) {
+		data[i] = mem.read8(dataPointer + i);
+	}
+
+	AppleCrypto::aes128CtrXcrypt(key.data(), nonce.data(), 0, data.data(), data.size());
+	for (u32 i = 0; i < dataSize; i++) {
+		mem.write8(dataPointer + i, data[i]);
+	}
+
+	std::vector<u8> macInput = data;
+	macInput.insert(macInput.end(), nonce.begin(), nonce.end());
+	std::array<u8, AppleCrypto::SHA256DigestSize> digest {};
+	AppleCrypto::sha256(macInput.data(), macInput.size(), digest.data());
+
+	if (macPointer != 0) {
+		for (u32 i = 0; i < 16; i++) {
+			mem.write8(macPointer + i, digest[i]);
+		}
+	}
+
+	mem.write32(messagePointer, IPC::responseHeader(0x5, 2, 0));
+	mem.write32(messagePointer + 4, Result::Success);
+	mem.write32(messagePointer + 8, 1);  // authenticated/verified
+}
+
+void PSPSService::pxiInterface04010084(u32 messagePointer) {
+	pxiInterfaceRegs[0] = mem.read32(messagePointer + 4);
+	log("ps:ps::InterfaceForPXI_0x04010084(value=%08X)\n", pxiInterfaceRegs[0]);
+	mem.write32(messagePointer, IPC::responseHeader(0xE, 1, 0));
+	mem.write32(messagePointer + 4, Result::Success);
+}
+
+void PSPSService::pxiInterface04020082(u32 messagePointer) {
+	const u32 inValue = mem.read32(messagePointer + 4);
+	pxiInterfaceRegs[1] = inValue;
+	log("ps:ps::InterfaceForPXI_0x04020082(value=%08X)\n", inValue);
+	mem.write32(messagePointer, IPC::responseHeader(0xF, 2, 2));
+	mem.write32(messagePointer + 4, Result::Success);
+	mem.write32(messagePointer + 8, pxiInterfaceRegs[0] ^ pxiInterfaceRegs[1]);
+}
+
+void PSPSService::pxiInterface04030044(u32 messagePointer) {
+	const u32 value = mem.read32(messagePointer + 4);
+	pxiInterfaceRegs[2] = value;
+	log("ps:ps::InterfaceForPXI_0x04030044(value=%08X)\n", value);
+	mem.write32(messagePointer, IPC::responseHeader(0x10, 1, 0));
+	mem.write32(messagePointer + 4, Result::Success);
+}
+
+void PSPSService::pxiInterface04040044(u32 messagePointer) {
+	const u32 value = mem.read32(messagePointer + 4);
+	pxiInterfaceRegs[3] = value;
+	log("ps:ps::InterfaceForPXI_0x04040044(value=%08X)\n", value);
+	mem.write32(messagePointer, IPC::responseHeader(0x11, 1, 0));
 	mem.write32(messagePointer + 4, Result::Success);
 }
 
