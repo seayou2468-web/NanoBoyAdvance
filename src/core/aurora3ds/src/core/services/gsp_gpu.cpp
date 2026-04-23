@@ -133,9 +133,12 @@ void GPUService::acquireRight(u32 messagePointer) {
 	const u32 flag = mem.read32(messagePointer + 4);
 	const u32 pid = mem.read32(messagePointer + 12);
 	log("GSP::GPU::AcquireRight (flag = %X, pid = %X)\n", flag, pid);
+	mem.write32(messagePointer, IPC::responseHeader(0x16, 1, 0));
 
 	if (flag != 0) {
-		Helpers::panic("GSP::GPU::acquireRight with flag != 0 needs to perform additional initialization");
+		Helpers::warn("GSP::GPU::AcquireRight unsupported flag=%X", flag);
+		mem.write32(messagePointer + 4, Result::OS::InvalidCombination);
+		return;
 	}
 
 	if (pid == KernelHandles::CurrentProcess) {
@@ -144,7 +147,6 @@ void GPUService::acquireRight(u32 messagePointer) {
 		privilegedProcess = pid;
 	}
 
-	mem.write32(messagePointer, IPC::responseHeader(0x16, 1, 0));
 	mem.write32(messagePointer + 4, Result::Success);
 }
 
@@ -173,7 +175,10 @@ void GPUService::registerInterruptRelayQueue(u32 messagePointer) {
 
 	const auto event = kernel.getObject(eventHandle, KernelObjectType::Event);
 	if (event == nullptr) {  // Check if interrupt event is invalid
-		Helpers::panic("Invalid event passed to GSP::GPU::RegisterInterruptRelayQueue");
+		Helpers::warn("Invalid event passed to GSP::GPU::RegisterInterruptRelayQueue");
+		mem.write32(messagePointer, IPC::responseHeader(0x13, 1, 0));
+		mem.write32(messagePointer + 4, Result::Kernel::InvalidHandle);
+		return;
 	} else {
 		interruptEvent = eventHandle;
 	}
@@ -239,15 +244,21 @@ void GPUService::readHwRegs(u32 messagePointer) {
 
 	// Check for alignment
 	if ((size & 3) || (ioAddr & 3) || (dataPointer & 3)) {
-		Helpers::panic("GSP::GPU::ReadHwRegs misalignment");
+		mem.write32(messagePointer, IPC::responseHeader(0x4, 1, 0));
+		mem.write32(messagePointer + 4, Result::OS::InvalidCombination);
+		return;
 	}
 
 	if (size > 0x80) {
-		Helpers::panic("GSP::GPU::ReadHwRegs size too big");
+		mem.write32(messagePointer, IPC::responseHeader(0x4, 1, 0));
+		mem.write32(messagePointer + 4, Result::OS::InvalidCombination);
+		return;
 	}
 
 	if (ioAddr >= 0x420000) {
-		Helpers::panic("GSP::GPU::ReadHwRegs offset too big");
+		mem.write32(messagePointer, IPC::responseHeader(0x4, 1, 0));
+		mem.write32(messagePointer + 4, Result::OS::InvalidCombination);
+		return;
 	}
 
 	ioAddr += 0x1EB00000;
@@ -274,15 +285,21 @@ void GPUService::writeHwRegs(u32 messagePointer) {
 
 	// Check for alignment
 	if ((size & 3) || (ioAddr & 3) || (dataPointer & 3)) {
-		Helpers::panic("GSP::GPU::writeHwRegs misalignment");
+		mem.write32(messagePointer, IPC::responseHeader(0x1, 1, 0));
+		mem.write32(messagePointer + 4, Result::OS::InvalidCombination);
+		return;
 	}
 
 	if (size > 0x80) {
-		Helpers::panic("GSP::GPU::writeHwRegs size too big");
+		mem.write32(messagePointer, IPC::responseHeader(0x1, 1, 0));
+		mem.write32(messagePointer + 4, Result::OS::InvalidCombination);
+		return;
 	}
 
 	if (ioAddr >= 0x420000) {
-		Helpers::panic("GSP::GPU::writeHwRegs offset too big");
+		mem.write32(messagePointer, IPC::responseHeader(0x1, 1, 0));
+		mem.write32(messagePointer + 4, Result::OS::InvalidCombination);
+		return;
 	}
 
 	ioAddr += 0x1EB00000;
@@ -311,15 +328,21 @@ void GPUService::writeHwRegsWithMask(u32 messagePointer) {
 
 	// Check for alignment
 	if ((size & 3) || (ioAddr & 3) || (dataPointer & 3) || (maskPointer & 3)) {
-		Helpers::panic("GSP::GPU::writeHwRegs misalignment");
+		mem.write32(messagePointer, IPC::responseHeader(0x2, 1, 0));
+		mem.write32(messagePointer + 4, Result::OS::InvalidCombination);
+		return;
 	}
 
 	if (size > 0x80) {
-		Helpers::panic("GSP::GPU::writeHwRegs size too big");
+		mem.write32(messagePointer, IPC::responseHeader(0x2, 1, 0));
+		mem.write32(messagePointer + 4, Result::OS::InvalidCombination);
+		return;
 	}
 
 	if (ioAddr >= 0x420000) {
-		Helpers::panic("GSP::GPU::writeHwRegs offset too big");
+		mem.write32(messagePointer, IPC::responseHeader(0x2, 1, 0));
+		mem.write32(messagePointer + 4, Result::OS::InvalidCombination);
+		return;
 	}
 
 	ioAddr += 0x1EB00000;
@@ -343,7 +366,7 @@ void GPUService::writeHwRegsWithMask(u32 messagePointer) {
 void GPUService::flushDataCache(u32 messagePointer) {
 	u32 address = mem.read32(messagePointer + 4);
 	u32 size = mem.read32(messagePointer + 8);
-	u32 processHandle = handle = mem.read32(messagePointer + 16);
+	u32 processHandle = mem.read32(messagePointer + 16);
 	log("GSP::GPU::FlushDataCache(address = %08X, size = %X, process = %X)\n", address, size, processHandle);
 
 	mem.write32(messagePointer, IPC::responseHeader(0x8, 1, 0));
@@ -353,7 +376,7 @@ void GPUService::flushDataCache(u32 messagePointer) {
 void GPUService::invalidateDataCache(u32 messagePointer) {
 	u32 address = mem.read32(messagePointer + 4);
 	u32 size = mem.read32(messagePointer + 8);
-	u32 processHandle = handle = mem.read32(messagePointer + 16);
+	u32 processHandle = mem.read32(messagePointer + 16);
 	log("GSP::GPU::InvalidateDataCache(address = %08X, size = %X, process = %X)\n", address, size, processHandle);
 
 	mem.write32(messagePointer, IPC::responseHeader(0x9, 1, 0));
@@ -363,7 +386,7 @@ void GPUService::invalidateDataCache(u32 messagePointer) {
 void GPUService::storeDataCache(u32 messagePointer) {
 	u32 address = mem.read32(messagePointer + 4);
 	u32 size = mem.read32(messagePointer + 8);
-	u32 processHandle = handle = mem.read32(messagePointer + 16);
+	u32 processHandle = mem.read32(messagePointer + 16);
 	log("GSP::GPU::StoreDataCache(address = %08X, size = %X, process = %X)\n", address, size, processHandle);
 
 	mem.write32(messagePointer, IPC::responseHeader(0x1F, 1, 0));
@@ -444,7 +467,7 @@ void GPUService::processCommandBuffer() {
 				case GXCommands::TriggerDMARequest: triggerDMARequest(cmd); break;
 				case GXCommands::TriggerTextureCopy: triggerTextureCopy(cmd); break;
 				case GXCommands::FlushCacheRegions: flushCacheRegions(cmd); break;
-				default: Helpers::panic("GSP::GPU::ProcessCommands: Unknown cmd ID %d", cmdID);
+				default: Helpers::warn("GSP::GPU::ProcessCommands: Unknown cmd ID %d", cmdID); break;
 			}
 
 			index = (index + 1) % 15;
