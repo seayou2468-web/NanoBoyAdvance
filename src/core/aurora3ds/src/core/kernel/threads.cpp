@@ -212,6 +212,33 @@ HorizonHandle Kernel::makeSemaphore(u32 initialCount, u32 maximumCount) {
 	return ret;
 }
 
+bool Kernel::releaseSemaphore(Handle handle, s32 releaseCount, s32* previousCount) {
+	const auto object = getObject(handle, KernelObjectType::Semaphore);
+	if (object == nullptr || releaseCount < 0) [[unlikely]] {
+		return false;
+	}
+
+	Semaphore* s = object->getData<Semaphore>();
+	if (s->maximumCount - s->availableCount < releaseCount) [[unlikely]] {
+		return false;
+	}
+
+	if (previousCount != nullptr) {
+		*previousCount = s->availableCount;
+	}
+	s->availableCount += releaseCount;
+
+	// Wake up threads one by one until the available count hits 0 or we run out of threads to wake up
+	while (s->availableCount > 0 && s->waitlist != 0) {
+		int index = wakeupOneThread(s->waitlist, handle);  // Wake up highest priority thread
+		s->waitlist ^= (1ull << index);                    // Remove thread from waitlist
+
+		s->availableCount--;  // Decrement available count
+	}
+
+	return true;
+}
+
 void Kernel::sleepThreadOnArbiter(u32 waitingAddress) {
 	Thread& t = threads[currentThreadIndex];
 	t.status = ThreadStatus::WaitArbiter;
@@ -666,32 +693,16 @@ void Kernel::svcReleaseSemaphore() {
 	const Handle handle = regs[1];
 	const s32 releaseCount = static_cast<s32>(regs[2]);
 	logSVC("ReleaseSemaphore (handle = %X, release count = %d)\n", handle, releaseCount);
-
-	const auto object = getObject(handle, KernelObjectType::Semaphore);
-	if (object == nullptr) [[unlikely]] {
-		Helpers::panic("Tried to release non-existent semaphore");
+	s32 previousCount = 0;
+	if (!releaseSemaphore(handle, releaseCount, &previousCount)) [[unlikely]] {
+		Helpers::panic("ReleaseSemaphore: Invalid arguments");
 		regs[0] = Result::Kernel::InvalidHandle;
 		return;
 	}
 
-	if (releaseCount < 0) Helpers::panic("ReleaseSemaphore: Negative count");
-
-	Semaphore* s = object->getData<Semaphore>();
-	if (s->maximumCount - s->availableCount < releaseCount) Helpers::panic("ReleaseSemaphore: Release count too high");
-
 	// Write success and old available count to r0 and r1 respectively
 	regs[0] = Result::Success;
-	regs[1] = s->availableCount;
-	// Bump available count
-	s->availableCount += releaseCount;
-
-	// Wake up threads one by one until the available count hits 0 or we run out of threads to wake up
-	while (s->availableCount > 0 && s->waitlist != 0) {
-		int index = wakeupOneThread(s->waitlist, handle);  // Wake up highest priority thread
-		s->waitlist ^= (1ull << index);                    // Remove thread from waitlist
-
-		s->availableCount--;  // Decrement available count
-	}
+	regs[1] = previousCount;
 }
 
 // Returns whether an object is waitable or not

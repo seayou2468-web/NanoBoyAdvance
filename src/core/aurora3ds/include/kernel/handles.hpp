@@ -63,9 +63,11 @@ namespace KernelHandles {
 		QTM_U,     // qtm:u
 		ERR_F,     // Fatal error service
 		PXI_DEV,   // PXI developer service
+		DLP_CLNT,  // Download Play: Client interface
+		DLP_FKCL,  // Download Play: Fake client interface
 
 		MinServiceHandle = AC,
-		MaxServiceHandle = PXI_DEV,
+		MaxServiceHandle = DLP_FKCL,
 		LegacyMaxServiceHandle = PS_PS,
 
 		GSPSharedMemHandle = LegacyMaxServiceHandle + 1, // Keep shared-memory handles stable
@@ -105,6 +107,8 @@ namespace KernelHandles {
 			case CSND: return "CSND";
 			case DSP: return "DSP";
 			case DLP_SRVR: return "DLP::SRVR";
+			case DLP_CLNT: return "DLP::CLNT";
+			case DLP_FKCL: return "DLP::FKCL";
 			case HID: return "HID";
 			case HTTP: return "HTTP";
 			case IR_USER: return "IR:USER";

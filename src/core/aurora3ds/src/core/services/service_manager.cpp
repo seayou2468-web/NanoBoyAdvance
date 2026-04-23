@@ -149,8 +149,8 @@ static const ServiceMapEntry serviceMapArray[] = {
 	{ "cfg:nor", KernelHandles::CFG_NOR },
 	{ "csnd:SND", KernelHandles::CSND },
 	{ "dlp:SRVR", KernelHandles::DLP_SRVR },
-	{ "dlp:CLNT", KernelHandles::DLP_SRVR },
-	{ "dlp:FKCL", KernelHandles::DLP_SRVR },
+	{ "dlp:CLNT", KernelHandles::DLP_CLNT },
+	{ "dlp:FKCL", KernelHandles::DLP_FKCL },
 	{ "dsp::DSP", KernelHandles::DSP },
 	{ "err:f", KernelHandles::ERR_F },
 	{ "hid:USER", KernelHandles::HID },
@@ -283,6 +283,9 @@ void ServiceManager::publishToSubscriber(u32 messagePointer) {
 
 	if (subscribedNotifications.contains(id) && pendingNotifications.size() < MAX_NOTIFICATION_COUNT) {
 		pendingNotifications.push_back(id);
+		if (notificationSemaphore.has_value()) {
+			kernel.releaseSemaphore(notificationSemaphore.value(), 1);
+		}
 	}
 
 	mem.write32(messagePointer, IPC::responseHeader(0xC, 1, 0));
@@ -338,7 +341,9 @@ void ServiceManager::sendCommandToService(u32 messagePointer, Handle handle) {
 		case KernelHandles::CFG_S: cfg.handleSyncRequest(messagePointer, CFGService::Type::S); break;
 		case KernelHandles::CFG_NOR: cfg.handleSyncRequest(messagePointer, CFGService::Type::NOR); break;
 		case KernelHandles::CSND: csnd.handleSyncRequest(messagePointer); break;
-		case KernelHandles::DLP_SRVR: dlp_srvr.handleSyncRequest(messagePointer); break;
+		case KernelHandles::DLP_SRVR: dlp_srvr.handleSyncRequest(messagePointer, DlpSrvrService::Type::SRVR); break;
+		case KernelHandles::DLP_CLNT: dlp_srvr.handleSyncRequest(messagePointer, DlpSrvrService::Type::CLNT); break;
+		case KernelHandles::DLP_FKCL: dlp_srvr.handleSyncRequest(messagePointer, DlpSrvrService::Type::FKCL); break;
 		case KernelHandles::ERR_F: err_f.handleSyncRequest(messagePointer); break;
 		case KernelHandles::HID: hid.handleSyncRequest(messagePointer); break;
 		case KernelHandles::HTTP: http.handleSyncRequest(messagePointer); break;

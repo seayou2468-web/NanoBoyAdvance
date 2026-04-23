@@ -79,6 +79,7 @@ class Kernel {
 	Handle makeMutex(bool locked = false);
 	// Needs to be public to be accessible to the service manager port
 	Handle makeSemaphore(u32 initialCount, u32 maximumCount);
+	bool releaseSemaphore(Handle handle, s32 releaseCount, s32* previousCount = nullptr);
 	Handle makeTimer(ResetType resetType);
 	void pollTimers();
 
