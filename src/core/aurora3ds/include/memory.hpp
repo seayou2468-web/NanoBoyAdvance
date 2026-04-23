@@ -254,6 +254,10 @@ class Memory {
 
 	void changeMemoryState(u32 vaddr, s32 pages, const Operation& op);
 	void queryPhysicalBlocks(std::list<FcramBlock>& outList, u32 vaddr, s32 pages);
+	u32 normalizePhysicalAddress(u32 paddr) const;
+	u8* resolvePhysicalPointer(u32 paddr) const;
+	u8* resolvePrivilegedVirtualPointer(u32 vaddr) const;
+	void notifyDataAbort(u32 vaddr, bool write) const;
 	void mapPhysicalMemory(u32 vaddr, u32 paddr, s32 pages, bool r, bool w, bool x);
 	void unmapPhysicalMemory(u32 vaddr, u32 paddr, s32 pages);
 

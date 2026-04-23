@@ -56,6 +56,42 @@ void LogUnmappedWrite(u32 bits, u32 vaddr, u32 value) {
 	Helpers::warn("Ignoring unmapped %u-bit write, addr: %08X, val: %08X", bits, vaddr, value);
 }
 
+struct PhysicalRegionView {
+	u8* hostPtr;
+	size_t size;
+};
+
+std::optional<PhysicalRegionView> ResolvePhysicalRegion(u8* fcram, u8* dspRam, u8* vram, u32 paddr) {
+	if (paddr >= PhysicalAddrs::FCRAM && paddr < PhysicalAddrs::FCRAM + Memory::FCRAM_SIZE) {
+		const size_t offset = paddr - PhysicalAddrs::FCRAM;
+		return PhysicalRegionView{
+			.hostPtr = fcram + offset,
+			.size = Memory::FCRAM_SIZE - offset,
+		};
+	}
+
+	if (paddr >= PhysicalAddrs::DSP_RAM && paddr < PhysicalAddrs::DSP_RAM + Memory::DSP_RAM_SIZE) {
+		const size_t offset = paddr - PhysicalAddrs::DSP_RAM;
+		return PhysicalRegionView{
+			.hostPtr = dspRam + offset,
+			.size = Memory::DSP_RAM_SIZE - offset,
+		};
+	}
+
+	if (paddr >= PhysicalAddrs::VRAM && paddr < PhysicalAddrs::VRAM + VirtualAddrs::VramSize) {
+		if (vram == nullptr) {
+			return std::nullopt;
+		}
+		const size_t offset = paddr - PhysicalAddrs::VRAM;
+		return PhysicalRegionView{
+			.hostPtr = vram + offset,
+			.size = VirtualAddrs::VramSize - offset,
+		};
+	}
+
+	return std::nullopt;
+}
+
 constexpr u32 kArmBranchSelf = 0xEAFFFFFE;      // b .
 constexpr u32 kArmReturnPrefetchAbort = 0xE25EF004;  // subs pc, lr, #4
 constexpr u32 kArmReturnDataAbort = 0xE25EF008;      // subs pc, lr, #8
@@ -211,6 +247,9 @@ u8 Memory::read8(u32 vaddr) {
 	if (pointer != 0) [[likely]] {
 		return *(u8*)(pointer + offset);
 	} else {
+		if (u8* privileged = resolvePrivilegedVirtualPointer(vaddr); privileged != nullptr) {
+			return *privileged;
+		}
 		switch (vaddr) {
 			case ConfigMem::BatteryState: {
 				// Set by the PTM module
@@ -247,6 +286,7 @@ u8 Memory::read8(u32 vaddr) {
 			case ConfigMem::WifiMac + 5: return MACAddress[vaddr - ConfigMem::WifiMac];
 
 				default:
+					notifyDataAbort(vaddr, false);
 					LogUnmappedRead(8, vaddr);
 					// Match Azahar/Citra behavior: data reads from unmapped regions return 0
 					// instead of taking a synchronous data abort in the guest.
@@ -263,9 +303,15 @@ u16 Memory::read16(u32 vaddr) {
 	if (pointer != 0) [[likely]] {
 		return *(u16*)(pointer + offset);
 	} else {
+		if (u8* privileged = resolvePrivilegedVirtualPointer(vaddr); privileged != nullptr) {
+			u16 value {};
+			std::memcpy(&value, privileged, sizeof(value));
+			return value;
+		}
 		switch (vaddr) {
 			case ConfigMem::WifiMac + 4: return (MACAddress[5] << 8) | MACAddress[4];  // Wifi MAC: Last 2 bytes of MAC Address
 				default:
+					notifyDataAbort(vaddr, false);
 					LogUnmappedRead(16, vaddr);
 					// Match Azahar/Citra behavior: data reads from unmapped regions return 0.
 					return 0;
@@ -281,6 +327,11 @@ u32 Memory::read32(u32 vaddr) {
 	if (pointer != 0) [[likely]] {
 		return *(u32*)(pointer + offset);
 	} else {
+		if (u8* privileged = resolvePrivilegedVirtualPointer(vaddr); privileged != nullptr) {
+			u32 value {};
+			std::memcpy(&value, privileged, sizeof(value));
+			return value;
+		}
 		switch (vaddr) {
 			case 0x1FF80000: return u32(kernelVersion) << 16;
 			case ConfigMem::Datetime0: return u32(timeSince3DSEpoch());  // ms elapsed since Jan 1 1900, bottom 32 bits
@@ -319,6 +370,7 @@ u32 Memory::read32(u32 vaddr) {
 				}
 
 						LogUnmappedRead(32, vaddr);
+						notifyDataAbort(vaddr, false);
 						// Match Azahar/Citra behavior: data reads from unmapped regions return 0.
 						return 0;
 		}
@@ -339,11 +391,16 @@ void Memory::write8(u32 vaddr, u8 value) {
 	if (pointer != 0) [[likely]] {
 		*(u8*)(pointer + offset) = value;
 	} else {
+		if (u8* privileged = resolvePrivilegedVirtualPointer(vaddr); privileged != nullptr) {
+			*privileged = value;
+			return;
+		}
 		// VRAM write
 		if (vaddr >= VirtualAddrs::VramStart && vaddr < VirtualAddrs::VramStart + VirtualAddrs::VramSize) {
 			// TODO: Invalidate renderer caches here
 			vram[vaddr - VirtualAddrs::VramStart] = value;
 		} else {
+			notifyDataAbort(vaddr, true);
 			LogUnmappedWrite(8, vaddr, value);
 		}
 	}
@@ -357,6 +414,11 @@ void Memory::write16(u32 vaddr, u16 value) {
 	if (pointer != 0) [[likely]] {
 		*(u16*)(pointer + offset) = value;
 	} else {
+		if (u8* privileged = resolvePrivilegedVirtualPointer(vaddr); privileged != nullptr) {
+			std::memcpy(privileged, &value, sizeof(value));
+			return;
+		}
+		notifyDataAbort(vaddr, true);
 		LogUnmappedWrite(16, vaddr, value);
 	}
 }
@@ -369,6 +431,11 @@ void Memory::write32(u32 vaddr, u32 value) {
 	if (pointer != 0) [[likely]] {
 		*(u32*)(pointer + offset) = value;
 	} else {
+		if (u8* privileged = resolvePrivilegedVirtualPointer(vaddr); privileged != nullptr) {
+			std::memcpy(privileged, &value, sizeof(value));
+			return;
+		}
+		notifyDataAbort(vaddr, true);
 		LogUnmappedWrite(32, vaddr, value);
 	}
 }
@@ -383,7 +450,12 @@ void* Memory::getReadPointer(u32 address) {
 	const u32 offset = address & pageMask;
 
 	uintptr_t pointer = activeVM().readTable[page];
-	if (pointer == 0) return nullptr;
+	if (pointer == 0) {
+		if (u8* privileged = resolvePrivilegedVirtualPointer(address); privileged != nullptr) {
+			return privileged + offset;
+		}
+		return nullptr;
+	}
 	return (void*)(pointer + offset);
 }
 
@@ -392,7 +464,12 @@ void* Memory::getWritePointer(u32 address) {
 	const u32 offset = address & pageMask;
 
 	uintptr_t pointer = activeVM().writeTable[page];
-	if (pointer == 0) return nullptr;
+	if (pointer == 0) {
+		if (u8* privileged = resolvePrivilegedVirtualPointer(address); privileged != nullptr) {
+			return privileged + offset;
+		}
+		return nullptr;
+	}
 	return (void*)(pointer + offset);
 }
 
@@ -485,7 +562,7 @@ void Memory::queryPhysicalBlocks(FcramBlockList& outList, u32 vaddr, s32 pages) 
 
 		if (!(vaddr >= blockStart && vaddr < blockEnd)) continue;
 
-		s32 blockPaddr = activeVM().paddrTable[vaddr >> 12];
+		u32 blockPaddr = activeVM().paddrTable[vaddr >> 12];
 		s32 blockPages = alloc.pages - ((vaddr - blockStart) >> 12);
 		blockPages = std::min(srcPages, blockPages);
 		FcramBlock physicalBlock(blockPaddr, blockPages);
@@ -499,23 +576,62 @@ void Memory::queryPhysicalBlocks(FcramBlockList& outList, u32 vaddr, s32 pages) 
 	if (srcPages != 0) Helpers::panic("Unable to find virtual pages to map!");
 }
 
+u32 Memory::normalizePhysicalAddress(u32 paddr) const {
+	// FCRAM allocations are tracked as offsets, but memory mapping code works on the
+	// physical map used by the 3DS.
+	if (paddr < FCRAM_SIZE) {
+		return PhysicalAddrs::FCRAM + paddr;
+	}
+
+	return paddr;
+}
+
+u8* Memory::resolvePhysicalPointer(u32 paddr) const {
+	const u32 normalized = normalizePhysicalAddress(paddr);
+	const auto region = ResolvePhysicalRegion(fcram, dspRam, vram, normalized);
+	if (!region.has_value()) {
+		return nullptr;
+	}
+	return region->hostPtr;
+}
+
+u8* Memory::resolvePrivilegedVirtualPointer(u32 vaddr) const {
+	if ((vaddr & (1u << 31)) == 0) {
+		return nullptr;
+	}
+
+	const u32 paddr = vaddr & ~(1u << 31);
+	return resolvePhysicalPointer(paddr);
+}
+
+void Memory::notifyDataAbort(u32 vaddr, bool write) const {
+	if (!mmuFaultCallback) {
+		return;
+	}
+
+	(void)write;
+	mmuFaultCallback(0x5, vaddr, false);
+}
+
 void Memory::mapPhysicalMemory(u32 vaddr, u32 paddr, s32 pages, bool r, bool w, bool x) {
 	assert(!(vaddr & 0xFFF));
 	assert(!(paddr & 0xFFF));
 
-	// TODO: make this a separate function
-	u8* hostPtr = nullptr;
-	if (paddr < FCRAM_SIZE) {
-		hostPtr = fcram + paddr;  // FIXME: FCRAM doesn't actually start from physical address 0, but from 0x20000000
+	paddr = normalizePhysicalAddress(paddr);
+	const size_t mapSize = usize(pages) * pageSize;
+	const auto region = ResolvePhysicalRegion(fcram, dspRam, vram, paddr);
+	if (!region.has_value()) {
+		Helpers::panic("Memory::mapPhysicalMemory: unknown physical address %08X", paddr);
+	}
+	if (region->size < mapSize) {
+		Helpers::panic("Memory::mapPhysicalMemory: mapping overruns physical region %08X (+%zu)", paddr, mapSize);
+	}
 
-		if (useFastmem) {
-			addFastmemView(vaddr, FASTMEM_FCRAM_OFFSET + paddr, usize(pages) * pageSize, w);
-		}
-	} else if (paddr >= VirtualAddrs::DSPMemStart && paddr < VirtualAddrs::DSPMemStart + DSP_RAM_SIZE) {
-		hostPtr = dspRam + (paddr - VirtualAddrs::DSPMemStart);
-
-		if (useFastmem) {
-			addFastmemView(vaddr, FASTMEM_DSP_RAM_OFFSET + paddr - VirtualAddrs::DSPMemStart, usize(pages) * pageSize, w);
+	if (useFastmem) {
+		if (paddr >= PhysicalAddrs::FCRAM && paddr < PhysicalAddrs::FCRAM + FCRAM_SIZE) {
+			addFastmemView(vaddr, FASTMEM_FCRAM_OFFSET + (paddr - PhysicalAddrs::FCRAM), mapSize, w);
+		} else if (paddr >= PhysicalAddrs::DSP_RAM && paddr < PhysicalAddrs::DSP_RAM + DSP_RAM_SIZE) {
+			addFastmemView(vaddr, FASTMEM_DSP_RAM_OFFSET + (paddr - PhysicalAddrs::DSP_RAM), mapSize, w);
 		}
 	}
 
@@ -524,12 +640,12 @@ void Memory::mapPhysicalMemory(u32 vaddr, u32 paddr, s32 pages, bool r, bool w, 
 		activeVM().paddrTable[index] = paddr + (i << 12);
 		activeVM().pageTableAttrs[index] = PageType::Memory;
 		if (r)
-			activeVM().readTable[index] = (uintptr_t)(hostPtr + (i << 12));
+			activeVM().readTable[index] = (uintptr_t)(region->hostPtr + (i << 12));
 		else
 			activeVM().readTable[index] = 0;
 
 		if (w)
-			activeVM().writeTable[index] = (uintptr_t)(hostPtr + (i << 12));
+			activeVM().writeTable[index] = (uintptr_t)(region->hostPtr + (i << 12));
 		else
 			activeVM().writeTable[index] = 0;
 	}
