@@ -193,6 +193,26 @@ void AMService::handleSyncRequest(u32 messagePointer) {
 		}
 
 		case AMCommands::GetProgramInfos:
+		{
+			const u32 requestedCount = mem.read32(messagePointer + 4);
+			const u32 out = pickOutputPointer(mem, messagePointer);
+			const u32 outCount = std::min<u32>(requestedCount, static_cast<u32>(installedPrograms.size()));
+			for (u32 i = 0; i < outCount && out != 0; i++) {
+				// Minimal TitleInfo-like payload (7 words / 28 bytes).
+				const u32 ptr = out + i * 28;
+				mem.write64(ptr, installedPrograms[i]);  // Title ID
+				mem.write32(ptr + 8, 0);				 // Size low
+				mem.write32(ptr + 12, 0);				 // Size high
+				mem.write16(ptr + 16, 0);				 // Version
+				mem.write16(ptr + 18, 0);				 // Unused
+				mem.write32(ptr + 20, 0);				 // Flags
+				mem.write32(ptr + 24, 0);				 // Padding
+			}
+			writeResult(mem, messagePointer, commandID, 2);
+			mem.write32(messagePointer + 8, outCount);
+			return;
+		}
+
 		case AMCommands::GetImportTitleContextList:
 		case AMCommands::GetImportTitleContexts:
 		case AMCommands::GetImportContentContextList:
@@ -200,12 +220,38 @@ void AMService::handleSyncRequest(u32 messagePointer) {
 		case AMCommands::GetCurrentImportTitleContextList:
 		case AMCommands::GetCurrentImportTitleContexts:
 		case AMCommands::GetCurrentImportContentContextList:
-		case AMCommands::GetCurrentImportContentContexts:
-		case AMCommands::FindCurrentContentInfos:
-		case AMCommands::ListCurrentContentInfos:
+		case AMCommands::GetCurrentImportContentContexts: {
+			const u32 requestedCount = mem.read32(messagePointer + 4);
+			const u32 out = pickOutputPointer(mem, messagePointer);
+			u32 i = 0;
+			for (u32 handle : importProgramHandles) {
+				if (i >= requestedCount || out == 0) break;
+				mem.write32(out + i * 4, handle);
+				i++;
+			}
 			writeResult(mem, messagePointer, commandID, 2);
-			mem.write32(messagePointer + 8, 0);
+			mem.write32(messagePointer + 8, i);
 			return;
+		}
+
+		case AMCommands::FindCurrentContentInfos:
+		case AMCommands::ListCurrentContentInfos: {
+			const u32 requestedCount = mem.read32(messagePointer + 4);
+			const u32 out = pickOutputPointer(mem, messagePointer);
+			u32 i = 0;
+			for (const auto& [titleID, ticketID] : ticketMap) {
+				if (i >= requestedCount || out == 0) break;
+				const u32 ptr = out + i * 16;
+				mem.write64(ptr, titleID);
+				mem.write32(ptr + 8, static_cast<u32>(ticketID & 0xFFFF));  // content index placeholder
+				mem.write16(ptr + 12, 1);									  // state/flags placeholder
+				mem.write16(ptr + 14, 0);
+				i++;
+			}
+			writeResult(mem, messagePointer, commandID, 2);
+			mem.write32(messagePointer + 8, i);
+			return;
+		}
 
 		case AMCommands::GetTicketList: {
 			const u32 requestedCount = mem.read32(messagePointer + 4);
