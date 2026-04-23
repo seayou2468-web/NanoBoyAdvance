@@ -1,4 +1,6 @@
 #pragma once
+#include <unordered_map>
+
 #include "../config.hpp"
 #include "../fs/archive_card_spi.hpp"
 #include "../fs/archive_ext_save_data.hpp"
@@ -89,6 +91,19 @@ class FSService {
 
 	// Used for set/get priority: Not sure what sort of priority this is referring to
 	u32 priority;
+
+	struct SecureValueKey {
+		u32 uniqueID;
+		u32 slot;
+		u8 variation;
+		bool operator==(const SecureValueKey& other) const { return uniqueID == other.uniqueID && slot == other.slot && variation == other.variation; }
+	};
+	struct SecureValueKeyHasher {
+		std::size_t operator()(const SecureValueKey& key) const {
+			return (std::size_t(key.uniqueID) << 32) ^ std::size_t(key.slot) ^ std::size_t(key.variation);
+		}
+	};
+	std::unordered_map<SecureValueKey, u64, SecureValueKeyHasher> secureValues;
 
   public:
 	FSService(Memory& mem, Kernel& kernel, const EmulatorConfig& config)

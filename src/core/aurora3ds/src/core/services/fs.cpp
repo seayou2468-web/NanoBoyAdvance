@@ -85,9 +85,20 @@ std::filesystem::path makeExtSavePath(u8 mediaType, u64 saveID) {
 
 	return root / highBuf / lowBuf;
 }
+
+u32 getCurrentTitleUniqueID(Memory& mem) {
+	if (const auto* cxi = mem.getCXI(); cxi != nullptr) {
+		return static_cast<u32>(cxi->programID);
+	}
+
+	return 0;
+}
 }  // namespace
 
-void FSService::reset() { priority = 0; }
+void FSService::reset() {
+	priority = 0;
+	secureValues.clear();
+}
 
 // Creates directories for NAND, ExtSaveData, etc if they don't already exist. Should be executed after loading a new ROM.
 void FSService::initializeFilesystem() {
@@ -553,7 +564,7 @@ void FSService::deleteExtSaveData(u32 messagePointer) {
 	const auto extSavePath = makeExtSavePath(mediaType, saveID);
 	if (extSavePath.empty()) [[unlikely]] {
 		Helpers::warn("FS::DeleteExtSaveData: Invalid media type %u\n", mediaType);
-		mem.write32(messagePointer + 4, Result::FS::InvalidPath);
+		mem.write32(messagePointer + 4, Result::FS::NotFoundInvalid);
 		return;
 	}
 
@@ -590,7 +601,7 @@ void FSService::createExtSaveData(u32 messagePointer) {
 	const auto extSavePath = makeExtSavePath(mediaType, saveID);
 	if (extSavePath.empty()) [[unlikely]] {
 		Helpers::warn("FS::CreateExtSaveData: Invalid media type %u\n", mediaType);
-		mem.write32(messagePointer + 4, Result::FS::InvalidPath);
+		mem.write32(messagePointer + 4, Result::FS::NotFoundInvalid);
 		return;
 	}
 
@@ -747,23 +758,48 @@ void FSService::abnegateAccessRight(u32 messagePointer) {
 }
 
 void FSService::getThisSaveDataSecureValue(u32 messagePointer) {
-	Helpers::warn("Unimplemented FS::GetThisSaveDataSecureValue");
+	const u32 slot = mem.read32(messagePointer + 4);
+	u32 uniqueID = mem.read32(messagePointer + 8);
+	u8 variation = mem.read8(messagePointer + 12);
 
 	mem.write32(messagePointer, IPC::responseHeader(0x86F, 1, 0));
 	mem.write32(messagePointer + 4, Result::Success);
-	mem.write8(messagePointer + 8, 0);    // Secure value does not exist
-	mem.write8(messagePointer + 12, 1);   // TODO: What is this?
-	mem.write64(messagePointer + 16, 0);  // Secure value
+
+	if (uniqueID == 0) {
+		uniqueID = getCurrentTitleUniqueID(mem);
+	}
+	if (variation == 0) {
+		variation = 1;
+	}
+
+	const SecureValueKey key{.uniqueID = uniqueID, .slot = slot, .variation = variation};
+	const auto value = secureValues.find(key);
+	const bool found = value != secureValues.end();
+
+	log("FS::GetThisSaveDataSecureValue(slot = %08X, uniqueID = %08X, variation = %u, found = %d)\n", slot, uniqueID, variation, found);
+
+	mem.write8(messagePointer + 8, found ? 1 : 0);
+	mem.write8(messagePointer + 12, 1);
+	mem.write64(messagePointer + 16, found ? value->second : 0);
 }
 
 void FSService::setThisSaveDataSecureValue(u32 messagePointer) {
-	const u64 value = mem.read32(messagePointer + 4);
+	const u64 value = mem.read64(messagePointer + 4);
 	const u32 slot = mem.read32(messagePointer + 12);
-	const u32 id = mem.read32(messagePointer + 16);
-	const u8 variation = mem.read8(messagePointer + 20);
+	u32 uniqueID = mem.read32(messagePointer + 16);
+	u8 variation = mem.read8(messagePointer + 20);
 
-	// TODO: Actually do something with this.
-	Helpers::warn("Unimplemented FS::SetThisSaveDataSecureValue");
+	if (uniqueID == 0) {
+		uniqueID = getCurrentTitleUniqueID(mem);
+	}
+	if (variation == 0) {
+		variation = 1;
+	}
+
+	const SecureValueKey key{.uniqueID = uniqueID, .slot = slot, .variation = variation};
+	secureValues[key] = value;
+
+	log("FS::SetThisSaveDataSecureValue(value = %llX, slot = %08X, uniqueID = %08X, variation = %u)\n", value, slot, uniqueID, variation);
 
 	mem.write32(messagePointer, IPC::responseHeader(0x86E, 1, 0));
 	mem.write32(messagePointer + 4, Result::Success);
