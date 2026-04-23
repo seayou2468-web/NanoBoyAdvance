@@ -52,15 +52,24 @@ void Kernel::connectToPort() {
 	logSVC("ConnectToPort(handle pointer = %X, port = \"%s\")\n", handlePointer, port.c_str());
 
 	if (port.size() > Port::maxNameLen) {
-		Helpers::panic("ConnectToPort: Port name too long\n");
+		Helpers::warn("ConnectToPort: Port name too long");
 		regs[0] = Result::OS::PortNameTooLong;
 		return;
 	}
 
 	// Try getting a handle to the port
 	std::optional<Handle> optionalHandle = getPortHandle(port.c_str());
+	// Recover from edge cases where known bootstrap ports were not discoverable by name.
+	if (!optionalHandle.has_value()) {
+		if (port == "srv:" && getObject(srvHandle, KernelObjectType::Port) != nullptr) {
+			optionalHandle = srvHandle;
+		} else if (port == "err:f" && getObject(errorPortHandle, KernelObjectType::Port) != nullptr) {
+			optionalHandle = errorPortHandle;
+		}
+	}
+
 	if (!optionalHandle.has_value()) [[unlikely]] {
-		Helpers::panic("ConnectToPort: Port doesn't exist\n");
+		Helpers::warn("ConnectToPort: Port doesn't exist (%s)", port.c_str());
 		regs[0] = Result::Kernel::NotFound;
 		return;
 	}
@@ -69,7 +78,9 @@ void Kernel::connectToPort() {
 
 	const auto portData = objects[portHandle].getData<Port>();
 	if (!portData->isPublic) {
-		Helpers::panic("ConnectToPort: Attempted to connect to private port");
+		Helpers::warn("ConnectToPort: Attempted to connect to private port");
+		regs[0] = Result::Kernel::InvalidHandle;
+		return;
 	}
 
 	// TODO: Actually create session
