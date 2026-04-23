@@ -454,9 +454,14 @@ void Kernel::getSystemInfo() {
 std::string Kernel::getProcessName(u32 pid) {
 	if (pid == KernelHandles::CurrentProcess) {
 		return "current";
-	} else {
-		Helpers::panic("Attempted to name non-current process");
 	}
+
+	const auto* process = getObject(pid, KernelObjectType::Process);
+	if (process != nullptr) {
+		return std::to_string(process->getData<Process>()->id);
+	}
+
+	return std::to_string(pid);
 }
 
 Scheduler& Kernel::getScheduler() { return cpu.getScheduler(); }
