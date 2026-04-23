@@ -73,7 +73,8 @@ void APTService::handleSyncRequest(u32 messagePointer) {
 		case APTCommands::SetScreencapPostPermission: setScreencapPostPermission(messagePointer); break;
 		case APTCommands::TheSmashBrosFunction: theSmashBrosFunction(messagePointer); break;
 		default:
-			Helpers::panicDev("APT service requested. Command: %08X\n", command);
+			Helpers::warn("APT service requested. Command: %08X\n", command);
+			mem.write32(messagePointer, IPC::responseHeader(command >> 16, 1, 0));
 			mem.write32(messagePointer + 4, Result::Success);
 			break;
 	}
@@ -138,7 +139,7 @@ void APTService::prepareToStartLibraryApplet(u32 messagePointer) {
 	const u32 appID = mem.read32(messagePointer + 4);
 	log("APT::PrepareToStartLibraryApplet (app ID = %X) (stubbed)\n", appID);
 
-	mem.write32(messagePointer, IPC::responseHeader(0x16, 1, 0));
+	mem.write32(messagePointer, IPC::responseHeader(0x18, 1, 0));
 	mem.write32(messagePointer + 4, Result::Success);
 }
 

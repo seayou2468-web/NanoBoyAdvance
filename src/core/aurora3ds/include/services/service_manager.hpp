@@ -111,7 +111,11 @@ class ServiceManager {
 	void getServiceHandle(u32 messagePointer);
 	void publishToSubscriber(u32 messagePointer);
 	void registerService(u32 messagePointer);
+	void registerPort(u32 messagePointer);
 	void unregisterService(u32 messagePointer);
+	void unregisterPort(u32 messagePointer);
+	void getPort(u32 messagePointer);
+	void publishAndGetSubscriber(u32 messagePointer);
 	void receiveNotification(u32 messagePointer);
 	void registerClient(u32 messagePointer);
 	void subscribe(u32 messagePointer);

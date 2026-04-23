@@ -3,6 +3,7 @@
 #include "../kernel/kernel_types.hpp"
 #include "../logger.hpp"
 #include "../memory.hpp"
+#include <array>
 #include <random>
 
 class PSPSService {
@@ -22,6 +23,9 @@ class PSPSService {
 	void getDeviceID(u32 messagePointer);
 	void getRomID(u32 messagePointer, bool secondary);
 	void getRomMakerCode(u32 messagePointer);
+	void signRsaSha256(u32 messagePointer);
+	void verifyRsaSha256(u32 messagePointer);
+	void encryptDecryptAes(u32 messagePointer);
 	void stubCommand(u32 messagePointer, const char* name);
 
   public:

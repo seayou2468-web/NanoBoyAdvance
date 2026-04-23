@@ -244,6 +244,7 @@ void FSService::handleSyncRequest(u32 messagePointer) {
 
 		default:
 			Helpers::warn("Unimplemented FS service requested. Command: %08X\n", command);
+			mem.write32(messagePointer, IPC::responseHeader(command >> 16, 1, 0));
 			mem.write32(messagePointer + 4, Result::Success);
 			break;
 	}

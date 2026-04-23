@@ -101,6 +101,10 @@ void ServiceManager::handleSyncRequest(u32 messagePointer) {
 		case Commands::Subscribe: subscribe(messagePointer); break;
 		case Commands::Unsubscribe: unsubscribe(messagePointer); break;
 		case Commands::PublishToSubscriber: publishToSubscriber(messagePointer); break;
+		case Commands::RegisterPort: registerPort(messagePointer); break;
+		case Commands::UnregisterPort: unregisterPort(messagePointer); break;
+		case Commands::GetPort: getPort(messagePointer); break;
+		case Commands::PublishAndGetSubscriber: publishAndGetSubscriber(messagePointer); break;
 		case Commands::IsServiceRegistered: isServiceRegistered(messagePointer); break;
 		default: Helpers::panic("Unknown \"srv:\" command: %08X", header); break;
 	}
@@ -206,6 +210,15 @@ static const ServiceMapEntry serviceMapArray[] = {
 	{ "qtm:s", KernelHandles::QTM_S },
 	{ "qtm:sp", KernelHandles::QTM_SP },
 	{ "qtm:u", KernelHandles::QTM_U },
+	// Reference module list (CDC/GPIO/I2C/MP/PDN/SPI) has no Aurora HLE yet.
+	// Route these well-known ports to a single generic fallback so titles can
+	// continue booting while we progressively implement their command sets.
+	{ "cdc:U", KernelHandles::OS_STUB },
+	{ "gpio:U", KernelHandles::OS_STUB },
+	{ "i2c:U", KernelHandles::OS_STUB },
+	{ "mp:U", KernelHandles::OS_STUB },
+	{ "pdn:U", KernelHandles::OS_STUB },
+	{ "spi:U", KernelHandles::OS_STUB },
 };
 // clang-format on
 
@@ -235,6 +248,17 @@ void ServiceManager::getServiceHandle(u32 messagePointer) {
 		mem.write32(messagePointer, IPC::responseHeader(0x5, 1, 2));
 		mem.write32(messagePointer + 4, Result::OS::NotImplemented);
 		mem.write32(messagePointer + 12, 0);
+		return;
+	}
+
+	// Keep unknown-but-valid OS service names alive behind a generic stub.
+	// This mirrors reference behavior of exposing many modules even before full HLE.
+	const bool has_service_separator = service.find(':') != std::string::npos;
+	const bool valid_service_len = service.length() <= 8 && !service.empty();
+	if (has_service_separator && valid_service_len) {
+		mem.write32(messagePointer, IPC::responseHeader(0x5, 1, 2));
+		mem.write32(messagePointer + 4, Result::Success);
+		mem.write32(messagePointer + 12, KernelHandles::OS_STUB);
 		return;
 	}
 
@@ -350,6 +374,46 @@ void ServiceManager::isServiceRegistered(u32 messagePointer) {
 	mem.write32(messagePointer + 8, registered ? 1 : 0);
 }
 
+void ServiceManager::registerPort(u32 messagePointer) {
+	std::string port = mem.readString(messagePointer + 4, 8);
+	log("srv::RegisterPort (port = %s) [not implemented]\n", port.c_str());
+	mem.write32(messagePointer, IPC::responseHeader(0x6, 1, 2));
+	mem.write32(messagePointer + 4, Result::OS::NotImplemented);
+	mem.write32(messagePointer + 8, 0);
+	mem.write32(messagePointer + 12, 0);
+}
+
+void ServiceManager::unregisterPort(u32 messagePointer) {
+	std::string port = mem.readString(messagePointer + 4, 8);
+	log("srv::UnregisterPort (port = %s) [not implemented]\n", port.c_str());
+	mem.write32(messagePointer, IPC::responseHeader(0x7, 1, 0));
+	mem.write32(messagePointer + 4, Result::OS::NotImplemented);
+}
+
+void ServiceManager::getPort(u32 messagePointer) {
+	std::string port = mem.readString(messagePointer + 4, 8);
+	log("srv::GetPort (port = %s) [not implemented]\n", port.c_str());
+	mem.write32(messagePointer, IPC::responseHeader(0x8, 1, 2));
+	mem.write32(messagePointer + 4, Result::OS::NotImplemented);
+	mem.write32(messagePointer + 8, 0);
+	mem.write32(messagePointer + 12, 0);
+}
+
+void ServiceManager::publishAndGetSubscriber(u32 messagePointer) {
+	u32 id = mem.read32(messagePointer + 4);
+	log("srv::PublishAndGetSubscriber (id = %u)\n", id);
+	if (subscribedNotifications.contains(id) && pendingNotifications.size() < MAX_NOTIFICATION_COUNT) {
+		pendingNotifications.push_back(id);
+		if (notificationSemaphore.has_value()) {
+			kernel.releaseSemaphore(notificationSemaphore.value(), 1);
+		}
+	}
+
+	mem.write32(messagePointer, IPC::responseHeader(0xD, 2, 0));
+	mem.write32(messagePointer + 4, Result::Success);
+	mem.write32(messagePointer + 8, subscribedNotifications.contains(id) ? 1 : 0);
+}
+
 void ServiceManager::sendCommandToService(u32 messagePointer, Handle handle) {
 	switch (handle) {
 		// Breaking alphabetical order a bit to place the ones I think are most common at the top
@@ -399,6 +463,10 @@ void ServiceManager::sendCommandToService(u32 messagePointer, Handle handle) {
 		case KernelHandles::PM_APP: pm.handleSyncRequest(messagePointer, PMService::Type::App); break;
 		case KernelHandles::PM_DBG: pm.handleSyncRequest(messagePointer, PMService::Type::Debug); break;
 		case KernelHandles::PXI_DEV: pxi_dev.handleSyncRequest(messagePointer); break;
+		case KernelHandles::OS_STUB:
+			mem.write32(messagePointer, IPC::responseHeader(mem.read32(messagePointer) >> 16, 1, 0));
+			mem.write32(messagePointer + 4, Result::OS::NotImplemented);
+			break;
 		case KernelHandles::PS_PS: ps_ps.handleSyncRequest(messagePointer); break;
 		case KernelHandles::QTM_C: qtm.handleSyncRequest(messagePointer, QTMService::Type::C); break;
 		case KernelHandles::QTM_S: qtm.handleSyncRequest(messagePointer, QTMService::Type::S); break;

@@ -68,6 +68,7 @@ void GPUService::handleSyncRequest(u32 messagePointer) {
 		case ServiceCommands::InvalidateDataCache: invalidateDataCache(messagePointer); break;
 		default:
 			Helpers::warn("GPU service requested. Command: %08X\n", command);
+			mem.write32(messagePointer, IPC::responseHeader(command >> 16, 1, 0));
 			mem.write32(messagePointer + 4, Result::Success);
 			break;
 	}
@@ -107,10 +108,9 @@ void GPUService::releaseRight(u32 messagePointer) {
 // How does the shared memory handle thing work?
 void GPUService::registerInterruptRelayQueue(u32 messagePointer) {
 	// Detect if this function is called a 2nd time because we'll likely need to impl threads properly for the GSP
-	if (gspThreadCount >= 1) {
-		Helpers::panic("RegisterInterruptRelayQueue called a second time. Need to implement GSP threads properly");
+	if (gspThreadCount < 0xFF) {
+		gspThreadCount += 1;
 	}
-	gspThreadCount += 1;
 
 	const u32 flags = mem.read32(messagePointer + 4);
 	const u32 eventHandle = mem.read32(messagePointer + 12);

@@ -65,9 +65,10 @@ namespace KernelHandles {
 		PXI_DEV,   // PXI developer service
 		DLP_CLNT,  // Download Play: Client interface
 		DLP_FKCL,  // Download Play: Fake client interface
+		OS_STUB,   // Generic fallback for not-yet-implemented OS service ports
 
 		MinServiceHandle = AC,
-		MaxServiceHandle = DLP_FKCL,
+		MaxServiceHandle = OS_STUB,
 		LegacyMaxServiceHandle = PS_PS,
 
 		GSPSharedMemHandle = LegacyMaxServiceHandle + 1, // Keep shared-memory handles stable
@@ -147,6 +148,7 @@ namespace KernelHandles {
 			case QTM_U: return "QTM:U";
 			case ERR_F: return "ERR:F";
 			case PXI_DEV: return "PXI:DEV";
+			case OS_STUB: return "OS:STUB";
 			default: return "Unknown";
 		}
 	}
