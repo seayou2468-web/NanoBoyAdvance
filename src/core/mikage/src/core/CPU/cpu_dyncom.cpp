@@ -1,5 +1,6 @@
 #include "../../../include/cpu_dyncom.hpp"
 
+#include "../../../include/emulator.hpp"
 #include "../../../include/kernel/kernel.hpp"
 #include "./dyncom/arm_dyncom_interpreter.h"
 #include "./skyeye_common/armstate.h"
