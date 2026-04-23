@@ -1,10 +1,12 @@
 #include "../../../include/renderer_sw/renderer_sw.hpp"
 #include "../../../include/PICA/gpu.hpp"
+#include "../../../include/io_file.hpp"
 #include "../../../include/renderer_sw/sw_rasterizer.hpp"
 
 #include <algorithm>
 #include <array>
 #include <cstring>
+#include <filesystem>
 #include <vector>
 
 namespace {
@@ -132,7 +134,7 @@ void RendererSw::display() {}
 
 void RendererSw::initGraphicsContext(void* context) {
 	(void)context;
-	printf("RendererSW: Unimplemented initGraphicsContext call\n");
+	// Software renderer does not need an external graphics context.
 }
 
 void RendererSw::clearBuffer(u32 startAddress, u32 endAddress, u32 value, u32 control) {
@@ -351,7 +353,71 @@ void RendererSw::drawVertices(PICA::PrimType primType, std::span<const PICA::Ver
 }
 
 void RendererSw::screenshot(const std::string& name) {
-	(void)name;
-	printf("RendererSW: Unimplemented screenshot call\n");
+	const u32 width = fbSize[0];
+	const u32 height = fbSize[1];
+	if (width == 0 || height == 0) {
+		Helpers::warn("RendererSW::screenshot: Framebuffer size is invalid (%u x %u)\n", width, height);
+		return;
+	}
+
+	const u32 bpp = static_cast<u32>(PICA::sizePerPixel(colourBufferFormat));
+	if (bpp == 0) {
+		Helpers::warn("RendererSW::screenshot: Unsupported colour format %u\n", static_cast<u32>(colourBufferFormat));
+		return;
+	}
+
+	const u8* colourBuffer = gpu.getPointerPhys<u8>(colourBufferLoc);
+	if (colourBuffer == nullptr) {
+		Helpers::warn("RendererSW::screenshot: Colour buffer is not mapped (paddr=%08X)\n", colourBufferLoc);
+		return;
+	}
+
+	std::filesystem::path screenshotDir = IOFile::getUserData() / "screenshots";
+	std::error_code ec;
+	std::filesystem::create_directories(screenshotDir, ec);
+	if (ec) {
+		Helpers::warn("RendererSW::screenshot: Failed to create screenshot directory %s (error: %s)\n",
+			screenshotDir.string().c_str(), ec.message().c_str());
+		return;
+	}
+
+	std::filesystem::path outputPath(name);
+	if (outputPath.extension().empty()) {
+		outputPath += ".ppm";
+	}
+	if (!outputPath.is_absolute()) {
+		outputPath = screenshotDir / outputPath;
+	}
+
+	IOFile out(outputPath, "wb");
+	if (!out.isOpen()) {
+		Helpers::warn("RendererSW::screenshot: Failed to open output file %s\n", outputPath.string().c_str());
+		return;
+	}
+
+	const std::string header = "P6\n" + std::to_string(width) + " " + std::to_string(height) + "\n255\n";
+	out.writeBytes(header.data(), header.size());
+
+	std::vector<u8> row;
+	row.resize(width * 3);
+
+	for (u32 y = 0; y < height; y++) {
+		for (u32 x = 0; x < width; x++) {
+			const u32 offset = (y * width + x) * bpp;
+			const RGBA pixel = decodePixel(colourBufferFormat, colourBuffer + offset);
+
+			const u32 outOffset = x * 3;
+			row[outOffset + 0] = pixel.r;
+			row[outOffset + 1] = pixel.g;
+			row[outOffset + 2] = pixel.b;
+		}
+		out.writeBytes(row.data(), row.size());
+	}
+
+	out.flush();
+	out.close();
+	Helpers::warn("RendererSW::screenshot: Wrote %s\n", outputPath.string().c_str());
 }
-void RendererSw::deinitGraphicsContext() { printf("RendererSW: Unimplemented DeinitGraphicsContext call\n"); }
+void RendererSw::deinitGraphicsContext() {
+	// Software renderer does not keep external context state.
+}
