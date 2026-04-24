@@ -69,7 +69,10 @@ void Kernel::serviceSVC(u32 svc) {
 		case 0x30:
 		case 0x31:
 		case 0x32: sendSyncRequest(); break;
+		case 0x33: openProcess(); break;
+		case 0x34: openThread(); break;
 		case 0x35: getProcessID(); break;
+		case 0x36: getProcessIDOfThread(); break;
 		case 0x37: getThreadID(); break;
 		case 0x38: getResourceLimit(); break;
 		case 0x39: getResourceLimitLimitValues(); break;
@@ -289,6 +292,69 @@ void Kernel::getProcessID() {
 
 	if (process == nullptr) [[unlikely]] {
 		regs[0] = Result::Kernel::InvalidHandle;
+		return;
+	}
+
+	regs[0] = Result::Success;
+	regs[1] = process->getData<Process>()->id;
+}
+
+// Result OpenProcess(Handle* out, ProcessId process_id)
+void Kernel::openProcess() {
+	const u32 pid = regs[1];
+	const auto process = getProcessFromPID(pid);
+	logSVC("OpenProcess(pid = %u)\n", pid);
+
+	if (process == nullptr) [[unlikely]] {
+		regs[0] = Result::Kernel::NotFound;
+		return;
+	}
+
+	regs[1] = process->handle;
+	duplicateHandle();
+}
+
+// Result OpenThread(Handle* out, ThreadId thread_id)
+void Kernel::openThread() {
+	const u32 threadID = regs[1];
+	logSVC("OpenThread(thread ID = %u)\n", threadID);
+
+	if (threadID >= threads.size()) [[unlikely]] {
+		regs[0] = Result::Kernel::NotFound;
+		return;
+	}
+
+	Thread& thread = threads[threadID];
+	if (thread.status == ThreadStatus::Dead) [[unlikely]] {
+		regs[0] = Result::Kernel::NotFound;
+		return;
+	}
+
+	regs[1] = thread.handle;
+	duplicateHandle();
+}
+
+// Result GetProcessIdOfThread(ProcessId* out, Handle thread)
+void Kernel::getProcessIDOfThread() {
+	const Handle handle = regs[1];
+	logSVC("GetProcessIdOfThread(thread = %X)\n", handle);
+
+	KernelObject* thread = nullptr;
+	if (handle == KernelHandles::CurrentThread) {
+		thread = getObject(threads[currentThreadIndex].handle, KernelObjectType::Thread);
+	} else {
+		thread = getObject(handle, KernelObjectType::Thread);
+	}
+
+	if (thread == nullptr) [[unlikely]] {
+		regs[0] = Result::Kernel::InvalidHandle;
+		return;
+	}
+
+	const Handle owner = thread->getData<Thread>()->ownerProcess;
+	const auto process = getObject(owner, KernelObjectType::Process);
+	if (process == nullptr) [[unlikely]] {
+		regs[0] = Result::Kernel::NotFound;
 		return;
 	}
 

@@ -159,6 +159,7 @@ class Kernel {
 	void queryMemory();
 	void getCurrentProcessorNumber();
 	void getProcessID();
+	void getProcessIDOfThread();
 	void getProcessInfo();
 	void getResourceLimit();
 	void getResourceLimitLimitValues();
@@ -188,6 +189,8 @@ class Kernel {
 	void svcInvalidateEntireInstructionCache();
 	void connectToPort();
 	void outputDebugString();
+	void openProcess();
+	void openThread();
 	void waitSynchronization1();
 	void waitSynchronizationN();
 
