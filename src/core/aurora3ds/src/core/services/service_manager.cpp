@@ -140,7 +140,12 @@ void ServiceManager::handleSyncRequest(u32 messagePointer) {
 		case Commands::GetPort: getPort(messagePointer); break;
 		case Commands::PublishAndGetSubscriber: publishAndGetSubscriber(messagePointer); break;
 		case Commands::IsServiceRegistered: isServiceRegistered(messagePointer); break;
-		default: Helpers::panic("Unknown \"srv:\" command: %08X", header); break;
+		default: {
+			Helpers::warn("Unknown \"srv:\" command: %08X", header);
+			mem.write32(messagePointer, IPC::responseHeader(header >> 16, 1, 0));
+			mem.write32(messagePointer + 4, Result::OS::NotImplemented);
+			break;
+		}
 	}
 }
 
@@ -593,6 +598,11 @@ void ServiceManager::sendCommandToService(u32 messagePointer, Handle handle) {
 		case KernelHandles::SOC: soc.handleSyncRequest(messagePointer); break;
 		case KernelHandles::SSL: ssl.handleSyncRequest(messagePointer); break;
 		case KernelHandles::Y2R: y2r.handleSyncRequest(messagePointer); break;
-		default: Helpers::panic("Sent IPC message to unknown service %08X\n Command: %08X", handle, mem.read32(messagePointer));
+		default: {
+			Helpers::warn("Sent IPC message to unknown service %08X Command=%08X", handle, mem.read32(messagePointer));
+			mem.write32(messagePointer, IPC::responseHeader(mem.read32(messagePointer) >> 16, 1, 0));
+			mem.write32(messagePointer + 4, Result::OS::NotImplemented);
+			break;
+		}
 	}
 }
