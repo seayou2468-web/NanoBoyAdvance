@@ -40,7 +40,7 @@ namespace KernelHandles {
 		NDM,       // ?????
 		NS_S,      // Nintendo Shell service
 		NS_C,      // Nintendo Shell content service
-		NWM_EXT,   // ?????
+		NWM_EXT,   // nwm::EXT
 		NWM_UDS,   // Local multiplayer
 		NEWS_S,    // news:u on steroids
 		NEWS_U,    // This service literally has 1 command (AddNotification)
@@ -71,6 +71,11 @@ namespace KernelHandles {
 		MP_U,      // MP user service
 		PDN_U,     // Power management user service
 		SPI_U,     // SPI user service
+		NWM_CEC,   // nwm::CEC
+		NWM_INF,   // nwm::INF
+		NWM_SAP,   // nwm::SAP
+		NWM_SOC,   // nwm::SOC
+		NWM_TST,   // nwm::TST
 		OS_STUB,   // Generic fallback for not-yet-implemented OS service ports
 
 		MinServiceHandle = AC,
@@ -138,6 +143,11 @@ namespace KernelHandles {
 			case NEWS_S: return "NEWS_S";
 			case NEWS_U: return "NEWS_U";
 			case NWM_EXT: return "nwm::EXT";
+			case NWM_CEC: return "nwm::CEC";
+			case NWM_INF: return "nwm::INF";
+			case NWM_SAP: return "nwm::SAP";
+			case NWM_SOC: return "nwm::SOC";
+			case NWM_TST: return "nwm::TST";
 			case NWM_UDS: return "nwm::UDS";
 			case NFC: return "NFC";
 			case NIM: return "NIM";

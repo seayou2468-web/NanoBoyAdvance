@@ -10,6 +10,10 @@
 class NewsUService {
 	using Handle = HorizonHandle;
 
+public:
+	enum class Type { U, S };
+
+private:
 	Handle handle = KernelHandles::NEWS_U;
 	Memory& mem;
 	MAKE_LOG_FUNCTION(log, newsLogger)
@@ -28,7 +32,7 @@ class NewsUService {
 	u32 nextNotificationIndex = 0;
 
 	// Service commands
-	void addNotification(u32 messagePointer);
+	void addNotification(u32 messagePointer, bool systemNotification);
 	void addNotificationSystem(u32 messagePointer);
 	void resetNotifications(u32 messagePointer);
 	void getTotalNotifications(u32 messagePointer);
@@ -47,8 +51,8 @@ class NewsUService {
 	void writeNewsDBSavedata(u32 messagePointer);
 	void getTotalArrivedNotifications(u32 messagePointer);
 
-  public:
+public:
 	NewsUService(Memory& mem) : mem(mem) {}
 	void reset();
-	void handleSyncRequest(u32 messagePointer);
+	void handleSyncRequest(u32 messagePointer, Type type = Type::U);
 };

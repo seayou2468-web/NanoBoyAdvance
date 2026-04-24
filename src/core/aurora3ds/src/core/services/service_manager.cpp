@@ -220,11 +220,11 @@ static const ServiceMapEntry serviceMapArray[] = {
 	{ "ns:c", KernelHandles::NS_C },
 	{ "ns:p", KernelHandles::NS_C },
 	{ "nwm::EXT", KernelHandles::NWM_EXT },
-	{ "nwm::CEC", KernelHandles::NWM_EXT },
-	{ "nwm::INF", KernelHandles::NWM_EXT },
-	{ "nwm::SAP", KernelHandles::NWM_EXT },
-	{ "nwm::SOC", KernelHandles::NWM_EXT },
-	{ "nwm::TST", KernelHandles::NWM_EXT },
+	{ "nwm::CEC", KernelHandles::NWM_CEC },
+	{ "nwm::INF", KernelHandles::NWM_INF },
+	{ "nwm::SAP", KernelHandles::NWM_SAP },
+	{ "nwm::SOC", KernelHandles::NWM_SOC },
+	{ "nwm::TST", KernelHandles::NWM_TST },
 	{ "nwm::UDS", KernelHandles::NWM_UDS },
 	{ "nim:aoc", KernelHandles::NIM },
 	{ "nim:s", KernelHandles::NIM },
@@ -573,11 +573,16 @@ void ServiceManager::sendCommandToService(u32 messagePointer, Handle handle) {
 		case KernelHandles::NFC: nfc.handleSyncRequest(messagePointer); break;
 		case KernelHandles::NIM: nim.handleSyncRequest(messagePointer); break;
 		case KernelHandles::NDM: ndm.handleSyncRequest(messagePointer); break;
-		case KernelHandles::NEWS_U:
-		case KernelHandles::NEWS_S: news_u.handleSyncRequest(messagePointer); break;
+		case KernelHandles::NEWS_U: news_u.handleSyncRequest(messagePointer, NewsUService::Type::U); break;
+		case KernelHandles::NEWS_S: news_u.handleSyncRequest(messagePointer, NewsUService::Type::S); break;
 		case KernelHandles::NS_S: ns.handleSyncRequest(messagePointer, NSService::Type::S); break;
 		case KernelHandles::NS_C: ns.handleSyncRequest(messagePointer, NSService::Type::C); break;
-		case KernelHandles::NWM_EXT: nwm_ext.handleSyncRequest(messagePointer); break;
+		case KernelHandles::NWM_EXT: nwm_ext.handleSyncRequest(messagePointer, NwmExtService::Type::EXT); break;
+		case KernelHandles::NWM_CEC: nwm_ext.handleSyncRequest(messagePointer, NwmExtService::Type::CEC); break;
+		case KernelHandles::NWM_INF: nwm_ext.handleSyncRequest(messagePointer, NwmExtService::Type::INF); break;
+		case KernelHandles::NWM_SAP: nwm_ext.handleSyncRequest(messagePointer, NwmExtService::Type::SAP); break;
+		case KernelHandles::NWM_SOC: nwm_ext.handleSyncRequest(messagePointer, NwmExtService::Type::SOC); break;
+		case KernelHandles::NWM_TST: nwm_ext.handleSyncRequest(messagePointer, NwmExtService::Type::TST); break;
 		case KernelHandles::NWM_UDS: nwm_uds.handleSyncRequest(messagePointer); break;
 		case KernelHandles::PTM_PLAY: ptm.handleSyncRequest(messagePointer, PTMService::Type::PLAY); break;
 		case KernelHandles::PTM_SYSM: ptm.handleSyncRequest(messagePointer, PTMService::Type::SYSM); break;

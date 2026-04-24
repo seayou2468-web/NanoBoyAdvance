@@ -48,10 +48,16 @@ void NewsUService::reset() {
 	imageSizes.fill(0);
 }
 
-void NewsUService::handleSyncRequest(u32 messagePointer) {
+void NewsUService::handleSyncRequest(u32 messagePointer, Type type) {
 	const u32 command = mem.read32(messagePointer);
 	switch (command >> 16) {
-		case NewsCommands::AddNotification: addNotification(messagePointer); break;
+		case NewsCommands::AddNotification:
+			if (type == Type::S) {
+				addNotificationSystem(messagePointer);
+			} else {
+				addNotification(messagePointer, false);
+			}
+			break;
 		case NewsCommands::ResetNotifications: resetNotifications(messagePointer); break;
 		case NewsCommands::GetTotalNotifications: getTotalNotifications(messagePointer); break;
 		case NewsCommands::SetNewsDBHeader: setNewsDBHeader(messagePointer); break;
@@ -77,15 +83,19 @@ void NewsUService::handleSyncRequest(u32 messagePointer) {
 	}
 }
 
-void NewsUService::addNotification(u32 messagePointer) {
+void NewsUService::addNotification(u32 messagePointer, bool systemNotification) {
 	const u32 headerSize = mem.read32(messagePointer + 4);
 	const u32 messageSize = mem.read32(messagePointer + 8);
 	const u32 imageSize = mem.read32(messagePointer + 12);
-	const u32 headerPointer = mem.read32(messagePointer + 24);
-	const u32 messagePtr = mem.read32(messagePointer + 32);
-	const u32 imagePointer = mem.read32(messagePointer + 40);
+	const u32 mappedBufferOffset = systemNotification ? 16 : 24;
+	const u32 headerPointer = mem.read32(messagePointer + mappedBufferOffset);
+	const u32 messagePtr = mem.read32(messagePointer + mappedBufferOffset + 8);
+	const u32 imagePointer = mem.read32(messagePointer + mappedBufferOffset + 16);
 
-	log("NEWS::AddNotification (header=%u bytes, message=%u bytes, image=%u bytes)\n", headerSize, messageSize, imageSize);
+	log(
+		"NEWS::AddNotification%s (header=%u bytes, message=%u bytes, image=%u bytes)\n",
+		systemNotification ? "System" : "", headerSize, messageSize, imageSize
+	);
 
 	const u32 index = nextNotificationIndex;
 	nextNotificationIndex = (nextNotificationIndex + 1) % MaxNotifications;
@@ -119,7 +129,7 @@ void NewsUService::addNotification(u32 messagePointer) {
 
 void NewsUService::addNotificationSystem(u32 messagePointer) {
 	log("NEWS::AddNotificationSystem\n");
-	addNotification(messagePointer);
+	addNotification(messagePointer, true);
 }
 
 void NewsUService::syncArrivedNotifications(u32 messagePointer) {
