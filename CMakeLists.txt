@@ -62,6 +62,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
     ${CMAKE_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/src/core
     ${CMAKE_SOURCE_DIR}/src/core/api
+    ${CMAKE_SOURCE_DIR}/src/core/aurora3ds/src
     ${CMAKE_SOURCE_DIR}/src/core/aurora3ds/include
   )
 
@@ -111,6 +112,7 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     ${CMAKE_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/src/core
     ${CMAKE_SOURCE_DIR}/src/core/api
+    ${CMAKE_SOURCE_DIR}/src/core/aurora3ds/src
     ${CMAKE_SOURCE_DIR}/src/core/aurora3ds/include
   )
 
