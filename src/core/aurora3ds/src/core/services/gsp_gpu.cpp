@@ -166,14 +166,19 @@ void GPUService::releaseRight(u32 messagePointer) {
 // What is the "GSP module thread index" meant to be?
 // How does the shared memory handle thing work?
 void GPUService::registerInterruptRelayQueue(u32 messagePointer) {
-	// Detect if this function is called a 2nd time because we'll likely need to impl threads properly for the GSP
-	constexpr u32 maxEmulatedGSPThreads = 4;
-	if (gspThreadCount < maxEmulatedGSPThreads) {
-		gspThreadCount += 1;
+	// We currently emulate a single GSP relay queue. Returning varying thread indices
+	// breaks clients that poll queue 0 while we only signal queue 0 interrupts.
+	constexpr u32 threadIndex = 0;
+	if (sharedMem == nullptr) {
+		// On hardware the GSP module has direct access to this shared block regardless of
+		// when userland maps it. Keep a service-side pointer so IRQ/GX processing can run
+		// as soon as relay queue registration completes.
+		sharedMem = mem.getFCRAM();
+		std::memset(sharedMem, 0, 0x1000);
 	}
-	const u32 threadIndex = gspThreadCount > 0 ? (gspThreadCount - 1) : 0;
-	if (gspThreadCount >= maxEmulatedGSPThreads) {
-		Helpers::warn("GSP::GPU::RegisterInterruptRelayQueue hit emulated thread limit (%u)", maxEmulatedGSPThreads);
+	gspThreadCount += 1;
+	if (gspThreadCount > 1) {
+		Helpers::warn("GSP::GPU::RegisterInterruptRelayQueue called multiple times; reusing emulated threadIndex=0");
 	}
 
 	const u32 flags = mem.read32(messagePointer + 4);
@@ -525,6 +530,12 @@ static u32 VaddrToPaddr(u32 addr) {
 
 	else if (addr == 0) {
 		return 0;
+	}
+
+	// Some titles/services pass already-physical addresses in GX commands.
+	// Accept those directly so command execution still reaches VRAM/FCRAM.
+	else if ((addr >= PhysicalAddrs::VRAM && addr <= PhysicalAddrs::VRAMEnd) || (addr >= PhysicalAddrs::FCRAM && addr <= PhysicalAddrs::FCRAMEnd)) {
+		return addr;
 	}
 
 	Helpers::warn("[GSP::GPU VaddrToPaddr] Unknown virtual address %08X", addr);
