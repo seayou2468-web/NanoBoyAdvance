@@ -1,5 +1,6 @@
 #include "../../../include/services/fs.hpp"
 
+#include <chrono>
 #include <cstdio>
 #include <filesystem>
 
@@ -84,6 +85,31 @@ std::filesystem::path makeExtSavePath(u8 mediaType, u64 saveID) {
 	std::snprintf(highBuf, sizeof(highBuf), "%08X", high);
 
 	return root / highBuf / lowBuf;
+}
+
+ArchiveResource makeArchiveResourceForPath(const std::filesystem::path& root) {
+	static constexpr u32 sectorSize = 512;
+	static constexpr u32 clusterSize = 16_KB;
+
+	std::error_code ec;
+	const auto stats = std::filesystem::space(root, ec);
+	if (ec) {
+		return ArchiveResource{
+			.sectorSize = sectorSize,
+			.clusterSize = clusterSize,
+			.partitionCapacityInClusters = 0,
+			.freeSpaceInClusters = 0,
+		};
+	}
+
+	const auto totalClusters = static_cast<u32>(stats.capacity / clusterSize);
+	const auto freeClusters = static_cast<u32>(stats.available / clusterSize);
+	return ArchiveResource{
+		.sectorSize = sectorSize,
+		.clusterSize = clusterSize,
+		.partitionCapacityInClusters = totalClusters,
+		.freeSpaceInClusters = freeClusters,
+	};
 }
 
 u32 getCurrentTitleUniqueID(Memory& mem) {
@@ -686,7 +712,15 @@ void FSService::controlArchive(u32 messagePointer) {
 			break;
 
 		case 1:  // Retrieves a file's last-modified timestamp. Seen in DDLC, stubbed for the moment
-			Helpers::warn("FS::ControlArchive: Tried to retrieve a file's last-modified timestamp");
+			if (outputSize >= sizeof(u64) && output != 0) {
+				const auto base = IOFile::getAppData();
+				const auto ftime = std::filesystem::last_write_time(base);
+				const auto now_sys = std::chrono::system_clock::now();
+				const auto now_file = decltype(ftime)::clock::now();
+				const auto mapped = now_sys + (ftime - now_file);
+				const auto secs = std::chrono::duration_cast<std::chrono::seconds>(mapped.time_since_epoch()).count();
+				mem.write64(output, static_cast<u64>(std::max<s64>(secs, 0)));
+			}
 			mem.write32(messagePointer + 4, Result::Success);
 			break;
 
@@ -720,15 +754,15 @@ void FSService::getPriority(u32 messagePointer) {
 
 void FSService::getArchiveResource(u32 messagePointer) {
 	const u32 mediaType = mem.read32(messagePointer + 4);
-	log("FS::GetArchiveResource (media type = %d) (stubbed)\n");
+	log("FS::GetArchiveResource (media type = %d)\n", mediaType);
 
-	// For the time being, return the same stubbed archive resource for every media type
-	static constexpr ArchiveResource resource = {
-		.sectorSize = 512,
-		.clusterSize = 16_KB,
-		.partitionCapacityInClusters = 0x80000,  // 0x80000 * 16 KB = 8GB
-		.freeSpaceInClusters = 0x80000,          // Same here
-	};
+	ArchiveResource resource{};
+	switch (mediaType) {
+		case MediaTypeNAND: resource = makeArchiveResourceForPath(IOFile::getNAND()); break;
+		case MediaTypeSD: resource = makeArchiveResourceForPath(IOFile::getSDMC()); break;
+		case MediaTypeGamecard: resource = makeArchiveResourceForPath(IOFile::getNAND() / "gamecard"); break;
+		default: resource = makeArchiveResourceForPath(IOFile::getUserData()); break;
+	}
 
 	mem.write32(messagePointer, IPC::responseHeader(0x849, 5, 0));
 	mem.write32(messagePointer + 4, Result::Success);
@@ -742,7 +776,7 @@ void FSService::getArchiveResource(u32 messagePointer) {
 void FSService::setArchivePriority(u32 messagePointer) {
 	Handle archive = mem.read64(messagePointer + 4);
 	const u32 value = mem.read32(messagePointer + 12);
-	log("FS::SetArchivePriority (priority = %d, archive handle = %X)\n", value, handle);
+	log("FS::SetArchivePriority (priority = %d, archive handle = %X)\n", value, archive);
 
 	mem.write32(messagePointer, IPC::responseHeader(0x85A, 1, 0));
 	mem.write32(messagePointer + 4, Result::Success);
@@ -895,14 +929,8 @@ void FSService::renameFile(u32 messagePointer) {
 }
 
 void FSService::getSdmcArchiveResource(u32 messagePointer) {
-	log("FS::GetSdmcArchiveResource");  // For the time being, return the same stubbed archive resource for every media type
-
-	static constexpr ArchiveResource resource = {
-		.sectorSize = 512,
-		.clusterSize = 16_KB,
-		.partitionCapacityInClusters = 0x80000,  // 0x80000 * 16 KB = 8GB
-		.freeSpaceInClusters = 0x80000,          // Same here
-	};
+	log("FS::GetSdmcArchiveResource");
+	const ArchiveResource resource = makeArchiveResourceForPath(IOFile::getSDMC());
 
 	mem.write32(messagePointer, IPC::responseHeader(0x814, 5, 0));
 	mem.write32(messagePointer + 4, Result::Success);
