@@ -11,6 +11,10 @@ class PTMService {
 	MAKE_LOG_FUNCTION(log, ptmLogger)
 
 	const EmulatorConfig& config;
+	u64 systemTimeMsSince2000 = 0;
+	u32 totalStepCount = 0;
+	u8 cpuConfig = 0;
+	bool softwareClosedFlag = false;
 
 	// Service commands
 	void clearSoftwareClosedFlag(u32 messagePointer);
@@ -26,6 +30,7 @@ class PTMService {
 	void getSystemTime(u32 messagePointer);
 	void setSystemTime(u32 messagePointer);
 	void getTotalStepCount(u32 messagePointer);
+	u64 getCurrentSystemTimeMs() const;
 
   public:
 	enum class Type {

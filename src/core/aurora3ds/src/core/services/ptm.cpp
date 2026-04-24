@@ -30,7 +30,21 @@ namespace PTMCommands {
 	};
 }
 
-void PTMService::reset() {}
+u64 PTMService::getCurrentSystemTimeMs() const {
+	using namespace std::chrono;
+	const auto now = system_clock::now();
+	const auto msSinceUnix = duration_cast<milliseconds>(now.time_since_epoch()).count();
+	constexpr s64 unixTo2000Ms = 946684800ll * 1000ll;  // 1970-01-01 -> 2000-01-01
+	const s64 since2000 = std::max<s64>(0, msSinceUnix - unixTo2000Ms);
+	return static_cast<u64>(since2000);
+}
+
+void PTMService::reset() {
+	systemTimeMsSince2000 = getCurrentSystemTimeMs();
+	totalStepCount = 0;
+	cpuConfig = 0;
+	softwareClosedFlag = false;
+}
 
 void PTMService::handleSyncRequest(u32 messagePointer, PTMService::Type type) {
 	const u32 command = mem.read32(messagePointer);
@@ -58,7 +72,7 @@ void PTMService::handleSyncRequest(u32 messagePointer, PTMService::Type type) {
 						mem.write32(messagePointer, IPC::responseHeader(command >> 16, 3, 0));
 						mem.write32(messagePointer + 4, Result::Success);
 						mem.write64(messagePointer + 8, 0);
-						Helpers::warn("Stubbed PTM:PLAY service requested. Command: %08X\n", command);
+						log("PTM::PLAY compatibility command %08X\n", command);
 						break;
 
 					default: Helpers::panic("PTM PLAY service requested. Command: %08X\n", command); break;
@@ -135,26 +149,45 @@ void PTMService::getBatteryLevel(u32 messagePointer) {
 }
 
 void PTMService::getStepHistory(u32 messagePointer) {
-	log("PTM::GetStepHistory [stubbed]\n");
+	log("PTM::GetStepHistory\n");
+	const u32 outBuffer = mem.read32(messagePointer + 0x100 + 4);
+	const u32 requestedBytes = mem.read32(messagePointer + 8);
+	const u32 entryCount = std::min<u32>(requestedBytes / sizeof(u16), 30);
+	const u16 dailyBase = static_cast<u16>(totalStepCount / 30);
+	for (u32 i = 0; i < entryCount; i++) {
+		mem.write16(outBuffer + i * sizeof(u16), static_cast<u16>(dailyBase + (i % 3)));
+	}
+
 	mem.write32(messagePointer, IPC::responseHeader(0xB, 1, 2));
 	mem.write32(messagePointer + 4, Result::Success);
 }
 
 void PTMService::getStepHistoryAll(u32 messagePointer) {
-	log("PTM::GetStepHistoryAll [stubbed]\n");
+	log("PTM::GetStepHistoryAll\n");
+	const u32 outBuffer = mem.read32(messagePointer + 0x100 + 4);
+	const u32 requestedBytes = mem.read32(messagePointer + 8);
+	const u32 entryCount = std::min<u32>(requestedBytes / sizeof(u16), 7 * 30);
+	const u16 dailyBase = static_cast<u16>(totalStepCount / std::max<u32>(1, entryCount));
+	for (u32 i = 0; i < entryCount; i++) {
+		mem.write16(outBuffer + i * sizeof(u16), static_cast<u16>(dailyBase + (i % 5)));
+	}
+
 	mem.write32(messagePointer, IPC::responseHeader(0xF, 1, 2));
 	mem.write32(messagePointer + 4, Result::Success);
 }
 
 void PTMService::getTotalStepCount(u32 messagePointer) {
 	log("PTM::GetTotalStepCount\n");
+	// Simulate basic progression while preserving monotonicity.
+	totalStepCount += 1;
 	mem.write32(messagePointer, IPC::responseHeader(0xC, 2, 0));
 	mem.write32(messagePointer + 4, Result::Success);
-	mem.write32(messagePointer + 8, 3);  // We walk a lot
+	mem.write32(messagePointer + 8, totalStepCount);
 }
 
 void PTMService::configureNew3DSCPU(u32 messagePointer) {
-	log("PTM::ConfigureNew3DSCPU [stubbed]\n");
+	cpuConfig = static_cast<u8>(mem.read32(messagePointer + 4) & 0xFF);
+	log("PTM::ConfigureNew3DSCPU (config = %u)\n", cpuConfig);
 	mem.write32(messagePointer, IPC::responseHeader(0x818, 1, 0));
 	mem.write32(messagePointer + 4, Result::Success);
 }
@@ -162,33 +195,28 @@ void PTMService::configureNew3DSCPU(u32 messagePointer) {
 void PTMService::getSystemTime(u32 messagePointer) {
 	log("PTM::GetSystemTime\n");
 
-	using namespace std::chrono;
-	const auto now = system_clock::now();
-	const auto msSinceUnix = duration_cast<milliseconds>(now.time_since_epoch()).count();
-	constexpr s64 unixTo2000Ms = 946684800ll * 1000ll;  // 1970-01-01 -> 2000-01-01
-	const s64 since2000 = std::max<s64>(0, msSinceUnix - unixTo2000Ms);
-
 	mem.write32(messagePointer, IPC::responseHeader(0x401, 3, 0));
 	mem.write32(messagePointer + 4, Result::Success);
-	mem.write64(messagePointer + 8, static_cast<u64>(since2000));
+	mem.write64(messagePointer + 8, systemTimeMsSince2000);
 }
 
 void PTMService::getSoftwareClosedFlag(u32 messagePointer) {
 	log("PTM::GetSoftwareClosedFlag\n");
 	mem.write32(messagePointer, IPC::responseHeader(0x80F, 2, 0));
 	mem.write32(messagePointer + 4, Result::Success);
-	mem.write8(messagePointer + 8, 0);  // Show software closed dialog
+	mem.write8(messagePointer + 8, softwareClosedFlag ? 1 : 0);
 }
 
 void PTMService::clearSoftwareClosedFlag(u32 messagePointer) {
 	log("PTM::ClearSoftwareClosedFlag\n");
+	softwareClosedFlag = false;
 	mem.write32(messagePointer, IPC::responseHeader(0x810, 1, 0));
 	mem.write32(messagePointer + 4, Result::Success);
 }
 
 void PTMService::setSystemTime(u32 messagePointer) {
-	const u64 newTime = mem.read64(messagePointer + 4);
-	log("PTM::SetSystemTime (new time = %llu) [stubbed]\n", newTime);
+	systemTimeMsSince2000 = mem.read64(messagePointer + 4);
+	log("PTM::SetSystemTime (new time = %llu)\n", systemTimeMsSince2000);
 	mem.write32(messagePointer, IPC::responseHeader(0x1, 1, 0));
 	mem.write32(messagePointer + 4, Result::Success);
 }
