@@ -164,13 +164,16 @@ class Kernel {
 	void getResourceLimit();
 	void getResourceLimitLimitValues();
 	void getResourceLimitCurrentValues();
+	void getHandleInfo();
 	void getSystemInfo();
 	void getSystemTick();
+	void getThreadInfo();
 	void getThreadContext();
 	void getThreadID();
 	void getThreadIdealProcessor();
 	void getThreadPriority();
 	void sendSyncRequest();
+	void signalAndWait();
 	void setThreadPriority();
 	void svcCancelTimer();
 	void svcClearEvent();

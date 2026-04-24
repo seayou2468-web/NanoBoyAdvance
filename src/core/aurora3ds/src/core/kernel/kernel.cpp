@@ -59,10 +59,13 @@ void Kernel::serviceSVC(u32 svc) {
 		case 0x23: svcCloseHandle(); break;
 		case 0x24: waitSynchronization1(); break;
 		case 0x25: waitSynchronizationN(); break;
+		case 0x26: signalAndWait(); break;
 		case 0x27: duplicateHandle(); break;
 		case 0x28: getSystemTick(); break;
+		case 0x29: getHandleInfo(); break;
 		case 0x2A: getSystemInfo(); break;
 		case 0x2B: getProcessInfo(); break;
+		case 0x2C: getThreadInfo(); break;
 		case 0x2D: connectToPort(); break;
 		case 0x2E:
 		case 0x2F:
@@ -362,6 +365,81 @@ void Kernel::getProcessIDOfThread() {
 	regs[1] = process->getData<Process>()->id;
 }
 
+// Result GetHandleInfo(s64* out, Handle handle, HandleInfoType type)
+void Kernel::getHandleInfo() {
+	const Handle handle = regs[1];
+	const u32 type = regs[2];
+	logSVC("GetHandleInfo(handle = %X, type = %u)\n", handle, type);
+
+	const auto object = getObject(handle);
+	if (object == nullptr) [[unlikely]] {
+		regs[0] = Result::Kernel::InvalidHandle;
+		return;
+	}
+
+	// 3DBrew/Reference semantics:
+	// 0 = process ticks (only meaningful on process handle)
+	// 1 = reference count
+	// 2,3 = stubbed values
+	u64 value = 0;
+	switch (type) {
+		case 0:  // KPROCESS_ELAPSED_TICKS (stubbed)
+			value = 0;
+			break;
+		case 1:  // REFERENCE_COUNT (approximation: 1 without full KObject ref tracker)
+			value = 1;
+			break;
+		case 2:
+		case 3:
+			value = 0;
+			break;
+		default:
+			regs[0] = Result::Kernel::InvalidEnumValue;
+			return;
+	}
+
+	regs[0] = Result::Success;
+	regs[1] = static_cast<u32>(value);
+	regs[2] = static_cast<u32>(value >> 32);
+}
+
+// Result GetThreadInfo(s64* out, Handle thread, ThreadInfoType type)
+void Kernel::getThreadInfo() {
+	const Handle handle = regs[1];
+	const u32 type = regs[2];
+	logSVC("GetThreadInfo(thread = %X, type = %u)\n", handle, type);
+
+	KernelObject* threadObject = nullptr;
+	if (handle == KernelHandles::CurrentThread) {
+		threadObject = getObject(threads[currentThreadIndex].handle, KernelObjectType::Thread);
+	} else {
+		threadObject = getObject(handle, KernelObjectType::Thread);
+	}
+
+	if (threadObject == nullptr) [[unlikely]] {
+		regs[0] = Result::Kernel::InvalidHandle;
+		return;
+	}
+
+	const Thread* thread = threadObject->getData<Thread>();
+	u64 value = 0;
+	switch (type) {
+		case 0:  // Priority
+			value = thread->priority;
+			break;
+		case 1:  // Ideal processor
+			value = static_cast<u32>(thread->processorID);
+			break;
+		default:
+			regs[0] = Result::Kernel::InvalidEnumValue;
+			return;
+	}
+
+	regs[0] = Result::Success;
+	regs[1] = static_cast<u32>(value);
+	regs[2] = static_cast<u32>(value >> 32);
+}
+
 // Result GetProcessInfo(s64* out, Handle process, ProcessInfoType type)
 void Kernel::getProcessInfo() {
 	const auto pid = regs[1];
@@ -426,6 +504,29 @@ void Kernel::duplicateHandle() {
 
 	regs[0] = Result::Success;
 	regs[1] = duplicate;
+}
+
+// Result SignalAndWait(Handle signal, Handle wait, s64 timeout_ns)
+void Kernel::signalAndWait() {
+	const Handle signalHandle = regs[0];
+	const Handle waitHandle = regs[1];
+	const s64 timeoutNs = s64(u64(regs[2]) | (u64(regs[3]) << 32));
+	logSVC("SignalAndWait(signal = %X, wait = %X, timeout = %lld)\n", signalHandle, waitHandle, timeoutNs);
+
+	if (getObject(signalHandle, KernelObjectType::Event) != nullptr) {
+		signalEvent(signalHandle);
+	} else if (getObject(signalHandle, KernelObjectType::Semaphore) != nullptr) {
+		if (!releaseSemaphore(signalHandle, 1, nullptr)) [[unlikely]] {
+			regs[0] = Result::Kernel::InvalidHandle;
+			return;
+		}
+	} else {
+		regs[0] = Result::Kernel::InvalidHandle;
+		return;
+	}
+
+	regs[0] = waitHandle;
+	waitSynchronization1();
 }
 
 void Kernel::clearInstructionCache() { cpu.clearCache(); }
