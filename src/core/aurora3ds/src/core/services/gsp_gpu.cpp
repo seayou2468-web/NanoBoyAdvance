@@ -194,7 +194,7 @@ void GPUService::registerInterruptRelayQueue(u32 messagePointer) {
 		mem.write32(messagePointer + 4, Result::Success);
 	}
 	mem.write32(messagePointer + 8, threadIndex);
-	mem.write32(messagePointer + 12, 0);                               // Translation descriptor
+	mem.write32(messagePointer + 12, 0x04000000);                      // Translation descriptor (copy handle)
 	mem.write32(messagePointer + 16, KernelHandles::GSPSharedMemHandle);
 }
 
@@ -411,6 +411,9 @@ void GPUService::setLCDForceBlack(u32 messagePointer) {
 }
 
 void GPUService::triggerCmdReqQueue(u32 messagePointer) {
+	if (sharedMem == nullptr) {
+		Helpers::warn("GSP::GPU::TriggerCmdReqQueue called before shared memory was mapped; GX command queue is unavailable");
+	}
 	processCommandBuffer();
 	// Many titles rely on shared-memory framebuffer updates becoming visible quickly.
 	// On hardware this is synchronized with VBlank, but our current interrupt/timing
@@ -465,6 +468,7 @@ void GPUService::setInternalPriorities(u32 messagePointer) {
 
 void GPUService::processCommandBuffer() {
 	if (sharedMem == nullptr) [[unlikely]] {  // Shared memory hasn't been set up yet
+		Helpers::warn("GSP::GPU::processCommandBuffer skipped because shared memory is null (RegisterInterruptRelayQueue/MapMemoryBlock flow incomplete)");
 		return;
 	}
 
@@ -487,7 +491,9 @@ void GPUService::processCommandBuffer() {
 				case GXCommands::TriggerDMARequest: triggerDMARequest(cmd); break;
 				case GXCommands::TriggerTextureCopy: triggerTextureCopy(cmd); break;
 				case GXCommands::FlushCacheRegions: flushCacheRegions(cmd); break;
-				default: Helpers::warn("GSP::GPU::ProcessCommands: Unknown cmd ID %d", cmdID); break;
+				default:
+					Helpers::warn("GSP::GPU::ProcessCommands: Unknown cmd ID %u (thread=%d, index=%u, header=%08X)", cmdID, t, index & 0xF, cmd[0]);
+					break;
 			}
 
 			index = (index + 1) % 15;
