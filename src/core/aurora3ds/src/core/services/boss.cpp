@@ -1,6 +1,7 @@
 #include "../../../include/services/boss.hpp"
 
 #include <algorithm>
+#include <chrono>
 
 #include "../../../include/ipc.hpp"
 
@@ -63,6 +64,9 @@ void BOSSService::reset() {
 	tasks.clear();
 	properties.clear();
 	appNewFlags.clear();
+	nsDataStorage.clear();
+	nsDataLastUpdatedMs.clear();
+	storageEntries.clear();
 	newArrivalEvent = std::nullopt;
 	lastErrorCode = Result::Success;
 }
@@ -169,21 +173,21 @@ void BOSSService::getTaskStatus(u32 messagePointer) {
 }
 
 void BOSSService::getTaskServiceStatus(u32 messagePointer) {
-	// TODO: 3DBrew does not mention what the parameters are, or what the return values are... again
-	log("BOSS::GetTaskServiceStatus (Stubbed)\n");
+	// Service is considered active if at least one registered task exists.
+	log("BOSS::GetTaskServiceStatus\n");
+	const u8 serviceActive = tasks.empty() ? 0 : 1;
 
-	// Response values stubbed based on Citra
 	mem.write32(messagePointer, IPC::responseHeader(0x1B, 2, 2));
 	mem.write32(messagePointer + 4, Result::Success);
-	mem.write8(messagePointer + 8, 0);
-	// TODO: Citra pushes a buffer here too?
+	mem.write8(messagePointer + 8, serviceActive);
 }
 
 void BOSSService::getTaskStorageInfo(u32 messagePointer) {
-	log("BOSS::GetTaskStorageInfo (stubbed)\n");
+	const u32 used = std::min<u32>(static_cast<u32>(tasks.size() * 0x1000), 0x100000);
+	log("BOSS::GetTaskStorageInfo (used = %u)\n", used);
 	mem.write32(messagePointer, IPC::responseHeader(0x4, 2, 0));
 	mem.write32(messagePointer + 4, Result::Success);
-	mem.write32(messagePointer + 8, 0);
+	mem.write32(messagePointer + 8, used);
 }
 
 void BOSSService::getTaskIdList(u32 messagePointer) {
@@ -332,22 +336,49 @@ void BOSSService::unregisterTask(u32 messagePointer) {
 
 // There's multiple aliases for this command. commandWord is the first word in the IPC buffer with the command word, needed for the response header
 void BOSSService::getNsDataIdList(u32 messagePointer, u32 commandWord) {
-	log("BOSS::GetNsDataIdList (stubbed)\n");
+	const u32 maxCount = mem.read32(messagePointer + 4);
+	const u32 outBuffer = mem.read32(messagePointer + 0x100 + 4);
+	log("BOSS::GetNsDataIdList (max=%u, out=%08X)\n", maxCount, outBuffer);
+
+	u16 count = 0;
+	for (const auto& [id, _] : nsDataStorage) {
+		if (count >= maxCount) {
+			break;
+		}
+		mem.write32(outBuffer + count * sizeof(u32), id);
+		count++;
+	}
 
 	mem.write32(messagePointer, IPC::responseHeader(commandWord >> 16, 3, 2));
 	mem.write32(messagePointer + 4, Result::Success);
-	mem.write16(messagePointer + 8, 0);   // u16: Actual number of output entries.
-	mem.write16(messagePointer + 12, 0);  // u16: Last word-index copied to output in the internal NsDataId list.
+	mem.write16(messagePointer + 8, count);                    // u16: Actual number of output entries.
+	mem.write16(messagePointer + 12, count ? count - 1 : 0);  // u16: Last copied index.
 }
 
 void BOSSService::registerStorageEntry(u32 messagePointer) {
-	log("BOSS::RegisterStorageEntry (stubbed)\n");
+	const u32 nsDataId = mem.read32(messagePointer + 4);
+	const u32 storageSize = mem.read32(messagePointer + 8);
+	log("BOSS::RegisterStorageEntry (id=%X, size=%u)\n", nsDataId, storageSize);
+	storageEntries[nsDataId] = storageSize;
+	if (!nsDataStorage.contains(nsDataId)) {
+		nsDataStorage[nsDataId] = std::vector<u8>(storageSize, 0);
+	}
+	const auto now = std::chrono::duration_cast<std::chrono::milliseconds>(
+		std::chrono::system_clock::now().time_since_epoch()
+	).count();
+	nsDataLastUpdatedMs[nsDataId] = static_cast<u64>(std::max<s64>(0, now));
+
 	mem.write32(messagePointer, IPC::responseHeader(0x2F, 1, 0));
 	mem.write32(messagePointer + 4, Result::Success);
 }
 
 void BOSSService::unregisterStorage(u32 messagePointer) {
-	log("BOSS::UnregisterStorage (stubbed)\n");
+	const u32 nsDataId = mem.read32(messagePointer + 4);
+	log("BOSS::UnregisterStorage (id=%X)\n", nsDataId);
+	storageEntries.erase(nsDataId);
+	nsDataStorage.erase(nsDataId);
+	nsDataLastUpdatedMs.erase(nsDataId);
+
 	mem.write32(messagePointer, IPC::responseHeader(0x3, 1, 0));
 	mem.write32(messagePointer + 4, Result::Success);
 }
@@ -369,7 +400,17 @@ void BOSSService::getNewArrivalFlag(u32 messagePointer) {
 void BOSSService::startBgImmediate(u32 messagePointer) {
 	const u32 size = mem.read32(messagePointer + 8);
 	const u32 taskIDs = mem.read32(messagePointer + 12);
-	log("BOSS::StartBgImmediate (size = %X, task ID pointer = %X) (stubbed)\n", size, taskIDs);
+	log("BOSS::StartBgImmediate (size = %X, task ID pointer = %X)\n", size, taskIDs);
+	const u32 taskCount = size / 8;
+	for (u32 i = 0; i < taskCount; i++) {
+		const std::string taskID = ReadTaskId(mem, taskIDs + i * 8, 8);
+		if (!taskID.empty()) {
+			auto& task = tasks[taskID];
+			task.id = taskID;
+			task.state = 1;
+			task.status = 1;
+		}
+	}
 
 	mem.write32(messagePointer, IPC::responseHeader(0x33, 1, 2));
 	mem.write32(messagePointer + 4, Result::Success);
@@ -392,14 +433,13 @@ void BOSSService::getNsDataHeaderInfo(u32 messagePointer) {
 	const u8 type = mem.read8(messagePointer + 8);
 	const u32 size = mem.read32(messagePointer + 12);
 	const u32 nsDataHeaderInfo = mem.read32(messagePointer + 20);
-	log("BOSS::GetNsDataHeaderInfo (NS data ID = %X, type = %X, size = %X, NS data header info pointer = %X) (stubbed)\n", nsDataID, type, size,
+	log("BOSS::GetNsDataHeaderInfo (NS data ID = %X, type = %X, size = %X, NS data header info pointer = %X)\n", nsDataID, type, size,
 		nsDataHeaderInfo);
 
-	switch (type) {
-		case 3:
-		case 5: mem.write32(nsDataHeaderInfo, 0); break;  // ??
-
-		default: Helpers::panic("Unimplemented NS data header info type %X", type);
+	const u32 storedSize = nsDataStorage.contains(nsDataID) ? static_cast<u32>(nsDataStorage[nsDataID].size()) : 0;
+	mem.write32(nsDataHeaderInfo, storedSize);
+	if (size >= 8) {
+		mem.write32(nsDataHeaderInfo + 4, storageEntries.contains(nsDataID) ? storageEntries[nsDataID] : storedSize);
 	}
 
 	mem.write32(messagePointer, IPC::responseHeader(0x27, 1, 2));
@@ -410,11 +450,12 @@ void BOSSService::getNsDataHeaderInfo(u32 messagePointer) {
 
 void BOSSService::getNsDataLastUpdated(u32 messagePointer) {
 	const u32 nsDataID = mem.read32(messagePointer + 4);
-	log("BOSS::GetNsDataLastUpdated (NS data ID = %X) (stubbed)\n", nsDataID);
+	log("BOSS::GetNsDataLastUpdated (NS data ID = %X)\n", nsDataID);
+	const u64 updated = nsDataLastUpdatedMs.contains(nsDataID) ? nsDataLastUpdatedMs[nsDataID] : 0;
 
 	mem.write32(messagePointer, IPC::responseHeader(0x2D, 3, 0));
 	mem.write32(messagePointer + 4, Result::Success);
-	mem.write64(messagePointer + 8, 0);  // Milliseconds since last update?
+	mem.write64(messagePointer + 8, updated);
 }
 
 void BOSSService::readNsData(u32 messagePointer) {
@@ -422,15 +463,22 @@ void BOSSService::readNsData(u32 messagePointer) {
 	const s64 offset = mem.read64(messagePointer + 8);
 	const u32 size = mem.read32(messagePointer + 20);
 	const u32 data = mem.read32(messagePointer + 24);
-	log("BOSS::ReadNsData (NS data ID = %X, offset = %llX, size = %X, data pointer = %X) (stubbed)\n", nsDataID, offset, size, data);
+	log("BOSS::ReadNsData (NS data ID = %X, offset = %llX, size = %X, data pointer = %X)\n", nsDataID, offset, size, data);
 
-	for (u32 i = 0; i < size; i++) {
-		mem.write8(data + i, 0);
+	u32 bytesRead = 0;
+	if (const auto it = nsDataStorage.find(nsDataID); it != nsDataStorage.end() && offset >= 0) {
+		const u64 start = static_cast<u64>(offset);
+		if (start < it->second.size()) {
+			bytesRead = std::min<u32>(size, static_cast<u32>(it->second.size() - start));
+			for (u32 i = 0; i < bytesRead; i++) {
+				mem.write8(data + i, it->second[static_cast<size_t>(start + i)]);
+			}
+		}
 	}
 
 	mem.write32(messagePointer, IPC::responseHeader(0x28, 3, 2));
 	mem.write32(messagePointer + 4, Result::Success);
-	mem.write32(messagePointer + 8, size);  // Technically how many bytes have been read
+	mem.write32(messagePointer + 8, bytesRead);  // How many bytes have been read
 	mem.write32(messagePointer + 12, 0);    // ??
 	mem.write32(messagePointer + 16, IPC::pointerHeader(0, size, IPC::BufferType::Receive));
 	mem.write32(messagePointer + 20, data);
@@ -438,7 +486,9 @@ void BOSSService::readNsData(u32 messagePointer) {
 
 void BOSSService::deleteNsData(u32 messagePointer) {
 	const u32 nsDataID = mem.read32(messagePointer + 4);
-	log("BOSS::DeleteNsData (NS data ID = %X) (stubbed)\n", nsDataID);
+	log("BOSS::DeleteNsData (NS data ID = %X)\n", nsDataID);
+	nsDataStorage.erase(nsDataID);
+	nsDataLastUpdatedMs.erase(nsDataID);
 
 	mem.write32(messagePointer, IPC::responseHeader(0x26, 1, 0));
 	mem.write32(messagePointer + 4, Result::Success);

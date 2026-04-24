@@ -7,6 +7,7 @@
 #include <array>
 #include <optional>
 #include <string>
+#include <vector>
 #include <unordered_map>
 
 class BOSSService {
@@ -56,6 +57,9 @@ class BOSSService {
 	std::unordered_map<std::string, TaskInfo> tasks;
 	std::unordered_map<u32, std::array<u8, 256>> properties;
 	std::unordered_map<u64, u8> appNewFlags;
+	std::unordered_map<u32, std::vector<u8>> nsDataStorage;
+	std::unordered_map<u32, u64> nsDataLastUpdatedMs;
+	std::unordered_map<u32, u32> storageEntries;
 	std::optional<Handle> newArrivalEvent = std::nullopt;
 	u32 lastErrorCode = Result::Success;
 	s8 optoutFlag;
