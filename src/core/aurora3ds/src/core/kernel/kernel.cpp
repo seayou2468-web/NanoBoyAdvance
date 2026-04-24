@@ -98,6 +98,7 @@ void Kernel::serviceSVC(u32 svc) {
 		case 0x3A: getResourceLimitCurrentValues(); break;
 		case 0x3B: getThreadContext(); break;
 		case 0x3D: outputDebugString(); break;
+		case 0x65: getProcessList(); break;
 		case 0x3C:
 		case 0x3E:
 		case 0x3F:
@@ -137,12 +138,11 @@ void Kernel::serviceSVC(u32 svc) {
 		case 0x5E:
 		case 0x5F:
 		case 0x60:
-		case 0x61:
-		case 0x62:
-		case 0x63:
-		case 0x64:
-		case 0x65:
-		case 0x66:
+			case 0x61:
+			case 0x62:
+			case 0x63:
+			case 0x64:
+			case 0x66:
 		case 0x67:
 		case 0x68:
 		case 0x69:
@@ -158,7 +158,6 @@ void Kernel::serviceSVC(u32 svc) {
 		case 0x73:
 		case 0x74:
 		case 0x75:
-		case 0x76:
 		case 0x77:
 		case 0x78:
 		case 0x79:
@@ -188,6 +187,7 @@ void Kernel::serviceSVC(u32 svc) {
 			Helpers::warn("Reference SVC stub not yet implemented: %X @ %08X", svc, regs[15]);
 			regs[0] = Result::OS::NotImplemented;
 			break;
+		case 0x76: terminateProcess(); break;
 
 		// Luma SVCs
 		case 0x91: regs[0] = Result::Success; break;  // FlushDataCacheRange (no-op for now)
@@ -440,6 +440,21 @@ void Kernel::getProcessID() {
 	regs[1] = process->getData<Process>()->id;
 }
 
+// Result GetProcessList(s32* out_count, ProcessId* out_processes, s32 max_count)
+void Kernel::getProcessList() {
+	const s32 maxCount = static_cast<s32>(regs[2]);
+	logSVC("GetProcessList(max count = %d)\n", maxCount);
+
+	if (maxCount < 0) [[unlikely]] {
+		regs[0] = Result::OS::OutOfRange;
+		return;
+	}
+
+	regs[0] = Result::Success;
+	regs[1] = maxCount > 0 ? 1u : 0u;
+	regs[2] = getObject(currentProcess, KernelObjectType::Process)->getData<Process>()->id;
+}
+
 // Result OpenProcess(Handle* out, ProcessId process_id)
 void Kernel::openProcess() {
 	const u32 pid = regs[1];
@@ -501,6 +516,23 @@ void Kernel::getProcessIDOfThread() {
 
 	regs[0] = Result::Success;
 	regs[1] = process->getData<Process>()->id;
+}
+
+// Result TerminateProcess(Handle process)
+void Kernel::terminateProcess() {
+	const Handle processHandle = regs[0];
+	logSVC("TerminateProcess(handle = %X)\n", processHandle);
+
+	const auto process = getProcessFromPID(processHandle);
+	if (process == nullptr) [[unlikely]] {
+		regs[0] = Result::Kernel::InvalidHandle;
+		return;
+	}
+
+	// Aurora currently emulates one user process. Terminating it is equivalent to terminating
+	// the running thread.
+	regs[0] = Result::Success;
+	exitThread();
 }
 
 // Result GetHandleInfo(s64* out, Handle handle, HandleInfoType type)
