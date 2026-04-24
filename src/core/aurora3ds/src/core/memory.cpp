@@ -822,6 +822,18 @@ u8* Memory::mapSharedMemory(Handle handle, u32 vaddr, u32 myPerms, u32 otherPerm
 	return nullptr;
 }
 
+u8* Memory::getSharedMemoryPointer(Handle handle) {
+	for (auto& e : sharedMemBlocks) {
+		if (e.handle == handle) {
+			if (e.size == 0) {
+				return nullptr;
+			}
+			return &fcram[e.paddr];
+		}
+	}
+	return nullptr;
+}
+
 // Get the number of ms since Jan 1 1900
 u64 Memory::timeSince3DSEpoch() {
 	using namespace std::chrono;

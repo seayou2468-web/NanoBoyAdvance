@@ -97,7 +97,10 @@ void GPUService::reset() {
 	interruptEvent = std::nullopt;
 	gspThreadCount = 0;
 	firstInitialization = true;
-	sharedMem = nullptr;
+	sharedMem = mem.getSharedMemoryPointer(KernelHandles::GSPSharedMemHandle);
+	if (sharedMem != nullptr) {
+		std::memset(sharedMem, 0, 0x1000);
+	}
 	savedVram.reset();
 }
 
@@ -169,13 +172,6 @@ void GPUService::registerInterruptRelayQueue(u32 messagePointer) {
 	// We currently emulate a single GSP relay queue. Returning varying thread indices
 	// breaks clients that poll queue 0 while we only signal queue 0 interrupts.
 	constexpr u32 threadIndex = 0;
-	if (sharedMem == nullptr) {
-		// On hardware the GSP module has direct access to this shared block regardless of
-		// when userland maps it. Keep a service-side pointer so IRQ/GX processing can run
-		// as soon as relay queue registration completes.
-		sharedMem = mem.getFCRAM();
-		std::memset(sharedMem, 0, 0x1000);
-	}
 	gspThreadCount += 1;
 	if (gspThreadCount > 1) {
 		Helpers::warn("GSP::GPU::RegisterInterruptRelayQueue called multiple times; reusing emulated threadIndex=0");
