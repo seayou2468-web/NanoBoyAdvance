@@ -11,14 +11,14 @@
 #include "core/file_sys/archive_extsavedata.h"
 #include "core/file_sys/errors.h"
 #include "core/file_sys/file_backend.h"
-#include "core/hle/kernel/shared_page.h"
-#include "core/hle/service/mcu/mcu_rtc.h"
-#include "core/hle/service/ptm/ptm.h"
-#include "core/hle/service/ptm/ptm_gets.h"
-#include "core/hle/service/ptm/ptm_play.h"
-#include "core/hle/service/ptm/ptm_sets.h"
-#include "core/hle/service/ptm/ptm_sysm.h"
-#include "core/hle/service/ptm/ptm_u.h"
+#include "core/sys/kernel/shared_page.h"
+#include "core/sys/service/mcu/mcu_rtc.h"
+#include "core/sys/service/ptm/ptm.h"
+#include "core/sys/service/ptm/ptm_gets.h"
+#include "core/sys/service/ptm/ptm_play.h"
+#include "core/sys/service/ptm/ptm_sets.h"
+#include "core/sys/service/ptm/ptm_sysm.h"
+#include "core/sys/service/ptm/ptm_u.h"
 
 SERIALIZE_EXPORT_IMPL(Service::PTM::Module)
 SERVICE_CONSTRUCT_IMPL(Service::PTM::Module)

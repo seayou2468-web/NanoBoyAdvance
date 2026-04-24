@@ -25,7 +25,7 @@
 
 #include <memory>
 #include "common/serialization/serialization_alias.hpp"
-#include "core/hle/service/service.h"
+#include "core/sys/service/service.h"
 
 namespace Core {
 class System;

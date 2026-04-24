@@ -4,12 +4,12 @@
 
 #include "common/archives.h"
 #include "core/core.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/kernel/shared_memory.h"
-#include "core/hle/service/act/act.h"
-#include "core/hle/service/act/act_a.h"
-#include "core/hle/service/act/act_errors.h"
-#include "core/hle/service/act/act_u.h"
+#include "core/sys/ipc_helpers.h"
+#include "core/sys/kernel/shared_memory.h"
+#include "core/sys/service/act/act.h"
+#include "core/sys/service/act/act_a.h"
+#include "core/sys/service/act/act_errors.h"
+#include "core/sys/service/act/act_u.h"
 
 SERIALIZE_EXPORT_IMPL(Service::ACT::Module)
 SERVICE_CONSTRUCT_IMPL(Service::ACT::Module)

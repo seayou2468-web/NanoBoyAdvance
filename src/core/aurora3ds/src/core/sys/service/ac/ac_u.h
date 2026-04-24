@@ -5,7 +5,7 @@
 #pragma once
 
 #include <memory>
-#include "core/hle/service/ac/ac.h"
+#include "core/sys/service/ac/ac.h"
 
 namespace Service::AC {
 

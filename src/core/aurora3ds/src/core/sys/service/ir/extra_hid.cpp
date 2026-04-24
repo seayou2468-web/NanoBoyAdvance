@@ -6,8 +6,8 @@
 #include "common/alignment.h"
 #include "common/settings.h"
 #include "core/core_timing.h"
-#include "core/hle/service/hid/hid.h"
-#include "core/hle/service/ir/extra_hid.h"
+#include "core/sys/service/hid/hid.h"
+#include "core/sys/service/ir/extra_hid.h"
 #include "core/movie.h"
 
 namespace Service::IR {

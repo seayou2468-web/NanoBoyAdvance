@@ -4,10 +4,10 @@
 
 #include "common/archives.h"
 #include "core/core.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/service/nfc/nfc.h"
-#include "core/hle/service/nfc/nfc_m.h"
-#include "core/hle/service/nfc/nfc_u.h"
+#include "core/sys/ipc_helpers.h"
+#include "core/sys/service/nfc/nfc.h"
+#include "core/sys/service/nfc/nfc_m.h"
+#include "core/sys/service/nfc/nfc_u.h"
 
 SERVICE_CONSTRUCT_IMPL(Service::NFC::Module)
 SERIALIZE_EXPORT_IMPL(Service::NFC::Module)

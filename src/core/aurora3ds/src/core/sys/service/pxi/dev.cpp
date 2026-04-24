@@ -3,7 +3,7 @@
 // Refer to the license.txt file included.
 
 #include "common/archives.h"
-#include "core/hle/service/pxi/dev.h"
+#include "core/sys/service/pxi/dev.h"
 
 SERIALIZE_EXPORT_IMPL(Service::PXI::DEV)
 

@@ -8,7 +8,6 @@
 #include <cryptopp/aes.h>
 #include <cryptopp/modes.h>
 #include <fmt/format.h>
-#include <openssl/rand.h>
 #include "common/alignment.h"
 #include "common/archives.h"
 #include "common/common_paths.h"
@@ -18,25 +17,26 @@
 #include "common/string_util.h"
 #include "common/zstd_compression.h"
 #include "core/core.h"
+#include "../../../../../include/crypto/platform_random.hpp"
 #include "core/file_sys/certificate.h"
 #include "core/file_sys/errors.h"
 #include "core/file_sys/ncch_container.h"
 #include "core/file_sys/otp.h"
 #include "core/file_sys/seed_db.h"
 #include "core/file_sys/title_metadata.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/kernel/client_session.h"
-#include "core/hle/kernel/errors.h"
-#include "core/hle/kernel/process.h"
-#include "core/hle/kernel/server_session.h"
-#include "core/hle/kernel/session.h"
-#include "core/hle/service/am/am.h"
-#include "core/hle/service/am/am_app.h"
-#include "core/hle/service/am/am_net.h"
-#include "core/hle/service/am/am_sys.h"
-#include "core/hle/service/am/am_u.h"
-#include "core/hle/service/fs/archive.h"
-#include "core/hle/service/fs/fs_user.h"
+#include "core/sys/ipc_helpers.h"
+#include "core/sys/kernel/client_session.h"
+#include "core/sys/kernel/errors.h"
+#include "core/sys/kernel/process.h"
+#include "core/sys/kernel/server_session.h"
+#include "core/sys/kernel/session.h"
+#include "core/sys/service/am/am.h"
+#include "core/sys/service/am/am_app.h"
+#include "core/sys/service/am/am_net.h"
+#include "core/sys/service/am/am_sys.h"
+#include "core/sys/service/am/am_u.h"
+#include "core/sys/service/fs/archive.h"
+#include "core/sys/service/fs/fs_user.h"
 #include "core/hw/aes/key.h"
 #include "core/hw/rsa/rsa.h"
 #include "core/hw/unique_data.h"
@@ -4947,8 +4947,13 @@ void Module::Interface::ExportTicketWrapped(Kernel::HLERequestContext& ctx) {
     std::vector<u8> key(0x10);
     std::vector<u8> iv(0x10);
 
-    RAND_bytes(key.data(), static_cast<int>(key.size()));
-    RAND_bytes(iv.data(), static_cast<int>(iv.size()));
+    if (!Crypto::GenerateSecureRandomBytes(key) || !Crypto::GenerateSecureRandomBytes(iv)) {
+        LOG_ERROR(Service_AM, "Failed to generate secure random key/iv");
+        IPC::RequestBuilder rb = rp.MakeBuilder(1, 0);
+        rb.Push(Result(ErrorDescription::NotFound, ErrorModule::AM, ErrorSummary::InvalidState,
+                       ErrorLevel::Permanent));
+        return;
+    }
 
     CryptoPP::CBC_Mode<CryptoPP::AES>::Encryption e(key.data(), key.size(), iv.data());
     e.ProcessData(ticket_data.data(), ticket_data.data(), ticket_data.size());

@@ -13,9 +13,9 @@
 #include "common/serialization/std_optional.hpp"
 #include "core/frontend/input.h"
 #include "core/global.h"
-#include "core/hle/kernel/event.h"
-#include "core/hle/result.h"
-#include "core/hle/service/fs/archive.h"
+#include "core/sys/kernel/event.h"
+#include "core/sys/result.h"
+#include "core/sys/service/fs/archive.h"
 
 namespace Core {
 class System;

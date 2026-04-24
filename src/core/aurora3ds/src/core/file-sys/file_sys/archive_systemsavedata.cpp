@@ -14,7 +14,7 @@
 #include "core/file_sys/archive_systemsavedata.h"
 #include "core/file_sys/errors.h"
 #include "core/file_sys/savedata_archive.h"
-#include "core/hle/service/fs/archive.h"
+#include "core/sys/service/fs/archive.h"
 
 SERIALIZE_EXPORT_IMPL(FileSys::ArchiveFactory_SystemSaveData)
 

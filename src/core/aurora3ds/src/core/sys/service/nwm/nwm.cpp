@@ -3,14 +3,14 @@
 // Refer to the license.txt file included.
 
 #include "core/core.h"
-#include "core/hle/service/nwm/nwm.h"
-#include "core/hle/service/nwm/nwm_cec.h"
-#include "core/hle/service/nwm/nwm_ext.h"
-#include "core/hle/service/nwm/nwm_inf.h"
-#include "core/hle/service/nwm/nwm_sap.h"
-#include "core/hle/service/nwm/nwm_soc.h"
-#include "core/hle/service/nwm/nwm_tst.h"
-#include "core/hle/service/nwm/nwm_uds.h"
+#include "core/sys/service/nwm/nwm.h"
+#include "core/sys/service/nwm/nwm_cec.h"
+#include "core/sys/service/nwm/nwm_ext.h"
+#include "core/sys/service/nwm/nwm_inf.h"
+#include "core/sys/service/nwm/nwm_sap.h"
+#include "core/sys/service/nwm/nwm_soc.h"
+#include "core/sys/service/nwm/nwm_tst.h"
+#include "core/sys/service/nwm/nwm_uds.h"
 
 namespace Service::NWM {
 

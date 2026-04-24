@@ -6,11 +6,11 @@
 
 #include <memory>
 #include <string>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/export.hpp>
-#include <boost/serialization/string.hpp>
+#include "../../../../include/aurora_serialization/base_object.hpp"
+#include "../../../../include/aurora_serialization/export.hpp"
+#include "../../../../include/aurora_serialization/string.hpp"
 #include "core/file_sys/archive_backend.h"
-#include "core/hle/result.h"
+#include "core/sys/result.h"
 
 namespace FileSys {
 
@@ -49,11 +49,11 @@ protected:
     NANDArchive() = default;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<ArchiveBackend>(*this);
+        ar& AuroraSerialization::base_object<ArchiveBackend>(*this);
         ar & mount_point;
         ar & archive_type;
     }
-    friend class boost::serialization::access;
+    friend class AuroraSerialization::access;
 
 private:
     bool AllowsWrite() const {
@@ -102,14 +102,14 @@ private:
     ArchiveFactory_NAND() = default;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<ArchiveFactory>(*this);
+        ar& AuroraSerialization::base_object<ArchiveFactory>(*this);
         ar & nand_directory;
         ar & archive_type;
     }
-    friend class boost::serialization::access;
+    friend class AuroraSerialization::access;
 };
 
 } // namespace FileSys
 
-BOOST_CLASS_EXPORT_KEY(FileSys::NANDArchive)
-BOOST_CLASS_EXPORT_KEY(FileSys::ArchiveFactory_NAND)
+AURORA_CLASS_EXPORT_KEY(FileSys::NANDArchive)
+AURORA_CLASS_EXPORT_KEY(FileSys::ArchiveFactory_NAND)

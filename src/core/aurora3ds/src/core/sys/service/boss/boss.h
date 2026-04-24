@@ -7,10 +7,10 @@
 #include <memory>
 #include "common/serialization/serialization_alias.hpp"
 #include "core/global.h"
-#include "core/hle/kernel/event.h"
-#include "core/hle/kernel/resource_limit.h"
-#include "core/hle/service/boss/online_service.h"
-#include "core/hle/service/service.h"
+#include "core/sys/kernel/event.h"
+#include "core/sys/kernel/resource_limit.h"
+#include "core/sys/service/boss/online_service.h"
+#include "core/sys/service/service.h"
 
 namespace Core {
 class System;

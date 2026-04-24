@@ -13,7 +13,7 @@
 #include "common/swap.h"
 #include "common/serialization/serialization_alias.hpp"
 #include "core/file_sys/delay_generator.h"
-#include "core/hle/result.h"
+#include "core/sys/result.h"
 
 namespace FileSys {
 

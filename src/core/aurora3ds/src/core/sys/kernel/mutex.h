@@ -8,10 +8,10 @@
 #include <string>
 #include "common/serialization/serialization_alias.hpp"
 #include "common/common_types.h"
-#include "core/hle/kernel/kernel.h"
-#include "core/hle/kernel/resource_limit.h"
-#include "core/hle/kernel/wait_object.h"
-#include "core/hle/result.h"
+#include "core/sys/kernel/kernel.h"
+#include "core/sys/kernel/resource_limit.h"
+#include "core/sys/kernel/wait_object.h"
+#include "core/sys/result.h"
 
 namespace Kernel {
 

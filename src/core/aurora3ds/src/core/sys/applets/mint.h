@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "core/hle/applets/applet.h"
-#include "core/hle/kernel/shared_memory.h"
+#include "core/sys/applets/applet.h"
+#include "core/sys/kernel/shared_memory.h"
 
 namespace HLE::Applets {
 

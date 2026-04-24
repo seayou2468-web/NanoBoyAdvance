@@ -9,12 +9,12 @@
 #include "common/assert.h"
 #include "common/common_types.h"
 #include "core/core.h"
-#include "core/hle/kernel/event.h"
-#include "core/hle/kernel/handle_table.h"
-#include "core/hle/kernel/hle_ipc.h"
-#include "core/hle/kernel/ipc_debugger/recorder.h"
-#include "core/hle/kernel/kernel.h"
-#include "core/hle/kernel/process.h"
+#include "core/sys/kernel/event.h"
+#include "core/sys/kernel/handle_table.h"
+#include "core/sys/kernel/hle_ipc.h"
+#include "core/sys/kernel/ipc_debugger/recorder.h"
+#include "core/sys/kernel/kernel.h"
+#include "core/sys/kernel/process.h"
 
 SERIALIZE_EXPORT_IMPL(Kernel::SessionRequestHandler)
 SERIALIZE_EXPORT_IMPL(Kernel::SessionRequestHandler::SessionDataBase)

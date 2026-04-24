@@ -15,10 +15,10 @@
 #include "common/scope_exit.h"
 #include "common/swap.h"
 #include "core/core.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/kernel/shared_memory.h"
-#include "core/hle/result.h"
-#include "core/hle/service/soc/soc_u.h"
+#include "core/sys/ipc_helpers.h"
+#include "core/sys/kernel/shared_memory.h"
+#include "core/sys/result.h"
+#include "core/sys/service/soc/soc_u.h"
 #include "network/socket_manager.h"
 
 #ifdef _WIN32

@@ -3,9 +3,9 @@
 // Refer to the license.txt file included.
 
 #include "core/core.h"
-#include "core/hle/service/mcu/mcu.h"
-#include "core/hle/service/mcu/mcu_hwc.h"
-#include "core/hle/service/mcu/mcu_rtc.h"
+#include "core/sys/service/mcu/mcu.h"
+#include "core/sys/service/mcu/mcu_hwc.h"
+#include "core/sys/service/mcu/mcu_rtc.h"
 
 namespace Service::MCU {
 

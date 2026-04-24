@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "core/hle/service/service.h"
+#include "core/sys/service/service.h"
 
 namespace Service::PXI {
 

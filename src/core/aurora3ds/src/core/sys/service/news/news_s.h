@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "core/hle/service/news/news.h"
+#include "core/sys/service/news/news.h"
 
 namespace Service::NEWS {
 

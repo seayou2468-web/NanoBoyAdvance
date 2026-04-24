@@ -9,8 +9,8 @@
 #include "common/serialization/serialization_alias.hpp"
 #include "common/common_types.h"
 #include "common/memory_ref.h"
-#include "core/hle/kernel/memory.h"
-#include "core/hle/result.h"
+#include "core/sys/kernel/memory.h"
+#include "core/sys/result.h"
 #include "core/memory.h"
 
 namespace Kernel {

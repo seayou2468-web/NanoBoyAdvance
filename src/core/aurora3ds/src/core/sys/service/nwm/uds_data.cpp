@@ -11,8 +11,8 @@
 #include <cryptopp/filters.h>
 #include <cryptopp/md5.h>
 #include <cryptopp/modes.h>
-#include "core/hle/service/nwm/nwm_uds.h"
-#include "core/hle/service/nwm/uds_data.h"
+#include "core/sys/service/nwm/nwm_uds.h"
+#include "core/sys/service/nwm/uds_data.h"
 #include "core/hw/aes/key.h"
 
 namespace Service::NWM {

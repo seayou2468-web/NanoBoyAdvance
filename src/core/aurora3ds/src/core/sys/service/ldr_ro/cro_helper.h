@@ -8,7 +8,7 @@
 #include <tuple>
 #include "common/common_types.h"
 #include "common/swap.h"
-#include "core/hle/result.h"
+#include "core/sys/result.h"
 #include "core/memory.h"
 
 namespace Kernel {

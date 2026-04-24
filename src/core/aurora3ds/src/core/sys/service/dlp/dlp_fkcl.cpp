@@ -4,8 +4,8 @@
 
 #include "common/archives.h"
 #include "core/core.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/service/dlp/dlp_fkcl.h"
+#include "core/sys/ipc_helpers.h"
+#include "core/sys/service/dlp/dlp_fkcl.h"
 
 SERIALIZE_EXPORT_IMPL(Service::DLP::DLP_FKCL)
 

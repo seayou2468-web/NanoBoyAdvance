@@ -24,8 +24,8 @@
 #include "core/file_sys/file_backend.h"
 #include "core/file_sys/plugin_3gx.h"
 #include "core/file_sys/plugin_3gx_bootloader.h"
-#include "core/hle/kernel/config_mem.h"
-#include "core/hle/kernel/vm_manager.h"
+#include "core/sys/kernel/config_mem.h"
+#include "core/sys/kernel/vm_manager.h"
 #include "core/loader/loader.h"
 
 static std::string ReadTextInfo(FileUtil::IOFile& file, std::size_t offset, std::size_t max_size) {

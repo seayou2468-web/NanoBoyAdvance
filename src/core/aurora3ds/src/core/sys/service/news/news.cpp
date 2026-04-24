@@ -14,14 +14,14 @@
 #include "core/file_sys/archive_systemsavedata.h"
 #include "core/file_sys/errors.h"
 #include "core/file_sys/file_backend.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/kernel/shared_page.h"
-#include "core/hle/result.h"
-#include "core/hle/service/fs/fs_user.h"
-#include "core/hle/service/news/news.h"
-#include "core/hle/service/news/news_s.h"
-#include "core/hle/service/news/news_u.h"
-#include "core/hle/service/service.h"
+#include "core/sys/ipc_helpers.h"
+#include "core/sys/kernel/shared_page.h"
+#include "core/sys/result.h"
+#include "core/sys/service/fs/fs_user.h"
+#include "core/sys/service/news/news.h"
+#include "core/sys/service/news/news_s.h"
+#include "core/sys/service/news/news_u.h"
+#include "core/sys/service/service.h"
 
 SERVICE_CONSTRUCT_IMPL(Service::NEWS::Module)
 

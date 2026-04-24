@@ -28,11 +28,11 @@
 #include "common/settings.h"
 #include "core/core.h"
 #include "core/file_sys/plugin_3gx.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/kernel/event.h"
-#include "core/hle/kernel/handle_table.h"
-#include "core/hle/kernel/kernel.h"
-#include "core/hle/service/plgldr/plgldr.h"
+#include "core/sys/ipc_helpers.h"
+#include "core/sys/kernel/event.h"
+#include "core/sys/kernel/handle_table.h"
+#include "core/sys/kernel/kernel.h"
+#include "core/sys/service/plgldr/plgldr.h"
 #include "core/loader/loader.h"
 
 SERIALIZE_EXPORT_IMPL(Service::PLGLDR::PLG_LDR)

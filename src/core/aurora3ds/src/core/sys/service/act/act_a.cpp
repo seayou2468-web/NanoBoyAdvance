@@ -3,7 +3,7 @@
 // Refer to the license.txt file included.
 
 #include "common/archives.h"
-#include "core/hle/service/act/act_a.h"
+#include "core/sys/service/act/act_a.h"
 
 namespace Service::ACT {
 

@@ -3,7 +3,7 @@
 // Refer to the license.txt file included.
 
 #include "common/archives.h"
-#include "core/hle/service/boss/boss_p.h"
+#include "core/sys/service/boss/boss_p.h"
 
 namespace Service::BOSS {
 

@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/export.hpp>
-#include <boost/serialization/shared_ptr.hpp>
+#include "../../../../include/aurora_serialization/base_object.hpp"
+#include "../../../../include/aurora_serialization/export.hpp"
+#include "../../../../include/aurora_serialization/shared_ptr.hpp"
 #include "core/file_sys/archive_source_sd_savedata.h"
 
 namespace FileSys {
@@ -36,10 +36,10 @@ private:
     ArchiveFactory_OtherSaveDataPermitted() = default;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<ArchiveFactory>(*this);
+        ar& AuroraSerialization::base_object<ArchiveFactory>(*this);
         ar & sd_savedata_source;
     }
-    friend class boost::serialization::access;
+    friend class AuroraSerialization::access;
 };
 
 /// File system interface to the OtherSaveDataGeneral archive
@@ -63,13 +63,13 @@ private:
     ArchiveFactory_OtherSaveDataGeneral() = default;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<ArchiveFactory>(*this);
+        ar& AuroraSerialization::base_object<ArchiveFactory>(*this);
         ar & sd_savedata_source;
     }
-    friend class boost::serialization::access;
+    friend class AuroraSerialization::access;
 };
 
 } // namespace FileSys
 
-BOOST_CLASS_EXPORT_KEY(FileSys::ArchiveFactory_OtherSaveDataPermitted)
-BOOST_CLASS_EXPORT_KEY(FileSys::ArchiveFactory_OtherSaveDataGeneral)
+AURORA_CLASS_EXPORT_KEY(FileSys::ArchiveFactory_OtherSaveDataPermitted)
+AURORA_CLASS_EXPORT_KEY(FileSys::ArchiveFactory_OtherSaveDataGeneral)

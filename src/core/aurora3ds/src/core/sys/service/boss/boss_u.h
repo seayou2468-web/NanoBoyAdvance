@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "core/hle/service/boss/boss.h"
+#include "core/sys/service/boss/boss.h"
 
 namespace Service::BOSS {
 

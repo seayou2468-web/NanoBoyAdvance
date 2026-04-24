@@ -11,7 +11,7 @@
 #include "core/file_sys/otp.h"
 #include "core/file_sys/signature.h"
 #include "core/file_sys/ticket.h"
-#include "core/hle/service/am/am.h"
+#include "core/sys/service/am/am.h"
 #include "core/hw/aes/key.h"
 #include "core/hw/ecc.h"
 #include "core/hw/unique_data.h"

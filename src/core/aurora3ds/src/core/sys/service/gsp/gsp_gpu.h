@@ -11,11 +11,11 @@
 #include "common/serialization/serialization_alias.hpp"
 #include "common/bit_field.h"
 #include "common/common_types.h"
-#include "core/hle/kernel/event.h"
-#include "core/hle/kernel/hle_ipc.h"
-#include "core/hle/service/gsp/gsp_command.h"
-#include "core/hle/service/gsp/gsp_interrupt.h"
-#include "core/hle/service/service.h"
+#include "core/sys/kernel/event.h"
+#include "core/sys/kernel/hle_ipc.h"
+#include "core/sys/service/gsp/gsp_command.h"
+#include "core/sys/service/gsp/gsp_interrupt.h"
+#include "core/sys/service/service.h"
 
 namespace Core {
 class System;

@@ -10,8 +10,8 @@
 #include "common/common_types.h"
 #include "core/core.h"
 #include "core/core_timing.h"
-#include "core/hle/applets/applet.h"
-#include "core/hle/result.h"
+#include "core/sys/applets/applet.h"
+#include "core/sys/result.h"
 
 namespace HLE::Applets {
 

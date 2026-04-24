@@ -7,7 +7,7 @@
 #include <functional>
 #include <memory>
 #include <span>
-#include "core/hle/service/service.h"
+#include "core/sys/service/service.h"
 
 namespace Kernel {
 class Event;

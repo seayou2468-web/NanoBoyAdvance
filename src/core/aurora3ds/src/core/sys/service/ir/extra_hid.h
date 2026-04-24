@@ -11,7 +11,7 @@
 #include "common/bit_field.h"
 #include "common/swap.h"
 #include "core/frontend/input.h"
-#include "core/hle/service/ir/ir_user.h"
+#include "core/sys/service/ir/ir_user.h"
 
 namespace Core {
 struct TimingEventType;

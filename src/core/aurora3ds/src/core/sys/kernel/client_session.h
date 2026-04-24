@@ -8,8 +8,8 @@
 #include <string>
 #include "common/serialization/serialization_alias.hpp"
 #include "common/common_types.h"
-#include "core/hle/kernel/object.h"
-#include "core/hle/result.h"
+#include "core/sys/kernel/object.h"
+#include "core/sys/result.h"
 
 namespace Kernel {
 

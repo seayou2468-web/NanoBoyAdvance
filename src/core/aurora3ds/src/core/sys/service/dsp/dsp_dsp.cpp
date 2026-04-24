@@ -7,9 +7,9 @@
 #include "common/assert.h"
 #include "common/logging/log.h"
 #include "core/core.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/kernel/process.h"
-#include "core/hle/service/dsp/dsp_dsp.h"
+#include "core/sys/ipc_helpers.h"
+#include "core/sys/kernel/process.h"
+#include "core/sys/service/dsp/dsp_dsp.h"
 
 using DspPipe = AudioCore::DspPipe;
 using InterruptType = Service::DSP::InterruptType;

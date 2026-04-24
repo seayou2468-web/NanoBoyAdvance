@@ -3,7 +3,7 @@
 // Refer to the license.txt file included.
 
 #include "common/archives.h"
-#include "core/hle/service/ac/ac_i.h"
+#include "core/sys/service/ac/ac_i.h"
 
 namespace Service::AC {
 

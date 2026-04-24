@@ -10,7 +10,7 @@
 #include "common/common_types.h"
 #include "common/swap.h"
 #include "core/frontend/input.h"
-#include "core/hle/service/service.h"
+#include "core/sys/service/service.h"
 
 namespace Kernel {
 class Event;

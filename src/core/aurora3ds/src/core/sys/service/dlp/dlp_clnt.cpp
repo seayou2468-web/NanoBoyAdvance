@@ -3,8 +3,8 @@
 // Refer to the license.txt file included.
 
 #include "common/archives.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/service/dlp/dlp_clnt.h"
+#include "core/sys/ipc_helpers.h"
+#include "core/sys/service/dlp/dlp_clnt.h"
 
 SERIALIZE_EXPORT_IMPL(Service::DLP::DLP_CLNT)
 

@@ -14,9 +14,9 @@
 #include "common/archives.h"
 #include "common/common_types.h"
 #include "common/construct.h"
-#include "core/hle/kernel/hle_ipc.h"
-#include "core/hle/kernel/object.h"
-#include "core/hle/service/sm/sm.h"
+#include "core/sys/kernel/hle_ipc.h"
+#include "core/sys/kernel/object.h"
+#include "core/sys/service/sm/sm.h"
 
 namespace Core {
 class System;

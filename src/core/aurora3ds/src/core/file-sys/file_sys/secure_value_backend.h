@@ -4,11 +4,11 @@
 
 #pragma once
 
-#include "tuple"
+#include <tuple>
 
 #include "common/common_types.h"
-#include "core/hle/result.h"
-#include "core/hle/service/fs/archive.h"
+#include "core/sys/result.h"
+#include "core/sys/service/fs/archive.h"
 
 namespace FileSys {
 class SecureValueBackend : NonCopyable {
@@ -36,7 +36,7 @@ public:
 protected:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {}
-    friend class boost::serialization::access;
+    friend class AuroraSerialization::access;
 };
 
 class DefaultSecureValueBackend : public SecureValueBackend {
@@ -58,8 +58,8 @@ public:
 protected:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class boost::serialization::access;
+    friend class AuroraSerialization::access;
 };
 } // namespace FileSys
 
-BOOST_CLASS_EXPORT_KEY(FileSys::DefaultSecureValueBackend)
+AURORA_CLASS_EXPORT_KEY(FileSys::DefaultSecureValueBackend)

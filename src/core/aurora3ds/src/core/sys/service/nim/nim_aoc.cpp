@@ -3,7 +3,7 @@
 // Refer to the license.txt file included.
 
 #include "common/archives.h"
-#include "core/hle/service/nim/nim_aoc.h"
+#include "core/sys/service/nim/nim_aoc.h"
 
 SERIALIZE_EXPORT_IMPL(Service::NIM::NIM_AOC)
 

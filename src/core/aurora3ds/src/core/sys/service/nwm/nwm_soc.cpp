@@ -4,11 +4,11 @@
 
 #include "common/archives.h"
 #include "core/core.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/service/cfg/cfg.h"
-#include "core/hle/service/cfg/cfg_u.h"
-#include "core/hle/service/nwm/nwm_soc.h"
-#include "core/hle/service/nwm/nwm_uds.h"
+#include "core/sys/ipc_helpers.h"
+#include "core/sys/service/cfg/cfg.h"
+#include "core/sys/service/cfg/cfg_u.h"
+#include "core/sys/service/nwm/nwm_soc.h"
+#include "core/sys/service/nwm/nwm_uds.h"
 
 SERIALIZE_EXPORT_IMPL(Service::NWM::NWM_SOC)
 SERVICE_CONSTRUCT_IMPL(Service::NWM::NWM_SOC)

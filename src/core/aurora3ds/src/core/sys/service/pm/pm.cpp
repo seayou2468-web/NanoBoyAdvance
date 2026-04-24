@@ -3,9 +3,9 @@
 // Refer to the license.txt file included.
 
 #include "core/core.h"
-#include "core/hle/service/pm/pm.h"
-#include "core/hle/service/pm/pm_app.h"
-#include "core/hle/service/pm/pm_dbg.h"
+#include "core/sys/service/pm/pm.h"
+#include "core/sys/service/pm/pm_app.h"
+#include "core/sys/service/pm/pm_dbg.h"
 
 namespace Service::PM {
 

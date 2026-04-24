@@ -9,12 +9,12 @@
 #include "common/logging/log.h"
 #include "common/string_util.h"
 #include "core/core.h"
-#include "core/hle/applets/swkbd.h"
-#include "core/hle/kernel/kernel.h"
-#include "core/hle/kernel/shared_memory.h"
-#include "core/hle/result.h"
-#include "core/hle/service/gsp/gsp.h"
-#include "core/hle/service/hid/hid.h"
+#include "core/sys/applets/swkbd.h"
+#include "core/sys/kernel/kernel.h"
+#include "core/sys/kernel/shared_memory.h"
+#include "core/sys/result.h"
+#include "core/sys/service/gsp/gsp.h"
+#include "core/sys/service/hid/hid.h"
 #include "core/memory.h"
 
 namespace HLE::Applets {

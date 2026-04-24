@@ -6,7 +6,7 @@
 
 #include <memory>
 #include "core/file_sys/archive_backend.h"
-#include "core/hle/service/service.h"
+#include "core/sys/service/service.h"
 
 namespace Service::FS {
 

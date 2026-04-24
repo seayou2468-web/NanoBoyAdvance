@@ -8,7 +8,7 @@
 #include <memory>
 #include "common/serialization/serialization_alias.hpp"
 #include "common/common_types.h"
-#include "core/hle/kernel/object.h"
+#include "core/sys/kernel/object.h"
 
 namespace Kernel {
 

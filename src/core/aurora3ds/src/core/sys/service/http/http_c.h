@@ -14,9 +14,9 @@
 #include "common/serialization/std_optional.hpp"
 #include <httplib.h>
 #include "common/thread.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/kernel/shared_memory.h"
-#include "core/hle/service/service.h"
+#include "core/sys/ipc_helpers.h"
+#include "core/sys/kernel/shared_memory.h"
+#include "core/sys/service/service.h"
 
 namespace Core {
 class System;

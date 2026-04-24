@@ -7,9 +7,9 @@
 #include "common/vector_math.h"
 #include "core/core.h"
 #include "core/core_timing.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/service/mcu/mcu.h"
-#include "core/hle/service/mcu/mcu_rtc.h"
+#include "core/sys/ipc_helpers.h"
+#include "core/sys/service/mcu/mcu.h"
+#include "core/sys/service/mcu/mcu_rtc.h"
 
 SERVICE_CONSTRUCT_IMPL(Service::MCU::RTC)
 SERIALIZE_EXPORT_IMPL(Service::MCU::RTC)

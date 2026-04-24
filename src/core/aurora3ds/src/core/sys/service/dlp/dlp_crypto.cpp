@@ -7,9 +7,9 @@
 #include "common/archives.h"
 #include "common/logging/log.h"
 #include "core/core.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/service/dlp/dlp_base.h"
-#include "core/hle/service/ssl/ssl_c.h"
+#include "core/sys/ipc_helpers.h"
+#include "core/sys/service/dlp/dlp_base.h"
+#include "core/sys/service/ssl/ssl_c.h"
 #include "core/hw/aes/arithmetic128.h"
 #include "core/hw/aes/key.h"
 

@@ -3,7 +3,7 @@
 // Refer to the license.txt file included.
 
 #include "common/archives.h"
-#include "core/hle/service/hid/hid_spvr.h"
+#include "core/sys/service/hid/hid_spvr.h"
 
 SERIALIZE_EXPORT_IMPL(Service::HID::Spvr)
 

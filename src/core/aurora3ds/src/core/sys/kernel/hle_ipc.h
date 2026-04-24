@@ -15,9 +15,9 @@
 #include "common/common_types.h"
 #include "common/settings.h"
 #include "common/swap.h"
-#include "core/hle/ipc.h"
-#include "core/hle/kernel/object.h"
-#include "core/hle/kernel/server_session.h"
+#include "core/sys/ipc.h"
+#include "core/sys/kernel/object.h"
+#include "core/sys/kernel/server_session.h"
 
 namespace Service {
 class ServiceFrameworkBase;

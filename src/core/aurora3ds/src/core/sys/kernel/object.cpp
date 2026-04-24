@@ -3,8 +3,8 @@
 // Refer to the license.txt file included.
 
 #include "common/assert.h"
-#include "core/hle/kernel/kernel.h"
-#include "core/hle/kernel/object.h"
+#include "core/sys/kernel/kernel.h"
+#include "core/sys/kernel/object.h"
 
 #include "common/archives.h"
 

@@ -8,7 +8,7 @@
 #include "core/file_sys/archive_backend.h"
 #include "core/file_sys/directory_backend.h"
 #include "core/file_sys/file_backend.h"
-#include "core/hle/result.h"
+#include "core/sys/result.h"
 
 namespace FileSys {
 
@@ -42,11 +42,11 @@ protected:
 private:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<ArchiveBackend>(*this);
+        ar& AuroraSerialization::base_object<ArchiveBackend>(*this);
         ar & mount_point;
         ar & allow_zero_size_create;
     }
-    friend class boost::serialization::access;
+    friend class AuroraSerialization::access;
 };
 
 class SaveDataDelayGenerator;
@@ -54,6 +54,6 @@ class ExtSaveDataArchive;
 
 } // namespace FileSys
 
-BOOST_CLASS_EXPORT_KEY(FileSys::SaveDataArchive)
-BOOST_CLASS_EXPORT_KEY(FileSys::SaveDataDelayGenerator)
-BOOST_CLASS_EXPORT_KEY(FileSys::ExtSaveDataArchive)
+AURORA_CLASS_EXPORT_KEY(FileSys::SaveDataArchive)
+AURORA_CLASS_EXPORT_KEY(FileSys::SaveDataDelayGenerator)
+AURORA_CLASS_EXPORT_KEY(FileSys::ExtSaveDataArchive)

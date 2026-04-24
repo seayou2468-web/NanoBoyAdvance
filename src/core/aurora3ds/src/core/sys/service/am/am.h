@@ -20,9 +20,9 @@
 #include "core/file_sys/file_backend.h"
 #include "core/file_sys/ncch_container.h"
 #include "core/global.h"
-#include "core/hle/kernel/mutex.h"
-#include "core/hle/result.h"
-#include "core/hle/service/service.h"
+#include "core/sys/kernel/mutex.h"
+#include "core/sys/result.h"
+#include "core/sys/service/service.h"
 #include "network/artic_base/artic_base_client.h"
 
 namespace Core {

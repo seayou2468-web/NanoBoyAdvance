@@ -5,11 +5,11 @@
 #include "common/archives.h"
 #include "common/logging/log.h"
 #include "core/core.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/result.h"
-#include "core/hle/service/boss/boss.h"
-#include "core/hle/service/boss/boss_p.h"
-#include "core/hle/service/boss/boss_u.h"
+#include "core/sys/ipc_helpers.h"
+#include "core/sys/result.h"
+#include "core/sys/service/boss/boss.h"
+#include "core/sys/service/boss/boss_p.h"
+#include "core/sys/service/boss/boss_u.h"
 
 SERVICE_CONSTRUCT_IMPL(Service::BOSS::Module)
 SERIALIZE_EXPORT_IMPL(Service::BOSS::Module)

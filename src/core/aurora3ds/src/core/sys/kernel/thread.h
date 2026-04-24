@@ -20,10 +20,10 @@
 #include "common/thread_queue_list.h"
 #include "core/arm/arm_interface.h"
 #include "core/core_timing.h"
-#include "core/hle/kernel/object.h"
-#include "core/hle/kernel/resource_limit.h"
-#include "core/hle/kernel/wait_object.h"
-#include "core/hle/result.h"
+#include "core/sys/kernel/object.h"
+#include "core/sys/kernel/resource_limit.h"
+#include "core/sys/kernel/wait_object.h"
+#include "core/sys/result.h"
 
 namespace Kernel {
 

@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "core/hle/service/am/am.h"
+#include "core/sys/service/am/am.h"
 
 namespace Service::AM {
 

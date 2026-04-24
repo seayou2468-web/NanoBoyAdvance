@@ -14,8 +14,8 @@
 #include "core/file_sys/directory_backend.h"
 #include "core/file_sys/errors.h"
 #include "core/file_sys/file_backend.h"
-#include "core/hle/kernel/hle_ipc.h"
-#include "core/hle/service/boss/online_service.h"
+#include "core/sys/kernel/hle_ipc.h"
+#include "core/sys/service/boss/online_service.h"
 
 namespace Service::BOSS {
 

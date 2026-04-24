@@ -5,10 +5,10 @@
 #include "common/serialization/serialization_alias.hpp"
 #include "common/archives.h"
 #include "common/logging/log.h"
-#include "core/hle/kernel/errors.h"
-#include "core/hle/kernel/memory.h"
-#include "core/hle/kernel/resource_limit.h"
-#include "core/hle/kernel/shared_memory.h"
+#include "core/sys/kernel/errors.h"
+#include "core/sys/kernel/memory.h"
+#include "core/sys/kernel/resource_limit.h"
+#include "core/sys/kernel/shared_memory.h"
 #include "core/memory.h"
 
 SERIALIZE_EXPORT_IMPL(Kernel::SharedMemory)

@@ -2,7 +2,7 @@
 
 #include <memory>
 #include <string>
-#include "core/hle/mii.h"
+#include "core/sys/mii.h"
 
 namespace Frontend {
 

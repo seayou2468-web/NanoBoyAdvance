@@ -4,7 +4,7 @@
 
 namespace CRC {
 	// CRC-16 with polynomial 0x1021, initial remainder 0, final XOR 0, no input/output reflection.
-	// This matches boost::crc<16, 0x1021, 0, 0, false, false>.
+	// This matches the CRC-16/CCITT-FALSE parameters (poly=0x1021, init=0, xorout=0, refin=false, refout=false).
 	static inline u16 crc16_1021_no_reflect(const void* data, usize size) {
 		const auto* bytes = static_cast<const u8*>(data);
 		u16 remainder = 0;

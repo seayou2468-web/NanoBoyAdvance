@@ -7,8 +7,8 @@
 #include "common/scope_exit.h"
 #include "core/arm/arm_interface.h"
 #include "core/core.h"
-#include "core/hle/kernel/process.h"
-#include "core/hle/service/ldr_ro/cro_helper.h"
+#include "core/sys/kernel/process.h"
+#include "core/sys/service/ldr_ro/cro_helper.h"
 
 namespace Service::LDR {
 

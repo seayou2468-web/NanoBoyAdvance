@@ -3,7 +3,7 @@
 // Refer to the license.txt file included.
 
 #include "common/archives.h"
-#include "core/hle/service/apt/apt_u.h"
+#include "core/sys/service/apt/apt_u.h"
 
 namespace Service::APT {
 

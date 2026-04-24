@@ -3,7 +3,7 @@
 // Refer to the license.txt file included.
 
 #include "common/archives.h"
-#include "core/hle/service/frd/frd_u.h"
+#include "core/sys/service/frd/frd_u.h"
 
 SERIALIZE_EXPORT_IMPL(Service::FRD::FRD_U)
 

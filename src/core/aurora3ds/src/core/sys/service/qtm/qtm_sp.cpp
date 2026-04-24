@@ -3,8 +3,8 @@
 // Refer to the license.txt file included.
 
 #include "common/archives.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/service/qtm/qtm_sp.h"
+#include "core/sys/ipc_helpers.h"
+#include "core/sys/service/qtm/qtm_sp.h"
 
 SERIALIZE_EXPORT_IMPL(Service::QTM::QTM_SP)
 

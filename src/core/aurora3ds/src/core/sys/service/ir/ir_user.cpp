@@ -9,12 +9,12 @@
 #include "common/archives.h"
 #include "common/swap.h"
 #include "core/core.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/kernel/event.h"
-#include "core/hle/kernel/shared_memory.h"
-#include "core/hle/service/ir/extra_hid.h"
-#include "core/hle/service/ir/ir_user.h"
-#include "core/hle/service/non_boost_utils.h"
+#include "core/sys/ipc_helpers.h"
+#include "core/sys/kernel/event.h"
+#include "core/sys/kernel/shared_memory.h"
+#include "core/sys/service/ir/extra_hid.h"
+#include "core/sys/service/ir/ir_user.h"
+#include "core/sys/service/compat_utils.h"
 
 SERIALIZE_EXPORT_IMPL(Service::IR::IR_USER)
 SERVICE_CONSTRUCT_IMPL(Service::IR::IR_USER)

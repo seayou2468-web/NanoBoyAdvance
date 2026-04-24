@@ -5,9 +5,9 @@
 #pragma once
 
 #include "common/serialization/serialization_alias.hpp"
-#include "core/hle/kernel/object.h"
-#include "core/hle/kernel/resource_limit.h"
-#include "core/hle/kernel/wait_object.h"
+#include "core/sys/kernel/object.h"
+#include "core/sys/kernel/resource_limit.h"
+#include "core/sys/kernel/wait_object.h"
 
 namespace Kernel {
 

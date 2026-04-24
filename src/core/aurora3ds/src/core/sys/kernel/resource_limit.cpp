@@ -6,9 +6,9 @@
 #include "common/archives.h"
 #include "common/assert.h"
 #include "common/settings.h"
-#include "core/hle/kernel/process.h"
-#include "core/hle/kernel/resource_limit.h"
-#include "core/hle/kernel/thread.h"
+#include "core/sys/kernel/process.h"
+#include "core/sys/kernel/resource_limit.h"
+#include "core/sys/kernel/thread.h"
 
 SERIALIZE_EXPORT_IMPL(Kernel::ResourceLimit)
 SERIALIZE_EXPORT_IMPL(Kernel::ResourceLimitList)

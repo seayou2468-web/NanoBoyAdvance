@@ -6,8 +6,8 @@
 #include "common/archives.h"
 #include "common/logging/log.h"
 #include "core/file_sys/directory_backend.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/service/fs/directory.h"
+#include "core/sys/ipc_helpers.h"
+#include "core/sys/service/fs/directory.h"
 
 SERIALIZE_EXPORT_IMPL(Service::FS::Directory)
 

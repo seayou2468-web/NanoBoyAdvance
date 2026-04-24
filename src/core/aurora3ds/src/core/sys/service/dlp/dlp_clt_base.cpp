@@ -7,9 +7,9 @@
 #include "common/alignment.h"
 #include "common/string_util.h"
 #include "common/timer.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/service/am/am.h"
-#include "core/hle/service/nwm/uds_beacon.h"
+#include "core/sys/ipc_helpers.h"
+#include "core/sys/service/am/am.h"
+#include "core/sys/service/nwm/uds_beacon.h"
 
 namespace Service::DLP {
 

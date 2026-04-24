@@ -9,7 +9,7 @@
 #include <vector>
 
 #include "common/common_types.h"
-#include "core/hle/result.h"
+#include "core/sys/result.h"
 #include "core/loader/loader.h"
 
 namespace Kernel {

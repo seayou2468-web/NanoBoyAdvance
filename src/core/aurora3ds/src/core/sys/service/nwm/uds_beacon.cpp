@@ -10,8 +10,8 @@
 #include <cryptopp/modes.h>
 #include <cryptopp/sha.h>
 #include "common/assert.h"
-#include "core/hle/service/nwm/nwm_uds.h"
-#include "core/hle/service/nwm/uds_beacon.h"
+#include "core/sys/service/nwm/nwm_uds.h"
+#include "core/sys/service/nwm/uds_beacon.h"
 
 namespace Service::NWM {
 

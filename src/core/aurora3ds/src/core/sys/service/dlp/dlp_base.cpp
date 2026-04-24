@@ -9,9 +9,9 @@
 #include "common/alignment.h"
 #include "common/swap.h"
 #include "common/timer.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/service/nwm/uds_data.h"
-#include "core/hle/service/service.h"
+#include "core/sys/ipc_helpers.h"
+#include "core/sys/service/nwm/uds_data.h"
+#include "core/sys/service/service.h"
 #include "core/hw/aes/key.h"
 #include "core/hw/unique_data.h"
 

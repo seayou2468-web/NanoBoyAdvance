@@ -5,10 +5,10 @@
 #include "common/serialization/serialization_alias.hpp"
 #include "common/archives.h"
 #include "common/assert.h"
-#include "core/hle/kernel/event.h"
-#include "core/hle/kernel/kernel.h"
-#include "core/hle/kernel/resource_limit.h"
-#include "core/hle/kernel/thread.h"
+#include "core/sys/kernel/event.h"
+#include "core/sys/kernel/kernel.h"
+#include "core/sys/kernel/resource_limit.h"
+#include "core/sys/kernel/thread.h"
 
 SERIALIZE_EXPORT_IMPL(Kernel::Event)
 

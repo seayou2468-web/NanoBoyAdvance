@@ -17,7 +17,7 @@
 #include "core/core.h"
 #include "core/core_timing.h"
 #include "core/frontend/input.h"
-#include "core/hle/service/service.h"
+#include "core/sys/service/service.h"
 #include "network/artic_base/artic_base_client.h"
 
 namespace Kernel {

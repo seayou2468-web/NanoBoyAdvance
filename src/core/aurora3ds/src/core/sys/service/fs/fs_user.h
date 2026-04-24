@@ -10,8 +10,8 @@
 #include "common/common_types.h"
 #include "core/file_sys/errors.h"
 #include "core/file_sys/secure_value_backend.h"
-#include "core/hle/service/fs/archive.h"
-#include "core/hle/service/service.h"
+#include "core/sys/service/fs/archive.h"
+#include "core/sys/service/service.h"
 
 namespace Core {
 class System;

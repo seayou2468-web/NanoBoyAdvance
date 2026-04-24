@@ -3,8 +3,8 @@
 // Refer to the license.txt file included.
 
 #include "common/archives.h"
-#include "core/hle/service/cam/cam.h"
-#include "core/hle/service/cam/cam_s.h"
+#include "core/sys/service/cam/cam.h"
+#include "core/sys/service/cam/cam_s.h"
 
 namespace Service::CAM {
 

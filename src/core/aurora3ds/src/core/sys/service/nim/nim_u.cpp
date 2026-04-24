@@ -5,9 +5,9 @@
 #include "common/archives.h"
 #include "common/string_util.h"
 #include "core/core.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/kernel/event.h"
-#include "core/hle/service/nim/nim_u.h"
+#include "core/sys/ipc_helpers.h"
+#include "core/sys/kernel/event.h"
+#include "core/sys/service/nim/nim_u.h"
 
 SERVICE_CONSTRUCT_IMPL(Service::NIM::NIM_U)
 SERIALIZE_EXPORT_IMPL(Service::NIM::NIM_U)

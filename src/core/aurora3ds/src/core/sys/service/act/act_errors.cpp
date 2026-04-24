@@ -2,7 +2,7 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include "core/hle/service/act/act_errors.h"
+#include "core/sys/service/act/act_errors.h"
 
 namespace Service::ACT {
 

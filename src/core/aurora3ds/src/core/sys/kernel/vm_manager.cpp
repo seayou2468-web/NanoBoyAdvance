@@ -8,9 +8,9 @@
 #include "common/archives.h"
 #include "common/assert.h"
 #include "core/core.h"
-#include "core/hle/kernel/errors.h"
-#include "core/hle/kernel/vm_manager.h"
-#include "core/hle/service/plgldr/plgldr.h"
+#include "core/sys/kernel/errors.h"
+#include "core/sys/kernel/vm_manager.h"
+#include "core/sys/service/plgldr/plgldr.h"
 #include "core/memory.h"
 
 SERIALIZE_EXPORT_IMPL(Kernel::VirtualMemoryArea)

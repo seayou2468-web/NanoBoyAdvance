@@ -5,10 +5,10 @@
 #include "common/alignment.h"
 #include "common/archives.h"
 #include "core/core.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/kernel/resource_limit.h"
-#include "core/hle/result.h"
-#include "core/hle/service/csnd/csnd_snd.h"
+#include "core/sys/ipc_helpers.h"
+#include "core/sys/kernel/resource_limit.h"
+#include "core/sys/result.h"
+#include "core/sys/service/csnd/csnd_snd.h"
 
 SERVICE_CONSTRUCT_IMPL(Service::CSND::CSND_SND)
 SERIALIZE_EXPORT_IMPL(Service::CSND::CSND_SND)

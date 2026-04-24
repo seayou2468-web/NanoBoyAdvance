@@ -3,7 +3,7 @@
 // Refer to the license.txt file included.
 
 #include "common/archives.h"
-#include "core/hle/service/cecd/cecd_u.h"
+#include "core/sys/service/cecd/cecd_u.h"
 
 SERIALIZE_EXPORT_IMPL(Service::CECD::CECD_U)
 

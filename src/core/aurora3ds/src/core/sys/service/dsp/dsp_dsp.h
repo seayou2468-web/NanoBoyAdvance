@@ -7,9 +7,9 @@
 #include <memory>
 #include "common/serialization/serialization_alias.hpp"
 #include "audio_core/dsp_interface.h"
-#include "core/hle/kernel/event.h"
-#include "core/hle/result.h"
-#include "core/hle/service/service.h"
+#include "core/sys/kernel/event.h"
+#include "core/sys/result.h"
+#include "core/sys/service/service.h"
 
 namespace Core {
 class System;

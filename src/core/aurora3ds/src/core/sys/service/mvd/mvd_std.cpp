@@ -3,8 +3,8 @@
 // Refer to the license.txt file included.
 
 #include "common/archives.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/service/mvd/mvd_std.h"
+#include "core/sys/ipc_helpers.h"
+#include "core/sys/service/mvd/mvd_std.h"
 
 SERIALIZE_EXPORT_IMPL(Service::MVD::MVD_STD)
 

@@ -4,15 +4,15 @@
 
 #include "common/assert.h"
 #include "common/logging/log.h"
-#include "core/hle/kernel/client_port.h"
-#include "core/hle/kernel/client_session.h"
-#include "core/hle/kernel/ipc_debugger/recorder.h"
-#include "core/hle/kernel/process.h"
-#include "core/hle/kernel/server_port.h"
-#include "core/hle/kernel/server_session.h"
-#include "core/hle/kernel/session.h"
-#include "core/hle/kernel/thread.h"
-#include "core/hle/service/service.h"
+#include "core/sys/kernel/client_port.h"
+#include "core/sys/kernel/client_session.h"
+#include "core/sys/kernel/ipc_debugger/recorder.h"
+#include "core/sys/kernel/process.h"
+#include "core/sys/kernel/server_port.h"
+#include "core/sys/kernel/server_session.h"
+#include "core/sys/kernel/session.h"
+#include "core/sys/kernel/thread.h"
+#include "core/sys/service/service.h"
 
 namespace IPCDebugger {
 

@@ -5,7 +5,7 @@
 #include "common/serialization/serialization_alias.hpp"
 #include "common/archives.h"
 #include "crc16.hpp"
-#include "core/hle/mii.h"
+#include "core/sys/mii.h"
 
 SERIALIZE_EXPORT_IMPL(Mii::MiiData)
 SERIALIZE_EXPORT_IMPL(Mii::ChecksummedMiiData)

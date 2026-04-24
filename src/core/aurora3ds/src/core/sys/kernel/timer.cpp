@@ -7,12 +7,12 @@
 #include "common/assert.h"
 #include "common/logging/log.h"
 #include "core/core.h"
-#include "core/hle/kernel/handle_table.h"
-#include "core/hle/kernel/object.h"
-#include "core/hle/kernel/process.h"
-#include "core/hle/kernel/resource_limit.h"
-#include "core/hle/kernel/thread.h"
-#include "core/hle/kernel/timer.h"
+#include "core/sys/kernel/handle_table.h"
+#include "core/sys/kernel/object.h"
+#include "core/sys/kernel/process.h"
+#include "core/sys/kernel/resource_limit.h"
+#include "core/sys/kernel/thread.h"
+#include "core/sys/kernel/timer.h"
 
 SERIALIZE_EXPORT_IMPL(Kernel::Timer)
 

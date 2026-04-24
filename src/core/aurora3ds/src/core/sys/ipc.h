@@ -5,8 +5,8 @@
 #pragma once
 
 #include "common/common_types.h"
-#include "core/hle/kernel/errors.h"
-#include "core/hle/kernel/thread.h"
+#include "core/sys/kernel/errors.h"
+#include "core/sys/kernel/thread.h"
 #include "core/memory.h"
 
 namespace IPC {

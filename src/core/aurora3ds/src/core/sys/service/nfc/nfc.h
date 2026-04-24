@@ -7,8 +7,8 @@
 #include <memory>
 #include "common/serialization/serialization_alias.hpp"
 #include "common/common_types.h"
-#include "core/hle/service/nfc/nfc_device.h"
-#include "core/hle/service/service.h"
+#include "core/sys/service/nfc/nfc_device.h"
+#include "core/sys/service/service.h"
 
 namespace Core {
 class System;

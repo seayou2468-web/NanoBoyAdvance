@@ -11,10 +11,10 @@
 #include "common/common_types.h"
 #include "common/logging/log.h"
 #include "core/core.h"
-#include "core/hle/ipc.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/result.h"
-#include "core/hle/service/err/err_f.h"
+#include "core/sys/ipc.h"
+#include "core/sys/ipc_helpers.h"
+#include "core/sys/result.h"
+#include "core/sys/service/err/err_f.h"
 #undef exception_info // We use 'exception_info' as a plain identifier, but MSVC defines this in one
                       // of its many headers.
 

@@ -3,7 +3,7 @@
 // Refer to the license.txt file included.
 
 #include "common/archives.h"
-#include "core/hle/service/apt/ns_s.h"
+#include "core/sys/service/apt/ns_s.h"
 
 namespace Service::NS {
 

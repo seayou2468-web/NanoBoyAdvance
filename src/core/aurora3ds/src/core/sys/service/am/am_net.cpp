@@ -3,7 +3,7 @@
 // Refer to the license.txt file included.
 
 #include "common/archives.h"
-#include "core/hle/service/am/am_net.h"
+#include "core/sys/service/am/am_net.h"
 
 namespace Service::AM {
 

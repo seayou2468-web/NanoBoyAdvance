@@ -3,10 +3,10 @@
 // Refer to the license.txt file included.
 
 #include "core/core.h"
-#include "core/hle/service/dlp/dlp.h"
-#include "core/hle/service/dlp/dlp_clnt.h"
-#include "core/hle/service/dlp/dlp_fkcl.h"
-#include "core/hle/service/dlp/dlp_srvr.h"
+#include "core/sys/service/dlp/dlp.h"
+#include "core/sys/service/dlp/dlp_clnt.h"
+#include "core/sys/service/dlp/dlp_fkcl.h"
+#include "core/sys/service/dlp/dlp_srvr.h"
 
 namespace Service::DLP {
 

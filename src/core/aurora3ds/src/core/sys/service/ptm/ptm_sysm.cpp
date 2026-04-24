@@ -3,7 +3,7 @@
 // Refer to the license.txt file included.
 
 #include "common/archives.h"
-#include "core/hle/service/ptm/ptm_sysm.h"
+#include "core/sys/service/ptm/ptm_sysm.h"
 
 SERIALIZE_EXPORT_IMPL(Service::PTM::PTM_S)
 SERIALIZE_EXPORT_IMPL(Service::PTM::PTM_Sysm)

@@ -3,8 +3,8 @@
 // Refer to the license.txt file included.
 
 #include <fmt/format.h>
-#include "core/hle/service/nwm/nwm_uds.h"
-#include "core/hle/service/nwm/uds_connection.h"
+#include "core/sys/service/nwm/nwm_uds.h"
+#include "core/sys/service/nwm/uds_connection.h"
 
 namespace Service::NWM {
 

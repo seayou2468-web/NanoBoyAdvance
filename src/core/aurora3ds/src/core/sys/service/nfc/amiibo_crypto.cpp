@@ -13,7 +13,7 @@
 #include <cryptopp/sha.h>
 
 #include "common/logging/log.h"
-#include "core/hle/service/nfc/amiibo_crypto.h"
+#include "core/sys/service/nfc/amiibo_crypto.h"
 #include "core/hw/aes/key.h"
 
 namespace Service::NFC::AmiiboCrypto {

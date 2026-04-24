@@ -6,13 +6,13 @@
 #include "common/serialization/serialization_alias.hpp"
 #include "common/archives.h"
 #include "common/assert.h"
-#include "core/hle/kernel/client_port.h"
-#include "core/hle/kernel/errors.h"
-#include "core/hle/kernel/hle_ipc.h"
-#include "core/hle/kernel/object.h"
-#include "core/hle/kernel/server_port.h"
-#include "core/hle/kernel/server_session.h"
-#include "core/hle/kernel/thread.h"
+#include "core/sys/kernel/client_port.h"
+#include "core/sys/kernel/errors.h"
+#include "core/sys/kernel/hle_ipc.h"
+#include "core/sys/kernel/object.h"
+#include "core/sys/kernel/server_port.h"
+#include "core/sys/kernel/server_session.h"
+#include "core/sys/kernel/thread.h"
 
 SERIALIZE_EXPORT_IMPL(Kernel::ServerPort)
 

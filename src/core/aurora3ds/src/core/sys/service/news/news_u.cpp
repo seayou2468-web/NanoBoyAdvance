@@ -3,7 +3,7 @@
 // Refer to the license.txt file included.
 
 #include "common/archives.h"
-#include "core/hle/service/news/news_u.h"
+#include "core/sys/service/news/news_u.h"
 
 SERIALIZE_EXPORT_IMPL(Service::NEWS::NEWS_U)
 

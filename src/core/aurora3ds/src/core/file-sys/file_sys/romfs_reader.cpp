@@ -11,7 +11,7 @@
 #include "core/file_sys/archive_artic.h"
 #include "core/file_sys/archive_backend.h"
 #include "core/file_sys/romfs_reader.h"
-#include "core/hle/service/fs/fs_user.h"
+#include "core/sys/service/fs/fs_user.h"
 #include "core/loader/loader.h"
 
 SERIALIZE_EXPORT_IMPL(FileSys::DirectRomFSReader)

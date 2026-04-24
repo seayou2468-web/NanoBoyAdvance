@@ -3,7 +3,7 @@
 // Refer to the license.txt file included.
 
 #include "common/archives.h"
-#include "core/hle/service/ir/ir_u.h"
+#include "core/sys/service/ir/ir_u.h"
 
 SERIALIZE_EXPORT_IMPL(Service::IR::IR_U)
 

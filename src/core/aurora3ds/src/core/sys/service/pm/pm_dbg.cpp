@@ -3,8 +3,8 @@
 // Refer to the license.txt file included.
 
 #include "common/archives.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/service/pm/pm_dbg.h"
+#include "core/sys/ipc_helpers.h"
+#include "core/sys/service/pm/pm_dbg.h"
 
 SERIALIZE_EXPORT_IMPL(Service::PM::PM_DBG)
 

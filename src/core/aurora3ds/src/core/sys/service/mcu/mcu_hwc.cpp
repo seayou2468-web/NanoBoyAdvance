@@ -3,9 +3,9 @@
 // Refer to the license.txt file included.
 
 #include "common/archives.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/service/mcu/mcu_hwc.h"
-#include "core/hle/service/mcu/mcu_rtc.h"
+#include "core/sys/ipc_helpers.h"
+#include "core/sys/service/mcu/mcu_hwc.h"
+#include "core/sys/service/mcu/mcu_rtc.h"
 
 SERVICE_CONSTRUCT_IMPL(Service::MCU::HWC)
 SERIALIZE_EXPORT_IMPL(Service::MCU::HWC)

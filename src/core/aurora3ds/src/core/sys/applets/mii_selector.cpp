@@ -9,10 +9,10 @@
 #include "common/string_util.h"
 #include "core/core.h"
 #include "core/frontend/applets/mii_selector.h"
-#include "core/hle/applets/mii_selector.h"
-#include "core/hle/kernel/kernel.h"
-#include "core/hle/kernel/shared_memory.h"
-#include "core/hle/result.h"
+#include "core/sys/applets/mii_selector.h"
+#include "core/sys/kernel/kernel.h"
+#include "core/sys/kernel/shared_memory.h"
+#include "core/sys/result.h"
 
 namespace HLE::Applets {
 

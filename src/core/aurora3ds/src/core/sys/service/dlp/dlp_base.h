@@ -5,9 +5,9 @@
 #pragma once
 
 #include "core/core.h"
-#include "core/hle/service/cfg/cfg.h"
-#include "core/hle/service/nwm/nwm_uds.h"
-#include "core/hle/service/service.h"
+#include "core/sys/service/cfg/cfg.h"
+#include "core/sys/service/nwm/nwm_uds.h"
+#include "core/sys/service/service.h"
 #include "core/loader/smdh.h"
 
 #include <semaphore>

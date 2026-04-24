@@ -13,9 +13,9 @@
 #include "common/serialization/serialization_alias.hpp"
 #include "common/bit_field.h"
 #include "common/common_types.h"
-#include "core/hle/kernel/handle_table.h"
-#include "core/hle/kernel/object.h"
-#include "core/hle/kernel/vm_manager.h"
+#include "core/sys/kernel/handle_table.h"
+#include "core/sys/kernel/object.h"
+#include "core/sys/kernel/vm_manager.h"
 
 namespace Kernel {
 

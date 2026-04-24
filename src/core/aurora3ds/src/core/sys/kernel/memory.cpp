@@ -13,12 +13,12 @@
 #include "common/logging/log.h"
 #include "common/settings.h"
 #include "core/core.h"
-#include "core/hle/kernel/config_mem.h"
-#include "core/hle/kernel/memory.h"
-#include "core/hle/kernel/process.h"
-#include "core/hle/kernel/shared_page.h"
-#include "core/hle/kernel/vm_manager.h"
-#include "core/hle/result.h"
+#include "core/sys/kernel/config_mem.h"
+#include "core/sys/kernel/memory.h"
+#include "core/sys/kernel/process.h"
+#include "core/sys/kernel/shared_page.h"
+#include "core/sys/kernel/vm_manager.h"
+#include "core/sys/result.h"
 #include "core/memory.h"
 
 SERIALIZE_EXPORT_IMPL(Kernel::MemoryRegionInfo)

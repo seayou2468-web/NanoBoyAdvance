@@ -5,8 +5,8 @@
 #pragma once
 
 #include <memory>
-#include "core/hle/result.h"
-#include "core/hle/service/apt/applet_manager.h"
+#include "core/sys/result.h"
+#include "core/sys/service/apt/applet_manager.h"
 
 namespace HLE::Applets {
 

@@ -9,11 +9,11 @@
 #include <type_traits>
 #include <unordered_map>
 #include "common/serialization/serialization_alias.hpp"
-#include "core/hle/kernel/client_port.h"
-#include "core/hle/kernel/object.h"
-#include "core/hle/kernel/server_port.h"
-#include "core/hle/result.h"
-#include "core/hle/service/service.h"
+#include "core/sys/kernel/client_port.h"
+#include "core/sys/kernel/object.h"
+#include "core/sys/kernel/server_port.h"
+#include "core/sys/result.h"
+#include "core/sys/service/service.h"
 
 namespace Core {
 class System;

@@ -12,7 +12,7 @@
 #include "common/microprofile.h"
 #include "common/vector_math.h"
 #include "core/core.h"
-#include "core/hle/service/cam/y2r_u.h"
+#include "core/sys/service/cam/y2r_u.h"
 #include "core/hw/y2r.h"
 #include "core/memory.h"
 

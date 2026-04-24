@@ -8,10 +8,10 @@
 #include "common/logging/log.h"
 #include "core/arm/arm_interface.h"
 #include "core/core.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/kernel/process.h"
-#include "core/hle/service/ldr_ro/cro_helper.h"
-#include "core/hle/service/ldr_ro/ldr_ro.h"
+#include "core/sys/ipc_helpers.h"
+#include "core/sys/kernel/process.h"
+#include "core/sys/service/ldr_ro/cro_helper.h"
+#include "core/sys/service/ldr_ro/ldr_ro.h"
 
 SERVICE_CONSTRUCT_IMPL(Service::LDR::RO)
 SERIALIZE_EXPORT_IMPL(Service::LDR::RO)

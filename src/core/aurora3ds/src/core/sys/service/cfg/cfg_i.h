@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "core/hle/service/cfg/cfg.h"
+#include "core/sys/service/cfg/cfg.h"
 
 namespace Service::CFG {
 

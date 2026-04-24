@@ -4,8 +4,8 @@
 
 #include "common/archives.h"
 #include "core/core.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/service/ndm/ndm_u.h"
+#include "core/sys/ipc_helpers.h"
+#include "core/sys/service/ndm/ndm_u.h"
 
 SERIALIZE_EXPORT_IMPL(Service::NDM::NDM_U)
 

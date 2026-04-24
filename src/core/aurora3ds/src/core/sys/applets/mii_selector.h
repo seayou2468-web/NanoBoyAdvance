@@ -7,11 +7,11 @@
 #include <memory>
 #include "common/common_funcs.h"
 #include "common/common_types.h"
-#include "core/hle/applets/applet.h"
-#include "core/hle/kernel/shared_memory.h"
-#include "core/hle/mii.h"
-#include "core/hle/result.h"
-#include "core/hle/service/apt/apt.h"
+#include "core/sys/applets/applet.h"
+#include "core/sys/kernel/shared_memory.h"
+#include "core/sys/mii.h"
+#include "core/sys/result.h"
+#include "core/sys/service/apt/apt.h"
 
 namespace Frontend {
 class MiiSelector;

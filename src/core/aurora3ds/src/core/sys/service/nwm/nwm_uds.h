@@ -18,8 +18,8 @@
 #include "common/serialization/serialization_alias.hpp"
 #include "common/common_types.h"
 #include "common/swap.h"
-#include "core/hle/service/nwm/uds_common.h"
-#include "core/hle/service/service.h"
+#include "core/sys/service/nwm/uds_common.h"
+#include "core/sys/service/service.h"
 #include "network/network.h"
 
 namespace Core {

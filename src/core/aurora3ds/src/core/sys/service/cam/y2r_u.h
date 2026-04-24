@@ -9,8 +9,8 @@
 #include <string>
 #include "common/serialization/serialization_alias.hpp"
 #include "common/common_types.h"
-#include "core/hle/result.h"
-#include "core/hle/service/service.h"
+#include "core/sys/result.h"
+#include "core/sys/service/service.h"
 
 namespace Core {
 class System;

@@ -4,13 +4,13 @@
 
 #include "atomic"
 
-#include <boost/serialization/unique_ptr.hpp>
+#include "../../../../include/aurora_serialization/unique_ptr.hpp"
 #include "common/common_types.h"
 #include "core/file_sys/archive_backend.h"
 #include "core/file_sys/artic_cache.h"
 #include "core/file_sys/directory_backend.h"
 #include "core/file_sys/file_backend.h"
-#include "core/hle/service/fs/archive.h"
+#include "core/sys/service/fs/archive.h"
 #include "core/perf_stats.h"
 #include "network/artic_base/artic_base_client.h"
 
@@ -166,10 +166,10 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<ArchiveBackend>(*this);
+        ar& AuroraSerialization::base_object<ArchiveBackend>(*this);
         ar & archive_handle;
     }
-    friend class boost::serialization::access;
+    friend class AuroraSerialization::access;
 };
 
 class ArticFileBackend : public FileBackend {
@@ -222,10 +222,10 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<FileBackend>(*this);
+        ar& AuroraSerialization::base_object<FileBackend>(*this);
         ar & file_handle;
     }
-    friend class boost::serialization::access;
+    friend class AuroraSerialization::access;
 };
 
 class ArticDirectoryBackend : public DirectoryBackend {
@@ -256,13 +256,13 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<DirectoryBackend>(*this);
+        ar& AuroraSerialization::base_object<DirectoryBackend>(*this);
         ar & dir_handle;
     }
-    friend class boost::serialization::access;
+    friend class AuroraSerialization::access;
 };
 } // namespace FileSys
 
-BOOST_CLASS_EXPORT_KEY(FileSys::ArticArchive)
-BOOST_CLASS_EXPORT_KEY(FileSys::ArticFileBackend)
-BOOST_CLASS_EXPORT_KEY(FileSys::ArticDirectoryBackend)
+AURORA_CLASS_EXPORT_KEY(FileSys::ArticArchive)
+AURORA_CLASS_EXPORT_KEY(FileSys::ArticFileBackend)
+AURORA_CLASS_EXPORT_KEY(FileSys::ArticDirectoryBackend)

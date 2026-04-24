@@ -7,10 +7,10 @@
 #include "common/archives.h"
 #include "common/assert.h"
 #include "common/logging/log.h"
-#include "core/hle/kernel/errors.h"
-#include "core/hle/kernel/handle_table.h"
-#include "core/hle/kernel/process.h"
-#include "core/hle/kernel/thread.h"
+#include "core/sys/kernel/errors.h"
+#include "core/sys/kernel/handle_table.h"
+#include "core/sys/kernel/process.h"
+#include "core/sys/kernel/thread.h"
 
 SERIALIZE_EXPORT_IMPL(Kernel::HandleTable)
 

@@ -4,9 +4,9 @@
 
 #include "common/archives.h"
 #include "core/core.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/kernel/kernel.h"
-#include "core/hle/service/pm/pm_app.h"
+#include "core/sys/ipc_helpers.h"
+#include "core/sys/kernel/kernel.h"
+#include "core/sys/service/pm/pm_app.h"
 
 SERVICE_CONSTRUCT_IMPL(Service::PM::PM_APP)
 SERIALIZE_EXPORT_IMPL(Service::PM::PM_APP)

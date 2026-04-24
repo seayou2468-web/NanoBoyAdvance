@@ -9,9 +9,9 @@
 #include <vector>
 #include "common/common_types.h"
 #include "common/swap.h"
-#include "core/hle/service/nwm/uds_beacon.h"
-#include "core/hle/service/nwm/uds_common.h"
-#include "core/hle/service/service.h"
+#include "core/sys/service/nwm/uds_beacon.h"
+#include "core/sys/service/nwm/uds_common.h"
+#include "core/sys/service/service.h"
 
 namespace Service::NWM {
 

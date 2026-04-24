@@ -4,7 +4,7 @@
 
 #include <cstring>
 #include "common/swap.h"
-#include "core/hle/romfs.h"
+#include "core/sys/romfs.h"
 
 namespace RomFS {
 

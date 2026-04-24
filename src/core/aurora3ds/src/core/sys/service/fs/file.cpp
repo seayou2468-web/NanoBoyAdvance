@@ -8,12 +8,12 @@
 #include "core/core.h"
 #include "core/file_sys/errors.h"
 #include "core/file_sys/file_backend.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/kernel/client_port.h"
-#include "core/hle/kernel/client_session.h"
-#include "core/hle/kernel/event.h"
-#include "core/hle/kernel/server_session.h"
-#include "core/hle/service/fs/file.h"
+#include "core/sys/ipc_helpers.h"
+#include "core/sys/kernel/client_port.h"
+#include "core/sys/kernel/client_session.h"
+#include "core/sys/kernel/event.h"
+#include "core/sys/kernel/server_session.h"
+#include "core/sys/service/fs/file.h"
 
 SERIALIZE_EXPORT_IMPL(Service::FS::File)
 SERIALIZE_EXPORT_IMPL(Service::FS::FileSessionSlot)

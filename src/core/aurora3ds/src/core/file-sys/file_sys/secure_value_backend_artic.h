@@ -4,12 +4,12 @@
 
 #pragma once
 
-#include "tuple"
+#include <tuple>
 
 #include "common/common_types.h"
 #include "core/file_sys/secure_value_backend.h"
-#include "core/hle/result.h"
-#include "core/hle/service/fs/archive.h"
+#include "core/sys/result.h"
+#include "core/sys/service/fs/archive.h"
 #include "network/artic_base/artic_base_client.h"
 
 namespace FileSys {
@@ -41,13 +41,13 @@ protected:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<SecureValueBackend>(*this);
+        ar& AuroraSerialization::base_object<SecureValueBackend>(*this);
     }
-    friend class boost::serialization::access;
+    friend class AuroraSerialization::access;
 
 private:
     std::shared_ptr<Network::ArticBase::Client> client;
 };
 } // namespace FileSys
 
-BOOST_CLASS_EXPORT_KEY(FileSys::ArticSecureValueBackend)
+AURORA_CLASS_EXPORT_KEY(FileSys::ArticSecureValueBackend)

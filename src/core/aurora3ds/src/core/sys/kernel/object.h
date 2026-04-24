@@ -11,7 +11,7 @@
 #include "common/common_types.h"
 #include "common/serialization/atomic.h"
 #include "core/global.h"
-#include "core/hle/kernel/kernel.h"
+#include "core/sys/kernel/kernel.h"
 
 namespace Kernel {
 

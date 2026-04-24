@@ -3,7 +3,7 @@
 // Refer to the license.txt file included.
 
 #include "common/archives.h"
-#include "core/hle/service/cfg/cfg_nor.h"
+#include "core/sys/service/cfg/cfg_nor.h"
 
 SERIALIZE_EXPORT_IMPL(Service::CFG::CFG_NOR)
 

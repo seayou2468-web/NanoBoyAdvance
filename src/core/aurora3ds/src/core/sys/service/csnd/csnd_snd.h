@@ -7,9 +7,9 @@
 #include <memory>
 #include "common/serialization/serialization_alias.hpp"
 #include "common/archives.h"
-#include "core/hle/kernel/mutex.h"
-#include "core/hle/kernel/shared_memory.h"
-#include "core/hle/service/service.h"
+#include "core/sys/kernel/mutex.h"
+#include "core/sys/kernel/shared_memory.h"
+#include "core/sys/service/service.h"
 
 namespace Core {
 class System;

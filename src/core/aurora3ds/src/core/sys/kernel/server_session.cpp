@@ -5,12 +5,12 @@
 #include <tuple>
 #include "common/serialization/serialization_alias.hpp"
 #include "common/archives.h"
-#include "core/hle/kernel/client_port.h"
-#include "core/hle/kernel/client_session.h"
-#include "core/hle/kernel/hle_ipc.h"
-#include "core/hle/kernel/server_session.h"
-#include "core/hle/kernel/session.h"
-#include "core/hle/kernel/thread.h"
+#include "core/sys/kernel/client_port.h"
+#include "core/sys/kernel/client_session.h"
+#include "core/sys/kernel/hle_ipc.h"
+#include "core/sys/kernel/server_session.h"
+#include "core/sys/kernel/session.h"
+#include "core/sys/kernel/thread.h"
 
 SERIALIZE_EXPORT_IMPL(Kernel::ServerSession)
 

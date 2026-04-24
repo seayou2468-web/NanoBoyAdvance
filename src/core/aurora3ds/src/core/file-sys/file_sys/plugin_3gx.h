@@ -25,8 +25,8 @@
 #include "common/common_types.h"
 #include "common/swap.h"
 #include "core/file_sys/archive_backend.h"
-#include "core/hle/kernel/process.h"
-#include "core/hle/service/plgldr/plgldr.h"
+#include "core/sys/kernel/process.h"
+#include "core/sys/service/plgldr/plgldr.h"
 
 namespace Loader {
 enum class ResultStatus;

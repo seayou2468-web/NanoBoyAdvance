@@ -26,8 +26,8 @@
 #include "core/file_sys/directory_backend.h"
 #include "core/file_sys/errors.h"
 #include "core/file_sys/file_backend.h"
-#include "core/hle/result.h"
-#include "core/hle/service/fs/archive.h"
+#include "core/sys/result.h"
+#include "core/sys/service/fs/archive.h"
 
 namespace Service::FS {
 

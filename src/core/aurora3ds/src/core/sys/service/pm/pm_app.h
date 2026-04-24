@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "core/hle/kernel/resource_limit.h"
-#include "core/hle/service/service.h"
+#include "core/sys/kernel/resource_limit.h"
+#include "core/sys/service/service.h"
 
 namespace Service::PM {
 

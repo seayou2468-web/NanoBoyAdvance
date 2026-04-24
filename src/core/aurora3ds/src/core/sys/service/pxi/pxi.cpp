@@ -3,8 +3,8 @@
 // Refer to the license.txt file included.
 
 #include "core/core.h"
-#include "core/hle/service/pxi/dev.h"
-#include "core/hle/service/pxi/pxi.h"
+#include "core/sys/service/pxi/dev.h"
+#include "core/sys/service/pxi/pxi.h"
 
 namespace Service::PXI {
 

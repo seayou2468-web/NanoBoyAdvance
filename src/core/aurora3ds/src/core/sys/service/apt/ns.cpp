@@ -3,8 +3,8 @@
 // Refer to the license.txt file included.
 
 #include "core/core.h"
-#include "core/hle/service/am/am.h"
-#include "core/hle/service/apt/ns.h"
+#include "core/sys/service/am/am.h"
+#include "core/sys/service/apt/ns.h"
 #include "core/loader/loader.h"
 
 namespace Service::NS {

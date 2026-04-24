@@ -3,10 +3,10 @@
 // Refer to the license.txt file included.
 
 #include "core/core.h"
-#include "core/hle/service/nim/nim.h"
-#include "core/hle/service/nim/nim_aoc.h"
-#include "core/hle/service/nim/nim_s.h"
-#include "core/hle/service/nim/nim_u.h"
+#include "core/sys/service/nim/nim.h"
+#include "core/sys/service/nim/nim_aoc.h"
+#include "core/sys/service/nim/nim_s.h"
+#include "core/sys/service/nim/nim_u.h"
 
 namespace Service::NIM {
 

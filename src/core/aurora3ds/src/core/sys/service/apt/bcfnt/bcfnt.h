@@ -6,8 +6,8 @@
 
 #include <memory>
 #include "common/swap.h"
-#include "core/hle/kernel/shared_memory.h"
-#include "core/hle/service/service.h"
+#include "core/sys/kernel/shared_memory.h"
+#include "core/sys/service/service.h"
 
 namespace Service::APT::BCFNT { ///< BCFNT Shared Font file structures
 

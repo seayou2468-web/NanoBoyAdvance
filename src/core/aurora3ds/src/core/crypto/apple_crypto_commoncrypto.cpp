@@ -1,11 +1,5 @@
 #include "../../../include/apple_crypto.hpp"
 
-#if defined(__APPLE__)
-#include <TargetConditionals.h>
-#endif
-
-#if defined(__APPLE__) && TARGET_OS_IPHONE
-
 #include <algorithm>
 #include <array>
 
@@ -49,5 +43,3 @@ namespace AppleCrypto {
 		}
 	}
 }  // namespace AppleCrypto
-
-#endif

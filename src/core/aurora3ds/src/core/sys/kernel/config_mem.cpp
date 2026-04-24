@@ -5,7 +5,7 @@
 #include <cstring>
 #include "common/serialization/serialization_alias.hpp"
 #include "common/archives.h"
-#include "core/hle/kernel/config_mem.h"
+#include "core/sys/kernel/config_mem.h"
 
 SERIALIZE_EXPORT_IMPL(ConfigMem::Handler)
 

@@ -8,9 +8,9 @@
 #include <span>
 #include "common/bit_field.h"
 #include "common/common_funcs.h"
-#include "core/hle/kernel/event.h"
-#include "core/hle/service/fs/archive.h"
-#include "core/hle/service/service.h"
+#include "core/sys/kernel/event.h"
+#include "core/sys/service/fs/archive.h"
+#include "core/sys/service/service.h"
 
 namespace FileSys {
 class ArchiveBackend;

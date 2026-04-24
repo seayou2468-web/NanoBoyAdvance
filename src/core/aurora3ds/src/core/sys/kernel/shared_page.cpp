@@ -10,8 +10,8 @@
 #include "common/settings.h"
 #include "core/core.h"
 #include "core/core_timing.h"
-#include "core/hle/kernel/shared_page.h"
-#include "core/hle/service/ptm/ptm.h"
+#include "core/sys/kernel/shared_page.h"
+#include "core/sys/service/ptm/ptm.h"
 #include "core/movie.h"
 
 SERIALIZE_EXPORT_IMPL(SharedPage::Handler)

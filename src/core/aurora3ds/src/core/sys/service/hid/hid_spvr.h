@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "core/hle/service/hid/hid.h"
+#include "core/sys/service/hid/hid.h"
 
 namespace Service::HID {
 

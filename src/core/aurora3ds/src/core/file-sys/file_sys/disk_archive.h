@@ -8,15 +8,15 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/unique_ptr.hpp>
-#include <boost/serialization/vector.hpp>
+#include "../../../../include/aurora_serialization/base_object.hpp"
+#include "../../../../include/aurora_serialization/unique_ptr.hpp"
+#include "../../../../include/aurora_serialization/vector.hpp"
 #include "common/common_types.h"
 #include "common/file_util.h"
 #include "core/file_sys/archive_backend.h"
 #include "core/file_sys/directory_backend.h"
 #include "core/file_sys/file_backend.h"
-#include "core/hle/result.h"
+#include "core/sys/result.h"
 
 namespace FileSys {
 
@@ -49,11 +49,11 @@ protected:
 private:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<FileBackend>(*this);
+        ar& AuroraSerialization::base_object<FileBackend>(*this);
         ar & mode.hex;
         ar & file;
     }
-    friend class boost::serialization::access;
+    friend class AuroraSerialization::access;
 };
 
 class DiskDirectory : public DirectoryBackend {
@@ -82,7 +82,7 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<DirectoryBackend>(*this);
+        ar& AuroraSerialization::base_object<DirectoryBackend>(*this);
         ar & directory;
         u64 child_index;
         if (Archive::is_saving::value) {
@@ -93,10 +93,10 @@ private:
             children_iterator = directory.children.begin() + child_index;
         }
     }
-    friend class boost::serialization::access;
+    friend class AuroraSerialization::access;
 };
 
 } // namespace FileSys
 
-BOOST_CLASS_EXPORT_KEY(FileSys::DiskFile)
-BOOST_CLASS_EXPORT_KEY(FileSys::DiskDirectory)
+AURORA_CLASS_EXPORT_KEY(FileSys::DiskFile)
+AURORA_CLASS_EXPORT_KEY(FileSys::DiskDirectory)

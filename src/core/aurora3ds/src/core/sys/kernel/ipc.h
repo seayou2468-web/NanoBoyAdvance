@@ -8,8 +8,8 @@
 #include <vector>
 #include "common/serialization/serialization_alias.hpp"
 #include "common/common_types.h"
-#include "core/hle/ipc.h"
-#include "core/hle/kernel/thread.h"
+#include "core/sys/ipc.h"
+#include "core/sys/kernel/thread.h"
 
 namespace Memory {
 class MemorySystem;

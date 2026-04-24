@@ -3,8 +3,8 @@
 // Refer to the license.txt file included.
 
 #include "core/core.h"
-#include "core/hle/service/mvd/mvd.h"
-#include "core/hle/service/mvd/mvd_std.h"
+#include "core/sys/service/mvd/mvd.h"
+#include "core/sys/service/mvd/mvd_std.h"
 
 namespace Service::MVD {
 

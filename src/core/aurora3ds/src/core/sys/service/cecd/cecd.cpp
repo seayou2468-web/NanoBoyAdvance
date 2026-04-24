@@ -17,14 +17,14 @@
 #include "core/file_sys/directory_backend.h"
 #include "core/file_sys/errors.h"
 #include "core/file_sys/file_backend.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/kernel/process.h"
-#include "core/hle/result.h"
-#include "core/hle/service/cecd/cecd.h"
-#include "core/hle/service/cecd/cecd_ndm.h"
-#include "core/hle/service/cecd/cecd_s.h"
-#include "core/hle/service/cecd/cecd_u.h"
-#include "core/hle/service/cfg/cfg.h"
+#include "core/sys/ipc_helpers.h"
+#include "core/sys/kernel/process.h"
+#include "core/sys/result.h"
+#include "core/sys/service/cecd/cecd.h"
+#include "core/sys/service/cecd/cecd_ndm.h"
+#include "core/sys/service/cecd/cecd_s.h"
+#include "core/sys/service/cecd/cecd_u.h"
+#include "core/sys/service/cfg/cfg.h"
 
 SERVICE_CONSTRUCT_IMPL(Service::CECD::Module)
 SERIALIZE_EXPORT_IMPL(Service::CECD::Module)

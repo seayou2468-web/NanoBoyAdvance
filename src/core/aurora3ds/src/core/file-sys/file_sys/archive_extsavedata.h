@@ -8,13 +8,13 @@
 #include <optional>
 #include <span>
 #include <string>
-#include <boost/serialization/export.hpp>
-#include <boost/serialization/string.hpp>
+#include "../../../../include/aurora_serialization/export.hpp"
+#include "../../../../include/aurora_serialization/string.hpp"
 #include "common/common_types.h"
 #include "core/file_sys/archive_backend.h"
 #include "core/file_sys/artic_cache.h"
-#include "core/hle/result.h"
-#include "core/hle/service/fs/archive.h"
+#include "core/sys/result.h"
+#include "core/sys/service/fs/archive.h"
 #include "network/artic_base/artic_base_client.h"
 
 namespace FileSys {
@@ -84,12 +84,12 @@ private:
     ArchiveFactory_ExtSaveData() = default;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<ArchiveFactory>(*this);
-        ar& boost::serialization::base_object<ArticCacheProvider>(*this);
+        ar& AuroraSerialization::base_object<ArchiveFactory>(*this);
+        ar& AuroraSerialization::base_object<ArticCacheProvider>(*this);
         ar & type;
         ar & mount_point;
     }
-    friend class boost::serialization::access;
+    friend class AuroraSerialization::access;
 };
 
 /**
@@ -133,5 +133,5 @@ class ExtSaveDataDelayGenerator;
 
 } // namespace FileSys
 
-BOOST_CLASS_EXPORT_KEY(FileSys::ArchiveFactory_ExtSaveData)
-BOOST_CLASS_EXPORT_KEY(FileSys::ExtSaveDataDelayGenerator)
+AURORA_CLASS_EXPORT_KEY(FileSys::ArchiveFactory_ExtSaveData)
+AURORA_CLASS_EXPORT_KEY(FileSys::ExtSaveDataDelayGenerator)

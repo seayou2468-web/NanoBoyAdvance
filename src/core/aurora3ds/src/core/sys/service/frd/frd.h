@@ -6,7 +6,7 @@
 
 #include <memory>
 #include "common/common_types.h"
-#include "core/hle/service/service.h"
+#include "core/sys/service/service.h"
 
 namespace Core {
 class System;

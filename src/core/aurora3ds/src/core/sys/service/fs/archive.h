@@ -12,9 +12,9 @@
 #include "common/common_types.h"
 #include "core/file_sys/archive_backend.h"
 #include "core/file_sys/archive_source_sd_savedata.h"
-#include "core/hle/result.h"
-#include "core/hle/service/fs/directory.h"
-#include "core/hle/service/fs/file.h"
+#include "core/sys/result.h"
+#include "core/sys/service/fs/directory.h"
+#include "core/sys/service/fs/file.h"
 #include "network/artic_base/artic_base_client.h"
 
 /// The unique system identifier hash, also known as ID0

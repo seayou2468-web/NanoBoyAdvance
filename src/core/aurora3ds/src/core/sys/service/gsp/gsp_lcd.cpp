@@ -3,8 +3,8 @@
 // Refer to the license.txt file included.
 
 #include "common/archives.h"
-#include "core/hle/ipc_helpers.h"
-#include "core/hle/service/gsp/gsp_lcd.h"
+#include "core/sys/ipc_helpers.h"
+#include "core/sys/service/gsp/gsp_lcd.h"
 
 SERIALIZE_EXPORT_IMPL(Service::GSP::GSP_LCD)
 

@@ -13,9 +13,9 @@
 #include "common/common_types.h"
 #include "common/swap.h"
 #include "core/global.h"
-#include "core/hle/result.h"
-#include "core/hle/service/cam/cam_params.h"
-#include "core/hle/service/service.h"
+#include "core/sys/result.h"
+#include "core/sys/service/cam/cam_params.h"
+#include "core/sys/service/service.h"
 
 namespace Core {
 class System;

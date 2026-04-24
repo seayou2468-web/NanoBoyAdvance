@@ -5,10 +5,10 @@
 #include <tuple>
 #include "common/assert.h"
 #include "core/core.h"
-#include "core/hle/kernel/client_session.h"
-#include "core/hle/result.h"
-#include "core/hle/service/sm/sm.h"
-#include "core/hle/service/sm/srv.h"
+#include "core/sys/kernel/client_session.h"
+#include "core/sys/result.h"
+#include "core/sys/service/sm/sm.h"
+#include "core/sys/service/sm/srv.h"
 
 namespace Service::SM {
 

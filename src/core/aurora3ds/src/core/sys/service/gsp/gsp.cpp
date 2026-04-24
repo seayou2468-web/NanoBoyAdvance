@@ -3,9 +3,9 @@
 // Refer to the license.txt file included.
 
 #include "core/core.h"
-#include "core/hle/service/gsp/gsp.h"
-#include "core/hle/service/gsp/gsp_gpu.h"
-#include "core/hle/service/gsp/gsp_lcd.h"
+#include "core/sys/service/gsp/gsp.h"
+#include "core/sys/service/gsp/gsp_gpu.h"
+#include "core/sys/service/gsp/gsp_lcd.h"
 
 namespace Service::GSP {
 

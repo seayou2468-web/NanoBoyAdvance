@@ -4,8 +4,8 @@
 
 #include "common/string_util.h"
 #include "core/core.h"
-#include "core/hle/applets/mint.h"
-#include "core/hle/service/apt/apt.h"
+#include "core/sys/applets/mint.h"
+#include "core/sys/service/apt/apt.h"
 
 namespace HLE::Applets {
 
