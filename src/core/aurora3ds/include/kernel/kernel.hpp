@@ -191,7 +191,11 @@ class Kernel {
 	void svcInvalidateInstructionCacheRange();
 	void svcInvalidateEntireInstructionCache();
 	void connectToPort();
+	void createPort();
+	void createSession();
+	void createSessionToPort();
 	void outputDebugString();
+	void acceptSession();
 	void openProcess();
 	void openThread();
 	void waitSynchronization1();

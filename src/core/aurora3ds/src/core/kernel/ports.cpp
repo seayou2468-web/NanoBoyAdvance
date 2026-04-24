@@ -97,6 +97,77 @@ void Kernel::connectToPort() {
 	regs[1] = sessionHandle;
 }
 
+// Result CreatePort(Handle* server_port, Handle* client_port, const char* name, s32 max_sessions)
+void Kernel::createPort() {
+	const u32 namePointer = regs[0];
+	const s32 maxSessions = static_cast<s32>(regs[1]);
+	std::string name;
+
+	if (namePointer != 0) {
+		name = mem.readString(namePointer, Port::maxNameLen + 1);
+		if (name.size() > Port::maxNameLen) {
+			regs[0] = Result::OS::PortNameTooLong;
+			return;
+		}
+	}
+
+	logSVC("CreatePort(name = \"%s\", max sessions = %d)\n", name.c_str(), maxSessions);
+
+	if (maxSessions < 0) {
+		regs[0] = Result::OS::OutOfRange;
+		return;
+	}
+
+	// Aurora currently models a single user-visible port object. Return it for both sides for
+	// compatibility and create sessions from this port via CreateSessionToPort/AcceptSession.
+	const Handle portHandle = makePort(name.c_str());
+	regs[0] = Result::Success;
+	regs[1] = portHandle;  // server port
+	regs[2] = portHandle;  // client port
+}
+
+// Result CreateSessionToPort(Handle* out_client_session, Handle client_port_handle)
+void Kernel::createSessionToPort() {
+	const Handle portHandle = regs[1];
+	logSVC("CreateSessionToPort(port = %X)\n", portHandle);
+
+	const auto port = getObject(portHandle, KernelObjectType::Port);
+	if (port == nullptr) [[unlikely]] {
+		regs[0] = Result::Kernel::InvalidHandle;
+		return;
+	}
+
+	regs[0] = Result::Success;
+	regs[1] = makeSession(portHandle);
+}
+
+// Result CreateSession(Handle* server_session, Handle* client_session)
+void Kernel::createSession() {
+	logSVC("CreateSession()\n");
+
+	// Aurora currently uses the same session object model for both ends.
+	// Use an anonymous private port as backing transport.
+	const Handle privatePort = makePort("");
+	regs[0] = Result::Success;
+	regs[1] = makeSession(privatePort);  // server session
+	regs[2] = makeSession(privatePort);  // client session
+}
+
+// Result AcceptSession(Handle* out_server_session, Handle server_port_handle)
+void Kernel::acceptSession() {
+	const Handle portHandle = regs[1];
+	logSVC("AcceptSession(port = %X)\n", portHandle);
+
+	const auto port = getObject(portHandle, KernelObjectType::Port);
+	if (port == nullptr) [[unlikely]] {
+		regs[0] = Result::Kernel::InvalidHandle;
+		return;
+	}
+
+	regs[0] = Result::Success;
+	regs[1] = makeSession(portHandle);
+}
+
 // Result SendSyncRequest(Handle session)
 // Send an IPC message to a port (typically "srv:") or a service
 void Kernel::sendSyncRequest() {

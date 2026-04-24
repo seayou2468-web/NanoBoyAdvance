@@ -82,6 +82,10 @@ void Kernel::serviceSVC(u32 svc) {
 		case 0x3A: getResourceLimitCurrentValues(); break;
 		case 0x3B: getThreadContext(); break;
 		case 0x3D: outputDebugString(); break;
+		case 0x47: createPort(); break;
+		case 0x48: createSessionToPort(); break;
+		case 0x49: createSession(); break;
+		case 0x4A: acceptSession(); break;
 
 		// Luma SVCs
 		case 0x91: regs[0] = Result::Success; break;  // FlushDataCacheRange (no-op for now)
