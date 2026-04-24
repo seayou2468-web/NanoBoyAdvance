@@ -179,6 +179,74 @@ void Kernel::queryMemory() {
 	regs[5] = 0;  // page flags
 }
 
+// Result QueryProcessMemory(MemoryInfo* out_info, PageInfo* out_page_info, Handle process, u32 addr)
+void Kernel::queryProcessMemory() {
+	const u32 processHandle = regs[2];
+	const u32 addr = regs[3];
+	logSVC("QueryProcessMemory(process = %X, addr = %08X)\n", processHandle, addr);
+
+	const auto process = getProcessFromPID(processHandle);
+	if (process == nullptr) [[unlikely]] {
+		regs[0] = Result::Kernel::InvalidHandle;
+		return;
+	}
+
+	KernelMemoryTypes::MemoryInfo info;
+	const auto result = mem.queryMemory(info, addr);
+	regs[0] = result;
+	regs[1] = info.baseAddr;
+	regs[2] = info.pages * Memory::pageSize;
+	regs[3] = info.perms;
+	regs[4] = info.state;
+	regs[5] = 0;  // page flags
+}
+
+// Result InvalidateProcessDataCache(Handle process, u32 addr, u32 size)
+void Kernel::invalidateProcessDataCache() {
+	const Handle processHandle = regs[0];
+	const u32 start = regs[1];
+	const u32 size = regs[2];
+	logSVC("InvalidateProcessDataCache(process = %X, start = %08X, size = %08X)\n", processHandle, start, size);
+
+	if (getProcessFromPID(processHandle) == nullptr) [[unlikely]] {
+		regs[0] = Result::Kernel::InvalidHandle;
+		return;
+	}
+
+	// Data cache is not modeled yet. Treat as successful maintenance operation.
+	regs[0] = Result::Success;
+}
+
+// Result StoreProcessDataCache(Handle process, u32 addr, u32 size)
+void Kernel::storeProcessDataCache() {
+	const Handle processHandle = regs[0];
+	const u32 start = regs[1];
+	const u32 size = regs[2];
+	logSVC("StoreProcessDataCache(process = %X, start = %08X, size = %08X)\n", processHandle, start, size);
+
+	if (getProcessFromPID(processHandle) == nullptr) [[unlikely]] {
+		regs[0] = Result::Kernel::InvalidHandle;
+		return;
+	}
+
+	regs[0] = Result::Success;
+}
+
+// Result FlushProcessDataCache(Handle process, u32 addr, u32 size)
+void Kernel::flushProcessDataCache() {
+	const Handle processHandle = regs[0];
+	const u32 start = regs[1];
+	const u32 size = regs[2];
+	logSVC("FlushProcessDataCache(process = %X, start = %08X, size = %08X)\n", processHandle, start, size);
+
+	if (getProcessFromPID(processHandle) == nullptr) [[unlikely]] {
+		regs[0] = Result::Kernel::InvalidHandle;
+		return;
+	}
+
+	regs[0] = Result::Success;
+}
+
 // Result MapMemoryBlock(Handle memblock, u32 addr, MemoryPermission myPermissions, MemoryPermission otherPermission)
 void Kernel::mapMemoryBlock() {
 	const Handle block = regs[0];

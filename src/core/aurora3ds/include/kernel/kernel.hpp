@@ -157,11 +157,13 @@ class Kernel {
 	void mapMemoryBlock();
 	void unmapMemoryBlock();
 	void queryMemory();
+	void queryProcessMemory();
 	void getCurrentProcessorNumber();
 	void getProcessID();
 	void getProcessList();
 	void getProcessIDOfThread();
 	void getProcessInfo();
+	void invalidateProcessDataCache();
 	void getResourceLimit();
 	void getResourceLimitLimitValues();
 	void getResourceLimitCurrentValues();
@@ -175,6 +177,7 @@ class Kernel {
 	void getThreadPriority();
 	void sendSyncRequest();
 	void signalAndWait();
+	void storeProcessDataCache();
 	void setThreadPriority();
 	void svcCancelTimer();
 	void svcClearEvent();
@@ -190,6 +193,7 @@ class Kernel {
 	void svcSetTimer();
 	void svcSleepThread();
 	void terminateProcess();
+	void flushProcessDataCache();
 	void svcInvalidateInstructionCacheRange();
 	void svcInvalidateEntireInstructionCache();
 	void connectToPort();

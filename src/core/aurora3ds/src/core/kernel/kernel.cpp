@@ -116,6 +116,11 @@ void Kernel::serviceSVC(u32 svc) {
 		case 0x48: createSessionToPort(); break;
 		case 0x49: createSession(); break;
 		case 0x4A: acceptSession(); break;
+		case 0x52: invalidateProcessDataCache(); break;
+		case 0x53: storeProcessDataCache(); break;
+		case 0x54: flushProcessDataCache(); break;
+		case 0x76: terminateProcess(); break;
+		case 0x7D: queryProcessMemory(); break;
 		case 0x4B:
 		case 0x4C:
 		case 0x4D:
@@ -123,9 +128,6 @@ void Kernel::serviceSVC(u32 svc) {
 		case 0x4F:
 		case 0x50:
 		case 0x51:
-		case 0x52:
-		case 0x53:
-		case 0x54:
 		case 0x55:
 		case 0x56:
 		case 0x57:
@@ -138,11 +140,11 @@ void Kernel::serviceSVC(u32 svc) {
 		case 0x5E:
 		case 0x5F:
 		case 0x60:
-			case 0x61:
-			case 0x62:
-			case 0x63:
-			case 0x64:
-			case 0x66:
+		case 0x61:
+		case 0x62:
+		case 0x63:
+		case 0x64:
+		case 0x66:
 		case 0x67:
 		case 0x68:
 		case 0x69:
@@ -164,7 +166,6 @@ void Kernel::serviceSVC(u32 svc) {
 		case 0x7A:
 		case 0x7B:
 		case 0x7C:
-		case 0x7D:
 		case 0x7E:
 		case 0x7F:
 		case 0x80:
@@ -173,24 +174,23 @@ void Kernel::serviceSVC(u32 svc) {
 		case 0x83:
 		case 0x84:
 		case 0x85:
-			case 0x86:
-			case 0x87:
-			case 0x88:
-			case 0x89:
-			case 0x8A:
-			case 0x8B:
-			case 0x8C:
-			case 0x8D:
-			case 0x8E:
-			case 0x8F:
-			case 0x90:
-				// Compatibility fallback for broad reference SVC ranges.
-				// Prefer non-fatal success to keep title boot/runtime progressing while we incrementally
-				// replace these entries with full per-SVC implementations.
-				Helpers::warn("Reference SVC compatibility fallback: %X @ %08X", svc, regs[15]);
-				regs[0] = Result::Success;
-				break;
-		case 0x76: terminateProcess(); break;
+		case 0x86:
+		case 0x87:
+		case 0x88:
+		case 0x89:
+		case 0x8A:
+		case 0x8B:
+		case 0x8C:
+		case 0x8D:
+		case 0x8E:
+		case 0x8F:
+		case 0x90:
+			// Compatibility fallback for broad reference SVC ranges.
+			// Prefer non-fatal success to keep title boot/runtime progressing while we incrementally
+			// replace these entries with full per-SVC implementations.
+			Helpers::warn("Reference SVC compatibility fallback: %X @ %08X", svc, regs[15]);
+			regs[0] = Result::Success;
+			break;
 
 		// Luma SVCs
 		case 0x91: regs[0] = Result::Success; break;  // FlushDataCacheRange (no-op for now)
@@ -214,23 +214,23 @@ void Kernel::serviceSVC(u32 svc) {
 		case 0xA3: controlMemory(); break;  // ControlMemoryUnsafe
 		case 0xA4:
 		case 0xA5:
-			case 0xA6:
-			case 0xA7:
-			case 0xA8:
-			case 0xA9:
-			case 0xAA:
-			case 0xAB:
-			case 0xAC:
-			case 0xAD:
-			case 0xAE:
-			case 0xAF:
-			case 0xB0:
-			case 0xB1:
-			case 0xB2:
-			case 0xB3:
-				Helpers::warn("Reference SVC compatibility fallback: %X @ %08X", svc, regs[15]);
-				regs[0] = Result::Success;
-				break;
+		case 0xA6:
+		case 0xA7:
+		case 0xA8:
+		case 0xA9:
+		case 0xAA:
+		case 0xAB:
+		case 0xAC:
+		case 0xAD:
+		case 0xAE:
+		case 0xAF:
+		case 0xB0:
+		case 0xB1:
+		case 0xB2:
+		case 0xB3:
+			Helpers::warn("Reference SVC compatibility fallback: %X @ %08X", svc, regs[15]);
+			regs[0] = Result::Success;
+			break;
 		default:
 			Helpers::warn("Unimplemented svc: %X @ %08X", svc, regs[15]);
 			regs[0] = Result::OS::NotImplemented;
