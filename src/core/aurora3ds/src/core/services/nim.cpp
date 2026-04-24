@@ -121,7 +121,7 @@ void NIMService::handleSyncRequest(u32 messagePointer) {
 		case 0x0013:
 			mem.write32(messagePointer, IPC::responseHeader(commandID, 2, 0));
 			mem.write32(messagePointer + 4, Result::Success);
-			mem.write32(messagePointer + 8, asyncPending ? Result::Success : asyncResult);
+			mem.write32(messagePointer + 8, asyncPending ? (u32)Result::Success : (u32)asyncResult);
 			asyncPending = false;
 			break;
 		case 0x0014:
