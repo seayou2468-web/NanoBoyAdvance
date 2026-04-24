@@ -180,6 +180,9 @@ void GPUService::registerInterruptRelayQueue(u32 messagePointer) {
 	const u32 flags = mem.read32(messagePointer + 4);
 	const u32 eventHandle = mem.read32(messagePointer + 12);
 	log("GSP::GPU::RegisterInterruptRelayQueue (flags = %X, event handle = %X)\n", flags, eventHandle);
+	if (sharedMem == nullptr) {
+		sharedMem = mem.getSharedMemoryPointer(KernelHandles::GSPSharedMemHandle);
+	}
 
 	const auto event = kernel.getObject(eventHandle, KernelObjectType::Event);
 	if (event == nullptr) {  // Check if interrupt event is invalid
@@ -198,6 +201,10 @@ void GPUService::registerInterruptRelayQueue(u32 messagePointer) {
 	} else {
 		mem.write32(messagePointer + 4, Result::Success);
 	}
+	if (sharedMem != nullptr) {
+		// Interrupt relay queue for the registered GSP thread.
+		std::memset(&sharedMem[threadIndex * 0x40], 0, 0x40);
+	}
 	mem.write32(messagePointer + 8, threadIndex);
 	mem.write32(messagePointer + 12, 0x04000000);                      // Translation descriptor (copy handle)
 	mem.write32(messagePointer + 16, KernelHandles::GSPSharedMemHandle);
@@ -212,7 +219,10 @@ void GPUService::unregisterInterruptRelayQueue(u32 messagePointer) {
 
 void GPUService::requestInterrupt(GPUInterrupt type) {
 	if (sharedMem == nullptr) [[unlikely]] {  // Shared memory hasn't been set up yet
-		return;
+		sharedMem = mem.getSharedMemoryPointer(KernelHandles::GSPSharedMemHandle);
+		if (sharedMem == nullptr) {
+			return;
+		}
 	}
 
 	// TODO: Add support for multiple GSP threads
