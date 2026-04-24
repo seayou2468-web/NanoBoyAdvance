@@ -69,6 +69,10 @@ void split_free(Archive& ar, T& obj, const unsigned int version) {
 #define SERIALIZATION_ASSUME_ABSTRACT(...)
 #define SERIALIZATION_CLASS_VERSION(...)
 #define SERIALIZATION_CONSTRUCT(T) SERVICE_CONSTRUCT(T)
+#define DEBUG_SERIALIZATION_POINT ((void)0)
+#define SERIALIZE_IMPL(...)
+#define SERIALIZE_EXPORT_IMPL(...)
+#define SERVICE_CONSTRUCT_IMPL(...)
 #define SERIALIZATION_SPLIT_MEMBER()                                                         \
     template <class Archive>                                                                 \
     void serialize(Archive& ar, const unsigned int version) {                                \

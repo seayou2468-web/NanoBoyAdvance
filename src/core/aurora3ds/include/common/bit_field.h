@@ -1,36 +1,52 @@
 #pragma once
 
-#include <cstdint>
 #include <type_traits>
+
+#include "common/common_types.h"
 
 namespace Common {
 
-template <int Position, int Bits, typename Storage>
+template <int Position, int Bits, typename T, typename StorageType = u32>
 class BitField {
-    static_assert(std::is_integral_v<Storage>);
-    static constexpr Storage Mask = (Bits >= int(sizeof(Storage) * 8))
-                                        ? static_cast<Storage>(~Storage{0})
-                                        : static_cast<Storage>((Storage{1} << Bits) - 1);
+    static_assert(std::is_integral_v<StorageType>, "BitField storage must be integral");
+    template <typename U, bool IsEnum = std::is_enum_v<U>>
+    struct RawTypeHelper {
+        using type = U;
+    };
+    template <typename U>
+    struct RawTypeHelper<U, true> {
+        using type = std::underlying_type_t<U>;
+    };
+    using RawT = typename RawTypeHelper<T>::type;
+
+    static constexpr StorageType mask =
+        Bits >= static_cast<int>(sizeof(StorageType) * 8)
+            ? static_cast<StorageType>(~StorageType{0})
+            : static_cast<StorageType>((StorageType{1} << Bits) - 1);
 
 public:
     constexpr BitField() = default;
-    constexpr explicit BitField(Storage& backing) : value_ref(backing) {}
 
-    constexpr Storage Value() const {
-        return (value_ref >> Position) & Mask;
+    constexpr T ExtractValue(StorageType storage) const {
+        const StorageType value = static_cast<StorageType>((storage >> Position) & mask);
+        if constexpr (std::is_enum_v<T>) {
+            return static_cast<T>(value);
+        } else {
+            return static_cast<T>(value);
+        }
     }
 
-    constexpr void Assign(Storage v) {
-        value_ref = static_cast<Storage>((value_ref & ~(Mask << Position)) | ((v & Mask) << Position));
+    constexpr StorageType FormatValue(T value) const {
+        const StorageType raw = static_cast<StorageType>(static_cast<RawT>(value));
+        return static_cast<StorageType>((raw & mask) << Position);
     }
 
-    constexpr operator Storage() const {
-        return Value();
+    constexpr void Assign(StorageType& storage, T value) const {
+        storage = static_cast<StorageType>((storage & ~(mask << Position)) | FormatValue(value));
     }
-
-private:
-    Storage& value_ref = dummy;
-    inline static Storage dummy{};
 };
 
 } // namespace Common
+
+template <int Position, int Bits, typename T, typename StorageType = u32>
+using BitField = Common::BitField<Position, Bits, T, StorageType>;

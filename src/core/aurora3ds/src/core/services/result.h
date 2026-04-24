@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <limits>
+
 #include "common/serialization/serialization_alias.hpp"
 #include "common/assert.h"
 #include "common/bit_field.h"
