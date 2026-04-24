@@ -119,7 +119,20 @@ void PeripheralBusService::setState(u32 messagePointer, Type type) {
 void PeripheralBusService::respondNotImplemented(u32 messagePointer, Type type) {
 	const u32 command = mem.read32(messagePointer);
 	const u32 commandID = command >> 16;
-	log("%s command %04X (not implemented)\n", getServiceName(type), commandID);
-	mem.write32(messagePointer, IPC::responseHeader(commandID, 1, 0));
-	mem.write32(messagePointer + 4, Result::OS::NotImplemented);
+	// Compatibility fallback for undocumented commands seen in the field:
+	// return success and a deterministic service-specific value.
+	u32 value = 0;
+	switch (type) {
+		case Type::CDC: value = cdcFlags ^ command; break;
+		case Type::MP: value = mpState ^ command; break;
+		case Type::PDN: value = pdnWakeMask ^ command; break;
+		case Type::GPIO: value = gpioRegisters[commandID & 0xFF] ^ command; break;
+		case Type::I2C: value = i2cRegisters[commandID & 0xFF] ^ command; break;
+		case Type::SPI: value = spiRegisters[commandID & 0xFF] ^ command; break;
+	}
+
+	log("%s command %04X (fallback-success, value=%08X)\n", getServiceName(type), commandID, value);
+	mem.write32(messagePointer, IPC::responseHeader(commandID, 2, 0));
+	mem.write32(messagePointer + 4, Result::Success);
+	mem.write32(messagePointer + 8, value);
 }

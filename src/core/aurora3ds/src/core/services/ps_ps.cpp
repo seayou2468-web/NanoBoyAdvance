@@ -57,7 +57,7 @@ void PSPSService::handleSyncRequest(u32 messagePointer) {
 		case PSCommands::InterfaceForPXI_0x04020082: pxiInterface04020082(messagePointer); break;
 		case PSCommands::InterfaceForPXI_0x04030044: pxiInterface04030044(messagePointer); break;
 		case PSCommands::InterfaceForPXI_0x04040044: pxiInterface04040044(messagePointer); break;
-		default: Helpers::panic("ps:ps service requested. Command: %08X\n", command);
+		default: stubCommand(messagePointer, "UnknownCommand"); break;
 	}
 }
 

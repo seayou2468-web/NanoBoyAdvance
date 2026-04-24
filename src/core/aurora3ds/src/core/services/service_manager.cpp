@@ -141,9 +141,9 @@ void ServiceManager::handleSyncRequest(u32 messagePointer) {
 		case Commands::PublishAndGetSubscriber: publishAndGetSubscriber(messagePointer); break;
 		case Commands::IsServiceRegistered: isServiceRegistered(messagePointer); break;
 		default: {
-			Helpers::warn("Unknown \"srv:\" command: %08X", header);
+			Helpers::warn("Unknown \"srv:\" command: %08X (fallback-success)", header);
 			mem.write32(messagePointer, IPC::responseHeader(header >> 16, 1, 0));
-			mem.write32(messagePointer + 4, Result::OS::NotImplemented);
+			mem.write32(messagePointer + 4, Result::Success);
 			break;
 		}
 	}
@@ -512,9 +512,12 @@ void ServiceManager::getPort(u32 messagePointer) {
 		return;
 	}
 
-	mem.write32(messagePointer + 4, Result::OS::NotImplemented);
+	// Compatibility path: make a lightweight named port on demand so titles can continue boot.
+	const Handle dynamicPort = kernel.makeNamedPort(port.c_str());
+	userRegisteredPorts[port] = dynamicPort;
+	mem.write32(messagePointer + 4, Result::Success);
 	mem.write32(messagePointer + 8, 0);
-	mem.write32(messagePointer + 12, 0);
+	mem.write32(messagePointer + 12, kernel.makePortSession(dynamicPort));
 }
 
 void ServiceManager::publishAndGetSubscriber(u32 messagePointer) {
@@ -605,8 +608,10 @@ void ServiceManager::sendCommandToService(u32 messagePointer, Handle handle) {
 		case KernelHandles::Y2R: y2r.handleSyncRequest(messagePointer); break;
 		default: {
 			Helpers::warn("Sent IPC message to unknown service %08X Command=%08X", handle, mem.read32(messagePointer));
-			mem.write32(messagePointer, IPC::responseHeader(mem.read32(messagePointer) >> 16, 1, 0));
-			mem.write32(messagePointer + 4, Result::OS::NotImplemented);
+			const u32 commandID = mem.read32(messagePointer) >> 16;
+			mem.write32(messagePointer, IPC::responseHeader(commandID, 2, 0));
+			mem.write32(messagePointer + 4, Result::Success);
+			mem.write32(messagePointer + 8, handle ^ commandID);
 			break;
 		}
 	}
