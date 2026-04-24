@@ -64,6 +64,10 @@ void Kernel::serviceSVC(u32 svc) {
 		case 0x2A: getSystemInfo(); break;
 		case 0x2B: getProcessInfo(); break;
 		case 0x2D: connectToPort(); break;
+		case 0x2E:
+		case 0x2F:
+		case 0x30:
+		case 0x31:
 		case 0x32: sendSyncRequest(); break;
 		case 0x35: getProcessID(); break;
 		case 0x37: getThreadID(); break;

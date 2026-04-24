@@ -40,12 +40,13 @@ static constexpr bool isAligned(u32 value) { return (value & 0xFFF) == 0; }
 // This has a weird ABI documented here https://www.3dbrew.org/wiki/Kernel_ABI
 // TODO: Does this need to write to outaddr?
 void Kernel::controlMemory() {
-	u32 operation = regs[0];  // The base address is written here
+	u32 outAddrPointer = regs[0];
 	u32 addr0 = regs[1];
 	u32 addr1 = regs[2];
 	u32 size = regs[3];
+	u32 operation = regs[4];
+	u32 perms = regs[5];
 	u32 pages = size >> 12;  // Official kernel truncates nonaligned sizes
-	u32 perms = regs[4];
 
 	if (perms == MemoryPermissions::DontCare) {
 		perms = MemoryPermissions::ReadWrite;  // We make "don't care" equivalent to read-write
@@ -81,11 +82,16 @@ void Kernel::controlMemory() {
 	}
 
 	logSVC(
-		"ControlMemory(addr0 = %08X, addr1 = %08X, size = %08X, operation = %X (%c%c%c)%s\n", addr0, addr1, size, operation, r ? 'r' : '-',
-		w ? 'w' : '-', x ? 'x' : '-', linear ? ", linear" : ""
+		"ControlMemory(out = %08X, addr0 = %08X, addr1 = %08X, size = %08X, operation = %X (%c%c%c)%s\n", outAddrPointer, addr0, addr1, size,
+		operation, r ? 'r' : '-', w ? 'w' : '-', x ? 'x' : '-', linear ? ", linear" : ""
 	);
 
 	switch (operation & 0xFF) {
+		case Operation::Reserve:
+			// Reserve is effectively a no-op in our memory manager right now.
+			regs[1] = addr0;
+			break;
+
 		case Operation::Commit: {
 			// TODO: base this from the exheader
 			auto region = FcramRegion::App;
@@ -146,7 +152,10 @@ void Kernel::controlMemory() {
 			regs[1] = addr0;
 			break;
 
-		default: Helpers::warn("ControlMemory: unknown operation %X\n", operation); break;
+		default:
+			Helpers::warn("ControlMemory: unknown operation %X\n", operation);
+			regs[0] = Result::OS::InvalidCombination;
+			return;
 	}
 
 	regs[0] = Result::Success;
