@@ -5,7 +5,7 @@
 #pragma once
 
 #include <memory>
-#include <boost/serialization/binary_object.hpp>
+#include "common/serialization/serialization_alias.hpp"
 #include "common/common_types.h"
 #include "core/hle/service/nfc/nfc_device.h"
 #include "core/hle/service/service.h"
@@ -376,7 +376,7 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class boost::serialization::access;
+    friend class Serialization::access;
 };
 
 void InstallInterfaces(Core::System& system);
@@ -384,4 +384,4 @@ void InstallInterfaces(Core::System& system);
 } // namespace Service::NFC
 
 SERVICE_CONSTRUCT(Service::NFC::Module)
-BOOST_CLASS_EXPORT_KEY(Service::NFC::Module)
+SERIALIZATION_CLASS_EXPORT_KEY(Service::NFC::Module)

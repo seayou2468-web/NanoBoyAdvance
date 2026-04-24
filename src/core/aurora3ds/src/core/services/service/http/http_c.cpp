@@ -5,7 +5,6 @@
 #include <atomic>
 #include <tuple>
 #include <unordered_map>
-#include <boost/algorithm/string/replace.hpp>
 #include <cryptopp/aes.h>
 #include <cryptopp/modes.h>
 #include <fmt/format.h>
@@ -21,6 +20,7 @@
 #include "core/hle/romfs.h"
 #include "core/hle/service/fs/archive.h"
 #include "core/hle/service/http/http_c.h"
+#include "core/hle/service/non_boost_utils.h"
 #include "core/hw/aes/key.h"
 
 SERIALIZE_EXPORT_IMPL(Service::HTTP::HTTP_C)
@@ -186,7 +186,7 @@ static void SerializeChunkedAsciiPostData(httplib::DataSink& sink, const Context
 
         query =
             fmt::format("{}={}", it->first, httplib::detail::encode_query_param(it->second.value));
-        boost::replace_all(query, "*", "%2A");
+        Service::Compat::ReplaceAll(query, "*", "%2A");
         sink.os << query;
     }
 }
@@ -263,7 +263,7 @@ void Context::ParseAsciiPostData() {
     }
 
     post_data_raw = httplib::detail::params_to_query_str(ascii_form);
-    boost::replace_all(post_data_raw, "*", "%2A");
+    Service::Compat::ReplaceAll(post_data_raw, "*", "%2A");
 }
 
 std::string Context::ParseMultipartFormData() {

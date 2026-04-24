@@ -12,10 +12,10 @@
 #include <map>
 #include <memory>
 #include <mutex>
+#include <optional>
 #include <unordered_map>
 #include <vector>
-#include <boost/optional.hpp>
-#include <boost/serialization/export.hpp>
+#include "common/serialization/serialization_alias.hpp"
 #include "common/common_types.h"
 #include "common/swap.h"
 #include "core/hle/service/nwm/uds_common.h"
@@ -561,7 +561,7 @@ private:
     /// Callback to parse and handle a received wifi packet.
     void OnWifiPacketReceived(const Network::WifiPacket& packet);
 
-    boost::optional<Network::MacAddress> GetNodeMacAddress(u16 dest_node_id, u8 flags);
+    std::optional<Network::MacAddress> GetNodeMacAddress(u16 dest_node_id, u8 flags);
 
     // Event that is signaled every time the connection status changes.
     std::shared_ptr<Kernel::Event> connection_status_event;
@@ -619,7 +619,7 @@ private:
             ar & connected;
             ar & node_id;
         }
-        friend class boost::serialization::access;
+        friend class Serialization::access;
     };
 
     std::map<MacAddress, Node> node_map;
@@ -645,7 +645,7 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class boost::serialization::access;
+    friend class Serialization::access;
     friend class Service::DLP::DLP_Base;
     friend class Service::DLP::DLP_Clt_Base;
     friend class Service::DLP::DLP_SRVR;
@@ -654,5 +654,5 @@ private:
 } // namespace Service::NWM
 
 SERVICE_CONSTRUCT(Service::NWM::NWM_UDS)
-BOOST_CLASS_EXPORT_KEY(Service::NWM::NWM_UDS)
-BOOST_CLASS_EXPORT_KEY(Service::NWM::NWM_UDS::ThreadCallback)
+SERIALIZATION_CLASS_EXPORT_KEY(Service::NWM::NWM_UDS)
+SERIALIZATION_CLASS_EXPORT_KEY(Service::NWM::NWM_UDS::ThreadCallback)

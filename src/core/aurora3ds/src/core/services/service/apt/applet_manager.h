@@ -9,10 +9,8 @@
 #include <memory>
 #include <optional>
 #include <vector>
-#include <boost/serialization/array.hpp>
-#include <boost/serialization/optional.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/vector.hpp>
+#include "common/serialization/serialization_alias.hpp"
+#include "common/serialization/std_optional.hpp"
 #include "core/frontend/input.h"
 #include "core/global.h"
 #include "core/hle/kernel/event.h"
@@ -137,7 +135,7 @@ private:
         ar & object;
         ar & buffer;
     }
-    friend class boost::serialization::access;
+    friend class Serialization::access;
 };
 
 enum class AppletPos : u32 {
@@ -179,7 +177,7 @@ private:
         ar & hmac;
         ar & source_program_id;
     }
-    friend class boost::serialization::access;
+    friend class Serialization::access;
 };
 
 using SysMenuArg = std::array<u8, SysMenuArgSize>;
@@ -210,7 +208,7 @@ private:
         ar & current_title_id;
         ar & current_media_type;
     }
-    friend class boost::serialization::access;
+    friend class Serialization::access;
 };
 
 struct ApplicationStartParameters {
@@ -223,7 +221,7 @@ private:
         ar & next_title_id;
         ar & next_media_type;
     }
-    friend class boost::serialization::access;
+    friend class Serialization::access;
 };
 
 enum class DisplayBufferMode : u32_le {
@@ -259,7 +257,7 @@ private:
         ar & bottom_screen_right_offset;
         ar & bottom_screen_format;
     }
-    friend class boost::serialization::access;
+    friend class Serialization::access;
 };
 static_assert(sizeof(CaptureBufferInfo) == 0x20, "CaptureBufferInfo struct has incorrect size");
 
@@ -338,7 +336,7 @@ public:
     Result LoadSysMenuArg(std::vector<u8>& buffer);
     Result StoreSysMenuArg(const std::vector<u8>& buffer);
 
-    boost::optional<SysMenuArg> GetSysMenuArg() {
+    std::optional<SysMenuArg> GetSysMenuArg() {
         return sys_menu_arg;
     }
     void SetSysMenuArg(const SysMenuArg& arg) {
@@ -353,12 +351,12 @@ public:
                                       ApplicationJumpFlags flags);
     Result DoApplicationJump(const DeliverArg& arg);
 
-    boost::optional<DeliverArg> ReceiveDeliverArg() {
+    std::optional<DeliverArg> ReceiveDeliverArg() {
         auto arg = deliver_arg;
-        deliver_arg = boost::none;
+        deliver_arg = std::nullopt;
         return arg;
     }
-    void SetDeliverArg(boost::optional<DeliverArg> arg) {
+    void SetDeliverArg(std::optional<DeliverArg> arg) {
         deliver_arg = std::move(arg);
     }
 
@@ -366,7 +364,7 @@ public:
         std::vector<u8> buffer;
         if (capture_info) {
             buffer.resize(sizeof(CaptureBufferInfo));
-            std::memcpy(buffer.data(), &capture_info.get(), sizeof(CaptureBufferInfo));
+            std::memcpy(buffer.data(), &(*capture_info), sizeof(CaptureBufferInfo));
         }
         return buffer;
     }
@@ -374,14 +372,14 @@ public:
         ASSERT_MSG(buffer.size() >= sizeof(CaptureBufferInfo), "CaptureBufferInfo is too small.");
 
         capture_info.emplace();
-        std::memcpy(&capture_info.get(), buffer.data(), sizeof(CaptureBufferInfo));
+        std::memcpy(&(*capture_info), buffer.data(), sizeof(CaptureBufferInfo));
     }
 
     std::vector<u8> ReceiveCaptureBufferInfo() {
         std::vector<u8> buffer;
         if (capture_buffer_info) {
             buffer.resize(sizeof(CaptureBufferInfo));
-            std::memcpy(buffer.data(), &capture_buffer_info.get(), sizeof(CaptureBufferInfo));
+            std::memcpy(buffer.data(), &(*capture_buffer_info), sizeof(CaptureBufferInfo));
             capture_buffer_info.reset();
         }
         return buffer;
@@ -390,7 +388,7 @@ public:
         ASSERT_MSG(buffer.size() >= sizeof(CaptureBufferInfo), "CaptureBufferInfo is too small.");
 
         capture_buffer_info.emplace();
-        std::memcpy(&capture_buffer_info.get(), buffer.data(), sizeof(CaptureBufferInfo));
+        std::memcpy(&(*capture_buffer_info), buffer.data(), sizeof(CaptureBufferInfo));
     }
 
     Result PrepareToStartApplication(u64 title_id, FS::MediaType media_type);
@@ -433,21 +431,20 @@ private:
     std::shared_ptr<Kernel::Mutex> lock;
 
     /// Parameter data to be returned in the next call to Glance/ReceiveParameter.
-    // NOTE: A bug in gcc prevents serializing std::optional
-    boost::optional<MessageParameter> next_parameter;
+    std::optional<MessageParameter> next_parameter;
 
     /// This parameter will be sent to the application/applet once they register themselves by using
     /// APT::Initialize.
-    boost::optional<MessageParameter> delayed_parameter;
+    std::optional<MessageParameter> delayed_parameter;
 
     ApplicationJumpParameters app_jump_parameters{};
-    boost::optional<ApplicationStartParameters> app_start_parameters{};
-    boost::optional<DeliverArg> deliver_arg{};
-    boost::optional<SysMenuArg> sys_menu_arg{};
+    std::optional<ApplicationStartParameters> app_start_parameters{};
+    std::optional<DeliverArg> deliver_arg{};
+    std::optional<SysMenuArg> sys_menu_arg{};
     u64 home_menu_tid_to_start{};
 
-    boost::optional<CaptureBufferInfo> capture_info;
-    boost::optional<CaptureBufferInfo> capture_buffer_info;
+    std::optional<CaptureBufferInfo> capture_info;
+    std::optional<CaptureBufferInfo> capture_buffer_info;
 
     static constexpr std::size_t NumAppletSlot = 4;
 
@@ -494,7 +491,7 @@ private:
             ar & notification_event;
             ar & parameter_event;
         }
-        friend class boost::serialization::access;
+        friend class Serialization::access;
     };
 
     // Holds data about the concurrently running applets in the system.
@@ -588,12 +585,12 @@ private:
             LoadInputDevices();
         }
     }
-    friend class boost::serialization::access;
+    friend class Serialization::access;
 };
 
 } // namespace Service::APT
 
-BOOST_CLASS_VERSION(Service::APT::ApplicationJumpParameters, 1)
-BOOST_CLASS_VERSION(Service::APT::AppletManager, 1)
+SERIALIZATION_CLASS_VERSION(Service::APT::ApplicationJumpParameters, 1)
+SERIALIZATION_CLASS_VERSION(Service::APT::AppletManager, 1)
 
 SERVICE_CONSTRUCT(Service::APT::AppletManager)

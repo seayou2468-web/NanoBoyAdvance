@@ -166,12 +166,12 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class boost::serialization::access;
+    friend class Serialization::access;
 };
 
 void InstallInterfaces(Core::System& system);
 
 } // namespace Service::PTM
 
-BOOST_CLASS_EXPORT_KEY(Service::PTM::Module)
+SERIALIZATION_CLASS_EXPORT_KEY(Service::PTM::Module)
 SERVICE_CONSTRUCT(Service::PTM::Module)

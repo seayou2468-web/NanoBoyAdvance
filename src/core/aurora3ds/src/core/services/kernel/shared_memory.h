@@ -6,7 +6,7 @@
 
 #include <string>
 #include <utility>
-#include <boost/serialization/export.hpp>
+#include "common/serialization/serialization_alias.hpp"
 #include "common/common_types.h"
 #include "common/memory_ref.h"
 #include "core/hle/kernel/object.h"
@@ -111,10 +111,10 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class boost::serialization::access;
+    friend class Serialization::access;
 };
 
 } // namespace Kernel
 
-BOOST_CLASS_EXPORT_KEY(Kernel::SharedMemory)
+SERIALIZATION_CLASS_EXPORT_KEY(Kernel::SharedMemory)
 CONSTRUCT_KERNEL_OBJECT(Kernel::SharedMemory)

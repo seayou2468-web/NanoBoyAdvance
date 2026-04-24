@@ -3,7 +3,7 @@
 // Refer to the license.txt file included.
 
 #include <span>
-#include <boost/serialization/weak_ptr.hpp>
+#include "common/serialization/serialization_alias.hpp"
 #include "audio_core/input.h"
 #include "audio_core/input_details.h"
 #include "common/archives.h"
@@ -26,7 +26,7 @@ namespace Service::MIC {
 template <class Archive>
 void MIC_U::serialize(Archive& ar, const unsigned int) {
     DEBUG_SERIALIZATION_POINT;
-    ar& boost::serialization::base_object<Kernel::SessionRequestHandler>(*this);
+    ar& Serialization::base_object<Kernel::SessionRequestHandler>(*this);
     ar&* impl.get();
 }
 
@@ -132,7 +132,7 @@ private:
         ar & sample_rate;
         sharedmem_buffer = _memory_ref ? _memory_ref->GetPointer() : nullptr;
     }
-    friend class boost::serialization::access;
+    friend class Serialization::access;
 };
 
 struct MIC_U::Impl {
@@ -423,7 +423,7 @@ private:
             }
         }
     }
-    friend class boost::serialization::access;
+    friend class Serialization::access;
 };
 
 void MIC_U::MapSharedMem(Kernel::HLERequestContext& ctx) {

@@ -4,12 +4,11 @@
 
 #include <span>
 #include <vector>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/optional.hpp>
-#include <boost/serialization/shared_ptr.hpp>
+#include "common/serialization/serialization_alias.hpp"
 #include "common/archives.h"
 #include "common/bit_field.h"
 #include "common/hacks/hack_manager.h"
+#include "common/serialization/std_optional.hpp"
 #include "common/settings.h"
 #include "core/core.h"
 #include "core/hle/ipc_helpers.h"
@@ -577,7 +576,7 @@ void GSP_GPU::SaveVramSysArea(Kernel::HLERequestContext& ctx) {
                                                  Memory::FlushMode::Flush);
     const auto vram = system.Memory().GetPointer(Memory::VRAM_VADDR);
     saved_vram.emplace(std::vector<u8>(Memory::VRAM_SIZE));
-    std::memcpy(saved_vram.get().data(), vram, Memory::VRAM_SIZE);
+    std::memcpy(saved_vram->data(), vram, Memory::VRAM_SIZE);
 
     auto top_screen = GetFrameBufferInfo(active_thread_id, 0);
     if (top_screen) {
@@ -649,7 +648,7 @@ void GSP_GPU::RestoreVramSysArea(Kernel::HLERequestContext& ctx) {
 
     if (saved_vram) {
         auto vram = system.Memory().GetPointer(Memory::VRAM_VADDR);
-        std::memcpy(vram, saved_vram.get().data(), Memory::VRAM_SIZE);
+        std::memcpy(vram, saved_vram->data(), Memory::VRAM_SIZE);
         system.Memory().RasterizerFlushVirtualRegion(Memory::VRAM_VADDR, Memory::VRAM_SIZE,
                                                      Memory::FlushMode::Invalidate);
     }
@@ -811,7 +810,7 @@ SessionData* GSP_GPU::FindRegisteredThreadData(u32 thread_id) {
 template <class Archive>
 void GSP_GPU::serialize(Archive& ar, const unsigned int) {
     DEBUG_SERIALIZATION_POINT;
-    ar& boost::serialization::base_object<Kernel::SessionRequestHandler>(*this);
+    ar& Serialization::base_object<Kernel::SessionRequestHandler>(*this);
     ar & shared_memory;
     ar & active_thread_id;
     ar & active_client_thread_id;
@@ -875,7 +874,7 @@ std::unique_ptr<Kernel::SessionRequestHandler::SessionDataBase> GSP_GPU::MakeSes
 
 template <class Archive>
 void SessionData::serialize(Archive& ar, const unsigned int) {
-    ar& boost::serialization::base_object<Kernel::SessionRequestHandler::SessionDataBase>(*this);
+    ar& Serialization::base_object<Kernel::SessionRequestHandler::SessionDataBase>(*this);
     ar & gsp;
     ar & interrupt_event;
     ar & thread_id;

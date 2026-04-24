@@ -19,4 +19,4 @@ private:
 
 } // namespace Service::NIM
 
-BOOST_CLASS_EXPORT_KEY(Service::NIM::NIM_AOC)
+SERIALIZATION_CLASS_EXPORT_KEY(Service::NIM::NIM_AOC)

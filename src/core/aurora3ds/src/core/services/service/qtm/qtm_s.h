@@ -21,4 +21,4 @@ private:
 
 } // namespace Service::QTM
 
-BOOST_CLASS_EXPORT_KEY(Service::QTM::QTM_S)
+SERIALIZATION_CLASS_EXPORT_KEY(Service::QTM::QTM_S)

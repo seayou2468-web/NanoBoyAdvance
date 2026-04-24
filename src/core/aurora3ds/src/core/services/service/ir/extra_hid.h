@@ -7,7 +7,7 @@
 #include <array>
 #include <atomic>
 #include <span>
-#include <boost/serialization/array.hpp>
+#include "common/serialization/serialization_alias.hpp"
 #include "common/bit_field.h"
 #include "common/swap.h"
 #include "core/frontend/input.h"
@@ -88,9 +88,9 @@ private:
             LoadInputDevices(); // zl, zr, c_stick are loaded here
         }
     }
-    friend class boost::serialization::access;
+    friend class Serialization::access;
 };
 
 } // namespace Service::IR
 
-BOOST_CLASS_EXPORT_KEY(Service::IR::ExtraHID)
+SERIALIZATION_CLASS_EXPORT_KEY(Service::IR::ExtraHID)

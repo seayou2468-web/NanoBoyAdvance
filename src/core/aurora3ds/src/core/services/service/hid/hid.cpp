@@ -5,9 +5,7 @@
 #include <algorithm>
 #include <cmath>
 #include <numeric>
-#include <boost/serialization/array.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/unique_ptr.hpp>
+#include "common/serialization/serialization_alias.hpp"
 #include "common/archives.h"
 #include "common/logging/log.h"
 #include "core/3ds.h"

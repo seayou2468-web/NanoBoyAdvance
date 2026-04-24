@@ -23,4 +23,4 @@ private:
 } // namespace Service::MCU
 
 SERVICE_CONSTRUCT(Service::MCU::HWC)
-BOOST_CLASS_EXPORT_KEY(Service::MCU::HWC)
+SERIALIZATION_CLASS_EXPORT_KEY(Service::MCU::HWC)

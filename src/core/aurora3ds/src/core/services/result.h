@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <boost/serialization/access.hpp>
+#include "common/serialization/serialization_alias.hpp"
 #include "common/assert.h"
 #include "common/bit_field.h"
 #include "common/common_funcs.h"
@@ -231,7 +231,7 @@ private:
     void serialize(Archive& ar, const unsigned int) {
         ar & raw;
     }
-    friend class boost::serialization::access;
+    friend class Serialization::access;
 };
 
 constexpr bool operator==(const Result& a, const Result& b) {

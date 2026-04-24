@@ -2,8 +2,7 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/string.hpp>
+#include "common/serialization/serialization_alias.hpp"
 #include "common/archives.h"
 #include "core/hle/kernel/errors.h"
 #include "core/hle/kernel/kernel.h"
@@ -62,7 +61,7 @@ Result Semaphore::Release(s32* out_count, s32 release_count) {
 
 template <class Archive>
 void Semaphore::serialize(Archive& ar, const unsigned int) {
-    ar& boost::serialization::base_object<WaitObject>(*this);
+    ar& Serialization::base_object<WaitObject>(*this);
     ar & max_count;
     ar & available_count;
     ar & name;

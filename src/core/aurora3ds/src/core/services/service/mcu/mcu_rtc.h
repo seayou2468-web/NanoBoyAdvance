@@ -31,7 +31,7 @@ struct InfoLedPattern {
     std::array<u8, PATTERN_INDEX_COUNT> g{};
     std::array<u8, PATTERN_INDEX_COUNT> b{};
 
-    friend class boost::serialization::access;
+    friend class Serialization::access;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
         ar & header.ticks_per_index;
@@ -74,10 +74,10 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class boost::serialization::access;
+    friend class Serialization::access;
 };
 
 } // namespace Service::MCU
 
 SERVICE_CONSTRUCT(Service::MCU::RTC)
-BOOST_CLASS_EXPORT_KEY(Service::MCU::RTC)
+SERIALIZATION_CLASS_EXPORT_KEY(Service::MCU::RTC)

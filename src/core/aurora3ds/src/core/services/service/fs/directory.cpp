@@ -2,8 +2,7 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/unique_ptr.hpp>
+#include "common/serialization/serialization_alias.hpp"
 #include "common/archives.h"
 #include "common/logging/log.h"
 #include "core/file_sys/directory_backend.h"
@@ -16,7 +15,7 @@ namespace Service::FS {
 
 template <class Archive>
 void Directory::serialize(Archive& ar, const unsigned int) {
-    ar& boost::serialization::base_object<Kernel::SessionRequestHandler>(*this);
+    ar& Serialization::base_object<Kernel::SessionRequestHandler>(*this);
     ar & path;
     ar & backend;
 }

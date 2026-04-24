@@ -5,7 +5,7 @@
 #pragma once
 
 #include <memory>
-#include <boost/serialization/export.hpp>
+#include "common/serialization/serialization_alias.hpp"
 #include "core/global.h"
 #include "core/hle/kernel/event.h"
 #include "core/hle/kernel/resource_limit.h"
@@ -33,7 +33,7 @@ public:
     private:
         template <class Archive>
         void serialize(Archive& ar, const unsigned int);
-        friend class boost::serialization::access;
+        friend class Serialization::access;
     };
 
     class Interface : public ServiceFramework<Interface, SessionData> {
@@ -987,7 +987,7 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class boost::serialization::access;
+    friend class Serialization::access;
 };
 
 void InstallInterfaces(Core::System& system);
@@ -995,5 +995,5 @@ void InstallInterfaces(Core::System& system);
 } // namespace Service::BOSS
 
 SERVICE_CONSTRUCT(Service::BOSS::Module)
-BOOST_CLASS_EXPORT_KEY(Service::BOSS::Module)
-BOOST_CLASS_EXPORT_KEY(Service::BOSS::Module::SessionData)
+SERIALIZATION_CLASS_EXPORT_KEY(Service::BOSS::Module)
+SERIALIZATION_CLASS_EXPORT_KEY(Service::BOSS::Module::SessionData)

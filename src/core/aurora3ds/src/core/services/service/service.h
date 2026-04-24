@@ -7,11 +7,10 @@
 #include <array>
 #include <cstddef>
 #include <functional>
+#include <map>
 #include <memory>
 #include <string>
-#include <boost/container/flat_map.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/shared_ptr.hpp>
+#include "common/serialization/serialization_alias.hpp"
 #include "common/archives.h"
 #include "common/common_types.h"
 #include "common/construct.h"
@@ -106,7 +105,7 @@ private:
 
     /// Function used to safely up-cast pointers to the derived class before invoking a handler.
     InvokerFn* handler_invoker;
-    boost::container::flat_map<u32, FunctionInfoBase> handlers;
+    std::map<u32, FunctionInfoBase> handlers;
 };
 
 /**
@@ -217,27 +216,27 @@ extern const std::array<ServiceModuleInfo, 41> service_module_map;
                                                                                                    \
     template <class Archive>                                                                       \
     void serialize(Archive& ar, const unsigned int) {                                              \
-        ar& boost::serialization::base_object<Kernel::SessionRequestHandler>(*this);               \
+        ar& Serialization::base_object<Kernel::SessionRequestHandler>(*this);               \
     }                                                                                              \
-    friend class boost::serialization::access;                                                     \
+    friend class Serialization::access;                                                     \
     friend class ::construct_access;
 
 #define SERVICE_SERIALIZATION_SIMPLE                                                               \
     template <class Archive>                                                                       \
     void serialize(Archive& ar, const unsigned int) {                                              \
         DEBUG_SERIALIZATION_POINT;                                                                 \
-        ar& boost::serialization::base_object<Kernel::SessionRequestHandler>(*this);               \
+        ar& Serialization::base_object<Kernel::SessionRequestHandler>(*this);               \
     }                                                                                              \
-    friend class boost::serialization::access;
+    friend class Serialization::access;
 
 #define SERVICE_CONSTRUCT(T)                                                                       \
-    namespace boost::serialization {                                                               \
+    namespace Serialization {                                                               \
     template <class Archive>                                                                       \
     void load_construct_data(Archive& ar, T* t, const unsigned int);                               \
     }
 
 #define SERVICE_CONSTRUCT_IMPL(T)                                                                  \
-    namespace boost::serialization {                                                               \
+    namespace Serialization {                                                               \
     template <class Archive>                                                                       \
     void load_construct_data(Archive& ar, T* t, const unsigned int) {                              \
         ::new (t) T(Core::Global<Core::System>());                                                 \

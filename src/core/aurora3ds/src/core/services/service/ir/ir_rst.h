@@ -100,10 +100,10 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class boost::serialization::access;
+    friend class Serialization::access;
 };
 
 } // namespace Service::IR
 
-BOOST_CLASS_EXPORT_KEY(Service::IR::IR_RST)
+SERIALIZATION_CLASS_EXPORT_KEY(Service::IR::IR_RST)
 SERVICE_CONSTRUCT(Service::IR::IR_RST)

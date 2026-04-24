@@ -4,9 +4,7 @@
 
 #include <algorithm>
 #include <iterator>
-#include <boost/serialization/map.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/split_member.hpp>
+#include "common/serialization/serialization_alias.hpp"
 #include "common/archives.h"
 #include "common/assert.h"
 #include "core/core.h"

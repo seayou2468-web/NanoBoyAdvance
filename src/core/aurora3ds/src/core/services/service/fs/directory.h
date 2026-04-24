@@ -31,9 +31,9 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class boost::serialization::access;
+    friend class Serialization::access;
 };
 
 } // namespace Service::FS
 
-BOOST_CLASS_EXPORT_KEY(Service::FS::Directory)
+SERIALIZATION_CLASS_EXPORT_KEY(Service::FS::Directory)

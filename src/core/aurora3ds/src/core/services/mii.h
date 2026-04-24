@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <boost/serialization/export.hpp>
+#include "common/serialization/serialization_alias.hpp"
 #include "common/bit_field.h"
 #include "common/common_types.h"
 
@@ -178,7 +178,7 @@ struct MiiData {
 private:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class boost::serialization::access;
+    friend class Serialization::access;
 };
 
 static_assert(sizeof(MiiData) == 0x5C, "MiiData structure has incorrect size");
@@ -228,7 +228,7 @@ public:
 private:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class boost::serialization::access;
+    friend class Serialization::access;
 };
 #pragma pack(pop)
 static_assert(sizeof(ChecksummedMiiData) == 0x60,
@@ -238,5 +238,5 @@ static_assert(std::is_trivially_copyable_v<ChecksummedMiiData>,
               "ChecksummedMiiData must be trivially copyable.");
 } // namespace Mii
 
-BOOST_CLASS_EXPORT_KEY(Mii::MiiData)
-BOOST_CLASS_EXPORT_KEY(Mii::ChecksummedMiiData)
+SERIALIZATION_CLASS_EXPORT_KEY(Mii::MiiData)
+SERIALIZATION_CLASS_EXPORT_KEY(Mii::ChecksummedMiiData)

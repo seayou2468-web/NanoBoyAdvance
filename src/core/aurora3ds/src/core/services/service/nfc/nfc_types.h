@@ -154,7 +154,7 @@ struct TagUuid {
         ar & nintendo_id;
         ar & lock_bytes;
     }
-    friend class boost::serialization::access;
+    friend class Serialization::access;
 };
 static_assert(sizeof(TagUuid) == 10, "TagUuid is an invalid size");
 
@@ -263,7 +263,7 @@ struct NTAG215Password {
         ar & PACK;
         ar & RFUI;
     }
-    friend class boost::serialization::access;
+    friend class Serialization::access;
 };
 static_assert(sizeof(NTAG215Password) == 0x8, "NTAG215Password is an invalid size");
 
@@ -346,7 +346,7 @@ struct SerializableAmiiboFile {
     void serialize(Archive& ar, const unsigned int) {
         ar & raw;
     }
-    friend class boost::serialization::access;
+    friend class Serialization::access;
 };
 static_assert(sizeof(SerializableAmiiboFile) == 0x21C, "SerializableAmiiboFile is an invalid size");
 static_assert(std::is_trivially_copyable_v<SerializableAmiiboFile>,
@@ -361,7 +361,7 @@ struct SerializableEncryptedAmiiboFile {
     void serialize(Archive& ar, const unsigned int) {
         ar & raw;
     }
-    friend class boost::serialization::access;
+    friend class Serialization::access;
 };
 static_assert(sizeof(SerializableEncryptedAmiiboFile) == 0x21C,
               "SerializableEncryptedAmiiboFile is an invalid size");

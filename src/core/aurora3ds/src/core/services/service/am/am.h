@@ -12,8 +12,7 @@
 #include <mutex>
 #include <string>
 #include <vector>
-#include <boost/serialization/array.hpp>
-#include <boost/serialization/shared_ptr.hpp>
+#include "common/serialization/serialization_alias.hpp"
 #include "common/common_types.h"
 #include "common/construct.h"
 #include "common/swap.h"
@@ -1137,7 +1136,7 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class boost::serialization::access;
+    friend class Serialization::access;
 };
 
 std::shared_ptr<Module> GetModule(Core::System& system);
@@ -1146,5 +1145,5 @@ void InstallInterfaces(Core::System& system);
 
 } // namespace Service::AM
 
-BOOST_CLASS_EXPORT_KEY(Service::AM::Module)
+SERIALIZATION_CLASS_EXPORT_KEY(Service::AM::Module)
 SERVICE_CONSTRUCT(Service::AM::Module)

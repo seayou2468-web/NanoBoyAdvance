@@ -21,7 +21,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#include <boost/serialization/weak_ptr.hpp>
+#include "common/serialization/serialization_alias.hpp"
 #include <fmt/format.h>
 #include "common/archives.h"
 #include "common/logging/log.h"
@@ -90,7 +90,7 @@ SERIALIZE_IMPL(PLG_LDR::PluginLoaderContext)
 template <class Archive>
 void PLG_LDR::serialize(Archive& ar, const unsigned int) {
     DEBUG_SERIALIZATION_POINT;
-    ar& boost::serialization::base_object<Kernel::SessionRequestHandler>(*this);
+    ar& Serialization::base_object<Kernel::SessionRequestHandler>(*this);
     ar & plgldr_context;
 }
 SERIALIZE_IMPL(PLG_LDR)

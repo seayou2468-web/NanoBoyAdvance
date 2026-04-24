@@ -755,10 +755,10 @@ private:
     SVC_SyncCallback() = default;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<Kernel::WakeupCallback>(*this);
+        ar& Serialization::base_object<Kernel::WakeupCallback>(*this);
         ar & do_output;
     }
-    friend class boost::serialization::access;
+    friend class Serialization::access;
 };
 
 class SVC_IPCCallback : public Kernel::WakeupCallback {
@@ -789,9 +789,9 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<Kernel::WakeupCallback>(*this);
+        ar& Serialization::base_object<Kernel::WakeupCallback>(*this);
     }
-    friend class boost::serialization::access;
+    friend class Serialization::access;
 };
 
 /// Wait for a handle to synchronize, timeout after the specified nanoseconds

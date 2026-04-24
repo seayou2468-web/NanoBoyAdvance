@@ -652,7 +652,7 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class boost::serialization::access;
+    friend class Serialization::access;
 };
 
 std::shared_ptr<Module> GetModule(Core::System& system);
@@ -677,4 +677,4 @@ std::array<u8, 6> GetConsoleMacAddress(Core::System& system);
 } // namespace Service::CFG
 
 SERVICE_CONSTRUCT(Service::CFG::Module)
-BOOST_CLASS_EXPORT_KEY(Service::CFG::Module)
+SERIALIZATION_CLASS_EXPORT_KEY(Service::CFG::Module)

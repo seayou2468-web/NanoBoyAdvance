@@ -5,9 +5,7 @@
 #pragma once
 
 #include <memory>
-#include <boost/serialization/array.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/shared_ptr.hpp>
+#include "common/serialization/serialization_alias.hpp"
 #include "audio_core/dsp_interface.h"
 #include "core/hle/kernel/event.h"
 #include "core/hle/result.h"
@@ -270,19 +268,19 @@ private:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
         DEBUG_SERIALIZATION_POINT;
-        ar& boost::serialization::base_object<Kernel::SessionRequestHandler>(*this);
+        ar& Serialization::base_object<Kernel::SessionRequestHandler>(*this);
         ar & semaphore_event;
         ar & preset_semaphore;
         ar & interrupt_zero;
         ar & interrupt_one;
         ar & pipes;
     }
-    friend class boost::serialization::access;
+    friend class Serialization::access;
 };
 
 void InstallInterfaces(Core::System& system);
 
 } // namespace Service::DSP
 
-BOOST_CLASS_EXPORT_KEY(Service::DSP::DSP_DSP)
+SERIALIZATION_CLASS_EXPORT_KEY(Service::DSP::DSP_DSP)
 SERVICE_CONSTRUCT(Service::DSP::DSP_DSP)

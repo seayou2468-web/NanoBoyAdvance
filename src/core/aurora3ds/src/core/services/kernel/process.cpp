@@ -4,17 +4,11 @@
 
 #include <algorithm>
 #include <memory>
-#include <boost/serialization/array.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/bitset.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/string.hpp>
-#include <boost/serialization/vector.hpp>
+#include "common/serialization/serialization_alias.hpp"
 #include "common/archives.h"
 #include "common/assert.h"
 #include "common/common_funcs.h"
 #include "common/logging/log.h"
-#include "common/serialization/boost_vector.hpp"
 #include "core/core.h"
 #include "core/hle/kernel/errors.h"
 #include "core/hle/kernel/memory.h"
@@ -44,14 +38,13 @@ SERIALIZE_IMPL(AddressMapping)
 
 template <class Archive>
 void Process::serialize(Archive& ar, const unsigned int) {
-    ar& boost::serialization::base_object<Object>(*this);
+    ar& Serialization::base_object<Object>(*this);
     ar & handle_table;
     ar & codeset; // TODO: Replace with apploader reference
     ar & resource_limit;
     ar & svc_access_mask;
     ar & handle_table_size;
-    ar&(boost::container::vector<AddressMapping, boost::container::dtl::static_storage_allocator<
-                                                     AddressMapping, 8, 0, true>>&)address_mappings;
+    ar & address_mappings;
     ar & flags.raw;
     ar & no_thread_restrictions;
     ar & kernel_version;
@@ -82,7 +75,7 @@ CodeSet::~CodeSet() {}
 
 template <class Archive>
 void CodeSet::serialize(Archive& ar, const unsigned int) {
-    ar& boost::serialization::base_object<Object>(*this);
+    ar& Serialization::base_object<Object>(*this);
     ar & memory;
     ar & segments;
     ar & entrypoint;

@@ -5,7 +5,7 @@
 #pragma once
 
 #include <array>
-#include <boost/serialization/array.hpp>
+#include "common/serialization/serialization_alias.hpp"
 #include "core/hle/service/service.h"
 
 namespace Core {
@@ -276,7 +276,7 @@ private:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
         DEBUG_SERIALIZATION_POINT;
-        ar& boost::serialization::base_object<Kernel::SessionRequestHandler>(*this);
+        ar& Serialization::base_object<Kernel::SessionRequestHandler>(*this);
         ar & daemon_bit_mask;
         ar & default_daemon_bit_mask;
         ar & daemon_status;
@@ -286,11 +286,11 @@ private:
         ar & retry_interval;
         ar & daemon_lock_enabled;
     }
-    friend class boost::serialization::access;
+    friend class Serialization::access;
 };
 
 void InstallInterfaces(Core::System& system);
 
 } // namespace Service::NDM
 
-BOOST_CLASS_EXPORT_KEY(Service::NDM::NDM_U)
+SERIALIZATION_CLASS_EXPORT_KEY(Service::NDM::NDM_U)

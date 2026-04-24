@@ -4,8 +4,7 @@
 
 #include <algorithm>
 #include <cstring>
-#include <boost/serialization/list.hpp>
-#include <boost/serialization/map.hpp>
+#include "common/serialization/serialization_alias.hpp"
 #include <cryptopp/osrng.h>
 #include "common/archives.h"
 #include "common/common_types.h"
@@ -35,7 +34,7 @@ namespace Service::NWM {
 template <class Archive>
 void NWM_UDS::serialize(Archive& ar, const unsigned int) {
     DEBUG_SERIALIZATION_POINT;
-    ar& boost::serialization::base_object<Kernel::SessionRequestHandler>(*this);
+    ar& Serialization::base_object<Kernel::SessionRequestHandler>(*this);
     ar & node_map;
     ar & connection_event;
     ar & received_beacons;
@@ -576,7 +575,7 @@ void NWM_UDS::OnWifiPacketReceived(const Network::WifiPacket& packet) {
     }
 }
 
-boost::optional<Network::MacAddress> NWM_UDS::GetNodeMacAddress(u16 dest_node_id, u8 flags) {
+std::optional<Network::MacAddress> NWM_UDS::GetNodeMacAddress(u16 dest_node_id, u8 flags) {
     constexpr u8 BroadcastFlag = 0x2;
     if ((flags & BroadcastFlag) || dest_node_id == BroadcastNetworkNodeId) {
         // Broadcast
@@ -1382,10 +1381,10 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<Kernel::HLERequestContext::WakeupCallback>(*this);
+        ar& Serialization::base_object<Kernel::HLERequestContext::WakeupCallback>(*this);
         ar & command_id;
     }
-    friend class boost::serialization::access;
+    friend class Serialization::access;
 };
 
 void NWM_UDS::ConnectToNetworkHLE(NetworkInfo net_info, u8 connection_type,

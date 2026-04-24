@@ -2,9 +2,7 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/string.hpp>
+#include "common/serialization/serialization_alias.hpp"
 #include "common/archives.h"
 #include "common/assert.h"
 #include "core/core.h"
@@ -132,7 +130,7 @@ void Mutex::UpdatePriority() {
 
 template <class Archive>
 void Mutex::serialize(Archive& ar, const unsigned int) {
-    ar& boost::serialization::base_object<WaitObject>(*this);
+    ar& Serialization::base_object<WaitObject>(*this);
     ar & lock_count;
     ar & priority;
     ar & name;

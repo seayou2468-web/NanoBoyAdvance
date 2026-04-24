@@ -6,9 +6,9 @@
 
 #include <cstddef>
 #include <memory>
+#include <optional>
 #include <string>
-#include <boost/optional/optional.hpp>
-#include <boost/serialization/export.hpp>
+#include "common/serialization/serialization_alias.hpp"
 #include "common/bit_field.h"
 #include "common/common_types.h"
 #include "core/hle/kernel/event.h"
@@ -90,7 +90,7 @@ public:
 private:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class boost::serialization::access;
+    friend class Serialization::access;
 };
 
 class GSP_GPU final : public ServiceFramework<GSP_GPU, SessionData> {
@@ -397,7 +397,7 @@ private:
     bool first_initialization = true;
 
     /// VRAM copy saved using SaveVramSysArea.
-    boost::optional<std::vector<u8>> saved_vram;
+    std::optional<std::vector<u8>> saved_vram;
 
     /// Maximum number of threads that can be registered at the same time in the GSP module.
     static constexpr u32 MaxGSPThreads = 4;
@@ -409,11 +409,11 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class boost::serialization::access;
+    friend class Serialization::access;
 };
 
 } // namespace Service::GSP
 
-BOOST_CLASS_EXPORT_KEY(Service::GSP::SessionData)
-BOOST_CLASS_EXPORT_KEY(Service::GSP::GSP_GPU)
+SERIALIZATION_CLASS_EXPORT_KEY(Service::GSP::SessionData)
+SERIALIZATION_CLASS_EXPORT_KEY(Service::GSP::GSP_GPU)
 SERVICE_CONSTRUCT(Service::GSP::GSP_GPU)

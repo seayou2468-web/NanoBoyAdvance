@@ -33,4 +33,4 @@ std::shared_ptr<PM_APP> GetServiceAPP(Core::System& system);
 } // namespace Service::PM
 
 SERVICE_CONSTRUCT(Service::PM::PM_APP)
-BOOST_CLASS_EXPORT_KEY(Service::PM::PM_APP)
+SERIALIZATION_CLASS_EXPORT_KEY(Service::PM::PM_APP)

@@ -9,11 +9,7 @@
 #include <future>
 #include <memory>
 #include <vector>
-#include <boost/serialization/array.hpp>
-#include <boost/serialization/deque.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/unique_ptr.hpp>
-#include <boost/serialization/version.hpp>
+#include "common/serialization/serialization_alias.hpp"
 #include "common/common_types.h"
 #include "common/swap.h"
 #include "core/global.h"
@@ -84,7 +80,7 @@ private:
         ar & crop_x1;
         ar & crop_y1;
     }
-    friend class boost::serialization::access;
+    friend class Serialization::access;
 };
 
 struct PackageParameterWithoutContext {
@@ -669,7 +665,7 @@ private:
             ar & format;
             ar & resolution;
         }
-        friend class boost::serialization::access;
+        friend class Serialization::access;
     };
 
     struct CameraConfig {
@@ -685,7 +681,7 @@ private:
             ar & current_context;
             ar & frame_rate;
         }
-        friend class boost::serialization::access;
+        friend class Serialization::access;
     };
 
     struct PortConfig {
@@ -746,7 +742,7 @@ private:
             ar & dest;
             ar & dest_size;
         }
-        friend class boost::serialization::access;
+        friend class Serialization::access;
     };
 
     void LoadCameraImplementation(CameraConfig& camera, int camera_id);
@@ -761,7 +757,7 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int file_version);
-    friend class boost::serialization::access;
+    friend class Serialization::access;
 };
 
 std::shared_ptr<Module> GetModule(Core::System& system);
@@ -771,5 +767,5 @@ void InstallInterfaces(Core::System& system);
 } // namespace Service::CAM
 
 SERVICE_CONSTRUCT(Service::CAM::Module)
-BOOST_CLASS_VERSION(Service::CAM::Module, 1)
-BOOST_CLASS_VERSION(Service::CAM::Module::CameraConfig, 1)
+SERIALIZATION_CLASS_VERSION(Service::CAM::Module, 1)
+SERIALIZATION_CLASS_VERSION(Service::CAM::Module::CameraConfig, 1)

@@ -5,7 +5,7 @@
 #pragma once
 
 #include <memory>
-#include <boost/serialization/export.hpp>
+#include "common/serialization/serialization_alias.hpp"
 #include "common/common_types.h"
 
 namespace Core {
@@ -31,5 +31,5 @@ class SVC_IPCCallback;
 
 } // namespace Kernel
 
-BOOST_CLASS_EXPORT_KEY(Kernel::SVC_SyncCallback)
-BOOST_CLASS_EXPORT_KEY(Kernel::SVC_IPCCallback)
+SERIALIZATION_CLASS_EXPORT_KEY(Kernel::SVC_SyncCallback)
+SERIALIZATION_CLASS_EXPORT_KEY(Kernel::SVC_IPCCallback)

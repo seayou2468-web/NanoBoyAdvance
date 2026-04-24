@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <boost/serialization/export.hpp>
+#include "common/serialization/serialization_alias.hpp"
 #include "core/hle/kernel/object.h"
 #include "core/hle/kernel/resource_limit.h"
 #include "core/hle/kernel/wait_object.h"
@@ -53,12 +53,12 @@ private:
 
     friend class KernelSystem;
 
-    friend class boost::serialization::access;
+    friend class Serialization::access;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
 };
 
 } // namespace Kernel
 
-BOOST_CLASS_EXPORT_KEY(Kernel::Event)
+SERIALIZATION_CLASS_EXPORT_KEY(Kernel::Event)
 CONSTRUCT_KERNEL_OBJECT(Kernel::Event)

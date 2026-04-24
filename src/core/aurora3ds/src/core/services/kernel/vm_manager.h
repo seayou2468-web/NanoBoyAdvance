@@ -6,7 +6,7 @@
 
 #include <map>
 #include <memory>
-#include <boost/serialization/export.hpp>
+#include "common/serialization/serialization_alias.hpp"
 #include "common/common_types.h"
 #include "common/memory_ref.h"
 #include "core/hle/kernel/memory.h"
@@ -75,7 +75,7 @@ struct VirtualMemoryArea {
     bool CanBeMergedWith(const VirtualMemoryArea& next) const;
 
 private:
-    friend class boost::serialization::access;
+    friend class Serialization::access;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
 };
@@ -230,8 +230,8 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class boost::serialization::access;
+    friend class Serialization::access;
 };
 } // namespace Kernel
 
-BOOST_CLASS_EXPORT_KEY(Kernel::VirtualMemoryArea)
+SERIALIZATION_CLASS_EXPORT_KEY(Kernel::VirtualMemoryArea)

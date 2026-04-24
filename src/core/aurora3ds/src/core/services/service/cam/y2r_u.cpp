@@ -22,7 +22,7 @@ namespace Service::Y2R {
 
 template <class Archive>
 void Y2R_U::serialize(Archive& ar, const unsigned int) {
-    ar& boost::serialization::base_object<Kernel::SessionRequestHandler>(*this);
+    ar& Serialization::base_object<Kernel::SessionRequestHandler>(*this);
     ar & completion_event;
     ar & conversion;
     ar & dithering_weight_params;

@@ -1075,7 +1075,7 @@ public:
         void serialize(Archive& ar, const unsigned int) {
             ar & application_reset_prepared;
         }
-        friend class boost::serialization::access;
+        friend class Serialization::access;
     };
 
 private:
@@ -1098,7 +1098,7 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class boost::serialization::access;
+    friend class Serialization::access;
 };
 
 std::shared_ptr<Module> GetModule(Core::System& system);
@@ -1108,4 +1108,4 @@ void InstallInterfaces(Core::System& system);
 } // namespace Service::APT
 
 SERVICE_CONSTRUCT(Service::APT::Module)
-BOOST_CLASS_VERSION(Service::APT::Module, 1)
+SERIALIZATION_CLASS_VERSION(Service::APT::Module, 1)

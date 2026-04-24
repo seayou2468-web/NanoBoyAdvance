@@ -6,7 +6,7 @@
 
 #include <memory>
 #include <vector>
-#include <boost/serialization/export.hpp>
+#include "common/serialization/serialization_alias.hpp"
 #include "common/common_types.h"
 #include "core/hle/ipc.h"
 #include "core/hle/kernel/thread.h"
@@ -30,7 +30,7 @@ struct MappedBufferContext {
 private:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class boost::serialization::access;
+    friend class Serialization::access;
 };
 
 /// Performs IPC command buffer translation from one process to another.
@@ -41,4 +41,4 @@ Result TranslateCommandBuffer(KernelSystem& system, Memory::MemorySystem& memory
                               std::vector<MappedBufferContext>& mapped_buffer_context, bool reply);
 } // namespace Kernel
 
-BOOST_CLASS_EXPORT_KEY(Kernel::MappedBufferContext)
+SERIALIZATION_CLASS_EXPORT_KEY(Kernel::MappedBufferContext)

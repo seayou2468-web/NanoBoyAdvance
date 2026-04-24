@@ -2,10 +2,10 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include <boost/serialization/map.hpp>
+#include "common/serialization/serialization_alias.hpp"
 #include "common/archives.h"
 #include "common/file_util.h"
-#include "common/serialization/boost_std_variant.hpp"
+#include "common/serialization/std_variant.hpp"
 #include "common/string_util.h"
 #include "core/core.h"
 #include "core/file_sys/archive_backend.h"

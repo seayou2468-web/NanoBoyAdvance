@@ -7,7 +7,7 @@
 #include <memory>
 #include <string>
 #include <tuple>
-#include <boost/serialization/export.hpp>
+#include "common/serialization/serialization_alias.hpp"
 #include "common/common_types.h"
 #include "core/hle/kernel/object.h"
 #include "core/hle/kernel/server_session.h"
@@ -64,12 +64,12 @@ public:
     void Acquire(Thread* thread) override;
 
 private:
-    friend class boost::serialization::access;
+    friend class Serialization::access;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
 };
 
 } // namespace Kernel
 
-BOOST_CLASS_EXPORT_KEY(Kernel::ServerPort)
+SERIALIZATION_CLASS_EXPORT_KEY(Kernel::ServerPort)
 CONSTRUCT_KERNEL_OBJECT(Kernel::ServerPort)

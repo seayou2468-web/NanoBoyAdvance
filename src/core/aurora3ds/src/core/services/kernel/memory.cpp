@@ -6,7 +6,7 @@
 #include <memory>
 #include <utility>
 #include <vector>
-#include <boost/serialization/set.hpp>
+#include "common/serialization/serialization_alias.hpp"
 #include "common/archives.h"
 #include "common/assert.h"
 #include "common/common_types.h"
@@ -198,7 +198,7 @@ MemoryRegionInfo::IntervalSet MemoryRegionInfo::HeapAllocate(u32 size) {
 
     // Try allocating from the higher address
     for (auto iter = free_blocks.rbegin(); iter != free_blocks.rend(); ++iter) {
-        ASSERT(iter->bounds() == boost::icl::interval_bounds::right_open());
+        ASSERT(iter->bounds() == Common::IntervalBounds::RightOpen);
         if (iter->upper() - iter->lower() >= rest) {
             // Requested size is fulfilled with this block
             result += Interval(iter->upper() - rest, iter->upper());
@@ -223,7 +223,7 @@ bool MemoryRegionInfo::LinearAllocate(u32 offset, u32 size) {
     ASSERT(!is_locked);
 
     Interval interval(offset, offset + size);
-    if (!boost::icl::contains(free_blocks, interval)) {
+    if (!Common::contains(free_blocks, interval)) {
         // The requested range is already allocated
         return false;
     }
@@ -237,7 +237,7 @@ std::optional<u32> MemoryRegionInfo::LinearAllocate(u32 size) {
 
     // Find the first sufficient continuous block from the lower address
     for (const auto& interval : free_blocks) {
-        ASSERT(interval.bounds() == boost::icl::interval_bounds::right_open());
+        ASSERT(interval.bounds() == Common::IntervalBounds::RightOpen);
         if (interval.upper() - interval.lower() >= size) {
             Interval allocated(interval.lower(), interval.lower() + size);
             free_blocks -= allocated;
@@ -256,7 +256,7 @@ std::optional<u32> MemoryRegionInfo::RLinearAllocate(u32 size) {
     // Find the first sufficient continuous block from the upper address
     for (auto iter = free_blocks.rbegin(); iter != free_blocks.rend(); ++iter) {
         auto interval = *iter;
-        ASSERT(interval.bounds() == boost::icl::interval_bounds::right_open());
+        ASSERT(interval.bounds() == Common::IntervalBounds::RightOpen);
         if (interval.upper() - interval.lower() >= size) {
             Interval allocated(interval.upper() - size, interval.upper());
             free_blocks -= allocated;
@@ -275,7 +275,7 @@ void MemoryRegionInfo::Free(u32 offset, u32 size) {
     }
 
     Interval interval(offset, offset + size);
-    ASSERT(!boost::icl::intersects(free_blocks, interval)); // must be allocated blocks
+    ASSERT(!Common::intersects(free_blocks, interval)); // must be allocated blocks
     free_blocks += interval;
     used -= size;
 }

@@ -4,10 +4,7 @@
 
 #include <algorithm>
 #include <vector>
-#include <boost/serialization/assume_abstract.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/unique_ptr.hpp>
-#include <boost/serialization/vector.hpp>
+#include "common/serialization/serialization_alias.hpp"
 #include "common/archives.h"
 #include "common/assert.h"
 #include "common/common_types.h"
@@ -67,11 +64,11 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<Kernel::WakeupCallback>(*this);
+        ar& Serialization::base_object<Kernel::WakeupCallback>(*this);
         ar & callback;
         ar & context;
     }
-    friend class boost::serialization::access;
+    friend class Serialization::access;
 };
 
 SessionRequestHandler::SessionInfo::SessionInfo(std::shared_ptr<ServerSession> session,

@@ -11,10 +11,8 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include <boost/container/small_vector.hpp>
-#include <boost/serialization/export.hpp>
+#include "common/serialization/serialization_alias.hpp"
 #include "common/common_types.h"
-#include "common/serialization/boost_small_vector.hpp"
 #include "common/settings.h"
 #include "common/swap.h"
 #include "core/hle/ipc.h"
@@ -76,7 +74,7 @@ public:
     private:
         template <class Archive>
         void serialize(Archive& ar, const unsigned int);
-        friend class boost::serialization::access;
+        friend class Serialization::access;
     };
 
     struct SessionInfo {
@@ -89,7 +87,7 @@ public:
         SessionInfo() = default;
         template <class Archive>
         void serialize(Archive& ar, const unsigned int);
-        friend class boost::serialization::access;
+        friend class Serialization::access;
     };
 
 protected:
@@ -114,7 +112,7 @@ protected:
 private:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class boost::serialization::access;
+    friend class Serialization::access;
 };
 
 // NOTE: The below classes are ephemeral and don't need serialization
@@ -159,7 +157,7 @@ private:
         ar & size;
         ar & perms;
     }
-    friend class boost::serialization::access;
+    friend class Serialization::access;
 };
 
 /**
@@ -239,7 +237,7 @@ public:
     private:
         template <class Archive>
         void serialize(Archive& ar, const unsigned int) {}
-        friend class boost::serialization::access;
+        friend class Serialization::access;
     };
 
     /**
@@ -382,22 +380,22 @@ private:
     std::shared_ptr<ServerSession> session;
     std::shared_ptr<Thread> thread;
     // TODO(yuriks): Check common usage of this and optimize size accordingly
-    boost::container::small_vector<std::shared_ptr<Object>, 8> request_handles;
+    std::vector<std::shared_ptr<Object>> request_handles;
     // The static buffers will be created when the IPC request is translated.
     std::array<std::vector<u8>, IPC::MAX_STATIC_BUFFERS> static_buffers;
     // The mapped buffers will be created when the IPC request is translated
-    boost::container::small_vector<MappedBuffer, 8> request_mapped_buffers;
+    std::vector<MappedBuffer> request_mapped_buffers;
 
     HLERequestContext();
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class boost::serialization::access;
+    friend class Serialization::access;
 };
 
 } // namespace Kernel
 
-BOOST_CLASS_EXPORT_KEY(Kernel::SessionRequestHandler)
-BOOST_CLASS_EXPORT_KEY(Kernel::SessionRequestHandler::SessionDataBase)
-BOOST_CLASS_EXPORT_KEY(Kernel::SessionRequestHandler::SessionInfo)
-BOOST_CLASS_EXPORT_KEY(Kernel::HLERequestContext)
-BOOST_CLASS_EXPORT_KEY(Kernel::HLERequestContext::ThreadCallback)
+SERIALIZATION_CLASS_EXPORT_KEY(Kernel::SessionRequestHandler)
+SERIALIZATION_CLASS_EXPORT_KEY(Kernel::SessionRequestHandler::SessionDataBase)
+SERIALIZATION_CLASS_EXPORT_KEY(Kernel::SessionRequestHandler::SessionInfo)
+SERIALIZATION_CLASS_EXPORT_KEY(Kernel::HLERequestContext)
+SERIALIZATION_CLASS_EXPORT_KEY(Kernel::HLERequestContext::ThreadCallback)

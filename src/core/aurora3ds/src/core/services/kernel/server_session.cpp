@@ -3,9 +3,7 @@
 // Refer to the license.txt file included.
 
 #include <tuple>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/string.hpp>
-#include <boost/serialization/vector.hpp>
+#include "common/serialization/serialization_alias.hpp"
 #include "common/archives.h"
 #include "core/hle/kernel/client_port.h"
 #include "core/hle/kernel/client_session.h"
@@ -20,7 +18,7 @@ namespace Kernel {
 
 template <class Archive>
 void ServerSession::serialize(Archive& ar, const unsigned int) {
-    ar& boost::serialization::base_object<WaitObject>(*this);
+    ar& Serialization::base_object<WaitObject>(*this);
     ar & name;
     ar & parent;
     ar & hle_handler;

@@ -2,8 +2,7 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/string.hpp>
+#include "common/serialization/serialization_alias.hpp"
 #include "common/archives.h"
 #include "common/assert.h"
 #include "core/global.h"
@@ -52,7 +51,7 @@ void ClientPort::ConnectionClosed() {
 
 template <class Archive>
 void ClientPort::serialize(Archive& ar, const unsigned int) {
-    ar& boost::serialization::base_object<Object>(*this);
+    ar& Serialization::base_object<Object>(*this);
     ar & server_port;
     ar & max_sessions;
     ar & active_sessions;

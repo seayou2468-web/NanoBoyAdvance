@@ -17,7 +17,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <boost/serialization/export.hpp>
+#include "common/serialization/serialization_alias.hpp"
 #include "common/common_types.h"
 #include "core/hle/kernel/memory.h"
 #include "core/hle/result.h"
@@ -133,7 +133,7 @@ struct New3dsHwCapabilities {
 private:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class boost::serialization::access;
+    friend class Serialization::access;
 };
 
 enum class Core1ScheduleMode : u32 {
@@ -167,7 +167,7 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class boost::serialization::access;
+    friend class Serialization::access;
 };
 inline constexpr Core1CpuTime Core1CpuTime::PREEMPTION_DISABLED{0};
 inline constexpr Core1CpuTime Core1CpuTime::PREEMPTION_SYSMODULE{1000};
@@ -480,12 +480,12 @@ private:
      */
     bool main_thread_extended_sleep = false;
 
-    friend class boost::serialization::access;
+    friend class Serialization::access;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
 };
 
 } // namespace Kernel
 
-BOOST_CLASS_EXPORT_KEY(Kernel::New3dsHwCapabilities)
-BOOST_CLASS_EXPORT_KEY(Kernel::Core1CpuTime)
+SERIALIZATION_CLASS_EXPORT_KEY(Kernel::New3dsHwCapabilities)
+SERIALIZATION_CLASS_EXPORT_KEY(Kernel::Core1CpuTime)

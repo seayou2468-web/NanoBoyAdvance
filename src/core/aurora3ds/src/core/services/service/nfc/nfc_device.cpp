@@ -4,8 +4,7 @@
 
 #include <array>
 #include <chrono>
-#include <boost/crc.hpp>
-#include <cryptopp/osrng.h>
+#include <limits>
 
 #include "common/file_util.h"
 #include "common/logging/log.h"
@@ -13,6 +12,7 @@
 #include "core/hle/kernel/shared_page.h"
 #include "core/hle/service/nfc/amiibo_crypto.h"
 #include "core/hle/service/nfc/nfc_device.h"
+#include "core/hle/service/non_boost_utils.h"
 #include "core/hw/aes/key.h"
 #include "core/loader/loader.h"
 
@@ -627,18 +627,18 @@ Result NfcDevice::DeleteRegisterInfo() {
         return ResultNeedRegister;
     }
 
-    CryptoPP::AutoSeededRandomPool rng;
     const std::size_t mii_data_size = sizeof(tag.file.owner_mii);
-    std::array<CryptoPP::byte, mii_data_size> buffer{};
-    rng.GenerateBlock(buffer.data(), mii_data_size);
+    std::array<u8, mii_data_size> buffer{};
+    Service::Compat::GenerateRandomBytes(buffer.data(), mii_data_size);
 
     memcpy(&tag.file.owner_mii, buffer.data(), mii_data_size);
     memcpy(&tag.file.settings.amiibo_name, buffer.data(), sizeof(tag.file.settings.amiibo_name));
-    tag.file.unknown = rng.GenerateByte();
-    tag.file.unknown2[0] = rng.GenerateWord32();
-    tag.file.unknown2[1] = rng.GenerateWord32();
-    tag.file.register_info_crc = rng.GenerateWord32();
-    tag.file.settings.init_date.raw_date = static_cast<u32>(rng.GenerateWord32());
+    tag.file.unknown = Service::Compat::GenerateRandomByte();
+    tag.file.unknown2[0] = Service::Compat::GenerateRandomWord32(0, std::numeric_limits<u32>::max());
+    tag.file.unknown2[1] = Service::Compat::GenerateRandomWord32(0, std::numeric_limits<u32>::max());
+    tag.file.register_info_crc = Service::Compat::GenerateRandomWord32(0, std::numeric_limits<u32>::max());
+    tag.file.settings.init_date.raw_date =
+        Service::Compat::GenerateRandomWord32(0, std::numeric_limits<u32>::max());
     tag.file.settings.settings.font_region.Assign(0);
     tag.file.settings.settings.amiibo_initialized.Assign(0);
     tag.file.settings.country_code_id = 0;
@@ -817,10 +817,9 @@ Result NfcDevice::SetApplicationArea(std::span<const u8> data) {
     std::memcpy(tag.file.application_area.data(), data.data(), data.size());
 
     // Fill remaining data with random numbers
-    CryptoPP::AutoSeededRandomPool rng;
     const std::size_t data_size = sizeof(ApplicationArea) - data.size();
-    std::vector<CryptoPP::byte> buffer(data_size);
-    rng.GenerateBlock(buffer.data(), data_size);
+    std::vector<u8> buffer(data_size);
+    Service::Compat::GenerateRandomBytes(buffer.data(), data_size);
     memcpy(tag.file.application_area.data() + data.size(), buffer.data(), data_size);
 
     if (tag.file.application_write_counter != counter_limit) {
@@ -873,10 +872,9 @@ Result NfcDevice::RecreateApplicationArea(u32 access_id, std::span<const u8> dat
     std::memcpy(tag.file.application_area.data(), data.data(), data.size());
 
     // Fill remaining data with random numbers
-    CryptoPP::AutoSeededRandomPool rng;
     const std::size_t data_size = sizeof(ApplicationArea) - data.size();
-    std::vector<CryptoPP::byte> buffer(data_size);
-    rng.GenerateBlock(buffer.data(), data_size);
+    std::vector<u8> buffer(data_size);
+    Service::Compat::GenerateRandomBytes(buffer.data(), data_size);
     memcpy(tag.file.application_area.data() + data.size(), buffer.data(), data_size);
 
     if (tag.file.application_write_counter != counter_limit) {
@@ -920,10 +918,9 @@ Result NfcDevice::DeleteApplicationArea() {
         return ResultNeedCreate;
     }
 
-    CryptoPP::AutoSeededRandomPool rng;
     constexpr std::size_t data_size = sizeof(ApplicationArea);
-    std::array<CryptoPP::byte, data_size> buffer{};
-    rng.GenerateBlock(buffer.data(), data_size);
+    std::array<u8, data_size> buffer{};
+    Service::Compat::GenerateRandomBytes(buffer.data(), data_size);
 
     if (tag.file.application_write_counter != counter_limit) {
         tag.file.application_write_counter++;
@@ -932,8 +929,8 @@ Result NfcDevice::DeleteApplicationArea() {
     // Reset data with random bytes
     memcpy(tag.file.application_area.data(), buffer.data(), data_size); //
     memcpy(&tag.file.application_id, buffer.data(), sizeof(u64));
-    tag.file.application_area_id = rng.GenerateWord32();
-    tag.file.application_id_byte = rng.GenerateByte();
+    tag.file.application_area_id = Service::Compat::GenerateRandomWord32(0, std::numeric_limits<u32>::max());
+    tag.file.application_id_byte = Service::Compat::GenerateRandomByte();
     tag.file.settings.settings.appdata_initialized.Assign(0);
     tag.file.unknown = {};
     tag.file.unknown2 = {};
@@ -1049,9 +1046,7 @@ void NfcDevice::UpdateSettingsCrc() {
 
     // TODO: this reads data from a global, find what it is
     std::array<u8, 8> unknown_input{};
-    boost::crc_32_type crc;
-    crc.process_bytes(&unknown_input, sizeof(unknown_input));
-    settings.crc = crc.checksum();
+    settings.crc = Service::Compat::CalculateCrc32(&unknown_input, sizeof(unknown_input));
 }
 
 void NfcDevice::UpdateRegisterInfoCrc() {
@@ -1074,9 +1069,7 @@ void NfcDevice::UpdateRegisterInfoCrc() {
         .unknown2 = tag.file.unknown2,
     };
 
-    boost::crc_32_type crc;
-    crc.process_bytes(&crc_data, sizeof(CrcData));
-    tag.file.register_info_crc = crc.checksum();
+    tag.file.register_info_crc = Service::Compat::CalculateCrc32(&crc_data, sizeof(CrcData));
 }
 
 void NfcDevice::BuildAmiiboWithoutKeys() {

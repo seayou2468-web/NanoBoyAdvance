@@ -2,10 +2,7 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include <boost/serialization/array.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/string.hpp>
+#include "common/serialization/serialization_alias.hpp"
 #include "common/archives.h"
 #include "common/assert.h"
 #include "common/settings.h"
@@ -157,7 +154,7 @@ void ResourceLimit::ApplyAppMaxCPUSetting(std::shared_ptr<Kernel::Process>& proc
 
 template <class Archive>
 void ResourceLimit::serialize(Archive& ar, const unsigned int) {
-    ar& boost::serialization::base_object<Object>(*this);
+    ar& Serialization::base_object<Object>(*this);
     ar & m_category;
     ar & m_name;
     ar & m_limit_values;

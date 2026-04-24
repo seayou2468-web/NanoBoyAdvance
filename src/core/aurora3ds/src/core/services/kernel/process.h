@@ -10,8 +10,7 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include <boost/container/static_vector.hpp>
-#include <boost/serialization/export.hpp>
+#include "common/serialization/serialization_alias.hpp"
 #include "common/bit_field.h"
 #include "common/common_types.h"
 #include "core/hle/kernel/handle_table.h"
@@ -28,7 +27,7 @@ struct AddressMapping {
     bool unk_flag;
 
 private:
-    friend class boost::serialization::access;
+    friend class Serialization::access;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
 };
@@ -67,7 +66,7 @@ public:
         u32 size = 0;
 
     private:
-        friend class boost::serialization::access;
+        friend class Serialization::access;
         template <class Archive>
         void serialize(Archive& ar, const unsigned int);
     };
@@ -119,7 +118,7 @@ public:
     u64 program_id;
 
 private:
-    friend class boost::serialization::access;
+    friend class Serialization::access;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
 };
@@ -153,7 +152,7 @@ public:
     unsigned int handle_table_size = 0x200;
     /// Special memory ranges mapped into this processes address space. This is used to give
     /// processes access to specific I/O regions and device memory.
-    boost::container::static_vector<AddressMapping, 8> address_mappings;
+    std::vector<AddressMapping> address_mappings;
     ProcessFlags flags;
     bool no_thread_restrictions = false;
     /// Kernel compatibility version for this process
@@ -231,16 +230,16 @@ private:
 
     KernelSystem& kernel;
 
-    friend class boost::serialization::access;
+    friend class Serialization::access;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int file_version);
 };
 
 } // namespace Kernel
 
-BOOST_CLASS_EXPORT_KEY(Kernel::AddressMapping)
-BOOST_CLASS_EXPORT_KEY(Kernel::CodeSet)
-BOOST_CLASS_EXPORT_KEY(Kernel::CodeSet::Segment)
-BOOST_CLASS_EXPORT_KEY(Kernel::Process)
+SERIALIZATION_CLASS_EXPORT_KEY(Kernel::AddressMapping)
+SERIALIZATION_CLASS_EXPORT_KEY(Kernel::CodeSet)
+SERIALIZATION_CLASS_EXPORT_KEY(Kernel::CodeSet::Segment)
+SERIALIZATION_CLASS_EXPORT_KEY(Kernel::Process)
 CONSTRUCT_KERNEL_OBJECT(Kernel::CodeSet)
 CONSTRUCT_KERNEL_OBJECT(Kernel::Process)

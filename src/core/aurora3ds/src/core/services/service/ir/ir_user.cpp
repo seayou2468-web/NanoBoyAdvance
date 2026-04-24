@@ -4,10 +4,7 @@
 
 #include <memory>
 #include <vector>
-#include <boost/crc.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/unique_ptr.hpp>
+#include "common/serialization/serialization_alias.hpp"
 #include <fmt/ranges.h>
 #include "common/archives.h"
 #include "common/swap.h"
@@ -17,6 +14,7 @@
 #include "core/hle/kernel/shared_memory.h"
 #include "core/hle/service/ir/extra_hid.h"
 #include "core/hle/service/ir/ir_user.h"
+#include "core/hle/service/non_boost_utils.h"
 
 SERIALIZE_EXPORT_IMPL(Service::IR::IR_USER)
 SERVICE_CONSTRUCT_IMPL(Service::IR::IR_USER)
@@ -26,7 +24,7 @@ namespace Service::IR {
 template <class Archive>
 void IR_USER::serialize(Archive& ar, const unsigned int) {
     DEBUG_SERIALIZATION_POINT;
-    ar& boost::serialization::base_object<Kernel::SessionRequestHandler>(*this);
+    ar& Serialization::base_object<Kernel::SessionRequestHandler>(*this);
     ar & conn_status_event;
     ar & send_event;
     ar & receive_event;
@@ -170,7 +168,7 @@ private:
             ar & packet_count;
             ar & unknown;
         }
-        friend class boost::serialization::access;
+        friend class Serialization::access;
     };
     static_assert(sizeof(BufferInfo) == 16, "BufferInfo has wrong size!");
 
@@ -224,7 +222,7 @@ private:
         ar & max_packet_count;
         ar & max_data_size;
     }
-    friend class boost::serialization::access;
+    friend class Serialization::access;
 };
 
 /// Wraps the payload into packet and puts it to the receive buffer
@@ -265,7 +263,7 @@ void IR_USER::PutToReceive(std::span<const u8> payload) {
     packet.insert(packet.end(), payload.begin(), payload.end());
 
     // calculates CRC and puts to the end
-    packet.push_back(boost::crc<8, 0x07, 0, 0, false, false>(packet.data(), packet.size()));
+    packet.push_back(Service::Compat::CalculateCrc8(packet));
 
     if (receive_buffer->Put(packet)) {
         receive_event->Signal();
