@@ -237,6 +237,7 @@ struct KernelObject {
 
 	Handle handle = 0;  // A u32 the OS will use to identify objects
 	void* data = nullptr;
+	bool ownsData = true;
 	KernelObjectType type;
 
 	KernelObject(Handle handle, KernelObjectType type) : handle(handle), type(type) {}

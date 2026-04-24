@@ -150,7 +150,7 @@ KernelObject* Kernel::getProcessFromPID(Handle handle) {
 }
 
 void Kernel::deleteObjectData(KernelObject& object) {
-	if (object.data == nullptr) {
+	if (object.data == nullptr || !object.ownsData) {
 		return;
 	}
 
@@ -332,14 +332,23 @@ void Kernel::duplicateHandle() {
 	logSVC("DuplicateHandle(handle = %X)\n", original);
 
 	if (original == KernelHandles::CurrentThread) {
-		regs[0] = Result::Success;
-		Handle ret = makeObject(KernelObjectType::Thread);
-		objects[ret].data = &threads[currentThreadIndex];
-
-		regs[1] = ret;
-	} else {
-		Helpers::panic("DuplicateHandle: unimplemented handle type");
+		original = threads[currentThreadIndex].handle;
+	} else if (original == KernelHandles::CurrentProcess) {
+		original = currentProcess;
 	}
+
+	KernelObject* object = getObject(original);
+	if (object == nullptr) [[unlikely]] {
+		regs[0] = Result::Kernel::InvalidHandle;
+		return;
+	}
+
+	const Handle duplicate = makeObject(object->type);
+	objects[duplicate].data = object->data;
+	objects[duplicate].ownsData = false;
+
+	regs[0] = Result::Success;
+	regs[1] = duplicate;
 }
 
 void Kernel::clearInstructionCache() { cpu.clearCache(); }
