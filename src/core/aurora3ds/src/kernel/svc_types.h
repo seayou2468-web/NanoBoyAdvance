@@ -1,0 +1,61 @@
+#ifndef SVC_TYPES_H
+#define SVC_TYPES_H
+
+#include "common.h"
+
+enum {
+    MEMOP_FREE = 1,
+    MEMOP_RESERVE,
+    MEMOP_ALLOC,
+    MEMOP_MIRRORMAP,
+    MEMOP_UNMAP,
+    MEMOP_PROTECT,
+
+    MEMOP_MASK = 0xff,
+
+    MEMOP_REGMASK = 0xf00,
+
+    MEMOP_LINEAR = 0x10000,
+};
+
+enum {
+    PERM_R = BIT(0),
+    PERM_W = BIT(1),
+    PERM_X = BIT(2),
+    PERM_RW = PERM_R | PERM_W,
+    PERM_RX = PERM_R | PERM_X,
+};
+
+enum {
+    MEMST_FREE,
+    MEMST_RESERVED,
+    MEMST_IO,
+    MEMST_STATIC,
+    MEMST_CODE,
+    MEMST_PRIVATE,
+    MEMST_SHARED,
+    MEMST_CONTINUOUS,
+    MEMST_ALIAS,
+    MEMST_ALIASCODE,
+    MEMST_LOCKED,
+};
+
+enum {
+    RESET_ONESHOT,
+    RESET_STICKY,
+    RESET_PULSE,
+};
+
+enum {
+    ARBITRATE_SIGNAL,
+    ARBITRATE_WAIT,
+    ARBITRATE_DEC_WAIT,
+    ARBITRATE_WAIT_TIMEOUT,
+    ARBITRATE_DEC_WAIT_TIMEOUT,
+};
+
+enum {
+    RES_MEMORY = 1,
+};
+
+#endif
