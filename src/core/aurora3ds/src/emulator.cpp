@@ -495,6 +495,7 @@ bool Emulator::copyCompositeFrameRGBA(std::span<u32> out_pixels) {
 
 	const u32 top_stride = regs[Framebuffer0Stride];
 	const u32 bottom_stride = regs[Framebuffer1Stride];
+	auto& internalRegs = gpu.getRegisters();
 
 	const u8* top_ptr = gpu.getPointerPhys<u8>(top_primary_addr);
 	const u8* bottom_ptr = gpu.getPointerPhys<u8>(bottom_primary_addr);
@@ -534,13 +535,34 @@ bool Emulator::copyCompositeFrameRGBA(std::span<u32> out_pixels) {
 		}
 	}
 
+	// If GSP framebuffer routing is not initialized yet, fall back to the active PICA color buffer.
+	// This keeps iOS composite output alive even when titles render before SetBufferSwap has stabilized.
+	if (top_ptr == nullptr) {
+		const u32 renderColorBuffer = internalRegs[PICA::InternalRegs::ColorBufferLoc];
+		const u8* renderPtr = gpu.getPointerPhys<u8>(renderColorBuffer);
+		if (renderPtr != nullptr) {
+			top_ptr = renderPtr;
+			top_addr = renderColorBuffer;
+		}
+	}
+
 	const u32 top_bpp = static_cast<u32>(PICA::sizePerPixel(top_format));
 	const u32 bottom_bpp = static_cast<u32>(PICA::sizePerPixel(bottom_format));
 
-	const u32 safe_top_width = top_width != 0 ? top_width : 240;
-	const u32 safe_top_height = top_height != 0 ? top_height : 400;
+	u32 safe_top_width = top_width != 0 ? top_width : 240;
+	u32 safe_top_height = top_height != 0 ? top_height : 400;
 	const u32 safe_bottom_width = bottom_width != 0 ? bottom_width : 240;
 	const u32 safe_bottom_height = bottom_height != 0 ? bottom_height : 320;
+	if (top_width == 0 && top_height == 0) {
+		const u32 fbSizeReg = internalRegs[PICA::InternalRegs::FramebufferSize];
+		const u32 picaWidth = fbSizeReg & 0x7FF;
+		const u32 picaHeight = ((fbSizeReg >> 12) & 0x3FF) + 1;
+		if (picaWidth != 0 && picaHeight != 0) {
+			safe_top_width = picaWidth;
+			safe_top_height = picaHeight;
+		}
+	}
+
 	const u32 safe_top_stride = (top_stride != 0) ? top_stride : (safe_top_width * std::max<u32>(1, top_bpp));
 	const u32 safe_bottom_stride = (bottom_stride != 0) ? bottom_stride : (safe_bottom_width * std::max<u32>(1, bottom_bpp));
 
