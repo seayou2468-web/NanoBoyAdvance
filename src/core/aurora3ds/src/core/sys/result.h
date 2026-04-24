@@ -215,17 +215,19 @@ union Result {
 
     constexpr Result(u32 description_, ErrorModule module_, ErrorSummary summary_,
                      ErrorLevel level_)
-        : raw(description.FormatValue(description_) | module.FormatValue(module_) |
-              summary.FormatValue(summary_) | level.FormatValue(level_)) {}
+        : raw(BitField<0, 10, u32>{}.FormatValue(description_) |
+              BitField<10, 8, ErrorModule>{}.FormatValue(module_) |
+              BitField<21, 6, ErrorSummary>{}.FormatValue(summary_) |
+              BitField<27, 5, ErrorLevel>{}.FormatValue(level_)) {}
 
     constexpr Result& operator=(const Result& o) = default;
 
     constexpr bool IsSuccess() const {
-        return is_error.ExtractValue(raw) == 0;
+        return BitField<31, 1, u32>{}.ExtractValue(raw) == 0;
     }
 
     constexpr bool IsError() const {
-        return is_error.ExtractValue(raw) == 1;
+        return BitField<31, 1, u32>{}.ExtractValue(raw) == 1;
     }
 
 private:
