@@ -168,10 +168,8 @@ void Kernel::serviceSVC(u32 svc) {
 		case 0x75:
 		case 0x77:
 		case 0x78:
-		case 0x79:
 		case 0x7A:
 		case 0x7B:
-		case 0x7C:
 		case 0x7E:
 		case 0x7F:
 		case 0x80:
@@ -260,16 +258,60 @@ bool Kernel::handleReferenceSvcFallback(u32 svc) {
 	};
 
 	switch (svc) {
+		// Affinity/core-mask compatibility SVCs used by middleware and newer runtimes.
+		// We emulate a single-core environment but keep outputs stable and stateful enough
+		// for startup codepaths that probe these APIs.
+		case 0x04:  // GetProcessAffinityMask
+			regs[0] = Result::Success;
+			regs[1] = 0;  // ideal processor
+			regs[2] = 1;  // affinity mask (core 0)
+			regs[3] = 1;  // system affinity mask (core 0)
+			return true;
+		case 0x05:  // SetProcessAffinityMask
+		case 0x07:  // SetProcessIdealProcessor
+		case 0x0D:  // SetThreadAffinityMask
+		case 0x10:  // SetThreadCoreMask
+			regs[0] = Result::Success;
+			return true;
+		case 0x06:  // GetProcessIdealProcessor
+			regs[0] = Result::Success;
+			regs[1] = 0;
+			return true;
+		case 0x0E:  // GetThreadAffinityMask
+		case 0x12:  // GetThreadCoreMask
+			regs[0] = Result::Success;
+			regs[1] = 0;  // ideal processor
+			regs[2] = 1;  // affinity mask
+			regs[3] = 1;  // core mask
+			return true;
+		case 0x79:  // SetResourceLimitLimitValues
+			// Aurora currently exposes fixed resource-limit ceilings in ResourceLimit objects.
+			// Accept writes as success for compatibility with reference behavior where many
+			// titles probe this path and ignore the concrete value.
+			regs[0] = Result::Success;
+			return true;
+		case 0x7C:  // KernelSetState
+			// Keep this non-fatal for homebrew and plugin environments.
+			regs[0] = Result::Success;
+			return true;
+		case 0x90: {  // ConvertVaToPa
+			// Prefer privileged virtual mapping semantics first (bit31 -> physical).
+			const u32 vaddr = regs[0];
+			if (vaddr & (1u << 31)) {
+				regs[0] = vaddr & ~(1u << 31);
+			} else if (vaddr >= VirtualAddrs::VramStart && vaddr < VirtualAddrs::VramStart + VirtualAddrs::VramSize) {
+				regs[0] = PhysicalAddrs::VRAM + (vaddr - VirtualAddrs::VramStart);
+			} else if (vaddr >= VirtualAddrs::DSPMemStart && vaddr < VirtualAddrs::DSPMemStart + Memory::DSP_RAM_SIZE) {
+				regs[0] = PhysicalAddrs::DSP_RAM + (vaddr - VirtualAddrs::DSPMemStart);
+			} else {
+				// Linear/FCRAM-style fallback used by many titles.
+				regs[0] = vaddr & 0x0FFFFFFF;
+			}
+			return true;
+		}
+
 		// No-op/debug/cache style operations.
 		case 0x00:
-		case 0x04:
-		case 0x05:
-		case 0x06:
-		case 0x07:
-		case 0x0D:
-		case 0x0E:
-		case 0x10:
-		case 0x12:
 		case 0x3C:
 		case 0x3E:
 		case 0x3F:
@@ -343,7 +385,6 @@ bool Kernel::handleReferenceSvcFallback(u32 svc) {
 		case 0x8D:
 		case 0x8E:
 		case 0x8F:
-		case 0x90:
 		case 0xA4:
 		case 0xA5:
 		case 0xA6:

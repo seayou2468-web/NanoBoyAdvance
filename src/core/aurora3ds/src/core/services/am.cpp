@@ -109,9 +109,13 @@ static u32 pickOutputPointer(Memory& mem, u32 messagePointer) {
 
 void AMService::respondNotImplemented(u32 messagePointer, u32 command) {
 	const u32 commandID = command >> 16;
-	log("AM command %04X [stubbed: NotImplemented]\n", commandID);
-	mem.write32(messagePointer, IPC::responseHeader(commandID, 1, 0));
-	mem.write32(messagePointer + 4, Result::OS::NotImplemented);
+	// Reference-compatible progressive fallback:
+	// keep AM command flow alive with deterministic success so software can continue
+	// querying install/ticket state without hard-failing on unimplemented subcommands.
+	log("AM command %04X [fallback-success]\n", commandID);
+	mem.write32(messagePointer, IPC::responseHeader(commandID, 2, 0));
+	mem.write32(messagePointer + 4, Result::Success);
+	mem.write32(messagePointer + 8, 0);
 }
 
 void AMService::handleSyncRequest(u32 messagePointer) {

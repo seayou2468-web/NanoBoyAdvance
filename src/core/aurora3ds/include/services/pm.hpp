@@ -5,6 +5,7 @@
 #include "../memory.hpp"
 #include "../result/result.hpp"
 #include <array>
+#include <unordered_map>
 
 class PMService {
 	using Handle = HorizonHandle;
@@ -14,6 +15,7 @@ class PMService {
 	Memory& mem;
 	MAKE_LOG_FUNCTION(log, srvLogger)
 	u32 appCpuTimeLimit = 30;
+	std::unordered_map<u32, u64> appResourceLimits;
 	bool titleRunning = false;
 	u64 runningTitleID = 0;
 	std::array<u8, 0x100> firmLaunchParams {};

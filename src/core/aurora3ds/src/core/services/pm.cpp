@@ -28,6 +28,8 @@ namespace PMCommands {
 
 void PMService::reset() {
 	appCpuTimeLimit = 30;
+	appResourceLimits.clear();
+	appResourceLimits.emplace(0, appCpuTimeLimit);  // CPU time
 	titleRunning = false;
 	runningTitleID = 0;
 	lastLaunchFlags = 0;
@@ -160,19 +162,15 @@ void PMService::setFirmLaunchParams(u32 messagePointer) {
 }
 
 void PMService::setAppResourceLimit(u32 messagePointer) {
-	constexpr u32 CpuTimeResourceType = 0;
-
 	const u32 resourceType = mem.read32(messagePointer + 8);
 	const u32 value = mem.read32(messagePointer + 12);
 	log("pm:app::SetAppResourceLimit(type=%u, value=%u)\n", resourceType, value);
 
 	mem.write32(messagePointer, IPC::responseHeader(PMCommands::SetAppResourceLimit, 1, 0));
-	if (resourceType != CpuTimeResourceType) {
-		mem.write32(messagePointer + 4, Result::OS::NotImplemented);
-		return;
+	appResourceLimits[resourceType] = value;
+	if (resourceType == 0) {
+		appCpuTimeLimit = value;
 	}
-
-	appCpuTimeLimit = value;
 	mem.write32(messagePointer + 4, Result::Success);
 }
 
@@ -220,18 +218,18 @@ void PMService::runQueuedProcess(u32 messagePointer) {
 }
 
 void PMService::getAppResourceLimit(u32 messagePointer) {
-	constexpr u32 CpuTimeResourceType = 0;
-
 	const u32 resourceType = mem.read32(messagePointer + 8);
 	log("pm:app::GetAppResourceLimit(type=%u)\n", resourceType);
 
 	mem.write32(messagePointer, IPC::responseHeader(PMCommands::GetAppResourceLimit, 3, 0));
-	if (resourceType != CpuTimeResourceType) {
-		mem.write32(messagePointer + 4, Result::OS::NotImplemented);
-		mem.write64(messagePointer + 8, 0);
-		return;
-	}
-
 	mem.write32(messagePointer + 4, Result::Success);
-	mem.write64(messagePointer + 8, static_cast<u64>(appCpuTimeLimit));
+	const u64 value = [&]() -> u64 {
+		if (auto it = appResourceLimits.find(resourceType); it != appResourceLimits.end()) {
+			return it->second;
+		}
+		// Reference-compatible behavior for unknown resource buckets:
+		// return 0 instead of failing the IPC sequence.
+		return 0;
+	}();
+	mem.write64(messagePointer + 8, value);
 }
