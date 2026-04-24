@@ -243,6 +243,7 @@ void FSService::handleSyncRequest(u32 messagePointer) {
 		case FSCommands::ControlArchive: controlArchive(messagePointer); break;
 		case FSCommands::CloseArchive: closeArchive(messagePointer); break;
 		case FSCommands::DeleteDirectory: deleteDirectory(messagePointer); break;
+		case FSCommands::DeleteDirectoryRecursively: deleteDirectoryRecursively(messagePointer); break;
 		case FSCommands::DeleteExtSaveData: deleteExtSaveData(messagePointer); break;
 		case FSCommands::DeleteFile: deleteFile(messagePointer); break;
 		case FSCommands::FormatSaveData: formatSaveData(messagePointer); break;
@@ -520,6 +521,13 @@ void FSService::deleteDirectory(u32 messagePointer) {
 
 	mem.write32(messagePointer, IPC::responseHeader(0x806, 1, 0));
 	mem.write32(messagePointer + 4, res);
+}
+
+void FSService::deleteDirectoryRecursively(u32 messagePointer) {
+	// Aurora archives implement deleteDirectory() recursively via std::filesystem::remove_all,
+	// so this IPC can share the exact backend behavior.
+	deleteDirectory(messagePointer);
+	mem.write32(messagePointer, IPC::responseHeader(0x807, 1, 0));
 }
 
 void FSService::getFormatInfo(u32 messagePointer) {
