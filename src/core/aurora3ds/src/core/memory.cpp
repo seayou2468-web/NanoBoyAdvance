@@ -808,7 +808,7 @@ u8* Memory::mapSharedMemory(Handle handle, u32 vaddr, u32 myPerms, u32 otherPerm
 			bool w = myPerms & 0b010;
 			bool x = myPerms & 0b100;
 
-			Operation op{.newState = MemoryState::Shared, .r = r, .w = x, .x = x, .changeState = true, .changePerms = true};
+			Operation op{.newState = MemoryState::Shared, .r = r, .w = w, .x = x, .changeState = true, .changePerms = true};
 			changeMemoryState(vaddr, size >> 12, op);
 			mapPhysicalMemory(vaddr, paddr, size >> 12, r, w, x);
 
