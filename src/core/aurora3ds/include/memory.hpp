@@ -334,8 +334,8 @@ class Memory {
 		bool unmapPages = true
 	);
 	void changePermissions(u32 vaddr, s32 pages, bool r, bool w, bool x);
-	Result::HorizonResult queryMemory(KernelMemoryTypes::MemoryInfo& out, u32 vaddr);
-	Result::HorizonResult testMemoryState(u32 vaddr, s32 pages, KernelMemoryTypes::MemoryState desiredState);
+	ResultCode::HorizonResult queryMemory(KernelMemoryTypes::MemoryInfo& out, u32 vaddr);
+	ResultCode::HorizonResult testMemoryState(u32 vaddr, s32 pages, KernelMemoryTypes::MemoryState desiredState);
 
 	void copyToVaddr(u32 dstVaddr, const u8* srcHost, s32 size);
 

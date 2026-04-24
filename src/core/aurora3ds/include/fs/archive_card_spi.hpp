@@ -2,7 +2,7 @@
 #include "./archive_base.hpp"
 #include "../result/result.hpp"
 
-using Result::HorizonResult;
+using ResultCode::HorizonResult;
 
 class CardSPIArchive : public ArchiveBase {
   public:

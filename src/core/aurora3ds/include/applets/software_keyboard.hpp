@@ -150,8 +150,8 @@ namespace Applets {
 		static_assert(sizeof(SoftwareKeyboardConfig) == 0x400, "Software keyboard config size is wrong");
 
 		virtual const char* name() override { return "Software Keyboard"; }
-		virtual Result::HorizonResult start(const MemoryBlock* sharedMem, const std::vector<u8>& parameters, u32 appID) override;
-		virtual Result::HorizonResult receiveParameter(const Applets::Parameter& parameter) override;
+		virtual ResultCode::HorizonResult start(const MemoryBlock* sharedMem, const std::vector<u8>& parameters, u32 appID) override;
+		virtual ResultCode::HorizonResult receiveParameter(const Applets::Parameter& parameter) override;
 		virtual void reset() override;
 
 		SoftwareKeyboardApplet(Memory& memory, std::optional<Parameter>& nextParam) : AppletBase(memory, nextParam) {}

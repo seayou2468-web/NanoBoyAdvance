@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <type_traits>
 
-namespace Result {
+namespace ResultCode {
 	enum class HorizonResultLevel : uint32_t {
 		Success = 0,
 		Info = 1,
@@ -203,4 +203,4 @@ namespace Result {
 
 	static constexpr HorizonResult Success(0);
 	static constexpr HorizonResult FailurePlaceholder(UINT32_MAX);
-};  // namespace Result
+};  // namespace ResultCode

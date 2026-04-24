@@ -1,8 +1,8 @@
 #pragma once
 #include "./result_common.hpp"
 
-DEFINE_HORIZON_RESULT_MODULE(Result::IR, IR);
+DEFINE_HORIZON_RESULT_MODULE(ResultCode::IR, IR);
 
-namespace Result::IR {
+namespace ResultCode::IR {
 	DEFINE_HORIZON_RESULT(NoDeviceConnected, 13, InvalidState, Status);
 };

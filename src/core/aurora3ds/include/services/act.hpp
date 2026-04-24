@@ -12,7 +12,7 @@ class ACTService {
 	Memory& mem;
 	MAKE_LOG_FUNCTION(log, actLogger)
 	u32 nextUuidCounter = 1;
-	u32 lastResultCode = Result::Success;
+	u32 lastResultCode = ResultCode::Success;
 
 	// Service commands
 	void initialize(u32 messagePointer);

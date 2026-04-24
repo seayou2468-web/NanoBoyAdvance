@@ -755,33 +755,33 @@ void Memory::changePermissions(u32 vaddr, s32 pages, bool r, bool w, bool x) {
 	}
 }
 
-Result::HorizonResult Memory::queryMemory(MemoryInfo& out, u32 vaddr) {
+ResultCode::HorizonResult Memory::queryMemory(MemoryInfo& out, u32 vaddr) {
 	// Check each allocation
 	for (auto& alloc : memoryInfo) {
 		// Check if the memory address belongs in this allocation and return the info if so
 		if (vaddr >= alloc.baseAddr && vaddr < alloc.end()) {
 			out = alloc;
-			return Result::Success;
+			return ResultCode::Success;
 		}
 	}
 
 	// Official kernel just returns an error here
 	Helpers::warn("Failed to find block in QueryMemory!");
-	return Result::FailurePlaceholder;
+	return ResultCode::FailurePlaceholder;
 }
 
-Result::HorizonResult Memory::testMemoryState(u32 vaddr, s32 pages, MemoryState desiredState) {
+ResultCode::HorizonResult Memory::testMemoryState(u32 vaddr, s32 pages, MemoryState desiredState) {
 	for (auto& alloc : memoryInfo) {
 		// Don't bother checking if we're to the left of the requested region
 		if (vaddr >= alloc.end()) continue;
-		if (alloc.state != desiredState) return Result::FailurePlaceholder;  // TODO: error for state mismatch
+		if (alloc.state != desiredState) return ResultCode::FailurePlaceholder;  // TODO: error for state mismatch
 
 		// If the end of this block comes after the end of the requested range with no errors, it's a success
-		if (alloc.end() >= vaddr + (pages << 12)) return Result::Success;
+		if (alloc.end() >= vaddr + (pages << 12)) return ResultCode::Success;
 	}
 
 	// TODO: error for when address is outside of userland
-	return Result::FailurePlaceholder;
+	return ResultCode::FailurePlaceholder;
 }
 
 void Memory::copyToVaddr(u32 dstVaddr, const u8* srcHost, s32 size) {

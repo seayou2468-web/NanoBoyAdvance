@@ -21,7 +21,7 @@ class NIMService {
 	u32 lastDownloadTitleIDHigh = 0;
 	u32 systemUpdateProgress = 0;
 	u32 titleDownloadProgress = 0;
-	u32 asyncResult = Result::Success;
+	u32 asyncResult = ResultCode::Success;
 	bool asyncPending = false;
 	std::vector<u8> tslXml {};
 	std::vector<u8> dtlXml {};

@@ -61,7 +61,7 @@ class BOSSService {
 	std::unordered_map<u32, u64> nsDataLastUpdatedMs;
 	std::unordered_map<u32, u32> storageEntries;
 	std::optional<Handle> newArrivalEvent = std::nullopt;
-	u32 lastErrorCode = Result::Success;
+	u32 lastErrorCode = ResultCode::Success;
 	s8 optoutFlag;
 
   public:

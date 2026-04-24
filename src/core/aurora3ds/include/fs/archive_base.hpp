@@ -12,7 +12,7 @@
 #include "../memory.hpp"
 #include "../result/result.hpp"
 
-using Result::HorizonResult;
+using ResultCode::HorizonResult;
 
 namespace PathType {
 	enum : u32 {
@@ -242,12 +242,12 @@ class ArchiveBase {
 
 	virtual HorizonResult createDirectory(const FSPath& path) {
 		Helpers::panic("Unimplemented CreateDirectory for %s archive", name().c_str());
-		return Result::FS::AlreadyExists;
+		return ResultCode::FS::AlreadyExists;
 	}
 
 	virtual HorizonResult deleteDirectory(const FSPath& path) {
 		Helpers::panic("Unimplemented DeleteDirectory for %s archive", name().c_str());
-		return Result::FS::FileNotFoundAlt;
+		return ResultCode::FS::FileNotFoundAlt;
 	}
 
 	// Returns nullopt if opening the file failed, otherwise returns a file descriptor to it (nullptr if none is needed)
@@ -256,14 +256,14 @@ class ArchiveBase {
 
 	virtual Rust::Result<DirectorySession, HorizonResult> openDirectory(const FSPath& path) {
 		Helpers::panic("Unimplemented OpenDirectory for %s archive", name().c_str());
-		return Err(Result::FS::FileNotFoundAlt);
+		return Err(ResultCode::FS::FileNotFoundAlt);
 	}
 
 	virtual void format(const FSPath& path, const FormatInfo& info) { Helpers::panic("Unimplemented Format for %s archive", name().c_str()); }
 
 	virtual HorizonResult renameFile(const FSPath& oldPath, const FSPath& newPath) {
 		Helpers::panic("Unimplemented RenameFile for %s archive", name().c_str());
-		return Result::Success;
+		return ResultCode::Success;
 	}
 
 	// Read size bytes from a file starting at offset "offset" into a certain buffer in memory

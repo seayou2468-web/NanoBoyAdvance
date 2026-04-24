@@ -84,9 +84,9 @@ namespace Applets {
 		virtual const char* name() = 0;
 
 		// Called by APT::StartLibraryApplet and similar
-		virtual Result::HorizonResult start(const MemoryBlock* sharedMem, const std::vector<u8>& parameters, u32 appID) = 0;
+		virtual ResultCode::HorizonResult start(const MemoryBlock* sharedMem, const std::vector<u8>& parameters, u32 appID) = 0;
 		// Transfer parameters from application -> applet
-		virtual Result::HorizonResult receiveParameter(const Parameter& parameter) = 0;
+		virtual ResultCode::HorizonResult receiveParameter(const Parameter& parameter) = 0;
 		virtual void reset() = 0;
 
 		AppletBase(Memory& mem, std::optional<Parameter>& nextParam) : mem(mem), nextParameter(nextParam) {}

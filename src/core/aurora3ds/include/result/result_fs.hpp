@@ -1,9 +1,9 @@
 #pragma once
 #include "./result_common.hpp"
 
-DEFINE_HORIZON_RESULT_MODULE(Result::FS, FS);
+DEFINE_HORIZON_RESULT_MODULE(ResultCode::FS, FS);
 
-namespace Result::FS {
+namespace ResultCode::FS {
 	// TODO: Verify this
 	DEFINE_HORIZON_RESULT(FileNotFound, 100, NotFound, Status);
 	// TODO: Verify this
@@ -21,4 +21,4 @@ namespace Result::FS {
 
 	// Trying to rename a file but the destination already exists
 	DEFINE_HORIZON_RESULT(RenameFileDestExists, 190, NothingHappened, Status);
-};  // namespace Result::FS
+};  // namespace ResultCode::FS

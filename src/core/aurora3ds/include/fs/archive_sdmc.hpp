@@ -2,7 +2,7 @@
 #include "./archive_base.hpp"
 #include "../result/result.hpp"
 
-using Result::HorizonResult;
+using ResultCode::HorizonResult;
 
 class SDMCArchive : public ArchiveBase {
 	bool isWriteOnly = false;  // There's 2 variants of the SDMC archive: Regular one (Read/Write) and write-only
