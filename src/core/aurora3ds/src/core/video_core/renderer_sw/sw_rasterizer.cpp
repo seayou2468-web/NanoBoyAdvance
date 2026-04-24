@@ -1,6 +1,6 @@
-#include "../../../include/renderer_sw/sw_rasterizer.hpp"
+#include "../../../../include/renderer_sw/sw_rasterizer.hpp"
 
-#include "../../../include/PICA/gpu.hpp"
+#include "../../../../include/PICA/gpu.hpp"
 
 #include <algorithm>
 #include <array>

@@ -1,7 +1,7 @@
-#include "../../../include/renderer_sw/renderer_sw.hpp"
-#include "../../../include/PICA/gpu.hpp"
-#include "../../../include/io_file.hpp"
-#include "../../../include/renderer_sw/sw_rasterizer.hpp"
+#include "../../../../include/renderer_sw/renderer_sw.hpp"
+#include "../../../../include/PICA/gpu.hpp"
+#include "../../../../include/io_file.hpp"
+#include "../../../../include/renderer_sw/sw_rasterizer.hpp"
 
 #include <algorithm>
 #include <array>
