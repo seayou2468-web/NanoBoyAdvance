@@ -121,8 +121,5 @@ class GPUService {
 	void requestInterrupt(GPUInterrupt type);
 	void setSharedMem(u8* ptr) {
 		sharedMem = ptr;
-		if (ptr != nullptr) {  // Zero-fill shared memory in case the process tries to read stale service data or vice versa
-			std::memset(ptr, 0, 0x1000);
-		}
 	}
 };

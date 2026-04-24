@@ -97,7 +97,10 @@ void GPUService::reset() {
 	interruptEvent = std::nullopt;
 	gspThreadCount = 0;
 	firstInitialization = true;
-	sharedMem = nullptr;
+	sharedMem = mem.getSharedMemoryPointer(KernelHandles::GSPSharedMemHandle);
+	if (sharedMem != nullptr) {
+		std::memset(sharedMem, 0, 0x1000);
+	}
 	savedVram.reset();
 }
 
@@ -166,15 +169,20 @@ void GPUService::releaseRight(u32 messagePointer) {
 // What is the "GSP module thread index" meant to be?
 // How does the shared memory handle thing work?
 void GPUService::registerInterruptRelayQueue(u32 messagePointer) {
-	// Detect if this function is called a 2nd time because we'll likely need to impl threads properly for the GSP
-	if (gspThreadCount < 0xFF) {
-		gspThreadCount += 1;
+	// We currently emulate a single GSP relay queue. Returning varying thread indices
+	// breaks clients that poll queue 0 while we only signal queue 0 interrupts.
+	constexpr u32 threadIndex = 0;
+	gspThreadCount += 1;
+	if (gspThreadCount > 1) {
+		Helpers::warn("GSP::GPU::RegisterInterruptRelayQueue called multiple times; reusing emulated threadIndex=0");
 	}
-	const u32 threadIndex = gspThreadCount > 0 ? (gspThreadCount - 1) : 0;
 
 	const u32 flags = mem.read32(messagePointer + 4);
 	const u32 eventHandle = mem.read32(messagePointer + 12);
 	log("GSP::GPU::RegisterInterruptRelayQueue (flags = %X, event handle = %X)\n", flags, eventHandle);
+	if (sharedMem == nullptr) {
+		sharedMem = mem.getSharedMemoryPointer(KernelHandles::GSPSharedMemHandle);
+	}
 
 	const auto event = kernel.getObject(eventHandle, KernelObjectType::Event);
 	if (event == nullptr) {  // Check if interrupt event is invalid
@@ -193,8 +201,12 @@ void GPUService::registerInterruptRelayQueue(u32 messagePointer) {
 	} else {
 		mem.write32(messagePointer + 4, Result::Success);
 	}
+	if (sharedMem != nullptr) {
+		// Interrupt relay queue for the registered GSP thread.
+		std::memset(&sharedMem[threadIndex * 0x40], 0, 0x40);
+	}
 	mem.write32(messagePointer + 8, threadIndex);
-	mem.write32(messagePointer + 12, 0);                               // Translation descriptor
+	mem.write32(messagePointer + 12, 0x04000000);                      // Translation descriptor (copy handle)
 	mem.write32(messagePointer + 16, KernelHandles::GSPSharedMemHandle);
 }
 
@@ -207,7 +219,10 @@ void GPUService::unregisterInterruptRelayQueue(u32 messagePointer) {
 
 void GPUService::requestInterrupt(GPUInterrupt type) {
 	if (sharedMem == nullptr) [[unlikely]] {  // Shared memory hasn't been set up yet
-		return;
+		sharedMem = mem.getSharedMemoryPointer(KernelHandles::GSPSharedMemHandle);
+		if (sharedMem == nullptr) {
+			return;
+		}
 	}
 
 	// TODO: Add support for multiple GSP threads
@@ -223,6 +238,11 @@ void GPUService::requestInterrupt(GPUInterrupt type) {
 	// Most new games check to make sure that the "flag" byte of the framebuffer info header is set to 0
 	// Not emulating this causes Yoshi's Wooly World, Captain Toad, Metroid 2 et al to hang
 	if (type == GPUInterrupt::VBlank0 || type == GPUInterrupt::VBlank1) {
+		// Some titles rely on the GSP module thread polling/consuming GX command buffers
+		// during vblank-driven service work rather than issuing TriggerCmdReqQueue every frame.
+		// We don't emulate the dedicated GSP thread yet, so consume pending commands here too.
+		processCommandBuffer();
+
 		int screen = static_cast<u32>(type) - static_cast<u32>(GPUInterrupt::VBlank0);  // 0 for top screen, 1 for bottom
 		const u32 threadCount = 4;
 		for (u32 thread = 0; thread < threadCount; ++thread) {
@@ -411,6 +431,9 @@ void GPUService::setLCDForceBlack(u32 messagePointer) {
 }
 
 void GPUService::triggerCmdReqQueue(u32 messagePointer) {
+	if (sharedMem == nullptr) {
+		Helpers::warn("GSP::GPU::TriggerCmdReqQueue called before shared memory was mapped; GX command queue is unavailable");
+	}
 	processCommandBuffer();
 	// Many titles rely on shared-memory framebuffer updates becoming visible quickly.
 	// On hardware this is synchronized with VBlank, but our current interrupt/timing
@@ -465,6 +488,7 @@ void GPUService::setInternalPriorities(u32 messagePointer) {
 
 void GPUService::processCommandBuffer() {
 	if (sharedMem == nullptr) [[unlikely]] {  // Shared memory hasn't been set up yet
+		Helpers::warn("GSP::GPU::processCommandBuffer skipped because shared memory is null (RegisterInterruptRelayQueue/MapMemoryBlock flow incomplete)");
 		return;
 	}
 
@@ -487,9 +511,10 @@ void GPUService::processCommandBuffer() {
 				case GXCommands::TriggerDMARequest: triggerDMARequest(cmd); break;
 				case GXCommands::TriggerTextureCopy: triggerTextureCopy(cmd); break;
 				case GXCommands::FlushCacheRegions: flushCacheRegions(cmd); break;
-				default: Helpers::warn("GSP::GPU::ProcessCommands: Unknown cmd ID %d", cmdID); break;
+				default:
+					Helpers::warn("GSP::GPU::ProcessCommands: Unknown cmd ID %u (thread=%d, index=%u, header=%08X)", cmdID, t, index & 0xF, cmd[0]);
+					break;
 			}
-
 			index = (index + 1) % 15;
 			commandsLeft--;
 		}
@@ -511,6 +536,12 @@ static u32 VaddrToPaddr(u32 addr) {
 
 	else if (addr == 0) {
 		return 0;
+	}
+
+	// Some titles/services pass already-physical addresses in GX commands.
+	// Accept those directly so command execution still reaches VRAM/FCRAM.
+	else if ((addr >= PhysicalAddrs::VRAM && addr <= PhysicalAddrs::VRAMEnd) || (addr >= PhysicalAddrs::FCRAM && addr <= PhysicalAddrs::FCRAMEnd)) {
+		return addr;
 	}
 
 	Helpers::warn("[GSP::GPU VaddrToPaddr] Unknown virtual address %08X", addr);

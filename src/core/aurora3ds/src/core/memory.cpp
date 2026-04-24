@@ -808,7 +808,7 @@ u8* Memory::mapSharedMemory(Handle handle, u32 vaddr, u32 myPerms, u32 otherPerm
 			bool w = myPerms & 0b010;
 			bool x = myPerms & 0b100;
 
-			Operation op{.newState = MemoryState::Shared, .r = r, .w = x, .x = x, .changeState = true, .changePerms = true};
+			Operation op{.newState = MemoryState::Shared, .r = r, .w = w, .x = x, .changeState = true, .changePerms = true};
 			changeMemoryState(vaddr, size >> 12, op);
 			mapPhysicalMemory(vaddr, paddr, size >> 12, r, w, x);
 
@@ -819,6 +819,18 @@ u8* Memory::mapSharedMemory(Handle handle, u32 vaddr, u32 myPerms, u32 otherPerm
 
 	// This should be unreachable but better safe than sorry
 	Helpers::panic("Memory::mapSharedMemory: Unknown shared memory handle %08X", handle);
+	return nullptr;
+}
+
+u8* Memory::getSharedMemoryPointer(Handle handle) {
+	for (auto& e : sharedMemBlocks) {
+		if (e.handle == handle) {
+			if (e.size == 0) {
+				return nullptr;
+			}
+			return &fcram[e.paddr];
+		}
+	}
 	return nullptr;
 }
 

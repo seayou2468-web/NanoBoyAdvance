@@ -289,6 +289,7 @@ class Memory {
 
 	u32 getLinearHeapVaddr();
 	u8* getFCRAM() { return fcram; }
+	u8* getSharedMemoryPointer(Handle handle);
 
 	enum class BatteryLevel {
 		Empty = 0,
