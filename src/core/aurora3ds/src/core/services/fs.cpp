@@ -480,9 +480,20 @@ void FSService::deleteDirectory(u32 messagePointer) {
 	const u32 filePathPointer = mem.read32(messagePointer + 28);
 	log("FS::DeleteDirectory\n");
 
-	Helpers::warn("Stubbed FS::DeleteDirectory call!");
+	auto archiveObject = kernel.getObject(archiveHandle, KernelObjectType::Archive);
+	if (archiveObject == nullptr) [[unlikely]] {
+		log("FS::DeleteDirectory: Invalid archive handle %d\n", archiveHandle);
+		mem.write32(messagePointer, IPC::responseHeader(0x806, 1, 0));
+		mem.write32(messagePointer + 4, Result::FailurePlaceholder);
+		return;
+	}
+
+	ArchiveBase* archive = archiveObject->getData<ArchiveSession>()->archive;
+	auto filePath = readPath(filePathType, filePathPointer, filePathSize);
+	const Result::HorizonResult res = archive->deleteDirectory(filePath);
+
 	mem.write32(messagePointer, IPC::responseHeader(0x806, 1, 0));
-	mem.write32(messagePointer + 4, Result::Success);
+	mem.write32(messagePointer + 4, res);
 }
 
 void FSService::getFormatInfo(u32 messagePointer) {

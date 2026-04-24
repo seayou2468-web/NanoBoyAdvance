@@ -142,6 +142,28 @@ HorizonResult SystemSaveDataArchive::deleteFile(const FSPath& path) {
 	return Result::Success;
 }
 
+HorizonResult SystemSaveDataArchive::deleteDirectory(const FSPath& path) {
+	if (!path.isUTF16()) {
+		Helpers::panic("SystemSaveData::DeleteDirectory: Unknown path type");
+	}
+	if (!isPathSafe<PathType::UTF16>(path)) {
+		Helpers::panic("Unsafe path in SystemSaveData::DeleteDirectory");
+	}
+
+	fs::path p = IOFile::getNANDData() / "sysdata";
+	p += fs::path(path.utf16_string).make_preferred();
+	if (fs::is_regular_file(p)) {
+		return Result::FS::UnexpectedFileOrDir;
+	}
+	if (!fs::is_directory(p)) {
+		return Result::FS::FileNotFoundAlt;
+	}
+
+	std::error_code ec;
+	fs::remove_all(p, ec);
+	return ec ? Result::FS::UnexpectedFileOrDir : Result::Success;
+}
+
 Rust::Result<DirectorySession, HorizonResult> SystemSaveDataArchive::openDirectory(const FSPath& path) {
 	if (path.isUTF16()) {
 		if (!isPathSafe<PathType::UTF16>(path)) {

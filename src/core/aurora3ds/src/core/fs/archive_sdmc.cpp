@@ -71,6 +71,28 @@ HorizonResult SDMCArchive::deleteFile(const FSPath& path) {
 	return Result::Success;
 }
 
+HorizonResult SDMCArchive::deleteDirectory(const FSPath& path) {
+	if (!path.isTextPath()) {
+		Helpers::panic("SDMCArchive::DeleteDirectory: Unknown path type");
+	}
+	if (!isSafeTextPath(path)) {
+		Helpers::panic("Unsafe path in SDMC::DeleteDirectory");
+	}
+
+	fs::path p = IOFile::getSDMC();
+	appendPath(p, path);
+	if (fs::is_regular_file(p)) {
+		return Result::FS::UnexpectedFileOrDir;
+	}
+	if (!fs::is_directory(p)) {
+		return Result::FS::FileNotFoundAlt;
+	}
+
+	std::error_code ec;
+	fs::remove_all(p, ec);
+	return ec ? Result::FS::UnexpectedFileOrDir : Result::Success;
+}
+
 FileDescriptor SDMCArchive::openFile(const FSPath& path, const FilePerms& perms) {
 	FilePerms realPerms = perms;
 

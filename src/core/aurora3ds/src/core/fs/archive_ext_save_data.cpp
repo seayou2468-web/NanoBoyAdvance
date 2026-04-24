@@ -65,6 +65,28 @@ HorizonResult ExtSaveDataArchive::deleteFile(const FSPath& path) {
 	return Result::Success;
 }
 
+HorizonResult ExtSaveDataArchive::deleteDirectory(const FSPath& path) {
+	if (!path.isTextPath()) {
+		Helpers::panic("ExtSaveDataArchive::DeleteDirectory: Unknown path type");
+	}
+	if (!isSafeTextPath(path)) {
+		Helpers::panic("Unsafe path in ExtSaveData::DeleteDirectory");
+	}
+
+	fs::path p = IOFile::getUserData() / backingFolder;
+	appendPath(p, path);
+	if (fs::is_regular_file(p)) {
+		return Result::FS::UnexpectedFileOrDir;
+	}
+	if (!fs::is_directory(p)) {
+		return Result::FS::FileNotFoundAlt;
+	}
+
+	std::error_code ec;
+	fs::remove_all(p, ec);
+	return ec ? Result::FS::UnexpectedFileOrDir : Result::Success;
+}
+
 FileDescriptor ExtSaveDataArchive::openFile(const FSPath& path, const FilePerms& perms) {
 	if (path.isTextPath()) {
 		if (!isSafeTextPath(path)) {

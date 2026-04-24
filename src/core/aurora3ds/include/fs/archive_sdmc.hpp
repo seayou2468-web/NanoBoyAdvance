@@ -16,6 +16,7 @@ class SDMCArchive : public ArchiveBase {
 	HorizonResult createFile(const FSPath& path, u64 size) override;
 	HorizonResult deleteFile(const FSPath& path) override;
 	HorizonResult createDirectory(const FSPath& path) override;
+	HorizonResult deleteDirectory(const FSPath& path) override;
 
 	Rust::Result<ArchiveBase*, HorizonResult> openArchive(const FSPath& path) override;
 	Rust::Result<DirectorySession, HorizonResult> openDirectory(const FSPath& path) override;

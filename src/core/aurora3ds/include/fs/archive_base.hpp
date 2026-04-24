@@ -245,6 +245,11 @@ class ArchiveBase {
 		return Result::FS::AlreadyExists;
 	}
 
+	virtual HorizonResult deleteDirectory(const FSPath& path) {
+		Helpers::panic("Unimplemented DeleteDirectory for %s archive", name().c_str());
+		return Result::FS::FileNotFoundAlt;
+	}
+
 	// Returns nullopt if opening the file failed, otherwise returns a file descriptor to it (nullptr if none is needed)
 	virtual FileDescriptor openFile(const FSPath& path, const FilePerms& perms) = 0;
 	virtual Rust::Result<ArchiveBase*, HorizonResult> openArchive(const FSPath& path) = 0;

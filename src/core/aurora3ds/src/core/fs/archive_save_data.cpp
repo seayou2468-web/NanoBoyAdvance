@@ -95,6 +95,28 @@ HorizonResult SaveDataArchive::deleteFile(const FSPath& path) {
 	return Result::Success;
 }
 
+HorizonResult SaveDataArchive::deleteDirectory(const FSPath& path) {
+	if (!path.isUTF16()) {
+		Helpers::panic("SaveDataArchive::DeleteDirectory: Unknown path type");
+	}
+	if (!isPathSafe<PathType::UTF16>(path)) {
+		Helpers::panic("Unsafe path in SaveData::DeleteDirectory");
+	}
+
+	fs::path p = IOFile::getAppData() / "data";
+	p += fs::path(path.utf16_string).make_preferred();
+	if (fs::is_regular_file(p)) {
+		return Result::FS::UnexpectedFileOrDir;
+	}
+	if (!fs::is_directory(p)) {
+		return Result::FS::FileNotFoundAlt;
+	}
+
+	std::error_code ec;
+	fs::remove_all(p, ec);
+	return ec ? Result::FS::UnexpectedFileOrDir : Result::Success;
+}
+
 FileDescriptor SaveDataArchive::openFile(const FSPath& path, const FilePerms& perms) {
 	if (path.isUTF16()) {
 		if (!isPathSafe<PathType::UTF16>(path)) {
