@@ -4,6 +4,9 @@
 #include "../logger.hpp"
 #include "../memory.hpp"
 #include "../result/result.hpp"
+#include <array>
+#include <unordered_set>
+#include <vector>
 
 class NIMService {
 	using Handle = HorizonHandle;
@@ -18,6 +21,16 @@ class NIMService {
 	u32 lastDownloadTitleIDHigh = 0;
 	u32 systemUpdateProgress = 0;
 	u32 titleDownloadProgress = 0;
+	u32 asyncResult = Result::Success;
+	bool asyncPending = false;
+	std::vector<u8> tslXml {};
+	std::vector<u8> dtlXml {};
+	std::vector<u8> autoDbgDat {};
+	std::vector<u8> dbgTasks {};
+	std::array<u8, 0x24> savedHash {};
+	std::unordered_set<u64> registeredTitleTasks {};
+	u32 customerSupportCode = 0;
+	bool systemTitlesCommittable = false;
 
 	// Service commands
 	void initialize(u32 messagePointer);
@@ -28,11 +41,10 @@ class NIMService {
 	void getAutoTitleDownloadTaskInfos(u32 messagePointer);
 	void getTslXmlSize(u32 messagePointer);
 	void getDtlXmlSize(u32 messagePointer);
-	void commandStub(u32 messagePointer, u32 commandID);
-	void commandStubWithU32(u32 messagePointer, u32 commandID, u32 value);
-	void commandStubWithHandle(u32 messagePointer, u32 commandID, Handle handle);
 	void getProgress(u32 messagePointer);
 	void getTitleDownloadProgress(u32 messagePointer);
+	void writeRawBuffer(u32 src, u32 size, std::vector<u8>& outBuffer);
+	void readRawBuffer(u32 dst, const std::vector<u8>& inBuffer);
 
   public:
 	NIMService(Memory& mem) : mem(mem) {}

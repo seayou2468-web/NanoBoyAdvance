@@ -27,6 +27,16 @@ void NIMService::reset() {
 	lastDownloadTitleIDHigh = 0;
 	systemUpdateProgress = 0;
 	titleDownloadProgress = 0;
+	asyncResult = Result::Success;
+	asyncPending = false;
+	tslXml.clear();
+	dtlXml.clear();
+	autoDbgDat.clear();
+	dbgTasks.clear();
+	savedHash.fill(0);
+	registeredTitleTasks.clear();
+	customerSupportCode = 0;
+	systemTitlesCommittable = false;
 }
 
 void NIMService::handleSyncRequest(u32 messagePointer) {
@@ -36,50 +46,191 @@ void NIMService::handleSyncRequest(u32 messagePointer) {
 	switch (commandID) {
 		case NIMCommandID::StartNetworkUpdate: startNetworkUpdate(messagePointer); break;
 		case NIMCommandID::GetProgress: getProgress(messagePointer); break;
-		case 0x0003: commandStub(messagePointer, commandID); break;
-		case 0x0004: commandStub(messagePointer, commandID); break;
-		case NIMCommandID::GetBackgroundEventForMenu: commandStubWithHandle(messagePointer, commandID, 0); break;
-		case NIMCommandID::GetBackgroundEventForNews: commandStubWithHandle(messagePointer, commandID, 0); break;
-		case 0x0007: commandStub(messagePointer, commandID); break;
-		case 0x0008: commandStubWithU32(messagePointer, commandID, 0); break;
-		case 0x0009: commandStubWithU32(messagePointer, commandID, 0); break;
-		case 0x000A: commandStub(messagePointer, commandID); break;
-		case 0x000B: commandStub(messagePointer, commandID); break;
-		case 0x000C: commandStub(messagePointer, commandID); break;
-		case 0x000D: commandStubWithU32(messagePointer, commandID, 0); break;
-		case 0x000E: commandStub(messagePointer, commandID); break;
-		case 0x000F: commandStub(messagePointer, commandID); break;
-		case 0x0010: commandStub(messagePointer, commandID); break;
-		case 0x0011: commandStub(messagePointer, commandID); break;
-		case 0x0012: commandStub(messagePointer, commandID); break;
-		case 0x0013: commandStubWithU32(messagePointer, commandID, 0); break;
-		case 0x0014: commandStub(messagePointer, commandID); break;
-		case 0x0015: commandStubWithU32(messagePointer, commandID, 0); break;
+		case 0x0003:
+			networkUpdateActive = false;
+			titleDownloadActive = false;
+			mem.write32(messagePointer, IPC::responseHeader(commandID, 1, 0));
+			mem.write32(messagePointer + 4, Result::Success);
+			break;
+		case 0x0004:
+			mem.write32(messagePointer, IPC::responseHeader(commandID, 1, 0));
+			mem.write32(messagePointer + 4, initialized ? Result::Success : Result::FailurePlaceholder);
+			break;
+		case NIMCommandID::GetBackgroundEventForMenu:
+		case NIMCommandID::GetBackgroundEventForNews:
+			mem.write32(messagePointer, IPC::responseHeader(commandID, 1, 2));
+			mem.write32(messagePointer + 4, Result::Success);
+			mem.write32(messagePointer + 8, 0);
+			mem.write32(messagePointer + 12, 0);
+			break;
+		case 0x0007:
+			registeredTitleTasks.clear();
+			mem.write32(messagePointer, IPC::responseHeader(commandID, 1, 0));
+			mem.write32(messagePointer + 4, Result::Success);
+			break;
+		case 0x0008:
+			mem.write32(messagePointer, IPC::responseHeader(commandID, 2, 0));
+			mem.write32(messagePointer + 4, Result::Success);
+			mem.write32(messagePointer + 8, customerSupportCode);
+			break;
+		case 0x0009:
+			mem.write32(messagePointer, IPC::responseHeader(commandID, 2, 0));
+			mem.write32(messagePointer + 4, Result::Success);
+			mem.write32(messagePointer + 8, systemTitlesCommittable ? 1 : 0);
+			break;
+		case 0x000A: getProgress(messagePointer); break;
+		case 0x000B:
+			mem.write32(messagePointer, IPC::responseHeader(commandID, 10, 0));
+			mem.write32(messagePointer + 4, Result::Success);
+			for (u32 i = 0; i < savedHash.size(); i++) mem.write8(messagePointer + 8 + i, savedHash[i]);
+			break;
+		case 0x000C:
+			registeredTitleTasks.erase((static_cast<u64>(mem.read32(messagePointer + 8)) << 32) | mem.read32(messagePointer + 4));
+			mem.write32(messagePointer, IPC::responseHeader(commandID, 1, 0));
+			mem.write32(messagePointer + 4, Result::Success);
+			break;
+		case 0x000D: {
+			const u64 titleID = (static_cast<u64>(mem.read32(messagePointer + 8)) << 32) | mem.read32(messagePointer + 4);
+			mem.write32(messagePointer, IPC::responseHeader(commandID, 2, 0));
+			mem.write32(messagePointer + 4, Result::Success);
+			mem.write32(messagePointer + 8, registeredTitleTasks.contains(titleID) ? 1 : 0);
+			break;
+		}
+		case 0x000E:
+			mem.write32(messagePointer, IPC::responseHeader(commandID, 1, 2));
+			mem.write32(messagePointer + 4, Result::FailurePlaceholder);
+			mem.write32(messagePointer + 8, 0);
+			break;
+		case 0x000F:
+			mem.write32(messagePointer, IPC::responseHeader(commandID, 2, 2));
+			mem.write32(messagePointer + 4, Result::Success);
+			mem.write32(messagePointer + 8, 0);
+			break;
+		case 0x0010:
+			registeredTitleTasks.clear();
+			mem.write32(messagePointer, IPC::responseHeader(commandID, 1, 0));
+			mem.write32(messagePointer + 4, Result::Success);
+			break;
+		case 0x0011:
+		case 0x0012:
+			asyncPending = true;
+			asyncResult = Result::Success;
+			mem.write32(messagePointer, IPC::responseHeader(commandID, 1, 0));
+			mem.write32(messagePointer + 4, Result::Success);
+			break;
+		case 0x0013:
+			mem.write32(messagePointer, IPC::responseHeader(commandID, 2, 0));
+			mem.write32(messagePointer + 4, Result::Success);
+			mem.write32(messagePointer + 8, asyncPending ? Result::Success : asyncResult);
+			asyncPending = false;
+			break;
+		case 0x0014:
+			asyncPending = false;
+			mem.write32(messagePointer, IPC::responseHeader(commandID, 1, 0));
+			mem.write32(messagePointer + 4, Result::Success);
+			break;
+		case 0x0015:
+			mem.write32(messagePointer, IPC::responseHeader(commandID, 2, 0));
+			mem.write32(messagePointer + 4, Result::Success);
+			mem.write32(messagePointer + 8, titleDownloadActive ? 1 : 0);
+			break;
 		case NIMCommandID::GetNumAutoTitleDownloadTasks: getNumAutoTitleDownloadTasks(messagePointer); break;
 		case NIMCommandID::GetAutoTitleDownloadTaskInfos: getAutoTitleDownloadTaskInfos(messagePointer); break;
-		case 0x0018: commandStub(messagePointer, commandID); break;
-		case 0x0019: commandStub(messagePointer, commandID); break;
-		case 0x001A: commandStub(messagePointer, commandID); break;
-		case 0x001B: commandStub(messagePointer, commandID); break;
-		case 0x001C: commandStub(messagePointer, commandID); break;
-		case 0x001D: commandStub(messagePointer, commandID); break;
-		case 0x001E: commandStub(messagePointer, commandID); break;
+		case 0x0018:
+			titleDownloadActive = false;
+			mem.write32(messagePointer, IPC::responseHeader(commandID, 1, 0));
+			mem.write32(messagePointer + 4, Result::Success);
+			break;
+		case 0x0019:
+		case 0x001B:
+			writeRawBuffer(mem.read32(messagePointer + 8), mem.read32(messagePointer + 4), commandID == 0x0019 ? autoDbgDat : dbgTasks);
+			mem.write32(messagePointer, IPC::responseHeader(commandID, 1, 2));
+			mem.write32(messagePointer + 4, Result::Success);
+			break;
+		case 0x001A:
+		case 0x001C: {
+			const u32 outPointer = mem.read32(messagePointer + 8);
+			const u32 outCapacity = mem.read32(messagePointer + 4);
+			mem.write32(messagePointer, IPC::responseHeader(commandID, 2, 2));
+			mem.write32(messagePointer + 4, Result::Success);
+			const auto& source = commandID == 0x001A ? autoDbgDat : dbgTasks;
+			mem.write32(messagePointer + 8, std::min<u32>(outCapacity, static_cast<u32>(source.size())));
+			if (outPointer != 0) {
+				for (u32 i = 0; i < std::min<u32>(outCapacity, static_cast<u32>(source.size())); i++) {
+					mem.write8(outPointer + i, source[i]);
+				}
+				for (u32 i = static_cast<u32>(source.size()); i < outCapacity; i++) {
+					mem.write8(outPointer + i, 0);
+				}
+			}
+			break;
+		}
+		case 0x001D:
+			autoDbgDat.clear();
+			dbgTasks.clear();
+			mem.write32(messagePointer, IPC::responseHeader(commandID, 1, 0));
+			mem.write32(messagePointer + 4, Result::Success);
+			break;
+		case 0x001E:
+			writeRawBuffer(mem.read32(messagePointer + 4), mem.read32(messagePointer + 8), tslXml);
+			mem.write32(messagePointer, IPC::responseHeader(commandID, 1, 0));
+			mem.write32(messagePointer + 4, Result::Success);
+			break;
 		case NIMCommandID::GetTslXmlSize: getTslXmlSize(messagePointer); break;
-		case 0x0020: commandStub(messagePointer, commandID); break;
+		case 0x0020:
+			mem.write32(messagePointer, IPC::responseHeader(commandID, 1, 2));
+			mem.write32(messagePointer + 4, Result::Success);
+			readRawBuffer(mem.read32(messagePointer + 8), tslXml);
+			break;
 		case NIMCommandID::Initialize: initialize(messagePointer); break;
-		case 0x0022: commandStub(messagePointer, commandID); break;
+		case 0x0022:
+			writeRawBuffer(mem.read32(messagePointer + 4), mem.read32(messagePointer + 8), dtlXml);
+			mem.write32(messagePointer, IPC::responseHeader(commandID, 1, 0));
+			mem.write32(messagePointer + 4, Result::Success);
+			break;
 		case NIMCommandID::GetDtlXmlSize: getDtlXmlSize(messagePointer); break;
-		case 0x0024: commandStub(messagePointer, commandID); break;
-		case 0x0025: commandStub(messagePointer, commandID); break;
-		case 0x0026: commandStub(messagePointer, commandID); break;
-		case 0x0027: commandStub(messagePointer, commandID); break;
+		case 0x0024:
+			mem.write32(messagePointer, IPC::responseHeader(commandID, 1, 2));
+			mem.write32(messagePointer + 4, Result::Success);
+			readRawBuffer(mem.read32(messagePointer + 8), dtlXml);
+			break;
+		case 0x0025:
+			mem.write32(messagePointer, IPC::responseHeader(commandID, 3, 0));
+			mem.write32(messagePointer + 4, Result::Success);
+			mem.write32(messagePointer + 8, Result::Success);
+			mem.write32(messagePointer + 12, 0);
+			break;
+		case 0x0026: startDownload(messagePointer); break;
+		case 0x0027:
+			titleDownloadActive = false;
+			mem.write32(messagePointer, IPC::responseHeader(commandID, 1, 0));
+			mem.write32(messagePointer + 4, Result::Success);
+			break;
 		case NIMCommandID::GetTitleDownloadProgress: getTitleDownloadProgress(messagePointer); break;
-		case 0x0029: commandStub(messagePointer, commandID); break;
+		case 0x0029:
+			lastDownloadTitleIDLow = mem.read32(messagePointer + 4);
+			lastDownloadTitleIDHigh = mem.read32(messagePointer + 8);
+			mem.write32(messagePointer, IPC::responseHeader(commandID, 1, 0));
+			mem.write32(messagePointer + 4, Result::Success);
+			break;
 		case NIMCommandID::IsSystemUpdateAvailable: isSystemUpdateAvailable(messagePointer); break;
-		case 0x002B: commandStub(messagePointer, commandID); break;
-		case 0x002C: commandStub(messagePointer, commandID); break;
-		case 0x002D: commandStub(messagePointer, commandID); break;
-		case 0x002E: commandStub(messagePointer, commandID); break;
+		case 0x002B:
+			mem.write32(messagePointer, IPC::responseHeader(commandID, 1, 0));
+			mem.write32(messagePointer + 4, Result::Success);
+			break;
+		case 0x002C:
+			mem.write32(messagePointer, IPC::responseHeader(commandID, 3, 0));
+			mem.write32(messagePointer + 4, Result::Success);
+			mem.write32(messagePointer + 8, Result::Success);
+			mem.write32(messagePointer + 12, 0);
+			break;
+		case 0x002D:
+		case 0x002E:
+			asyncPending = true;
+			asyncResult = Result::Success;
+			mem.write32(messagePointer, IPC::responseHeader(commandID, 1, 0));
+			mem.write32(messagePointer + 4, Result::Success);
+			break;
 		case NIMCommandID::StartDownload: startDownload(messagePointer); break;
 		default: Helpers::panic("NIM service requested. Command: %08X\n", command);
 	}
@@ -156,7 +307,7 @@ void NIMService::getTslXmlSize(u32 messagePointer) {
 
 	mem.write32(messagePointer, IPC::responseHeader(0x1F, 2, 0));
 	mem.write32(messagePointer + 4, Result::Success);
-	mem.write32(messagePointer + 8, 0);
+	mem.write32(messagePointer + 8, static_cast<u32>(tslXml.size()));
 }
 
 void NIMService::getDtlXmlSize(u32 messagePointer) {
@@ -164,28 +315,7 @@ void NIMService::getDtlXmlSize(u32 messagePointer) {
 
 	mem.write32(messagePointer, IPC::responseHeader(0x23, 2, 0));
 	mem.write32(messagePointer + 4, Result::Success);
-	mem.write32(messagePointer + 8, 0);
-}
-
-void NIMService::commandStub(u32 messagePointer, u32 commandID) {
-	log("NIM::Command 0x%X (stubbed)\n", commandID);
-	mem.write32(messagePointer, IPC::responseHeader(commandID, 1, 0));
-	mem.write32(messagePointer + 4, Result::Success);
-}
-
-void NIMService::commandStubWithU32(u32 messagePointer, u32 commandID, u32 value) {
-	log("NIM::Command 0x%X (stubbed with u32)\n", commandID);
-	mem.write32(messagePointer, IPC::responseHeader(commandID, 2, 0));
-	mem.write32(messagePointer + 4, Result::Success);
-	mem.write32(messagePointer + 8, value);
-}
-
-void NIMService::commandStubWithHandle(u32 messagePointer, u32 commandID, Handle handle) {
-	log("NIM::Command 0x%X (stubbed with handle)\n", commandID);
-	mem.write32(messagePointer, IPC::responseHeader(commandID, 1, 2));
-	mem.write32(messagePointer + 4, Result::Success);
-	mem.write32(messagePointer + 8, 0);  // Translation descriptor
-	mem.write32(messagePointer + 12, handle);
+	mem.write32(messagePointer + 8, static_cast<u32>(dtlXml.size()));
 }
 
 void NIMService::getProgress(u32 messagePointer) {
@@ -230,4 +360,17 @@ void NIMService::getTitleDownloadProgress(u32 messagePointer) {
 	mem.write32(messagePointer + 12, titleDownloadActive ? 1 : 0);
 	mem.write32(messagePointer + 16, lastDownloadTitleIDLow);
 	mem.write32(messagePointer + 20, lastDownloadTitleIDHigh);
+}
+
+void NIMService::writeRawBuffer(u32 src, u32 size, std::vector<u8>& outBuffer) {
+	outBuffer.resize(size);
+	for (u32 i = 0; i < size; i++) {
+		outBuffer[i] = mem.read8(src + i);
+	}
+}
+
+void NIMService::readRawBuffer(u32 dst, const std::vector<u8>& inBuffer) {
+	for (u32 i = 0; i < inBuffer.size(); i++) {
+		mem.write8(dst + i, inBuffer[i]);
+	}
 }

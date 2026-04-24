@@ -206,6 +206,7 @@ class Kernel {
 	void openThread();
 	void waitSynchronization1();
 	void waitSynchronizationN();
+	bool handleReferenceSvcFallback(u32 svc);
 
 	// File operations
 	void handleFileOperation(u32 messagePointer, Handle file);
