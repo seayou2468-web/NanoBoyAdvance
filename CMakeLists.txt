@@ -18,18 +18,11 @@ file(GLOB_RECURSE CORE_SOURCES CONFIGURE_DEPENDS
   "src/core/mikage/*.c"
 )
 
-# Aurora3DS legacy ".c" units rely on C++ constructs/macros (e.g. nullptr/auto).
-# Force these files to be compiled as C++.
-foreach(core_src ${CORE_SOURCES})
-  if(core_src MATCHES "src/core/aurora3ds/src/.*\\.c$")
-    set_source_files_properties(${core_src} PROPERTIES LANGUAGE CXX)
-  endif()
-endforeach()
-
 # Exclude reference interpreter files which have external dependencies not present in build env
 list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/mikage/src/core/CPU/reference/.*")
 list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/mikage/src/core/CPU/dyncom/arm_dyncom\.cpp")
 list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/CPU/dyncom/arm_dyncom\.cpp$")
+list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/.*\\.c$")
 
 if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
   file(GLOB_RECURSE AURORAIOS_SOURCES CONFIGURE_DEPENDS
