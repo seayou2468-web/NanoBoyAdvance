@@ -62,6 +62,7 @@ struct AudioDeviceConfig {
 	bool sdCardInserted = true;
 	bool sdWriteProtected = false;
 	bool circlePadProEnabled = true;
+	bool isNew3DS = true;
 
 	bool audioEnabled = audioEnabledDefault;
 	bool vsyncEnabled = true;

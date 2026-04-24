@@ -10,6 +10,7 @@
 
 #include "../include/helpers.hpp"
 #include "../include/toml.hpp"
+#include "common/settings.h"
 
 // Largely based on https://github.com/nba-emu/NanoBoyAdvance/blob/master/src/platform/core/src/config.cpp
 // We are legally allowed, as per the author's wish, to use the above code without any licensing restrictions
@@ -43,6 +44,7 @@ void EmulatorConfig::load() {
 			auto general = generalResult.unwrap();
 
 			circlePadProEnabled = toml::find_or<toml::boolean>(general, "EnableCirclePadPro", true);
+			isNew3DS = toml::find_or<toml::boolean>(general, "IsNew3DS", true);
 			fastmemEnabled = toml::find_or<toml::boolean>(general, "EnableFastmem", enableFastmemDefault);
 			systemLanguage = languageCodeFromString(toml::find_or<std::string>(general, "SystemLanguage", "en"));
 		}
@@ -120,10 +122,31 @@ void EmulatorConfig::load() {
 			sdCardInserted = toml::find_or<toml::boolean>(sd, "UseVirtualSD", true);
 			sdWriteProtected = toml::find_or<toml::boolean>(sd, "WriteProtectVirtualSD", false);
 		}
-		}
 	}
 
+	Settings::ApplyFromConfig(*this);
+}
+
+namespace Settings {
+
+void ApplyFromConfig(const EmulatorConfig& config) {
+	values.use_virtual_sd = config.sdCardInserted;
+	values.volume = std::clamp(config.audioDeviceConfig.getVolume(), 0.0f, 1.0f);
+	values.is_new_3ds = config.isNew3DS;
+	values.region_value = REGION_VALUE_AUTO_SELECT;
+}
+
+void ApplyToConfig(EmulatorConfig& config) {
+	config.sdCardInserted = values.use_virtual_sd.GetValue();
+	config.audioDeviceConfig.volumeRaw = std::clamp(values.volume.GetValue(), 0.0f, 2.0f);
+	config.isNew3DS = values.is_new_3ds.GetValue();
+}
+
+} // namespace Settings
+
 void EmulatorConfig::save() {
+	Settings::ApplyToConfig(*this);
+
 	toml::basic_value<toml::preserve_comments, std::map> data;
 	const std::filesystem::path& path = filePath;
 
@@ -144,6 +167,7 @@ void EmulatorConfig::save() {
 
 	data["General"]["SystemLanguage"] = languageCodeToString(systemLanguage);
 	data["General"]["EnableCirclePadPro"] = circlePadProEnabled;
+	data["General"]["IsNew3DS"] = isNew3DS;
 	data["General"]["EnableFastmem"] = fastmemEnabled;
 
 	data["GPU"]["Renderer"] = std::string(Renderer::typeToString(rendererType));
