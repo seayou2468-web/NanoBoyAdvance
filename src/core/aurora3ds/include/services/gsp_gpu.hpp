@@ -105,14 +105,14 @@ class GPUService {
 
 	void setBufferSwapImpl(u32 screen_id, const FramebufferInfo& info);
 
-	// Get the framebuffer info in shared memory for a given screen
-	FramebufferUpdate* getFramebufferInfo(int screen) {
-		// TODO: Offset depends on GSP thread being triggered
-		return reinterpret_cast<FramebufferUpdate*>(&sharedMem[0x200 + screen * sizeof(FramebufferUpdate)]);
+	// Get framebuffer info in shared memory for a given thread/screen pair.
+	FramebufferUpdate* getFramebufferInfo(u32 thread, int screen) {
+		const u32 pair = static_cast<u32>(screen) + thread * 2;
+		return reinterpret_cast<FramebufferUpdate*>(&sharedMem[0x200 + pair * sizeof(FramebufferUpdate)]);
 	}
 
-	FramebufferUpdate* getTopFramebufferInfo() { return getFramebufferInfo(0); }
-	FramebufferUpdate* getBottomFramebufferInfo() { return getFramebufferInfo(1); }
+	FramebufferUpdate* getTopFramebufferInfo(u32 thread = 0) { return getFramebufferInfo(thread, 0); }
+	FramebufferUpdate* getBottomFramebufferInfo(u32 thread = 0) { return getFramebufferInfo(thread, 1); }
 
   public:
 	GPUService(Memory& mem, GPU& gpu, Kernel& kernel, u32& currentPID) : mem(mem), gpu(gpu), kernel(kernel), currentPID(currentPID) {}

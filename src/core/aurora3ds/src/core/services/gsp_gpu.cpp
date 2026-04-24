@@ -3,6 +3,7 @@
 #include "../../../include/PICA/regs.hpp"
 #include "../../../include/ipc.hpp"
 #include "../../../include/kernel/kernel.hpp"
+#include <algorithm>
 
 namespace {
 	constexpr u32 FramebufferWidth = 240;
@@ -101,29 +102,30 @@ void GPUService::reset() {
 }
 
 void GPUService::handleSyncRequest(u32 messagePointer) {
-	const u32 command = mem.read32(messagePointer);
-	switch (command) {
-		case ServiceCommands::TriggerCmdReqQueue: [[likely]] triggerCmdReqQueue(messagePointer); break;
-		case ServiceCommands::AcquireRight: acquireRight(messagePointer); break;
-		case ServiceCommands::FlushDataCache: flushDataCache(messagePointer); break;
-		case ServiceCommands::ImportDisplayCaptureInfo: importDisplayCaptureInfo(messagePointer); break;
-		case ServiceCommands::RegisterInterruptRelayQueue: registerInterruptRelayQueue(messagePointer); break;
-		case ServiceCommands::UnregisterInterruptRelayQueue: unregisterInterruptRelayQueue(messagePointer); break;
-		case ServiceCommands::ReleaseRight: releaseRight(messagePointer); break;
-		case ServiceCommands::RestoreVramSysArea: restoreVramSysArea(messagePointer); break;
-		case ServiceCommands::SaveVramSysArea: saveVramSysArea(messagePointer); break;
-		case ServiceCommands::SetAxiConfigQoSMode: setAxiConfigQoSMode(messagePointer); break;
-		case ServiceCommands::SetBufferSwap: setBufferSwap(messagePointer); break;
-		case ServiceCommands::SetInternalPriorities: setInternalPriorities(messagePointer); break;
-		case ServiceCommands::SetLCDForceBlack: setLCDForceBlack(messagePointer); break;
-		case ServiceCommands::StoreDataCache: storeDataCache(messagePointer); break;
-		case ServiceCommands::ReadHwRegs: readHwRegs(messagePointer); break;
-		case ServiceCommands::WriteHwRegs: writeHwRegs(messagePointer); break;
-		case ServiceCommands::WriteHwRegsWithMask: writeHwRegsWithMask(messagePointer); break;
-		case ServiceCommands::InvalidateDataCache: invalidateDataCache(messagePointer); break;
+	const u32 commandHeader = mem.read32(messagePointer);
+	const u32 commandId = commandHeader >> 16;
+	switch (commandId) {
+		case 0x000C: [[likely]] triggerCmdReqQueue(messagePointer); break;
+		case 0x0016: acquireRight(messagePointer); break;
+		case 0x0008: flushDataCache(messagePointer); break;
+		case 0x0018: importDisplayCaptureInfo(messagePointer); break;
+		case 0x0013: registerInterruptRelayQueue(messagePointer); break;
+		case 0x0014: unregisterInterruptRelayQueue(messagePointer); break;
+		case 0x0017: releaseRight(messagePointer); break;
+		case 0x001A: restoreVramSysArea(messagePointer); break;
+		case 0x0019: saveVramSysArea(messagePointer); break;
+		case 0x0010: setAxiConfigQoSMode(messagePointer); break;
+		case 0x0005: setBufferSwap(messagePointer); break;
+		case 0x001E: setInternalPriorities(messagePointer); break;
+		case 0x000B: setLCDForceBlack(messagePointer); break;
+		case 0x001F: storeDataCache(messagePointer); break;
+		case 0x0004: readHwRegs(messagePointer); break;
+		case 0x0001: writeHwRegs(messagePointer); break;
+		case 0x0002: writeHwRegsWithMask(messagePointer); break;
+		case 0x0009: invalidateDataCache(messagePointer); break;
 		default:
-			Helpers::warn("GPU service requested. Command: %08X\n", command);
-			mem.write32(messagePointer, IPC::responseHeader(command >> 16, 1, 0));
+			Helpers::warn("GPU service requested. Command header: %08X (cmd id=%04X)\n", commandHeader, commandId);
+			mem.write32(messagePointer, IPC::responseHeader(commandId, 1, 0));
 			mem.write32(messagePointer + 4, Result::Success);
 			break;
 	}
@@ -168,6 +170,7 @@ void GPUService::registerInterruptRelayQueue(u32 messagePointer) {
 	if (gspThreadCount < 0xFF) {
 		gspThreadCount += 1;
 	}
+	const u32 threadIndex = gspThreadCount > 0 ? (gspThreadCount - 1) : 0;
 
 	const u32 flags = mem.read32(messagePointer + 4);
 	const u32 eventHandle = mem.read32(messagePointer + 12);
@@ -190,7 +193,7 @@ void GPUService::registerInterruptRelayQueue(u32 messagePointer) {
 	} else {
 		mem.write32(messagePointer + 4, Result::Success);
 	}
-	mem.write32(messagePointer + 8, 0);                                // TODO: GSP module thread index
+	mem.write32(messagePointer + 8, threadIndex);
 	mem.write32(messagePointer + 12, 0);                               // Translation descriptor
 	mem.write32(messagePointer + 16, KernelHandles::GSPSharedMemHandle);
 }
@@ -221,11 +224,13 @@ void GPUService::requestInterrupt(GPUInterrupt type) {
 	// Not emulating this causes Yoshi's Wooly World, Captain Toad, Metroid 2 et al to hang
 	if (type == GPUInterrupt::VBlank0 || type == GPUInterrupt::VBlank1) {
 		int screen = static_cast<u32>(type) - static_cast<u32>(GPUInterrupt::VBlank0);  // 0 for top screen, 1 for bottom
-		FramebufferUpdate* update = getFramebufferInfo(screen);
-
-		if (update->dirtyFlag & 1) {
-			setBufferSwapImpl(screen, update->framebufferInfo[update->index]);
-			update->dirtyFlag &= ~1;
+		const u32 threadCount = 4;
+		for (u32 thread = 0; thread < threadCount; ++thread) {
+			FramebufferUpdate* update = getFramebufferInfo(thread, screen);
+			if (update->dirtyFlag & 1) {
+				setBufferSwapImpl(screen, update->framebufferInfo[update->index]);
+				update->dirtyFlag &= ~1;
+			}
 		}
 	}
 
@@ -407,6 +412,21 @@ void GPUService::setLCDForceBlack(u32 messagePointer) {
 
 void GPUService::triggerCmdReqQueue(u32 messagePointer) {
 	processCommandBuffer();
+	// Many titles rely on shared-memory framebuffer updates becoming visible quickly.
+	// On hardware this is synchronized with VBlank, but our current interrupt/timing
+	// model does not always deliver VBlank-driven swaps soon enough.
+	if (sharedMem != nullptr) {
+		const u32 threadCount = 4;
+		for (u32 thread = 0; thread < threadCount; ++thread) {
+			for (int screen = 0; screen < 2; ++screen) {
+				FramebufferUpdate* update = getFramebufferInfo(thread, screen);
+				if ((update->dirtyFlag & 1) != 0) {
+					setBufferSwapImpl(screen, update->framebufferInfo[update->index]);
+					update->dirtyFlag &= ~1;
+				}
+			}
+		}
+	}
 	mem.write32(messagePointer, IPC::responseHeader(0xC, 1, 0));
 	mem.write32(messagePointer + 4, Result::Success);
 }
@@ -448,7 +468,7 @@ void GPUService::processCommandBuffer() {
 		return;
 	}
 
-	constexpr int threadCount = 1;  // TODO: More than 1 thread can have GSP commands at a time
+	constexpr int threadCount = 4;
 	for (int t = 0; t < threadCount; t++) {
 		u8* cmdBuffer = &sharedMem[0x800 + t * 0x200];
 		u8& index = cmdBuffer[0];
@@ -494,8 +514,9 @@ static u32 VaddrToPaddr(u32 addr) {
 	}
 
 	Helpers::warn("[GSP::GPU VaddrToPaddr] Unknown virtual address %08X", addr);
-	// Obviously garbage address
-	return 0xF3310932;
+	// Return 0 so downstream framebuffer routing can fall back cleanly instead of
+	// carrying a non-null garbage address that can mask diagnostics.
+	return 0;
 }
 
 // Fill 2 GPU framebuffers, buf0 and buf1, using a specific word value
@@ -552,6 +573,13 @@ void GPUService::flushCacheRegions(u32* cmd) { log("GSP::GPU::FlushCacheRegions 
 
 void GPUService::setBufferSwapImpl(u32 screenId, const FramebufferInfo& info) {
 	using namespace PICA::ExternalRegs;
+	if (screenId > 1) {
+		Helpers::warn("GSP::GPU::SetBufferSwapImpl got invalid screenId=%u", screenId);
+		return;
+	}
+	if ((info.format & 0x7) > static_cast<u32>(PICA::ColorFmt::RGBA4)) {
+		Helpers::warn("GSP::GPU::SetBufferSwapImpl got unsupported color format=%u for screenId=%u", info.format, screenId);
+	}
 
 	static constexpr std::array<u32, 8> fbAddresses = {
 		Framebuffer0AFirstAddr, Framebuffer0ASecondAddr, Framebuffer0BFirstAddr, Framebuffer0BSecondAddr,
@@ -615,8 +643,8 @@ void GPUService::saveVramSysArea(u32 messagePointer) {
 	}
 
 	if (sharedMem != nullptr) {
-		auto* topScreen = getTopFramebufferInfo();
-		auto* bottomScreen = getBottomFramebufferInfo();
+		auto* topScreen = getTopFramebufferInfo(0);
+		auto* bottomScreen = getBottomFramebufferInfo(0);
 
 		auto captureScreen = [&](FramebufferUpdate* update, int screenId, u32 leftSaveArea, u32 rightSaveArea, u32 lines, bool hasRightBuffer) {
 			const auto& current = update->framebufferInfo[update->index];
@@ -673,8 +701,8 @@ void GPUService::restoreVramSysArea(u32 messagePointer) {
 	}
 
 	if (sharedMem != nullptr) {
-		auto* topScreen = getTopFramebufferInfo();
-		auto* bottomScreen = getBottomFramebufferInfo();
+		auto* topScreen = getTopFramebufferInfo(0);
+		auto* bottomScreen = getBottomFramebufferInfo(0);
 		setBufferSwapImpl(0, topScreen->framebufferInfo[topScreen->index]);
 		setBufferSwapImpl(1, bottomScreen->framebufferInfo[bottomScreen->index]);
 	}
@@ -695,8 +723,8 @@ void GPUService::importDisplayCaptureInfo(u32 messagePointer) {
 		return;
 	}
 
-	FramebufferUpdate* topScreen = getTopFramebufferInfo();
-	FramebufferUpdate* bottomScreen = getBottomFramebufferInfo();
+	FramebufferUpdate* topScreen = getTopFramebufferInfo(0);
+	FramebufferUpdate* bottomScreen = getBottomFramebufferInfo(0);
 
 	// Capture the relevant data for both screens and return them to the caller
 	CaptureInfo topScreenCapture = {

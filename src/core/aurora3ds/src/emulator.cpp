@@ -126,15 +126,19 @@ u32 ConvertToRGBA8888(const u8* pixel, PICA::ColorFmt format) {
 	}
 }
 
-void BlitRotatedScreenToComposite(std::span<u32> out_pixels, u32 composite_y_offset, const u8* src_base, u32 src_width,
+bool BlitRotatedScreenToComposite(std::span<u32> out_pixels, u32 composite_y_offset, const u8* src_base, u32 src_width,
                                   u32 src_height, u32 src_stride, PICA::ColorFmt format) {
 	if (!src_base || src_width == 0 || src_height == 0) {
-		return;
+		return false;
 	}
 
 	const u32 bpp = static_cast<u32>(PICA::sizePerPixel(format));
 	if (bpp == 0 || src_stride < src_width * bpp) {
-		return;
+		Helpers::warn(
+			"Composite blit rejected due to invalid geometry (w=%u h=%u stride=%u bpp=%u format=%u)",
+			src_width, src_height, src_stride, bpp, static_cast<u32>(format)
+		);
+		return false;
 	}
 
 	const u32 rotated_width = src_height;
@@ -152,6 +156,7 @@ void BlitRotatedScreenToComposite(std::span<u32> out_pixels, u32 composite_y_off
 			out_pixels[dst_index] = ConvertToRGBA8888(src_pixel, format);
 		}
 	}
+	return true;
 }
 
 }  // namespace
@@ -492,6 +497,8 @@ bool Emulator::copyCompositeFrameRGBA(std::span<u32> out_pixels) {
 
 	const auto top_format = static_cast<PICA::ColorFmt>(regs[Framebuffer0Config] & 0x7);
 	const auto bottom_format = static_cast<PICA::ColorFmt>(regs[Framebuffer1Config] & 0x7);
+	const u32 top_bpp = static_cast<u32>(PICA::sizePerPixel(top_format));
+	const u32 bottom_bpp = static_cast<u32>(PICA::sizePerPixel(bottom_format));
 
 	const u32 top_stride = regs[Framebuffer0Stride];
 	const u32 bottom_stride = regs[Framebuffer1Stride];
@@ -535,19 +542,33 @@ bool Emulator::copyCompositeFrameRGBA(std::span<u32> out_pixels) {
 		}
 	}
 
-	// If GSP framebuffer routing is not initialized yet, fall back to the active PICA color buffer.
-	// This keeps iOS composite output alive even when titles render before SetBufferSwap has stabilized.
-	if (top_ptr == nullptr) {
+	auto looksLikeBlackLinearBuffer = [](const u8* ptr, u32 bpp, u32 stride, u32 width, u32 height) -> bool {
+		if (ptr == nullptr || bpp == 0 || stride < width * bpp || width == 0 || height == 0) {
+			return true;
+		}
+		const u32 sampleRows = std::min<u32>(height, 8);
+		const u32 sampleCols = std::min<u32>(width, 8);
+		for (u32 y = 0; y < sampleRows; ++y) {
+			for (u32 x = 0; x < sampleCols * bpp; ++x) {
+				if (ptr[y * stride + x] != 0) {
+					return false;
+				}
+			}
+		}
+		return true;
+	};
+
+	// If GSP framebuffer routing is not initialized yet, or if the selected LCD buffer
+	// remains all-zero while the PICA color buffer has content, fall back to the active
+	// render color buffer. This keeps output alive for titles that delay SetBufferSwap.
+	if (top_ptr == nullptr || looksLikeBlackLinearBuffer(top_ptr, top_bpp, top_stride, top_width != 0 ? top_width : 240, top_height != 0 ? top_height : 400)) {
 		const u32 renderColorBuffer = internalRegs[PICA::InternalRegs::ColourBufferLoc];
 		const u8* renderPtr = gpu.getPointerPhys<u8>(renderColorBuffer);
-		if (renderPtr != nullptr) {
+		if (renderPtr != nullptr && !looksLikeBlackLinearBuffer(renderPtr, top_bpp, top_stride != 0 ? top_stride : (240 * std::max<u32>(1, top_bpp)), 240, 400)) {
 			top_ptr = renderPtr;
 			top_addr = renderColorBuffer;
 		}
 	}
-
-	const u32 top_bpp = static_cast<u32>(PICA::sizePerPixel(top_format));
-	const u32 bottom_bpp = static_cast<u32>(PICA::sizePerPixel(bottom_format));
 
 	u32 safe_top_width = top_width != 0 ? top_width : 240;
 	u32 safe_top_height = top_height != 0 ? top_height : 400;
@@ -580,21 +601,66 @@ bool Emulator::copyCompositeFrameRGBA(std::span<u32> out_pixels) {
 	bool drewAnyScreen = false;
 
 	if (top_ptr != nullptr) {
-		BlitRotatedScreenToComposite(out_pixels, 0, top_ptr, safe_top_width, safe_top_height, safe_top_stride, top_format);
-		drewAnyScreen = true;
+		if (BlitRotatedScreenToComposite(out_pixels, 0, top_ptr, safe_top_width, safe_top_height, safe_top_stride, top_format)) {
+			drewAnyScreen = true;
+		} else {
+			logMissingScreen("top", top_addr, safe_top_width, safe_top_height, safe_top_stride, static_cast<u32>(top_format));
+		}
 	} else {
 		logMissingScreen("top", top_addr, safe_top_width, safe_top_height, safe_top_stride, static_cast<u32>(top_format));
 	}
 
 	if (bottom_ptr != nullptr) {
-		BlitRotatedScreenToComposite(
-			out_pixels, kTopScreenTargetHeight, bottom_ptr, safe_bottom_width, safe_bottom_height, safe_bottom_stride, bottom_format
-		);
-		drewAnyScreen = true;
+		if (BlitRotatedScreenToComposite(
+				out_pixels, kTopScreenTargetHeight, bottom_ptr, safe_bottom_width, safe_bottom_height, safe_bottom_stride, bottom_format
+			)) {
+			drewAnyScreen = true;
+		} else {
+			logMissingScreen(
+				"bottom", bottom_addr, safe_bottom_width, safe_bottom_height, safe_bottom_stride, static_cast<u32>(bottom_format)
+			);
+		}
 	} else {
 		logMissingScreen(
 			"bottom", bottom_addr, safe_bottom_width, safe_bottom_height, safe_bottom_stride, static_cast<u32>(bottom_format)
 		);
+	}
+
+	if (drewAnyScreen) {
+		bool any_visible_pixel = false;
+		for (u32 px : out_pixels) {
+			if (px != 0xFF000000u) {
+				any_visible_pixel = true;
+				break;
+			}
+		}
+		if (!any_visible_pixel) {
+			static u64 black_frame_warn_counter = 0;
+			black_frame_warn_counter++;
+			if ((black_frame_warn_counter % 120) == 1) {
+				const u8 top_b0 = (top_ptr != nullptr) ? top_ptr[0] : 0;
+				const u8 top_b1 = (top_ptr != nullptr) ? top_ptr[1] : 0;
+				const u8 top_b2 = (top_ptr != nullptr) ? top_ptr[2] : 0;
+				const u8 bottom_b0 = (bottom_ptr != nullptr) ? bottom_ptr[0] : 0;
+				const u8 bottom_b1 = (bottom_ptr != nullptr) ? bottom_ptr[1] : 0;
+				const u8 bottom_b2 = (bottom_ptr != nullptr) ? bottom_ptr[2] : 0;
+				const u32 colorBufferAddr = internalRegs[PICA::InternalRegs::ColourBufferLoc];
+				const u8* colorBufferPtr = gpu.getPointerPhys<u8>(colorBufferAddr);
+				const u8 color_b0 = (colorBufferPtr != nullptr) ? colorBufferPtr[0] : 0;
+				const u8 color_b1 = (colorBufferPtr != nullptr) ? colorBufferPtr[1] : 0;
+				const u8 color_b2 = (colorBufferPtr != nullptr) ? colorBufferPtr[2] : 0;
+				Helpers::warn(
+					"Composite output stayed black despite valid blit sources. top(addr=%08X fmt=%u stride=%u size=%ux%u head=%02X %02X %02X) "
+					"bottom(addr=%08X fmt=%u stride=%u size=%ux%u head=%02X %02X %02X) "
+					"color(addr=%08X head=%02X %02X %02X)",
+					top_addr, static_cast<u32>(top_format), safe_top_stride, safe_top_width, safe_top_height,
+					top_b0, top_b1, top_b2,
+					bottom_addr, static_cast<u32>(bottom_format), safe_bottom_stride, safe_bottom_width, safe_bottom_height,
+					bottom_b0, bottom_b1, bottom_b2,
+					colorBufferAddr, color_b0, color_b1, color_b2
+				);
+			}
+		}
 	}
 
 	return drewAnyScreen;
