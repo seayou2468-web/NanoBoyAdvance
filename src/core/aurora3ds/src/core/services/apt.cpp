@@ -60,6 +60,8 @@ void APTService::reset() {
 	lockHandle = std::nullopt;
 	notificationEvent = std::nullopt;
 	resumeEvent = std::nullopt;
+	preloadedLibraryApplets.clear();
+	preparedLibraryApplets.clear();
 
 	appletManager.reset();
 }
@@ -164,7 +166,8 @@ void APTService::isRegistered(u32 messagePointer) {
 
 void APTService::preloadLibraryApplet(u32 messagePointer) {
 	const u32 appID = mem.read32(messagePointer + 4);
-	log("APT::PreloadLibraryApplet (app ID = %X) (stubbed)\n", appID);
+	log("APT::PreloadLibraryApplet (app ID = %X)\n", appID);
+	preloadedLibraryApplets.insert(appID);
 
 	mem.write32(messagePointer, IPC::responseHeader(0x16, 1, 0));
 	mem.write32(messagePointer + 4, Result::Success);
@@ -172,7 +175,11 @@ void APTService::preloadLibraryApplet(u32 messagePointer) {
 
 void APTService::prepareToStartLibraryApplet(u32 messagePointer) {
 	const u32 appID = mem.read32(messagePointer + 4);
-	log("APT::PrepareToStartLibraryApplet (app ID = %X) (stubbed)\n", appID);
+	log("APT::PrepareToStartLibraryApplet (app ID = %X)\n", appID);
+	if (!preloadedLibraryApplets.contains(appID)) {
+		preloadedLibraryApplets.insert(appID);
+	}
+	preparedLibraryApplets.insert(appID);
 
 	mem.write32(messagePointer, IPC::responseHeader(0x18, 1, 0));
 	mem.write32(messagePointer + 4, Result::Success);
@@ -191,6 +198,11 @@ void APTService::startLibraryApplet(u32 messagePointer) {
 		mem.write32(messagePointer, IPC::responseHeader(0x1E, 1, 0));
 		mem.write32(messagePointer + 4, Result::Success);
 	} else {
+		// Mirror expected preload/prepare flow by lazily preparing applets when called directly.
+		if (!preparedLibraryApplets.contains(appID)) {
+			preparedLibraryApplets.insert(appID);
+		}
+
 		KernelObject* sharedMemObject = kernel.getObject(parameters);
 
 		const MemoryBlock* sharedMem = sharedMemObject ? sharedMemObject->getData<MemoryBlock>() : nullptr;
@@ -202,6 +214,7 @@ void APTService::startLibraryApplet(u32 messagePointer) {
 		}
 
 		Result::HorizonResult result = destApplet->start(sharedMem, data, appID);
+		preparedLibraryApplets.erase(appID);
 		if (resumeEvent.has_value()) {
 			kernel.signalEvent(resumeEvent.value());
 		}

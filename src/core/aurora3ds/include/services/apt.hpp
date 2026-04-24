@@ -1,5 +1,6 @@
 #pragma once
 #include <optional>
+#include <unordered_set>
 
 #include "../applets/applet_manager.hpp"
 #include "../helpers.hpp"
@@ -54,6 +55,8 @@ class APTService {
 
 	ConsoleModel model = ConsoleModel::Old3DS;
 	Applets::AppletManager appletManager;
+	std::unordered_set<u32> preloadedLibraryApplets;
+	std::unordered_set<u32> preparedLibraryApplets;
 
 	MAKE_LOG_FUNCTION(log, aptLogger)
 
