@@ -522,31 +522,50 @@ u32 Kernel::getTLSPointer() { return VirtualAddrs::TLSBase + currentThreadIndex 
 
 // Result CloseHandle(Handle handle)
 void Kernel::svcCloseHandle() {
-	logSVC("CloseHandle(handle = %d) (Unimplemented)\n", regs[0]);
+	logSVC("CloseHandle(handle = %d)\n", regs[0]);
 	const Handle handle = regs[0];
-
-	KernelObject* object = getObject(handle);
-	if (object != nullptr) {
-		switch (object->type) {
-			// Close file descriptor when closing a file to prevent leaks and properly flush file contents
-			case KernelObjectType::File: {
-				FileSession* file = object->getData<FileSession>();
-				if (file->isOpen) {
-					file->isOpen = false;
-
-					if (file->fd != nullptr) {
-						fclose(file->fd);
-						file->fd = nullptr;
-					}
-				}
-				break;
-			}
-
-			default: break;
-		}
+	if (handle == KernelHandles::CurrentProcess || handle == currentProcess || handle == mainThread) {
+		regs[0] = Result::Kernel::InvalidHandle;
+		return;
 	}
 
-	// Stub to always succeed for now
+	KernelObject* object = getObject(handle);
+	if (object == nullptr) {
+		regs[0] = Result::Kernel::InvalidHandle;
+		return;
+	}
+
+	switch (object->type) {
+		// Close file descriptor when closing a file to prevent leaks and properly flush file contents
+		case KernelObjectType::File: {
+			FileSession* file = object->getData<FileSession>();
+			if (file->isOpen) {
+				file->isOpen = false;
+				if (file->fd != nullptr) {
+					fclose(file->fd);
+					file->fd = nullptr;
+				}
+			}
+			break;
+		}
+
+		case KernelObjectType::Thread: {
+			Thread* thread = object->getData<Thread>();
+			if (thread != nullptr && thread->status != ThreadStatus::Dead) {
+				thread->status = ThreadStatus::Dead;
+				aliveThreadCount = (aliveThreadCount > 0) ? aliveThreadCount - 1 : 0;
+			}
+			break;
+		}
+
+		default: break;
+	}
+
+	deleteObjectData(*object);
+	object->data = nullptr;
+	object->ownsData = true;
+	object->type = KernelObjectType::Dummy;
+
 	regs[0] = Result::Success;
 }
 

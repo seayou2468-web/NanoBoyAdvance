@@ -269,7 +269,7 @@ struct KernelObject {
 		switch (type) {
 			case KernelObjectType::Event: return getData<Event>()->waitlist;
 			case KernelObjectType::Mutex: return getData<Mutex>()->waitlist;
-			case KernelObjectType::Semaphore: return getData<Mutex>()->waitlist;
+			case KernelObjectType::Semaphore: return getData<Semaphore>()->waitlist;
 			case KernelObjectType::Thread: return getData<Thread>()->threadsWaitingForTermination;
 			case KernelObjectType::Timer: return getData<Timer>()->waitlist;
 
