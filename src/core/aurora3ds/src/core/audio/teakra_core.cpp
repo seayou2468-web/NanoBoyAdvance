@@ -295,7 +295,7 @@ void TeakraDSP::loadComponent(std::vector<u8>& data, u32 programMask, u32 dataMa
 	pipeBaseAddr = teakra.RecvData(2);
 
 	// Schedule next DSP event
-	scheduler.addEvent(Scheduler::EventType::RunDSP, scheduler.currentTimestamp + Audio::lleSlice * 2);
+	scheduler.rescheduleEvent(Scheduler::EventType::RunDSP, scheduler.currentTimestamp + Audio::lleSlice * 2);
 	loaded = true;
 }
 

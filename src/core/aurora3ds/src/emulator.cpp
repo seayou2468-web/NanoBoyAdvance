@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <fstream>
+#include <vector>
 
 #if defined(__APPLE__)
 #include <TargetConditionals.h>
@@ -462,6 +463,57 @@ bool Emulator::loadROM(const std::filesystem::path& path) {
 
 	resume();  // Start the emulator
 	return success;
+}
+
+bool Emulator::applyActionReplayCheat(const std::string& cheatCode, std::string& error) {
+	if (cheatCode.empty()) {
+		error = "Cheat code is empty";
+		return false;
+	}
+
+	std::string hexOnly;
+	hexOnly.reserve(cheatCode.size());
+	auto hexNibble = [](char c) -> int {
+		if (c >= '0' && c <= '9') return c - '0';
+		c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+		if (c >= 'a' && c <= 'f') return 10 + (c - 'a');
+		return -1;
+	};
+
+	for (char c : cheatCode) {
+		if (std::isxdigit(static_cast<unsigned char>(c))) {
+			hexOnly.push_back(c);
+		}
+	}
+
+	if (hexOnly.empty()) {
+		error = "Cheat code does not contain hex digits";
+		return false;
+	}
+	if ((hexOnly.size() % 16) != 0) {
+		error = "3DS Action Replay code must contain 16 hex digits per line (8-byte pairs)";
+		return false;
+	}
+
+	std::vector<u8> cheatBytes;
+	cheatBytes.reserve(hexOnly.size() / 2);
+	for (size_t i = 0; i < hexOnly.size(); i += 2) {
+		const int hi = hexNibble(hexOnly[i]);
+		const int lo = hexNibble(hexOnly[i + 1]);
+		if (hi < 0 || lo < 0) {
+			error = "Cheat code contains invalid hex characters";
+			return false;
+		}
+		cheatBytes.push_back(static_cast<u8>((hi << 4) | lo));
+	}
+
+	const u32 handle = cheats.addCheat(cheatBytes.data(), cheatBytes.size());
+	if (handle == Cheats::badCheatHandle) {
+		error = "Failed to apply 3DS cheat code (invalid Action Replay instruction length)";
+		return false;
+	}
+
+	return true;
 }
 
 bool Emulator::copyCompositeFrameRGBA(std::span<u32> out_pixels) {

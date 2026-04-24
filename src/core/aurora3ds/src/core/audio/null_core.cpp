@@ -62,7 +62,7 @@ namespace Audio {
 		}
 
 		loaded = true;
-		scheduler.addEvent(Scheduler::EventType::RunDSP, scheduler.currentTimestamp + Audio::cyclesPerFrame);
+		scheduler.rescheduleEvent(Scheduler::EventType::RunDSP, scheduler.currentTimestamp + Audio::cyclesPerFrame);
 	}
 
 	void NullDSP::unloadComponent() {
@@ -80,7 +80,13 @@ namespace Audio {
 			dspService.triggerPipeEvent(DSPPipeType::Audio);
 		}
 
-		scheduler.addEvent(Scheduler::EventType::RunDSP, scheduler.currentTimestamp + Audio::cyclesPerFrame);
+		const u64 period = Audio::cyclesPerFrame;
+		u64 nextTimestamp = eventTimestamp + period;
+		if (nextTimestamp <= scheduler.currentTimestamp) {
+			const u64 behind = scheduler.currentTimestamp - nextTimestamp;
+			nextTimestamp += ((behind / period) + 1) * period;
+		}
+		scheduler.rescheduleEvent(Scheduler::EventType::RunDSP, nextTimestamp);
 	}
 
 	u16 NullDSP::recvData(u32 regId) {

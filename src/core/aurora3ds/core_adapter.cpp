@@ -293,6 +293,8 @@ ContainerMagicType DetectContainerMagic(const std::filesystem::path& path) {
   return ContainerMagicType::Unknown;
 }
 
+bool ApplyPendingCheats(MikageRuntime* runtime, std::string& last_error);
+
 bool LoadRomFromPath(void* opaque_runtime, const char* rom_path, std::string& last_error) {
   auto* runtime = static_cast<MikageRuntime*>(opaque_runtime);
   if (!runtime || !runtime->emulator || !rom_path || rom_path[0] == '\0') {
@@ -371,6 +373,10 @@ bool LoadRomFromPath(void* opaque_runtime, const char* rom_path, std::string& la
   }
 
   runtime->rom_loaded = true;
+  if (!ApplyPendingCheats(runtime, last_error)) {
+    runtime->rom_loaded = false;
+    return false;
+  }
   runtime->emulator->copyCompositeFrameRGBA(std::span<uint32_t>(runtime->rgba_frame));
   return true;
 }
@@ -417,6 +423,23 @@ bool LoadRomFromMemory(void* opaque_runtime, const void* rom_data, size_t rom_si
   }
 
   runtime->temp_rom_path = staging_file;
+  return true;
+}
+
+bool ApplyPendingCheats(MikageRuntime* runtime, std::string& last_error) {
+  if (!runtime || !runtime->emulator || !runtime->rom_loaded || runtime->pending_cheat_codes.empty()) {
+    return true;
+  }
+
+  for (const std::string& code : runtime->pending_cheat_codes) {
+    std::string apply_error;
+    if (!runtime->emulator->applyActionReplayCheat(code, apply_error)) {
+      last_error = apply_error;
+      return false;
+    }
+  }
+
+  runtime->pending_cheat_codes.clear();
   return true;
 }
 
@@ -525,6 +548,10 @@ bool ApplyCheatCode(void* opaque_runtime, const char* cheat_code, std::string& l
   }
 
   runtime->pending_cheat_codes.push_back(std::move(normalized_cheat));
+  if (!ApplyPendingCheats(runtime, last_error)) {
+    runtime->pending_cheat_codes.pop_back();
+    return false;
+  }
   return true;
 }
 

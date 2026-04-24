@@ -5,6 +5,7 @@
 #include <memory>
 #include <optional>
 #include <span>
+#include <string>
 
 #include "./PICA/gpu.hpp"
 #include "./audio/audio_device.hpp"
@@ -82,6 +83,7 @@ class Emulator {
 
 	bool loadAmiibo(const std::filesystem::path& path);
 	bool loadROM(const std::filesystem::path& path);
+	bool applyActionReplayCheat(const std::string& cheatCode, std::string& error);
 	bool loadNCSD(const std::filesystem::path& path, ROMType type);
 	bool load3DSX(const std::filesystem::path& path);
 	bool loadELF(const std::filesystem::path& path);

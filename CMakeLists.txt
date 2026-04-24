@@ -12,6 +12,7 @@ set(CMAKE_XCODE_GENERATE_SCHEME ON)
 
 file(GLOB_RECURSE CORE_SOURCES CONFIGURE_DEPENDS
   "src/core/*.cpp"
+  "src/core/*.c"
   "src/core/api/*.cpp"
   "src/core/mikage/*.cpp"
   "src/core/mikage/*.c"
@@ -53,7 +54,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
     ${CMAKE_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/src/core
     ${CMAKE_SOURCE_DIR}/src/core/api
-    ${CMAKE_SOURCE_DIR}/src/core/mikage/include
+    ${CMAKE_SOURCE_DIR}/src/core/aurora3ds/include
   )
 
   target_compile_options(AuroraIOS PRIVATE
@@ -102,7 +103,7 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     ${CMAKE_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/src/core
     ${CMAKE_SOURCE_DIR}/src/core/api
-    ${CMAKE_SOURCE_DIR}/src/core/mikage/include
+    ${CMAKE_SOURCE_DIR}/src/core/aurora3ds/include
   )
 
   find_package(PkgConfig REQUIRED)

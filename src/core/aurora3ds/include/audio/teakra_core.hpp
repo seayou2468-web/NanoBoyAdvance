@@ -86,7 +86,13 @@ namespace Audio {
 		// Run 1 slice of DSP instructions and schedule the next audio frame
 		void runAudioFrame(u64 eventTimestamp) override {
 			runSlice();
-			scheduler.addEvent(Scheduler::EventType::RunDSP, scheduler.currentTimestamp + Audio::lleSlice * 2);
+			const u64 period = Audio::lleSlice * 2;
+			u64 nextTimestamp = eventTimestamp + period;
+			if (nextTimestamp <= scheduler.currentTimestamp) {
+				const u64 behind = scheduler.currentTimestamp - nextTimestamp;
+				nextTimestamp += ((behind / period) + 1) * period;
+			}
+			scheduler.rescheduleEvent(Scheduler::EventType::RunDSP, nextTimestamp);
 		}
 
 		void setAudioEnabled(bool enable) override;

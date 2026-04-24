@@ -121,7 +121,7 @@ namespace Audio {
 		}
 
 		loaded = true;
-		scheduler.addEvent(Scheduler::EventType::RunDSP, scheduler.currentTimestamp + Audio::cyclesPerFrame);
+		scheduler.rescheduleEvent(Scheduler::EventType::RunDSP, scheduler.currentTimestamp + Audio::cyclesPerFrame);
 	}
 
 	void HLE_DSP::unloadComponent() {
@@ -142,9 +142,13 @@ namespace Audio {
 		// TODO: Should this be called if dspState != DSPState::On?
 		outputFrame();
 
-		// How many cycles we were late
-		const u64 cycleDrift = scheduler.currentTimestamp - eventTimestamp;
-		scheduler.addEvent(Scheduler::EventType::RunDSP, scheduler.currentTimestamp + Audio::cyclesPerFrame - cycleDrift);
+		const u64 period = Audio::cyclesPerFrame;
+		u64 nextTimestamp = eventTimestamp + period;
+		if (nextTimestamp <= scheduler.currentTimestamp) {
+			const u64 behind = scheduler.currentTimestamp - nextTimestamp;
+			nextTimestamp += ((behind / period) + 1) * period;
+		}
+		scheduler.rescheduleEvent(Scheduler::EventType::RunDSP, nextTimestamp);
 	}
 
 	u16 HLE_DSP::recvData(u32 regId) {
