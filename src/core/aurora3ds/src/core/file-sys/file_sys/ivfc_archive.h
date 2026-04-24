@@ -8,8 +8,8 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include <boost/serialization/export.hpp>
-#include <boost/serialization/shared_ptr.hpp>
+#include "../../../../include/aurora_serialization/export.hpp"
+#include "../../../../include/aurora_serialization/shared_ptr.hpp"
 #include "common/common_types.h"
 #include "common/file_util.h"
 #include "core/file_sys/archive_backend.h"
@@ -146,10 +146,10 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<FileBackend>(*this);
+        ar& AuroraSerialization::base_object<FileBackend>(*this);
         ar & romfs_file;
     }
-    friend class boost::serialization::access;
+    friend class AuroraSerialization::access;
 };
 
 class IVFCDirectory : public DirectoryBackend {
@@ -186,18 +186,18 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<FileBackend>(*this);
+        ar& AuroraSerialization::base_object<FileBackend>(*this);
         ar & romfs_file;
         ar & data_offset;
         ar & data_size;
     }
-    friend class boost::serialization::access;
+    friend class AuroraSerialization::access;
 };
 
 } // namespace FileSys
 
-BOOST_CLASS_EXPORT_KEY(FileSys::IVFCFile)
-BOOST_CLASS_EXPORT_KEY(FileSys::IVFCFileInMemory)
-BOOST_CLASS_EXPORT_KEY(FileSys::IVFCDelayGenerator)
-BOOST_CLASS_EXPORT_KEY(FileSys::RomFSDelayGenerator)
-BOOST_CLASS_EXPORT_KEY(FileSys::ExeFSDelayGenerator)
+AURORA_CLASS_EXPORT_KEY(FileSys::IVFCFile)
+AURORA_CLASS_EXPORT_KEY(FileSys::IVFCFileInMemory)
+AURORA_CLASS_EXPORT_KEY(FileSys::IVFCDelayGenerator)
+AURORA_CLASS_EXPORT_KEY(FileSys::RomFSDelayGenerator)
+AURORA_CLASS_EXPORT_KEY(FileSys::ExeFSDelayGenerator)

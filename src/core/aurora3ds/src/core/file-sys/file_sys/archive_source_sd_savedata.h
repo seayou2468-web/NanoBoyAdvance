@@ -6,8 +6,8 @@
 
 #include <memory>
 #include <string>
-#include <boost/serialization/export.hpp>
-#include <boost/serialization/string.hpp>
+#include "../../../../include/aurora_serialization/export.hpp"
+#include "../../../../include/aurora_serialization/string.hpp"
 #include "core/file_sys/archive_backend.h"
 #include "core/file_sys/artic_cache.h"
 #include "core/hle/result.h"
@@ -50,12 +50,12 @@ private:
     ArchiveSource_SDSaveData() = default;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<ArticCacheProvider>(*this);
+        ar& AuroraSerialization::base_object<ArticCacheProvider>(*this);
         ar & mount_point;
     }
-    friend class boost::serialization::access;
+    friend class AuroraSerialization::access;
 };
 
 } // namespace FileSys
 
-BOOST_CLASS_EXPORT_KEY(FileSys::ArchiveSource_SDSaveData)
+AURORA_CLASS_EXPORT_KEY(FileSys::ArchiveSource_SDSaveData)

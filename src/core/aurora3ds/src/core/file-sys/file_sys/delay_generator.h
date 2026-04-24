@@ -5,17 +5,17 @@
 #pragma once
 
 #include <cstddef>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/export.hpp>
+#include "../../../../include/aurora_serialization/base_object.hpp"
+#include "../../../../include/aurora_serialization/export.hpp"
 #include "common/common_types.h"
 
 #define SERIALIZE_DELAY_GENERATOR                                                                  \
 private:                                                                                           \
     template <class Archive>                                                                       \
     void serialize(Archive& ar, const unsigned int) {                                              \
-        ar& boost::serialization::base_object<DelayGenerator>(*this);                              \
+        ar& AuroraSerialization::base_object<DelayGenerator>(*this);                              \
     }                                                                                              \
-    friend class boost::serialization::access;
+    friend class AuroraSerialization::access;
 
 namespace FileSys {
 
@@ -29,7 +29,7 @@ public:
 private:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {}
-    friend class boost::serialization::access;
+    friend class AuroraSerialization::access;
 };
 
 class DefaultDelayGenerator : public DelayGenerator {
@@ -42,4 +42,4 @@ public:
 
 } // namespace FileSys
 
-BOOST_CLASS_EXPORT_KEY(FileSys::DefaultDelayGenerator);
+AURORA_CLASS_EXPORT_KEY(FileSys::DefaultDelayGenerator);

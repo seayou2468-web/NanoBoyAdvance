@@ -333,7 +333,7 @@ get(const basic_value<C, M, V>& v)
 }
 
 // ============================================================================
-// array-like types, without push_back(). most likely [std|boost]::array.
+// array-like types, without push_back(). most likely std::array.
 
 template<typename T, typename C,
          template<typename ...> class M, template<typename ...> class V>

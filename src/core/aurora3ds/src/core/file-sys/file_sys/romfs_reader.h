@@ -6,9 +6,9 @@
 
 #include <array>
 #include <shared_mutex>
-#include <boost/serialization/array.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/export.hpp>
+#include "../../../../include/aurora_serialization/array.hpp"
+#include "../../../../include/aurora_serialization/base_object.hpp"
+#include "../../../../include/aurora_serialization/export.hpp"
 #include "common/alignment.h"
 #include "common/common_types.h"
 #include "common/file_util.h"
@@ -37,7 +37,7 @@ public:
 private:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int file_version) {}
-    friend class boost::serialization::access;
+    friend class AuroraSerialization::access;
 };
 
 /**
@@ -85,12 +85,12 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<RomFSReader>(*this);
+        ar& AuroraSerialization::base_object<RomFSReader>(*this);
         ar & file;
         ar & file_offset;
         ar & data_size;
     }
-    friend class boost::serialization::access;
+    friend class AuroraSerialization::access;
 };
 
 /**
@@ -133,13 +133,13 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<RomFSReader>(*this);
+        ar& AuroraSerialization::base_object<RomFSReader>(*this);
         ar & data_size;
     }
-    friend class boost::serialization::access;
+    friend class AuroraSerialization::access;
 };
 
 } // namespace FileSys
 
-BOOST_CLASS_EXPORT_KEY(FileSys::DirectRomFSReader)
-BOOST_CLASS_EXPORT_KEY(FileSys::ArticRomFSReader)
+AURORA_CLASS_EXPORT_KEY(FileSys::DirectRomFSReader)
+AURORA_CLASS_EXPORT_KEY(FileSys::ArticRomFSReader)

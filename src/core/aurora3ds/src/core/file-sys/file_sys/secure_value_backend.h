@@ -36,7 +36,7 @@ public:
 protected:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {}
-    friend class boost::serialization::access;
+    friend class AuroraSerialization::access;
 };
 
 class DefaultSecureValueBackend : public SecureValueBackend {
@@ -58,8 +58,8 @@ public:
 protected:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class boost::serialization::access;
+    friend class AuroraSerialization::access;
 };
 } // namespace FileSys
 
-BOOST_CLASS_EXPORT_KEY(FileSys::DefaultSecureValueBackend)
+AURORA_CLASS_EXPORT_KEY(FileSys::DefaultSecureValueBackend)

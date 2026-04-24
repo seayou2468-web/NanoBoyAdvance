@@ -23,6 +23,9 @@ list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/mikage/src/core/CPU/dyncom/arm_
 list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/CPU/dyncom/arm_dyncom\.cpp$")
 
 if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
+  list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/crypto/platform_random_linux\\.cpp$")
+  list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/crypto/apple_crypto_cryptopp\\.cpp$")
+
   file(GLOB_RECURSE AURORAIOS_SOURCES CONFIGURE_DEPENDS
     "ios/AuroraIOS/*.m"
     "ios/AuroraIOS/*.mm"
@@ -95,6 +98,8 @@ if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
     target_link_libraries(AuroraIOS PRIVATE "-lcompression")
   endif()
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/crypto/platform_random_ios\\.cpp$")
+  list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/crypto/apple_crypto_commoncrypto\\.cpp$")
   list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/audio/ios_audio_device\.cpp$")
 
   add_executable(AuroraSDL

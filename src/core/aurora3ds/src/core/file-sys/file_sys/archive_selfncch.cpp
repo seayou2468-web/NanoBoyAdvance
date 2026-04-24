@@ -78,10 +78,10 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<FileBackend>(*this);
+        ar& AuroraSerialization::base_object<FileBackend>(*this);
         ar & data;
     }
-    friend class boost::serialization::access;
+    friend class AuroraSerialization::access;
 };
 
 // SelfNCCHArchive represents the running application itself. From this archive the application can
@@ -241,10 +241,10 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<ArchiveBackend>(*this);
+        ar& AuroraSerialization::base_object<ArchiveBackend>(*this);
         ar & ncch_data;
     }
-    friend class boost::serialization::access;
+    friend class AuroraSerialization::access;
 };
 
 void ArchiveFactory_SelfNCCH::Register(Loader::AppLoader& app_loader) {

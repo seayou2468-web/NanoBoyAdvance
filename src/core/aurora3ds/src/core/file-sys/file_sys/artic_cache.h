@@ -8,9 +8,9 @@
 #include <shared_mutex>
 #include "vector"
 
-#include <boost/serialization/array.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/export.hpp>
+#include "../../../../include/aurora_serialization/array.hpp"
+#include "../../../../include/aurora_serialization/base_object.hpp"
+#include "../../../../include/aurora_serialization/export.hpp"
 #include "common/alignment.h"
 #include "common/common_types.h"
 #include "common/static_lru_cache.h"
@@ -88,7 +88,7 @@ private:
 protected:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {}
-    friend class boost::serialization::access;
+    friend class AuroraSerialization::access;
 };
 
 class ArticCacheProvider {
@@ -141,7 +141,7 @@ public:
 protected:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {}
-    friend class boost::serialization::access;
+    friend class AuroraSerialization::access;
 
 private:
     std::unique_ptr<std::map<std::vector<u8>, std::shared_ptr<ArticCache>>> file_caches = nullptr;
@@ -150,5 +150,5 @@ private:
 
 } // namespace FileSys
 
-BOOST_CLASS_EXPORT_KEY(FileSys::ArticCache)
-BOOST_CLASS_EXPORT_KEY(FileSys::ArticCacheProvider)
+AURORA_CLASS_EXPORT_KEY(FileSys::ArticCache)
+AURORA_CLASS_EXPORT_KEY(FileSys::ArticCacheProvider)

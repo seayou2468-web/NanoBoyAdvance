@@ -33,9 +33,9 @@ private:
     SDMCWriteOnlyArchive() = default;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<SDMCArchive>(*this);
+        ar& AuroraSerialization::base_object<SDMCArchive>(*this);
     }
-    friend class boost::serialization::access;
+    friend class AuroraSerialization::access;
 };
 
 /// File system interface to the SDMC write-only archive
@@ -64,16 +64,16 @@ private:
     ArchiveFactory_SDMCWriteOnly() = default;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<ArchiveFactory>(*this);
+        ar& AuroraSerialization::base_object<ArchiveFactory>(*this);
         ar & sdmc_directory;
     }
-    friend class boost::serialization::access;
+    friend class AuroraSerialization::access;
 };
 
 class SDMCWriteOnlyDelayGenerator;
 
 } // namespace FileSys
 
-BOOST_CLASS_EXPORT_KEY(FileSys::SDMCWriteOnlyArchive)
-BOOST_CLASS_EXPORT_KEY(FileSys::ArchiveFactory_SDMCWriteOnly)
-BOOST_CLASS_EXPORT_KEY(FileSys::SDMCWriteOnlyDelayGenerator)
+AURORA_CLASS_EXPORT_KEY(FileSys::SDMCWriteOnlyArchive)
+AURORA_CLASS_EXPORT_KEY(FileSys::ArchiveFactory_SDMCWriteOnly)
+AURORA_CLASS_EXPORT_KEY(FileSys::SDMCWriteOnlyDelayGenerator)

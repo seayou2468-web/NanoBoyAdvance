@@ -14,7 +14,7 @@
 #include "core/hle/kernel/shared_memory.h"
 #include "core/hle/service/ir/extra_hid.h"
 #include "core/hle/service/ir/ir_user.h"
-#include "core/hle/service/non_boost_utils.h"
+#include "core/sys/service/compat_utils.h"
 
 SERIALIZE_EXPORT_IMPL(Service::IR::IR_USER)
 SERVICE_CONSTRUCT_IMPL(Service::IR::IR_USER)

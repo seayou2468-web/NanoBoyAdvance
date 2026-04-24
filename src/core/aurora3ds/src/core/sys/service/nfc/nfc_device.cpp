@@ -12,7 +12,7 @@
 #include "core/hle/kernel/shared_page.h"
 #include "core/hle/service/nfc/amiibo_crypto.h"
 #include "core/hle/service/nfc/nfc_device.h"
-#include "core/hle/service/non_boost_utils.h"
+#include "core/sys/service/compat_utils.h"
 #include "core/hw/aes/key.h"
 #include "core/loader/loader.h"
 

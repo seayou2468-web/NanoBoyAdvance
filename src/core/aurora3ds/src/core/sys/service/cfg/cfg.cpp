@@ -15,7 +15,7 @@
 #include "common/settings.h"
 #include "common/string_util.h"
 #include "common/swap.h"
-#include "core/hle/service/non_boost_utils.h"
+#include "core/sys/service/compat_utils.h"
 #include "core/core.h"
 #include "core/file_sys/archive_systemsavedata.h"
 #include "core/file_sys/errors.h"

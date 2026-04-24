@@ -7,17 +7,13 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <cstring>
 #include <span>
 #include <string>
 #include <string_view>
-#if defined(__APPLE__)
-#include <CommonCrypto/CommonDigest.h>
-#include <Security/SecRandom.h>
-#else
-#include <cryptopp/osrng.h>
-#include <cryptopp/sha.h>
-#endif
+#include "../../../../include/apple_crypto.hpp"
 #include "common/common_types.h"
+#include "../../../../include/crypto/platform_random.hpp"
 
 namespace Service::Compat {
 
@@ -53,46 +49,29 @@ inline u8 CalculateCrc8(std::span<const u8> data) {
 
 
 inline void GenerateRandomBytes(void* out, std::size_t size) {
-#if defined(__APPLE__)
-    SecRandomCopyBytes(kSecRandomDefault, size, static_cast<u8*>(out));
-#else
-    CryptoPP::AutoSeededRandomPool rng;
-    rng.GenerateBlock(static_cast<CryptoPP::byte*>(out), size);
-#endif
+    if (!Crypto::GenerateSecureRandomBytes(static_cast<u8*>(out), size)) {
+        std::memset(out, 0, size);
+    }
 }
 
 inline u32 GenerateRandomWord32(u32 min, u32 max) {
-#if defined(__APPLE__)
     u32 value{};
     GenerateRandomBytes(&value, sizeof(value));
     if (max <= min) {
         return min;
     }
     return min + (value % ((max - min) + 1));
-#else
-    CryptoPP::AutoSeededRandomPool rng;
-    return rng.GenerateWord32(min, max);
-#endif
 }
 
 inline u8 GenerateRandomByte() {
-#if defined(__APPLE__)
     u8 value{};
     GenerateRandomBytes(&value, sizeof(value));
     return value;
-#else
-    CryptoPP::AutoSeededRandomPool rng;
-    return rng.GenerateByte();
-#endif
 }
 
 inline std::array<u8, 32> CalculateSha256(std::span<const u8> data) {
     std::array<u8, 32> digest{};
-#if defined(__APPLE__)
-    CC_SHA256(data.data(), static_cast<CC_LONG>(data.size()), digest.data());
-#else
-    CryptoPP::SHA256().CalculateDigest(digest.data(), data.data(), data.size());
-#endif
+    AppleCrypto::sha256(data.data(), data.size(), digest.data());
     return digest;
 }
 

@@ -9,10 +9,10 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/export.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/string.hpp>
+#include "../../../../include/aurora_serialization/base_object.hpp"
+#include "../../../../include/aurora_serialization/export.hpp"
+#include "../../../../include/aurora_serialization/shared_ptr.hpp"
+#include "../../../../include/aurora_serialization/string.hpp"
 #include "common/common_types.h"
 #include "common/swap.h"
 #include "core/file_sys/romfs_reader.h"
@@ -140,7 +140,7 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<RomFSReader>(*this);
+        ar& AuroraSerialization::base_object<RomFSReader>(*this);
         ar & romfs;
         ar & patch_path;
         ar & patch_ext_path;
@@ -150,9 +150,9 @@ private:
         }
         // NOTE: Everything else is essentially cached, updated when we call Load
     }
-    friend class boost::serialization::access;
+    friend class AuroraSerialization::access;
 };
 
 } // namespace FileSys
 
-BOOST_CLASS_EXPORT_KEY(FileSys::LayeredFS)
+AURORA_CLASS_EXPORT_KEY(FileSys::LayeredFS)

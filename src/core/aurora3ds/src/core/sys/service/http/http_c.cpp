@@ -20,7 +20,7 @@
 #include "core/hle/romfs.h"
 #include "core/hle/service/fs/archive.h"
 #include "core/hle/service/http/http_c.h"
-#include "core/hle/service/non_boost_utils.h"
+#include "core/sys/service/compat_utils.h"
 #include "core/hw/aes/key.h"
 
 SERIALIZE_EXPORT_IMPL(Service::HTTP::HTTP_C)
