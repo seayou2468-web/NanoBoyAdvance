@@ -78,9 +78,16 @@ void Kernel::serviceSVC(u32 svc) {
 		case 0x3D: outputDebugString(); break;
 
 		// Luma SVCs
+		case 0x91: regs[0] = Result::Success; break;  // FlushDataCacheRange (no-op for now)
+		case 0x92: regs[0] = Result::Success; break;  // FlushEntireDataCache (no-op for now)
 		case 0x93: svcInvalidateInstructionCacheRange(); break;
 		case 0x94: svcInvalidateEntireInstructionCache(); break;
-		default: Helpers::panic("Unimplemented svc: %X @ %08X", svc, regs[15]); break;
+		case 0xA2: controlMemory(); break;  // ControlMemoryEx
+		case 0xA3: controlMemory(); break;  // ControlMemoryUnsafe
+		default:
+			Helpers::warn("Unimplemented svc: %X @ %08X", svc, regs[15]);
+			regs[0] = Result::OS::NotImplemented;
+			break;
 	}
 
 	evalReschedule();
