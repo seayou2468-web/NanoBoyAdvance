@@ -13,7 +13,7 @@ constexpr u32 topScreenWidth = 240;
 constexpr u32 topScreenHeight = 400;
 
 constexpr u32 bottomScreenWidth = 240;
-constexpr u32 bottomScreenHeight = 300;
+constexpr u32 bottomScreenHeight = 320;
 
 using namespace Floats;
 
@@ -83,6 +83,9 @@ void GPU::reset() {
 	// Bottom screen addresses and dimentions.
 	externalRegs[Framebuffer1AFirstAddr] = 0x1848F000;
 	externalRegs[Framebuffer1ASecondAddr] = 0x184C7800;
+	// Keep B buffers valid as well, many titles switch display FB index during boot.
+	externalRegs[Framebuffer1BFirstAddr] = externalRegs[Framebuffer1AFirstAddr];
+	externalRegs[Framebuffer1BSecondAddr] = externalRegs[Framebuffer1ASecondAddr];
 	externalRegs[Framebuffer1Size] = (bottomScreenHeight << 16) | bottomScreenWidth;
 	externalRegs[Framebuffer1Stride] = 720;
 	externalRegs[Framebuffer1Config] = static_cast<u32>(PICA::ColorFmt::RGB8);
