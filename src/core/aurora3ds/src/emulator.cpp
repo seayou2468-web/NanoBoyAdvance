@@ -562,7 +562,7 @@ bool Emulator::copyCompositeFrameRGBA(std::span<u32> out_pixels) {
 	// remains all-zero while the PICA color buffer has content, fall back to the active
 	// render color buffer. This keeps output alive for titles that delay SetBufferSwap.
 	if (top_ptr == nullptr || looksLikeBlackLinearBuffer(top_ptr, top_bpp, top_stride, top_width != 0 ? top_width : 240, top_height != 0 ? top_height : 400)) {
-		const u32 renderColorBuffer = internalRegs[PICA::InternalRegs::ColourBufferLoc];
+		const u32 renderColorBuffer = PhysicalAddrs::VRAM + internalRegs[PICA::InternalRegs::ColourBufferLoc];
 		const u8* renderPtr = gpu.getPointerPhys<u8>(renderColorBuffer);
 		if (renderPtr != nullptr && !looksLikeBlackLinearBuffer(renderPtr, top_bpp, top_stride != 0 ? top_stride : (240 * std::max<u32>(1, top_bpp)), 240, 400)) {
 			top_ptr = renderPtr;
@@ -644,7 +644,7 @@ bool Emulator::copyCompositeFrameRGBA(std::span<u32> out_pixels) {
 				const u8 bottom_b0 = (bottom_ptr != nullptr) ? bottom_ptr[0] : 0;
 				const u8 bottom_b1 = (bottom_ptr != nullptr) ? bottom_ptr[1] : 0;
 				const u8 bottom_b2 = (bottom_ptr != nullptr) ? bottom_ptr[2] : 0;
-				const u32 colorBufferAddr = internalRegs[PICA::InternalRegs::ColourBufferLoc];
+				const u32 colorBufferAddr = PhysicalAddrs::VRAM + internalRegs[PICA::InternalRegs::ColourBufferLoc];
 				const u8* colorBufferPtr = gpu.getPointerPhys<u8>(colorBufferAddr);
 				const u8 color_b0 = (colorBufferPtr != nullptr) ? colorBufferPtr[0] : 0;
 				const u8 color_b1 = (colorBufferPtr != nullptr) ? colorBufferPtr[1] : 0;

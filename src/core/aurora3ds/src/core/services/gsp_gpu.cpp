@@ -167,10 +167,14 @@ void GPUService::releaseRight(u32 messagePointer) {
 // How does the shared memory handle thing work?
 void GPUService::registerInterruptRelayQueue(u32 messagePointer) {
 	// Detect if this function is called a 2nd time because we'll likely need to impl threads properly for the GSP
-	if (gspThreadCount < 0xFF) {
+	constexpr u32 maxEmulatedGSPThreads = 4;
+	if (gspThreadCount < maxEmulatedGSPThreads) {
 		gspThreadCount += 1;
 	}
 	const u32 threadIndex = gspThreadCount > 0 ? (gspThreadCount - 1) : 0;
+	if (gspThreadCount >= maxEmulatedGSPThreads) {
+		Helpers::warn("GSP::GPU::RegisterInterruptRelayQueue hit emulated thread limit (%u)", maxEmulatedGSPThreads);
+	}
 
 	const u32 flags = mem.read32(messagePointer + 4);
 	const u32 eventHandle = mem.read32(messagePointer + 12);
@@ -223,6 +227,11 @@ void GPUService::requestInterrupt(GPUInterrupt type) {
 	// Most new games check to make sure that the "flag" byte of the framebuffer info header is set to 0
 	// Not emulating this causes Yoshi's Wooly World, Captain Toad, Metroid 2 et al to hang
 	if (type == GPUInterrupt::VBlank0 || type == GPUInterrupt::VBlank1) {
+		// Some titles rely on the GSP module thread polling/consuming GX command buffers
+		// during vblank-driven service work rather than issuing TriggerCmdReqQueue every frame.
+		// We don't emulate the dedicated GSP thread yet, so consume pending commands here too.
+		processCommandBuffer();
+
 		int screen = static_cast<u32>(type) - static_cast<u32>(GPUInterrupt::VBlank0);  // 0 for top screen, 1 for bottom
 		const u32 threadCount = 4;
 		for (u32 thread = 0; thread < threadCount; ++thread) {
@@ -495,7 +504,6 @@ void GPUService::processCommandBuffer() {
 					Helpers::warn("GSP::GPU::ProcessCommands: Unknown cmd ID %u (thread=%d, index=%u, header=%08X)", cmdID, t, index & 0xF, cmd[0]);
 					break;
 			}
-
 			index = (index + 1) % 15;
 			commandsLeft--;
 		}
