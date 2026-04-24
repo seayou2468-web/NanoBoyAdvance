@@ -538,7 +538,7 @@ bool Emulator::copyCompositeFrameRGBA(std::span<u32> out_pixels) {
 	// If GSP framebuffer routing is not initialized yet, fall back to the active PICA color buffer.
 	// This keeps iOS composite output alive even when titles render before SetBufferSwap has stabilized.
 	if (top_ptr == nullptr) {
-		const u32 renderColorBuffer = internalRegs[PICA::InternalRegs::ColorBufferLoc];
+		const u32 renderColorBuffer = internalRegs[PICA::InternalRegs::ColourBufferLoc];
 		const u8* renderPtr = gpu.getPointerPhys<u8>(renderColorBuffer);
 		if (renderPtr != nullptr) {
 			top_ptr = renderPtr;
