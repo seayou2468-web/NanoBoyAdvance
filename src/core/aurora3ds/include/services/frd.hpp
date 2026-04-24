@@ -1,5 +1,7 @@
 #pragma once
+#include <array>
 #include <cassert>
+#include <string>
 
 #include "../helpers.hpp"
 #include "../kernel/kernel_types.hpp"
@@ -22,6 +24,10 @@ class FRDService {
 	MAKE_LOG_FUNCTION(log, frdLogger)
 
 	bool loggedIn = false;
+	std::array<u8, 0x60> myMii{};
+	u64 favoriteGameTitleID = 0;
+	u8 relationship = 0;
+	std::u16string myComment = u"";
 
 	// Service commands
 	void attachToEventNotification(u32 messagePointer);

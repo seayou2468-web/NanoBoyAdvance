@@ -32,7 +32,13 @@ namespace FRDCommands {
 	};
 }
 
-void FRDService::reset() { loggedIn = false; }
+void FRDService::reset() {
+	loggedIn = false;
+	myMii.fill(0);
+	favoriteGameTitleID = 0;
+	relationship = 0;
+	myComment.clear();
+}
 
 void FRDService::handleSyncRequest(u32 messagePointer, FRDService::Type type) {
 	const u32 command = mem.read32(messagePointer);
@@ -162,10 +168,14 @@ void FRDService::getMyPresence(u32 messagePointer) {
 }
 
 void FRDService::getFriendPresence(u32 messagePointer) {
-	Helpers::warn("FRD::GetFriendPresence (stubbed)");
+	const u32 count = mem.read32(messagePointer + 4);
+	const u32 outPresence = mem.read32(messagePointer + 0x104);
+	Helpers::warn("FRD::GetFriendPresence (count = %u)\n", count);
+	for (u32 i = 0; i < count * 0x12C; i++) {
+		mem.write8(outPresence + i, 0);
+	}
 
-	// TODO: Implement and document this,
-	mem.write32(messagePointer, IPC::responseHeader(0x12, 1, 0));
+	mem.write32(messagePointer, IPC::responseHeader(0x12, 1, 2));
 	mem.write32(messagePointer + 4, Result::Success);
 }
 
@@ -218,20 +228,20 @@ void FRDService::setNotificationMask(u32 messagePointer) {
 }
 
 void FRDService::getMyMii(u32 messagePointer) {
-	log("FRD::GetMyMii (stubbed)\n");
-
-	// TODO: How is the mii data even returned?
+	log("FRD::GetMyMii\n");
 	mem.write32(messagePointer, IPC::responseHeader(0xA, 2, 0));
 	mem.write32(messagePointer + 4, Result::Success);
+	for (u32 i = 0; i < myMii.size(); i++) {
+		mem.write8(messagePointer + 8 + i, myMii[i]);
+	}
 }
 
 void FRDService::getMyFavoriteGame(u32 messagePointer) {
-	log("FRD::GetMyFavoriteGame (stubbed)\n");
-	constexpr u64 titleID = 0;
+	log("FRD::GetMyFavoriteGame\n");
 
 	mem.write32(messagePointer, IPC::responseHeader(0xD, 3, 0));
 	mem.write32(messagePointer + 4, Result::Success);
-	mem.write64(messagePointer + 8, titleID);
+	mem.write64(messagePointer + 8, favoriteGameTitleID);
 }
 
 void FRDService::getMyComment(u32 messagePointer) {
@@ -239,7 +249,12 @@ void FRDService::getMyComment(u32 messagePointer) {
 
 	mem.write32(messagePointer, IPC::responseHeader(0xF, 2, 0));
 	mem.write32(messagePointer + 4, Result::Success);
-	mem.write32(messagePointer + 8, 0);
+	u32 ptr = messagePointer + 8;
+	for (char16_t c : myComment) {
+		mem.write16(ptr, static_cast<u16>(c));
+		ptr += 2;
+	}
+	mem.write16(ptr, 0);
 }
 
 void FRDService::hasLoggedIn(u32 messagePointer) {
@@ -268,23 +283,34 @@ void FRDService::logout(u32 messagePointer) {
 }
 
 void FRDService::saveLocalAccountData(u32 messagePointer) {
-	log("FRD::SaveLocalAccountData (stubbed)\n");
+	log("FRD::SaveLocalAccountData\n");
+	loggedIn = true;
 
 	mem.write32(messagePointer, IPC::responseHeader(0x405, 1, 0));
 	mem.write32(messagePointer + 4, Result::Success);
 }
 
 void FRDService::updateMii(u32 messagePointer) {
-	log("FRD::UpdateMii (stubbed)\n");
+	const u32 miiDataPtr = mem.read32(messagePointer + 0x100 + 4);
+	log("FRD::UpdateMii (ptr = %08X)\n", miiDataPtr);
+	if (miiDataPtr != 0) {
+		for (u32 i = 0; i < myMii.size(); i++) {
+			myMii[i] = mem.read8(miiDataPtr + i);
+		}
+	}
 
 	mem.write32(messagePointer, IPC::responseHeader(0x40C, 1, 0));
 	mem.write32(messagePointer + 4, Result::Success);
 }
 
 void FRDService::getFriendRelationship(u32 messagePointer) {
-	log("FRD::GetFriendRelationship (stubbed)\n");
+	const u32 count = mem.read32(messagePointer + 4);
+	const u32 outFlags = mem.read32(messagePointer + 0x104);
+	log("FRD::GetFriendRelationship(count = %u)\n", count);
+	for (u32 i = 0; i < count; i++) {
+		mem.write8(outFlags + i, relationship);
+	}
 
-	// TODO: What does this return?
-	mem.write32(messagePointer, IPC::responseHeader(0x16, 1, 0));
+	mem.write32(messagePointer, IPC::responseHeader(0x16, 1, 2));
 	mem.write32(messagePointer + 4, Result::Success);
 }
