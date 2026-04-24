@@ -208,6 +208,8 @@ static const ServiceMapEntry serviceMapArray[] = {
 	{ "fs:USER", KernelHandles::FS },
 	{ "gsp::Gpu", KernelHandles::GPU },
 	{ "gsp::Lcd", KernelHandles::LCD },
+	{ "gx:low", KernelHandles::GPU },
+	{ "GX:low", KernelHandles::GPU },
 	{ "ldr:ro", KernelHandles::LDR_RO },
 	{ "mcu::HWC", KernelHandles::MCU_HWC },
 	{ "mic:u", KernelHandles::MIC },
