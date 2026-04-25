@@ -622,13 +622,23 @@ void GPUService::memoryFill(u32* cmd) {
 }
 
 void GPUService::triggerDisplayTransfer(u32* cmd) {
-	const u32 inputAddr = VaddrToPaddr(cmd[1]);
-	const u32 outputAddr = VaddrToPaddr(cmd[2]);
+	const u32 inputAddrRaw = cmd[1];
+	const u32 outputAddrRaw = cmd[2];
+	const u32 inputAddr = VaddrToPaddr(inputAddrRaw);
+	const u32 outputAddr = VaddrToPaddr(outputAddrRaw);
 	const u32 inputSize = cmd[3];
 	const u32 outputSize = cmd[4];
 	const u32 flags = cmd[5];
 
 	log("GSP::GPU::TriggerDisplayTransfer (Stubbed)\n");
+	if (inputAddr == 0 || outputAddr == 0) {
+		Helpers::warn(
+			"GSP::GPU::TriggerDisplayTransfer skipped due to null paddr (in=%08X->%08X out=%08X->%08X)",
+			inputAddrRaw, inputAddr, outputAddrRaw, outputAddr
+		);
+		requestInterrupt(GPUInterrupt::PPF);
+		return;
+	}
 	gpu.displayTransfer(inputAddr, outputAddr, inputSize, outputSize, flags);
 	requestInterrupt(GPUInterrupt::PPF);  // Send "Display transfer finished" interrupt
 }
@@ -693,14 +703,24 @@ void GPUService::processCommandList(u32* cmd) {
 // TODO: Emulate the transfer engine & its registers
 // Then this can be emulated by just writing the appropriate values there
 void GPUService::triggerTextureCopy(u32* cmd) {
-	const u32 inputAddr = VaddrToPaddr(cmd[1]);
-	const u32 outputAddr = VaddrToPaddr(cmd[2]);
+	const u32 inputAddrRaw = cmd[1];
+	const u32 outputAddrRaw = cmd[2];
+	const u32 inputAddr = VaddrToPaddr(inputAddrRaw);
+	const u32 outputAddr = VaddrToPaddr(outputAddrRaw);
 	const u32 totalBytes = cmd[3];
 	const u32 inputSize = cmd[4];
 	const u32 outputSize = cmd[5];
 	const u32 flags = cmd[6];
 
 	log("GSP::GPU::TriggerTextureCopy (Stubbed)\n");
+	if (inputAddr == 0 || outputAddr == 0) {
+		Helpers::warn(
+			"GSP::GPU::TriggerTextureCopy skipped due to null paddr (in=%08X->%08X out=%08X->%08X)",
+			inputAddrRaw, inputAddr, outputAddrRaw, outputAddr
+		);
+		requestInterrupt(GPUInterrupt::PPF);
+		return;
+	}
 	gpu.textureCopy(inputAddr, outputAddr, totalBytes, inputSize, outputSize, flags);
 	// This uses the transfer engine and thus needs to fire a PPF interrupt.
 	// NSMB2 relies on this
