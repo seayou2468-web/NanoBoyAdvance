@@ -29,6 +29,11 @@ void PICAShader::reset() {
 	addrRegister[0] = 0;
 	addrRegister[1] = 0;
 	loopCounter = 0;
+	emitState = {};
+	emittedVertexCount = 0;
+	for (auto& vertex : emittedVertices) {
+		vertex.fill(zero);
+	}
 
 	codeHashDirty = true;
 	opdescHashDirty = true;

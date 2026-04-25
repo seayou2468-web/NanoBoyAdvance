@@ -137,6 +137,16 @@ class PICAShader {
 	std::array<Loop, 4> loopInfo;
 	std::array<ConditionalInfo, 8> conditionalInfo;
 	std::array<CallInfo, 4> callInfo;
+
+	struct EmitState {
+		u32 vertexID = 0;
+		bool primEmit = false;
+		bool winding = false;
+	};
+	EmitState emitState {};
+	std::array<std::array<vec4f, 16>, 16> emittedVertices {};
+	u32 emittedVertexCount = 0;
+
 	ShaderType type;
 
 	Hash lastCodeHash = 0;    // Last hash computed for the shader code

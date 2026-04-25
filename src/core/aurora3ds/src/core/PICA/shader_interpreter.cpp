@@ -905,28 +905,19 @@ void PICAShader::litp(u32 instruction) {
 }
 
 void PICAShader::emit(u32) {
-	// Geometry shader pipeline is not implemented in Aurora yet.
-	// Keep behavior non-fatal so non-GS paths don't crash on stray EMIT opcodes.
-	static bool warned = false;
-	if (!warned) {
-		Helpers::warn("[PICA] EMIT encountered but geometry emission is not implemented");
-		warned = true;
+	if (type != ShaderType::Geometry) [[unlikely]] {
+		return;
+	}
+
+	if (emittedVertexCount < emittedVertices.size()) {
+		emittedVertices[emittedVertexCount++] = outputs;
+	} else {
+		Helpers::warn("[PICA] Geometry shader EMIT overflow (dropping vertex)");
 	}
 }
 
 void PICAShader::setemit(u32 instruction) {
-	// Geometry shader pipeline is not implemented in Aurora yet.
-	// Decode fields for future use and to document expected encoding.
-	const u32 vertex_id = getBits<0, 2>(instruction);
-	const bool prim_emit = getBit<2>(instruction);
-	const bool winding = getBit<3>(instruction);
-	(void)vertex_id;
-	(void)prim_emit;
-	(void)winding;
-
-	static bool warned = false;
-	if (!warned) {
-		Helpers::warn("[PICA] SETEMIT encountered but geometry emission is not implemented");
-		warned = true;
-	}
+	emitState.vertexID = getBits<0, 2>(instruction);
+	emitState.primEmit = getBit<2>(instruction);
+	emitState.winding = getBit<3>(instruction);
 }
