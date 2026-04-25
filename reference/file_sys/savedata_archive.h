@@ -43,11 +43,11 @@ protected:
 private:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& HLE::BoostCompat::Serialization::base_object<ArchiveBackend>(*this);
+        ar& aurora::serialization::base_object<ArchiveBackend>(*this);
         ar & mount_point;
         ar & allow_zero_size_create;
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 class SaveDataDelayGenerator;
@@ -55,6 +55,6 @@ class ExtSaveDataArchive;
 
 } // namespace FileSys
 
-BOOST_CLASS_EXPORT_KEY(FileSys::SaveDataArchive)
-BOOST_CLASS_EXPORT_KEY(FileSys::SaveDataDelayGenerator)
-BOOST_CLASS_EXPORT_KEY(FileSys::ExtSaveDataArchive)
+HLE_CLASS_EXPORT_KEY(FileSys::SaveDataArchive)
+HLE_CLASS_EXPORT_KEY(FileSys::SaveDataDelayGenerator)
+HLE_CLASS_EXPORT_KEY(FileSys::ExtSaveDataArchive)

@@ -107,7 +107,7 @@ protected:
     void serialize(Archive& ar, const unsigned int) {
         ar & delay_generator;
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 } // namespace FileSys

@@ -137,7 +137,7 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& HLE::BoostCompat::Serialization::base_object<RomFSReader>(*this);
+        ar& aurora::serialization::base_object<RomFSReader>(*this);
         ar & romfs;
         ar & patch_path;
         ar & patch_ext_path;
@@ -147,9 +147,9 @@ private:
         }
         // NOTE: Everything else is essentially cached, updated when we call Load
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 } // namespace FileSys
 
-BOOST_CLASS_EXPORT_KEY(FileSys::LayeredFS)
+HLE_CLASS_EXPORT_KEY(FileSys::LayeredFS)

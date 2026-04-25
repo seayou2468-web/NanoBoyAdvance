@@ -166,10 +166,10 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& HLE::BoostCompat::Serialization::base_object<ArchiveBackend>(*this);
+        ar& aurora::serialization::base_object<ArchiveBackend>(*this);
         ar & archive_handle;
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 class ArticFileBackend : public FileBackend {
@@ -222,10 +222,10 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& HLE::BoostCompat::Serialization::base_object<FileBackend>(*this);
+        ar& aurora::serialization::base_object<FileBackend>(*this);
         ar & file_handle;
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 class ArticDirectoryBackend : public DirectoryBackend {
@@ -256,13 +256,13 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& HLE::BoostCompat::Serialization::base_object<DirectoryBackend>(*this);
+        ar& aurora::serialization::base_object<DirectoryBackend>(*this);
         ar & dir_handle;
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 } // namespace FileSys
 
-BOOST_CLASS_EXPORT_KEY(FileSys::ArticArchive)
-BOOST_CLASS_EXPORT_KEY(FileSys::ArticFileBackend)
-BOOST_CLASS_EXPORT_KEY(FileSys::ArticDirectoryBackend)
+HLE_CLASS_EXPORT_KEY(FileSys::ArticArchive)
+HLE_CLASS_EXPORT_KEY(FileSys::ArticFileBackend)
+HLE_CLASS_EXPORT_KEY(FileSys::ArticDirectoryBackend)

@@ -12,9 +12,9 @@
 private:                                                                                           \
     template <class Archive>                                                                       \
     void serialize(Archive& ar, const unsigned int) {                                              \
-        ar& HLE::BoostCompat::Serialization::base_object<DelayGenerator>(*this);                              \
+        ar& aurora::serialization::base_object<DelayGenerator>(*this);                              \
     }                                                                                              \
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 
 namespace FileSys {
 
@@ -28,7 +28,7 @@ public:
 private:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {}
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 class DefaultDelayGenerator : public DelayGenerator {
@@ -41,4 +41,4 @@ public:
 
 } // namespace FileSys
 
-BOOST_CLASS_EXPORT_KEY(FileSys::DefaultDelayGenerator);
+HLE_CLASS_EXPORT_KEY(FileSys::DefaultDelayGenerator);

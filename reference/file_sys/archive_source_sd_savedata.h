@@ -49,12 +49,12 @@ private:
     ArchiveSource_SDSaveData() = default;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& HLE::BoostCompat::Serialization::base_object<ArticCacheProvider>(*this);
+        ar& aurora::serialization::base_object<ArticCacheProvider>(*this);
         ar & mount_point;
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 } // namespace FileSys
 
-BOOST_CLASS_EXPORT_KEY(FileSys::ArchiveSource_SDSaveData)
+HLE_CLASS_EXPORT_KEY(FileSys::ArchiveSource_SDSaveData)

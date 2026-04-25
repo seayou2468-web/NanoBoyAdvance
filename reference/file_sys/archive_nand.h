@@ -47,11 +47,11 @@ protected:
     NANDArchive() = default;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& HLE::BoostCompat::Serialization::base_object<ArchiveBackend>(*this);
+        ar& aurora::serialization::base_object<ArchiveBackend>(*this);
         ar & mount_point;
         ar & archive_type;
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 
 private:
     bool AllowsWrite() const {
@@ -100,14 +100,14 @@ private:
     ArchiveFactory_NAND() = default;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& HLE::BoostCompat::Serialization::base_object<ArchiveFactory>(*this);
+        ar& aurora::serialization::base_object<ArchiveFactory>(*this);
         ar & nand_directory;
         ar & archive_type;
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 } // namespace FileSys
 
-BOOST_CLASS_EXPORT_KEY(FileSys::NANDArchive)
-BOOST_CLASS_EXPORT_KEY(FileSys::ArchiveFactory_NAND)
+HLE_CLASS_EXPORT_KEY(FileSys::NANDArchive)
+HLE_CLASS_EXPORT_KEY(FileSys::ArchiveFactory_NAND)

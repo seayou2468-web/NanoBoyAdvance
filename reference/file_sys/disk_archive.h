@@ -47,11 +47,11 @@ protected:
 private:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& HLE::BoostCompat::Serialization::base_object<FileBackend>(*this);
+        ar& aurora::serialization::base_object<FileBackend>(*this);
         ar & mode.hex;
         ar & file;
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 class DiskDirectory : public DirectoryBackend {
@@ -80,7 +80,7 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& HLE::BoostCompat::Serialization::base_object<DirectoryBackend>(*this);
+        ar& aurora::serialization::base_object<DirectoryBackend>(*this);
         ar & directory;
         u64 child_index;
         if (Archive::is_saving::value) {
@@ -91,10 +91,10 @@ private:
             children_iterator = directory.children.begin() + child_index;
         }
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 } // namespace FileSys
 
-BOOST_CLASS_EXPORT_KEY(FileSys::DiskFile)
-BOOST_CLASS_EXPORT_KEY(FileSys::DiskDirectory)
+HLE_CLASS_EXPORT_KEY(FileSys::DiskFile)
+HLE_CLASS_EXPORT_KEY(FileSys::DiskDirectory)

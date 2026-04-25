@@ -44,10 +44,10 @@ protected:
     SDMCArchive() = default;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& HLE::BoostCompat::Serialization::base_object<ArchiveBackend>(*this);
+        ar& aurora::serialization::base_object<ArchiveBackend>(*this);
         ar & mount_point;
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 /// File system interface to the SDMC archive
@@ -76,16 +76,16 @@ private:
     ArchiveFactory_SDMC() = default;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& HLE::BoostCompat::Serialization::base_object<ArchiveFactory>(*this);
+        ar& aurora::serialization::base_object<ArchiveFactory>(*this);
         ar & sdmc_directory;
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 class SDMCDelayGenerator;
 
 } // namespace FileSys
 
-BOOST_CLASS_EXPORT_KEY(FileSys::SDMCArchive)
-BOOST_CLASS_EXPORT_KEY(FileSys::ArchiveFactory_SDMC)
-BOOST_CLASS_EXPORT_KEY(FileSys::SDMCDelayGenerator)
+HLE_CLASS_EXPORT_KEY(FileSys::SDMCArchive)
+HLE_CLASS_EXPORT_KEY(FileSys::ArchiveFactory_SDMC)
+HLE_CLASS_EXPORT_KEY(FileSys::SDMCDelayGenerator)

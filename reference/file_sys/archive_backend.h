@@ -103,7 +103,7 @@ private:
             break;
         }
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 /// Parameters of the archive, as specified in the Create or Format call.
@@ -255,7 +255,7 @@ private:
     void serialize(Archive& ar, const unsigned int) {
         ar & delay_generator;
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 class ArchiveFactory : NonCopyable {
@@ -299,7 +299,7 @@ public:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {}
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 } // namespace FileSys

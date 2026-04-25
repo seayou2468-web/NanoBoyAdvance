@@ -213,6 +213,7 @@ void serialize(Archive& ar, std::variant<Ts...>& value, const unsigned int) {
             return true;                                                                        \
         }();                                                                                    \
     }
+#define HLE_CLASS_EXPORT(T) HLE_CLASS_EXPORT_KEY(T)
 #define HLE_CLASS_VERSION(T, V)                               \
     template <>                                                  \
     struct aurora::serialization::Version<T> {         \

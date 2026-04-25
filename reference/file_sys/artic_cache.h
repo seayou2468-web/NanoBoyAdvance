@@ -86,7 +86,7 @@ private:
 protected:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {}
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 class ArticCacheProvider {
@@ -139,7 +139,7 @@ public:
 protected:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {}
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 
 private:
     std::unique_ptr<std::map<std::vector<u8>, std::shared_ptr<ArticCache>>> file_caches = nullptr;
@@ -148,5 +148,5 @@ private:
 
 } // namespace FileSys
 
-BOOST_CLASS_EXPORT_KEY(FileSys::ArticCache)
-BOOST_CLASS_EXPORT_KEY(FileSys::ArticCacheProvider)
+HLE_CLASS_EXPORT_KEY(FileSys::ArticCache)
+HLE_CLASS_EXPORT_KEY(FileSys::ArticCacheProvider)

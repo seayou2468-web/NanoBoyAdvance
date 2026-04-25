@@ -54,10 +54,10 @@ private:
     ArchiveFactory_SystemSaveData() = default;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& HLE::BoostCompat::Serialization::base_object<ArchiveFactory>(*this);
+        ar& aurora::serialization::base_object<ArchiveFactory>(*this);
         ar & base_path;
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 /**
@@ -88,4 +88,4 @@ Path ConstructSystemSaveDataBinaryPath(u32 high, u32 low);
 
 } // namespace FileSys
 
-BOOST_CLASS_EXPORT_KEY(FileSys::ArchiveFactory_SystemSaveData)
+HLE_CLASS_EXPORT_KEY(FileSys::ArchiveFactory_SystemSaveData)

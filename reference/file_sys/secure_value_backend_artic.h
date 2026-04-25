@@ -42,13 +42,13 @@ protected:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& HLE::BoostCompat::Serialization::base_object<SecureValueBackend>(*this);
+        ar& aurora::serialization::base_object<SecureValueBackend>(*this);
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 
 private:
     std::shared_ptr<Network::ArticBase::Client> client;
 };
 } // namespace FileSys
 
-BOOST_CLASS_EXPORT_KEY(FileSys::ArticSecureValueBackend)
+HLE_CLASS_EXPORT_KEY(FileSys::ArticSecureValueBackend)

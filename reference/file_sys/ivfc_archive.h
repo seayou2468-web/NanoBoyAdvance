@@ -145,10 +145,10 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& HLE::BoostCompat::Serialization::base_object<FileBackend>(*this);
+        ar& aurora::serialization::base_object<FileBackend>(*this);
         ar & romfs_file;
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 class IVFCDirectory : public DirectoryBackend {
@@ -185,18 +185,18 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& HLE::BoostCompat::Serialization::base_object<FileBackend>(*this);
+        ar& aurora::serialization::base_object<FileBackend>(*this);
         ar & romfs_file;
         ar & data_offset;
         ar & data_size;
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 } // namespace FileSys
 
-BOOST_CLASS_EXPORT_KEY(FileSys::IVFCFile)
-BOOST_CLASS_EXPORT_KEY(FileSys::IVFCFileInMemory)
-BOOST_CLASS_EXPORT_KEY(FileSys::IVFCDelayGenerator)
-BOOST_CLASS_EXPORT_KEY(FileSys::RomFSDelayGenerator)
-BOOST_CLASS_EXPORT_KEY(FileSys::ExeFSDelayGenerator)
+HLE_CLASS_EXPORT_KEY(FileSys::IVFCFile)
+HLE_CLASS_EXPORT_KEY(FileSys::IVFCFileInMemory)
+HLE_CLASS_EXPORT_KEY(FileSys::IVFCDelayGenerator)
+HLE_CLASS_EXPORT_KEY(FileSys::RomFSDelayGenerator)
+HLE_CLASS_EXPORT_KEY(FileSys::ExeFSDelayGenerator)

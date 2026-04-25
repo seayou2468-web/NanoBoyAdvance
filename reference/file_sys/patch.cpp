@@ -68,7 +68,7 @@ constexpr std::size_t FooterSize = 12;
 
 // The BPS format uses CRC32 checksums.
 static u32 crc32(const u8* data, std::size_t size) {
-    return HLE::BoostCompat::Crc32IsoHdlc(data, size);
+    return aurora::Crc32IsoHdlc(data, size);
 }
 
 // Utility class to make keeping track of offsets and bound checks less error prone.

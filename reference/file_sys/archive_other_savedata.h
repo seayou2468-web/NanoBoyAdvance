@@ -34,10 +34,10 @@ private:
     ArchiveFactory_OtherSaveDataPermitted() = default;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& HLE::BoostCompat::Serialization::base_object<ArchiveFactory>(*this);
+        ar& aurora::serialization::base_object<ArchiveFactory>(*this);
         ar & sd_savedata_source;
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 /// File system interface to the OtherSaveDataGeneral archive
@@ -61,13 +61,13 @@ private:
     ArchiveFactory_OtherSaveDataGeneral() = default;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& HLE::BoostCompat::Serialization::base_object<ArchiveFactory>(*this);
+        ar& aurora::serialization::base_object<ArchiveFactory>(*this);
         ar & sd_savedata_source;
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 } // namespace FileSys
 
-BOOST_CLASS_EXPORT_KEY(FileSys::ArchiveFactory_OtherSaveDataPermitted)
-BOOST_CLASS_EXPORT_KEY(FileSys::ArchiveFactory_OtherSaveDataGeneral)
+HLE_CLASS_EXPORT_KEY(FileSys::ArchiveFactory_OtherSaveDataPermitted)
+HLE_CLASS_EXPORT_KEY(FileSys::ArchiveFactory_OtherSaveDataGeneral)

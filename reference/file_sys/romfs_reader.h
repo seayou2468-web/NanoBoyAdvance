@@ -35,7 +35,7 @@ public:
 private:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int file_version) {}
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 /**
@@ -83,12 +83,12 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& HLE::BoostCompat::Serialization::base_object<RomFSReader>(*this);
+        ar& aurora::serialization::base_object<RomFSReader>(*this);
         ar & file;
         ar & file_offset;
         ar & data_size;
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 /**
@@ -131,13 +131,13 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& HLE::BoostCompat::Serialization::base_object<RomFSReader>(*this);
+        ar& aurora::serialization::base_object<RomFSReader>(*this);
         ar & data_size;
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 } // namespace FileSys
 
-BOOST_CLASS_EXPORT_KEY(FileSys::DirectRomFSReader)
-BOOST_CLASS_EXPORT_KEY(FileSys::ArticRomFSReader)
+HLE_CLASS_EXPORT_KEY(FileSys::DirectRomFSReader)
+HLE_CLASS_EXPORT_KEY(FileSys::ArticRomFSReader)

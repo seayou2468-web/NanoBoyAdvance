@@ -79,10 +79,10 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& HLE::BoostCompat::Serialization::base_object<FileBackend>(*this);
+        ar& aurora::serialization::base_object<FileBackend>(*this);
         ar & data;
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 // SelfNCCHArchive represents the running application itself. From this archive the application can
@@ -242,10 +242,10 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& HLE::BoostCompat::Serialization::base_object<ArchiveBackend>(*this);
+        ar& aurora::serialization::base_object<ArchiveBackend>(*this);
         ar & ncch_data;
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 void ArchiveFactory_SelfNCCH::Register(Loader::AppLoader& app_loader) {

@@ -32,7 +32,7 @@ private:
         ar & romfs_file;
         ar & update_romfs_file;
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 /// File system interface to the SelfNCCH archive
@@ -57,10 +57,10 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& HLE::BoostCompat::Serialization::base_object<ArchiveFactory>(*this);
+        ar& aurora::serialization::base_object<ArchiveFactory>(*this);
         ar & ncch_data;
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 class ExeFSSectionFile;
@@ -68,6 +68,6 @@ class SelfNCCHArchive;
 
 } // namespace FileSys
 
-BOOST_CLASS_EXPORT_KEY(FileSys::ArchiveFactory_SelfNCCH)
-BOOST_CLASS_EXPORT_KEY(FileSys::ExeFSSectionFile)
-BOOST_CLASS_EXPORT_KEY(FileSys::SelfNCCHArchive)
+HLE_CLASS_EXPORT_KEY(FileSys::ArchiveFactory_SelfNCCH)
+HLE_CLASS_EXPORT_KEY(FileSys::ExeFSSectionFile)
+HLE_CLASS_EXPORT_KEY(FileSys::SelfNCCHArchive)

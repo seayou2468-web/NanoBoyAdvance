@@ -69,11 +69,11 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& HLE::BoostCompat::Serialization::base_object<ArchiveBackend>(*this);
+        ar& aurora::serialization::base_object<ArchiveBackend>(*this);
         ar & title_id;
         ar & media_type;
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 // File backend for NCCH files
@@ -98,10 +98,10 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& HLE::BoostCompat::Serialization::base_object<FileBackend>(*this);
+        ar& aurora::serialization::base_object<FileBackend>(*this);
         ar & file_buffer;
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 /// File system interface to the NCCH archive
@@ -135,14 +135,14 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& HLE::BoostCompat::Serialization::base_object<ArchiveFactory>(*this);
-        ar& HLE::BoostCompat::Serialization::base_object<ArticCacheProvider>(*this);
+        ar& aurora::serialization::base_object<ArchiveFactory>(*this);
+        ar& aurora::serialization::base_object<ArticCacheProvider>(*this);
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 } // namespace FileSys
 
-BOOST_CLASS_EXPORT_KEY(FileSys::NCCHArchive)
-BOOST_CLASS_EXPORT_KEY(FileSys::NCCHFile)
-BOOST_CLASS_EXPORT_KEY(FileSys::ArchiveFactory_NCCH)
+HLE_CLASS_EXPORT_KEY(FileSys::NCCHArchive)
+HLE_CLASS_EXPORT_KEY(FileSys::NCCHFile)
+HLE_CLASS_EXPORT_KEY(FileSys::ArchiveFactory_NCCH)

@@ -70,6 +70,6 @@ ResultVal<std::tuple<bool, bool, u64>> DefaultSecureValueBackend::GetThisSaveDat
 
 template <class Archive>
 void FileSys::DefaultSecureValueBackend::serialize(Archive& ar, const unsigned int) {
-    ar& HLE::BoostCompat::Serialization::base_object<SecureValueBackend>(*this);
+    ar& aurora::serialization::base_object<SecureValueBackend>(*this);
 }
 } // namespace FileSys
