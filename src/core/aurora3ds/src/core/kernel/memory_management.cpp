@@ -93,6 +93,33 @@ void Kernel::controlMemory() {
 				regs[1] = addr0;
 				break;
 
+			case Operation::Free: {
+				// Free can target regular heap (Private) or linear heap (Continuous).
+				if (pages == 0) {
+					regs[1] = addr0;
+					break;
+				}
+
+				bool success = mem.mapVirtualMemory(
+					addr0, addr0, pages, false, false, false, MemoryState::Private, MemoryState::Private, MemoryState::Free, MemoryState::Free
+				);
+				if (!success) {
+					success = mem.mapVirtualMemory(
+						addr0, addr0, pages, false, false, false, MemoryState::Continuous, MemoryState::Continuous, MemoryState::Free,
+						MemoryState::Free
+					);
+				}
+
+				if (!success) {
+					Helpers::warn("ControlMemory: Failed to free memory at %08X (pages=%u)", addr0, pages);
+					regs[0] = Result::OS::OutOfRange;
+					return;
+				}
+
+				regs[1] = addr0;
+				break;
+			}
+
 			case Operation::Reserve:
 			// Reserve is effectively a no-op in our memory manager right now.
 			regs[1] = addr0;
