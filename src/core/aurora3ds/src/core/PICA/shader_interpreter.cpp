@@ -910,7 +910,9 @@ void PICAShader::emit(u32) {
 	}
 
 	if (emittedVertexCount < emittedVertices.size()) {
-		emittedVertices[emittedVertexCount++] = outputs;
+		emittedVertices[emittedVertexCount] = outputs;
+		emittedVertexStates[emittedVertexCount] = emitState;
+		emittedVertexCount++;
 	} else {
 		Helpers::warn("[PICA] Geometry shader EMIT overflow (dropping vertex)");
 	}

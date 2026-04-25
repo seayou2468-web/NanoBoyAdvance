@@ -346,25 +346,58 @@ void GPU::drawArrays() {
 
 	if (useGeometryShaderPath && shaderUnit.gs.getEmittedVertexCount() != 0) {
 		const u32 totalShaderOutputs = regs[PICA::InternalRegs::ShaderOutputCount] & 7;
-		const u32 emittedCount = std::min<u32>(shaderUnit.gs.getEmittedVertexCount(), Renderer::vertexBufferSize);
+		const u32 emittedCount = shaderUnit.gs.getEmittedVertexCount();
 		const auto& emittedVertices = shaderUnit.gs.getEmittedVertices();
+		const auto& emittedStates = shaderUnit.gs.getEmittedVertexStates();
 
-		for (u32 emittedIndex = 0; emittedIndex < emittedCount; emittedIndex++) {
-			PICA::Vertex& out = vertices[emittedIndex];
-			const auto& gsOut = emittedVertices[emittedIndex];
+		std::array<PICA::Vertex, 3> primitiveSlots {};
+		std::array<bool, 3> primitiveValid {false, false, false};
+		u32 outCount = 0;
 
+		const auto mapOutputsToVertex = [&](const std::array<vec4f, 16>& shaderOutputs, PICA::Vertex& out) {
 			for (u32 outputReg = 0; outputReg < totalShaderOutputs; outputReg++) {
 				const u32 config = regs[PICA::InternalRegs::ShaderOutmap0 + outputReg];
 
 				for (u32 component = 0; component < 4; component++) {
 					const u32 mapping = (config >> (component * 8)) & 0x1F;
-					out.raw[mapping] = gsOut[outputReg][component];
+					out.raw[mapping] = shaderOutputs[outputReg][component];
 				}
 			}
+		};
+
+		for (u32 emittedIndex = 0; emittedIndex < emittedCount; emittedIndex++) {
+			const auto& gsOut = emittedVertices[emittedIndex];
+			const auto& emitState = emittedStates[emittedIndex];
+			const u32 slot = emitState.vertexID % primitiveSlots.size();
+			mapOutputsToVertex(gsOut, primitiveSlots[slot]);
+			primitiveValid[slot] = true;
+
+			if (!emitState.primEmit) {
+				continue;
+			}
+
+			if (!(primitiveValid[0] && primitiveValid[1] && primitiveValid[2])) {
+				continue;
+			}
+
+			const bool reverse = !emitState.winding;
+			const u32 order[3] = {0, reverse ? 2u : 1u, reverse ? 1u : 2u};
+
+			if (outCount + 3 > Renderer::vertexBufferSize) {
+				Helpers::warn("[PICA] Geometry primitive output overflow (dropping remaining primitives)");
+				break;
+			}
+
+			vertices[outCount++] = primitiveSlots[order[0]];
+			vertices[outCount++] = primitiveSlots[order[1]];
+			vertices[outCount++] = primitiveSlots[order[2]];
+			primitiveValid = {false, false, false};
 		}
 
-		renderer->drawVertices(PICA::PrimType::TriangleList, std::span(vertices).first(emittedCount));
-		return;
+		if (outCount != 0) {
+			renderer->drawVertices(PICA::PrimType::TriangleList, std::span(vertices).first(outCount));
+			return;
+		}
 	}
 
 	renderer->drawVertices(primType, std::span(vertices).first(vertexCount));

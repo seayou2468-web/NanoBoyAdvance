@@ -34,6 +34,7 @@ void PICAShader::reset() {
 	for (auto& vertex : emittedVertices) {
 		vertex.fill(zero);
 	}
+	emittedVertexStates.fill({});
 
 	codeHashDirty = true;
 	opdescHashDirty = true;

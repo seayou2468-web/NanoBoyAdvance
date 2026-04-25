@@ -145,6 +145,7 @@ class PICAShader {
 	};
 	EmitState emitState {};
 	std::array<std::array<vec4f, 16>, 16> emittedVertices {};
+	std::array<EmitState, 16> emittedVertexStates {};
 	u32 emittedVertexCount = 0;
 
 	ShaderType type;
@@ -338,6 +339,7 @@ class PICAShader {
 	void clearEmittedVertices() { emittedVertexCount = 0; }
 	u32 getEmittedVertexCount() const { return emittedVertexCount; }
 	const std::array<std::array<vec4f, 16>, 16>& getEmittedVertices() const { return emittedVertices; }
+	const std::array<EmitState, 16>& getEmittedVertexStates() const { return emittedVertexStates; }
 
 	Hash getCodeHash();
 	Hash getOpdescHash();
