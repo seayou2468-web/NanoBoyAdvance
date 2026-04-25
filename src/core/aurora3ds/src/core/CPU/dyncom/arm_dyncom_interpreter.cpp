@@ -1626,7 +1626,19 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
 DISPATCH: {
     if (!cpu->NirqSig) {
         if (!(cpu->Cpsr & 0x80)) {
-            goto END;
+            const u32 old_pc = cpu->Reg[15];
+            const u32 old_cpsr = cpu->Cpsr;
+            const u32 return_offset = cpu->TFlag ? 2u : 4u;
+
+            cpu->ChangePrivilegeMode(IRQ32MODE);
+            cpu->Spsr[IRQBANK] = old_cpsr;
+            cpu->Reg[14] = old_pc + return_offset;
+            cpu->Cpsr = (old_cpsr & ~MODEBITS) | IRQ32MODE;
+            cpu->Cpsr |= IBIT;
+            cpu->Cpsr &= ~TBIT;
+            LOAD_NZCVT;
+            cpu->Reg[15] = ARMul_IRQV;
+            goto DISPATCH;
         }
     }
 
