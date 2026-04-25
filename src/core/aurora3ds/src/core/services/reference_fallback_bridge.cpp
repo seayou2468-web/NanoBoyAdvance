@@ -1,42 +1,57 @@
 #include "../../../include/services/reference_fallback_bridge.hpp"
 
+#include <atomic>
 #include <string>
 
 #include "../../../include/ipc.hpp"
 #include "../../../include/memory.hpp"
 
 namespace {
-// Optional externally-provided callbacks.
-// Signature intentionally uses only C ABI + primitive/std types so reference-side integration
-// can be implemented without pulling heavy dependencies into Aurora.
-using ServiceFallbackFn = bool (*)(void* memoryCtx, u32 serviceHandle, u32 messagePointer);
-using PortFallbackFn = bool (*)(void* memoryCtx, const char* portName, u32 messagePointer);
-
-extern "C" ServiceFallbackFn NBAReferenceFallbackHandleService __attribute__((weak));
-extern "C" PortFallbackFn NBAReferenceFallbackHandlePort __attribute__((weak));
+std::atomic<NBAReferenceServiceFallbackFn> gServiceHandler = nullptr;
+std::atomic<NBAReferencePortFallbackFn> gPortHandler = nullptr;
 
 class ReferenceFallbackBridge final : public HLEFallbackBridge {
   public:
 	explicit ReferenceFallbackBridge(Memory& mem) : mem(mem) {}
 
 	bool handleUnknownService(HorizonHandle serviceHandle, u32 messagePointer) override {
-		if (NBAReferenceFallbackHandleService == nullptr) {
+		const auto serviceHandler = gServiceHandler.load(std::memory_order_acquire);
+		if (serviceHandler == nullptr) {
 			return false;
 		}
-		return NBAReferenceFallbackHandleService(static_cast<void*>(&mem), serviceHandle, messagePointer);
+		return serviceHandler(static_cast<void*>(&mem), serviceHandle, messagePointer);
 	}
 
 	bool handleUnsupportedPort(std::string_view portName, u32 messagePointer) override {
-		if (NBAReferenceFallbackHandlePort == nullptr) {
+		const auto portHandler = gPortHandler.load(std::memory_order_acquire);
+		if (portHandler == nullptr) {
 			return false;
 		}
-		return NBAReferenceFallbackHandlePort(static_cast<void*>(&mem), std::string(portName).c_str(), messagePointer);
+		return portHandler(static_cast<void*>(&mem), std::string(portName).c_str(), messagePointer);
 	}
 
   private:
 	Memory& mem;
 };
 }  // namespace
+
+extern "C" void NBAReferenceFallbackRegisterHandlers(
+	NBAReferenceServiceFallbackFn serviceHandler,
+	NBAReferencePortFallbackFn portHandler
+) {
+	gServiceHandler.store(serviceHandler, std::memory_order_release);
+	gPortHandler.store(portHandler, std::memory_order_release);
+}
+
+extern "C" void NBAReferenceFallbackClearHandlers() {
+	gServiceHandler.store(nullptr, std::memory_order_release);
+	gPortHandler.store(nullptr, std::memory_order_release);
+}
+
+bool NBAReferenceFallbackHasHandlers() {
+	return gServiceHandler.load(std::memory_order_acquire) != nullptr &&
+		gPortHandler.load(std::memory_order_acquire) != nullptr;
+}
 
 std::unique_ptr<HLEFallbackBridge> CreateReferenceFallbackBridge(Memory& mem) {
 	return std::make_unique<ReferenceFallbackBridge>(mem);
