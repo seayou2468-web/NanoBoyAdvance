@@ -903,6 +903,15 @@ namespace LumaInfoType {
 	};
 }
 
+namespace MemoryInfoSubtype {
+	enum : u32 {
+		All = 0,
+		App = 1,
+		Sys = 2,
+		Base = 3,
+	};
+}
+
 namespace CitraInfoType {
 	enum : u32 {
 		IsCitra = 0,
@@ -934,19 +943,35 @@ void Kernel::getSystemInfo() {
 	switch (infoType) {
 			case SystemInfoType::MemoryInformation: {
 				switch (subtype) {
-				// Total used memory size in the APPLICATION memory region
-				case 1:
-					regs[1] = fcramManager.getUsedCount(FcramRegion::App) * Memory::pageSize;
-					regs[2] = 0;
-					break;
+					case MemoryInfoSubtype::All:
+						regs[1] = (fcramManager.getUsedCount(FcramRegion::App) + fcramManager.getUsedCount(FcramRegion::Sys) +
+						           fcramManager.getUsedCount(FcramRegion::Base)) *
+						          Memory::pageSize;
+						regs[2] = 0;
+						break;
+					// Total used memory size in the APPLICATION memory region
+					case MemoryInfoSubtype::App:
+						regs[1] = fcramManager.getUsedCount(FcramRegion::App) * Memory::pageSize;
+						regs[2] = 0;
+						break;
+					case MemoryInfoSubtype::Sys:
+						regs[1] = fcramManager.getUsedCount(FcramRegion::Sys) * Memory::pageSize;
+						regs[2] = 0;
+						break;
+					case MemoryInfoSubtype::Base:
+						regs[1] = fcramManager.getUsedCount(FcramRegion::Base) * Memory::pageSize;
+						regs[2] = 0;
+						break;
 
-				default:
-					Helpers::panic("GetSystemInfo: Unknown MemoryInformation subtype %x\n", subtype);
-					regs[0] = Result::FailurePlaceholder;
+					default:
+						Helpers::warn("GetSystemInfo: Unknown MemoryInformation subtype %x\n", subtype);
+						regs[0] = Result::Kernel::InvalidEnumValue;
+						regs[1] = 0;
+						regs[2] = 0;
+						break;
+				}
 					break;
-			}
-				break;
-			}
+				}
 
 			case SystemInfoType::KernelAllocatedPages:
 				// Not tracked yet in this kernel implementation.
