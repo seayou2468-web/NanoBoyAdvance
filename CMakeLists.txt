@@ -16,8 +16,33 @@ file(GLOB_RECURSE CORE_SOURCES CONFIGURE_DEPENDS
   "src/core/mikage/*.cpp"
 )
 
-file(GLOB_RECURSE BEARSSL_SOURCES CONFIGURE_DEPENDS
-  "src/core/third_party/bearssl/src/*.c"
+set(BEARSSL_SOURCES
+  src/core/third_party/bearssl/src/settings.c
+  src/core/third_party/bearssl/src/codec/ccopy.c
+  src/core/third_party/bearssl/src/codec/dec32be.c
+  src/core/third_party/bearssl/src/codec/enc32be.c
+  src/core/third_party/bearssl/src/hash/sha2small.c
+  src/core/third_party/bearssl/src/rsa/rsa_i31_pub.c
+  src/core/third_party/bearssl/src/int/i31_add.c
+  src/core/third_party/bearssl/src/int/i31_bitlen.c
+  src/core/third_party/bearssl/src/int/i31_decmod.c
+  src/core/third_party/bearssl/src/int/i31_decode.c
+  src/core/third_party/bearssl/src/int/i31_decred.c
+  src/core/third_party/bearssl/src/int/i31_encode.c
+  src/core/third_party/bearssl/src/int/i31_fmont.c
+  src/core/third_party/bearssl/src/int/i31_iszero.c
+  src/core/third_party/bearssl/src/int/i31_moddiv.c
+  src/core/third_party/bearssl/src/int/i31_modpow.c
+  src/core/third_party/bearssl/src/int/i31_modpow2.c
+  src/core/third_party/bearssl/src/int/i31_montmul.c
+  src/core/third_party/bearssl/src/int/i31_mulacc.c
+  src/core/third_party/bearssl/src/int/i31_muladd.c
+  src/core/third_party/bearssl/src/int/i31_ninv31.c
+  src/core/third_party/bearssl/src/int/i31_reduce.c
+  src/core/third_party/bearssl/src/int/i31_rshift.c
+  src/core/third_party/bearssl/src/int/i31_sub.c
+  src/core/third_party/bearssl/src/int/i31_tmont.c
+  src/core/third_party/bearssl/src/int/i32_div32.c
 )
 
 # Exclude reference interpreter files which have external dependencies not present in build env
