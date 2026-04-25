@@ -282,6 +282,7 @@ void ServiceManager::getServiceHandle(u32 messagePointer) {
 	if (!serviceOpt.has_value()) {
 		mem.write32(messagePointer, IPC::responseHeader(0x5, 1, 2));
 		mem.write32(messagePointer + 4, Result::OS::InvalidCombination);
+		mem.write32(messagePointer + 8, 0);
 		mem.write32(messagePointer + 12, 0);
 		return;
 	}
@@ -294,6 +295,7 @@ void ServiceManager::getServiceHandle(u32 messagePointer) {
 		handle = search->second;
 		mem.write32(messagePointer, IPC::responseHeader(0x5, 1, 2));
 		mem.write32(messagePointer + 4, Result::Success);
+		mem.write32(messagePointer + 8, 0x04000000);
 		mem.write32(messagePointer + 12, handle);
 		return;
 	}
@@ -303,6 +305,7 @@ void ServiceManager::getServiceHandle(u32 messagePointer) {
 	if (auto it = userRegisteredServices.find(service); it != userRegisteredServices.end()) {
 		mem.write32(messagePointer, IPC::responseHeader(0x5, 1, 2));
 		mem.write32(messagePointer + 4, Result::Success);
+		mem.write32(messagePointer + 8, 0x04000000);
 		mem.write32(messagePointer + 12, kernel.makePortSession(it->second));
 		return;
 	}
@@ -313,12 +316,14 @@ void ServiceManager::getServiceHandle(u32 messagePointer) {
 	if (valid_service_len) {
 		mem.write32(messagePointer, IPC::responseHeader(0x5, 1, 2));
 		mem.write32(messagePointer + 4, Result::Success);
+		mem.write32(messagePointer + 8, 0x04000000);
 		mem.write32(messagePointer + 12, KernelHandles::OS_STUB);
 		return;
 	}
 
 	mem.write32(messagePointer, IPC::responseHeader(0x5, 1, 2));
 	mem.write32(messagePointer + 4, Result::OS::NotImplemented);
+	mem.write32(messagePointer + 8, 0);
 	mem.write32(messagePointer + 12, 0);
 }
 
@@ -332,7 +337,7 @@ void ServiceManager::enableNotification(u32 messagePointer) {
 
 	mem.write32(messagePointer, IPC::responseHeader(0x2, 1, 2));
 	mem.write32(messagePointer + 4, Result::Success);  // Result code
-	mem.write32(messagePointer + 8, 0);                // Translation descriptor
+	mem.write32(messagePointer + 8, 0x04000000);       // Translation descriptor (copy handle, 1 handle)
 	// Handle to semaphore signaled on process notification
 	mem.write32(messagePointer + 12, notificationSemaphore.value());
 }
@@ -410,7 +415,7 @@ void ServiceManager::registerService(u32 messagePointer) {
 
 	mem.write32(messagePointer, IPC::responseHeader(0x3, 1, 2));
 	mem.write32(messagePointer + 4, Result::Success);
-	mem.write32(messagePointer + 8, 0);  // Translation descriptor
+	mem.write32(messagePointer + 8, 0x04000000);  // Translation descriptor (copy handle, 1 handle)
 	if (auto it = userRegisteredServices.find(service); it != userRegisteredServices.end()) {
 		mem.write32(messagePointer + 12, it->second);
 	} else {
@@ -475,7 +480,7 @@ void ServiceManager::registerPort(u32 messagePointer) {
 
 	mem.write32(messagePointer, IPC::responseHeader(0x6, 1, 2));
 	mem.write32(messagePointer + 4, Result::Success);
-	mem.write32(messagePointer + 8, 0); // Translation descriptor
+	mem.write32(messagePointer + 8, 0x04000000); // Translation descriptor (copy handle, 1 handle)
 	mem.write32(messagePointer + 12, userRegisteredPorts.at(port));
 }
 
@@ -512,7 +517,7 @@ void ServiceManager::getPort(u32 messagePointer) {
 
 	if (auto it = userRegisteredPorts.find(port); it != userRegisteredPorts.end()) {
 		mem.write32(messagePointer + 4, Result::Success);
-		mem.write32(messagePointer + 8, 0); // Translation descriptor
+		mem.write32(messagePointer + 8, 0x04000000); // Translation descriptor (copy handle, 1 handle)
 		mem.write32(messagePointer + 12, kernel.makePortSession(it->second));
 		return;
 	}

@@ -226,7 +226,7 @@ void GPUService::registerInterruptRelayQueue(u32 messagePointer) {
 		std::memset(&sharedMem[threadIndex * 0x40], 0, 0x40);
 	}
 	mem.write32(messagePointer + 8, threadIndex);
-	mem.write32(messagePointer + 12, 0x00000000);                      // Translation descriptor (copy handle, 1 handle)
+	mem.write32(messagePointer + 12, 0x04000000);                      // Translation descriptor (copy handle, 1 handle)
 	mem.write32(messagePointer + 16, KernelHandles::GSPSharedMemHandle);
 }
 
