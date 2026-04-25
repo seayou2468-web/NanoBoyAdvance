@@ -94,7 +94,7 @@ namespace GXCommands {
 
 void GPUService::reset() {
 	privilegedProcess = 0xFFFFFFFF;  // Set the privileged process to an invalid handle
-	interruptEvent = std::nullopt;
+	interruptEvents.fill(std::nullopt);
 	gspThreadCount = 0;
 	firstInitialization = true;
 	sharedMem = mem.getSharedMemoryPointer(KernelHandles::GSPSharedMemHandle);
@@ -169,14 +169,6 @@ void GPUService::releaseRight(u32 messagePointer) {
 // What is the "GSP module thread index" meant to be?
 // How does the shared memory handle thing work?
 void GPUService::registerInterruptRelayQueue(u32 messagePointer) {
-	// We currently emulate a single GSP relay queue. Returning varying thread indices
-	// breaks clients that poll queue 0 while we only signal queue 0 interrupts.
-	constexpr u32 threadIndex = 0;
-	gspThreadCount += 1;
-	if (gspThreadCount > 1) {
-		Helpers::warn("GSP::GPU::RegisterInterruptRelayQueue called multiple times; reusing emulated threadIndex=0");
-	}
-
 	const u32 flags = mem.read32(messagePointer + 4);
 	const u32 eventHandle = mem.read32(messagePointer + 12);
 	log("GSP::GPU::RegisterInterruptRelayQueue (flags = %X, event handle = %X)\n", flags, eventHandle);
@@ -190,8 +182,34 @@ void GPUService::registerInterruptRelayQueue(u32 messagePointer) {
 		mem.write32(messagePointer, IPC::responseHeader(0x13, 1, 0));
 		mem.write32(messagePointer + 4, Result::Kernel::InvalidHandle);
 		return;
-	} else {
-		interruptEvent = eventHandle;
+	}
+
+	u32 threadIndex = maxGspThreads;
+	for (u32 i = 0; i < maxGspThreads; ++i) {
+		if (interruptEvents[i].has_value() && interruptEvents[i].value() == eventHandle) {
+			threadIndex = i;
+			break;
+		}
+	}
+	if (threadIndex == maxGspThreads) {
+		for (u32 i = 0; i < maxGspThreads; ++i) {
+			if (!interruptEvents[i].has_value()) {
+				threadIndex = i;
+				break;
+			}
+		}
+	}
+	if (threadIndex == maxGspThreads) {
+		Helpers::warn("GSP::GPU::RegisterInterruptRelayQueue exceeded %u queues; reusing threadIndex=0", maxGspThreads);
+		threadIndex = 0;
+	}
+
+	interruptEvents[threadIndex] = eventHandle;
+	gspThreadCount = 0;
+	for (const auto& e : interruptEvents) {
+		if (e.has_value()) {
+			gspThreadCount++;
+		}
 	}
 
 	mem.write32(messagePointer, IPC::responseHeader(0x13, 2, 2));
@@ -206,13 +224,14 @@ void GPUService::registerInterruptRelayQueue(u32 messagePointer) {
 		std::memset(&sharedMem[threadIndex * 0x40], 0, 0x40);
 	}
 	mem.write32(messagePointer + 8, threadIndex);
-	mem.write32(messagePointer + 12, 0x04000000);                      // Translation descriptor (copy handle)
+	mem.write32(messagePointer + 12, 0x00000000);                      // Translation descriptor (copy handle, 1 handle)
 	mem.write32(messagePointer + 16, KernelHandles::GSPSharedMemHandle);
 }
 
 void GPUService::unregisterInterruptRelayQueue(u32 messagePointer) {
 	log("GSP::GPU::UnregisterInterruptRelayQueue\n");
-	interruptEvent = std::nullopt;
+	interruptEvents.fill(std::nullopt);
+	gspThreadCount = 0;
 	mem.write32(messagePointer, IPC::responseHeader(0x14, 1, 0));
 	mem.write32(messagePointer + 4, Result::Success);
 }
@@ -225,14 +244,29 @@ void GPUService::requestInterrupt(GPUInterrupt type) {
 		}
 	}
 
-	// TODO: Add support for multiple GSP threads
-	u8 index = sharedMem[0];  // The interrupt block is normally located at sharedMem + processGSPIndex*0x40
-	u8& interruptCount = sharedMem[1];
-	u8 flagIndex = (index + interruptCount) % 0x34;
-	interruptCount++;
+	auto queueInterruptForThread = [&](u32 threadIndex) {
+		const u32 base = threadIndex * 0x40;
+		u8 index = sharedMem[base + 0];
+		u8& interruptCount = sharedMem[base + 1];
+		u8 flagIndex = (index + interruptCount) % 0x34;
+		interruptCount++;
 
-	sharedMem[2] = 0;                                    // Set error code to 0
-	sharedMem[0xC + flagIndex] = static_cast<u8>(type);  // Write interrupt type to queue
+		sharedMem[base + 2] = 0;                                      // Set error code to 0
+		sharedMem[base + 0xC + flagIndex] = static_cast<u8>(type);    // Write interrupt type to queue
+	};
+
+	bool queuedAny = false;
+	for (u32 i = 0; i < maxGspThreads; ++i) {
+		if (interruptEvents[i].has_value()) {
+			queueInterruptForThread(i);
+			queuedAny = true;
+		}
+	}
+	if (!queuedAny) {
+		// Keep compatibility with clients that poll queue 0 before fully initializing
+		// relay queues/events. This mirrors prior single-queue behavior.
+		queueInterruptForThread(0);
+	}
 
 	// Update framebuffer info in shared memory
 	// Most new games check to make sure that the "flag" byte of the framebuffer info header is set to 0
@@ -255,8 +289,10 @@ void GPUService::requestInterrupt(GPUInterrupt type) {
 	}
 
 	// Signal interrupt event
-	if (interruptEvent.has_value()) {
-		kernel.signalEvent(interruptEvent.value());
+	for (const auto& event : interruptEvents) {
+		if (event.has_value()) {
+			kernel.signalEvent(event.value());
+		}
 	}
 }
 

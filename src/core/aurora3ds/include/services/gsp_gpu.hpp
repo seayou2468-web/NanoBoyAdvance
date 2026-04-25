@@ -1,4 +1,5 @@
 #pragma once
+#include <array>
 #include <cstring>
 #include <optional>
 #include <vector>
@@ -36,9 +37,10 @@ class GPUService {
 	// At any point in time only 1 process has privileges to use rendering functions
 	// This is the PID of that process
 	u32 privilegedProcess;
-	std::optional<Handle> interruptEvent;
+	static constexpr u32 maxGspThreads = 4;
+	std::array<std::optional<Handle>, maxGspThreads> interruptEvents {};
 
-	// Number of threads registered via RegisterInterruptRelayQueue
+	// Number of relay queues registered via RegisterInterruptRelayQueue
 	u32 gspThreadCount = 0;
 	bool firstInitialization = true;
 	std::optional<std::vector<u8>> savedVram;
