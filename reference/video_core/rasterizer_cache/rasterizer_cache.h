@@ -5,8 +5,7 @@
 #pragma once
 
 #include <type_traits>
-#include <boost/container/small_vector.hpp>
-#include <boost/range/iterator_range.hpp>
+#include <vector>
 #include "common/alignment.h"
 #include "common/logging/log.h"
 #include "common/microprofile.h"
@@ -27,10 +26,6 @@ MICROPROFILE_DECLARE(RasterizerCache_CopySurface);
 MICROPROFILE_DECLARE(RasterizerCache_UploadSurface);
 MICROPROFILE_DECLARE(RasterizerCache_DownloadSurface);
 MICROPROFILE_DECLARE(RasterizerCache_Invalidation);
-
-constexpr auto RangeFromInterval(const auto& map, const auto& interval) {
-    return boost::make_iterator_range(map.equal_range(interval));
-}
 
 template <class T>
 RasterizerCache<T>::RasterizerCache(Memory::MemorySystem& memory_,
@@ -669,7 +664,8 @@ typename T::Surface& RasterizerCache<T>::GetTextureCube(const TextureCubeConfig&
             continue;
         }
         cube.ticks[i] = surface.modification_tick;
-        boost::container::small_vector<TextureCopy, 8> upload_copies;
+        std::vector<TextureCopy> upload_copies;
+        upload_copies.reserve(8);
         for (u32 level = 0; level < config.levels; level++) {
             const u32 width_lod = surface.GetScaledWidth() >> level;
             upload_copies.push_back({
@@ -816,7 +812,8 @@ template <typename Func>
 void RasterizerCache<T>::ForEachSurfaceInRegion(PAddr addr, std::size_t size, Func&& func) {
     using FuncReturn = typename std::invoke_result<Func, SurfaceId, Surface&>::type;
     static constexpr bool BOOL_BREAK = std::is_same_v<FuncReturn, bool>;
-    boost::container::small_vector<SurfaceId, 8> surfaces;
+    std::vector<SurfaceId> surfaces;
+    surfaces.reserve(8);
     ForEachPage(addr, size, [this, &surfaces, addr, size, func](u64 page) {
         const auto it = page_table.find(page);
         if (it == page_table.end()) {
@@ -1227,7 +1224,9 @@ void RasterizerCache<T>::ClearAll(bool flush) {
         FlushRegion(0x0, 0xFFFFFFFF);
     }
     // Unmark all of the marked pages
-    for (auto& pair : RangeFromInterval(cached_pages, flush_interval)) {
+    const auto cached_page_range = cached_pages.equal_range(flush_interval);
+    for (auto it = cached_page_range.first; it != cached_page_range.second; ++it) {
+        auto& pair = *it;
         const auto interval = pair.first & flush_interval;
 
         const PAddr interval_start_addr = boost::icl::first(interval) << Memory::CITRA_PAGE_BITS;
@@ -1252,7 +1251,9 @@ void RasterizerCache<T>::FlushRegion(PAddr addr, u32 size, SurfaceId flush_surfa
     const SurfaceInterval flush_interval(addr, addr + size);
     SurfaceRegions flushed_intervals;
 
-    for (const auto& [region, surface_id] : RangeFromInterval(dirty_regions, flush_interval)) {
+    const auto dirty_regions_range = dirty_regions.equal_range(flush_interval);
+    for (auto it = dirty_regions_range.first; it != dirty_regions_range.second; ++it) {
+        const auto& [region, surface_id] = *it;
         if (flush_surface_id && surface_id != flush_surface_id) {
             continue;
         }
@@ -1311,7 +1312,8 @@ void RasterizerCache<T>::InvalidateRegion(PAddr addr, u32 size, SurfaceId region
         region_owner.MarkValid(invalid_interval);
     }
 
-    boost::container::small_vector<SurfaceId, 4> remove_surfaces;
+    std::vector<SurfaceId> remove_surfaces;
+    remove_surfaces.reserve(4);
     ForEachSurfaceInRegion(addr, size, [&](SurfaceId surface_id, Surface& surface) {
         if (surface_id == region_owner_id) {
             return;
@@ -1436,7 +1438,9 @@ void RasterizerCache<T>::UpdatePagesCachedCount(PAddr addr, u32 size, int delta)
         cached_pages.add({pages_interval, delta});
     }
 
-    for (const auto& pair : RangeFromInterval(cached_pages, pages_interval)) {
+    const auto cached_pages_range = cached_pages.equal_range(pages_interval);
+    for (auto it = cached_pages_range.first; it != cached_pages_range.second; ++it) {
+        const auto& pair = *it;
         const auto interval = pair.first & pages_interval;
         const int count = pair.second;
 

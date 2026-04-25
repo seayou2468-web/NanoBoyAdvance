@@ -2,7 +2,7 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include <boost/container/static_vector.hpp>
+#include <vector>
 #include "common/logging/log.h"
 #include "common/microprofile.h"
 #include "common/quaternion.h"
@@ -115,8 +115,10 @@ void RasterizerSoftware::AddTriangle(const Pica::OutputVertex& v0, const Pica::O
      **/
     static constexpr std::size_t MAX_VERTICES = 9;
 
-    boost::container::static_vector<Vertex, MAX_VERTICES> buffer_a = {v0, v1, v2};
-    boost::container::static_vector<Vertex, MAX_VERTICES> buffer_b;
+    std::vector<Vertex> buffer_a = {v0, v1, v2};
+    std::vector<Vertex> buffer_b;
+    buffer_a.reserve(MAX_VERTICES);
+    buffer_b.reserve(MAX_VERTICES);
 
     FlipQuaternionIfOpposite(buffer_a[1].quat, buffer_a[0].quat);
     FlipQuaternionIfOpposite(buffer_a[2].quat, buffer_a[0].quat);

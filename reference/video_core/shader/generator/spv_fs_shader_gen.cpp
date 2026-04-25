@@ -2,7 +2,7 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include <boost/container/small_vector.hpp>
+#include <vector>
 #include "video_core/shader/generator/pica_fs_config.h"
 #include "video_core/shader/generator/spv_fs_shader_gen.h"
 
@@ -1507,10 +1507,11 @@ void FragmentModule::DefineEntryPoint() {
     const Id main_type{TypeFunction(TypeVoid())};
     const Id main_func{OpFunction(TypeVoid(), spv::FunctionControlMask::MaskNone, main_type)};
 
-    boost::container::small_vector<Id, 11> interface_ids{
+    std::vector<Id> interface_ids{
         primary_color_id, texcoord_id[0], texcoord_id[1], texcoord_id[2],   texcoord0_w_id,
         normquat_id,      view_id,        color_id,       gl_frag_coord_id, gl_frag_depth_id,
     };
+    interface_ids.reserve(11);
     if (use_fragment_shader_barycentric) {
         interface_ids.push_back(gl_bary_coord_id);
     }
