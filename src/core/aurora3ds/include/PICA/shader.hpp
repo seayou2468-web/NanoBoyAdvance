@@ -158,6 +158,8 @@ class PICAShader {
   private:
 	// Interpreter functions for the various shader functions
 	void add(u32 instruction);
+	void breakOp(u32 instruction);
+	void breakc(u32 instruction);
 	void call(u32 instruction);
 	void callc(u32 instruction);
 	void callu(u32 instruction);

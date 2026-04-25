@@ -20,9 +20,11 @@ void PICAShader::run() {
 		const u32 instruction = loadedShader[pc++];
 		const u32 opcode = instruction >> 26;  // Top 6 bits are the opcode
 
-		switch (opcode) {
-			case ShaderOpcodes::ADD: add(instruction); break;
-			case ShaderOpcodes::CALL: call(instruction); break;
+			switch (opcode) {
+				case ShaderOpcodes::ADD: add(instruction); break;
+				case ShaderOpcodes::BREAK: breakOp(instruction); break;
+				case ShaderOpcodes::BREAKC: breakc(instruction); break;
+				case ShaderOpcodes::CALL: call(instruction); break;
 			case ShaderOpcodes::CALLC: callc(instruction); break;
 			case ShaderOpcodes::CALLU: callu(instruction); break;
 			case ShaderOpcodes::CMP1:
@@ -100,11 +102,13 @@ void PICAShader::run() {
 			auto& loop = loopInfo[loopIndex - 1];
 			if (pc == loop.endingPC) {  // Check if the loop needs to start over
 				loop.iterations -= 1;
-				if (loop.iterations == 0)  // If the loop ended, go one level down on the loop stack
+				if (loop.iterations == 0) {
+					// If the loop ended, pop it and continue with the next instruction
 					loopIndex -= 1;
-
-				loopCounter += loop.increment;
-				pc = loop.startingPC;
+				} else {
+					loopCounter += loop.increment;
+					pc = loop.startingPC;
+				}
 			}
 		}
 
@@ -747,6 +751,22 @@ void PICAShader::cmp(u32 instruction) {
 				break;
 			}
 		}
+	}
+}
+
+void PICAShader::breakOp(u32) {
+	if (loopIndex == 0) [[unlikely]] {
+		return;
+	}
+
+	auto& loop = loopInfo[loopIndex - 1];
+	loop.iterations = 1;
+	pc = loop.endingPC;
+}
+
+void PICAShader::breakc(u32 instruction) {
+	if (isCondTrue(instruction)) {
+		breakOp(instruction);
 	}
 }
 
