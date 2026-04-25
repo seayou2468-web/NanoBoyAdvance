@@ -9,8 +9,14 @@ void PICAShader::run() {
 	loopIndex = 0;
 	ifIndex = 0;
 	callIndex = 0;
+	u32 safety_counter = 0;
 
 	while (true) {
+		if (pc >= maxInstructionCount) [[unlikely]] {
+			Helpers::warn("[PICA] Shader interpreter PC overflow (pc=%u, entrypoint=%u). Aborting shader run.", pc, entrypoint);
+			return;
+		}
+
 		const u32 instruction = loadedShader[pc++];
 		const u32 opcode = instruction >> 26;  // Top 6 bits are the opcode
 
@@ -78,6 +84,11 @@ void PICAShader::run() {
 			case ShaderOpcodes::LITP: [[unlikely]] litp(instruction); break;
 
 			default: Helpers::panic("Unimplemented PICA instruction %08X (Opcode = %02X)", instruction, opcode);
+		}
+
+		if (++safety_counter > 1000000) [[unlikely]] {
+			Helpers::warn("[PICA] Shader interpreter safety break (pc=%u, entrypoint=%u)", pc, entrypoint);
+			return;
 		}
 
 		// Handle control flow statements. The ordering is important as the priority goes: LOOP > IF > CALL
