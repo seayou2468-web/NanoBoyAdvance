@@ -3,9 +3,11 @@
 #include <algorithm>
 #include <array>
 #include <cctype>
+#include <chrono>
 #include <cstdint>
 #include <cstdlib>
 #include <fstream>
+#include <vector>
 
 #if defined(__APPLE__)
 #include <TargetConditionals.h>
@@ -19,6 +21,7 @@ constexpr u32 kTopScreenTargetHeight = 240;
 
 enum class ContainerProbeType {
 	Unknown,
+	CIA,
 	NCSD,
 	NCCH,
 	ELF,
@@ -41,6 +44,9 @@ static ContainerProbeType ProbeContainerType(const std::filesystem::path& path) 
 	if (header[0] == 0x7F && header[1] == 'E' && header[2] == 'L' && header[3] == 'F') {
 		return ContainerProbeType::ELF;
 	}
+	if (read >= 0x20 && header[0] == 0x20 && header[1] == 0x20 && header[2] == 0x00 && header[3] == 0x00) {
+		return ContainerProbeType::CIA;
+	}
 	if (header[0] == '3' && header[1] == 'D' && header[2] == 'S' && header[3] == 'X') {
 		return ContainerProbeType::_3DSX;
 	}
@@ -51,6 +57,105 @@ static ContainerProbeType ProbeContainerType(const std::filesystem::path& path) 
 		return ContainerProbeType::NCCH;
 	}
 	return ContainerProbeType::Unknown;
+}
+
+constexpr u32 AlignUp(u32 value, u32 alignment) {
+	return (value + alignment - 1) & ~(alignment - 1);
+}
+
+static bool ExtractFirstNCCHFromCIA(const std::filesystem::path& ciaPath, std::filesystem::path& outNCCHPath) {
+	std::ifstream in(ciaPath, std::ios::binary);
+	if (!in.good()) {
+		return false;
+	}
+
+	std::array<u8, 0x2020> header {};
+	in.read(reinterpret_cast<char*>(header.data()), static_cast<std::streamsize>(header.size()));
+	if (in.gcount() != static_cast<std::streamsize>(header.size())) {
+		return false;
+	}
+
+	auto readU32 = [&](size_t offset) -> u32 {
+		return u32(header[offset]) | (u32(header[offset + 1]) << 8) | (u32(header[offset + 2]) << 16) | (u32(header[offset + 3]) << 24);
+	};
+	auto readU64 = [&](size_t offset) -> u64 {
+		u64 value = 0;
+		for (size_t i = 0; i < 8; i++) {
+			value |= u64(header[offset + i]) << (i * 8);
+		}
+		return value;
+	};
+
+	const u32 headerSize = readU32(0x0);
+	const u32 certSize = readU32(0x8);
+	const u32 tikSize = readU32(0xC);
+	const u32 tmdSize = readU32(0x10);
+	const u64 contentSize = readU64(0x18);
+	const u64 contentOffset = AlignUp(headerSize + certSize + tikSize + tmdSize, 0x40);
+
+	in.clear();
+	in.seekg(0, std::ios::end);
+	const u64 fileSize = static_cast<u64>(in.tellg());
+	if (contentOffset >= fileSize) {
+		return false;
+	}
+	const u64 contentEnd = std::min<u64>(fileSize, contentOffset + contentSize);
+
+	u64 firstNCCH = 0;
+	u64 secondNCCH = 0;
+	std::array<char, 4> magic {};
+
+	for (u64 pos = contentOffset; pos + 0x104 <= contentEnd; pos += 0x40) {
+		in.seekg(static_cast<std::streamoff>(pos + 0x100), std::ios::beg);
+		in.read(magic.data(), 4);
+		if (in.gcount() != 4) {
+			break;
+		}
+		if (magic[0] == 'N' && magic[1] == 'C' && magic[2] == 'C' && magic[3] == 'H') {
+			if (firstNCCH == 0) {
+				firstNCCH = pos;
+			} else {
+				secondNCCH = pos;
+				break;
+			}
+		}
+	}
+
+	if (firstNCCH == 0) {
+		return false;
+	}
+
+	const u64 extractEnd = (secondNCCH != 0) ? secondNCCH : contentEnd;
+	if (extractEnd <= firstNCCH) {
+		return false;
+	}
+	const u64 extractSize = extractEnd - firstNCCH;
+
+	const auto stamp = std::chrono::steady_clock::now().time_since_epoch().count();
+	outNCCHPath = std::filesystem::temp_directory_path() / ("aurora_cia_extract_" + std::to_string(stamp) + ".cxi");
+	std::ofstream out(outNCCHPath, std::ios::binary | std::ios::trunc);
+	if (!out.good()) {
+		return false;
+	}
+
+	constexpr size_t copyChunk = 1 << 20;
+	std::vector<char> buffer(copyChunk);
+	u64 remaining = extractSize;
+	in.clear();
+	in.seekg(static_cast<std::streamoff>(firstNCCH), std::ios::beg);
+
+	while (remaining > 0) {
+		const size_t toRead = static_cast<size_t>(std::min<u64>(remaining, copyChunk));
+		in.read(buffer.data(), static_cast<std::streamsize>(toRead));
+		const std::streamsize got = in.gcount();
+		if (got <= 0) {
+			return false;
+		}
+		out.write(buffer.data(), got);
+		remaining -= static_cast<u64>(got);
+	}
+
+	return out.good();
 }
 
 std::filesystem::path ResolveWritableBasePath() {
@@ -393,12 +498,18 @@ bool Emulator::loadROM(const std::filesystem::path& path) {
 	// Prefer extension dispatch when known, and use probe as fallback/validation.
 	if (extension == ".elf" || extension == ".axf") {
 		success = loadELF(path);
-	} else if (extension == ".3ds" || extension == ".cci") {
+	} else if (extension == ".3ds" || extension == ".cci" || extension == ".zcci") {
 		success = loadNCSD(path, ROMType::NCSD);
-	} else if (extension == ".cxi" || extension == ".app" || extension == ".ncch") {
+	} else if (extension == ".cxi" || extension == ".app" || extension == ".ncch" || extension == ".zcxi") {
 		success = loadNCSD(path, ROMType::CXI);
-	} else if (extension == ".3dsx") {
+	} else if (extension == ".3dsx" || extension == ".z3dsx") {
 		success = load3DSX(path);
+	} else if (extension == ".cia" || extension == ".zcia") {
+		std::filesystem::path extractedNCCH;
+		success = ExtractFirstNCCHFromCIA(path, extractedNCCH) && loadNCSD(extractedNCCH, ROMType::CXI);
+		if (!success) {
+			Helpers::warn("Failed to extract/load NCCH content from CIA: %s\n", path.string().c_str());
+		}
 	} else {
 		probeType = ProbeContainerType(path);
 		Helpers::warn("ROM extension dispatch fallback: extension=\"%s\" probe=%d path=%s\n",
@@ -406,6 +517,11 @@ bool Emulator::loadROM(const std::filesystem::path& path) {
 		switch (probeType) {
 			case ContainerProbeType::ELF: success = loadELF(path); break;
 			case ContainerProbeType::_3DSX: success = load3DSX(path); break;
+			case ContainerProbeType::CIA: {
+				std::filesystem::path extractedNCCH;
+				success = ExtractFirstNCCHFromCIA(path, extractedNCCH) && loadNCSD(extractedNCCH, ROMType::CXI);
+				break;
+			}
 			case ContainerProbeType::NCSD: success = loadNCSD(path, ROMType::NCSD); break;
 			case ContainerProbeType::NCCH: success = loadNCSD(path, ROMType::CXI); break;
 			default:
