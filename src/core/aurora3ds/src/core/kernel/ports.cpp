@@ -240,8 +240,11 @@ void Kernel::sendSyncRequest() {
 		const auto portData = objects[portHandle].getData<Port>();
 		Helpers::warn("SendSyncRequest targetting unsupported port %s", portData->name);
 		regs[0] = Result::Success;
-		// Route all unknown named-port traffic through generic OS_STUB so client state machines
-		// don't collapse due to repeated NotImplemented/invalid-handle cascades.
-		serviceManager.sendCommandToService(messagePointer, KernelHandles::OS_STUB);
+		// First try external bridge fallback (reference runtime) if configured.
+		if (!serviceManager.tryFallbackBridgeForPort(portData->name, messagePointer)) {
+			// Otherwise route all unknown named-port traffic through generic OS_STUB so client state
+			// machines don't collapse due to repeated NotImplemented/invalid-handle cascades.
+			serviceManager.sendCommandToService(messagePointer, KernelHandles::OS_STUB);
+		}
 	}
 }

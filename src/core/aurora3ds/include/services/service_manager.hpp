@@ -28,6 +28,7 @@
 #include "./gsp_lcd.hpp"
 #include "./hid.hpp"
 #include "./http.hpp"
+#include "./hle_fallback_bridge.hpp"
 #include "./ir/ir_user.hpp"
 #include "./ldr_ro.hpp"
 #include "./mcu/mcu_hwc.hpp"
@@ -109,6 +110,7 @@ class ServiceManager {
 	Y2RService y2r;
 
 	MCU::HWCService mcu_hwc;
+	HLEFallbackBridge* fallbackBridge = nullptr;
 
 
 	// "srv:" commands
@@ -140,6 +142,8 @@ class ServiceManager {
 
 	// Forward a SendSyncRequest IPC message to the service with the respective handle
 	void sendCommandToService(u32 messagePointer, Handle handle);
+	bool tryFallbackBridgeForPort(std::string_view portName, u32 messagePointer);
+	void setFallbackBridge(HLEFallbackBridge* bridge) { fallbackBridge = bridge; }
 
 	// Wrappers for communicating with certain services
 	void sendGPUInterrupt(GPUInterrupt type) { gsp_gpu.requestInterrupt(type); }

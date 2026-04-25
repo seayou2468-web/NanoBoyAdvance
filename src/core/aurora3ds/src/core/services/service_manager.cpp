@@ -602,7 +602,17 @@ void ServiceManager::sendCommandToService(u32 messagePointer, Handle handle) {
 		case KernelHandles::PM_APP: pm.handleSyncRequest(messagePointer, PMService::Type::App); break;
 		case KernelHandles::PM_DBG: pm.handleSyncRequest(messagePointer, PMService::Type::Debug); break;
 		case KernelHandles::PXI_DEV: pxi_dev.handleSyncRequest(messagePointer); break;
-		case KernelHandles::OS_STUB: os_ext.handleSyncRequest(messagePointer); break;
+		case KernelHandles::OS_STUB:
+			// First let Aurora's local generic stub try. If the command remains unimplemented,
+			// fall back to external bridge if available.
+			os_ext.handleSyncRequest(messagePointer);
+			if (fallbackBridge != nullptr) {
+				const u32 result = mem.read32(messagePointer + 4);
+				if (result == Result::OS::NotImplemented) {
+					(void)fallbackBridge->handleUnknownService(handle, messagePointer);
+				}
+			}
+			break;
 		case KernelHandles::PS_PS: ps_ps.handleSyncRequest(messagePointer); break;
 		case KernelHandles::QTM_C: qtm.handleSyncRequest(messagePointer, QTMService::Type::C); break;
 		case KernelHandles::QTM_S: qtm.handleSyncRequest(messagePointer, QTMService::Type::S); break;
@@ -615,9 +625,20 @@ void ServiceManager::sendCommandToService(u32 messagePointer, Handle handle) {
 		case KernelHandles::Y2R: y2r.handleSyncRequest(messagePointer); break;
 		default: {
 			Helpers::warn("Sent IPC message to unknown service %08X Command=%08X", handle, mem.read32(messagePointer));
+			if (fallbackBridge != nullptr && fallbackBridge->handleUnknownService(handle, messagePointer)) {
+				break;
+			}
+
 			mem.write32(messagePointer, IPC::responseHeader(mem.read32(messagePointer) >> 16, 1, 0));
 			mem.write32(messagePointer + 4, Result::OS::NotImplemented);
 			break;
 		}
 	}
+}
+
+bool ServiceManager::tryFallbackBridgeForPort(std::string_view portName, u32 messagePointer) {
+	if (fallbackBridge == nullptr) {
+		return false;
+	}
+	return fallbackBridge->handleUnsupportedPort(portName, messagePointer);
 }
