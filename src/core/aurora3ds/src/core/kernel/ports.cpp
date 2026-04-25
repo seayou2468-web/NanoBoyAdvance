@@ -71,7 +71,8 @@ void Kernel::connectToPort() {
 	if (!optionalHandle.has_value()) [[unlikely]] {
 		// Allow boot to continue for unknown-but-service-like named ports.
 		// These ports are routed through OS_STUB in SendSyncRequest.
-		if (port.find(':') != std::string::npos && port.length() <= 8) {
+		const bool looksLikeServicePort = (port.find(':') != std::string::npos) || (!port.empty() && (port[0] == '$' || port[0] == '_'));
+		if (looksLikeServicePort && port.length() <= 8) {
 			Helpers::warn("ConnectToPort: Auto-creating fallback named port (%s)", port.c_str());
 			optionalHandle = makeNamedPort(port.c_str());
 		} else {

@@ -469,6 +469,11 @@ void GPUService::setLCDForceBlack(u32 messagePointer) {
 }
 
 void GPUService::triggerCmdReqQueue(u32 messagePointer) {
+	static u64 triggerCmdReqDiagCounter = 0;
+	triggerCmdReqDiagCounter++;
+	if ((triggerCmdReqDiagCounter % 120) == 1) {
+		Helpers::warn("[GSP] TriggerCmdReqQueue #%llu msg=%08X", static_cast<unsigned long long>(triggerCmdReqDiagCounter), messagePointer);
+	}
 	if (sharedMem == nullptr) {
 		sharedMem = mem.getSharedMemoryPointer(KernelHandles::GSPSharedMemHandle);
 		if (sharedMem == nullptr) {
@@ -686,6 +691,16 @@ void GPUService::setBufferSwapImpl(u32 screenId, const FramebufferInfo& info) {
 	regs[configAddresses[configIndex]] = info.format;
 	regs[configAddresses[configIndex + 1]] = info.displayFb;
 	regs[configAddresses[configIndex + 2]] = info.stride;
+
+	static u64 fbSwapDiagCounter = 0;
+	fbSwapDiagCounter++;
+	if ((fbSwapDiagCounter % 180) == 1) {
+		Helpers::warn(
+			"[GSP] SetBufferSwap screen=%u activeFb=%u displayFb=%u fmt=%u stride=%u left=%08X right=%08X (phys left=%08X right=%08X)",
+			screenId, info.activeFb, info.displayFb, info.format, info.stride, info.leftFramebufferVaddr, info.rightFramebufferVaddr,
+			regs[fbAddresses[fbIndex]], regs[fbAddresses[fbIndex + 1]]
+		);
+	}
 }
 
 // Actually send command list (aka display list) to GPU
@@ -694,6 +709,14 @@ void GPUService::processCommandList(u32* cmd) {
 	const u32 size = cmd[2] & ~3;                           // Buffer size in bytes
 	[[maybe_unused]] const bool updateGas = cmd[3] == 1;    // Update gas additive blend results (0 = don't update, 1 = update)
 	[[maybe_unused]] const bool flushBuffer = cmd[7] == 1;  // Flush buffer (0 = don't flush, 1 = flush)
+	static u64 processCmdListDiagCounter = 0;
+	processCmdListDiagCounter++;
+	if ((processCmdListDiagCounter % 120) == 1) {
+		Helpers::warn(
+			"[GSP] ProcessCommandList #%llu addr=%08X size=%08X updateGas=%u flush=%u",
+			static_cast<unsigned long long>(processCmdListDiagCounter), address, size, static_cast<u32>(updateGas), static_cast<u32>(flushBuffer)
+		);
+	}
 
 	log("GPU::GSP::processCommandList. Address: %08X, size in bytes: %08X\n", address, size);
 	gpu.startCommandList(address, size);

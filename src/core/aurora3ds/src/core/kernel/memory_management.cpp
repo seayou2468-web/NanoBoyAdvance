@@ -48,6 +48,14 @@ void Kernel::controlMemory() {
 	u32 operation = regs[4];
 	u32 perms = regs[5];
 	u32 pages = size >> 12;  // Official kernel truncates nonaligned sizes
+	static u64 controlMemDiagCounter = 0;
+	controlMemDiagCounter++;
+	if ((controlMemDiagCounter % 240) == 1) {
+		Helpers::warn(
+			"[SVC] ControlMemory #%llu op=%08X addr0=%08X addr1=%08X size=%08X perms=%08X pages=%u",
+			static_cast<unsigned long long>(controlMemDiagCounter), operation, addr0, addr1, size, perms, pages
+		);
+	}
 
 	if (perms == MemoryPermissions::DontCare) {
 		perms = MemoryPermissions::ReadWrite;  // We make "don't care" equivalent to read-write
@@ -125,26 +133,52 @@ void Kernel::controlMemory() {
 			regs[1] = addr0;
 			break;
 
-		case Operation::Commit: {
-			// TODO: base this from the exheader
-			auto region = FcramRegion::App;
+			case Operation::Commit: {
+				// TODO: base this from the exheader
+				auto region = FcramRegion::App;
+				auto findFreeNormalHeapBase = [&](u32 requestedPages) -> u32 {
+					if (requestedPages == 0) {
+						return VirtualAddrs::NormalHeapStart;
+					}
+					const u32 start = VirtualAddrs::NormalHeapStart;
+					const u32 end = mem.getLinearHeapVaddr();
+					const u32 bytes = requestedPages * Memory::pageSize;
+					if (end <= start || bytes > (end - start)) {
+						return 0;
+					}
+					for (u32 candidate = start; candidate <= end - bytes; candidate += Memory::pageSize) {
+						if (mem.testMemoryState(candidate, static_cast<s32>(requestedPages), MemoryState::Free).isSuccess()) {
+							return candidate;
+						}
+					}
+					return 0;
+				};
 
-			u32 outAddr = 0;
-			if (linear) {
-				if (!mem.allocMemoryLinear(outAddr, addr0, pages, region, r, w, false)) {
-					Helpers::warn("ControlMemory: Failed to allocate linear memory");
-					regs[0] = Result::OS::OutOfRange;
-					return;
-				}
-			} else {
-				if (!mem.allocMemory(addr0, pages, region, r, w, false, MemoryState::Private)) {
-					Helpers::warn("ControlMemory: Failed to allocate memory");
-					regs[0] = Result::OS::OutOfRange;
-					return;
-				}
+				u32 outAddr = 0;
+				if (linear) {
+					if (!mem.allocMemoryLinear(outAddr, addr0, pages, region, r, w, false)) {
+						Helpers::warn("ControlMemory: Failed to allocate linear memory");
+						regs[0] = Result::OS::OutOfRange;
+						return;
+					}
+				} else {
+					u32 targetAddr = addr0;
+					if (targetAddr == 0) {
+						targetAddr = findFreeNormalHeapBase(pages);
+						if (targetAddr == 0) {
+							Helpers::warn("ControlMemory: Failed to find free heap range for %u pages", pages);
+							regs[0] = Result::OS::OutOfRange;
+							return;
+						}
+					}
+					if (!mem.allocMemory(targetAddr, pages, region, r, w, false, MemoryState::Private)) {
+						Helpers::warn("ControlMemory: Failed to allocate memory");
+						regs[0] = Result::OS::OutOfRange;
+						return;
+					}
 
-				outAddr = addr0;
-			}
+					outAddr = targetAddr;
+				}
 
 			regs[1] = outAddr;
 			break;

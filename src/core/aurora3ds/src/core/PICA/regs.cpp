@@ -379,6 +379,8 @@ void GPU::writeInternalReg(u32 index, u32 value, u32 mask) {
 }
 
 void GPU::startCommandList(u32 addr, u32 size) {
+	static u64 commandListCounter = 0;
+	commandListCounter++;
 	cmdBuffStart = static_cast<u32*>(mem.getReadPointer(addr));
 	if (!cmdBuffStart) {
 		// Some command paths hand us physical addresses while others use virtual ones.
@@ -473,6 +475,17 @@ void GPU::startCommandList(u32 addr, u32 size) {
 			Helpers::warn(
 				"[PICA] Command list finished without draw trigger (addr=%08X size=%08X vertexCount=%u prim=%u)",
 				addr, size, regs[PICA::InternalRegs::VertexCountReg], regs[PICA::InternalRegs::PrimitiveConfig]
+			);
+		}
+	} else {
+		// Diagnostic breadcrumb to verify that draw-producing command lists are actually being submitted.
+		static u64 sawDrawTriggerInfoCounter = 0;
+		sawDrawTriggerInfoCounter++;
+		if ((sawDrawTriggerInfoCounter % 240) == 1) {
+			Helpers::warn(
+				"[PICA] Command list #%llu contained draw trigger (addr=%08X size=%08X vertexCount=%u prim=%u)",
+				static_cast<unsigned long long>(commandListCounter), addr, size, regs[PICA::InternalRegs::VertexCountReg],
+				regs[PICA::InternalRegs::PrimitiveConfig]
 			);
 		}
 	}

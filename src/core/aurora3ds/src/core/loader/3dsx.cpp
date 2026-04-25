@@ -184,11 +184,13 @@ bool Memory::map3DSX(HB3DSX& hb3dsx, const HB3DSX::Header& header) {
 		}
 	}
 
-	// Detect and fill _prm structure
-	HB3DSX::PrmStruct pst;
-	std::memcpy(&pst, &code[4], sizeof(pst));
-	if (pst.magic[0] == '_' && pst.magic[1] == 'p' && pst.magic[2] == 'r' && pst.magic[3] == 'm') {
-		// if there was any argv to put, it would go there
+		// Detect and fill _prm structure
+		HB3DSX::PrmStruct pst;
+		bool hasPrm = false;
+		std::memcpy(&pst, &code[4], sizeof(pst));
+		if (pst.magic[0] == '_' && pst.magic[1] == 'p' && pst.magic[2] == 'r' && pst.magic[3] == 'm') {
+			hasPrm = true;
+			// if there was any argv to put, it would go there
 		// first u32: argc
 		// remaining: continuous argv string (NUL-char separated, ofc)
 		// std::memcpy(&code[extraPageOffset], argvBuffer, ...);
@@ -215,8 +217,8 @@ bool Memory::map3DSX(HB3DSX& hb3dsx, const HB3DSX::Header& header) {
 			pst.linearHeapSize = u32(32_MB);
 		}
 
-		std::memcpy(&code[4], &pst, sizeof(pst));
-	}
+			std::memcpy(&code[4], &pst, sizeof(pst));
+		}
 
 	// Text is R-X
 	allocMemory(textSegAddr, hbInfo.codeSegSizeAligned / Memory::pageSize, FcramRegion::App, true, false, true, MemoryState::Code);
@@ -227,11 +229,33 @@ bool Memory::map3DSX(HB3DSX& hb3dsx, const HB3DSX::Header& header) {
 	copyToVaddr(rodataSegAddr, &code[rodataOffset], hbInfo.rodataSegSizeAligned);
 
 	// Data + BSS + Extra is RW-. We allocate 1 extra page (4KB) which is not initialized to anything.
-	allocMemory(dataSegAddr, (hbInfo.dataSegSizeAligned + 4_KB) / Memory::pageSize, FcramRegion::App, true, true, false, MemoryState::Private);
-	copyToVaddr(dataSegAddr, &code[dataOffset], hbInfo.dataSegSizeAligned);
+		allocMemory(dataSegAddr, (hbInfo.dataSegSizeAligned + 4_KB) / Memory::pageSize, FcramRegion::App, true, true, false, MemoryState::Private);
+		copyToVaddr(dataSegAddr, &code[dataOffset], hbInfo.dataSegSizeAligned);
 
-	return true;
-}
+		// Homebrew loaders frequently expect default normal/linear heaps to exist early.
+		// If _prm is present, pre-allocate those regions to avoid early writes landing on unmapped memory.
+		if (hasPrm) {
+			auto bytesToPages = [](u32 size) -> u32 {
+				return (size + Memory::pageSize - 1) / Memory::pageSize;
+			};
+			const u32 heapPages = bytesToPages(pst.heapSize);
+			if (heapPages != 0 && testMemoryState(VirtualAddrs::NormalHeapStart, static_cast<s32>(heapPages), MemoryState::Free).isSuccess()) {
+				if (!allocMemory(VirtualAddrs::NormalHeapStart, static_cast<s32>(heapPages), FcramRegion::App, true, true, false, MemoryState::Private)) {
+					Helpers::warn("3DSX loader: failed to pre-allocate normal heap (%u pages)", heapPages);
+				}
+			}
+
+			const u32 linearPages = bytesToPages(pst.linearHeapSize);
+			if (linearPages != 0) {
+				u32 linearOut = 0;
+				if (!allocMemoryLinear(linearOut, 0, static_cast<s32>(linearPages), FcramRegion::App, true, true, false)) {
+					Helpers::warn("3DSX loader: failed to pre-allocate linear heap (%u pages)", linearPages);
+				}
+			}
+		}
+
+		return true;
+	}
 
 std::optional<u32> Memory::load3DSX(const std::filesystem::path& path) {
 	HB3DSX hb3dsx;
