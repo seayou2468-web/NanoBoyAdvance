@@ -2,16 +2,15 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#pragma once
+#include "core/core.h"
+#include "core/global.h"
 
 namespace Core {
 
-template <class T>
-T& Global();
-
-// Explicit specialization is provided by integration units when wired.
-class System;
 template <>
-System& Global();
+System& Global<System>() {
+    static System system{};
+    return system;
+}
 
 }  // namespace Core
