@@ -1,424 +1,480 @@
-#include "../../../include/loader/ncch.hpp"
+// Copyright Citra Emulator Project / Azahar Emulator Project
+// Licensed under GPLv2 or any later version
+// Refer to the license.txt file included.
 
+#include <algorithm>
 #include <cstring>
-#include <iostream>
+#include <memory>
 #include <vector>
+#include <fmt/format.h>
+#include "common/literals.h"
+#include "common/logging/log.h"
+#include "common/settings.h"
+#include "common/string_util.h"
+#include "common/swap.h"
+#include "common/zstd_compression.h"
+#include "core/core.h"
+#include "core/file_sys/ncch_container.h"
+#include "core/file_sys/title_metadata.h"
+#include "core/hle/kernel/kernel.h"
+#include "core/hle/kernel/process.h"
+#include "core/hle/kernel/resource_limit.h"
+#include "core/hle/service/am/am.h"
+#include "core/hle/service/cfg/cfg.h"
+#include "core/hle/service/fs/archive.h"
+#include "core/hle/service/fs/fs_user.h"
+#include "core/hw/unique_data.h"
+#include "core/loader/ncch.h"
+#include "core/loader/smdh.h"
+#include "core/memory.h"
+#include "core/system_titles.h"
+#include "network/network.h"
 
-#include "../../../include/apple_crypto.hpp"
-#include "../../../include/loader/lz77.hpp"
-#include "../../../include/memory.hpp"
+namespace Loader {
 
-bool NCCH::loadFromHeader(Crypto::AESEngine &aesEngine, IOFile& file, const FSInfo &info) {
-    // 0x200 bytes for the NCCH header
-    constexpr u64 headerSize = 0x200;
-    u8 header[headerSize];
+using namespace Common::Literals;
+static constexpr u64 UPDATE_TID_HIGH = 0x0004000e00000000;
+static constexpr u64 DLP_CHILD_TID_HIGH = 0x0004000100000000;
 
-    auto [success, bytes] = readFromFile(file, info, header, 0, headerSize);
-    if (!success || bytes != headerSize) {
-        printf("Failed to read NCCH header\n");
+FileType AppLoader_NCCH::IdentifyType(FileUtil::IOFile* file) {
+    u32 magic{};
+
+    std::unique_ptr<FileUtil::IOFile> file_crypto = HW::UniqueData::OpenUniqueCryptoFile(
+        file->Filename(), "rb", HW::UniqueData::UniqueCryptoFileID::NCCH);
+
+    // Check compressed NCCH file
+    std::optional<u32> magic_zstd = FileUtil::Z3DSReadIOFile::GetUnderlyingFileMagic(file);
+    if (!magic_zstd.has_value()) {
+        // Handle compressed and crypto NCCH file
+        magic_zstd = FileUtil::Z3DSReadIOFile::GetUnderlyingFileMagic(file_crypto.get());
+    }
+    if (magic_zstd.has_value()) {
+        if (MakeMagic('N', 'C', 'S', 'D') == magic_zstd)
+            return FileType::CCI;
+
+        if (MakeMagic('N', 'C', 'C', 'H') == magic_zstd)
+            return FileType::CXI;
+    }
+
+    // Check normal NCCH file
+    if (file->Seek(0x100, SEEK_SET) && 1 == file->ReadArray<u32>(&magic, 1)) {
+        if (MakeMagic('N', 'C', 'S', 'D') == magic)
+            return FileType::CCI;
+
+        if (MakeMagic('N', 'C', 'C', 'H') == magic)
+            return FileType::CXI;
+    }
+
+    // Check crypto NCCH file
+    if (file_crypto->Seek(0x100, SEEK_SET) && 1 == file_crypto->ReadArray<u32>(&magic, 1)) {
+        if (MakeMagic('N', 'C', 'S', 'D') == magic)
+            return FileType::CCI;
+
+        if (MakeMagic('N', 'C', 'C', 'H') == magic)
+            return FileType::CXI;
+    }
+
+    return FileType::Error;
+}
+
+std::pair<std::optional<u32>, ResultStatus> AppLoader_NCCH::LoadCoreVersion() {
+    if (!is_loaded) {
+        ResultStatus res = base_ncch.Load();
+        if (res != ResultStatus::Success) {
+            return std::make_pair(std::nullopt, res);
+        }
+    }
+
+    // Provide the core version from the exheader.
+    auto& ncch_caps = overlay_ncch->exheader_header.arm11_system_local_caps;
+    return std::make_pair(ncch_caps.core_version, ResultStatus::Success);
+}
+
+std::pair<std::optional<Kernel::MemoryMode>, ResultStatus> AppLoader_NCCH::LoadKernelMemoryMode() {
+    if (!is_loaded) {
+        ResultStatus res = base_ncch.Load();
+        if (res != ResultStatus::Success) {
+            return std::make_pair(std::nullopt, res);
+        }
+    }
+    if (memory_mode_override.has_value()) {
+        return std::make_pair(memory_mode_override, ResultStatus::Success);
+    }
+
+    // Provide the memory mode from the exheader.
+    auto& ncch_caps = overlay_ncch->exheader_header.arm11_system_local_caps;
+    auto mode = static_cast<Kernel::MemoryMode>(ncch_caps.system_mode.Value());
+    return std::make_pair(mode, ResultStatus::Success);
+}
+
+std::pair<std::optional<Kernel::New3dsHwCapabilities>, ResultStatus>
+AppLoader_NCCH::LoadNew3dsHwCapabilities() {
+    if (!is_loaded) {
+        ResultStatus res = base_ncch.Load();
+        if (res != ResultStatus::Success) {
+            return std::make_pair(std::nullopt, res);
+        }
+    }
+
+    // Provide the capabilities from the exheader.
+    auto& ncch_caps = overlay_ncch->exheader_header.arm11_system_local_caps;
+    auto caps = Kernel::New3dsHwCapabilities{
+        ncch_caps.enable_l2_cache != 0,
+        ncch_caps.enable_804MHz_cpu != 0,
+        static_cast<Kernel::New3dsMemoryMode>(ncch_caps.n3ds_mode),
+    };
+    return std::make_pair(std::move(caps), ResultStatus::Success);
+}
+
+bool AppLoader_NCCH::IsN3DSExclusive() {
+    if (!is_loaded) {
+        ResultStatus res = base_ncch.Load();
+        if (res != ResultStatus::Success) {
+            return false;
+        }
+    }
+
+    std::vector<u8> smdh_buffer;
+    if (ReadIcon(smdh_buffer) == ResultStatus::Success && IsValidSMDH(smdh_buffer)) {
+        SMDH* smdh = reinterpret_cast<SMDH*>(smdh_buffer.data());
+        return smdh->flags.n3ds_exclusive != 0;
+    }
+
+    return false;
+}
+
+ResultStatus AppLoader_NCCH::LoadExec(std::shared_ptr<Kernel::Process>& process) {
+    using Kernel::CodeSet;
+
+    if (!is_loaded)
+        return ResultStatus::ErrorNotLoaded;
+
+    std::vector<u8> code;
+    u64_le program_id;
+    if (ResultStatus::Success == ReadCode(code) &&
+        ResultStatus::Success == ReadProgramId(program_id)) {
+        if (IsGbaVirtualConsole(code)) {
+            LOG_ERROR(Loader, "Encountered unsupported GBA Virtual Console code section.");
+            return ResultStatus::ErrorGbaTitle;
+        }
+
+        std::string process_name = Common::StringFromFixedZeroTerminatedBuffer(
+            (const char*)overlay_ncch->exheader_header.codeset_info.name, 8);
+
+        std::shared_ptr<CodeSet> codeset = system.Kernel().CreateCodeSet(process_name, program_id);
+
+        codeset->CodeSegment().offset = 0;
+        codeset->CodeSegment().addr = overlay_ncch->exheader_header.codeset_info.text.address;
+        codeset->CodeSegment().size =
+            overlay_ncch->exheader_header.codeset_info.text.num_max_pages * Memory::CITRA_PAGE_SIZE;
+
+        codeset->RODataSegment().offset =
+            codeset->CodeSegment().offset + codeset->CodeSegment().size;
+        codeset->RODataSegment().addr = overlay_ncch->exheader_header.codeset_info.ro.address;
+        codeset->RODataSegment().size =
+            overlay_ncch->exheader_header.codeset_info.ro.num_max_pages * Memory::CITRA_PAGE_SIZE;
+
+        // TODO(yuriks): Not sure if the bss size is added to the page-aligned .data size or just
+        //               to the regular size. Playing it safe for now.
+        u32 bss_page_size = (overlay_ncch->exheader_header.codeset_info.bss_size + 0xFFF) & ~0xFFF;
+        code.resize(code.size() + bss_page_size, 0);
+
+        codeset->DataSegment().offset =
+            codeset->RODataSegment().offset + codeset->RODataSegment().size;
+        codeset->DataSegment().addr = overlay_ncch->exheader_header.codeset_info.data.address;
+        codeset->DataSegment().size =
+            overlay_ncch->exheader_header.codeset_info.data.num_max_pages *
+                Memory::CITRA_PAGE_SIZE +
+            bss_page_size;
+
+        // Apply patches now that the entire codeset (including .bss) has been allocated
+        const ResultStatus patch_result = overlay_ncch->ApplyCodePatch(code);
+        if (patch_result != ResultStatus::Success && patch_result != ResultStatus::ErrorNotUsed)
+            return patch_result;
+
+        codeset->entrypoint = codeset->CodeSegment().addr;
+        codeset->memory = std::move(code);
+
+        process = system.Kernel().CreateProcess(std::move(codeset));
+
+        // Attach a resource limit to the process based on the resource limit category
+        const auto category = static_cast<Kernel::ResourceLimitCategory>(
+            overlay_ncch->exheader_header.arm11_system_local_caps.resource_limit_category);
+        process->resource_limit = system.Kernel().ResourceLimit().GetForCategory(category);
+
+        // Update application max cpu setting. PM module uses the launch flags to determine
+        // this, but using the resource limit category is close enough.
+        if (category == Kernel::ResourceLimitCategory::Application) {
+            process->resource_limit->ApplyAppMaxCPUSetting(
+                process, overlay_ncch->exheader_header.arm11_system_local_caps.schedule_mode,
+                overlay_ncch->exheader_header.arm11_system_local_caps.max_cpu);
+        }
+
+        // When running N3DS-unaware titles pm will lie about the amount of memory available.
+        // This means RESLIMIT_COMMIT = APPMEMALLOC doesn't correspond to the actual size of
+        // APPLICATION. See:
+        // https://github.com/LumaTeam/Luma3DS/blob/e2778a45/sysmodules/pm/source/launch.c#L237
+        auto& ncch_caps = overlay_ncch->exheader_header.arm11_system_local_caps;
+        const auto o3ds_mode = *LoadKernelMemoryMode().first;
+        const auto n3ds_mode = static_cast<Kernel::New3dsMemoryMode>(ncch_caps.n3ds_mode);
+        const bool is_new_3ds = Settings::values.is_new_3ds.GetValue();
+        if (is_new_3ds && n3ds_mode == Kernel::New3dsMemoryMode::Legacy &&
+            category == Kernel::ResourceLimitCategory::Application) {
+            u64 new_limit = 0;
+            switch (o3ds_mode) {
+            case Kernel::MemoryMode::Prod:
+                new_limit = 64_MiB;
+                break;
+            case Kernel::MemoryMode::Dev1:
+                new_limit = 96_MiB;
+                break;
+            case Kernel::MemoryMode::Dev2:
+                new_limit = 80_MiB;
+                break;
+            default:
+                break;
+            }
+            process->resource_limit->SetLimitValue(Kernel::ResourceLimitType::Commit,
+                                                   static_cast<s32>(new_limit));
+        }
+
+        // Set the default CPU core for this process
+        process->ideal_processor =
+            overlay_ncch->exheader_header.arm11_system_local_caps.ideal_processor;
+
+        // Copy data while converting endianness
+        using KernelCaps = std::array<u32, ExHeader_ARM11_KernelCaps::NUM_DESCRIPTORS>;
+        KernelCaps kernel_caps;
+        std::copy_n(overlay_ncch->exheader_header.arm11_kernel_caps.descriptors, kernel_caps.size(),
+                    begin(kernel_caps));
+        process->ParseKernelCaps(kernel_caps.data(), kernel_caps.size());
+
+        s32 priority = overlay_ncch->exheader_header.arm11_system_local_caps.priority;
+        u32 stack_size = overlay_ncch->exheader_header.codeset_info.stack_size;
+
+        // On real HW this is done with FS:Reg, but we can be lazy
+        auto fs_user = system.ServiceManager().GetService<Service::FS::FS_USER>("fs:USER");
+        fs_user->RegisterProgramInfo(process->process_id, process->codeset->program_id, filepath);
+
+        Service::FS::FS_USER::ProductInfo product_info{};
+        std::memcpy(product_info.product_code.data(), overlay_ncch->ncch_header.product_code,
+                    product_info.product_code.size());
+        std::memcpy(&product_info.remaster_version,
+                    overlay_ncch->exheader_header.codeset_info.flags.remaster_version,
+                    sizeof(product_info.remaster_version));
+        product_info.maker_code = overlay_ncch->ncch_header.maker_code;
+        fs_user->RegisterProductInfo(process->process_id, product_info);
+
+        process->Run(priority, stack_size);
+        return ResultStatus::Success;
+    }
+    return ResultStatus::Error;
+}
+
+void AppLoader_NCCH::ParseRegionLockoutInfo(u64 program_id) {
+    if (Settings::values.region_value.GetValue() != Settings::REGION_VALUE_AUTO_SELECT) {
+        return;
+    }
+
+    preferred_regions.clear();
+
+    std::vector<u8> smdh_buffer;
+    if (ReadIcon(smdh_buffer) == ResultStatus::Success && smdh_buffer.size() >= sizeof(SMDH)) {
+        SMDH smdh;
+        std::memcpy(&smdh, smdh_buffer.data(), sizeof(SMDH));
+        u32 region_lockout = smdh.region_lockout;
+        constexpr u32 REGION_COUNT = 7;
+        for (u32 region = 0; region < REGION_COUNT; ++region) {
+            if (region_lockout & 1) {
+                preferred_regions.push_back(region);
+            }
+            region_lockout >>= 1;
+        }
+    } else {
+        const auto region = Core::GetSystemTitleRegion(program_id);
+        if (region.has_value()) {
+            preferred_regions.push_back(region.value());
+        }
+    }
+}
+
+bool AppLoader_NCCH::IsGbaVirtualConsole(std::span<const u8> code) {
+    if (code.size() < 0x10) [[unlikely]] {
         return false;
     }
-	
-	if (header[0x100] != 'N' || header[0x101] != 'C' || header[0x102] != 'C' || header[0x103] != 'H') {
-		printf("Invalid header on NCCH\n");
-		return false;
-	}
 
-	codeFile.clear();
-	smdh.clear();
-	partitionInfo = info;
-
-	primaryKey = {};
-	secondaryKey = {};
-
-	size = u64(*(u32*)&header[0x104]) * mediaUnit; // TODO: Maybe don't type pun because big endian will break
-	exheaderSize = *(u32*)&header[0x180];
-
-	programID = *(u64*)&header[0x118];
-
-	// Read NCCH flags
-	secondaryKeySlot = header[0x188 + 3];
-	isNew3DS = header[0x188 + 4] == 2;
-	fixedCryptoKey = (header[0x188 + 7] & 0x1) == 0x1;
-	mountRomFS = (header[0x188 + 7] & 0x2) != 0x2;
-	encrypted = (header[0x188 + 7] & 0x4) != 0x4;
-	seedCrypto = (header[0x188 + 7] & 0x20) == 0x20;
-
-	// Read exheader, ExeFS and RomFS info
-	exheaderInfo.offset = info.offset + 0x200;
-	exheaderInfo.size = exheaderSize;
-	exheaderInfo.hashRegionSize = 0;
-	exheaderInfo.encryptionInfo = std::nullopt;
-
-	exeFS.offset = info.offset + u64(*(u32*)&header[0x1A0]) * mediaUnit;
-	exeFS.size = u64(*(u32*)&header[0x1A4]) * mediaUnit;
-	exeFS.hashRegionSize = u64(*(u32*)&header[0x1A8]) * mediaUnit;
-	exeFS.encryptionInfo = std::nullopt;
-
-	romFS.offset = info.offset + u64(*(u32*)&header[0x1B0]) * mediaUnit;
-	romFS.size = u64(*(u32*)&header[0x1B4]) * mediaUnit;
-	romFS.hashRegionSize = u64(*(u32*)&header[0x1B8]) * mediaUnit;
-	romFS.encryptionInfo = std::nullopt;
-
-	// Shows whether we got the primary and secondary keys correctly
-	bool gotCryptoKeys = true;
-	if (encrypted) {
-		Crypto::AESKey primaryKeyY;
-		Crypto::AESKey secondaryKeyY;
-		std::memcpy(primaryKeyY.data(), header, primaryKeyY.size());
-
-		if (!seedCrypto) {
-			secondaryKeyY = primaryKeyY;
-		} else {
-			// In seed crypto mode, the secondary key is computed through a SHA256 hash of the primary key and a title-specific seed, which we fetch
-			// from seeddb.bin
-			std::optional<Crypto::AESKey> seedOptional = aesEngine.getSeedFromDB(programID);
-			if (seedOptional.has_value()) {
-					auto seed = *seedOptional;
-					std::array<u8, 32> data;
-					std::array<u8, AppleCrypto::SHA256DigestSize> hash;
-
-					std::memcpy(&data[0], primaryKeyY.data(), primaryKeyY.size());
-					std::memcpy(&data[16], seed.data(), seed.size());
-					AppleCrypto::sha256(data.data(), data.size(), hash.data());
-				// Note that SHA256 will produce a 256-bit hash, while we only need 128 bits cause this is an AES key
-				// So the latter 16 bytes of the SHA256 are thrown out.
-				std::memcpy(secondaryKeyY.data(), hash.data(), secondaryKeyY.size());
-			} else {
-				Helpers::warn("Couldn't find a seed value for this title. Make sure you have a seeddb.bin file alongside your aes_keys.txt");
-				gotCryptoKeys = false;
-			}
-		}
-
-		auto primaryResult = getPrimaryKey(aesEngine, primaryKeyY);
-		auto secondaryResult = getSecondaryKey(aesEngine, secondaryKeyY);
-
-		if (!primaryResult.first || !secondaryResult.first) {
-			gotCryptoKeys = false;
-		} else {
-			primaryKey = primaryResult.second;
-			secondaryKey = secondaryResult.second;
-
-			EncryptionInfo encryptionInfoTmp;
-			encryptionInfoTmp.normalKey = *primaryKey;
-			encryptionInfoTmp.initialCounter.fill(0);
-
-			for (usize i = 0; i < 8; i++) {
-				encryptionInfoTmp.initialCounter[i] = header[0x108 + 7 - i];
-			}
-			encryptionInfoTmp.initialCounter[8] = 1;
-			exheaderInfo.encryptionInfo = encryptionInfoTmp;
-
-			encryptionInfoTmp.initialCounter[8] = 2;
-			exeFS.encryptionInfo = encryptionInfoTmp;
-
-			encryptionInfoTmp.normalKey = *secondaryKey;
-			encryptionInfoTmp.initialCounter[8] = 3;
-			romFS.encryptionInfo = encryptionInfoTmp;
-		}
-	}
-
-	if (exheaderSize != 0) {
-		std::unique_ptr<u8[]> exheader(new u8[exheaderSize]);
-
-		auto [success, bytes] = readFromFile(file, info, &exheader[0], 0x200, exheaderSize);
-		if (!success || bytes != exheaderSize) {
-			printf("Failed to read Extended NCCH header\n");
-			return false;
-		}
-
-		const u64 jumpID = *(u64*)&exheader[0x1C0 + 0x8];
-
-		// It seems like some decryption tools will decrypt the file, without actually setting the NoCrypto flag in the NCCH header
-		// This is a nice and easy hack to see if a file is pretending to be encrypted, taken from 3DMoo and Citra
-		if (u32(programID) == u32(jumpID) && encrypted) {
-			printf("NCSD is supposedly encrypted but not actually encrypted\n");
-			encrypted = false;
-
-			// Cartridge is not actually encrypted, set all of our encryption info structures to nullopt
-			exheaderInfo.encryptionInfo = std::nullopt;
-			romFS.encryptionInfo = std::nullopt;
-			exeFS.encryptionInfo = std::nullopt;
-		}
-
-		// If it's truly encrypted, we need to read section again.
-		if (encrypted) {
-			if (!aesEngine.haveKeys()) {
-				Helpers::panic(
-					"Loaded an encrypted ROM but AES keys don't seem to have been provided correctly! Navigate to the emulator's\n"
-					"app data folder and make sure you have a sysdata directory with a file called aes_keys.txt which contains your keys!"
-				);
-				return false;
-			}
-
-			if (!aesEngine.haveGenerator()) {
-				Helpers::panic(
-					"Loading an encrypted ROM but your AES keys don't seem to provide the \"generator\" constant which Panda3DS requires for decryption\n"
-					"Please add it to your aes_keys.txt in a line like \"generator=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\" where the Xs are replaced with the actual generator constant value"
-				);
-			}
-
-			if (!gotCryptoKeys) {
-				Helpers::panic("ROM is encrypted but it seems we couldn't get either the primary or the secondary key");
-				return false;
-			}
-
-			auto [success, bytes] = readFromFile(file, exheaderInfo, &exheader[0], 0, exheaderSize);
-			if (!success || bytes != exheaderSize) {
-				printf("Failed to read Extended NCCH header\n");
-				return false;
-			}
-		}
-
-		saveDataSize = *(u64*)&exheader[0x1C0 + 0x0]; // Size of save data in bytes
-
-		compressCode = (exheader[0xD] & 1) != 0;
-		stackSize = *(u32*)&exheader[0x1C];
-		bssSize = *(u32*)&exheader[0x3C];
-
-		text.extract(&exheader[0x10]);
-		rodata.extract(&exheader[0x20]);
-		data.extract(&exheader[0x30]);
-	}
-
-	printf("Stack size: %08X\nBSS size: %08X\n", stackSize, bssSize);
-
-	// Read ExeFS
-	if (hasExeFS()) {
-		// Offset of ExeFS in the file = exeFS offset + NCCH offset
-		// exeFS.offset has already been offset by the NCCH offset
-		printf("ExeFS offset: %08llX, size: %08llX (Offset in file = %08llX)\n", exeFS.offset - info.offset, exeFS.size, exeFS.offset);
-		constexpr size_t exeFSHeaderSize = 0x200;
-
-		u8 exeFSHeader[exeFSHeaderSize];
-
-		auto [success, bytes] = readFromFile(file, exeFS, exeFSHeader, 0, exeFSHeaderSize);
-		if (!success || bytes != exeFSHeaderSize) {
-			printf("Failed to parse ExeFS header\n");
-			return false;
-		}
-
-		// ExeFS format allows up to 10 files
-		for (int i = 0; i < 10; i++) {
-			u8* fileInfo = &exeFSHeader[i * 16];
-
-			char name[9];
-			std::memcpy(name, fileInfo, 8); // Get file name as a string
-			name[8] = '\0'; // Add null terminator to it just in case there's none
-
-			u32 fileOffset = *(u32*)&fileInfo[0x8];
-			u32 fileSize = *(u32*)&fileInfo[0xC];
-
-			if (fileSize != 0) {
-				printf("File %d. Name: %s, Size: %08X, Offset: %08X\n", i, name, fileSize, fileOffset);
-			}
-
-			if (std::strcmp(name, ".code") == 0) {
-				if (hasCode()) {
-					Helpers::panic("Second code file in a single NCCH partition. What should this do?\n");
-				}
-
-				// All files in ExeFS use the same IV, though .code uses the secondary key for decryption
-				// whereas .icon/.banner use the primary key.
-				FSInfo info = exeFS;
-				if (encrypted && secondaryKey.has_value() && info.encryptionInfo.has_value()) {
-					info.encryptionInfo->normalKey = *secondaryKey;
-				}
-
-				if (compressCode) {
-					std::vector<u8> tmp;
-					tmp.resize(fileSize);
-
-					// A file offset of 0 means our file is located right after the ExeFS header
-					// So in the ROM, files are located at (file offset + exeFS offset + exeFS header size)
-					auto [readOk, readBytes] = readFromFile(file, info, tmp.data(), fileOffset + exeFSHeaderSize, fileSize);
-					if (!readOk || readBytes != fileSize) {
-						printf(
-							"Failed to read compressed .code file (ok=%d, bytes=%zu, expected=%u, offset=%08X)\n", int(readOk),
-							readBytes, fileSize, fileOffset + exeFSHeaderSize
-						);
-						return false;
-					}
-					
-					// Decompress .code file from the tmp vector to the "code" vector
-					if (!CartLZ77::decompress(codeFile, tmp)) {
-						printf("Failed to decompress .code file\n");
-						return false;
-					}
-				} else {
-					codeFile.resize(fileSize);
-					auto [readOk, readBytes] = readFromFile(file, info, codeFile.data(), fileOffset + exeFSHeaderSize, fileSize);
-					if (!readOk || readBytes != fileSize) {
-						printf(
-							"Failed to read .code file (ok=%d, bytes=%zu, expected=%u, offset=%08X)\n", int(readOk), readBytes,
-							fileSize, fileOffset + exeFSHeaderSize
-						);
-						return false;
-					}
-				}
-			} else if (std::strcmp(name, "icon") == 0) {
-				// Parse icon file to extract region info and more in the future (logo, etc)
-				smdh.resize(fileSize);
-				auto [readOk, readBytes] = readFromFile(file, exeFS, smdh.data(), fileOffset + exeFSHeaderSize, fileSize);
-				if (!readOk || readBytes != fileSize) {
-					printf(
-						"Failed to read SMDH icon (ok=%d, bytes=%zu, expected=%u, offset=%08X)\n", int(readOk), readBytes,
-						fileSize, fileOffset + exeFSHeaderSize
-					);
-					return false;
-				}
-
-				if (!parseSMDH(smdh)) {
-					printf("Failed to parse SMDH!\n");
-				}
-			}
-		}
-	}
-
-	// If no region has been detected for CXI, set the region to USA by default
-	if (!region.has_value() && partitionIndex == 0) {
-		printf("No region detected for CXI, defaulting to USA\n");
-		region = Regions::USA;
-	}
-
-	if (hasRomFS()) {
-		printf("RomFS offset: %08llX, size: %08llX\n", romFS.offset, romFS.size);
-	}
-
-	initialized = true;
-	return true;
+    u32 gbaVcHeader[2];
+    std::memcpy(gbaVcHeader, code.data() + code.size() - 0x10, sizeof(gbaVcHeader));
+    return gbaVcHeader[0] == MakeMagic('.', 'C', 'A', 'A') && gbaVcHeader[1] == 1;
 }
 
-bool NCCH::parseSMDH(const std::vector<u8>& smdh) {
-	if (smdh.size() < 0x36C0) {
-		printf("The cartridge .icon file is too small, considered invalid. Must be 0x36C0 bytes minimum\n");
-		return false;
-	}
+ResultStatus AppLoader_NCCH::Load(std::shared_ptr<Kernel::Process>& process) {
+    u64_le ncch_program_id;
 
-	if (char(smdh[0]) != 'S' || char(smdh[1]) != 'M' || char(smdh[2]) != 'D' || char(smdh[3]) != 'H') {
-		printf("Invalid SMDH magic!\n");
-		return false;
-	}
+    if (is_loaded)
+        return ResultStatus::ErrorAlreadyLoaded;
 
-	// Bitmask showing which regions are allowed.
-	// https://www.3dbrew.org/wiki/SMDH#Region_Lockout
-	const u32 regionMasks = *(u32*)&smdh[0x2018];
-	// Detect when games are region free (ie all regions are allowed) for future use
-	[[maybe_unused]] const bool isRegionFree = (regionMasks & 0x7f) == 0x7f;
+    ResultStatus result = base_ncch.Load();
+    if (result != ResultStatus::Success)
+        return result;
 
-	// See which countries are allowed
-	const bool japan = (regionMasks & 0x1) != 0;
-	const bool northAmerica = (regionMasks & 0x2) != 0;
-	const bool europe = (regionMasks & 0x4) != 0;
-	const bool australia = (regionMasks & 0x8) != 0;
-	const bool china = (regionMasks & 0x10) != 0;
-	const bool korea = (regionMasks & 0x20) != 0;
-	const bool taiwan = (regionMasks & 0x40) != 0;
+    ReadProgramId(ncch_program_id);
+    std::string program_id{fmt::format("{:016X}", ncch_program_id)};
 
-	// Based on the allowed regions, set the autodetected 3DS region. We currently prefer English-speaking regions for practical purposes.
-	// But this should be configurable later.
-	if (northAmerica) {
-		region = Regions::USA;
-	} else if (europe) {
-		region = Regions::Europe;
-	} else if (australia) {
-		region = Regions::Australia;
-	} else if (japan) {
-		region = Regions::Japan;
-	} else if (korea) {
-		region = Regions::Korea;
-	} else if (china) {
-		region = Regions::China;
-	} else if (taiwan) {
-		region = Regions::Taiwan;
-	}
-	return true;
+    LOG_INFO(Loader, "Program ID: {}", program_id);
+
+    bool is_dlp_child = (ncch_program_id & 0xFFFFFFFF00000000) == DLP_CHILD_TID_HIGH;
+
+    if (!is_dlp_child) {
+        u64 update_tid = (ncch_program_id & 0xFFFFFFFFULL) | UPDATE_TID_HIGH;
+        update_ncch.OpenFile(
+            Service::AM::GetTitleContentPath(Service::FS::MediaType::SDMC, update_tid));
+        result = update_ncch.Load();
+        if (result == ResultStatus::Success) {
+            overlay_ncch = &update_ncch;
+        }
+    }
+
+    if (auto room_member = Network::GetRoomMember().lock()) {
+        Network::GameInfo game_info;
+        ReadTitle(game_info.name);
+        game_info.id = ncch_program_id;
+        room_member->SendGameInfo(game_info);
+    }
+
+    is_loaded = true; // Set state to loaded
+
+    result = LoadExec(process); // Load the executable into memory for booting
+    if (ResultStatus::Success != result)
+        return result;
+
+    system.ArchiveManager().RegisterSelfNCCH(*this);
+
+    ParseRegionLockoutInfo(ncch_program_id);
+
+    return ResultStatus::Success;
 }
 
-std::pair<bool, Crypto::AESKey> NCCH::getPrimaryKey(Crypto::AESEngine &aesEngine, const Crypto::AESKey &keyY) {
-	Crypto::AESKey result;
+ResultStatus AppLoader_NCCH::IsExecutable(bool& out_executable) {
+    Loader::ResultStatus result = overlay_ncch->Load();
+    if (result != Loader::ResultStatus::Success)
+        return result;
 
-	if (encrypted) {
-		if (fixedCryptoKey) {
-			result.fill(0);
-			return {true, result};
-		}
-
-		aesEngine.setKeyY(Crypto::KeySlotId::NCCHKey0, keyY);
-
-		if (!aesEngine.hasNormalKey(Crypto::KeySlotId::NCCHKey0)) {
-			return {false, result};
-		}
-
-		result = aesEngine.getNormalKey(Crypto::KeySlotId::NCCHKey0);
-	}
-
-	return {true, result};
+    out_executable = overlay_ncch->ncch_header.is_executable != 0;
+    return ResultStatus::Success;
 }
 
-std::pair<bool, Crypto::AESKey> NCCH::getSecondaryKey(Crypto::AESEngine &aesEngine, const Crypto::AESKey &keyY) {
-	Crypto::AESKey result;
-
-	if (encrypted) {
-
-		if (fixedCryptoKey) {
-			result.fill(0);
-			return {true, result};
-		}
-
-		Crypto::KeySlotId keySlotId;
-
-		switch (secondaryKeySlot) {
-			case 0:
-				keySlotId = Crypto::KeySlotId::NCCHKey0;
-				break;
-			case 1:
-				keySlotId = Crypto::KeySlotId::NCCHKey1;
-				break;
-			case 10:
-				keySlotId = Crypto::KeySlotId::NCCHKey2;
-				break;
-			case 11:
-				keySlotId = Crypto::KeySlotId::NCCHKey3;
-				break;
-			default:
-				return {false, result};
-		}
-
-		if (!aesEngine.hasKeyX(keySlotId)) {
-			return {false, result};
-		}
-
-		aesEngine.setKeyY(keySlotId, keyY);
-
-		if (!aesEngine.hasNormalKey(keySlotId)) {
-			return {false, result};
-		}
-
-		result = aesEngine.getNormalKey(keySlotId);
-	}
-
-	return {true, result};
+ResultStatus AppLoader_NCCH::ReadCode(std::vector<u8>& buffer) {
+    return overlay_ncch->LoadSectionExeFS(".code", buffer);
 }
 
-std::pair<bool, std::size_t> NCCH::readFromFile(IOFile& file, const FSInfo &info, u8 *dst, std::size_t offset, std::size_t size) {
-	if (size == 0) {
-		return { true, 0 };
-	}
-
-	std::size_t readMaxSize = std::min(size, static_cast<std::size_t>(info.size) - offset);
-
-	file.seek(info.offset + offset);
-	auto [success, bytes] = file.readBytes(dst, readMaxSize);
-
-	if (!success) {
-		return { success, bytes};
-	}
-
-		if (success && info.encryptionInfo.has_value()) {
-			auto& encryptionInfo = info.encryptionInfo.value();
-			AppleCrypto::aes128CtrXcrypt(encryptionInfo.normalKey.data(), encryptionInfo.initialCounter.data(), offset, dst, bytes);
-		}
-
-	return { success, bytes};
+ResultStatus AppLoader_NCCH::ReadIcon(std::vector<u8>& buffer) {
+    return overlay_ncch->LoadSectionExeFS("icon", buffer);
 }
+
+ResultStatus AppLoader_NCCH::ReadBanner(std::vector<u8>& buffer) {
+    return overlay_ncch->LoadSectionExeFS("banner", buffer);
+}
+
+ResultStatus AppLoader_NCCH::ReadLogo(std::vector<u8>& buffer) {
+    return overlay_ncch->LoadSectionExeFS("logo", buffer);
+}
+
+ResultStatus AppLoader_NCCH::ReadProgramId(u64& out_program_id) {
+    ResultStatus result = base_ncch.ReadProgramId(out_program_id);
+    if (result != ResultStatus::Success)
+        return result;
+
+    return ResultStatus::Success;
+}
+
+ResultStatus AppLoader_NCCH::ReadExtdataId(u64& out_extdata_id) {
+    ResultStatus result = base_ncch.ReadExtdataId(out_extdata_id);
+    if (result != ResultStatus::Success)
+        return result;
+
+    return ResultStatus::Success;
+}
+
+ResultStatus AppLoader_NCCH::ReadRomFS(std::shared_ptr<FileSys::RomFSReader>& romfs_file) {
+    return base_ncch.ReadRomFS(romfs_file);
+}
+
+ResultStatus AppLoader_NCCH::ReadUpdateRomFS(std::shared_ptr<FileSys::RomFSReader>& romfs_file) {
+    ResultStatus result = update_ncch.ReadRomFS(romfs_file);
+
+    if (result != ResultStatus::Success)
+        return base_ncch.ReadRomFS(romfs_file);
+
+    return ResultStatus::Success;
+}
+
+ResultStatus AppLoader_NCCH::DumpRomFS(const std::string& target_path) {
+    return base_ncch.DumpRomFS(target_path);
+}
+
+ResultStatus AppLoader_NCCH::DumpUpdateRomFS(const std::string& target_path) {
+    u64 program_id;
+    ReadProgramId(program_id);
+    u64 update_tid = (program_id & 0xFFFFFFFFULL) | UPDATE_TID_HIGH;
+    update_ncch.OpenFile(
+        Service::AM::GetTitleContentPath(Service::FS::MediaType::SDMC, update_tid));
+    return update_ncch.DumpRomFS(target_path);
+}
+
+ResultStatus AppLoader_NCCH::ReadTitle(std::string& title) {
+    std::vector<u8> data;
+    Loader::SMDH smdh;
+    ReadIcon(data);
+
+    if (!Loader::IsValidSMDH(data)) {
+        return ResultStatus::ErrorInvalidFormat;
+    }
+
+    std::memcpy(&smdh, data.data(), sizeof(Loader::SMDH));
+
+    const auto& short_title = smdh.GetShortTitle(SMDH::TitleLanguage::English);
+    auto title_end = std::find(short_title.begin(), short_title.end(), u'\0');
+    title = Common::UTF16ToUTF8(std::u16string{short_title.begin(), title_end});
+
+    return ResultStatus::Success;
+}
+
+AppLoader::CompressFileInfo AppLoader_NCCH::GetCompressFileInfo() {
+    CompressFileInfo info{};
+    if (base_ncch.LoadHeader() != ResultStatus::Success) {
+        info.is_supported = false;
+        return info;
+    }
+    info.is_supported = true;
+    info.is_compressed = base_ncch.IsFileCompressed();
+    if (base_ncch.IsNCSD()) {
+        info.underlying_magic = std::array<u8, 4>({'N', 'C', 'S', 'D'});
+        info.recommended_compressed_extension = "zcci";
+        info.recommended_uncompressed_extension = "cci";
+    } else {
+        info.underlying_magic = std::array<u8, 4>({'N', 'C', 'C', 'H'});
+        info.recommended_compressed_extension = "zcxi";
+        info.recommended_uncompressed_extension = "cxi";
+    }
+    std::vector<u8> title_info_vec(sizeof(Service::AM::TitleInfo));
+    Service::AM::TitleInfo* title_info =
+        reinterpret_cast<Service::AM::TitleInfo*>(title_info_vec.data());
+    title_info->tid = base_ncch.ncch_header.program_id;
+    title_info->version = base_ncch.ncch_header.version;
+    title_info->size =
+        base_ncch.ncch_header.content_size * base_ncch.ncch_header.GetContentUnitSize();
+    title_info->unused = title_info->type = 0;
+    info.default_metadata.emplace("titleinfo", title_info_vec);
+
+    return info;
+}
+
+bool AppLoader_NCCH::IsFileCompressed() {
+    if (base_ncch.LoadHeader() != ResultStatus::Success) {
+        return false;
+    }
+    return base_ncch.IsFileCompressed();
+}
+
+} // namespace Loader
