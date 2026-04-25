@@ -14,7 +14,10 @@ file(GLOB_RECURSE CORE_SOURCES CONFIGURE_DEPENDS
   "src/core/*.cpp"
   "src/core/api/*.cpp"
   "src/core/mikage/*.cpp"
-  "src/core/mikage/*.c"
+)
+
+file(GLOB_RECURSE BEARSSL_SOURCES CONFIGURE_DEPENDS
+  "src/core/third_party/bearssl/src/*.c"
 )
 
 # Exclude reference interpreter files which have external dependencies not present in build env
@@ -33,6 +36,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
   add_executable(AuroraIOS MACOSX_BUNDLE
     ${AURORAIOS_SOURCES}
     ${CORE_SOURCES}
+    ${BEARSSL_SOURCES}
     Resources/fonts/SharedFontReplacement.bin
   )
 
@@ -54,6 +58,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
     ${CMAKE_SOURCE_DIR}/src/core
     ${CMAKE_SOURCE_DIR}/src/core/api
     ${CMAKE_SOURCE_DIR}/src/core/mikage/include
+    ${CMAKE_SOURCE_DIR}/src/core/third_party/bearssl/inc
   )
 
   target_compile_options(AuroraIOS PRIVATE
@@ -96,6 +101,7 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   add_executable(AuroraSDL
     src/linux_sdl_main.cpp
     ${CORE_SOURCES}
+    ${BEARSSL_SOURCES}
   )
 
   target_include_directories(AuroraSDL PRIVATE
@@ -103,6 +109,7 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     ${CMAKE_SOURCE_DIR}/src/core
     ${CMAKE_SOURCE_DIR}/src/core/api
     ${CMAKE_SOURCE_DIR}/src/core/mikage/include
+    ${CMAKE_SOURCE_DIR}/src/core/third_party/bearssl/inc
   )
 
   find_package(PkgConfig REQUIRED)
