@@ -112,7 +112,7 @@ private:
 
     void VBlankCallback(uintptr_t user_data, s64 cycles_late);
 
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
     template <class Archive>
     void serialize(Archive& ar, const u32 file_version);
 

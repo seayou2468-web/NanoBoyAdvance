@@ -110,7 +110,7 @@ private:
             pointers.raw[i] = pointers.refs[i].GetPtr();
         }
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 /// Physical memory regions as seen from the ARM11
@@ -695,7 +695,7 @@ private:
 
     PhysMemRegionInfo phys_mem_region_info_cache{};
 
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int file_version);
 
@@ -706,7 +706,7 @@ public:
 
 } // namespace Memory
 
-BOOST_CLASS_EXPORT_KEY(Memory::MemorySystem::BackingMemImpl<Memory::Region::FCRAM>)
-BOOST_CLASS_EXPORT_KEY(Memory::MemorySystem::BackingMemImpl<Memory::Region::VRAM>)
-BOOST_CLASS_EXPORT_KEY(Memory::MemorySystem::BackingMemImpl<Memory::Region::DSP>)
-BOOST_CLASS_EXPORT_KEY(Memory::MemorySystem::BackingMemImpl<Memory::Region::N3DS>)
+HLE_CLASS_EXPORT_KEY(Memory::MemorySystem::BackingMemImpl<Memory::Region::FCRAM>)
+HLE_CLASS_EXPORT_KEY(Memory::MemorySystem::BackingMemImpl<Memory::Region::VRAM>)
+HLE_CLASS_EXPORT_KEY(Memory::MemorySystem::BackingMemImpl<Memory::Region::DSP>)
+HLE_CLASS_EXPORT_KEY(Memory::MemorySystem::BackingMemImpl<Memory::Region::N3DS>)

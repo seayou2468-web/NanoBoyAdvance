@@ -4,14 +4,14 @@
 
 #pragma once
 
-#include <boost/icl/right_open_interval.hpp>
+#include "common/aurora_interval.h"
 #include "common/math_util.h"
 #include "video_core/custom_textures/custom_format.h"
 #include "video_core/rasterizer_cache/pixel_format.h"
 
 namespace VideoCore {
 
-using SurfaceInterval = boost::icl::right_open_interval<PAddr>;
+using SurfaceInterval = aurora::icl::right_open_interval<PAddr>;
 
 constexpr std::size_t MAX_PICA_LEVELS = 8;
 

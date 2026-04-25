@@ -4,13 +4,13 @@
 
 #pragma once
 
-#include <boost/icl/interval_set.hpp>
+#include "common/aurora_interval.h"
 #include "video_core/rasterizer_cache/surface_params.h"
 #include "video_core/rasterizer_cache/utils.h"
 
 namespace VideoCore {
 
-using SurfaceRegions = boost::icl::interval_set<PAddr, std::less, SurfaceInterval>;
+using SurfaceRegions = aurora::icl::interval_set<PAddr, std::less, SurfaceInterval>;
 
 struct Material;
 

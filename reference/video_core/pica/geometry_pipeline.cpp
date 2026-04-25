@@ -38,7 +38,7 @@ public:
 private:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int file_version) {}
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 // In the Point mode, vertex attributes are sent to the input registers in the geometry shader unit.
@@ -97,7 +97,7 @@ private:
 
     template <typename Class, class Archive>
     static void serialize_common(Class* self, Archive& ar, const unsigned int version) {
-        ar& HLE::BoostCompat::Serialization::base_object<GeometryPipelineBackend>(*self);
+        ar& aurora::serialization::base_object<GeometryPipelineBackend>(*self);
         ar & self->attribute_buffer;
         ar & self->vs_output_num;
     }
@@ -121,9 +121,9 @@ private:
         buffer_end = attribute_buffer.data() + buffer_size;
     }
 
-    BOOST_SERIALIZATION_SPLIT_MEMBER()
+    HLE_SERIALIZATION_SPLIT_MEMBER()
 
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 // In VariablePrimitive mode, vertex attributes are buffered into the uniform registers in the
@@ -197,7 +197,7 @@ private:
 
     template <typename Class, class Archive>
     static void serialize_common(Class* self, Archive& ar, const unsigned int version) {
-        ar& HLE::BoostCompat::Serialization::base_object<GeometryPipelineBackend>(*self);
+        ar& aurora::serialization::base_object<GeometryPipelineBackend>(*self);
         ar & self->need_index;
         ar & self->main_vertex_num;
         ar & self->total_vertex_num;
@@ -219,9 +219,9 @@ private:
         buffer_cur = setup.uniforms.f.data() + buffer_idx;
     }
 
-    BOOST_SERIALIZATION_SPLIT_MEMBER()
+    HLE_SERIALIZATION_SPLIT_MEMBER()
 
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 // In FixedPrimitive mode, vertex attributes are buffered into the uniform registers in the geometry
@@ -273,7 +273,7 @@ private:
 
     template <typename Class, class Archive>
     static void serialize_common(Class* self, Archive& ar, const unsigned int version) {
-        ar& HLE::BoostCompat::Serialization::base_object<GeometryPipelineBackend>(*self);
+        ar& aurora::serialization::base_object<GeometryPipelineBackend>(*self);
         ar & self->vs_output_num;
     }
 
@@ -300,9 +300,9 @@ private:
         buffer_end = setup.uniforms.f.data() + buffer_size;
     }
 
-    BOOST_SERIALIZATION_SPLIT_MEMBER()
+    HLE_SERIALIZATION_SPLIT_MEMBER()
 
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 GeometryPipeline::GeometryPipeline(RegsInternal& regs_, GeometryShaderUnit& gs_unit_,

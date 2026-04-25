@@ -54,7 +54,7 @@ public:
     GeometryEmitter* emitter_ptr;
 
 private:
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
     template <class Archive>
     void serialize(Archive& ar, const u32 file_version) {
         ar & input;
@@ -90,7 +90,7 @@ public:
     Handlers* handlers;
 
 private:
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
     template <class Archive>
     void serialize(Archive& ar, const u32 file_version) {
         ar & buffer;
@@ -114,10 +114,10 @@ struct GeometryShaderUnit : public ShaderUnit {
     GeometryEmitter emitter;
 
 private:
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
     template <class Archive>
     void serialize(Archive& ar, const u32 file_version) {
-        ar& HLE::BoostCompat::Serialization::base_object<ShaderUnit>(*this);
+        ar& aurora::serialization::base_object<ShaderUnit>(*this);
         ar & emitter;
     }
 };

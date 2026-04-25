@@ -42,7 +42,7 @@ private:
         ar & view;
         ar & tc2;
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 static_assert(std::is_trivial_v<OutputVertex>, "Structure is not POD");
 static_assert(sizeof(OutputVertex) == 24 * sizeof(f32), "OutputVertex has invalid size");

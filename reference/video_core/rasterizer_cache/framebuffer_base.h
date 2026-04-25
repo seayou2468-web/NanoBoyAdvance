@@ -119,8 +119,8 @@ public:
         const auto invalidate = [&](SurfaceId surface_id, u32 level) {
             const auto& surface = res_cache->GetSurface(surface_id);
             const SurfaceInterval interval = surface.GetSubRectInterval(draw_rect_unscaled, level);
-            const PAddr addr = boost::icl::first(interval);
-            const u32 size = boost::icl::length(interval);
+            const PAddr addr = aurora::icl::first(interval);
+            const u32 size = aurora::icl::length(interval);
             res_cache->InvalidateRegion(addr, size, surface_id);
         };
         if (fb->color_id) {

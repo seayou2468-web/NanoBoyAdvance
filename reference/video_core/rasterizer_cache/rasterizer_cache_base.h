@@ -10,7 +10,7 @@
 #include <span>
 #include <unordered_map>
 #include <vector>
-#include <boost/icl/interval_map.hpp>
+#include "common/aurora_interval.h"
 #include <tsl/robin_map.h>
 
 #include "video_core/rasterizer_cache/framebuffer_base.h"
@@ -69,12 +69,12 @@ class RasterizerCache {
     using Framebuffer = typename T::Framebuffer;
     using DebugScope = typename T::DebugScope;
 
-    using SurfaceMap = boost::icl::interval_map<PAddr, SurfaceId, boost::icl::partial_absorber,
-                                                std::less, boost::icl::inplace_plus,
-                                                boost::icl::inter_section, SurfaceInterval>;
+    using SurfaceMap = aurora::icl::interval_map<PAddr, SurfaceId, aurora::icl::partial_absorber,
+                                                std::less, aurora::icl::inplace_plus,
+                                                aurora::icl::inter_section, SurfaceInterval>;
 
     using SurfaceRect_Tuple = std::pair<SurfaceId, Common::Rectangle<u32>>;
-    using PageMap = boost::icl::interval_map<u32, int>;
+    using PageMap = aurora::icl::interval_map<u32, int>;
 
 public:
     explicit RasterizerCache(Memory::MemorySystem& memory, CustomTexManager& custom_tex_manager,

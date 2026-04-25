@@ -55,10 +55,10 @@ private:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int version);
 
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 } // namespace Pica
 
-BOOST_CLASS_EXPORT_KEY(Pica::GeometryPipeline_Point)
-BOOST_CLASS_EXPORT_KEY(Pica::GeometryPipeline_VariablePrimitive)
-BOOST_CLASS_EXPORT_KEY(Pica::GeometryPipeline_FixedPrimitive)
+HLE_CLASS_EXPORT_KEY(Pica::GeometryPipeline_Point)
+HLE_CLASS_EXPORT_KEY(Pica::GeometryPipeline_VariablePrimitive)
+HLE_CLASS_EXPORT_KEY(Pica::GeometryPipeline_FixedPrimitive)

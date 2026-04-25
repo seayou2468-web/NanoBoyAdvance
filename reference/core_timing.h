@@ -169,9 +169,9 @@ public:
             ar >> name;
             type = Global<Timing>().RegisterEvent(name, nullptr);
         }
-        friend class HLE::BoostCompat::Serialization::access;
+        friend class aurora::serialization::access;
 
-        BOOST_SERIALIZATION_SPLIT_MEMBER()
+        HLE_SERIALIZATION_SPLIT_MEMBER()
     };
 
     // currently Service::HID::pad_update_ticks is the smallest interval for an event that gets
@@ -245,7 +245,7 @@ public:
             ar & executed_ticks;
             ar & idled_cycles;
         }
-        friend class HLE::BoostCompat::Serialization::access;
+        friend class aurora::serialization::access;
     };
 
     explicit Timing(std::size_t num_cores, u32 cpu_clock_percentage, s64 override_base_ticks = -1);
@@ -313,9 +313,9 @@ private:
             event_queue_locked = true;
         }
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 } // namespace Core
 
-BOOST_CLASS_VERSION(Core::Timing, 1)
+HLE_CLASS_VERSION(Core::Timing, 1)

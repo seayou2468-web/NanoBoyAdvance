@@ -16,8 +16,8 @@ SurfaceBase::~SurfaceBase() = default;
 
 bool SurfaceBase::CanFill(const SurfaceParams& dest_surface, SurfaceInterval fill_interval) const {
     if (type == SurfaceType::Fill && IsRegionValid(fill_interval) &&
-        boost::icl::first(fill_interval) >= addr &&
-        boost::icl::last_next(fill_interval) <= end && // dest_surface is within our fill range
+        aurora::icl::first(fill_interval) >= addr &&
+        aurora::icl::last_next(fill_interval) <= end && // dest_surface is within our fill range
         dest_surface.FromInterval(fill_interval).GetInterval() ==
             fill_interval) { // make sure interval is a rectangle in dest surface
         if (fill_size * 8 != dest_surface.GetFormatBpp()) {
@@ -69,12 +69,12 @@ SurfaceInterval SurfaceBase::GetCopyableInterval(const SurfaceParams& params) co
     for (auto& valid_interval : valid_regions) {
         const SurfaceInterval aligned_interval{
             params.addr +
-                Common::AlignUp(boost::icl::first(valid_interval) - params.addr, tile_align),
+                Common::AlignUp(aurora::icl::first(valid_interval) - params.addr, tile_align),
             params.addr +
-                Common::AlignDown(boost::icl::last_next(valid_interval) - params.addr, tile_align)};
+                Common::AlignDown(aurora::icl::last_next(valid_interval) - params.addr, tile_align)};
 
-        if (tile_align > boost::icl::length(valid_interval) ||
-            boost::icl::length(aligned_interval) == 0) {
+        if (tile_align > aurora::icl::length(valid_interval) ||
+            aurora::icl::length(aligned_interval) == 0) {
             continue;
         }
 
@@ -82,24 +82,24 @@ SurfaceInterval SurfaceBase::GetCopyableInterval(const SurfaceParams& params) co
         const u32 stride_bytes = params.BytesInPixels(params.stride) * (params.is_tiled ? 8 : 1);
         SurfaceInterval rect_interval{
             params.addr +
-                Common::AlignUp(boost::icl::first(aligned_interval) - params.addr, stride_bytes),
-            params.addr + Common::AlignDown(boost::icl::last_next(aligned_interval) - params.addr,
+                Common::AlignUp(aurora::icl::first(aligned_interval) - params.addr, stride_bytes),
+            params.addr + Common::AlignDown(aurora::icl::last_next(aligned_interval) - params.addr,
                                             stride_bytes),
         };
 
-        if (boost::icl::first(rect_interval) > boost::icl::last_next(rect_interval)) {
+        if (aurora::icl::first(rect_interval) > aurora::icl::last_next(rect_interval)) {
             // 1 row
             rect_interval = aligned_interval;
-        } else if (boost::icl::length(rect_interval) == 0) {
+        } else if (aurora::icl::length(rect_interval) == 0) {
             // 2 rows that do not make a rectangle, return the larger one
-            const SurfaceInterval row1{boost::icl::first(aligned_interval),
-                                       boost::icl::first(rect_interval)};
-            const SurfaceInterval row2{boost::icl::first(rect_interval),
-                                       boost::icl::last_next(aligned_interval)};
-            rect_interval = (boost::icl::length(row1) > boost::icl::length(row2)) ? row1 : row2;
+            const SurfaceInterval row1{aurora::icl::first(aligned_interval),
+                                       aurora::icl::first(rect_interval)};
+            const SurfaceInterval row2{aurora::icl::first(rect_interval),
+                                       aurora::icl::last_next(aligned_interval)};
+            rect_interval = (aurora::icl::length(row1) > aurora::icl::length(row2)) ? row1 : row2;
         }
 
-        if (boost::icl::length(rect_interval) > boost::icl::length(result)) {
+        if (aurora::icl::length(rect_interval) > aurora::icl::length(result)) {
             result = rect_interval;
         }
     }

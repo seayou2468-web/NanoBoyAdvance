@@ -36,7 +36,7 @@ struct Uniforms {
     }
 
 private:
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
     template <class Archive>
     void serialize(Archive& ar, const u32 file_version) {
         ar & f;
@@ -160,7 +160,7 @@ private:
     u64 program_code_hash{0};
     u64 swizzle_data_hash{0};
 
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
     template <class Archive>
     void serialize(Archive& ar, const u32 file_version) {
         ar & uniforms;

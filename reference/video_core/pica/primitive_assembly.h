@@ -85,7 +85,7 @@ private:
         ar & strip_ready;
         ar & winding;
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 } // namespace Pica

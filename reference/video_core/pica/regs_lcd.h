@@ -61,7 +61,7 @@ private:
         ar & color_fill_bottom.raw;
         ar & backlight_bottom;
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 static_assert(std::is_standard_layout_v<RegsLcd>, "Structure does not use standard layout");
 
