@@ -4,7 +4,6 @@
 
 #include "atomic"
 
-#include <boost/serialization/unique_ptr.hpp>
 #include "common/common_types.h"
 #include "core/file_sys/archive_backend.h"
 #include "core/file_sys/artic_cache.h"
@@ -13,6 +12,7 @@
 #include "core/hle/service/fs/archive.h"
 #include "core/perf_stats.h"
 #include "network/artic_base/artic_base_client.h"
+#include "../hle/boost_compat.h"
 
 namespace FileSys {
 
@@ -166,10 +166,10 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<ArchiveBackend>(*this);
+        ar& HLE::BoostCompat::Serialization::base_object<ArchiveBackend>(*this);
         ar & archive_handle;
     }
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 class ArticFileBackend : public FileBackend {
@@ -222,10 +222,10 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<FileBackend>(*this);
+        ar& HLE::BoostCompat::Serialization::base_object<FileBackend>(*this);
         ar & file_handle;
     }
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 class ArticDirectoryBackend : public DirectoryBackend {
@@ -256,10 +256,10 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<DirectoryBackend>(*this);
+        ar& HLE::BoostCompat::Serialization::base_object<DirectoryBackend>(*this);
         ar & dir_handle;
     }
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 } // namespace FileSys
 

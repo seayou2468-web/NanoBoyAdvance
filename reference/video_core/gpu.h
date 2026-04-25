@@ -6,9 +6,9 @@
 
 #include <functional>
 #include <memory>
-#include <boost/serialization/access.hpp>
 
 #include "core/hle/service/gsp/gsp_interrupt.h"
+#include "../hle/boost_compat.h"
 
 namespace Service::GSP {
 struct Command;
@@ -112,7 +112,7 @@ private:
 
     void VBlankCallback(uintptr_t user_data, s64 cycles_late);
 
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
     template <class Archive>
     void serialize(Archive& ar, const u32 file_version);
 

@@ -5,8 +5,8 @@
 #pragma once
 
 #include <memory>
-#include <boost/serialization/export.hpp>
 #include "video_core/pica/shader_unit.h"
+#include "../../hle/boost_compat.h"
 
 namespace Pica {
 
@@ -55,7 +55,7 @@ private:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int version);
 
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 } // namespace Pica
 

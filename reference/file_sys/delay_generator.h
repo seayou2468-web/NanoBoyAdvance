@@ -5,17 +5,16 @@
 #pragma once
 
 #include <cstddef>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/export.hpp>
 #include "common/common_types.h"
+#include "../hle/boost_compat.h"
 
 #define SERIALIZE_DELAY_GENERATOR                                                                  \
 private:                                                                                           \
     template <class Archive>                                                                       \
     void serialize(Archive& ar, const unsigned int) {                                              \
-        ar& boost::serialization::base_object<DelayGenerator>(*this);                              \
+        ar& HLE::BoostCompat::Serialization::base_object<DelayGenerator>(*this);                              \
     }                                                                                              \
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 
 namespace FileSys {
 
@@ -29,7 +28,7 @@ public:
 private:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {}
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 class DefaultDelayGenerator : public DelayGenerator {

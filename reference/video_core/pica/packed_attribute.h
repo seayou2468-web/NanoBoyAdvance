@@ -5,10 +5,10 @@
 #pragma once
 
 #include <bit>
-#include <boost/serialization/binary_object.hpp>
 
 #include "common/vector_math.h"
 #include "video_core/pica_types.h"
+#include "../../hle/boost_compat.h"
 
 namespace Pica {
 
@@ -69,7 +69,7 @@ private:
         ar & buffer;
         ar & index;
     }
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 } // namespace Pica

@@ -23,12 +23,11 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <boost/serialization/split_member.hpp>
-#include <boost/serialization/vector.hpp>
 #include "common/common_types.h"
 #include "common/logging/log.h"
 #include "common/threadsafe_queue.h"
 #include "core/global.h"
+#include "hle/boost_compat.h"
 
 // The timing we get from the assembly is 268,111,855.956 Hz
 // It is possible that this number isn't just an integer because the compiler could have
@@ -170,7 +169,7 @@ public:
             ar >> name;
             type = Global<Timing>().RegisterEvent(name, nullptr);
         }
-        friend class boost::serialization::access;
+        friend class HLE::BoostCompat::Serialization::access;
 
         BOOST_SERIALIZATION_SPLIT_MEMBER()
     };
@@ -246,7 +245,7 @@ public:
             ar & executed_ticks;
             ar & idled_cycles;
         }
-        friend class boost::serialization::access;
+        friend class HLE::BoostCompat::Serialization::access;
     };
 
     explicit Timing(std::size_t num_cores, u32 cpu_clock_percentage, s64 override_base_ticks = -1);
@@ -314,7 +313,7 @@ private:
             event_queue_locked = true;
         }
     }
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 } // namespace Core

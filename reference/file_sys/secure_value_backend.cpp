@@ -4,6 +4,7 @@
 
 #include "common/archives.h"
 #include "secure_value_backend.h"
+#include "../hle/boost_compat.h"
 
 SERIALIZE_EXPORT_IMPL(FileSys::DefaultSecureValueBackend)
 
@@ -69,6 +70,6 @@ ResultVal<std::tuple<bool, bool, u64>> DefaultSecureValueBackend::GetThisSaveDat
 
 template <class Archive>
 void FileSys::DefaultSecureValueBackend::serialize(Archive& ar, const unsigned int) {
-    ar& boost::serialization::base_object<SecureValueBackend>(*this);
+    ar& HLE::BoostCompat::Serialization::base_object<SecureValueBackend>(*this);
 }
 } // namespace FileSys

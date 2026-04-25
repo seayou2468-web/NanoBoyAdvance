@@ -8,14 +8,13 @@
 #include <optional>
 #include <span>
 #include <string>
-#include <boost/serialization/export.hpp>
-#include <boost/serialization/string.hpp>
 #include "common/common_types.h"
 #include "core/file_sys/archive_backend.h"
 #include "core/file_sys/artic_cache.h"
 #include "core/hle/result.h"
 #include "core/hle/service/fs/archive.h"
 #include "network/artic_base/artic_base_client.h"
+#include "../hle/boost_compat.h"
 
 namespace FileSys {
 
@@ -84,12 +83,12 @@ private:
     ArchiveFactory_ExtSaveData() = default;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<ArchiveFactory>(*this);
-        ar& boost::serialization::base_object<ArticCacheProvider>(*this);
+        ar& HLE::BoostCompat::Serialization::base_object<ArchiveFactory>(*this);
+        ar& HLE::BoostCompat::Serialization::base_object<ArticCacheProvider>(*this);
         ar & type;
         ar & mount_point;
     }
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 /**

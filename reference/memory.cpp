@@ -4,8 +4,6 @@
 
 #include <array>
 #include <cstring>
-#include <boost/serialization/array.hpp>
-#include <boost/serialization/binary_object.hpp>
 #include "audio_core/dsp_interface.h"
 #include "common/archives.h"
 #include "common/assert.h"
@@ -22,6 +20,7 @@
 #include "core/memory.h"
 #include "video_core/gpu.h"
 #include "video_core/renderer_base.h"
+#include "hle/boost_compat.h"
 
 SERIALIZE_EXPORT_IMPL(Memory::MemorySystem::BackingMemImpl<Memory::Region::FCRAM>)
 SERIALIZE_EXPORT_IMPL(Memory::MemorySystem::BackingMemImpl<Memory::Region::VRAM>)
@@ -74,7 +73,7 @@ private:
     std::array<bool, PLUGIN_3GX_FB_SIZE / CITRA_PAGE_SIZE> plugin_fb{};
 
     static_assert(sizeof(bool) == 1);
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
     template <typename Archive>
     void serialize(Archive& ar, const unsigned int file_version) {
         ar & vram;
@@ -310,17 +309,17 @@ public:
     }
 
 private:
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int file_version) {
         bool save_n3ds_ram = Settings::values.is_new_3ds.GetValue();
         ar & save_n3ds_ram;
-        ar& boost::serialization::make_binary_object(vram.get(), Memory::VRAM_SIZE);
-        ar& boost::serialization::make_binary_object(
+        ar& HLE::BoostCompat::Serialization::make_binary_object(vram.get(), Memory::VRAM_SIZE);
+        ar& HLE::BoostCompat::Serialization::make_binary_object(
             fcram.get(), save_n3ds_ram ? Memory::FCRAM_N3DS_SIZE : Memory::FCRAM_SIZE);
-        ar& boost::serialization::make_binary_object(
+        ar& HLE::BoostCompat::Serialization::make_binary_object(
             n3ds_extra_ram.get(), save_n3ds_ram ? Memory::N3DS_EXTRA_RAM_SIZE : 0);
-        ar& boost::serialization::make_binary_object(dsp_ram.get(), Memory::DSP_RAM_SIZE);
+        ar& HLE::BoostCompat::Serialization::make_binary_object(dsp_ram.get(), Memory::DSP_RAM_SIZE);
         ar & cache_marker;
         ar & page_table_list;
         // dsp is set from Core::System at startup
@@ -355,9 +354,9 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<BackingMem>(*this);
+        ar& HLE::BoostCompat::Serialization::base_object<BackingMem>(*this);
     }
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 MemorySystem::Impl::Impl(Core::System& system_)

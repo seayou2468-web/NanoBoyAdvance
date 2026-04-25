@@ -9,6 +9,7 @@
 #include "common/common_types.h"
 #include "core/hle/result.h"
 #include "core/hle/service/fs/archive.h"
+#include "../hle/boost_compat.h"
 
 namespace FileSys {
 class SecureValueBackend : NonCopyable {
@@ -36,7 +37,7 @@ public:
 protected:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {}
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 class DefaultSecureValueBackend : public SecureValueBackend {
@@ -58,7 +59,7 @@ public:
 protected:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 } // namespace FileSys
 

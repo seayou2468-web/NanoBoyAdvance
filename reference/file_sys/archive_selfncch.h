@@ -8,14 +8,11 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <boost/serialization/export.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/unordered_map.hpp>
-#include <boost/serialization/vector.hpp>
 #include "common/common_types.h"
 #include "core/file_sys/archive_backend.h"
 #include "core/hle/result.h"
 #include "core/loader/loader.h"
+#include "../hle/boost_compat.h"
 
 namespace FileSys {
 
@@ -35,7 +32,7 @@ private:
         ar & romfs_file;
         ar & update_romfs_file;
     }
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 /// File system interface to the SelfNCCH archive
@@ -60,10 +57,10 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<ArchiveFactory>(*this);
+        ar& HLE::BoostCompat::Serialization::base_object<ArchiveFactory>(*this);
         ar & ncch_data;
     }
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 class ExeFSSectionFile;

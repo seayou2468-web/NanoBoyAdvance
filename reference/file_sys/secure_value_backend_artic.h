@@ -11,6 +11,7 @@
 #include "core/hle/result.h"
 #include "core/hle/service/fs/archive.h"
 #include "network/artic_base/artic_base_client.h"
+#include "../hle/boost_compat.h"
 
 namespace FileSys {
 class ArticSecureValueBackend : public SecureValueBackend {
@@ -41,9 +42,9 @@ protected:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<SecureValueBackend>(*this);
+        ar& HLE::BoostCompat::Serialization::base_object<SecureValueBackend>(*this);
     }
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 
 private:
     std::shared_ptr<Network::ArticBase::Client> client;

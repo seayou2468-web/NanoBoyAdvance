@@ -7,14 +7,12 @@
 #include <array>
 #include <memory>
 #include <string>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/export.hpp>
-#include <boost/serialization/vector.hpp>
 #include "core/file_sys/archive_backend.h"
 #include "core/file_sys/artic_cache.h"
 #include "core/file_sys/file_backend.h"
 #include "core/hle/result.h"
 #include "network/artic_base/artic_base_client.h"
+#include "../hle/boost_compat.h"
 
 namespace Service::FS {
 enum class MediaType : u32;
@@ -71,11 +69,11 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<ArchiveBackend>(*this);
+        ar& HLE::BoostCompat::Serialization::base_object<ArchiveBackend>(*this);
         ar & title_id;
         ar & media_type;
     }
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 // File backend for NCCH files
@@ -100,10 +98,10 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<FileBackend>(*this);
+        ar& HLE::BoostCompat::Serialization::base_object<FileBackend>(*this);
         ar & file_buffer;
     }
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 /// File system interface to the NCCH archive
@@ -137,10 +135,10 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<ArchiveFactory>(*this);
-        ar& boost::serialization::base_object<ArticCacheProvider>(*this);
+        ar& HLE::BoostCompat::Serialization::base_object<ArchiveFactory>(*this);
+        ar& HLE::BoostCompat::Serialization::base_object<ArticCacheProvider>(*this);
     }
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 } // namespace FileSys

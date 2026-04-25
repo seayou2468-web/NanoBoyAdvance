@@ -5,6 +5,7 @@
 #pragma once
 
 #include "core/file_sys/archive_sdmc.h"
+#include "../hle/boost_compat.h"
 
 namespace FileSys {
 
@@ -33,9 +34,9 @@ private:
     SDMCWriteOnlyArchive() = default;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<SDMCArchive>(*this);
+        ar& HLE::BoostCompat::Serialization::base_object<SDMCArchive>(*this);
     }
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 /// File system interface to the SDMC write-only archive
@@ -64,10 +65,10 @@ private:
     ArchiveFactory_SDMCWriteOnly() = default;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<ArchiveFactory>(*this);
+        ar& HLE::BoostCompat::Serialization::base_object<ArchiveFactory>(*this);
         ar & sdmc_directory;
     }
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 class SDMCWriteOnlyDelayGenerator;

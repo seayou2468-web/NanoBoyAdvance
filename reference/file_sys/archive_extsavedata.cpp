@@ -17,6 +17,7 @@
 #include "core/file_sys/path_parser.h"
 #include "core/file_sys/savedata_archive.h"
 #include "core/hle/service/fs/archive.h"
+#include "../hle/boost_compat.h"
 
 SERIALIZE_EXPORT_IMPL(FileSys::ArchiveFactory_ExtSaveData)
 
@@ -58,10 +59,10 @@ private:
     u64 size{};
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<DiskFile>(*this);
+        ar& HLE::BoostCompat::Serialization::base_object<DiskFile>(*this);
         ar & size;
     }
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 class ExtSaveDataDelayGenerator : public DelayGenerator {
@@ -167,9 +168,9 @@ private:
     ExtSaveDataArchive() = default;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<SaveDataArchive>(*this);
+        ar& HLE::BoostCompat::Serialization::base_object<SaveDataArchive>(*this);
     }
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 struct ExtSaveDataArchivePath {

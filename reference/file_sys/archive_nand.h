@@ -6,11 +6,9 @@
 
 #include <memory>
 #include <string>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/export.hpp>
-#include <boost/serialization/string.hpp>
 #include "core/file_sys/archive_backend.h"
 #include "core/hle/result.h"
+#include "../hle/boost_compat.h"
 
 namespace FileSys {
 
@@ -49,11 +47,11 @@ protected:
     NANDArchive() = default;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<ArchiveBackend>(*this);
+        ar& HLE::BoostCompat::Serialization::base_object<ArchiveBackend>(*this);
         ar & mount_point;
         ar & archive_type;
     }
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 
 private:
     bool AllowsWrite() const {
@@ -102,11 +100,11 @@ private:
     ArchiveFactory_NAND() = default;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<ArchiveFactory>(*this);
+        ar& HLE::BoostCompat::Serialization::base_object<ArchiveFactory>(*this);
         ar & nand_directory;
         ar & archive_type;
     }
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 } // namespace FileSys

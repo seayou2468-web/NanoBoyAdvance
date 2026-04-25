@@ -6,9 +6,9 @@
 
 #include <functional>
 #include <span>
-#include <boost/serialization/base_object.hpp>
 
 #include "video_core/pica/output_vertex.h"
+#include "../../hle/boost_compat.h"
 
 namespace Pica {
 
@@ -54,7 +54,7 @@ public:
     GeometryEmitter* emitter_ptr;
 
 private:
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
     template <class Archive>
     void serialize(Archive& ar, const u32 file_version) {
         ar & input;
@@ -90,7 +90,7 @@ public:
     Handlers* handlers;
 
 private:
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
     template <class Archive>
     void serialize(Archive& ar, const u32 file_version) {
         ar & buffer;
@@ -114,10 +114,10 @@ struct GeometryShaderUnit : public ShaderUnit {
     GeometryEmitter emitter;
 
 private:
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
     template <class Archive>
     void serialize(Archive& ar, const u32 file_version) {
-        ar& boost::serialization::base_object<ShaderUnit>(*this);
+        ar& HLE::BoostCompat::Serialization::base_object<ShaderUnit>(*this);
         ar & emitter;
     }
 };

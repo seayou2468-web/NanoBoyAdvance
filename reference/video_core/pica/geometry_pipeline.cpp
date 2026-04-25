@@ -2,9 +2,6 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/export.hpp>
-#include <boost/serialization/unique_ptr.hpp>
 #include "common/archives.h"
 #include "core/core.h"
 #include "video_core/gpu.h"
@@ -13,6 +10,7 @@
 #include "video_core/pica/shader_setup.h"
 #include "video_core/pica/shader_unit.h"
 #include "video_core/shader/shader.h"
+#include "../../hle/boost_compat.h"
 
 namespace Pica {
 
@@ -40,7 +38,7 @@ public:
 private:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int file_version) {}
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 // In the Point mode, vertex attributes are sent to the input registers in the geometry shader unit.
@@ -99,7 +97,7 @@ private:
 
     template <typename Class, class Archive>
     static void serialize_common(Class* self, Archive& ar, const unsigned int version) {
-        ar& boost::serialization::base_object<GeometryPipelineBackend>(*self);
+        ar& HLE::BoostCompat::Serialization::base_object<GeometryPipelineBackend>(*self);
         ar & self->attribute_buffer;
         ar & self->vs_output_num;
     }
@@ -125,7 +123,7 @@ private:
 
     BOOST_SERIALIZATION_SPLIT_MEMBER()
 
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 // In VariablePrimitive mode, vertex attributes are buffered into the uniform registers in the
@@ -199,7 +197,7 @@ private:
 
     template <typename Class, class Archive>
     static void serialize_common(Class* self, Archive& ar, const unsigned int version) {
-        ar& boost::serialization::base_object<GeometryPipelineBackend>(*self);
+        ar& HLE::BoostCompat::Serialization::base_object<GeometryPipelineBackend>(*self);
         ar & self->need_index;
         ar & self->main_vertex_num;
         ar & self->total_vertex_num;
@@ -223,7 +221,7 @@ private:
 
     BOOST_SERIALIZATION_SPLIT_MEMBER()
 
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 // In FixedPrimitive mode, vertex attributes are buffered into the uniform registers in the geometry
@@ -275,7 +273,7 @@ private:
 
     template <typename Class, class Archive>
     static void serialize_common(Class* self, Archive& ar, const unsigned int version) {
-        ar& boost::serialization::base_object<GeometryPipelineBackend>(*self);
+        ar& HLE::BoostCompat::Serialization::base_object<GeometryPipelineBackend>(*self);
         ar & self->vs_output_num;
     }
 
@@ -304,7 +302,7 @@ private:
 
     BOOST_SERIALIZATION_SPLIT_MEMBER()
 
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 GeometryPipeline::GeometryPipeline(RegsInternal& regs_, GeometryShaderUnit& gs_unit_,

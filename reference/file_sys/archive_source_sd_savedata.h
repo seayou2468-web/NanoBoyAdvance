@@ -6,12 +6,11 @@
 
 #include <memory>
 #include <string>
-#include <boost/serialization/export.hpp>
-#include <boost/serialization/string.hpp>
 #include "core/file_sys/archive_backend.h"
 #include "core/file_sys/artic_cache.h"
 #include "core/hle/result.h"
 #include "network/artic_base/artic_base_client.h"
+#include "../hle/boost_compat.h"
 
 namespace Service::FS {
 enum class ArchiveIdCode : u32;
@@ -50,10 +49,10 @@ private:
     ArchiveSource_SDSaveData() = default;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<ArticCacheProvider>(*this);
+        ar& HLE::BoostCompat::Serialization::base_object<ArticCacheProvider>(*this);
         ar & mount_point;
     }
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 } // namespace FileSys

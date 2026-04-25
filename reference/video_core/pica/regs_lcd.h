@@ -4,12 +4,12 @@
 
 #pragma once
 
-#include <boost/serialization/access.hpp>
 
 #include "common/bit_field.h"
 #include "common/common_funcs.h"
 #include "common/common_types.h"
 #include "common/vector_math.h"
+#include "../../hle/boost_compat.h"
 
 #define LCD_REG_INDEX(field_name) (offsetof(Pica::RegsLcd, field_name) / sizeof(u32))
 
@@ -61,7 +61,7 @@ private:
         ar & color_fill_bottom.raw;
         ar & backlight_bottom;
     }
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 static_assert(std::is_standard_layout_v<RegsLcd>, "Structure does not use standard layout");
 

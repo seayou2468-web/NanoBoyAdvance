@@ -12,6 +12,7 @@
 #include "core/file_sys/errors.h"
 #include "core/file_sys/ivfc_archive.h"
 #include "core/hle/kernel/process.h"
+#include "../hle/boost_compat.h"
 
 SERIALIZE_EXPORT_IMPL(FileSys::ArchiveFactory_SelfNCCH)
 
@@ -78,10 +79,10 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<FileBackend>(*this);
+        ar& HLE::BoostCompat::Serialization::base_object<FileBackend>(*this);
         ar & data;
     }
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 // SelfNCCHArchive represents the running application itself. From this archive the application can
@@ -241,10 +242,10 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<ArchiveBackend>(*this);
+        ar& HLE::BoostCompat::Serialization::base_object<ArchiveBackend>(*this);
         ar & ncch_data;
     }
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 void ArchiveFactory_SelfNCCH::Register(Loader::AppLoader& app_loader) {

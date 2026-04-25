@@ -6,15 +6,13 @@
 
 #include <array>
 #include <shared_mutex>
-#include <boost/serialization/array.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/export.hpp>
 #include "common/alignment.h"
 #include "common/common_types.h"
 #include "common/file_util.h"
 #include "common/static_lru_cache.h"
 #include "core/file_sys/artic_cache.h"
 #include "network/artic_base/artic_base_client.h"
+#include "../hle/boost_compat.h"
 
 namespace Loader {
 enum class ResultStatus;
@@ -37,7 +35,7 @@ public:
 private:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int file_version) {}
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 /**
@@ -85,12 +83,12 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<RomFSReader>(*this);
+        ar& HLE::BoostCompat::Serialization::base_object<RomFSReader>(*this);
         ar & file;
         ar & file_offset;
         ar & data_size;
     }
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 /**
@@ -133,10 +131,10 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<RomFSReader>(*this);
+        ar& HLE::BoostCompat::Serialization::base_object<RomFSReader>(*this);
         ar & data_size;
     }
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 } // namespace FileSys

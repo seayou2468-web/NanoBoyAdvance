@@ -15,6 +15,7 @@
 #include "video_core/pica/regs_lcd.h"
 #include "video_core/pica/shader_setup.h"
 #include "video_core/pica/shader_unit.h"
+#include "../../hle/boost_compat.h"
 
 namespace Memory {
 class MemorySystem;
@@ -90,7 +91,7 @@ public:
         }
 
     private:
-        friend class boost::serialization::access;
+        friend class HLE::BoostCompat::Serialization::access;
         template <class Archive>
         void serialize(Archive& ar, const u32 file_version);
     };
@@ -108,7 +109,7 @@ public:
         }
 
     private:
-        friend class boost::serialization::access;
+        friend class HLE::BoostCompat::Serialization::access;
         template <class Archive>
         void serialize(Archive& ar, const u32 file_version) {
             ar & input_vertex;
@@ -181,10 +182,10 @@ public:
         };
 
     private:
-        friend class boost::serialization::access;
+        friend class HLE::BoostCompat::Serialization::access;
         template <class Archive>
         void serialize(Archive& ar, const u32 file_version) {
-            ar& boost::serialization::make_binary_object(this, sizeof(ProcTex));
+            ar& HLE::BoostCompat::Serialization::make_binary_object(this, sizeof(ProcTex));
             if (Archive::is_loading::value) {
                 table_dirty = TableAllDirty;
             }
@@ -224,10 +225,10 @@ public:
         u32 lut_dirty = LutAllDirty;
 
     private:
-        friend class boost::serialization::access;
+        friend class HLE::BoostCompat::Serialization::access;
         template <class Archive>
         void serialize(Archive& ar, const u32 file_version) {
-            ar& boost::serialization::make_binary_object(this, sizeof(Lighting));
+            ar& HLE::BoostCompat::Serialization::make_binary_object(this, sizeof(Lighting));
             if (Archive::is_loading::value) {
                 lut_dirty = LutAllDirty;
             }
@@ -255,10 +256,10 @@ public:
         bool lut_dirty = true;
 
     private:
-        friend class boost::serialization::access;
+        friend class HLE::BoostCompat::Serialization::access;
         template <class Archive>
         void serialize(Archive& ar, const u32 file_version) {
-            ar& boost::serialization::make_binary_object(this, sizeof(Fog));
+            ar& HLE::BoostCompat::Serialization::make_binary_object(this, sizeof(Fog));
             if (Archive::is_loading::value) {
                 lut_dirty = true;
             }
@@ -278,7 +279,7 @@ public:
     ImmediateModeState immediate{};
 
 private:
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
     template <class Archive>
     void serialize(Archive& ar, const u32 file_version) {
         ar & regs_lcd;

@@ -6,10 +6,9 @@
 
 #include <array>
 #include <functional>
-#include <boost/serialization/access.hpp>
-#include <boost/serialization/array.hpp>
 #include "video_core/pica/output_vertex.h"
 #include "video_core/pica/regs_pipeline.h"
+#include "../../hle/boost_compat.h"
 
 namespace Pica {
 
@@ -86,7 +85,7 @@ private:
         ar & strip_ready;
         ar & winding;
     }
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 } // namespace Pica

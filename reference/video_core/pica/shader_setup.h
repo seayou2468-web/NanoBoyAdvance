@@ -8,6 +8,7 @@
 #include "common/vector_math.h"
 #include "video_core/pica/packed_attribute.h"
 #include "video_core/pica_types.h"
+#include "../../hle/boost_compat.h"
 
 namespace Pica {
 
@@ -35,7 +36,7 @@ struct Uniforms {
     }
 
 private:
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
     template <class Archive>
     void serialize(Archive& ar, const u32 file_version) {
         ar & f;
@@ -159,7 +160,7 @@ private:
     u64 program_code_hash{0};
     u64 swizzle_data_hash{0};
 
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
     template <class Archive>
     void serialize(Archive& ar, const u32 file_version) {
         ar & uniforms;

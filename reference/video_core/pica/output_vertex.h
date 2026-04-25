@@ -7,6 +7,7 @@
 #include "common/common_funcs.h"
 #include "common/vector_math.h"
 #include "video_core/pica_types.h"
+#include "../../hle/boost_compat.h"
 
 namespace Pica {
 
@@ -41,7 +42,7 @@ private:
         ar & view;
         ar & tc2;
     }
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 static_assert(std::is_trivial_v<OutputVertex>, "Structure is not POD");
 static_assert(sizeof(OutputVertex) == 24 * sizeof(f32), "OutputVertex has invalid size");

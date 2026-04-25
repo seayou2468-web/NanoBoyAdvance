@@ -6,11 +6,9 @@
 
 #include <memory>
 #include <string>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/export.hpp>
-#include <boost/serialization/string.hpp>
 #include "core/file_sys/archive_backend.h"
 #include "core/hle/result.h"
+#include "../hle/boost_compat.h"
 
 namespace FileSys {
 
@@ -46,10 +44,10 @@ protected:
     SDMCArchive() = default;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<ArchiveBackend>(*this);
+        ar& HLE::BoostCompat::Serialization::base_object<ArchiveBackend>(*this);
         ar & mount_point;
     }
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 /// File system interface to the SDMC archive
@@ -78,10 +76,10 @@ private:
     ArchiveFactory_SDMC() = default;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<ArchiveFactory>(*this);
+        ar& HLE::BoostCompat::Serialization::base_object<ArchiveFactory>(*this);
         ar & sdmc_directory;
     }
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 class SDMCDelayGenerator;

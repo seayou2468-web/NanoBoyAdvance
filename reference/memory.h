@@ -6,10 +6,9 @@
 #include <array>
 #include <cstddef>
 #include <string>
-#include <boost/serialization/array.hpp>
-#include <boost/serialization/vector.hpp>
 #include "common/common_types.h"
 #include "common/memory_ref.h"
+#include "hle/boost_compat.h"
 
 namespace Kernel {
 class Process;
@@ -111,7 +110,7 @@ private:
             pointers.raw[i] = pointers.refs[i].GetPtr();
         }
     }
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 /// Physical memory regions as seen from the ARM11
@@ -696,7 +695,7 @@ private:
 
     PhysMemRegionInfo phys_mem_region_info_cache{};
 
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int file_version);
 
