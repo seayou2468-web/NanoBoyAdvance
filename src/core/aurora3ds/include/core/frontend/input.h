@@ -5,7 +5,7 @@
 #pragma once
 
 #include <memory>
-#include <string>
+#include <string_view>
 #include <tuple>
 
 namespace Input {
@@ -23,7 +23,7 @@ public:
 };
 
 template <typename InputDeviceType>
-std::unique_ptr<InputDeviceType> CreateDevice(const std::string&) {
+std::unique_ptr<InputDeviceType> CreateDevice(std::string_view) {
     return std::make_unique<InputDeviceType>();
 }
 

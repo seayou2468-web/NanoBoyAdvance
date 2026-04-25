@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../memory.hpp"
+class Memory;
 
 namespace Applets {
 
