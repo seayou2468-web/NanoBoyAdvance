@@ -21,6 +21,24 @@ constexpr u32 kCompositeWidth = Emulator::width;
 constexpr u32 kCompositeHeight = Emulator::height;
 constexpr u32 kTopScreenTargetHeight = 240;
 
+void RunReferenceFallbackSelfTestIfRequested(Kernel& kernel, Memory& memory) {
+	const char* selfTest = std::getenv("AURORA_REF_FALLBACK_SELFTEST");
+	if (selfTest == nullptr || selfTest[0] != '1') {
+		return;
+	}
+
+	const u32 messagePointer = VirtualAddrs::TLSBase + 0x80;
+	memory.write32(messagePointer, 0xFFFF0000);  // Deliberately unknown command id
+	memory.write32(messagePointer + 4, 0xFFFFFFFF);
+
+	kernel.getServiceManager().sendCommandToService(messagePointer, KernelHandles::OS_STUB);
+
+	Helpers::warn(
+		"[REF-FALLBACK] self-test header=%08X result=%08X",
+		memory.read32(messagePointer), memory.read32(messagePointer + 4)
+	);
+}
+
 enum class ContainerProbeType {
 	Unknown,
 	CIA,
@@ -290,6 +308,7 @@ Emulator::Emulator()
 
 	referenceFallbackBridge = CreateReferenceFallbackBridge(memory);
 	kernel.getServiceManager().setFallbackBridge(referenceFallbackBridge.get());
+	RunReferenceFallbackSelfTestIfRequested(kernel, memory);
 
 	audioDevice.init(dsp->getSamples());
 
