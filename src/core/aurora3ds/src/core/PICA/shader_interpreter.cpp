@@ -250,12 +250,12 @@ void PICAShader::flr(u32 instruction) {
 
 void PICAShader::max(u32 instruction) {
 	const u32 operandDescriptor = operandDescriptors[instruction & 0x7f];
-	const u32 src1 = getBits<12, 7>(instruction);
+	u32 src1 = getBits<12, 7>(instruction);
 	const u32 src2 = getBits<7, 5>(instruction);  // src2 coming first because PICA moment
 	const u32 idx = getBits<19, 2>(instruction);
 	const u32 dest = getBits<21, 5>(instruction);
 
-	if (idx) Helpers::panic("[PICA] MAX: idx != 0");
+	src1 = getIndexedSource(src1, idx);
 	vec4f srcVec1 = getSourceSwizzled<1>(src1, operandDescriptor);
 	vec4f srcVec2 = getSourceSwizzled<2>(src2, operandDescriptor);
 
@@ -264,24 +264,22 @@ void PICAShader::max(u32 instruction) {
 	u32 componentMask = operandDescriptor & 0xf;
 	for (int i = 0; i < 4; i++) {
 		if (componentMask & (1 << i)) {
-			const float inputA = srcVec1[3 - i].toFloat32();
-			const float inputB = srcVec2[3 - i].toFloat32();
-			// max(NaN, 2.f) -> NaN
-			// max(2.f, NaN) -> 2
-			const auto& maximum = std::isinf(inputB) ? inputB : std::max(inputB, inputA);
-			destVector[3 - i] = f24::fromFloat32(maximum);
+			// Match PICA NaN semantics:
+			//  max(0, NaN) -> NaN
+			//  max(NaN, 0) -> 0
+			destVector[3 - i] = (srcVec1[3 - i] > srcVec2[3 - i]) ? srcVec1[3 - i] : srcVec2[3 - i];
 		}
 	}
 }
 
 void PICAShader::min(u32 instruction) {
 	const u32 operandDescriptor = operandDescriptors[instruction & 0x7f];
-	const u32 src1 = getBits<12, 7>(instruction);
+	u32 src1 = getBits<12, 7>(instruction);
 	const u32 src2 = getBits<7, 5>(instruction);  // src2 coming first because PICA moment
 	const u32 idx = getBits<19, 2>(instruction);
 	const u32 dest = getBits<21, 5>(instruction);
 
-	if (idx) Helpers::panic("[PICA] MIN: idx != 0");
+	src1 = getIndexedSource(src1, idx);
 	vec4f srcVec1 = getSourceSwizzled<1>(src1, operandDescriptor);
 	vec4f srcVec2 = getSourceSwizzled<2>(src2, operandDescriptor);
 
@@ -290,12 +288,10 @@ void PICAShader::min(u32 instruction) {
 	u32 componentMask = operandDescriptor & 0xf;
 	for (int i = 0; i < 4; i++) {
 		if (componentMask & (1 << i)) {
-			const float inputA = srcVec1[3 - i].toFloat32();
-			const float inputB = srcVec2[3 - i].toFloat32();
-			// min(NaN, 2.f) -> NaN
-			// min(2.f, NaN) -> 2
-			const auto& mininum = std::min(inputB, inputA);
-			destVector[3 - i] = f24::fromFloat32(mininum);
+			// Match PICA NaN semantics:
+			//  min(0, NaN) -> NaN
+			//  min(NaN, 0) -> 0
+			destVector[3 - i] = (srcVec1[3 - i] < srcVec2[3 - i]) ? srcVec1[3 - i] : srcVec2[3 - i];
 		}
 	}
 }
@@ -402,11 +398,11 @@ void PICAShader::dphi(u32 instruction) {
 
 void PICAShader::rcp(u32 instruction) {
 	const u32 operandDescriptor = operandDescriptors[instruction & 0x7f];
-	const u32 src1 = getBits<12, 7>(instruction);
+	u32 src1 = getBits<12, 7>(instruction);
 	const u32 idx = getBits<19, 2>(instruction);
 	const u32 dest = getBits<21, 5>(instruction);
 
-	if (idx) Helpers::panic("[PICA] RCP: idx != 0");
+	src1 = getIndexedSource(src1, idx);
 	vec4f srcVec1 = getSourceSwizzled<1>(src1, operandDescriptor);
 
 	vec4f& destVector = getDest(dest);
@@ -426,11 +422,11 @@ void PICAShader::rcp(u32 instruction) {
 
 void PICAShader::rsq(u32 instruction) {
 	const u32 operandDescriptor = operandDescriptors[instruction & 0x7f];
-	const u32 src1 = getBits<12, 7>(instruction);
+	u32 src1 = getBits<12, 7>(instruction);
 	const u32 idx = getBits<19, 2>(instruction);
 	const u32 dest = getBits<21, 5>(instruction);
 
-	if (idx) Helpers::panic("[PICA] RSQ: idx != 0");
+	src1 = getIndexedSource(src1, idx);
 	vec4f srcVec1 = getSourceSwizzled<1>(src1, operandDescriptor);
 
 	vec4f& destVector = getDest(dest);
@@ -618,14 +614,14 @@ void PICAShader::slti(u32 instruction) {
 
 void PICAShader::cmp(u32 instruction) {
 	const u32 operandDescriptor = operandDescriptors[instruction & 0x7f];
-	const u32 src1 = getBits<12, 7>(instruction);
+	u32 src1 = getBits<12, 7>(instruction);
 	const u32 src2 = getBits<7, 5>(instruction);  // src2 coming first because PICA moment
 	const u32 idx = getBits<19, 2>(instruction);
 	const u32 cmpY = getBits<21, 3>(instruction);
 	const u32 cmpX = getBits<24, 3>(instruction);
 	const u32 cmpOperations[2] = {cmpX, cmpY};
 
-	if (idx) Helpers::panic("[PICA] CMP: idx != 0");
+	src1 = getIndexedSource(src1, idx);
 	vec4f srcVec1 = getSourceSwizzled<1>(src1, operandDescriptor);
 	vec4f srcVec2 = getSourceSwizzled<2>(src2, operandDescriptor);
 
