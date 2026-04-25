@@ -408,6 +408,7 @@ void GPU::startCommandList(u32 addr, u32 size) {
 		0x00000000, 0x000000ff, 0x0000ff00, 0x0000ffff, 0x00ff0000, 0x00ff00ff, 0x00ffff00, 0x00ffffff,
 		0xff000000, 0xff0000ff, 0xff00ff00, 0xff00ffff, 0xffff0000, 0xffff00ff, 0xffffff00, 0xffffffff,
 	};
+	bool sawDrawTrigger = false;
 
 	while (cmdBuffCurr < cmdBuffEnd) {
 		// If the buffer is not aligned to an 8 byte boundary, force align it by moving the pointer up a word
@@ -424,7 +425,7 @@ void GPU::startCommandList(u32 addr, u32 size) {
 
 		u32 id = header & 0xffff;
 		u32 paramMaskIndex = getBits<16, 4>(header);
-		u32 paramCount = getBits<20, 8>(header);  // Number of additional parameters
+		u32 paramCount = getBits<20, 11>(header);  // Number of additional parameters
 		// Bit 31 tells us whether this command is going to write to multiple sequential registers (if the bit is 1)
 		// Or if all written values will go to the same register (If the bit is 0). It's essentially the value that
 		// gets added to the "id" field after each register write
@@ -433,12 +434,35 @@ void GPU::startCommandList(u32 addr, u32 size) {
 		u32 mask = maskLUT[paramMaskIndex];  // Actual parameter mask
 		// Increment the ID by 1 after each write if we're in consecutive mode, or 0 otherwise
 		u32 idIncrement = (consecutiveWritingMode) ? 1 : 0;
+		auto checkDrawTrigger = [&](u32 reg, u32 value, u32 regMask) {
+			if (reg != PICA::InternalRegs::SignalDrawArrays && reg != PICA::InternalRegs::SignalDrawElements) {
+				return;
+			}
+			const u32 oldValue = regs[reg];
+			const u32 newValue = (oldValue & ~regMask) | (value & regMask);
+			if (newValue != 0) {
+				sawDrawTrigger = true;
+			}
+		};
 
+		checkDrawTrigger(id, param1, mask);
 		writeInternalReg(id, param1, mask);
 		for (u32 i = 0; i < paramCount; i++) {
 			id += idIncrement;
 			u32 param = *cmdBuffCurr++;
+			checkDrawTrigger(id, param, mask);
 			writeInternalReg(id, param, mask);
+		}
+	}
+
+	if (!sawDrawTrigger) {
+		static u64 noDrawTriggerWarnCounter = 0;
+		noDrawTriggerWarnCounter++;
+		if ((noDrawTriggerWarnCounter % 120) == 1) {
+			Helpers::warn(
+				"[PICA] Command list finished without draw trigger (addr=%08X size=%08X vertexCount=%u prim=%u)",
+				addr, size, regs[PICA::InternalRegs::VertexCountReg], regs[PICA::InternalRegs::PrimitiveConfig]
+			);
 		}
 	}
 }
