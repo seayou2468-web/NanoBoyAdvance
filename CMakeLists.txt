@@ -55,7 +55,6 @@ list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/CPU/dyncom/a
 list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/video_core/.*")
 list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/file_sys/.*")
 list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/loader/.*")
-list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/hle/.*")
 list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/hw/.*")
 list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/memory\\.cpp$")
 list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/core_timing\\.cpp$")
