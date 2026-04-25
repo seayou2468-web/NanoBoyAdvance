@@ -884,12 +884,23 @@ void Kernel::svcInvalidateEntireInstructionCache() {
 namespace SystemInfoType {
 	enum : u32 {
 		MemoryInformation = 0,
+		KernelAllocatedPages = 2,
+		KernelSpawnedPIDs = 26,
+		LumaInformation = 0x10000,
+		New3DSInformation = 0x10001,
 		// Gets information related to Citra (We don't implement this, we just report this emulator is not Citra)
 		CitraInformation = 0x20000,
 		// Gets information related to this emulator
 		PandaInformation = 0x20001,
 	};
 };
+
+namespace LumaInfoType {
+	enum : u32 {
+		RealAppRegionSize = 0,
+		IsNew3DS = 1,
+	};
+}
 
 namespace CitraInfoType {
 	enum : u32 {
@@ -920,8 +931,8 @@ void Kernel::getSystemInfo() {
 
 	regs[0] = Result::Success;
 	switch (infoType) {
-		case SystemInfoType::MemoryInformation: {
-			switch (subtype) {
+			case SystemInfoType::MemoryInformation: {
+				switch (subtype) {
 				// Total used memory size in the APPLICATION memory region
 				case 1:
 					regs[1] = fcramManager.getUsedCount(FcramRegion::App) * Memory::pageSize;
@@ -933,22 +944,61 @@ void Kernel::getSystemInfo() {
 					regs[0] = Result::FailurePlaceholder;
 					break;
 			}
-			break;
-		}
+				break;
+			}
 
-		case SystemInfoType::CitraInformation: {
-			switch (subtype) {
+			case SystemInfoType::KernelAllocatedPages:
+				// Not tracked yet in this kernel implementation.
+				regs[1] = 0;
+				regs[2] = 0;
+				break;
+
+			case SystemInfoType::KernelSpawnedPIDs:
+				// Native FIRM reports 5 fixed kernel-spawned processes (sm, fs, pm, loader, pxi).
+				regs[1] = 5;
+				regs[2] = 0;
+				break;
+
+			case SystemInfoType::LumaInformation: {
+				switch (subtype) {
+					case LumaInfoType::RealAppRegionSize:
+						// TODO: expose exact configured APP region size from KFcram.
+						regs[1] = 0;
+						regs[2] = 0;
+						break;
+					case LumaInfoType::IsNew3DS:
+						// Current runtime emulates Old3DS by default.
+						regs[1] = 0;
+						regs[2] = 0;
+						break;
+					default:
+						Helpers::warn("GetSystemInfo: Unknown LumaInformation subtype %x\n", subtype);
+						regs[0] = Result::Kernel::InvalidEnumValue;
+						break;
+				}
+				break;
+			}
+
+			case SystemInfoType::New3DSInformation:
+				// Homebrew probes this to detect N3DS capability. Return a valid response and report Old3DS.
+				regs[1] = 0;
+				regs[2] = 0;
+				regs[0] = Result::Kernel::InvalidEnumValue;
+				break;
+
+			case SystemInfoType::CitraInformation: {
+				switch (subtype) {
 				case CitraInfoType::IsCitra:
 					// Report that we're not Citra
 					regs[1] = 0;
 					regs[2] = 0;
 					break;
 
-				default:
-					Helpers::warn("GetSystemInfo: Unknown CitraInformation subtype %x\n", subtype);
-					regs[0] = Result::FailurePlaceholder;
-					break;
-			}
+					default:
+						Helpers::warn("GetSystemInfo: Unknown CitraInformation subtype %x\n", subtype);
+						regs[0] = Result::Kernel::InvalidEnumValue;
+						break;
+				}
 
 			break;
 		}
@@ -961,17 +1011,22 @@ void Kernel::getSystemInfo() {
 					regs[2] = 0;
 					break;
 
-				default:
-					Helpers::warn("GetSystemInfo: Unknown PandaInformation subtype %x\n", subtype);
-					regs[0] = Result::FailurePlaceholder;
-					break;
-			}
+					default:
+						Helpers::warn("GetSystemInfo: Unknown PandaInformation subtype %x\n", subtype);
+						regs[0] = Result::Kernel::InvalidEnumValue;
+						break;
+				}
 
 			break;
 		}
 
-		default: Helpers::panic("GetSystemInfo: Unknown system info type: %x (subtype: %x)\n", infoType, subtype); break;
-	}
+			default:
+				Helpers::warn("GetSystemInfo: Unknown system info type: %x (subtype: %x)\n", infoType, subtype);
+				regs[0] = Result::Kernel::InvalidEnumValue;
+				regs[1] = 0;
+				regs[2] = 0;
+				break;
+		}
 }
 
 std::string Kernel::getProcessName(u32 pid) {
