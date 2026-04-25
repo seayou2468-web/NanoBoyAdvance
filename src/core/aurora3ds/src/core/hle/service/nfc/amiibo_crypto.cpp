@@ -6,12 +6,10 @@
 // Licensed under MIT
 // Refer to the license.txt file included.
 
+#include <algorithm>
 #include <array>
-#include <cryptopp/aes.h>
-#include <cryptopp/hmac.h>
-#include <cryptopp/modes.h>
-#include <cryptopp/sha.h>
-
+#include "common/aes_util.h"
+#include "common/crypto_util.h"
 #include "common/logging/log.h"
 #include "core/hle/service/nfc/amiibo_crypto.h"
 #include "core/hw/aes/key.h"
@@ -180,8 +178,8 @@ std::vector<u8> GenerateInternalKey(const HW::AES::NfcSecret& secret, const Hash
     auto nfc_iv = HW::AES::GetNfcIv();
 
     // Decrypt the keygen salt using the NFC key and IV.
-    CryptoPP::CTR_Mode<CryptoPP::AES>::Decryption d;
-    d.SetKeyWithIV(nfc_key.data(), nfc_key.size(), nfc_iv.data(), nfc_iv.size());
+    Common::AESUtil::AesCtrCryptor d;
+    d.SetKeyWithIV(nfc_key.data(), nfc_key.size(), nfc_iv.data());
     std::array<u8, sizeof(seed.keygen_salt)> decrypted_salt{};
     d.ProcessData(reinterpret_cast<unsigned char*>(decrypted_salt.data()),
                   reinterpret_cast<const unsigned char*>(seed.keygen_salt.data()),
@@ -191,24 +189,17 @@ std::vector<u8> GenerateInternalKey(const HW::AES::NfcSecret& secret, const Hash
     return output;
 }
 
-void CryptoInit(CryptoCtx& ctx, CryptoPP::HMAC<CryptoPP::SHA256>& hmac_ctx,
-                std::span<const u8> hmac_key, std::span<const u8> seed) {
+void CryptoInit(CryptoCtx& ctx, std::span<const u8> hmac_key, std::span<const u8> seed) {
     // Initialize context
     ctx.used = false;
     ctx.counter = 0;
     ctx.buffer_size = sizeof(ctx.counter) + seed.size();
     memcpy(ctx.buffer.data() + sizeof(u16), seed.data(), seed.size());
-
-    // Initialize HMAC context
-    hmac_ctx.SetKey(hmac_key.data(), hmac_key.size());
+    std::fill(ctx.hmac_key.begin(), ctx.hmac_key.end(), 0);
+    std::memcpy(ctx.hmac_key.data(), hmac_key.data(), std::min(hmac_key.size(), ctx.hmac_key.size()));
 }
 
-void CryptoStep(CryptoCtx& ctx, CryptoPP::HMAC<CryptoPP::SHA256>& hmac_ctx, DrgbOutput& output) {
-    // If used at least once, reinitialize the HMAC
-    if (ctx.used) {
-        hmac_ctx.Restart();
-    }
-
+void CryptoStep(CryptoCtx& ctx, DrgbOutput& output) {
     ctx.used = true;
 
     // Store counter in big endian, and increment it
@@ -216,9 +207,9 @@ void CryptoStep(CryptoCtx& ctx, CryptoPP::HMAC<CryptoPP::SHA256>& hmac_ctx, Drgb
     ctx.buffer[1] = static_cast<u8>(ctx.counter >> 0);
     ctx.counter++;
 
-    // Do HMAC magic
-    hmac_ctx.CalculateDigest(
-        output.data(), reinterpret_cast<const unsigned char*>(ctx.buffer.data()), ctx.buffer_size);
+    Common::CryptoUtil::HmacSha256(ctx.hmac_key,
+                                   std::span<const u8>(ctx.buffer.data(), ctx.buffer_size),
+                                   output.data());
 }
 
 DerivedKeys GenerateKey(const HW::AES::NfcSecret& secret, const NTAG215File& data) {
@@ -229,23 +220,21 @@ DerivedKeys GenerateKey(const HW::AES::NfcSecret& secret, const NTAG215File& dat
 
     // Initialize context
     CryptoCtx ctx{};
-    CryptoPP::HMAC<CryptoPP::SHA256> hmac_ctx;
-    CryptoInit(ctx, hmac_ctx, secret.hmac_key, internal_key);
+    CryptoInit(ctx, secret.hmac_key, internal_key);
 
     // Generate derived keys
     DerivedKeys derived_keys{};
     std::array<DrgbOutput, 2> temp{};
-    CryptoStep(ctx, hmac_ctx, temp[0]);
-    CryptoStep(ctx, hmac_ctx, temp[1]);
+    CryptoStep(ctx, temp[0]);
+    CryptoStep(ctx, temp[1]);
     memcpy(&derived_keys, temp.data(), sizeof(DerivedKeys));
 
     return derived_keys;
 }
 
 void Cipher(const DerivedKeys& keys, const NTAG215File& in_data, NTAG215File& out_data) {
-    CryptoPP::CTR_Mode<CryptoPP::AES>::Decryption d2;
-    d2.SetKeyWithIV(keys.aes_key.data(), keys.aes_key.size(), keys.aes_iv.data(),
-                    keys.aes_iv.size());
+    Common::AESUtil::AesCtrCryptor d2;
+    d2.SetKeyWithIV(keys.aes_key.data(), keys.aes_key.size(), keys.aes_iv.data());
 
     constexpr std::size_t encrypted_data_size = HMAC_TAG_START - SETTINGS_START;
     d2.ProcessData(reinterpret_cast<unsigned char*>(&out_data.settings),
@@ -289,16 +278,17 @@ bool DecodeAmiibo(const EncryptedNTAG215File& encrypted_tag_data, NTAG215File& t
 
     // Regenerate tag HMAC. Note: order matters, data HMAC depends on tag HMAC!
     constexpr std::size_t input_length = DYNAMIC_LOCK_START - UUID_START;
-    CryptoPP::HMAC<CryptoPP::SHA256> tag_hmac(tag_keys.hmac_key.data(), HMAC_KEY_SIZE);
-    tag_hmac.CalculateDigest(reinterpret_cast<unsigned char*>(&tag_data.hmac_tag),
-                             reinterpret_cast<const unsigned char*>(&tag_data.uid), input_length);
+    Common::CryptoUtil::HmacSha256(
+        std::span<const u8>(tag_keys.hmac_key.data(), HMAC_KEY_SIZE),
+        std::span<const u8>(reinterpret_cast<const u8*>(&tag_data.uid), input_length),
+        reinterpret_cast<u8*>(&tag_data.hmac_tag));
 
     // Regenerate data HMAC
     constexpr std::size_t input_length2 = DYNAMIC_LOCK_START - WRITE_COUNTER_START;
-    CryptoPP::HMAC<CryptoPP::SHA256> data_hmac(data_keys.hmac_key.data(), HMAC_KEY_SIZE);
-    data_hmac.CalculateDigest(reinterpret_cast<unsigned char*>(&tag_data.hmac_data),
-                              reinterpret_cast<const unsigned char*>(&tag_data.write_counter),
-                              input_length2);
+    Common::CryptoUtil::HmacSha256(
+        std::span<const u8>(data_keys.hmac_key.data(), HMAC_KEY_SIZE),
+        std::span<const u8>(reinterpret_cast<const u8*>(&tag_data.write_counter), input_length2),
+        reinterpret_cast<u8*>(&tag_data.hmac_data));
 
     if (tag_data.hmac_data != encrypted_tag_data.user_memory.hmac_data) {
         LOG_ERROR(Service_NFC, "hmac_data doesn't match");
@@ -330,18 +320,23 @@ bool EncodeAmiibo(const NTAG215File& tag_data, EncryptedNTAG215File& encrypted_t
     // Generate tag HMAC
     constexpr std::size_t input_length = DYNAMIC_LOCK_START - UUID_START;
     constexpr std::size_t input_length2 = HMAC_TAG_START - WRITE_COUNTER_START;
-    CryptoPP::HMAC<CryptoPP::SHA256> tag_hmac(tag_keys.hmac_key.data(), HMAC_KEY_SIZE);
-    tag_hmac.CalculateDigest(reinterpret_cast<unsigned char*>(&encoded_tag_data.hmac_tag),
-                             reinterpret_cast<const unsigned char*>(&tag_data.uid), input_length);
+    Common::CryptoUtil::HmacSha256(
+        std::span<const u8>(tag_keys.hmac_key.data(), HMAC_KEY_SIZE),
+        std::span<const u8>(reinterpret_cast<const u8*>(&tag_data.uid), input_length),
+        reinterpret_cast<u8*>(&encoded_tag_data.hmac_tag));
 
     // Generate data HMAC
-    CryptoPP::HMAC<CryptoPP::SHA256> data_hmac(data_keys.hmac_key.data(), HMAC_KEY_SIZE);
-    data_hmac.Update(reinterpret_cast<const unsigned char*>(&tag_data.write_counter),
-                     input_length2);
-    data_hmac.Update(reinterpret_cast<unsigned char*>(&encoded_tag_data.hmac_tag),
-                     sizeof(HashData));
-    data_hmac.Update(reinterpret_cast<const unsigned char*>(&tag_data.uid), input_length);
-    data_hmac.Final(reinterpret_cast<unsigned char*>(&encoded_tag_data.hmac_data));
+    std::array<u8, input_length2 + sizeof(HashData) + input_length> data_hmac_input{};
+    size_t hmac_offset = 0;
+    std::memcpy(data_hmac_input.data() + hmac_offset, &tag_data.write_counter, input_length2);
+    hmac_offset += input_length2;
+    std::memcpy(data_hmac_input.data() + hmac_offset, &encoded_tag_data.hmac_tag, sizeof(HashData));
+    hmac_offset += sizeof(HashData);
+    std::memcpy(data_hmac_input.data() + hmac_offset, &tag_data.uid, input_length);
+    Common::CryptoUtil::HmacSha256(
+        std::span<const u8>(data_keys.hmac_key.data(), HMAC_KEY_SIZE),
+        std::span<const u8>(data_hmac_input.data(), data_hmac_input.size()),
+        reinterpret_cast<u8*>(&encoded_tag_data.hmac_data));
 
     // Encrypt
     Cipher(data_keys, tag_data, encoded_tag_data);

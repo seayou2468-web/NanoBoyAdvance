@@ -4,8 +4,8 @@
 
 #include <array>
 #include <chrono>
-#include <cryptopp/osrng.h>
-
+#include <limits>
+#include "common/crypto_util.h"
 #include "common/file_util.h"
 #include "common/logging/log.h"
 #include "../../boost_compat.h"
@@ -627,18 +627,17 @@ Result NfcDevice::DeleteRegisterInfo() {
         return ResultNeedRegister;
     }
 
-    CryptoPP::AutoSeededRandomPool rng;
     const std::size_t mii_data_size = sizeof(tag.file.owner_mii);
-    std::array<CryptoPP::byte, mii_data_size> buffer{};
-    rng.GenerateBlock(buffer.data(), mii_data_size);
+    std::array<u8, mii_data_size> buffer{};
+    Common::CryptoUtil::FillRandomBytes(buffer.data(), mii_data_size);
 
     memcpy(&tag.file.owner_mii, buffer.data(), mii_data_size);
     memcpy(&tag.file.settings.amiibo_name, buffer.data(), sizeof(tag.file.settings.amiibo_name));
-    tag.file.unknown = rng.GenerateByte();
-    tag.file.unknown2[0] = rng.GenerateWord32();
-    tag.file.unknown2[1] = rng.GenerateWord32();
-    tag.file.register_info_crc = rng.GenerateWord32();
-    tag.file.settings.init_date.raw_date = static_cast<u32>(rng.GenerateWord32());
+    tag.file.unknown = static_cast<u8>(Common::CryptoUtil::RandomU32(0, 0xFF));
+    tag.file.unknown2[0] = Common::CryptoUtil::RandomU32(0, std::numeric_limits<u32>::max());
+    tag.file.unknown2[1] = Common::CryptoUtil::RandomU32(0, std::numeric_limits<u32>::max());
+    tag.file.register_info_crc = Common::CryptoUtil::RandomU32(0, std::numeric_limits<u32>::max());
+    tag.file.settings.init_date.raw_date = Common::CryptoUtil::RandomU32(0, std::numeric_limits<u32>::max());
     tag.file.settings.settings.font_region.Assign(0);
     tag.file.settings.settings.amiibo_initialized.Assign(0);
     tag.file.settings.country_code_id = 0;
@@ -817,10 +816,9 @@ Result NfcDevice::SetApplicationArea(std::span<const u8> data) {
     std::memcpy(tag.file.application_area.data(), data.data(), data.size());
 
     // Fill remaining data with random numbers
-    CryptoPP::AutoSeededRandomPool rng;
     const std::size_t data_size = sizeof(ApplicationArea) - data.size();
-    std::vector<CryptoPP::byte> buffer(data_size);
-    rng.GenerateBlock(buffer.data(), data_size);
+    std::vector<u8> buffer(data_size);
+    Common::CryptoUtil::FillRandomBytes(buffer.data(), data_size);
     memcpy(tag.file.application_area.data() + data.size(), buffer.data(), data_size);
 
     if (tag.file.application_write_counter != counter_limit) {
@@ -873,10 +871,9 @@ Result NfcDevice::RecreateApplicationArea(u32 access_id, std::span<const u8> dat
     std::memcpy(tag.file.application_area.data(), data.data(), data.size());
 
     // Fill remaining data with random numbers
-    CryptoPP::AutoSeededRandomPool rng;
     const std::size_t data_size = sizeof(ApplicationArea) - data.size();
-    std::vector<CryptoPP::byte> buffer(data_size);
-    rng.GenerateBlock(buffer.data(), data_size);
+    std::vector<u8> buffer(data_size);
+    Common::CryptoUtil::FillRandomBytes(buffer.data(), data_size);
     memcpy(tag.file.application_area.data() + data.size(), buffer.data(), data_size);
 
     if (tag.file.application_write_counter != counter_limit) {
@@ -920,10 +917,9 @@ Result NfcDevice::DeleteApplicationArea() {
         return ResultNeedCreate;
     }
 
-    CryptoPP::AutoSeededRandomPool rng;
     constexpr std::size_t data_size = sizeof(ApplicationArea);
-    std::array<CryptoPP::byte, data_size> buffer{};
-    rng.GenerateBlock(buffer.data(), data_size);
+    std::array<u8, data_size> buffer{};
+    Common::CryptoUtil::FillRandomBytes(buffer.data(), data_size);
 
     if (tag.file.application_write_counter != counter_limit) {
         tag.file.application_write_counter++;
@@ -932,8 +928,8 @@ Result NfcDevice::DeleteApplicationArea() {
     // Reset data with random bytes
     memcpy(tag.file.application_area.data(), buffer.data(), data_size); //
     memcpy(&tag.file.application_id, buffer.data(), sizeof(u64));
-    tag.file.application_area_id = rng.GenerateWord32();
-    tag.file.application_id_byte = rng.GenerateByte();
+    tag.file.application_area_id = Common::CryptoUtil::RandomU32(0, std::numeric_limits<u32>::max());
+    tag.file.application_id_byte = static_cast<u8>(Common::CryptoUtil::RandomU32(0, 0xFF));
     tag.file.settings.settings.appdata_initialized.Assign(0);
     tag.file.unknown = {};
     tag.file.unknown2 = {};

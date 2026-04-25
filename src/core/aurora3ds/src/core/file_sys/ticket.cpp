@@ -3,10 +3,9 @@
 // Refer to the license.txt file included.
 
 #include <algorithm>
-#include <cryptopp/aes.h>
-#include <cryptopp/modes.h>
-#include <cryptopp/sha.h>
 #include "common/alignment.h"
+#include "common/aes_util.h"
+#include "common/crypto_util.h"
 #include "core/file_sys/certificate.h"
 #include "core/file_sys/otp.h"
 #include "core/file_sys/signature.h"
@@ -46,18 +45,19 @@ Loader::ResultStatus Ticket::DoTitlekeyFixup() {
         return Loader::ResultStatus::Error;
     }
 
-    CryptoPP::SHA1 hash;
-    u8 digest[CryptoPP::SHA1::DIGESTSIZE];
-    hash.CalculateDigest(digest, agreement.data(), agreement.size());
+    std::array<u8, 20> digest{};
+    Common::CryptoUtil::Sha1Digest(agreement.data(), agreement.size(), digest.data());
 
     std::vector<u8> key(0x10);
-    memcpy(key.data(), digest, key.size());
+    memcpy(key.data(), digest.data(), key.size());
 
     std::vector<u8> iv(0x10);
     *reinterpret_cast<u64_be*>(iv.data()) = ticket_body.ticket_id;
 
-    CryptoPP::CBC_Mode<CryptoPP::AES>::Decryption{key.data(), key.size(), iv.data()}.ProcessData(
-        ticket_body.title_key.data(), ticket_body.title_key.data(), ticket_body.title_key.size());
+    Common::AESUtil::AesCbcDecryptor decryptor;
+    decryptor.SetKeyWithIV(key.data(), key.size(), iv.data());
+    decryptor.ProcessData(ticket_body.title_key.data(), ticket_body.title_key.data(),
+                          ticket_body.title_key.size());
 
     return Loader::ResultStatus::Success;
 }
@@ -165,8 +165,9 @@ std::optional<std::array<u8, 16>> Ticket::GetTitleKey() const {
     }
     auto key = HW::AES::GetNormalKey(HW::AES::KeySlotID::TicketCommonKey);
     auto title_key = ticket_body.title_key;
-    CryptoPP::CBC_Mode<CryptoPP::AES>::Decryption{key.data(), key.size(), ctr.data()}.ProcessData(
-        title_key.data(), title_key.data(), title_key.size());
+    Common::AESUtil::AesCbcDecryptor decryptor;
+    decryptor.SetKeyWithIV(key.data(), key.size(), ctr.data());
+    decryptor.ProcessData(title_key.data(), title_key.data(), title_key.size());
     return title_key;
 }
 

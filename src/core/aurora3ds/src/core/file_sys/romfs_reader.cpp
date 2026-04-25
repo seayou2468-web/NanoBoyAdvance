@@ -4,8 +4,6 @@
 
 #include <algorithm>
 #include <vector>
-#include <cryptopp/aes.h>
-#include <cryptopp/modes.h>
 #include "common/archives.h"
 #include "common/logging/log.h"
 #include "core/file_sys/archive_artic.h"

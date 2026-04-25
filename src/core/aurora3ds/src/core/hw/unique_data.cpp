@@ -2,7 +2,7 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include <cryptopp/sha.h>
+#include "common/crypto_util.h"
 #include "common/common_paths.h"
 #include "common/logging/log.h"
 #include "core/file_sys/archive_systemsavedata.h"
@@ -301,14 +301,14 @@ std::unique_ptr<FileUtil::IOFile> OpenUniqueCryptoFile(const std::string& filena
     hash_data.device_id = otp.GetDeviceID();
     hash_data.id = static_cast<u32>(id);
 
-    CryptoPP::SHA256 hash;
-    u8 digest[CryptoPP::SHA256::DIGESTSIZE];
-    hash.CalculateDigest(digest, reinterpret_cast<CryptoPP::byte*>(&hash_data), sizeof(hash_data));
+    std::array<u8, 32> digest{};
+    Common::CryptoUtil::Sha256Digest(reinterpret_cast<const u8*>(&hash_data), sizeof(hash_data),
+                                     digest.data());
 
     std::vector<u8> key(0x10);
     std::vector<u8> ctr(0x10);
-    memcpy(key.data(), digest, 0x10);
-    memcpy(ctr.data(), digest + 0x10, 12);
+    memcpy(key.data(), digest.data(), 0x10);
+    memcpy(ctr.data(), digest.data() + 0x10, 12);
 
     return std::make_unique<FileUtil::CryptoIOFile>(filename, openmode, key, ctr, flags);
 }

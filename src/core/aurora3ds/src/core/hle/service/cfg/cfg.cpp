@@ -5,10 +5,9 @@
 #include <algorithm>
 #include <array>
 #include <tuple>
-#include <cryptopp/osrng.h>
-#include <cryptopp/sha.h>
 #include <fmt/ranges.h>
 #include "common/archives.h"
+#include "common/crypto_util.h"
 #include "common/file_util.h"
 #include "common/hacks/hack_manager.h"
 #include "common/logging/log.h"
@@ -533,8 +532,8 @@ void Module::Interface::GetTransferableId(Kernel::HLERequestContext& ctx) {
     rb.Push(result);
     if (result.IsSuccess()) {
         std::memcpy(&buffer[8], &app_id_salt, sizeof(u32));
-        std::array<u8, CryptoPP::SHA256::DIGESTSIZE> hash;
-        CryptoPP::SHA256().CalculateDigest(hash.data(), buffer.data(), sizeof(buffer));
+        std::array<u8, 32> hash;
+        Common::CryptoUtil::Sha256Digest(buffer.data(), sizeof(buffer), hash.data());
         u32 low, high;
         std::memcpy(&low, &hash[hash.size() - 8], sizeof(u32));
         std::memcpy(&high, &hash[hash.size() - 4], sizeof(u32));
@@ -1169,16 +1168,15 @@ u8 Module::GetStateCode() {
 }
 
 std::pair<u32, u64> Module::GenerateConsoleUniqueId() const {
-    CryptoPP::AutoSeededRandomPool rng;
-    const u32 random_number = rng.GenerateWord32(0, 0xFFFF);
+    const u32 random_number = Common::CryptoUtil::RandomU32(0, 0xFFFF);
 
     u64_le local_friend_code_seed;
     auto& lfcs = HW::UniqueData::GetLocalFriendCodeSeedB();
     if (lfcs.IsValid()) {
         local_friend_code_seed = lfcs.body.friend_code_seed;
     } else {
-        rng.GenerateBlock(reinterpret_cast<CryptoPP::byte*>(&local_friend_code_seed),
-                          sizeof(local_friend_code_seed));
+        Common::CryptoUtil::FillRandomBytes(
+            reinterpret_cast<u8*>(&local_friend_code_seed), sizeof(local_friend_code_seed));
     }
 
     const u64 console_id =
@@ -1266,8 +1264,8 @@ std::string GetConsoleIdHash(Core::System& system) {
     std::array<u8, sizeof(console_id)> buffer;
     std::memcpy(buffer.data(), &console_id, sizeof(console_id));
 
-    std::array<u8, CryptoPP::SHA256::DIGESTSIZE> hash;
-    CryptoPP::SHA256().CalculateDigest(hash.data(), buffer.data(), sizeof(buffer));
+    std::array<u8, 32> hash;
+    Common::CryptoUtil::Sha256Digest(buffer.data(), sizeof(buffer), hash.data());
     return fmt::format("{:02x}", fmt::join(hash.begin(), hash.end(), ""));
 }
 
@@ -1323,10 +1321,10 @@ std::string GenerateRandomMAC() {
         {0x7CBB8A000000ULL, 0x7CBB8AFFFFFFULL},
         {0x8CCDE8000000ULL, 0x8CCDE8FFFFFFULL},
     }};
-    CryptoPP::AutoSeededRandomPool rng;
-    auto& range = ranges[rng.GenerateWord32(0, static_cast<CryptoPP::word32>(ranges.size() - 1))];
+    auto& range = ranges[Common::CryptoUtil::RandomU32(0,
+                                                       static_cast<u32>(ranges.size() - 1))];
     u64 mac = range.first +
-              rng.GenerateWord32(0, static_cast<CryptoPP::word32>(range.second - range.first));
+              Common::CryptoUtil::RandomU32(0, static_cast<u32>(range.second - range.first));
     return MacToString(mac);
 }
 

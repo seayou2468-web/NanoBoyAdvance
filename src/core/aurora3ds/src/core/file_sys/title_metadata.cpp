@@ -2,7 +2,7 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include <cryptopp/sha.h>
+#include "common/crypto_util.h"
 #include "common/alignment.h"
 #include "common/file_util.h"
 #include "common/logging/log.h"
@@ -107,17 +107,17 @@ Loader::ResultStatus TitleMetadata::Save(const std::string& file_path) {
     tmd_body.contentinfo[0].index = 0;
     tmd_body.contentinfo[0].command_count = static_cast<u16>(tmd_chunks.size());
 
-    CryptoPP::SHA256 chunk_hash;
+    std::vector<u8> chunk_buffer(sizeof(ContentChunk) * tmd_body.content_count);
     for (u16 i = 0; i < tmd_body.content_count; i++) {
-        chunk_hash.Update(reinterpret_cast<u8*>(&tmd_chunks[i]), sizeof(ContentChunk));
+        std::memcpy(chunk_buffer.data() + (sizeof(ContentChunk) * i), &tmd_chunks[i],
+                    sizeof(ContentChunk));
     }
-    chunk_hash.Final(tmd_body.contentinfo[0].hash.data());
+    Common::CryptoUtil::Sha256Digest(chunk_buffer.data(), chunk_buffer.size(),
+                                     tmd_body.contentinfo[0].hash.data());
 
-    CryptoPP::SHA256 contentinfo_hash;
-    for (std::size_t i = 0; i < tmd_body.contentinfo.size(); i++) {
-        chunk_hash.Update(reinterpret_cast<u8*>(&tmd_body.contentinfo[i]), sizeof(ContentInfo));
-    }
-    chunk_hash.Final(tmd_body.contentinfo_hash.data());
+    Common::CryptoUtil::Sha256Digest(reinterpret_cast<const u8*>(tmd_body.contentinfo.data()),
+                                     sizeof(ContentInfo) * tmd_body.contentinfo.size(),
+                                     tmd_body.contentinfo_hash.data());
 
     // Write our TMD body, then write each of our ContentChunks
     if (file.WriteBytes(&tmd_body, sizeof(TitleMetadata::Body)) != sizeof(TitleMetadata::Body))

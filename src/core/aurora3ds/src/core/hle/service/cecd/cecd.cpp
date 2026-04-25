@@ -2,12 +2,12 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include <cryptopp/base64.h>
-#include <cryptopp/hmac.h>
-#include <cryptopp/sha.h>
+#include <algorithm>
+#include <array>
 #include <fmt/format.h>
 #include "common/archives.h"
 #include "common/common_paths.h"
+#include "common/crypto_util.h"
 #include "common/file_util.h"
 #include "common/logging/log.h"
 #include "common/string_util.h"
@@ -303,14 +303,13 @@ void Module::Interface::ReadMessageWithHMAC(Kernel::HLERequestContext& ctx) {
         std::memcpy(message_body.data(), buffer.data() + msg_header.header_size,
                     msg_header.body_size);
 
-        using namespace CryptoPP;
-        SecByteBlock key(0x20);
+        std::array<u8, 0x20> key{};
         hmac_key_buffer.Read(key.data(), 0, key.size());
 
-        HMAC<SHA256> hmac(key, key.size());
-
-        const bool verify_hmac =
-            hmac.VerifyDigest(hmac_digest.data(), message_body.data(), message_body.size());
+        std::array<u8, 0x20> calculated_hmac{};
+        Common::CryptoUtil::HmacSha256(key, message_body, calculated_hmac.data());
+        const bool verify_hmac = std::equal(hmac_digest.begin(), hmac_digest.end(),
+                                            calculated_hmac.begin(), calculated_hmac.end());
 
         if (verify_hmac)
             LOG_DEBUG(Service_CECD, "Verification succeeded");
@@ -513,12 +512,9 @@ void Module::Interface::WriteMessageWithHMAC(Kernel::HLERequestContext& ctx) {
         std::memcpy(message_body.data(), buffer.data() + msg_header.header_size,
                     msg_header.body_size);
 
-        using namespace CryptoPP;
-        SecByteBlock key(hmac_size);
+        std::array<u8, hmac_size> key{};
         hmac_key_buffer.Read(key.data(), 0, hmac_size);
-
-        HMAC<SHA256> hmac(key, hmac_size);
-        hmac.CalculateDigest(hmac_digest.data(), message_body.data(), msg_header.body_size);
+        Common::CryptoUtil::HmacSha256(key, message_body, hmac_digest.data());
         std::memcpy(buffer.data() + hmac_offset, hmac_digest.data(), hmac_size);
 
         [[maybe_unused]] const u32 bytes_written =
@@ -849,21 +845,31 @@ void Module::Interface::GetCecInfoEventHandleSys(Kernel::HLERequestContext& ctx)
 }
 
 std::string Module::EncodeBase64(std::span<const u8> in) const {
-    using namespace CryptoPP;
-    using Name::EncodingLookupArray;
-    using Name::InsertLineBreaks;
-    using Name::Pad;
-
     std::string out;
-    Base64Encoder encoder;
-    AlgorithmParameters params =
-        MakeParameters(EncodingLookupArray(), (const byte*)base64_dict.data())(InsertLineBreaks(),
-                                                                               false)(Pad(), false);
+    out.reserve(((in.size() + 2) / 3) * 4);
 
-    encoder.IsolatedInitialize(params);
-    encoder.Attach(new StringSink(out));
-    encoder.Put(in.data(), in.size());
-    encoder.MessageEnd();
+    size_t i = 0;
+    while (i + 3 <= in.size()) {
+        const u32 value =
+            (static_cast<u32>(in[i]) << 16) | (static_cast<u32>(in[i + 1]) << 8) | in[i + 2];
+        out.push_back(base64_dict[(value >> 18) & 0x3F]);
+        out.push_back(base64_dict[(value >> 12) & 0x3F]);
+        out.push_back(base64_dict[(value >> 6) & 0x3F]);
+        out.push_back(base64_dict[value & 0x3F]);
+        i += 3;
+    }
+
+    const size_t remaining = in.size() - i;
+    if (remaining == 1) {
+        const u32 value = static_cast<u32>(in[i]) << 16;
+        out.push_back(base64_dict[(value >> 18) & 0x3F]);
+        out.push_back(base64_dict[(value >> 12) & 0x3F]);
+    } else if (remaining == 2) {
+        const u32 value = (static_cast<u32>(in[i]) << 16) | (static_cast<u32>(in[i + 1]) << 8);
+        out.push_back(base64_dict[(value >> 18) & 0x3F]);
+        out.push_back(base64_dict[(value >> 12) & 0x3F]);
+        out.push_back(base64_dict[(value >> 6) & 0x3F]);
+    }
 
     return out;
 }

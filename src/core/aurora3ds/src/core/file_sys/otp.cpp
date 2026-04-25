@@ -2,9 +2,8 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include <cryptopp/aes.h>
-#include <cryptopp/modes.h>
-#include <cryptopp/sha.h>
+#include "common/aes_util.h"
+#include "common/crypto_util.h"
 #include "common/file_util.h"
 #include "common/logging/log.h"
 #include "core/file_sys/otp.h"
@@ -29,7 +28,7 @@ Loader::ResultStatus OTP::Load(const std::string& file_path, std::span<const u8>
 
     // OTP is probably encrypted, decrypt it.
     if (temp_otp.body.magic != otp_magic) {
-        CryptoPP::CBC_Mode<CryptoPP::AES>::Decryption d;
+        Common::AESUtil::AesCbcDecryptor d;
         d.SetKeyWithIV(key.data(), key.size(), iv.data());
         d.ProcessData(reinterpret_cast<u8*>(&temp_otp), reinterpret_cast<u8*>(&temp_otp),
                       sizeof(temp_otp));
@@ -41,10 +40,9 @@ Loader::ResultStatus OTP::Load(const std::string& file_path, std::span<const u8>
     }
 
     // Verify OTP hash
-    CryptoPP::SHA256 hash;
-    std::array<u8, CryptoPP::SHA256::DIGESTSIZE> digest;
-    hash.CalculateDigest(digest.data(), reinterpret_cast<u8*>(&temp_otp.body),
-                         sizeof(temp_otp.body));
+    std::array<u8, 32> digest;
+    Common::CryptoUtil::Sha256Digest(reinterpret_cast<u8*>(&temp_otp.body), sizeof(temp_otp.body),
+                                     digest.data());
     if (temp_otp.hash != digest) {
         LOG_ERROR(HW_AES, "OTP is corrupted");
         return Loader::ResultStatus::Error;

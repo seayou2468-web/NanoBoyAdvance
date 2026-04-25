@@ -2,8 +2,7 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include <cryptopp/aes.h>
-#include <cryptopp/modes.h>
+#include "common/aes_util.h"
 #include "common/archives.h"
 #include "common/logging/log.h"
 #include "core/core.h"
@@ -23,8 +22,8 @@ void DLP_Base::DLPEncryptCTR(void* _out, size_t size, const u8* iv_ctr) {
     HW::AES::AESKey key = HW::AES::GetNormalKey(HW::AES::DLPNFCDataKey);
 
     // AlgorithmType::CTR_Encrypt
-    CryptoPP::CTR_Mode<CryptoPP::AES>::Encryption aes;
-    aes.SetKeyWithIV(key.data(), CryptoPP::AES::BLOCKSIZE, iv_ctr);
+    Common::AESUtil::AesCtrCryptor aes;
+    aes.SetKeyWithIV(key.data(), key.size(), iv_ctr);
     aes.ProcessData(out, out, size);
 }
 

@@ -4,10 +4,9 @@
 
 #include <algorithm>
 #include <fstream>
+#include "common/aes_util.h"
 #include <optional>
 #include <sstream>
-#include <cryptopp/aes.h>
-#include <cryptopp/modes.h>
 #include "common/common_paths.h"
 #include "common/file_util.h"
 #include "common/logging/log.h"
@@ -301,8 +300,8 @@ std::istringstream GetKeysStream() {
         // purposes.
         std::vector<u8> kiv(16);
         std::string s(default_keys_enc_size, ' ');
-        CryptoPP::CBC_Mode<CryptoPP::AES>::Decryption(kiv.data(), kiv.size(), kiv.data())
-            .ProcessData(reinterpret_cast<u8*>(s.data()), default_keys_enc, s.size());
+        Common::AESUtil::AesCbcDecryptor decryptor(kiv.data(), kiv.size(), kiv.data());
+        decryptor.ProcessData(reinterpret_cast<u8*>(s.data()), default_keys_enc, s.size());
         return std::istringstream(s);
 #else
         return std::istringstream("");

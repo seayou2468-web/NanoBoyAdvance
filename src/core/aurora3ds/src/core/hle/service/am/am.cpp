@@ -5,12 +5,11 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstring>
-#include <cryptopp/aes.h>
-#include <cryptopp/modes.h>
 #include <fmt/format.h>
-#include <openssl/rand.h>
 #include "common/alignment.h"
+#include "common/aes_util.h"
 #include "common/archives.h"
+#include "common/crypto_util.h"
 #include "common/common_paths.h"
 #include "common/file_util.h"
 #include "common/hacks/hack_manager.h"
@@ -49,6 +48,30 @@ SERVICE_CONSTRUCT_IMPL(Service::AM::Module)
 
 namespace Service::AM {
 
+namespace {
+
+size_t CountBits(std::span<const u8> data) {
+    for (size_t i = 0; i < data.size(); ++i) {
+        if (data[i] == 0) {
+            continue;
+        }
+        for (int bit = 7; bit >= 0; --bit) {
+            if ((data[i] >> bit) & 1U) {
+                return (data.size() - i - 1) * 8 + static_cast<size_t>(bit + 1);
+            }
+        }
+    }
+    return 0;
+}
+
+using AesCbcDecryptor = Common::AESUtil::AesCbcDecryptor;
+using AesCtrDecryptor = Common::AESUtil::AesCtrCryptor;
+using AesCbcEncryptor = Common::AESUtil::AesCbcEncryptor;
+
+} // namespace
+
+
+
 constexpr u16 PLATFORM_CTR = 0x0004;
 constexpr u16 CATEGORY_SYSTEM = 0x0010;
 constexpr u16 CATEGORY_DLP = 0x0001;
@@ -82,7 +105,7 @@ static_assert(sizeof(TicketInfo) == 0x18, "Ticket info structure size is wrong")
 
 class CIAFile::DecryptionState {
 public:
-    std::vector<CryptoPP::CBC_Mode<CryptoPP::AES>::Decryption> content;
+    std::vector<AesCbcDecryptor> content;
 };
 
 NCCHCryptoFile::NCCHCryptoFile(const std::string& out_file, bool encrypted_content) {
@@ -169,9 +192,8 @@ void NCCHCryptoFile::Write(const u8* buffer, std::size_t length) {
                         std::array<u8, 32> input;
                         std::memcpy(input.data(), key_y_primary.data(), key_y_primary.size());
                         std::memcpy(input.data() + key_y_primary.size(), seed.data(), seed.size());
-                        CryptoPP::SHA256 sha;
-                        std::array<u8, CryptoPP::SHA256::DIGESTSIZE> hash;
-                        sha.CalculateDigest(hash.data(), input.data(), input.size());
+                        std::array<u8, 32> hash;
+                        Common::CryptoUtil::Sha256Digest(input.data(), input.size(), hash.data());
                         std::memcpy(key_y_secondary.data(), hash.data(), key_y_secondary.size());
                     }
                 }
@@ -361,8 +383,7 @@ void NCCHCryptoFile::Write(const u8* buffer, std::size_t length) {
                         ctr = &romfs_ctr;
                     }
 
-                    CryptoPP::CTR_Mode<CryptoPP::AES>::Decryption d(key->data(), key->size(),
-                                                                    ctr->data());
+                    AesCtrDecryptor d(key->data(), key->size(), ctr->data());
                     size_t offset = written - reg->seek_from;
                     if (offset != 0) {
                         d.Seek(offset);
@@ -4947,18 +4968,16 @@ void Module::Interface::ExportTicketWrapped(Kernel::HLERequestContext& ctx) {
     std::vector<u8> key(0x10);
     std::vector<u8> iv(0x10);
 
-    RAND_bytes(key.data(), static_cast<int>(key.size()));
-    RAND_bytes(iv.data(), static_cast<int>(iv.size()));
+    Common::CryptoUtil::FillRandomBytes(key.data(), key.size());
+    Common::CryptoUtil::FillRandomBytes(iv.data(), iv.size());
 
-    CryptoPP::CBC_Mode<CryptoPP::AES>::Encryption e(key.data(), key.size(), iv.data());
+    AesCbcEncryptor e(key.data(), key.size(), iv.data());
     e.ProcessData(ticket_data.data(), ticket_data.data(), ticket_data.size());
 
     const auto& wrap_key = HW::RSA::GetTicketWrapSlot();
-    u32 padding_len = static_cast<u32>(
-        ((CryptoPP::Integer(wrap_key.GetModulus().data(), wrap_key.GetModulus().size()).BitCount() +
-          7) /
-         8) -
-        (key.size() + iv.size()) - 3);
+    const size_t modulus_bits = CountBits(wrap_key.GetModulus());
+    u32 padding_len =
+        static_cast<u32>(((modulus_bits + 7) / 8) - (key.size() + iv.size()) - 3);
 
     std::vector<u8> m;
     m.reserve(3 + padding_len + (key.size() + iv.size()));

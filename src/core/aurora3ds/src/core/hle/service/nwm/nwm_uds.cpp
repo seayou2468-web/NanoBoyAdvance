@@ -4,7 +4,6 @@
 
 #include <algorithm>
 #include <cstring>
-#include <cryptopp/osrng.h>
 #include "common/archives.h"
 #include "common/common_types.h"
 #include "common/hacks/hack_manager.h"

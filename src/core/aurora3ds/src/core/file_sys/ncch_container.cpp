@@ -5,9 +5,6 @@
 #include <cstring>
 #include <memory>
 #include <span>
-#include <cryptopp/aes.h>
-#include <cryptopp/modes.h>
-#include <cryptopp/sha.h>
 #include "common/common_types.h"
 #include "common/logging/log.h"
 #include "common/zstd_compression.h"

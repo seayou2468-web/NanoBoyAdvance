@@ -6,10 +6,9 @@
 #include <tuple>
 #include <unordered_map>
 #include "../../boost_compat.h"
-#include <cryptopp/aes.h>
-#include <cryptopp/modes.h>
 #include <fmt/format.h>
 #include "common/archives.h"
+#include "common/aes_util.h"
 #include "common/assert.h"
 #include "common/scope_exit.h"
 #include "common/string_util.h"
@@ -2149,20 +2148,19 @@ void HTTP_C::DecryptClCertA() {
 
     std::vector<u8> cert_data(cert_file_data.size() - iv_length);
 
-    using CryptoPP::AES;
-    CryptoPP::CBC_Mode<AES>::Decryption aes_cert;
+    Common::AESUtil::AesCbcDecryptor aes_cert;
     std::array<u8, iv_length> cert_iv;
     std::memcpy(cert_iv.data(), cert_file_data.data(), iv_length);
-    aes_cert.SetKeyWithIV(key.data(), AES::BLOCKSIZE, cert_iv.data());
+    aes_cert.SetKeyWithIV(key.data(), key.size(), cert_iv.data());
     aes_cert.ProcessData(cert_data.data(), cert_file_data.data() + iv_length,
                          cert_file_data.size() - iv_length);
 
     std::vector<u8> key_data(key_file_data.size() - iv_length);
 
-    CryptoPP::CBC_Mode<AES>::Decryption aes_key;
+    Common::AESUtil::AesCbcDecryptor aes_key;
     std::array<u8, iv_length> key_iv;
     std::memcpy(key_iv.data(), key_file_data.data(), iv_length);
-    aes_key.SetKeyWithIV(key.data(), AES::BLOCKSIZE, key_iv.data());
+    aes_key.SetKeyWithIV(key.data(), key.size(), key_iv.data());
     aes_key.ProcessData(key_data.data(), key_file_data.data() + iv_length,
                         key_file_data.size() - iv_length);
 

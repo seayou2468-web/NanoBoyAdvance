@@ -4,8 +4,6 @@
 
 #include "dlp_base.h"
 
-#include <cryptopp/aes.h>
-#include <cryptopp/modes.h>
 #include "common/alignment.h"
 #include "common/swap.h"
 #include "common/timer.h"

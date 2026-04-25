@@ -2,8 +2,7 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include <cryptopp/aes.h>
-#include <cryptopp/modes.h>
+#include "common/aes_util.h"
 #include "common/archives.h"
 #include "common/logging/log.h"
 #include "core/core.h"
@@ -45,8 +44,8 @@ void PS_PS::EncryptDecryptAes(Kernel::HLERequestContext& ctx) {
     auto src_size = rp.Pop<u32>();
     [[maybe_unused]] const auto dest_size = rp.Pop<u32>();
 
-    using CryptoPP::AES;
-    std::array<u8, AES::BLOCKSIZE> iv;
+    constexpr size_t aes_block_size = 16;
+    std::array<u8, aes_block_size> iv;
     rp.PopRaw(iv);
 
     AlgorithmType algorithm = rp.PopEnum<AlgorithmType>();
@@ -95,29 +94,29 @@ void PS_PS::EncryptDecryptAes(Kernel::HLERequestContext& ctx) {
     std::vector<u8> dst_buffer(src_buffer.size());
     switch (algorithm) {
     case AlgorithmType::CTR_Encrypt: {
-        CryptoPP::CTR_Mode<AES>::Encryption aes;
-        aes.SetKeyWithIV(key.data(), AES::BLOCKSIZE, iv.data());
+        Common::AESUtil::AesCtrCryptor aes;
+        aes.SetKeyWithIV(key.data(), aes_block_size, iv.data());
         aes.ProcessData(dst_buffer.data(), src_buffer.data(), src_buffer.size());
         break;
     }
 
     case AlgorithmType::CTR_Decrypt: {
-        CryptoPP::CTR_Mode<AES>::Decryption aes;
-        aes.SetKeyWithIV(key.data(), AES::BLOCKSIZE, iv.data());
+        Common::AESUtil::AesCtrCryptor aes;
+        aes.SetKeyWithIV(key.data(), aes_block_size, iv.data());
         aes.ProcessData(dst_buffer.data(), src_buffer.data(), src_buffer.size());
         break;
     }
 
     case AlgorithmType::CBC_Encrypt: {
-        CryptoPP::CBC_Mode<AES>::Encryption aes;
-        aes.SetKeyWithIV(key.data(), AES::BLOCKSIZE, iv.data());
+        Common::AESUtil::AesCbcEncryptor aes;
+        aes.SetKeyWithIV(key.data(), aes_block_size, iv.data());
         aes.ProcessData(dst_buffer.data(), src_buffer.data(), src_buffer.size());
         break;
     }
 
     case AlgorithmType::CBC_Decrypt: {
-        CryptoPP::CBC_Mode<AES>::Decryption aes;
-        aes.SetKeyWithIV(key.data(), AES::BLOCKSIZE, iv.data());
+        Common::AESUtil::AesCbcDecryptor aes;
+        aes.SetKeyWithIV(key.data(), aes_block_size, iv.data());
         aes.ProcessData(dst_buffer.data(), src_buffer.data(), src_buffer.size());
         break;
     }
@@ -130,7 +129,7 @@ void PS_PS::EncryptDecryptAes(Kernel::HLERequestContext& ctx) {
 
     // We will need to calculate the resulting IV/CTR ourselves as CrytoPP does not
     // provide an easy way to get them
-    std::array<u8, AES::BLOCKSIZE> new_iv;
+    std::array<u8, aes_block_size> new_iv;
     if (algorithm == AlgorithmType::CTR_Encrypt || algorithm == AlgorithmType::CTR_Decrypt) {
         new_iv = HW::AES::Add128(iv, src_size / 16);
     } else if (algorithm == AlgorithmType::CBC_Encrypt) {

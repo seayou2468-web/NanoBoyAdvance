@@ -2,13 +2,9 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
-
 #include <cstring>
-#include <cryptopp/aes.h>
-#include <cryptopp/md5.h>
-#include <cryptopp/modes.h>
-#include <cryptopp/sha.h>
+#include "common/aes_util.h"
+#include "common/crypto_util.h"
 #include "common/assert.h"
 #include "core/hle/service/nwm/nwm_uds.h"
 #include "core/hle/service/nwm/uds_beacon.h"
@@ -33,7 +29,7 @@ constexpr u32 EncryptedDataSizeCutoff = 0xFA;
  * The real key can be used here to generate beacons that will be accepted by
  * a real 3ds.
  */
-constexpr std::array<u8, CryptoPP::AES::BLOCKSIZE> nwm_beacon_key = {};
+constexpr std::array<u8, 16> nwm_beacon_key = {};
 
 /**
  * Generates a buffer with the fixed parameters of an 802.11 Beacon frame
@@ -147,10 +143,9 @@ std::vector<u8> GenerateNintendoNetworkInfoTag(const NetworkInfo& network_info) 
                 network_info.application_data_size);
 
     // Calculate the SHA1 of the contents of the tag.
-    std::array<u8, CryptoPP::SHA1::DIGESTSIZE> hash;
-    CryptoPP::SHA1().CalculateDigest(hash.data(),
-                                     buffer.data() + offsetof(NetworkInfoTag, network_info),
-                                     buffer.size() - sizeof(TagHeader));
+    std::array<u8, 20> hash;
+    Common::CryptoUtil::Sha1Digest(buffer.data() + offsetof(NetworkInfoTag, network_info),
+                                   buffer.size() - sizeof(TagHeader), hash.data());
 
     // Copy it directly into the buffer, overwriting the zeros that we had previously placed there.
     std::memcpy(buffer.data() + offsetof(NetworkInfoTag, sha_hash), hash.data(), hash.size());
@@ -163,7 +158,7 @@ std::vector<u8> GenerateNintendoNetworkInfoTag(const NetworkInfo& network_info) 
  * EncryptedDataTags.
  * @returns The CTR used for beacon crypto.
  */
-std::array<u8, CryptoPP::AES::BLOCKSIZE> GetBeaconCryptoCTR(const NetworkInfo& network_info) {
+std::array<u8, 16> GetBeaconCryptoCTR(const NetworkInfo& network_info) {
     BeaconDataCryptoCTR data{};
 
     data.host_mac = network_info.host_mac_address;
@@ -171,7 +166,7 @@ std::array<u8, CryptoPP::AES::BLOCKSIZE> GetBeaconCryptoCTR(const NetworkInfo& n
     data.id = network_info.id;
     data.network_id = network_info.network_id;
 
-    std::array<u8, CryptoPP::AES::BLOCKSIZE> hash;
+    std::array<u8, 16> hash;
     std::memcpy(hash.data(), &data, sizeof(data));
 
     return hash;
@@ -203,19 +198,17 @@ std::vector<u8> GeneratedEncryptedData(const NetworkInfo& network_info, const No
     }
 
     // Calculate the MD5 hash of the data in the buffer, not including the hash field.
-    std::array<u8, CryptoPP::Weak::MD5::DIGESTSIZE> hash;
-    CryptoPP::Weak::MD5().CalculateDigest(hash.data(),
-                                          buffer.data() + offsetof(BeaconData, bitmask),
-                                          buffer.size() - sizeof(data.md5_hash));
+    std::array<u8, 16> hash;
+    Common::CryptoUtil::Md5Digest(buffer.data() + offsetof(BeaconData, bitmask),
+                                  buffer.size() - sizeof(data.md5_hash), hash.data());
 
     // Copy the hash into the buffer.
     std::memcpy(buffer.data(), hash.data(), hash.size());
 
     // Encrypt the data using AES-CTR and the NWM beacon key.
-    using CryptoPP::AES;
-    std::array<u8, AES::BLOCKSIZE> counter = GetBeaconCryptoCTR(network_info);
-    CryptoPP::CTR_Mode<AES>::Encryption aes;
-    aes.SetKeyWithIV(nwm_beacon_key.data(), AES::BLOCKSIZE, counter.data());
+    std::array<u8, 16> counter = GetBeaconCryptoCTR(network_info);
+    Common::AESUtil::AesCtrCryptor aes;
+    aes.SetKeyWithIV(nwm_beacon_key.data(), nwm_beacon_key.size(), counter.data());
     aes.ProcessData(buffer.data(), buffer.data(), buffer.size());
 
     return buffer;
@@ -223,10 +216,9 @@ std::vector<u8> GeneratedEncryptedData(const NetworkInfo& network_info, const No
 
 void DecryptBeacon(const NetworkInfo& network_info, std::vector<u8>& buffer) {
     // Decrypt the data using AES-CTR and the NWM beacon key.
-    using CryptoPP::AES;
-    std::array<u8, AES::BLOCKSIZE> counter = GetBeaconCryptoCTR(network_info);
-    CryptoPP::CTR_Mode<AES>::Decryption aes;
-    aes.SetKeyWithIV(nwm_beacon_key.data(), AES::BLOCKSIZE, counter.data());
+    std::array<u8, 16> counter = GetBeaconCryptoCTR(network_info);
+    Common::AESUtil::AesCtrCryptor aes;
+    aes.SetKeyWithIV(nwm_beacon_key.data(), nwm_beacon_key.size(), counter.data());
     aes.ProcessData(buffer.data(), buffer.data(), buffer.size());
 }
 

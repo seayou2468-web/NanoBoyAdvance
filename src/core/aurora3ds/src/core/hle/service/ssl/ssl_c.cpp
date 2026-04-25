@@ -2,8 +2,8 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include <openssl/rand.h>
 #include "common/archives.h"
+#include "common/crypto_util.h"
 #include "common/common_types.h"
 #include "core/core.h"
 #include "core/hle/ipc.h"
@@ -12,6 +12,7 @@
 
 SERIALIZE_EXPORT_IMPL(Service::SSL::SSL_C)
 namespace Service::SSL {
+
 
 void SSL_C::Initialize(Kernel::HLERequestContext& ctx) {
     IPC::RequestParser rp(ctx);
@@ -75,7 +76,7 @@ void InstallInterfaces(Core::System& system) {
 
 void GenerateRandomData(std::vector<u8>& out) {
     // Fill the output buffer with random data.
-    RAND_bytes(out.data(), static_cast<int>(out.size()));
+    Common::CryptoUtil::FillRandomBytes(out.data(), out.size());
 }
 
 } // namespace Service::SSL
