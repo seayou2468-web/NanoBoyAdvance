@@ -1,4 +1,4 @@
-name: iOS Device .app (Unsigned)
+name: iOS Device .ipa (Unsigned)
 
 on:
   workflow_dispatch:
@@ -40,9 +40,21 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO
 
-      - name: Upload unsigned .app artifact
+      - name: Package unsigned .ipa
+        run: |
+          APP_PATH="build-ios-device/Release-iphoneos/AuroraIOS.app"
+          IPA_PATH="build-ios-device/AuroraIOS-unsigned.ipa"
+          rm -rf build-ios-device/Payload "$IPA_PATH"
+          mkdir -p build-ios-device/Payload
+          cp -R "$APP_PATH" build-ios-device/Payload/
+          (
+            cd build-ios-device
+            /usr/bin/zip -qry "$(basename "$IPA_PATH")" Payload
+          )
+
+      - name: Upload unsigned .ipa artifact
         uses: actions/upload-artifact@v4
         with:
-          name: AuroraIOS-unsigned-app
-          path: build-ios-device/Release-iphoneos/AuroraIOS.app
+          name: AuroraIOS-unsigned-ipa
+          path: build-ios-device/AuroraIOS-unsigned.ipa
           if-no-files-found: error
