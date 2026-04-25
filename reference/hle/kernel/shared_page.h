@@ -142,11 +142,11 @@ private:
 
 } // namespace SharedPage
 
-namespace boost::serialization {
+HLE_BOOST_SERIALIZATION_BEGIN
 
 template <class Archive>
 void load_construct_data(Archive& ar, SharedPage::Handler* t, const unsigned int);
 
-} // namespace boost::serialization
+HLE_BOOST_SERIALIZATION_END
 
 BOOST_CLASS_EXPORT_KEY(SharedPage::Handler)

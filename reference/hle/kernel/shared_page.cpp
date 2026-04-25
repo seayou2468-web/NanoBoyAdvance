@@ -16,7 +16,7 @@
 
 SERIALIZE_EXPORT_IMPL(SharedPage::Handler)
 
-namespace boost::serialization {
+HLE_BOOST_SERIALIZATION_BEGIN
 
 template <class Archive>
 void load_construct_data(Archive& ar, SharedPage::Handler* t, const unsigned int) {
@@ -26,7 +26,7 @@ void load_construct_data(Archive& ar, SharedPage::Handler* t, const unsigned int
 template void load_construct_data<iarchive>(iarchive& ar, SharedPage::Handler* t,
                                             const unsigned int);
 
-} // namespace boost::serialization
+HLE_BOOST_SERIALIZATION_END
 
 namespace SharedPage {
 

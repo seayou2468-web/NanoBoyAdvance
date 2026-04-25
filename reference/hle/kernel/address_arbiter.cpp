@@ -199,7 +199,7 @@ SERIALIZE_IMPL(AddressArbiter)
 
 } // namespace Kernel
 
-namespace boost::serialization {
+HLE_BOOST_SERIALIZATION_BEGIN
 
 template <class Archive>
 void save_construct_data(Archive& ar, const Kernel::AddressArbiter::Callback* t,
@@ -214,4 +214,4 @@ void load_construct_data(Archive& ar, Kernel::AddressArbiter::Callback* t, const
     ::new (t) Kernel::AddressArbiter::Callback(*parent);
 }
 
-} // namespace boost::serialization
+HLE_BOOST_SERIALIZATION_END

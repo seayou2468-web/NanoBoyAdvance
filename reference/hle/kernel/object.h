@@ -98,7 +98,7 @@ inline std::shared_ptr<T> DynamicObjectCast(std::shared_ptr<Object> object) {
 BOOST_CLASS_EXPORT_KEY(Kernel::Object)
 
 #define CONSTRUCT_KERNEL_OBJECT(T)                                                                 \
-    namespace boost::serialization {                                                               \
+    HLE_BOOST_SERIALIZATION_BEGIN                                                               \
     template <class Archive>                                                                       \
     void load_construct_data(Archive& ar, T* t, const unsigned int file_version) {                 \
         ::new (t) T(Core::Global<Kernel::KernelSystem>());                                         \

@@ -230,13 +230,13 @@ extern const std::array<ServiceModuleInfo, 41> service_module_map;
     friend class HLE::BoostCompat::Serialization::access;
 
 #define SERVICE_CONSTRUCT(T)                                                                       \
-    namespace boost::serialization {                                                               \
+    HLE_BOOST_SERIALIZATION_BEGIN                                                               \
     template <class Archive>                                                                       \
     void load_construct_data(Archive& ar, T* t, const unsigned int);                               \
     }
 
 #define SERVICE_CONSTRUCT_IMPL(T)                                                                  \
-    namespace boost::serialization {                                                               \
+    HLE_BOOST_SERIALIZATION_BEGIN                                                               \
     template <class Archive>                                                                       \
     void load_construct_data(Archive& ar, T* t, const unsigned int) {                              \
         ::new (t) T(Core::Global<Core::System>());                                                 \

@@ -46,6 +46,9 @@ std::uint32_t Crc32IsoHdlc(const void* data, std::size_t size);
 
 } // namespace HLE::BoostCompat
 
+#define HLE_BOOST_SERIALIZATION_BEGIN namespace boost::serialization {
+#define HLE_BOOST_SERIALIZATION_END }
+
 namespace boost::serialization {
 
 template <class Archive, class T>

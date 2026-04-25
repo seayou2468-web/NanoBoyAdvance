@@ -432,7 +432,7 @@ std::shared_ptr<Thread> SetupMainThread(KernelSystem& kernel, u32 entry_point, u
 BOOST_CLASS_EXPORT_KEY(Kernel::Thread)
 BOOST_CLASS_EXPORT_KEY(Kernel::WakeupCallback)
 
-namespace boost::serialization {
+HLE_BOOST_SERIALIZATION_BEGIN
 
 template <class Archive>
 void save_construct_data(Archive& ar, const Kernel::Thread* t, const unsigned int) {
@@ -446,4 +446,4 @@ void load_construct_data(Archive& ar, Kernel::Thread* t, const unsigned int) {
     ::new (t) Kernel::Thread(Core::Global<Kernel::KernelSystem>(), core_id);
 }
 
-} // namespace boost::serialization
+HLE_BOOST_SERIALIZATION_END

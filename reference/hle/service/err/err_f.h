@@ -44,7 +44,7 @@ void InstallInterfaces(Core::System& system);
 
 BOOST_CLASS_EXPORT_KEY(Service::ERR::ERR_F)
 
-namespace boost::serialization {
+HLE_BOOST_SERIALIZATION_BEGIN
 template <class Archive>
 void load_construct_data(Archive& ar, Service::ERR::ERR_F* t, const unsigned int);
 }
