@@ -13,6 +13,9 @@ set(CMAKE_XCODE_GENERATE_SCHEME ON)
 option(NBA_ENABLE_AURORA3DS_CORE_INTEGRATION
   "Build and wire the legacy aurora3ds src/core CPU+HLE implementation into the unified core set"
   OFF)
+option(NBA_ENABLE_AURORA3DS_FULL_BUILD
+  "When core integration is ON, include the full legacy aurora3ds src/core tree without trim filters"
+  OFF)
 
 file(GLOB_RECURSE CORE_SOURCES CONFIGURE_DEPENDS
   "src/core/*.cpp"
@@ -61,16 +64,18 @@ if(NOT NBA_ENABLE_AURORA3DS_CORE_INTEGRATION)
   # Keep the adapter layer, but exclude that legacy implementation tree by default.
   list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/.*")
 else()
-  # Integration mode: keep CPU/HLE-kernel connection work focused and trim subsystems that still
-  # require unavailable legacy config/service stacks.
-  list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/video_core/.*")
-  list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/file_sys/.*")
-  list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/loader/.*")
-  list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/hle/.*")
-  list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/hw/.*")
-  list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/memory\\.cpp$")
-  list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/core_timing\\.cpp$")
-  list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/system_titles\\.cpp$")
+  if(NOT NBA_ENABLE_AURORA3DS_FULL_BUILD)
+    # Integration mode (trimmed): keep CPU connection work focused and trim subsystems that still
+    # require unavailable legacy config/service stacks.
+    list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/video_core/.*")
+    list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/file_sys/.*")
+    list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/loader/.*")
+    list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/hle/.*")
+    list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/hw/.*")
+    list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/memory\\.cpp$")
+    list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/core_timing\\.cpp$")
+    list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/system_titles\\.cpp$")
+  endif()
 endif()
 
 if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
