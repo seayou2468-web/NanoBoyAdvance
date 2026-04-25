@@ -268,9 +268,6 @@ static const uint64_t kAURBlackSampleWarmupFrames = 1200;
     NSString *sharedFont = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"3ds_shared_font"];
     NSString *aesKeys = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"3ds_aes_keys"];
     NSString *seeddb = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"3ds_seeddb"];
-    if (firmware.length > 0) {
-        [self emuLog:@"3ds_firmware was set (%@), but this core currently expects boot9/boot11 and sysdata keys/seeddb. Standalone firmware files are not directly consumed in this load path.", firmware.lastPathComponent];
-    }
 
     void (^loadBiosIfPresent)(NSString *, NSString *) = ^(NSString *identifier, NSString *path) {
         if (path.length == 0) return;
@@ -284,7 +281,6 @@ static const uint64_t kAURBlackSampleWarmupFrames = 1200;
     };
     loadBiosIfPresent(@"3ds_boot9", boot9);
     loadBiosIfPresent(@"3ds_boot11", boot11);
-    loadBiosIfPresent(@"3ds_firmware", firmware);
     loadBiosIfPresent(@"3ds_shared_font", sharedFont);
     loadBiosIfPresent(@"3ds_aes_keys", aesKeys);
     loadBiosIfPresent(@"3ds_seeddb", seeddb);
@@ -297,8 +293,8 @@ static const uint64_t kAURBlackSampleWarmupFrames = 1200;
     NSString *seeddbDisplay = seeddb.length > 0 ? seeddb : @"(null)";
     [self emuLog:@"BIOS paths boot9=%@ boot11=%@ firmware=%@ shared_font=%@ aes_keys=%@ seeddb=%@",
      boot9Display, boot11Display, firmwareDisplay, sharedFontDisplay, aesKeysDisplay, seeddbDisplay];
-    if (!boot9 && !boot11 && !firmware) {
-        [self emuLog:@"3DS BIOS/Firmware not set. Attempting HLE boot without external firmware."];
+    if (!boot9 && !boot11) {
+        [self emuLog:@"3DS boot ROMs not set. Attempting HLE boot without boot9/boot11."];
     }
 
     NSString *ext = self.romURL.pathExtension.lowercaseString;

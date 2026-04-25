@@ -217,6 +217,8 @@
     if ([identifier isEqualToString:@"3ds_boot11"]) return @2002;
     if ([identifier isEqualToString:@"3ds_firmware"]) return @2003;
     if ([identifier isEqualToString:@"3ds_shared_font"]) return @2004;
+    if ([identifier isEqualToString:@"3ds_aes_keys"]) return @2005;
+    if ([identifier isEqualToString:@"3ds_seeddb"]) return @2006;
     return nil;
 }
 

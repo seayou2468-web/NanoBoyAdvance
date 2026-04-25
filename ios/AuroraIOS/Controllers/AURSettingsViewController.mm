@@ -29,12 +29,14 @@
     NSString *threeDsBoot11 = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"3ds_boot11"].lastPathComponent ?: @"Optional";
     NSString *threeDsFirmware = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"3ds_firmware"].lastPathComponent ?: @"Optional";
     NSString *threeDsSharedFont = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"3ds_shared_font"].lastPathComponent ?: @"Optional";
+    NSString *threeDsAESKeys = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"3ds_aes_keys"].lastPathComponent ?: @"Optional";
+    NSString *threeDsSeedDB = [[AURDatabaseManager sharedManager] BIOSPathForIdentifier:@"3ds_seeddb"].lastPathComponent ?: @"Optional";
 
     self.sections = @[
         @{@"title": @"User Interface", @"items": @[@"Appearance", @"App Icon"]},
         @{@"title": @"Core Settings (BIOS)",
-          @"items": @[@"3DS Boot9", @"3DS Boot11", @"3DS Firmware", @"3DS Shared Font (.bin)"],
-          @"details": @[threeDsBoot9, threeDsBoot11, threeDsFirmware, threeDsSharedFont]},
+          @"items": @[@"3DS Boot9", @"3DS Boot11", @"3DS Firmware", @"3DS Shared Font (.bin)", @"3DS AES Keys (.txt)", @"3DS SeedDB (.bin)"],
+          @"details": @[threeDsBoot9, threeDsBoot11, threeDsFirmware, threeDsSharedFont, threeDsAESKeys, threeDsSeedDB]},
         @{@"title": @"Controllers", @"items": @[@"Preferred Skins", @"Import Skin"]},
         @{@"title": @"About", @"items": @[@"Version 1.0"]}
     ];
@@ -62,7 +64,7 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     if (indexPath.section == 1) {
-        NSArray *ids = @[@"3ds_boot9", @"3ds_boot11", @"3ds_firmware", @"3ds_shared_font"];
+        NSArray *ids = @[@"3ds_boot9", @"3ds_boot11", @"3ds_firmware", @"3ds_shared_font", @"3ds_aes_keys", @"3ds_seeddb"];
         if (indexPath.row < ids.count) {
             self.pickingBIOSIdentifier = ids[indexPath.row];
             UIDocumentPickerViewController *picker = [[UIDocumentPickerViewController alloc] initForOpeningContentTypes:@[UTTypeData] asCopy:YES];

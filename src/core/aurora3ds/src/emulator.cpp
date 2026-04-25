@@ -353,10 +353,6 @@ bool Emulator::loadROM(const std::filesystem::path& path) {
 	std::filesystem::create_directories(IOFile::getSDMC(), ec);
 	std::filesystem::create_directories(IOFile::getSharedFiles(), ec);
 	std::filesystem::create_directories(IOFile::getSysData(), ec);
-	std::filesystem::create_directories(dataPath, ec);
-	if (ec) {
-		Helpers::warn("Failed to create game data directory %s (error: %s)\n", dataPath.string().c_str(), ec.message().c_str());
-	}
 
 	IOFile::setAppDataDir(dataPath);
 
@@ -454,6 +450,11 @@ bool Emulator::loadROM(const std::filesystem::path& path) {
 	}
 
 	if (success) {
+		std::filesystem::create_directories(dataPath, ec);
+		if (ec) {
+			Helpers::warn("Failed to create game data directory %s (error: %s)\n", dataPath.string().c_str(), ec.message().c_str());
+		}
+
 		// Update the main thread entrypoint and SP so that the thread debugger can display them.
 		kernel.setMainThreadEntrypointAndSP(cpu.getReg(15), cpu.getReg(13));
 		// Snapshot canonical VM only after entrypoint and mapping validation.
