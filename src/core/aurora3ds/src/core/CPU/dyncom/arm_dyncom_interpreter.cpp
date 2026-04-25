@@ -1869,9 +1869,13 @@ BXJ_INST: {
 
 CDP_INST: {
     if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
-        // Undefined instruction here
-        cpu->NumInstrsToExecute = 0;
-        return num_instrs;
+        // CDP is undefined for ARM11 MPCore in this emulator configuration.
+        // Returning early from the interpreter here causes the same instruction
+        // to be retried forever with 0 executed instructions, which stalls
+        // runFrame() and can trigger its safety break.
+        //
+        // For now, treat it as a NOP so PC/ticks keep progressing.
+        LOG_WARNING(Core_ARM11, "Treating undefined CDP instruction as NOP at %08x", cpu->Reg[15]);
     }
     cpu->Reg[15] += cpu->GetInstructionSize();
     INC_PC(sizeof(cdp_inst));

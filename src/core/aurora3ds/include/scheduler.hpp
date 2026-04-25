@@ -83,6 +83,15 @@ struct Scheduler {
 	// Set nextTimestamp to the timestamp of the next event
 	void updateNextTimestamp() { nextTimestamp = events.cbegin()->first; }
 
+	bool hasEvent(EventType type) const {
+		for (auto it = events.cbegin(); it != events.cend(); ++it) {
+			if (it->second == type) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	// Add an event to the scheduler. Assumes this event doesn't already exist in the scheduler.
 	// (If it might, then use rescheduleEvent instead, which will remove and reschedule the event)
 	void addEvent(EventType type, u64 timestamp) {
@@ -91,6 +100,10 @@ struct Scheduler {
 	}
 
 	void removeEvent(EventType type) {
+		if (type == EventType::VBlank) [[unlikely]] {
+			Helpers::panic("Scheduler: removing VBlank is not allowed");
+		}
+
 		for (auto it = events.begin(); it != events.end(); it++) {
 			// Find first event of type "type" and remove it.
 			// Our scheduler shouldn't have duplicate events, so it's safe to exit when an event is found

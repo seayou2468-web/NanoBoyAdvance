@@ -299,8 +299,9 @@ void Emulator::pollScheduler() {
 					srv.sendGPUInterrupt(GPUInterrupt::VBlank0);
 					srv.sendGPUInterrupt(GPUInterrupt::VBlank1);
 
-					// Queue next VBlank event
-					scheduler.addEvent(Scheduler::EventType::VBlank, time + CPU::ticksPerSec / 60);
+					// Queue next VBlank event.
+					// Use rescheduleEvent to enforce a single periodic VBlank source.
+					scheduler.rescheduleEvent(Scheduler::EventType::VBlank, time + CPU::ticksPerSec / 60);
 					break;
 				}
 
