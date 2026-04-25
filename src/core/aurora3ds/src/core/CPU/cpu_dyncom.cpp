@@ -1,5 +1,6 @@
 #include "../../../include/cpu_dyncom.hpp"
 
+#include <limits>
 #include <utility>
 
 #include "../../../include/kernel/kernel.hpp"
@@ -89,6 +90,7 @@ void CPU::runFrame() {
     // This mirrors the old Panda3DS frame pacing model and guarantees that
     // pollScheduler() runs so GPU/HLE interrupts are delivered.
     u32 safety_counter = 0;
+    u32 no_progress_counter = 0;
     while (!isFrameDoneCallback()) {
         const u64 budget = (scheduler->nextTimestamp > scheduler->currentTimestamp)
                                ? (scheduler->nextTimestamp - scheduler->currentTimestamp)
@@ -103,9 +105,31 @@ void CPU::runFrame() {
         // In that case, fall back to the interpreter's executed count.
         if (ticks_after == ticks_before && executed != 0) {
             scheduler->currentTimestamp += executed;
+            no_progress_counter = 0;
+        } else if (ticks_after == ticks_before && executed == 0) {
+            no_progress_counter++;
+
+            // Dyncom can yield without retiring instructions (eg idle/waiting
+            // states). If we do not advance scheduler time here, runFrame can
+            // spin forever and never reach the queued VBlank event.
+            const u64 next = scheduler->nextTimestamp;
+            const u64 panicTimestamp = std::numeric_limits<u64>::max();
+            if (next > scheduler->currentTimestamp && next != panicTimestamp) {
+                scheduler->currentTimestamp = next;
+            } else {
+                scheduler->currentTimestamp += 1;
+            }
+        } else {
+            no_progress_counter = 0;
         }
 
         pollSchedulerCallback();
+
+        if (no_progress_counter > 2048) {
+            Helpers::warn("CPU::runFrame prolonged no-progress state (pc=%08X, ticks=%llu, next=%llu)",
+                          dyncomState->Reg[15], scheduler->currentTimestamp, scheduler->nextTimestamp);
+            no_progress_counter = 0;
+        }
 
         // Avoid infinite loops if the guest gets stuck before scheduling VBlank.
         if (++safety_counter > 200000) {
