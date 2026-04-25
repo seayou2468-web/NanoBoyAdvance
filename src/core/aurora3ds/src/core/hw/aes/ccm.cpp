@@ -3,17 +3,48 @@
 // Refer to the license.txt file included.
 
 #include <algorithm>
+#if !defined(__APPLE__)
 #include <cryptopp/aes.h>
 #include <cryptopp/ccm.h>
 #include <cryptopp/cryptlib.h>
 #include <cryptopp/filters.h>
+#endif
 #include "common/alignment.h"
+#include "common/ccm_util.h"
 #include "common/logging/log.h"
 #include "core/hw/aes/ccm.h"
 #include "core/hw/aes/key.h"
 
 namespace HW::AES {
 
+
+#if defined(__APPLE__)
+std::vector<u8> EncryptSignCCM(std::span<const u8> pdata, const CCMNonce& nonce,
+                               std::size_t slot_id) {
+    if (!IsNormalKeyAvailable(slot_id)) {
+        LOG_ERROR(HW_AES, "Key slot {} not available. Will use zero key.", slot_id);
+    }
+    const AESKey normal = GetNormalKey(slot_id);
+    return Common::CryptoUtil::AesCcmEncrypt(normal, nonce, {}, pdata, CCM_MAC_SIZE,
+                                             true);
+}
+
+std::vector<u8> DecryptVerifyCCM(std::span<const u8> cipher, const CCMNonce& nonce,
+                                 std::size_t slot_id) {
+    if (!IsNormalKeyAvailable(slot_id)) {
+        LOG_ERROR(HW_AES, "Key slot {} not available. Will use zero key.", slot_id);
+    }
+    if (cipher.size() < CCM_MAC_SIZE) {
+        return {};
+    }
+
+    const AESKey normal = GetNormalKey(slot_id);
+    return Common::CryptoUtil::AesCcmDecrypt(normal, nonce, {},
+                                             cipher.subspan(0, cipher.size() - CCM_MAC_SIZE),
+                                             cipher.subspan(cipher.size() - CCM_MAC_SIZE), true);
+}
+
+#else
 namespace {
 
 // 3DS uses a non-standard AES-CCM algorithm, so we need to derive a sub class from the standard one
@@ -89,5 +120,7 @@ std::vector<u8> DecryptVerifyCCM(std::span<const u8> cipher, const CCMNonce& non
     }
     return pdata;
 }
+
+#endif
 
 } // namespace HW::AES

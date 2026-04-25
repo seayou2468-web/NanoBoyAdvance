@@ -2,14 +2,11 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include <cryptopp/oids.h>
 #include "common/alignment.h"
 #include "common/assert.h"
 #include "common/logging/log.h"
 #include "core/file_sys/certificate.h"
 #include "core/file_sys/signature.h"
-#include "cryptopp/eccrypto.h"
-#include "cryptopp/osrng.h"
 
 namespace FileSys {
 void Certificate::BuildECC(Certificate& parent, const std::array<u8, 0x40> issuer,

@@ -8,27 +8,33 @@
 #include <cstddef>
 #include <span>
 #include <vector>
-#include <cryptopp/oids.h>
 #include "common/common_types.h"
+
+#if !defined(__APPLE__)
+#include <cryptopp/oids.h>
 #include "cryptopp/eccrypto.h"
+#endif
 
 namespace HW::ECC {
 // All the supported 3DS ECC operations use the sect233r1 curve,
 // so we default to sizes for this curve only.
 static constexpr size_t INT_SIZE = 0x1E;
 
+#if !defined(__APPLE__)
 using CryptoPPInteger = CryptoPP::Integer;
 using CryptoPPPoint = CryptoPP::EC2N::Point;
 
 using CryptoPPECCPrivateKey = CryptoPP::ECDSA<CryptoPP::EC2N, CryptoPP::SHA256>::PrivateKey;
 using CryptoPPECCPublicKey = CryptoPP::ECDSA<CryptoPP::EC2N, CryptoPP::SHA256>::PublicKey;
+#endif
 
 struct PrivateKey {
     std::array<u8, INT_SIZE> x;
 
+#if !defined(__APPLE__)
     CryptoPPInteger AsCryptoPPInteger() const;
-
     CryptoPPECCPrivateKey AsCryptoPPPrivateKey() const;
+#endif
 };
 
 union PublicKey {
@@ -38,9 +44,10 @@ union PublicKey {
     };
     std::array<u8, INT_SIZE * 2> xy;
 
+#if !defined(__APPLE__)
     CryptoPPPoint AsCryptoPPPoint() const;
-
     CryptoPPECCPublicKey AsCryptoPPPublicKey() const;
+#endif
 };
 
 union Signature {
@@ -57,7 +64,9 @@ PrivateKey CreateECCPrivateKey(std::span<const u8> private_key_x, bool fix_up = 
 PublicKey CreateECCPublicKey(std::span<const u8> public_key_xy);
 Signature CreateECCSignature(std::span<const u8> signature_rs);
 
+#if !defined(__APPLE__)
 PublicKey MakePublicKey(const CryptoPPECCPrivateKey& private_key_cpp);
+#endif
 PublicKey MakePublicKey(const PrivateKey& private_key);
 std::pair<PrivateKey, PublicKey> GenerateKeyPair();
 

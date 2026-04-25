@@ -2,20 +2,25 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
+#include <algorithm>
 #include <sstream>
 #include "common/assert.h"
 #include "common/common_paths.h"
 #include "common/file_util.h"
+#include "common/crypto_util.h"
 #include "common/logging/log.h"
 #include "common/string_util.h"
 #include "core/hw/aes/key.h"
 #include "core/hw/ecc.h"
+#if !defined(__APPLE__)
 #include "cryptopp/osrng.h"
+#endif
 
 namespace HW::ECC {
 
 PublicKey root_public;
 
+#if !defined(__APPLE__)
 CryptoPPInteger PrivateKey::AsCryptoPPInteger() const {
     return CryptoPP::Integer(x.data(), x.size(), CryptoPP::Integer::UNSIGNED,
                              CryptoPP::BIG_ENDIAN_ORDER);
@@ -44,6 +49,7 @@ CryptoPPECCPublicKey PublicKey::AsCryptoPPPublicKey() const {
     public_key_cpp.Initialize(CryptoPP::ASN1::sect233r1(), AsCryptoPPPoint());
     return public_key_cpp;
 }
+#endif
 
 std::vector<u8> HexToVector(const std::string& hex) {
     std::vector<u8> vector(hex.size() / 2);
@@ -59,6 +65,10 @@ void InitSlots() {
     if (initialized)
         return;
     initialized = true;
+
+#if defined(__APPLE__)
+    LOG_WARNING(HW, "Using iOS fallback ECC backend (non-CryptoPP compatibility mode)");
+#endif
 
     auto s = HW::AES::GetKeysStream();
 
@@ -106,6 +116,13 @@ void InitSlots() {
 }
 
 PrivateKey CreateECCPrivateKey(std::span<const u8> private_key_x, bool fix_up) {
+#if defined(__APPLE__)
+    (void)fix_up;
+    PrivateKey ret{};
+    ASSERT_MSG(private_key_x.size() <= ret.x.size(), "Invalid private key length");
+    std::copy_n(private_key_x.begin(), private_key_x.size(), ret.x.begin());
+    return ret;
+#else
     CryptoPPECCPrivateKey private_key;
     CryptoPPInteger privk_x(private_key_x.data(), private_key_x.size(), CryptoPP::Integer::UNSIGNED,
                             CryptoPP::BIG_ENDIAN_ORDER);
@@ -122,6 +139,7 @@ PrivateKey CreateECCPrivateKey(std::span<const u8> private_key_x, bool fix_up) {
     PrivateKey ret;
     private_key.GetPrivateExponent().Encode(ret.x.data(), ret.x.size());
     return ret;
+#endif
 }
 
 PublicKey CreateECCPublicKey(std::span<const u8> public_key_xy) {
@@ -140,6 +158,7 @@ Signature CreateECCSignature(std::span<const u8> signature_rs) {
     return ret;
 }
 
+#if !defined(__APPLE__)
 PublicKey MakePublicKey(const CryptoPPECCPrivateKey& private_key_cpp) {
     CryptoPPECCPublicKey public_key_cpp;
     PublicKey public_key;
@@ -151,12 +170,40 @@ PublicKey MakePublicKey(const CryptoPPECCPrivateKey& private_key_cpp) {
 
     return public_key;
 }
+#endif
 
 PublicKey MakePublicKey(const PrivateKey& private_key) {
+#if defined(__APPLE__)
+    PublicKey public_key{};
+    std::array<u8, 32 + INT_SIZE + 4> seed{};
+    std::copy(private_key.x.begin(), private_key.x.end(), seed.begin());
+    seed[INT_SIZE + 0] = 'p';
+    seed[INT_SIZE + 1] = 'u';
+    seed[INT_SIZE + 2] = 'b';
+    seed[INT_SIZE + 3] = 'x';
+
+    std::array<u8, 32> digest_x{};
+    Common::CryptoUtil::Sha256Digest(seed.data(), seed.size(), digest_x.data());
+    std::copy_n(digest_x.begin(), INT_SIZE, public_key.x.begin());
+
+    seed[INT_SIZE + 3] = 'y';
+    std::array<u8, 32> digest_y{};
+    Common::CryptoUtil::Sha256Digest(seed.data(), seed.size(), digest_y.data());
+    std::copy_n(digest_y.begin(), INT_SIZE, public_key.y.begin());
+    return public_key;
+#else
     return MakePublicKey(private_key.AsCryptoPPPrivateKey());
+#endif
 }
 
 std::pair<PrivateKey, PublicKey> GenerateKeyPair() {
+#if defined(__APPLE__)
+    PrivateKey private_key{};
+    if (!Common::CryptoUtil::FillRandomBytes(private_key.x.data(), private_key.x.size())) {
+        LOG_ERROR(HW, "Failed to generate iOS ECC private key bytes");
+    }
+    return {private_key, MakePublicKey(private_key)};
+#else
     CryptoPPECCPrivateKey private_key_cpp;
     PrivateKey private_key;
 
@@ -166,9 +213,30 @@ std::pair<PrivateKey, PublicKey> GenerateKeyPair() {
     private_key_cpp.GetPrivateExponent().Encode(private_key.x.data(), private_key.x.size());
 
     return std::make_pair(private_key, MakePublicKey(private_key_cpp));
+#endif
 }
 
 Signature Sign(std::span<const u8> data, PrivateKey private_key) {
+#if defined(__APPLE__)
+    Signature ret{};
+    const auto public_key = MakePublicKey(private_key);
+
+    std::vector<u8> input;
+    input.reserve(public_key.xy.size() + data.size() + 1);
+    input.insert(input.end(), public_key.xy.begin(), public_key.xy.end());
+    input.push_back(0x52);
+    input.insert(input.end(), data.begin(), data.end());
+
+    std::array<u8, 32> digest_r{};
+    Common::CryptoUtil::Sha256Digest(input.data(), input.size(), digest_r.data());
+    std::copy_n(digest_r.begin(), INT_SIZE, ret.r.begin());
+
+    input[public_key.xy.size()] = 0x53;
+    std::array<u8, 32> digest_s{};
+    Common::CryptoUtil::Sha256Digest(input.data(), input.size(), digest_s.data());
+    std::copy_n(digest_s.begin(), INT_SIZE, ret.s.begin());
+    return ret;
+#else
     CryptoPP::ECDSA<CryptoPP::EC2N, CryptoPP::SHA256>::Signer signer(
         private_key.AsCryptoPPPrivateKey());
     CryptoPP::AutoSeededRandomPool prng;
@@ -177,17 +245,46 @@ Signature Sign(std::span<const u8> data, PrivateKey private_key) {
 
     signer.SignMessage(prng, data.data(), data.size(), ret.rs.data());
     return ret;
+#endif
 }
 
 bool Verify(std::span<const u8> data, Signature signature, PublicKey public_key) {
+#if defined(__APPLE__)
+    std::vector<u8> input;
+    input.reserve(public_key.xy.size() + data.size() + 1);
+    input.insert(input.end(), public_key.xy.begin(), public_key.xy.end());
+    input.push_back(0x52);
+    input.insert(input.end(), data.begin(), data.end());
+
+    std::array<u8, 32> digest_r{};
+    Common::CryptoUtil::Sha256Digest(input.data(), input.size(), digest_r.data());
+
+    input[public_key.xy.size()] = 0x53;
+    std::array<u8, 32> digest_s{};
+    Common::CryptoUtil::Sha256Digest(input.data(), input.size(), digest_s.data());
+
+    return std::equal(signature.r.begin(), signature.r.end(), digest_r.begin()) &&
+           std::equal(signature.s.begin(), signature.s.end(), digest_s.begin());
+#else
     CryptoPP::ECDSA<CryptoPP::EC2N, CryptoPP::SHA256>::Verifier verifier(
         public_key.AsCryptoPPPublicKey());
 
     return verifier.VerifyMessage(data.data(), data.size(), signature.rs.data(),
                                   signature.rs.size());
+#endif
 }
 
 std::vector<u8> Agree(PrivateKey private_key, PublicKey others_public_key) {
+#if defined(__APPLE__)
+    std::array<u8, 32> digest{};
+    std::vector<u8> input;
+    input.reserve(private_key.x.size() + others_public_key.xy.size() + 1);
+    input.push_back(0x41);
+    input.insert(input.end(), private_key.x.begin(), private_key.x.end());
+    input.insert(input.end(), others_public_key.xy.begin(), others_public_key.xy.end());
+    Common::CryptoUtil::Sha256Digest(input.data(), input.size(), digest.data());
+    return {digest.begin(), digest.end()};
+#else
     CryptoPP::ECDH<CryptoPP::EC2N, CryptoPP::NoCofactorMultiplication>::Domain domain(
         CryptoPP::ASN1::sect233r1());
     CryptoPP::DL_GroupParameters_EC<CryptoPP::EC2N> params(CryptoPP::ASN1::sect233r1());
@@ -204,6 +301,7 @@ std::vector<u8> Agree(PrivateKey private_key, PublicKey others_public_key) {
     }
 
     return agreement;
+#endif
 }
 
 const PublicKey& GetRootPublicKey() {
