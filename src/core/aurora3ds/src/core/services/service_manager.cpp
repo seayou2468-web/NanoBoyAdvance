@@ -307,11 +307,10 @@ void ServiceManager::getServiceHandle(u32 messagePointer) {
 		return;
 	}
 
-	// Keep unknown-but-valid OS service names alive behind a generic stub.
-	// This mirrors reference behavior of exposing many modules even before full HLE.
-	const bool has_service_separator = service.find(':') != std::string::npos;
+	// Keep unknown-but-valid service names alive behind a generic stub.
+	// Some homebrew modules request names like "$VT!" that do not contain ':'.
 	const bool valid_service_len = service.length() <= 8 && !service.empty();
-	if (has_service_separator && valid_service_len) {
+	if (valid_service_len) {
 		mem.write32(messagePointer, IPC::responseHeader(0x5, 1, 2));
 		mem.write32(messagePointer + 4, Result::Success);
 		mem.write32(messagePointer + 12, KernelHandles::OS_STUB);

@@ -710,7 +710,7 @@ void Kernel::svcReleaseSemaphore() {
 // can simply compile to a fast sub+cmp+set despite looking slow
 bool Kernel::isWaitable(const KernelObject* object) {
 	auto type = object->type;
-	return type == KernelObjectType::Event || type == KernelObjectType::Mutex || type == KernelObjectType::Port ||
+	return type == KernelObjectType::Event || type == KernelObjectType::Mutex ||
 		   type == KernelObjectType::Semaphore || type == KernelObjectType::Timer || type == KernelObjectType::Thread;
 }
 
@@ -731,11 +731,17 @@ bool Kernel::shouldWaitOnObject(KernelObject* object) {
 		case KernelObjectType::Timer:  // We should wait on a timer only if it has not been signalled
 			return !object->getData<Timer>()->fired;
 
-		case KernelObjectType::Semaphore:  // Wait if the semaphore count <= 0
-			return object->getData<Semaphore>()->availableCount <= 0;
+			case KernelObjectType::Semaphore:  // Wait if the semaphore count <= 0
+				return object->getData<Semaphore>()->availableCount <= 0;
 
-		default: Helpers::panic("Not sure whether to wait on object (type: %s)", object->getTypeName()); return true;
-	}
+			case KernelObjectType::Port:
+				// Full server-session queueing is not implemented yet; treat ports as not immediately signaled.
+				return true;
+
+			default:
+				Helpers::warn("Not sure whether to wait on object (type: %s)", object->getTypeName());
+				return true;
+		}
 }
 
 void Kernel::pollThreadWakeups() {

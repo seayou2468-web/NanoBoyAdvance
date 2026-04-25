@@ -176,6 +176,7 @@ class Memory {
 		SharedMemoryBlock(0, 0xE7000, KernelHandles::APTCaptureSharedMemHandle),  // APT Capture Buffer memory
 	};
 	std::array<u8, 4096> exceptionVectorPage {};
+	std::array<u8, 0x10000> configMemory {};
 
   public:
 	static constexpr u32 pageShift = 12;

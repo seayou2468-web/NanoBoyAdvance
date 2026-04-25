@@ -95,6 +95,19 @@ std::optional<PhysicalRegionView> ResolvePhysicalRegion(u8* fcram, u8* dspRam, u
 constexpr u32 kArmBranchSelf = 0xEAFFFFFE;      // b .
 constexpr u32 kArmReturnPrefetchAbort = 0xE25EF004;  // subs pc, lr, #4
 constexpr u32 kArmReturnDataAbort = 0xE25EF008;      // subs pc, lr, #8
+constexpr u32 kConfigMemMirrorStart = 0x1FF80000;
+constexpr u32 kConfigMemMirrorSize = 0x10000;
+
+inline bool IsConfigMemMirrorAddress(u32 vaddr, u32 bytes = 1) {
+	if (bytes == 0 || bytes > kConfigMemMirrorSize) {
+		return false;
+	}
+	if (vaddr < kConfigMemMirrorStart) {
+		return false;
+	}
+	const u32 offset = vaddr - kConfigMemMirrorStart;
+	return offset <= (kConfigMemMirrorSize - bytes);
+}
 
 std::vector<u8> LoadSharedFontReplacement() {
 	if (g_sharedFontReplacementOverridePath.has_value()) {
@@ -286,14 +299,17 @@ u8 Memory::read8(u32 vaddr) {
 			case ConfigMem::WifiMac + 5: return MACAddress[vaddr - ConfigMem::WifiMac];
 
 				default:
-					notifyDataAbort(vaddr, false);
-					LogUnmappedRead(8, vaddr);
-					// Match Azahar/Citra behavior: data reads from unmapped regions return 0
-					// instead of taking a synchronous data abort in the guest.
-					return 0;
+						if (IsConfigMemMirrorAddress(vaddr)) {
+							return configMemory[vaddr - kConfigMemMirrorStart];
+						}
+						notifyDataAbort(vaddr, false);
+						LogUnmappedRead(8, vaddr);
+						// Match Azahar/Citra behavior: data reads from unmapped regions return 0
+						// instead of taking a synchronous data abort in the guest.
+						return 0;
+				}
 			}
-		}
-}
+	}
 
 u16 Memory::read16(u32 vaddr) {
 	const u32 page = vaddr >> pageShift;
@@ -309,15 +325,20 @@ u16 Memory::read16(u32 vaddr) {
 			return value;
 		}
 		switch (vaddr) {
-			case ConfigMem::WifiMac + 4: return (MACAddress[5] << 8) | MACAddress[4];  // Wifi MAC: Last 2 bytes of MAC Address
-				default:
-					notifyDataAbort(vaddr, false);
-					LogUnmappedRead(16, vaddr);
-					// Match Azahar/Citra behavior: data reads from unmapped regions return 0.
-					return 0;
+				case ConfigMem::WifiMac + 4: return (MACAddress[5] << 8) | MACAddress[4];  // Wifi MAC: Last 2 bytes of MAC Address
+					default:
+						if (IsConfigMemMirrorAddress(vaddr, sizeof(u16))) {
+							u16 value {};
+							std::memcpy(&value, &configMemory[vaddr - kConfigMemMirrorStart], sizeof(value));
+							return value;
+						}
+						notifyDataAbort(vaddr, false);
+						LogUnmappedRead(16, vaddr);
+						// Match Azahar/Citra behavior: data reads from unmapped regions return 0.
+						return 0;
+			}
 		}
 	}
-}
 
 u32 Memory::read32(u32 vaddr) {
 	const u32 page = vaddr >> pageShift;
@@ -357,8 +378,13 @@ u32 Memory::read32(u32 vaddr) {
 			case ConfigMem::FirmUnknown:
 				return u32(read8(vaddr)) | (u32(read8(vaddr + 1)) << 8) | (u32(read8(vaddr + 2)) << 16) | (u32(read8(vaddr + 3)) << 24);
 
-			default:
-				if (vaddr >= VirtualAddrs::VramStart && vaddr < VirtualAddrs::VramStart + VirtualAddrs::VramSize) {
+				default:
+					if (IsConfigMemMirrorAddress(vaddr, sizeof(u32))) {
+						u32 value {};
+						std::memcpy(&value, &configMemory[vaddr - kConfigMemMirrorStart], sizeof(value));
+						return value;
+					}
+					if (vaddr >= VirtualAddrs::VramStart && vaddr < VirtualAddrs::VramStart + VirtualAddrs::VramSize) {
 					static int shutUpCounter = 0;
 					if (shutUpCounter < 5) {  // Stop spamming about VRAM reads after the first 5
 						shutUpCounter++;
@@ -390,12 +416,16 @@ void Memory::write8(u32 vaddr, u8 value) {
 	uintptr_t pointer = activeVM().writeTable[page];
 	if (pointer != 0) [[likely]] {
 		*(u8*)(pointer + offset) = value;
-	} else {
-		if (u8* privileged = resolvePrivilegedVirtualPointer(vaddr); privileged != nullptr) {
-			*privileged = value;
-			return;
-		}
-		// VRAM write
+		} else {
+			if (u8* privileged = resolvePrivilegedVirtualPointer(vaddr); privileged != nullptr) {
+				*privileged = value;
+				return;
+			}
+			if (IsConfigMemMirrorAddress(vaddr)) {
+				configMemory[vaddr - kConfigMemMirrorStart] = value;
+				return;
+			}
+			// VRAM write
 		if (vaddr >= VirtualAddrs::VramStart && vaddr < VirtualAddrs::VramStart + VirtualAddrs::VramSize) {
 			// TODO: Invalidate renderer caches here
 			vram[vaddr - VirtualAddrs::VramStart] = value;
@@ -413,12 +443,16 @@ void Memory::write16(u32 vaddr, u16 value) {
 	uintptr_t pointer = activeVM().writeTable[page];
 	if (pointer != 0) [[likely]] {
 		*(u16*)(pointer + offset) = value;
-	} else {
-		if (u8* privileged = resolvePrivilegedVirtualPointer(vaddr); privileged != nullptr) {
-			std::memcpy(privileged, &value, sizeof(value));
-			return;
-		}
-		notifyDataAbort(vaddr, true);
+		} else {
+			if (u8* privileged = resolvePrivilegedVirtualPointer(vaddr); privileged != nullptr) {
+				std::memcpy(privileged, &value, sizeof(value));
+				return;
+			}
+			if (IsConfigMemMirrorAddress(vaddr, sizeof(u16))) {
+				std::memcpy(&configMemory[vaddr - kConfigMemMirrorStart], &value, sizeof(value));
+				return;
+			}
+			notifyDataAbort(vaddr, true);
 		LogUnmappedWrite(16, vaddr, value);
 	}
 }
@@ -430,12 +464,16 @@ void Memory::write32(u32 vaddr, u32 value) {
 	uintptr_t pointer = activeVM().writeTable[page];
 	if (pointer != 0) [[likely]] {
 		*(u32*)(pointer + offset) = value;
-	} else {
-		if (u8* privileged = resolvePrivilegedVirtualPointer(vaddr); privileged != nullptr) {
-			std::memcpy(privileged, &value, sizeof(value));
-			return;
-		}
-		notifyDataAbort(vaddr, true);
+		} else {
+			if (u8* privileged = resolvePrivilegedVirtualPointer(vaddr); privileged != nullptr) {
+				std::memcpy(privileged, &value, sizeof(value));
+				return;
+			}
+			if (IsConfigMemMirrorAddress(vaddr, sizeof(u32))) {
+				std::memcpy(&configMemory[vaddr - kConfigMemMirrorStart], &value, sizeof(value));
+				return;
+			}
+			notifyDataAbort(vaddr, true);
 		LogUnmappedWrite(32, vaddr, value);
 	}
 }

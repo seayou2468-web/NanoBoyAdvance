@@ -74,8 +74,8 @@ void Kernel::svcClearEvent() {
 	logSVC("ClearEvent(event handle = %X)\n", handle);
 
 	if (event == nullptr) [[unlikely]] {
-		Helpers::panic("Tried to clear non-existent event (handle = %X)", handle);
-		regs[0] = Result::Kernel::InvalidHandle;
+		Helpers::warn("Tried to clear non-existent event (handle = %X)", handle);
+		regs[0] = Result::Success;
 		return;
 	}
 
@@ -108,13 +108,15 @@ void Kernel::waitSynchronization1() {
 	const auto object = getObject(handle);
 
 	if (object == nullptr) [[unlikely]] {
-		Helpers::panic("WaitSynchronization1: Bad event handle %X\n", handle);
-		regs[0] = Result::Kernel::InvalidHandle;
+		Helpers::warn("WaitSynchronization1: Bad event handle %X\n", handle);
+		regs[0] = Result::Success;
 		return;
 	}
 
 	if (!isWaitable(object)) [[unlikely]] {
-		Helpers::panic("Tried to wait on a non waitable object. Type: %s, handle: %X\n", object->getTypeName(), handle);
+		Helpers::warn("WaitSynchronization1: Non-waitable object type=%s handle=%X\n", object->getTypeName(), handle);
+		regs[0] = Result::Success;
+		return;
 	}
 
 	if (!shouldWaitOnObject(object)) {
@@ -157,7 +159,9 @@ void Kernel::waitSynchronizationN() {
 	logSVC("WaitSynchronizationN (handle pointer: %08X, count: %d, timeout = %lld)\n", handles, handleCount, ns);
 
 	if (handleCount <= 0) {
-		Helpers::panic("WaitSyncN: Invalid handle count");
+		Helpers::warn("WaitSyncN: Invalid handle count");
+		regs[0] = Result::Kernel::InvalidHandle;
+		return;
 	}
 
 	// Temporary hack: Until we implement service sessions properly, don't bother sleeping when WaitSyncN targets a service handle
@@ -186,14 +190,16 @@ void Kernel::waitSynchronizationN() {
 		auto object = getObject(handle);
 		// Panic if one of the objects is not even an object
 		if (object == nullptr) [[unlikely]] {
-			Helpers::panic("WaitSynchronizationN: Bad object handle %X\n", handle);
+			Helpers::warn("WaitSynchronizationN: Bad object handle %X\n", handle);
 			regs[0] = Result::Kernel::InvalidHandle;
 			return;
 		}
 
 		// Panic if one of the objects is not a valid sync object
 		if (!isWaitable(object)) [[unlikely]] {
-			Helpers::panic("Tried to wait on a non waitable object in WaitSyncN. Type: %s, handle: %X\n", object->getTypeName(), handle);
+			Helpers::warn("WaitSynchronizationN: Non-waitable object type=%s handle=%X\n", object->getTypeName(), handle);
+			regs[0] = Result::Kernel::InvalidHandle;
+			return;
 		}
 
 		if (shouldWaitOnObject(object)) {
@@ -236,7 +242,8 @@ void Kernel::waitSynchronizationN() {
 		addWakeupEvent(t.wakeupTick);
 		requireReschedule();
 	} else {
-		Helpers::panic("WaitSynchronizationN with waitAll");
+		Helpers::warn("WaitSynchronizationN with waitAll is not implemented");
+		regs[0] = Result::OS::NotImplemented;
 	}
 }
 
