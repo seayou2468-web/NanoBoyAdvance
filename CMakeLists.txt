@@ -10,13 +10,6 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_XCODE_GENERATE_SCHEME ON)
 
-option(NBA_ENABLE_AURORA3DS_CORE_INTEGRATION
-  "Build and wire the legacy aurora3ds src/core CPU+HLE implementation into the unified core set"
-  OFF)
-option(NBA_ENABLE_AURORA3DS_FULL_BUILD
-  "When core integration is ON, include the full legacy aurora3ds src/core tree without trim filters"
-  OFF)
-
 file(GLOB_RECURSE CORE_SOURCES CONFIGURE_DEPENDS
   "src/core/*.cpp"
   "src/core/api/*.cpp"
@@ -58,25 +51,15 @@ list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/mikage/src/core/CPU/dyncom/arm_
 # Exclude the legacy ARM_DynCom wrapper (expects old Memory::MemorySystem/PageTable APIs).
 # CPU integration uses cpu_dyncom.cpp + interpreter path instead.
 list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/CPU/dyncom/arm_dyncom\.cpp$")
-if(NOT NBA_ENABLE_AURORA3DS_CORE_INTEGRATION)
-  # The legacy aurora3ds src/core tree is currently incomplete in this repository snapshot and
-  # pulls transitive includes that are not present (e.g. common/settings.h, applet headers).
-  # Keep the adapter layer, but exclude that legacy implementation tree by default.
-  list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/.*")
-else()
-  if(NOT NBA_ENABLE_AURORA3DS_FULL_BUILD)
-    # Integration mode (trimmed): keep CPU connection work focused and trim subsystems that still
-    # require unavailable legacy config/service stacks.
-    list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/video_core/.*")
-    list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/file_sys/.*")
-    list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/loader/.*")
-    list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/hle/.*")
-    list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/hw/.*")
-    list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/memory\\.cpp$")
-    list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/core_timing\\.cpp$")
-    list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/system_titles\\.cpp$")
-  endif()
-endif()
+# Always use the integrated (trimmed) aurora3ds path.
+list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/video_core/.*")
+list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/file_sys/.*")
+list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/loader/.*")
+list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/hle/.*")
+list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/hw/.*")
+list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/memory\\.cpp$")
+list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/core_timing\\.cpp$")
+list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/system_titles\\.cpp$")
 
 if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
   file(GLOB_RECURSE AURORAIOS_SOURCES CONFIGURE_DEPENDS
@@ -121,9 +104,8 @@ if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
     -fobjc-arc
   )
   target_compile_definitions(AuroraIOS PRIVATE
-    NBA_BUILD_AURORA3DS_ADAPTER=$<BOOL:${NBA_ENABLE_AURORA3DS_CORE_INTEGRATION}>
+    NBA_BUILD_AURORA3DS_ADAPTER=1
   )
-
   find_library(AVFOUNDATION_FRAMEWORK AVFoundation REQUIRED)
   find_library(AUDIOTOOLBOX_FRAMEWORK AudioToolbox REQUIRED)
   find_library(COMPRESSION_FRAMEWORK Compression)

@@ -8,7 +8,6 @@
 #define NBA_BUILD_AURORA3DS_ADAPTER 0
 #endif
 
-// Build the adapter only when explicitly enabled by build configuration.
 #if NBA_BUILD_AURORA3DS_ADAPTER
 #define NBA_ENABLE_MIKAGE_ADAPTER_IMPLEMENTATION 1
 #include "./aurora3ds/core_adapter.cpp"
@@ -16,9 +15,7 @@
 
 namespace core {
 
-#if NBA_BUILD_AURORA3DS_ADAPTER
 extern const CoreAdapter kMikageAdapter;
-#endif
 
 const CoreAdapter* FindCoreAdapter(EmulatorCoreType type) {
 #if NBA_BUILD_AURORA3DS_ADAPTER
