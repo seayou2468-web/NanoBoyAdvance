@@ -380,7 +380,21 @@ void GPU::writeInternalReg(u32 index, u32 value, u32 mask) {
 
 void GPU::startCommandList(u32 addr, u32 size) {
 	cmdBuffStart = static_cast<u32*>(mem.getReadPointer(addr));
-	if (!cmdBuffStart) Helpers::panic("Couldn't get buffer for command list");
+	if (!cmdBuffStart) {
+		// Some command paths hand us physical addresses while others use virtual ones.
+		// Accept both so draw-trigger writes in command lists are not silently lost.
+		cmdBuffStart = getPointerPhys<u32>(addr);
+	}
+	if (!cmdBuffStart) {
+		Helpers::warn("[PICA] startCommandList failed to map command buffer addr=%08X size=%08X", addr, size);
+		cmdBuffCurr = cmdBuffEnd = nullptr;
+		return;
+	}
+	if (size == 0) {
+		Helpers::warn("[PICA] startCommandList called with zero size (addr=%08X)", addr);
+		cmdBuffCurr = cmdBuffEnd = nullptr;
+		return;
+	}
 	// TODO: This is very memory unsafe. We get a pointer to FCRAM and just keep writing without checking if we're gonna go OoB
 
 	cmdBuffCurr = cmdBuffStart;
