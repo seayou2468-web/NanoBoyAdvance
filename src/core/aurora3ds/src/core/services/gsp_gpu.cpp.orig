@@ -206,7 +206,7 @@ void GPUService::registerInterruptRelayQueue(u32 messagePointer) {
 		std::memset(&sharedMem[threadIndex * 0x40], 0, 0x40);
 	}
 	mem.write32(messagePointer + 8, threadIndex);
-	mem.write32(messagePointer + 12, 0x04000000);                      // Translation descriptor (Copy handles, 1 handle)
+	mem.write32(messagePointer + 12, 0x04000000);                      // Translation descriptor (copy handle)
 	mem.write32(messagePointer + 16, KernelHandles::GSPSharedMemHandle);
 }
 
@@ -225,9 +225,9 @@ void GPUService::requestInterrupt(GPUInterrupt type) {
 		}
 	}
 
-	u8& interruptsIssued = sharedMem[0]; // Total interrupts issued by service
-	u8& interruptsRead = sharedMem[1];   // Total interrupts read by guest process
-	u8 flagIndex = interruptsIssued % 0x34; // 3DS GSP interrupt queue size is 0x34
+	u8& interruptsIssued = sharedMem[0];
+	u8 interruptsRead = sharedMem[1];
+	u8 flagIndex = interruptsIssued % 0x34;
 
 	sharedMem[2] = 0;                                    // Set error code to 0
 	sharedMem[0xC + flagIndex] = static_cast<u8>(type);  // Write interrupt type to queue

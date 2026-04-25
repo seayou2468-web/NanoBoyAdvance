@@ -1,0 +1,13 @@
+--- src/core/aurora3ds/src/core/services/csnd.cpp
++++ src/core/aurora3ds/src/core/services/csnd.cpp
+@@ -75,8 +75,8 @@
+	initialized = true;
+	sharedMemSize = blockSize;
+
+-	mem.write32(messagePointer, IPC::responseHeader(0x1, 1, 3));
++	mem.write32(messagePointer, IPC::responseHeader(0x1, 1, 2));
+	mem.write32(messagePointer + 4, Result::Success);
+-	mem.write32(messagePointer + 8, 0x4000000);
+-	mem.write32(messagePointer + 12, csndMutex.value());
++	mem.write32(messagePointer + 8, 0x00000000);
++	mem.write32(messagePointer + 12, csndMutex.value());

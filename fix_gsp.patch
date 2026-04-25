@@ -1,0 +1,21 @@
+--- a/src/core/aurora3ds/src/core/services/gsp_gpu.cpp
++++ b/src/core/aurora3ds/src/core/services/gsp_gpu.cpp
+@@ -226,14 +226,13 @@
+		}
+	}
+
+-	// TODO: Add support for multiple GSP threads
+-	u8 index = sharedMem[0];  // The interrupt block is normally located at sharedMem + processGSPIndex*0x40
+-	u8& interruptCount = sharedMem[1];
+-	u8 flagIndex = (index + interruptCount) % 0x34;
+-	interruptCount++;
++	u8& interruptsIssued = sharedMem[0];
++	u8 interruptsRead = sharedMem[1];
++	u8 flagIndex = interruptsIssued % 0x34;
+
+	sharedMem[2] = 0;                                    // Set error code to 0
+	sharedMem[0xC + flagIndex] = static_cast<u8>(type);  // Write interrupt type to queue
++	interruptsIssued++;
+
+	// Update framebuffer info in shared memory
+	// Most new games check to make sure that the "flag" byte of the framebuffer info header is set to 0

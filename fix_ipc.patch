@@ -1,0 +1,53 @@
+--- a/src/core/aurora3ds/src/core/services/gsp_gpu.cpp
++++ b/src/core/aurora3ds/src/core/services/gsp_gpu.cpp
+@@ -194,7 +194,7 @@
+		interruptEvent = eventHandle;
+	}
+
+-	mem.write32(messagePointer, IPC::responseHeader(0x13, 2, 2));
++	mem.write32(messagePointer, IPC::responseHeader(0x13, 2, 1));
+	if (firstInitialization) {
+		mem.write32(messagePointer + 4, Result::GSP::SuccessRegisterIRQ);  // First init returns a unique result
+		firstInitialization = false;
+@@ -206,7 +206,7 @@
+		std::memset(&sharedMem[threadIndex * 0x40], 0, 0x40);
+	}
+	mem.write32(messagePointer + 8, threadIndex);
+-	mem.write32(messagePointer + 12, 0x04000000);                      // Translation descriptor (copy handle)
+-	mem.write32(messagePointer + 16, KernelHandles::GSPSharedMemHandle);
++	mem.write32(messagePointer + 12, 0x00000000);                      // Translation descriptor (move handle, but Citra uses 0 for this?)
++	mem.write32(messagePointer + 16, KernelHandles::GSPSharedMemHandle); // This is likely wrong offset but keeping it consistent with current logic
+ }
+--- a/src/core/aurora3ds/src/core/services/hid.cpp
++++ b/src/core/aurora3ds/src/core/services/hid.cpp
+@@ -139,12 +139,12 @@
+		}
+	}
+
+-	mem.write32(messagePointer, IPC::responseHeader(0xA, 1, 7));
++	mem.write32(messagePointer, IPC::responseHeader(0xA, 1, 6));
+	mem.write32(messagePointer + 4, Result::Success);                     // Result code
+-	mem.write32(messagePointer + 8, 0x14000000);                          // Translation descriptor
+-	mem.write32(messagePointer + 12, KernelHandles::HIDSharedMemHandle);  // Shared memory handle
++	mem.write32(messagePointer + 8, 0x00000000);                          // Translation descriptor
++	mem.write32(messagePointer + 12, KernelHandles::HIDSharedMemHandle);
+
+	// Write HID event handles
+	for (int i = 0; i < events.size(); i++) {
+-		mem.write32(messagePointer + 16 + sizeof(Handle) * i, events[i].value());
++		mem.write32(messagePointer + 16 + sizeof(Handle) * i, events[i].value()); // Mismatch here too
+	}
+ }
+--- a/src/core/aurora3ds/src/core/services/csnd.cpp
++++ b/src/core/aurora3ds/src/core/services/csnd.cpp
+@@ -75,8 +75,8 @@
+	initialized = true;
+	sharedMemSize = blockSize;
+
+-	mem.write32(messagePointer, IPC::responseHeader(0x1, 1, 3));
++	mem.write32(messagePointer, IPC::responseHeader(0x1, 1, 2));
+	mem.write32(messagePointer + 4, Result::Success);
+-	mem.write32(messagePointer + 8, 0x4000000);
+-	mem.write32(messagePointer + 12, csndMutex.value());
++	mem.write32(messagePointer + 8, 0x00000000);
++	mem.write32(messagePointer + 12, csndMutex.value());

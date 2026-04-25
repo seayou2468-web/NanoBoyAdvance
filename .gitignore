@@ -13,3 +13,5 @@ cmake-build-*
 .DS_Store
 
 artifacts/
+*.7z
+azahar-nodep/

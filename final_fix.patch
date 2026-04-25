@@ -1,0 +1,36 @@
+--- a/src/core/aurora3ds/src/core/services/gsp_gpu.cpp
++++ b/src/core/aurora3ds/src/core/services/gsp_gpu.cpp
+@@ -194,7 +194,7 @@
+		interruptEvent = eventHandle;
+	}
+
+-	mem.write32(messagePointer, IPC::responseHeader(0x13, 2, 2));
++	mem.write32(messagePointer, IPC::responseHeader(0x13, 2, 1));
+	if (firstInitialization) {
+		mem.write32(messagePointer + 4, Result::GSP::SuccessRegisterIRQ);  // First init returns a unique result
+		firstInitialization = false;
+@@ -206,7 +206,7 @@
+		std::memset(&sharedMem[threadIndex * 0x40], 0, 0x40);
+	}
+	mem.write32(messagePointer + 8, threadIndex);
+-	mem.write32(messagePointer + 12, 0x00000000);                      // Translation descriptor (copy handle)
++	mem.write32(messagePointer + 12, 0x14000000);                      // Translation descriptor (Copy handles, 1 handle)
+	mem.write32(messagePointer + 16, KernelHandles::GSPSharedMemHandle);
+ }
+
+@@ -225,12 +225,12 @@
+		}
+	}
+
+-	u8& interruptsIssued = sharedMem[0];
+-	u8 interruptsRead = sharedMem[1];
+-	u8 flagIndex = interruptsIssued % 0x34;
++	u8& interruptsIssued = sharedMem[0]; // Total interrupts issued by service
++	u8& interruptsRead = sharedMem[1];   // Total interrupts read by guest process
++	u8 flagIndex = interruptsIssued % 0x34; // 3DS GSP interrupt queue size is 0x34
+
+	sharedMem[2] = 0;                                    // Set error code to 0
+	sharedMem[0xC + flagIndex] = static_cast<u8>(type);  // Write interrupt type to queue
+	interruptsIssued++;
+
+	// Update framebuffer info in shared memory

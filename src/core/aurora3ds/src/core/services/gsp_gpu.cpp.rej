@@ -1,0 +1,16 @@
+--- src/core/aurora3ds/src/core/services/gsp_gpu.cpp
++++ src/core/aurora3ds/src/core/services/gsp_gpu.cpp
+@@ -226,11 +226,11 @@
+		}
+	}
+
+-	u8& interruptsIssued = sharedMem[0];
+-	u8 interruptsRead = sharedMem[1];
+-	u8 flagIndex = interruptsIssued % 0x34;
++	u8& interruptsIssued = sharedMem[0]; // Total interrupts issued by service
++	u8& interruptsRead = sharedMem[1];   // Total interrupts read by guest process
++	u8 flagIndex = interruptsIssued % 0x34; // 3DS GSP interrupt queue size is 0x34
+
+	sharedMem[2] = 0;                                    // Set error code to 0
+	sharedMem[0xC + flagIndex] = static_cast<u8>(type);  // Write interrupt type to queue
+	interruptsIssued++;

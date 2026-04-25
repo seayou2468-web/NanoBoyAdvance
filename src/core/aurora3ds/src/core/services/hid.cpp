@@ -141,7 +141,7 @@ void HIDService::getIPCHandles(u32 messagePointer) {
 
 	mem.write32(messagePointer, IPC::responseHeader(0xA, 1, 7));
 	mem.write32(messagePointer + 4, Result::Success);                     // Result code
-	mem.write32(messagePointer + 8, 0x14000000);                          // Translation descriptor
+	mem.write32(messagePointer + 8, 0x18000000);                          // Translation descriptor
 	mem.write32(messagePointer + 12, KernelHandles::HIDSharedMemHandle);  // Shared memory handle
 
 	// Write HID event handles

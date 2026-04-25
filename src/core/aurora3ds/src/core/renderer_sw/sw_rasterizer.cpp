@@ -489,13 +489,13 @@ void SwRasterizer::drawTriangles(
 		return;
 	}
 
-	u8* colorBuffer = gpu.getPointerPhys<u8>(PhysicalAddrs::VRAM + colorBufferLoc);
+	u8* colorBuffer = gpu.getPointerPhys<u8>(colorBufferLoc);
 	if (colorBuffer == nullptr) {
 		return;
 	}
 
 	const u32 depthBpp = static_cast<u32>(PICA::sizePerPixel(depthFormat));
-	u8* depthBuffer = gpu.getPointerPhys<u8>(PhysicalAddrs::VRAM + depthBufferLoc);
+	u8* depthBuffer = gpu.getPointerPhys<u8>(depthBufferLoc);
 
 	auto sourceColor = [&](PICA::TexEnvConfig::Source src, const RGBAf& primary, const RGBAf& texture0, const RGBAf& constant, const RGBAf& previous) {
 		switch (src) {
