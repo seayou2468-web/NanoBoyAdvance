@@ -579,6 +579,7 @@ void APTService::getSharedFont(u32 messagePointer) {
 	mem.write32(messagePointer, IPC::responseHeader(0x44, 2, 2));
 	mem.write32(messagePointer + 4, Result::Success);
 	mem.write32(messagePointer + 8, fontVaddr);
+	mem.write32(messagePointer + 12, 0x04000000);  // Translation descriptor (copy handle, 1 handle)
 	mem.write32(messagePointer + 16, KernelHandles::FontSharedMemHandle);
 }
 

@@ -51,6 +51,14 @@ void Kernel::connectToPort() {
 	std::string port = mem.readString(regs[1], Port::maxNameLen + 1);
 	logSVC("ConnectToPort(handle pointer = %X, port = \"%s\")\n", handlePointer, port.c_str());
 
+	// Compatibility recovery: some titles end up issuing ConnectToPort with an empty/invalid
+	// name buffer early in startup. Route this to a stable stub port instead of returning NotFound
+	// and cascading invalid-handle failures.
+	if (port.empty()) {
+		Helpers::warn("ConnectToPort received empty port name; routing to stub:0");
+		port = "stub:0";
+	}
+
 	if (port.size() > Port::maxNameLen) {
 		Helpers::warn("ConnectToPort: Port name too long");
 		regs[0] = Result::OS::PortNameTooLong;
@@ -69,10 +77,10 @@ void Kernel::connectToPort() {
 	}
 
 	if (!optionalHandle.has_value()) [[unlikely]] {
-		// Allow boot to continue for unknown-but-service-like named ports.
-		// These ports are routed through OS_STUB in SendSyncRequest.
-		const bool looksLikeServicePort = (port.find(':') != std::string::npos) || (!port.empty() && (port[0] == '$' || port[0] == '_'));
-		if (looksLikeServicePort && port.length() <= 8) {
+		// Compatibility fallback: auto-create unknown public named ports.
+		// A lot of userland code assumes ConnectToPort never hard-fails for service-like names
+		// and later routes unsupported sessions through generic stubs.
+		if (!port.empty() && port.size() <= Port::maxNameLen) {
 			Helpers::warn("ConnectToPort: Auto-creating fallback named port (%s)", port.c_str());
 			optionalHandle = makeNamedPort(port.c_str());
 		} else {
@@ -232,13 +240,8 @@ void Kernel::sendSyncRequest() {
 		const auto portData = objects[portHandle].getData<Port>();
 		Helpers::warn("SendSyncRequest targetting unsupported port %s", portData->name);
 		regs[0] = Result::Success;
-
-		if (std::strchr(portData->name, ':') != nullptr) {
-			serviceManager.sendCommandToService(messagePointer, KernelHandles::OS_STUB);
-		} else {
-			const u32 command = mem.read32(messagePointer);
-			mem.write32(messagePointer, IPC::responseHeader(command >> 16, 1, 0));
-			mem.write32(messagePointer + 4, Result::OS::NotImplemented);
-		}
+		// Route all unknown named-port traffic through generic OS_STUB so client state machines
+		// don't collapse due to repeated NotImplemented/invalid-handle cascades.
+		serviceManager.sendCommandToService(messagePointer, KernelHandles::OS_STUB);
 	}
 }
