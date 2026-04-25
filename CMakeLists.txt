@@ -55,16 +55,10 @@ list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/CPU/dyncom/a
 list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/video_core/.*")
 list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/file_sys/.*")
 list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/loader/.*")
-list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/hle/.*")
 list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/hw/.*")
 list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/memory\\.cpp$")
 list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/core_timing\\.cpp$")
 list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/system_titles\\.cpp$")
-# Incremental CPU/HLE connection bring-up: keep selected lightweight HLE utility units in build.
-list(APPEND CORE_SOURCES
-  src/core/aurora3ds/src/core/hle/boost_compat_algorithms.cpp
-  src/core/aurora3ds/src/core/hle/romfs.cpp
-)
 
 if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
   file(GLOB_RECURSE AURORAIOS_SOURCES CONFIGURE_DEPENDS
