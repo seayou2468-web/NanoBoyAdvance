@@ -14,8 +14,8 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <boost/serialization/export.hpp>
 #include <queue>
+#include "../boost_compat.h"
 #include "common/common_types.h"
 #include "common/thread_queue_list.h"
 #include "core/arm/arm_interface.h"

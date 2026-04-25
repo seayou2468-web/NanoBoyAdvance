@@ -10,7 +10,7 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include <boost/serialization/export.hpp>
+#include "../boost_compat.h"
 #include "common/bit_field.h"
 #include "common/common_types.h"
 #include "core/hle/kernel/handle_table.h"

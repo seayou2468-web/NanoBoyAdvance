@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <optional>
 #include <vector>
-#include <boost/serialization/export.hpp>
+#include "../boost_compat.h"
 #include "common/common_types.h"
 
 namespace Kernel {

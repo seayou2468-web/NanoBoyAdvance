@@ -10,8 +10,7 @@
 #include <map>
 #include <memory>
 #include <string>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/shared_ptr.hpp>
+#include "../boost_compat.h"
 #include "common/archives.h"
 #include "common/common_types.h"
 #include "common/construct.h"

@@ -6,12 +6,12 @@
 #include <memory>
 #include <utility>
 #include <vector>
-#include <boost/serialization/set.hpp>
 #include "common/archives.h"
 #include "common/assert.h"
 #include "common/common_types.h"
 #include "common/logging/log.h"
 #include "common/settings.h"
+#include "../boost_compat.h"
 #include "core/core.h"
 #include "core/hle/kernel/config_mem.h"
 #include "core/hle/kernel/memory.h"
