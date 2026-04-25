@@ -20,11 +20,11 @@ void PICAShader::run() {
 		const u32 instruction = loadedShader[pc++];
 		const u32 opcode = instruction >> 26;  // Top 6 bits are the opcode
 
-			switch (opcode) {
-				case ShaderOpcodes::ADD: add(instruction); break;
-				case ShaderOpcodes::BREAK: breakOp(instruction); break;
-				case ShaderOpcodes::BREAKC: breakc(instruction); break;
-				case ShaderOpcodes::CALL: call(instruction); break;
+		switch (opcode) {
+			case ShaderOpcodes::ADD: add(instruction); break;
+			case ShaderOpcodes::BREAK: breakOp(instruction); break;
+			case ShaderOpcodes::BREAKC: breakc(instruction); break;
+			case ShaderOpcodes::CALL: call(instruction); break;
 			case ShaderOpcodes::CALLC: callc(instruction); break;
 			case ShaderOpcodes::CALLU: callu(instruction); break;
 			case ShaderOpcodes::CMP1:
@@ -40,6 +40,7 @@ void PICAShader::run() {
 			case ShaderOpcodes::DST: dst(instruction); break;
 			case ShaderOpcodes::DSTI: dsti(instruction); break;
 			case ShaderOpcodes::END: return;  // Stop running shader
+			case ShaderOpcodes::EMIT: emit(instruction); break;
 			case ShaderOpcodes::EX2: ex2(instruction); break;
 			case ShaderOpcodes::FLR: flr(instruction); break;
 			case ShaderOpcodes::IFC: ifc(instruction); break;
@@ -56,6 +57,7 @@ void PICAShader::run() {
 			case ShaderOpcodes::NOP: break;  // Do nothing
 			case ShaderOpcodes::RCP: rcp(instruction); break;
 			case ShaderOpcodes::RSQ: rsq(instruction); break;
+			case ShaderOpcodes::SETEMIT: setemit(instruction); break;
 			case ShaderOpcodes::SGE: sge(instruction); break;
 			case ShaderOpcodes::SGEI: sgei(instruction); break;
 			case ShaderOpcodes::SLT: slt(instruction); break;
@@ -899,5 +901,32 @@ void PICAShader::litp(u32 instruction) {
 		if (componentMask & (1 << i)) {
 			destVector[3 - i] = result[3 - i];
 		}
+	}
+}
+
+void PICAShader::emit(u32) {
+	// Geometry shader pipeline is not implemented in Aurora yet.
+	// Keep behavior non-fatal so non-GS paths don't crash on stray EMIT opcodes.
+	static bool warned = false;
+	if (!warned) {
+		Helpers::warn("[PICA] EMIT encountered but geometry emission is not implemented");
+		warned = true;
+	}
+}
+
+void PICAShader::setemit(u32 instruction) {
+	// Geometry shader pipeline is not implemented in Aurora yet.
+	// Decode fields for future use and to document expected encoding.
+	const u32 vertex_id = getBits<0, 2>(instruction);
+	const bool prim_emit = getBit<2>(instruction);
+	const bool winding = getBit<3>(instruction);
+	(void)vertex_id;
+	(void)prim_emit;
+	(void)winding;
+
+	static bool warned = false;
+	if (!warned) {
+		Helpers::warn("[PICA] SETEMIT encountered but geometry emission is not implemented");
+		warned = true;
 	}
 }

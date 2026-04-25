@@ -170,6 +170,7 @@ class PICAShader {
 	void dphi(u32 instruction);
 	void dst(u32 instruction);
 	void dsti(u32 instruction);
+	void emit(u32 instruction);
 	void ex2(u32 instruction);
 	void flr(u32 instruction);
 	void ifc(u32 instruction);
@@ -190,6 +191,7 @@ class PICAShader {
 	void rsq(u32 instruction);
 	void sge(u32 instruction);
 	void sgei(u32 instruction);
+	void setemit(u32 instruction);
 	void slt(u32 instruction);
 	void slti(u32 instruction);
 
