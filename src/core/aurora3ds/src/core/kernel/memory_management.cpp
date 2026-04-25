@@ -2,6 +2,7 @@
 
 namespace Operation {
 	enum : u32 {
+		LegacyNoOp = 0,
 		Free = 1,
 		Reserve = 2,
 		Commit = 3,
@@ -87,7 +88,12 @@ void Kernel::controlMemory() {
 	);
 
 	switch (operation & 0xFF) {
-		case Operation::Reserve:
+			case Operation::LegacyNoOp:
+				// Certain homebrew runtimes probe operation=0. Keep this non-fatal.
+				regs[1] = addr0;
+				break;
+
+			case Operation::Reserve:
 			// Reserve is effectively a no-op in our memory manager right now.
 			regs[1] = addr0;
 			break;

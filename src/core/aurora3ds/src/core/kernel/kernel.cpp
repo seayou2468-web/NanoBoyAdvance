@@ -885,6 +885,7 @@ namespace SystemInfoType {
 	enum : u32 {
 		MemoryInformation = 0,
 		KernelAllocatedPages = 2,
+		MemoryInformationLegacy = 6,
 		KernelSpawnedPIDs = 26,
 		LumaInformation = 0x10000,
 		New3DSInformation = 0x10001,
@@ -949,6 +950,12 @@ void Kernel::getSystemInfo() {
 
 			case SystemInfoType::KernelAllocatedPages:
 				// Not tracked yet in this kernel implementation.
+				regs[1] = 0;
+				regs[2] = 0;
+				break;
+
+			case SystemInfoType::MemoryInformationLegacy:
+				// Some homebrew/libctru builds probe this legacy slot and only require a non-fatal response.
 				regs[1] = 0;
 				regs[2] = 0;
 				break;
