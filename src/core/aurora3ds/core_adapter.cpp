@@ -230,9 +230,10 @@ std::string DecodeFileUrlPath(std::string path) {
 
 
 static bool IsLikelySupportedRomPath(const std::filesystem::path& path) {
-  const std::string ext = path.extension().string();
-  if (ext == ".3ds" || ext == ".cci" || ext == ".cxi" || ext == ".app" || ext == ".ncch" || ext == ".3dsx" || ext == ".elf" ||
-      ext == ".axf") {
+  std::string ext = path.extension().string();
+  std::transform(ext.begin(), ext.end(), ext.begin(), [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+  if (ext == ".3ds" || ext == ".cci" || ext == ".zcci" || ext == ".cxi" || ext == ".zcxi" || ext == ".app" || ext == ".ncch" ||
+      ext == ".3dsx" || ext == ".z3dsx" || ext == ".elf" || ext == ".axf" || ext == ".cia" || ext == ".zcia") {
     return true;
   }
 
@@ -256,11 +257,13 @@ static bool IsLikelySupportedRomPath(const std::filesystem::path& path) {
   const bool isNcch = read >= 0x104 && header[0x100] == 'N' && header[0x101] == 'C' && header[0x102] == 'C' && header[0x103] == 'H';
   const bool isNcsd = read >= 0x104 && header[0x100] == 'N' && header[0x101] == 'C' && header[0x102] == 'S' && header[0x103] == 'D';
   const bool is3dsx = read >= 4 && header[0] == '3' && header[1] == 'D' && header[2] == 'S' && header[3] == 'X';
-  return isElf || isNcch || isNcsd || is3dsx;
+  const bool isCia = read >= 0x20 && header[0] == 0x20 && header[1] == 0x20 && header[2] == 0x00 && header[3] == 0x00;
+  return isElf || isNcch || isNcsd || is3dsx || isCia;
 }
 
 enum class ContainerMagicType {
   Unknown = 0,
+  CIA,
   NCSD,
   NCCH,
   ELF,
@@ -280,6 +283,9 @@ ContainerMagicType DetectContainerMagic(const std::filesystem::path& path) {
   }
   if (header[0] == 0x7F && header[1] == 'E' && header[2] == 'L' && header[3] == 'F') {
     return ContainerMagicType::ELF;
+  }
+  if (read >= 0x20 && header[0] == 0x20 && header[1] == 0x20 && header[2] == 0x00 && header[3] == 0x00) {
+    return ContainerMagicType::CIA;
   }
   if (header[0] == '3' && header[1] == 'D' && header[2] == 'S' && header[3] == 'X') {
     return ContainerMagicType::_3DSX;
@@ -323,7 +329,7 @@ bool LoadRomFromPath(void* opaque_runtime, const char* rom_path, std::string& la
 
   const ContainerMagicType magic_type = DetectContainerMagic(fs_path);
   if (magic_type == ContainerMagicType::Unknown) {
-    last_error = "ROM container parse precheck failed: NCSD/NCCH/ELF/3DSX magic not found. File may be corrupted or not fully extracted.";
+    last_error = "ROM container parse precheck failed: CIA/NCSD/NCCH/ELF/3DSX magic not found. File may be corrupted or not fully extracted.";
     return false;
   }
 
