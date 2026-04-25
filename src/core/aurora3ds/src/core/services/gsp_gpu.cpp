@@ -559,11 +559,11 @@ void GPUService::processCommandBuffer() {
 					Helpers::warn("GSP::GPU::ProcessCommands: Unknown cmd ID %u (thread=%d, index=%u, header=%08X)", cmdID, t, index & 0xF, cmd[0]);
 					break;
 			}
-			index = (index + 1) % 15;
+			index = (index + 1) % 16;
 			commandsLeft--;
 		}
+		}
 	}
-}
 
 static u32 VaddrToPaddr(u32 addr) {
 	if (addr >= VirtualAddrs::VramStart && addr < (VirtualAddrs::VramStart + VirtualAddrs::VramSize)) [[likely]] {

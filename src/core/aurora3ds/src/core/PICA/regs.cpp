@@ -420,6 +420,10 @@ void GPU::startCommandList(u32 addr, u32 size) {
 		}
 
 		// The first word of a command is the command parameter and the second one is the header
+		if (cmdBuffCurr + 1 >= cmdBuffEnd) {
+			Helpers::warn("[PICA] Truncated command list header at addr=%08X (remaining words=%u)", addr, static_cast<u32>(cmdBuffEnd - cmdBuffCurr));
+			break;
+		}
 		u32 param1 = *cmdBuffCurr++;
 		u32 header = *cmdBuffCurr++;
 
@@ -447,6 +451,13 @@ void GPU::startCommandList(u32 addr, u32 size) {
 
 		checkDrawTrigger(id, param1, mask);
 		writeInternalReg(id, param1, mask);
+		if (paramCount > static_cast<u32>(cmdBuffEnd - cmdBuffCurr)) {
+			Helpers::warn(
+				"[PICA] Command list extra-parameter count exceeds remaining words (addr=%08X id=%04X count=%u remaining=%u). Truncating.",
+				addr, id, paramCount, static_cast<u32>(cmdBuffEnd - cmdBuffCurr)
+			);
+			paramCount = static_cast<u32>(cmdBuffEnd - cmdBuffCurr);
+		}
 		for (u32 i = 0; i < paramCount; i++) {
 			id += idIncrement;
 			u32 param = *cmdBuffCurr++;
