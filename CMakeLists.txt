@@ -10,6 +10,10 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_XCODE_GENERATE_SCHEME ON)
 
+option(NBA_ENABLE_AURORA3DS_CORE_INTEGRATION
+  "Build and wire the legacy aurora3ds src/core CPU+HLE implementation into the unified core set"
+  OFF)
+
 file(GLOB_RECURSE CORE_SOURCES CONFIGURE_DEPENDS
   "src/core/*.cpp"
   "src/core/api/*.cpp"
@@ -48,10 +52,12 @@ set(BEARSSL_SOURCES
 # Exclude reference interpreter files which have external dependencies not present in build env
 list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/mikage/src/core/CPU/reference/.*")
 list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/mikage/src/core/CPU/dyncom/arm_dyncom\.cpp")
-# The legacy aurora3ds src/core tree is currently incomplete in this repository snapshot and
-# pulls transitive includes that are not present (e.g. common/settings.h, applet headers).
-# Keep the adapter layer, but exclude that legacy implementation tree from this unified build.
-list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/.*")
+if(NOT NBA_ENABLE_AURORA3DS_CORE_INTEGRATION)
+  # The legacy aurora3ds src/core tree is currently incomplete in this repository snapshot and
+  # pulls transitive includes that are not present (e.g. common/settings.h, applet headers).
+  # Keep the adapter layer, but exclude that legacy implementation tree by default.
+  list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/.*")
+endif()
 
 if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
   file(GLOB_RECURSE AURORAIOS_SOURCES CONFIGURE_DEPENDS
@@ -94,6 +100,9 @@ if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
 
   target_compile_options(AuroraIOS PRIVATE
     -fobjc-arc
+  )
+  target_compile_definitions(AuroraIOS PRIVATE
+    NBA_BUILD_AURORA3DS_ADAPTER=$<BOOL:${NBA_ENABLE_AURORA3DS_CORE_INTEGRATION}>
   )
 
   find_library(AVFOUNDATION_FRAMEWORK AVFoundation REQUIRED)
@@ -152,6 +161,9 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   pkg_check_modules(SDL2 REQUIRED sdl2)
 
   target_compile_options(AuroraSDL PRIVATE ${SDL2_CFLAGS_OTHER})
+  target_compile_definitions(AuroraSDL PRIVATE
+    NBA_BUILD_AURORA3DS_ADAPTER=$<BOOL:${NBA_ENABLE_AURORA3DS_CORE_INTEGRATION}>
+  )
   target_include_directories(AuroraSDL PRIVATE ${SDL2_INCLUDE_DIRS})
   target_link_directories(AuroraSDL PRIVATE ${SDL2_LIBRARY_DIRS})
   target_link_libraries(AuroraSDL PRIVATE ${SDL2_LIBRARIES} cryptopp pthread dl)

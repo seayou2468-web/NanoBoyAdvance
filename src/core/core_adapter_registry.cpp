@@ -4,20 +4,24 @@
 #include <TargetConditionals.h>
 #endif
 
-// Build Mikage adapter only for iOS frontend in the current repository layout.
-#if defined(__APPLE__) && TARGET_OS_IPHONE
+#if !defined(NBA_BUILD_AURORA3DS_ADAPTER)
+#define NBA_BUILD_AURORA3DS_ADAPTER 0
+#endif
+
+// Build the adapter only when explicitly enabled by build configuration.
+#if NBA_BUILD_AURORA3DS_ADAPTER
 #define NBA_ENABLE_MIKAGE_ADAPTER_IMPLEMENTATION 1
 #include "./aurora3ds/core_adapter.cpp"
 #endif
 
 namespace core {
 
-#if defined(__APPLE__) && TARGET_OS_IPHONE
+#if NBA_BUILD_AURORA3DS_ADAPTER
 extern const CoreAdapter kMikageAdapter;
 #endif
 
 const CoreAdapter* FindCoreAdapter(EmulatorCoreType type) {
-#if defined(__APPLE__) && TARGET_OS_IPHONE
+#if NBA_BUILD_AURORA3DS_ADAPTER
   if (type == EMULATOR_CORE_TYPE_3DS) {
     return &kMikageAdapter;
   }
