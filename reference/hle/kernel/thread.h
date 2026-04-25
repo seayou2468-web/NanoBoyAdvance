@@ -80,7 +80,7 @@ public:
 private:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 class CpuLimiter {
@@ -133,7 +133,7 @@ private:
     SchedState curr_state{};
     std::queue<u32> sleeping_thread_ids;
 
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
 };
@@ -242,7 +242,7 @@ private:
     friend class Thread;
     friend class KernelSystem;
 
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
 };
@@ -411,7 +411,7 @@ public:
 private:
     ThreadManager& thread_manager;
 
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
 };

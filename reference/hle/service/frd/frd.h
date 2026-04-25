@@ -7,6 +7,7 @@
 #include <memory>
 #include "common/common_types.h"
 #include "core/hle/service/service.h"
+#include "../../boost_compat.h"
 
 namespace Core {
 class System;
@@ -30,7 +31,7 @@ private:
         ar & unknown;
         ar & friend_code;
     }
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 struct MyPresence {
@@ -41,7 +42,7 @@ private:
     void serialize(Archive& ar, const unsigned int) {
         ar & unknown;
     }
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 struct Profile {
@@ -276,7 +277,7 @@ private:
         ar & my_presence;
         ar & logged_in;
     }
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 void InstallInterfaces(Core::System& system);

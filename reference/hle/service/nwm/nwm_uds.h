@@ -619,7 +619,7 @@ private:
             ar & connected;
             ar & node_id;
         }
-        friend class boost::serialization::access;
+        friend class HLE::BoostCompat::Serialization::access;
     };
 
     std::map<MacAddress, Node> node_map;
@@ -645,7 +645,7 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
     friend class Service::DLP::DLP_Base;
     friend class Service::DLP::DLP_Clt_Base;
     friend class Service::DLP::DLP_SRVR;

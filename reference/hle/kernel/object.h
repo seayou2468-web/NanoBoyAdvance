@@ -68,7 +68,7 @@ public:
 private:
     std::atomic<u32> object_id;
 
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
 };

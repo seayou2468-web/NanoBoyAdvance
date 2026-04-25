@@ -42,7 +42,7 @@ private:
         ar & predictor;
         ar & step_index;
     }
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 struct Channel {
@@ -83,7 +83,7 @@ private:
         ar & encoding;
         ar & psg_duty;
     }
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 class CSND_SND final : public ServiceFramework<CSND_SND> {
@@ -258,7 +258,7 @@ private:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
         DEBUG_SERIALIZATION_POINT;
-        ar& boost::serialization::base_object<Kernel::SessionRequestHandler>(*this);
+        ar& HLE::BoostCompat::Serialization::base_object<Kernel::SessionRequestHandler>(*this);
         ar & mutex;
         ar & shared_memory;
         ar & capture_units;
@@ -269,7 +269,7 @@ private:
         ar & type1_command_offset;
         ar & acquired_channel_mask;
     }
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 /// Initializes the CSND_SND Service

@@ -10,6 +10,7 @@
 #include "core/hle/ipc_helpers.h"
 #include "core/hle/service/mcu/mcu.h"
 #include "core/hle/service/mcu/mcu_rtc.h"
+#include "../../boost_compat.h"
 
 SERVICE_CONSTRUCT_IMPL(Service::MCU::RTC)
 SERIALIZE_EXPORT_IMPL(Service::MCU::RTC)
@@ -86,7 +87,7 @@ private:
             return current == target;
         }
 
-        friend class boost::serialization::access;
+        friend class HLE::BoostCompat::Serialization::access;
         template <class Archive>
         void serialize(Archive& ar, const unsigned int) {
             ar & target;
@@ -187,7 +188,7 @@ private:
 
     s64 arm_time_ns = 0;
 
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
         ar & current_pattern;
@@ -285,7 +286,7 @@ void RTC::GetInfoLEDStatus(Kernel::HLERequestContext& ctx) {
 template <class Archive>
 void RTC::serialize(Archive& ar, const unsigned int) {
     DEBUG_SERIALIZATION_POINT;
-    ar& boost::serialization::base_object<Kernel::SessionRequestHandler>(*this);
+    ar& HLE::BoostCompat::Serialization::base_object<Kernel::SessionRequestHandler>(*this);
     ar & info_led;
     ar & info_led_ticking;
 }

@@ -14,6 +14,7 @@
 #include "core/global.h"
 #include "core/hle/kernel/kernel.h"
 #include "core/hle/service/service.h"
+#include "../../boost_compat.h"
 
 namespace Core {
 class System;
@@ -1075,7 +1076,7 @@ public:
         void serialize(Archive& ar, const unsigned int) {
             ar & application_reset_prepared;
         }
-        friend class boost::serialization::access;
+        friend class HLE::BoostCompat::Serialization::access;
     };
 
 private:
@@ -1098,7 +1099,7 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 std::shared_ptr<Module> GetModule(Core::System& system);

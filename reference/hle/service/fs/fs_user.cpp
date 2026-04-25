@@ -31,6 +31,7 @@
 #include "core/hle/service/fs/fs_user.h"
 #include "core/hw/aes/key.h"
 #include "core/hw/unique_data.h"
+#include "../../boost_compat.h"
 
 SERVICE_CONSTRUCT_IMPL(Service::FS::FS_USER)
 SERIALIZE_EXPORT_IMPL(Service::FS::FS_USER)
@@ -1900,7 +1901,7 @@ FS_USER::FS_USER(Core::System& system)
 template <class Archive>
 void Service::FS::FS_USER::serialize(Archive& ar, const unsigned int) {
     DEBUG_SERIALIZATION_POINT;
-    ar& boost::serialization::base_object<Kernel::SessionRequestHandler>(*this);
+    ar& HLE::BoostCompat::Serialization::base_object<Kernel::SessionRequestHandler>(*this);
     ar & priority;
     ar & secure_value_backend;
 }

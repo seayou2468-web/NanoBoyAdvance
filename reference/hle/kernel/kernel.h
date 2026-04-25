@@ -133,7 +133,7 @@ struct New3dsHwCapabilities {
 private:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 enum class Core1ScheduleMode : u32 {
@@ -167,7 +167,7 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 inline constexpr Core1CpuTime Core1CpuTime::PREEMPTION_DISABLED{0};
 inline constexpr Core1CpuTime Core1CpuTime::PREEMPTION_SYSMODULE{1000};
@@ -480,7 +480,7 @@ private:
      */
     bool main_thread_extended_sleep = false;
 
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
 };

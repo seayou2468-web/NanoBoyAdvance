@@ -14,6 +14,7 @@
 #include "core/hle/kernel/process.h"
 #include "core/hle/service/cam/y2r_u.h"
 #include "core/hw/y2r.h"
+#include "../../boost_compat.h"
 
 SERVICE_CONSTRUCT_IMPL(Service::Y2R::Y2R_U)
 SERIALIZE_EXPORT_IMPL(Service::Y2R::Y2R_U)
@@ -22,7 +23,7 @@ namespace Service::Y2R {
 
 template <class Archive>
 void Y2R_U::serialize(Archive& ar, const unsigned int) {
-    ar& boost::serialization::base_object<Kernel::SessionRequestHandler>(*this);
+    ar& HLE::BoostCompat::Serialization::base_object<Kernel::SessionRequestHandler>(*this);
     ar & completion_event;
     ar & conversion;
     ar & dithering_weight_params;

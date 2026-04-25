@@ -34,8 +34,8 @@ ConfigMemDef& Handler::GetConfigMem() {
 
 template <class Archive>
 void Handler::serialize(Archive& ar, const unsigned int) {
-    ar& boost::serialization::base_object<BackingMem>(*this);
-    ar& boost::serialization::make_binary_object(&config_mem, sizeof(config_mem));
+    ar& HLE::BoostCompat::Serialization::base_object<BackingMem>(*this);
+    ar& HLE::BoostCompat::Serialization::make_binary_object(&config_mem, sizeof(config_mem));
 }
 SERIALIZE_IMPL(Handler)
 

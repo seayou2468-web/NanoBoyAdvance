@@ -118,7 +118,7 @@ private:
 
     KernelSystem& kernel;
 
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
 };

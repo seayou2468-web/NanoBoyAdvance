@@ -11,6 +11,7 @@
 #include "common/swap.h"
 #include "core/frontend/input.h"
 #include "core/hle/service/service.h"
+#include "../../boost_compat.h"
 
 namespace Kernel {
 class Event;
@@ -100,7 +101,7 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 } // namespace Service::IR

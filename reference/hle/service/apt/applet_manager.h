@@ -134,7 +134,7 @@ private:
         ar & object;
         ar & buffer;
     }
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 enum class AppletPos : u32 {
@@ -176,7 +176,7 @@ private:
         ar & hmac;
         ar & source_program_id;
     }
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 using SysMenuArg = std::array<u8, SysMenuArgSize>;
@@ -207,7 +207,7 @@ private:
         ar & current_title_id;
         ar & current_media_type;
     }
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 struct ApplicationStartParameters {
@@ -220,7 +220,7 @@ private:
         ar & next_title_id;
         ar & next_media_type;
     }
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 enum class DisplayBufferMode : u32_le {
@@ -256,7 +256,7 @@ private:
         ar & bottom_screen_right_offset;
         ar & bottom_screen_format;
     }
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 static_assert(sizeof(CaptureBufferInfo) == 0x20, "CaptureBufferInfo struct has incorrect size");
 
@@ -490,7 +490,7 @@ private:
             ar & notification_event;
             ar & parameter_event;
         }
-        friend class boost::serialization::access;
+        friend class HLE::BoostCompat::Serialization::access;
     };
 
     // Holds data about the concurrently running applets in the system.
@@ -584,7 +584,7 @@ private:
             LoadInputDevices();
         }
     }
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 } // namespace Service::APT

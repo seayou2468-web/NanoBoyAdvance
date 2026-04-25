@@ -268,14 +268,14 @@ private:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
         DEBUG_SERIALIZATION_POINT;
-        ar& boost::serialization::base_object<Kernel::SessionRequestHandler>(*this);
+        ar& HLE::BoostCompat::Serialization::base_object<Kernel::SessionRequestHandler>(*this);
         ar & semaphore_event;
         ar & preset_semaphore;
         ar & interrupt_zero;
         ar & interrupt_one;
         ar & pipes;
     }
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 void InstallInterfaces(Core::System& system);

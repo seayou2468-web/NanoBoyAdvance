@@ -276,7 +276,7 @@ private:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
         DEBUG_SERIALIZATION_POINT;
-        ar& boost::serialization::base_object<Kernel::SessionRequestHandler>(*this);
+        ar& HLE::BoostCompat::Serialization::base_object<Kernel::SessionRequestHandler>(*this);
         ar & daemon_bit_mask;
         ar & default_daemon_bit_mask;
         ar & daemon_status;
@@ -286,7 +286,7 @@ private:
         ar & retry_interval;
         ar & daemon_lock_enabled;
     }
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 void InstallInterfaces(Core::System& system);

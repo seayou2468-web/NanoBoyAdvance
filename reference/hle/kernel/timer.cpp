@@ -100,7 +100,7 @@ void Timer::Signal(s64 cycles_late) {
 
 template <class Archive>
 void Timer::serialize(Archive& ar, const unsigned int) {
-    ar& boost::serialization::base_object<WaitObject>(*this);
+    ar& HLE::BoostCompat::Serialization::base_object<WaitObject>(*this);
     ar & reset_type;
     ar & initial_delay;
     ar & interval_delay;

@@ -178,7 +178,7 @@ struct MiiData {
 private:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 static_assert(sizeof(MiiData) == 0x5C, "MiiData structure has incorrect size");
@@ -228,7 +228,7 @@ public:
 private:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 #pragma pack(pop)
 static_assert(sizeof(ChecksummedMiiData) == 0x60,

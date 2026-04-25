@@ -6,6 +6,7 @@
 
 #include <memory>
 #include "core/hle/service/service.h"
+#include "../../boost_compat.h"
 
 namespace Core {
 class System;
@@ -533,12 +534,12 @@ private:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
         DEBUG_SERIALIZATION_POINT;
-        ar& boost::serialization::base_object<Kernel::SessionRequestHandler>(*this);
+        ar& HLE::BoostCompat::Serialization::base_object<Kernel::SessionRequestHandler>(*this);
         ar & nim_system_update_event_for_menu;
         ar & nim_system_update_event_for_news;
         ar & nim_async_completion_event;
     }
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 } // namespace Service::NIM

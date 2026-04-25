@@ -12,6 +12,7 @@
 #include "common/common_types.h"
 #include "core/hle/service/service.h"
 #include "network/artic_base/artic_base_client.h"
+#include "../../boost_compat.h"
 
 namespace FileSys {
 class ArchiveBackend;
@@ -652,7 +653,7 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 std::shared_ptr<Module> GetModule(Core::System& system);

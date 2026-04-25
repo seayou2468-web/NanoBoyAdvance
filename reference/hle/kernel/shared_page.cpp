@@ -175,8 +175,8 @@ SharedPageDef& Handler::GetSharedPage() {
 
 template <class Archive>
 void Handler::serialize(Archive& ar, const unsigned int) {
-    ar& boost::serialization::base_object<BackingMem>(*this);
-    ar& boost::serialization::make_binary_object(&shared_page, sizeof(shared_page));
+    ar& HLE::BoostCompat::Serialization::base_object<BackingMem>(*this);
+    ar& HLE::BoostCompat::Serialization::make_binary_object(&shared_page, sizeof(shared_page));
 }
 SERIALIZE_IMPL(Handler)
 

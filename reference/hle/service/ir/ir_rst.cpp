@@ -22,7 +22,7 @@ namespace Service::IR {
 template <class Archive>
 void IR_RST::serialize(Archive& ar, const unsigned int) {
     DEBUG_SERIALIZATION_POINT;
-    ar& boost::serialization::base_object<Kernel::SessionRequestHandler>(*this);
+    ar& HLE::BoostCompat::Serialization::base_object<Kernel::SessionRequestHandler>(*this);
     ar & update_event;
     ar & shared_memory;
     ar & next_pad_index;

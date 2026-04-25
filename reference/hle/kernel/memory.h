@@ -44,7 +44,7 @@ struct MemoryRegionInfo {
         }
 
     private:
-        friend class boost::serialization::access;
+        friend class HLE::BoostCompat::Serialization::access;
         template <class Archive>
         void serialize(Archive& ar, const unsigned int) {
             ar & lower_bound;
@@ -163,7 +163,7 @@ struct MemoryRegionInfo {
 
         friend bool Contains(const IntervalSet& set, const interval_type& interval);
         friend bool Intersects(const IntervalSet& set, const interval_type& interval);
-        friend class boost::serialization::access;
+        friend class HLE::BoostCompat::Serialization::access;
         template <class Archive>
         void serialize(Archive& ar, const unsigned int) {
             ar & intervals;
@@ -251,7 +251,7 @@ struct MemoryRegionInfo {
     void Unlock();
 
 private:
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
 };

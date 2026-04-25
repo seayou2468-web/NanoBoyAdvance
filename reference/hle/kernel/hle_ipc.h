@@ -74,7 +74,7 @@ public:
     private:
         template <class Archive>
         void serialize(Archive& ar, const unsigned int);
-        friend class boost::serialization::access;
+        friend class HLE::BoostCompat::Serialization::access;
     };
 
     struct SessionInfo {
@@ -87,7 +87,7 @@ public:
         SessionInfo() = default;
         template <class Archive>
         void serialize(Archive& ar, const unsigned int);
-        friend class boost::serialization::access;
+        friend class HLE::BoostCompat::Serialization::access;
     };
 
 protected:
@@ -112,7 +112,7 @@ protected:
 private:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 // NOTE: The below classes are ephemeral and don't need serialization
@@ -157,7 +157,7 @@ private:
         ar & size;
         ar & perms;
     }
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 /**
@@ -237,7 +237,7 @@ public:
     private:
         template <class Archive>
         void serialize(Archive& ar, const unsigned int) {}
-        friend class boost::serialization::access;
+        friend class HLE::BoostCompat::Serialization::access;
     };
 
     /**
@@ -389,7 +389,7 @@ private:
     HLERequestContext();
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 } // namespace Kernel

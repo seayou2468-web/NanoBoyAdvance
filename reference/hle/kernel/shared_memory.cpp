@@ -220,7 +220,7 @@ const u8* SharedMemory::GetPointer(u32 offset) const {
 
 template <class Archive>
 void SharedMemory::serialize(Archive& ar, const unsigned int) {
-    ar& boost::serialization::base_object<Object>(*this);
+    ar& HLE::BoostCompat::Serialization::base_object<Object>(*this);
     ar & linear_heap_phys_offset;
     ar & backing_blocks;
     ar & size;

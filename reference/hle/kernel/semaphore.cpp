@@ -61,7 +61,7 @@ Result Semaphore::Release(s32* out_count, s32 release_count) {
 
 template <class Archive>
 void Semaphore::serialize(Archive& ar, const unsigned int) {
-    ar& boost::serialization::base_object<WaitObject>(*this);
+    ar& HLE::BoostCompat::Serialization::base_object<WaitObject>(*this);
     ar & max_count;
     ar & available_count;
     ar & name;

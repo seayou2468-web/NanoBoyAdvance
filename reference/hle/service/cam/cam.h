@@ -80,7 +80,7 @@ private:
         ar & crop_x1;
         ar & crop_y1;
     }
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 struct PackageParameterWithoutContext {
@@ -665,7 +665,7 @@ private:
             ar & format;
             ar & resolution;
         }
-        friend class boost::serialization::access;
+        friend class HLE::BoostCompat::Serialization::access;
     };
 
     struct CameraConfig {
@@ -681,7 +681,7 @@ private:
             ar & current_context;
             ar & frame_rate;
         }
-        friend class boost::serialization::access;
+        friend class HLE::BoostCompat::Serialization::access;
     };
 
     struct PortConfig {
@@ -742,7 +742,7 @@ private:
             ar & dest;
             ar & dest_size;
         }
-        friend class boost::serialization::access;
+        friend class HLE::BoostCompat::Serialization::access;
     };
 
     void LoadCameraImplementation(CameraConfig& camera, int camera_id);
@@ -757,7 +757,7 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int file_version);
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 std::shared_ptr<Module> GetModule(Core::System& system);

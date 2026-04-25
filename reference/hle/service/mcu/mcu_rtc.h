@@ -6,6 +6,7 @@
 
 #include "core/core_timing.h"
 #include "core/hle/service/service.h"
+#include "../../boost_compat.h"
 
 namespace Service::MCU {
 class InfoLedHandler;
@@ -31,7 +32,7 @@ struct InfoLedPattern {
     std::array<u8, PATTERN_INDEX_COUNT> g{};
     std::array<u8, PATTERN_INDEX_COUNT> b{};
 
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
         ar & header.ticks_per_index;
@@ -74,7 +75,7 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 } // namespace Service::MCU

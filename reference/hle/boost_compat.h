@@ -35,6 +35,8 @@
 
 namespace HLE::BoostCompat {
 
+namespace Serialization = boost::serialization;
+
 void ReplaceAllInPlace(std::string& input, std::string_view from, std::string_view to);
 
 std::uint8_t Crc8_07(const void* data, std::size_t size);

@@ -22,7 +22,7 @@ namespace Service::FS {
 
 template <class Archive>
 void File::serialize(Archive& ar, const unsigned int) {
-    ar& boost::serialization::base_object<Kernel::SessionRequestHandler>(*this);
+    ar& HLE::BoostCompat::Serialization::base_object<Kernel::SessionRequestHandler>(*this);
     ar & path;
     ar & backend;
 }

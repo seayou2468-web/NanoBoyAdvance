@@ -9,6 +9,7 @@
 #include <vector>
 #include "common/common_types.h"
 #include "core/hle/kernel/object.h"
+#include "../boost_compat.h"
 
 namespace Kernel {
 
@@ -64,7 +65,7 @@ private:
     std::function<void()> hle_notifier;
 
 private:
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
 };

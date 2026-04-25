@@ -7,6 +7,7 @@
 #include <memory>
 #include "core/file_sys/archive_backend.h"
 #include "core/hle/service/service.h"
+#include "../../boost_compat.h"
 
 namespace Service::FS {
 
@@ -31,7 +32,7 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 } // namespace Service::FS

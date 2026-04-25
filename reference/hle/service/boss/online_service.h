@@ -11,6 +11,7 @@
 #include "common/common_types.h"
 #include "core/hle/result.h"
 #include "core/loader/loader.h"
+#include "../../boost_compat.h"
 
 namespace Kernel {
 class MappedBuffer;
@@ -173,7 +174,7 @@ struct BossTaskProperties {
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 class OnlineService final {
@@ -210,7 +211,7 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 } // namespace Service::BOSS

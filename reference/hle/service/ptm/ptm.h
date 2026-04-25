@@ -8,6 +8,7 @@
 #include "common/common_types.h"
 #include "core/hle/ipc_helpers.h"
 #include "core/hle/service/service.h"
+#include "../../boost_compat.h"
 
 namespace Core {
 class System;
@@ -166,7 +167,7 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 void InstallInterfaces(Core::System& system);

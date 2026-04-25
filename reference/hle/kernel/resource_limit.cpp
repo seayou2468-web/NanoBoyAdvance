@@ -154,7 +154,7 @@ void ResourceLimit::ApplyAppMaxCPUSetting(std::shared_ptr<Kernel::Process>& proc
 
 template <class Archive>
 void ResourceLimit::serialize(Archive& ar, const unsigned int) {
-    ar& boost::serialization::base_object<Object>(*this);
+    ar& HLE::BoostCompat::Serialization::base_object<Object>(*this);
     ar & m_category;
     ar & m_name;
     ar & m_limit_values;

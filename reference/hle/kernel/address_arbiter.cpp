@@ -99,9 +99,9 @@ public:
 private:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<WakeupCallback>(*this);
+        ar& HLE::BoostCompat::Serialization::base_object<WakeupCallback>(*this);
     }
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 void AddressArbiter::WakeUp(ThreadWakeupReason reason, std::shared_ptr<Thread> thread,
@@ -189,7 +189,7 @@ Result AddressArbiter::ArbitrateAddress(std::shared_ptr<Thread> thread, Arbitrat
 
 template <class Archive>
 void AddressArbiter::serialize(Archive& ar, const unsigned int) {
-    ar& boost::serialization::base_object<Object>(*this);
+    ar& HLE::BoostCompat::Serialization::base_object<Object>(*this);
     ar & name;
     ar & waiting_threads;
     ar & timeout_callback;

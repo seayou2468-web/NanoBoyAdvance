@@ -34,7 +34,7 @@ namespace Service::NWM {
 template <class Archive>
 void NWM_UDS::serialize(Archive& ar, const unsigned int) {
     DEBUG_SERIALIZATION_POINT;
-    ar& boost::serialization::base_object<Kernel::SessionRequestHandler>(*this);
+    ar& HLE::BoostCompat::Serialization::base_object<Kernel::SessionRequestHandler>(*this);
     ar & node_map;
     ar & connection_event;
     ar & received_beacons;
@@ -1381,10 +1381,10 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<Kernel::HLERequestContext::WakeupCallback>(*this);
+        ar& HLE::BoostCompat::Serialization::base_object<Kernel::HLERequestContext::WakeupCallback>(*this);
         ar & command_id;
     }
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 void NWM_UDS::ConnectToNetworkHLE(NetworkInfo net_info, u8 connection_type,

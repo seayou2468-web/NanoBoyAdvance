@@ -10,6 +10,7 @@
 #include "core/hle/service/boss/boss.h"
 #include "core/hle/service/boss/boss_p.h"
 #include "core/hle/service/boss/boss_u.h"
+#include "../../boost_compat.h"
 
 SERVICE_CONSTRUCT_IMPL(Service::BOSS::Module)
 SERIALIZE_EXPORT_IMPL(Service::BOSS::Module)
@@ -30,7 +31,7 @@ SERIALIZE_IMPL(Module)
 
 template <class Archive>
 void Module::SessionData::serialize(Archive& ar, const unsigned int) {
-    ar& boost::serialization::base_object<Kernel::SessionRequestHandler::SessionDataBase>(*this);
+    ar& HLE::BoostCompat::Serialization::base_object<Kernel::SessionRequestHandler::SessionDataBase>(*this);
     ar & online_service;
 }
 SERIALIZE_IMPL(Module::SessionData)

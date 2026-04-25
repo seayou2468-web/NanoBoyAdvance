@@ -10,6 +10,7 @@
 #include "core/hle/ipc_helpers.h"
 #include "core/hle/service/am/am.h"
 #include "core/hle/service/nwm/uds_beacon.h"
+#include "../../boost_compat.h"
 
 namespace Service::DLP {
 
@@ -286,9 +287,9 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& boost::serialization::base_object<Kernel::HLERequestContext::WakeupCallback>(*this);
+        ar& HLE::BoostCompat::Serialization::base_object<Kernel::HLERequestContext::WakeupCallback>(*this);
     }
-    friend class boost::serialization::access;
+    friend class HLE::BoostCompat::Serialization::access;
 };
 
 bool DLP_Clt_Base::OnConnectCallback() {
