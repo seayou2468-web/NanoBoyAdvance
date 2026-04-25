@@ -7,8 +7,9 @@
 #include <cstddef>
 #include <memory>
 #include <string>
-#include <boost/optional/optional.hpp>
+#include <optional>
 #include <boost/serialization/export.hpp>
+#include "../../boost_compat.h"
 #include "common/bit_field.h"
 #include "common/common_types.h"
 #include "core/hle/kernel/event.h"
@@ -397,7 +398,7 @@ private:
     bool first_initialization = true;
 
     /// VRAM copy saved using SaveVramSysArea.
-    boost::optional<std::vector<u8>> saved_vram;
+    std::optional<std::vector<u8>> saved_vram;
 
     /// Maximum number of threads that can be registered at the same time in the GSP module.
     static constexpr u32 MaxGSPThreads = 4;

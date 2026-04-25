@@ -4,7 +4,6 @@
 
 #include <cstring>
 #include <string>
-#include <boost/crc.hpp>
 #include "common/assert.h"
 #include "common/logging/log.h"
 #include "common/string_util.h"

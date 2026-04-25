@@ -4,11 +4,11 @@
 
 #include <array>
 #include <chrono>
-#include <boost/crc.hpp>
 #include <cryptopp/osrng.h>
 
 #include "common/file_util.h"
 #include "common/logging/log.h"
+#include "../../boost_compat.h"
 #include "core/core.h"
 #include "core/hle/kernel/shared_page.h"
 #include "core/hle/service/nfc/amiibo_crypto.h"
@@ -1049,9 +1049,7 @@ void NfcDevice::UpdateSettingsCrc() {
 
     // TODO: this reads data from a global, find what it is
     std::array<u8, 8> unknown_input{};
-    boost::crc_32_type crc;
-    crc.process_bytes(&unknown_input, sizeof(unknown_input));
-    settings.crc = crc.checksum();
+    settings.crc = HLE::BoostCompat::Crc32IsoHdlc(&unknown_input, sizeof(unknown_input));
 }
 
 void NfcDevice::UpdateRegisterInfoCrc() {
@@ -1074,9 +1072,7 @@ void NfcDevice::UpdateRegisterInfoCrc() {
         .unknown2 = tag.file.unknown2,
     };
 
-    boost::crc_32_type crc;
-    crc.process_bytes(&crc_data, sizeof(CrcData));
-    tag.file.register_info_crc = crc.checksum();
+    tag.file.register_info_crc = HLE::BoostCompat::Crc32IsoHdlc(&crc_data, sizeof(CrcData));
 }
 
 void NfcDevice::BuildAmiiboWithoutKeys() {

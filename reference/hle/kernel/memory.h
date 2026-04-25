@@ -4,11 +4,11 @@
 
 #pragma once
 
+#include <algorithm>
 #include <optional>
-#include <boost/icl/interval_set.hpp>
+#include <vector>
 #include <boost/serialization/export.hpp>
 #include "common/common_types.h"
-#include "common/serialization/boost_interval_set.hpp"
 
 namespace Kernel {
 
@@ -20,9 +20,179 @@ struct MemoryRegionInfo {
     u32 size;
     u32 used;
 
-    // The domain of the interval_set are offsets from start of FCRAM
-    using IntervalSet = boost::icl::interval_set<u32>;
-    using Interval = IntervalSet::interval_type;
+    struct Interval {
+        enum class Bounds : u8 { RightOpen };
+
+        u32 lower_bound{};
+        u32 upper_bound{};
+
+        Interval() = default;
+        Interval(u32 lower, u32 upper) : lower_bound(lower), upper_bound(upper) {}
+
+        static Interval right_open(u32 lower, u32 upper) {
+            return Interval{lower, upper};
+        }
+
+        u32 lower() const {
+            return lower_bound;
+        }
+        u32 upper() const {
+            return upper_bound;
+        }
+        Bounds bounds() const {
+            return Bounds::RightOpen;
+        }
+
+    private:
+        friend class boost::serialization::access;
+        template <class Archive>
+        void serialize(Archive& ar, const unsigned int) {
+            ar & lower_bound;
+            ar & upper_bound;
+        }
+    };
+
+    class IntervalSet {
+    public:
+        using interval_type = Interval;
+        using container_type = std::vector<interval_type>;
+        using iterator = container_type::iterator;
+        using const_iterator = container_type::const_iterator;
+        using reverse_iterator = container_type::reverse_iterator;
+        using const_reverse_iterator = container_type::const_reverse_iterator;
+
+        void clear() {
+            intervals.clear();
+        }
+
+        void insert(const interval_type& interval) {
+            AddInterval(interval);
+        }
+
+        IntervalSet& operator+=(const interval_type& interval) {
+            AddInterval(interval);
+            return *this;
+        }
+
+        IntervalSet& operator+=(const IntervalSet& other) {
+            for (const auto& interval : other.intervals) {
+                AddInterval(interval);
+            }
+            return *this;
+        }
+
+        IntervalSet& operator-=(const interval_type& interval) {
+            SubtractInterval(interval);
+            return *this;
+        }
+
+        IntervalSet& operator-=(const IntervalSet& other) {
+            for (const auto& interval : other.intervals) {
+                SubtractInterval(interval);
+            }
+            return *this;
+        }
+
+        const_iterator begin() const {
+            return intervals.begin();
+        }
+        const_iterator end() const {
+            return intervals.end();
+        }
+        const_reverse_iterator rbegin() const {
+            return intervals.rbegin();
+        }
+        const_reverse_iterator rend() const {
+            return intervals.rend();
+        }
+
+    private:
+        void AddInterval(const interval_type& interval) {
+            if (interval.lower() >= interval.upper()) {
+                return;
+            }
+
+            interval_type merged = interval;
+            container_type out;
+            bool inserted = false;
+
+            for (const auto& current : intervals) {
+                if (current.upper() < merged.lower()) {
+                    out.push_back(current);
+                } else if (merged.upper() < current.lower()) {
+                    if (!inserted) {
+                        out.push_back(merged);
+                        inserted = true;
+                    }
+                    out.push_back(current);
+                } else {
+                    merged.lower_bound = std::min(merged.lower(), current.lower());
+                    merged.upper_bound = std::max(merged.upper(), current.upper());
+                }
+            }
+
+            if (!inserted) {
+                out.push_back(merged);
+            }
+
+            intervals = std::move(out);
+        }
+
+        void SubtractInterval(const interval_type& interval) {
+            if (interval.lower() >= interval.upper()) {
+                return;
+            }
+
+            container_type out;
+            for (const auto& current : intervals) {
+                if (current.upper() <= interval.lower() || interval.upper() <= current.lower()) {
+                    out.push_back(current);
+                    continue;
+                }
+                if (current.lower() < interval.lower()) {
+                    out.emplace_back(current.lower(), interval.lower());
+                }
+                if (interval.upper() < current.upper()) {
+                    out.emplace_back(interval.upper(), current.upper());
+                }
+            }
+            intervals = std::move(out);
+        }
+
+        container_type intervals;
+
+        friend bool Contains(const IntervalSet& set, const interval_type& interval);
+        friend bool Intersects(const IntervalSet& set, const interval_type& interval);
+        friend class boost::serialization::access;
+        template <class Archive>
+        void serialize(Archive& ar, const unsigned int) {
+            ar & intervals;
+        }
+    };
+
+    static bool Contains(const IntervalSet& set, const Interval& interval) {
+        if (interval.lower() >= interval.upper()) {
+            return true;
+        }
+        for (const auto& block : set.intervals) {
+            if (block.lower() <= interval.lower() && interval.upper() <= block.upper()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    static bool Intersects(const IntervalSet& set, const Interval& interval) {
+        if (interval.lower() >= interval.upper()) {
+            return false;
+        }
+        for (const auto& block : set.intervals) {
+            if (!(block.upper() <= interval.lower() || interval.upper() <= block.lower())) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     IntervalSet free_blocks;
 

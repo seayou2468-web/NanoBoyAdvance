@@ -10,13 +10,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <boost/optional.hpp>
-#include <boost/serialization/optional.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/string.hpp>
-#include <boost/serialization/unordered_map.hpp>
-#include <boost/serialization/vector.hpp>
-#include <boost/serialization/weak_ptr.hpp>
+#include "../../boost_compat.h"
 #include <httplib.h>
 #include "common/thread.h"
 #include "core/hle/ipc_helpers.h"
@@ -309,7 +303,7 @@ public:
 struct SessionData : public Kernel::SessionRequestHandler::SessionDataBase {
     /// The HTTP context that is currently bound to this session, this can be empty if no context
     /// has been bound. Certain commands can only be called on a session with a bound context.
-    boost::optional<Context::Handle> current_http_context;
+    std::optional<Context::Handle> current_http_context;
 
     u32 session_id;
 
@@ -327,7 +321,20 @@ private:
     void serialize(Archive& ar, const unsigned int) {
         ar& boost::serialization::base_object<Kernel::SessionRequestHandler::SessionDataBase>(
             *this);
-        ar & current_http_context;
+        bool has_current_http_context = current_http_context.has_value();
+        ar & has_current_http_context;
+        if constexpr (Archive::is_loading::value) {
+            if (has_current_http_context) {
+                Context::Handle handle{};
+                ar & handle;
+                current_http_context = handle;
+            } else {
+                current_http_context.reset();
+            }
+        } else if (has_current_http_context) {
+            auto handle = *current_http_context;
+            ar & handle;
+        }
         ar & session_id;
         ar & num_http_contexts;
         ar & num_client_certs;

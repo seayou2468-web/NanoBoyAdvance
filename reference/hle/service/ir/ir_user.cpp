@@ -4,10 +4,7 @@
 
 #include <memory>
 #include <vector>
-#include <boost/crc.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/unique_ptr.hpp>
+#include "../../boost_compat.h"
 #include <fmt/ranges.h>
 #include "common/archives.h"
 #include "common/swap.h"
@@ -265,7 +262,7 @@ void IR_USER::PutToReceive(std::span<const u8> payload) {
     packet.insert(packet.end(), payload.begin(), payload.end());
 
     // calculates CRC and puts to the end
-    packet.push_back(boost::crc<8, 0x07, 0, 0, false, false>(packet.data(), packet.size()));
+    packet.push_back(HLE::BoostCompat::Crc8_07(packet.data(), packet.size()));
 
     if (receive_buffer->Put(packet)) {
         receive_event->Signal();

@@ -11,10 +11,8 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include <boost/container/small_vector.hpp>
 #include <boost/serialization/export.hpp>
 #include "common/common_types.h"
-#include "common/serialization/boost_small_vector.hpp"
 #include "common/settings.h"
 #include "common/swap.h"
 #include "core/hle/ipc.h"
@@ -382,11 +380,11 @@ private:
     std::shared_ptr<ServerSession> session;
     std::shared_ptr<Thread> thread;
     // TODO(yuriks): Check common usage of this and optimize size accordingly
-    boost::container::small_vector<std::shared_ptr<Object>, 8> request_handles;
+    std::vector<std::shared_ptr<Object>> request_handles;
     // The static buffers will be created when the IPC request is translated.
     std::array<std::vector<u8>, IPC::MAX_STATIC_BUFFERS> static_buffers;
     // The mapped buffers will be created when the IPC request is translated
-    boost::container::small_vector<MappedBuffer, 8> request_mapped_buffers;
+    std::vector<MappedBuffer> request_mapped_buffers;
 
     HLERequestContext();
     template <class Archive>

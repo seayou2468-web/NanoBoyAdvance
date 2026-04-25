@@ -14,8 +14,9 @@
 #include <mutex>
 #include <unordered_map>
 #include <vector>
-#include <boost/optional.hpp>
+#include <optional>
 #include <boost/serialization/export.hpp>
+#include "../../boost_compat.h"
 #include "common/common_types.h"
 #include "common/swap.h"
 #include "core/hle/service/nwm/uds_common.h"
@@ -561,7 +562,7 @@ private:
     /// Callback to parse and handle a received wifi packet.
     void OnWifiPacketReceived(const Network::WifiPacket& packet);
 
-    boost::optional<Network::MacAddress> GetNodeMacAddress(u16 dest_node_id, u8 flags);
+    std::optional<Network::MacAddress> GetNodeMacAddress(u16 dest_node_id, u8 flags);
 
     // Event that is signaled every time the connection status changes.
     std::shared_ptr<Kernel::Event> connection_status_event;

@@ -5,7 +5,7 @@
 #include <atomic>
 #include <tuple>
 #include <unordered_map>
-#include <boost/algorithm/string/replace.hpp>
+#include "../../boost_compat.h"
 #include <cryptopp/aes.h>
 #include <cryptopp/modes.h>
 #include <fmt/format.h>
@@ -186,7 +186,7 @@ static void SerializeChunkedAsciiPostData(httplib::DataSink& sink, const Context
 
         query =
             fmt::format("{}={}", it->first, httplib::detail::encode_query_param(it->second.value));
-        boost::replace_all(query, "*", "%2A");
+        HLE::BoostCompat::ReplaceAllInPlace(query, "*", "%2A");
         sink.os << query;
     }
 }
@@ -263,7 +263,7 @@ void Context::ParseAsciiPostData() {
     }
 
     post_data_raw = httplib::detail::params_to_query_str(ascii_form);
-    boost::replace_all(post_data_raw, "*", "%2A");
+    HLE::BoostCompat::ReplaceAllInPlace(post_data_raw, "*", "%2A");
 }
 
 std::string Context::ParseMultipartFormData() {

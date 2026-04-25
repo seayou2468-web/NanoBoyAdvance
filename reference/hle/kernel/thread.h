@@ -9,11 +9,11 @@
 #pragma once
 
 #include <memory>
+#include <set>
 #include <span>
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <boost/container/flat_set.hpp>
 #include <boost/serialization/export.hpp>
 #include <queue>
 #include "common/common_types.h"
@@ -384,10 +384,10 @@ public:
     VAddr tls_address; ///< Virtual address of the Thread Local Storage of the thread
 
     /// Mutexes currently held by this thread, which will be released when it exits.
-    boost::container::flat_set<std::shared_ptr<Mutex>> held_mutexes{};
+    std::set<std::shared_ptr<Mutex>> held_mutexes{};
 
     /// Mutexes that this thread is currently waiting for.
-    boost::container::flat_set<std::shared_ptr<Mutex>> pending_mutexes{};
+    std::set<std::shared_ptr<Mutex>> pending_mutexes{};
 
     std::weak_ptr<Process> owner_process{}; ///< Process that owns this thread
 

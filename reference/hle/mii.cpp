@@ -2,8 +2,7 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include <boost/crc.hpp>
-#include <boost/serialization/binary_object.hpp>
+#include "boost_compat.h"
 #include "common/archives.h"
 #include "core/hle/mii.h"
 
@@ -25,6 +24,6 @@ SERIALIZE_IMPL(ChecksummedMiiData)
 
 u16 ChecksummedMiiData::CalculateChecksum() {
     // Calculate the checksum of the selected Mii, see https://www.3dbrew.org/wiki/Mii#Checksum
-    return boost::crc<16, 0x1021, 0, 0, false, false>(this, offsetof(ChecksummedMiiData, crc16));
+    return HLE::BoostCompat::Crc16CcittFalse(this, offsetof(ChecksummedMiiData, crc16));
 }
 } // namespace Mii

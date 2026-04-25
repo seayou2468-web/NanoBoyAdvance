@@ -145,7 +145,6 @@ void ServiceFrameworkBase::InstallAsNamedPort(Kernel::KernelSystem& kernel) {
 }
 
 void ServiceFrameworkBase::RegisterHandlersBase(const FunctionInfoBase* functions, std::size_t n) {
-    handlers.reserve(handlers.size() + n);
     for (std::size_t i = 0; i < n; ++i) {
         // Usually this array is sorted by id already, so hint to insert at the end
         handlers.emplace_hint(handlers.cend(), functions[i].command_id, functions[i]);

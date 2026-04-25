@@ -7,9 +7,9 @@
 #include <array>
 #include <cstddef>
 #include <functional>
+#include <map>
 #include <memory>
 #include <string>
-#include <boost/container/flat_map.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include "common/archives.h"
@@ -106,7 +106,7 @@ private:
 
     /// Function used to safely up-cast pointers to the derived class before invoking a handler.
     InvokerFn* handler_invoker;
-    boost::container::flat_map<u32, FunctionInfoBase> handlers;
+    std::map<u32, FunctionInfoBase> handlers;
 };
 
 /**

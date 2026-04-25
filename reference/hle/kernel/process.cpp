@@ -14,7 +14,6 @@
 #include "common/assert.h"
 #include "common/common_funcs.h"
 #include "common/logging/log.h"
-#include "common/serialization/boost_vector.hpp"
 #include "core/core.h"
 #include "core/hle/kernel/errors.h"
 #include "core/hle/kernel/memory.h"
@@ -50,8 +49,7 @@ void Process::serialize(Archive& ar, const unsigned int) {
     ar & resource_limit;
     ar & svc_access_mask;
     ar & handle_table_size;
-    ar&(boost::container::vector<AddressMapping, boost::container::dtl::static_storage_allocator<
-                                                     AddressMapping, 8, 0, true>>&)address_mappings;
+    ar & address_mappings;
     ar & flags.raw;
     ar & no_thread_restrictions;
     ar & kernel_version;
