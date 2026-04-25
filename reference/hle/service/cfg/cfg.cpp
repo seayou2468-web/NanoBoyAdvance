@@ -5,8 +5,6 @@
 #include <algorithm>
 #include <array>
 #include <tuple>
-#include <boost/serialization/array.hpp>
-#include <boost/serialization/unique_ptr.hpp>
 #include <cryptopp/osrng.h>
 #include <cryptopp/sha.h>
 #include <fmt/ranges.h>
@@ -34,6 +32,7 @@
 #include "core/loader/loader.h"
 #ifdef HAVE_LIBRETRO
 #include "citra_libretro/core_settings.h"
+#include "../../boost_compat.h"
 #endif
 
 SERVICE_CONSTRUCT_IMPL(Service::CFG::Module)

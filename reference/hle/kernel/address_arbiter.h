@@ -6,11 +6,11 @@
 
 #include <memory>
 #include <vector>
-#include <boost/serialization/export.hpp>
 #include "common/common_types.h"
 #include "core/hle/kernel/object.h"
 #include "core/hle/kernel/thread.h"
 #include "core/hle/result.h"
+#include "../boost_compat.h"
 
 // Address arbiters are an underlying kernel synchronization object that can be created/used via
 // supervisor calls (SVCs). They function as sort of a global lock. Typically, games/other CTR

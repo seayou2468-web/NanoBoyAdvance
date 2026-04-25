@@ -6,8 +6,8 @@
 
 #include <memory>
 #include <unordered_map>
-#include <boost/serialization/export.hpp>
 #include "core/hle/service/service.h"
+#include "../../boost_compat.h"
 
 namespace Core {
 class System;

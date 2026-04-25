@@ -3,9 +3,6 @@
 // Refer to the license.txt file included.
 
 #include <tuple>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/string.hpp>
-#include <boost/serialization/vector.hpp>
 #include "common/archives.h"
 #include "core/hle/kernel/client_port.h"
 #include "core/hle/kernel/client_session.h"
@@ -13,6 +10,7 @@
 #include "core/hle/kernel/server_session.h"
 #include "core/hle/kernel/session.h"
 #include "core/hle/kernel/thread.h"
+#include "../boost_compat.h"
 
 SERIALIZE_EXPORT_IMPL(Kernel::ServerSession)
 

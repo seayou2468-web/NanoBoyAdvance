@@ -6,12 +6,12 @@
 
 #include <span>
 #include <vector>
-#include <boost/serialization/binary_object.hpp>
 
 #include "common/common_types.h"
 #include "core/hle/service/nfc/nfc_results.h"
 #include "core/hle/service/nfc/nfc_types.h"
 #include "core/hle/service/service.h"
+#include "../../boost_compat.h"
 
 namespace Kernel {
 class KEvent;

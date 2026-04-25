@@ -17,11 +17,11 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <boost/serialization/export.hpp>
 #include "common/common_types.h"
 #include "core/hle/kernel/memory.h"
 #include "core/hle/result.h"
 #include "core/memory.h"
+#include "../boost_compat.h"
 
 namespace ConfigMem {
 class Handler;

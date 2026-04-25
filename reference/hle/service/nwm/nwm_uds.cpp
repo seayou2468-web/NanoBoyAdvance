@@ -4,8 +4,6 @@
 
 #include <algorithm>
 #include <cstring>
-#include <boost/serialization/list.hpp>
-#include <boost/serialization/map.hpp>
 #include <cryptopp/osrng.h>
 #include "common/archives.h"
 #include "common/common_types.h"
@@ -26,6 +24,7 @@
 #include "core/hle/service/nwm/uds_connection.h"
 #include "core/hle/service/nwm/uds_data.h"
 #include "core/memory.h"
+#include "../../boost_compat.h"
 
 SERIALIZE_EXPORT_IMPL(Service::NWM::NWM_UDS)
 SERVICE_CONSTRUCT_IMPL(Service::NWM::NWM_UDS)

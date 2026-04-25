@@ -15,7 +15,6 @@
 #include <unordered_map>
 #include <vector>
 #include <optional>
-#include <boost/serialization/export.hpp>
 #include "../../boost_compat.h"
 #include "common/common_types.h"
 #include "common/swap.h"

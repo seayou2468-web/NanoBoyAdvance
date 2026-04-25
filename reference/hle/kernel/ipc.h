@@ -6,10 +6,10 @@
 
 #include <memory>
 #include <vector>
-#include <boost/serialization/export.hpp>
 #include "common/common_types.h"
 #include "core/hle/ipc.h"
 #include "core/hle/kernel/thread.h"
+#include "../boost_compat.h"
 
 namespace Memory {
 class MemorySystem;

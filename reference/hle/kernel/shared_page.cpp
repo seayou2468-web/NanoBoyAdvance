@@ -4,8 +4,6 @@
 
 #include <chrono>
 #include <cstring>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/binary_object.hpp>
 #include "common/archives.h"
 #include "common/assert.h"
 #include "common/settings.h"
@@ -14,6 +12,7 @@
 #include "core/hle/kernel/shared_page.h"
 #include "core/hle/service/ptm/ptm.h"
 #include "core/movie.h"
+#include "../boost_compat.h"
 
 SERIALIZE_EXPORT_IMPL(SharedPage::Handler)
 

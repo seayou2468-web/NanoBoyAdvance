@@ -21,7 +21,6 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#include <boost/serialization/weak_ptr.hpp>
 #include <fmt/format.h>
 #include "common/archives.h"
 #include "common/logging/log.h"
@@ -34,6 +33,7 @@
 #include "core/hle/kernel/kernel.h"
 #include "core/hle/service/plgldr/plgldr.h"
 #include "core/loader/loader.h"
+#include "../../boost_compat.h"
 
 SERIALIZE_EXPORT_IMPL(Service::PLGLDR::PLG_LDR)
 SERVICE_CONSTRUCT_IMPL(Service::PLGLDR::PLG_LDR)

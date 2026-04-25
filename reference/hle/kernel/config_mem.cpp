@@ -3,9 +3,9 @@
 // Refer to the license.txt file included.
 
 #include <cstring>
-#include <boost/serialization/binary_object.hpp>
 #include "common/archives.h"
 #include "core/hle/kernel/config_mem.h"
+#include "../boost_compat.h"
 
 SERIALIZE_EXPORT_IMPL(ConfigMem::Handler)
 

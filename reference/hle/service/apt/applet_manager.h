@@ -9,9 +9,6 @@
 #include <memory>
 #include <optional>
 #include <vector>
-#include <boost/serialization/array.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/vector.hpp>
 #include "../../boost_compat.h"
 #include "core/frontend/input.h"
 #include "core/global.h"

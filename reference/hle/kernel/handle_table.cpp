@@ -3,8 +3,6 @@
 // Refer to the license.txt file included.
 
 #include <utility>
-#include <boost/serialization/array.hpp>
-#include <boost/serialization/shared_ptr.hpp>
 #include "common/archives.h"
 #include "common/assert.h"
 #include "common/logging/log.h"
@@ -12,6 +10,7 @@
 #include "core/hle/kernel/handle_table.h"
 #include "core/hle/kernel/process.h"
 #include "core/hle/kernel/thread.h"
+#include "../boost_compat.h"
 
 SERIALIZE_EXPORT_IMPL(Kernel::HandleTable)
 

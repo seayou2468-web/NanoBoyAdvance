@@ -3,7 +3,6 @@
 // Refer to the license.txt file included.
 
 #include <algorithm>
-#include <boost/serialization/shared_ptr.hpp>
 #include "common/alignment.h"
 #include "common/archives.h"
 #include "common/memory_ref.h"
@@ -17,6 +16,7 @@
 #include "core/hle/kernel/process.h"
 #include "core/hle/kernel/thread.h"
 #include "core/memory.h"
+#include "../boost_compat.h"
 
 SERIALIZE_EXPORT_IMPL(Kernel::MappedBufferContext)
 

@@ -5,8 +5,8 @@
 #pragma once
 
 #include <memory>
-#include <boost/serialization/export.hpp>
 #include "common/common_types.h"
+#include "../boost_compat.h"
 
 namespace Core {
 class System;

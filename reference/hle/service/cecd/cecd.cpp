@@ -2,8 +2,6 @@
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/unique_ptr.hpp>
 #include <cryptopp/base64.h>
 #include <cryptopp/hmac.h>
 #include <cryptopp/sha.h>
@@ -26,6 +24,7 @@
 #include "core/hle/service/cecd/cecd_s.h"
 #include "core/hle/service/cecd/cecd_u.h"
 #include "core/hle/service/cfg/cfg.h"
+#include "../../boost_compat.h"
 
 SERVICE_CONSTRUCT_IMPL(Service::CECD::Module)
 SERIALIZE_EXPORT_IMPL(Service::CECD::Module)

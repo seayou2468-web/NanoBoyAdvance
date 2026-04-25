@@ -8,7 +8,6 @@
 #include <memory>
 #include <string>
 #include <optional>
-#include <boost/serialization/export.hpp>
 #include "../../boost_compat.h"
 #include "common/bit_field.h"
 #include "common/common_types.h"

@@ -3,9 +3,6 @@
 // Refer to the license.txt file included.
 
 #include <tuple>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/string.hpp>
-#include <boost/serialization/unordered_map.hpp>
 #include "common/archives.h"
 #include "common/common_types.h"
 #include "common/logging/log.h"
@@ -23,6 +20,7 @@
 #include "core/hle/kernel/server_session.h"
 #include "core/hle/service/sm/sm.h"
 #include "core/hle/service/sm/srv.h"
+#include "../../boost_compat.h"
 
 SERVICE_CONSTRUCT_IMPL(Service::SM::SRV)
 SERIALIZE_EXPORT_IMPL(Service::SM::SRV)
