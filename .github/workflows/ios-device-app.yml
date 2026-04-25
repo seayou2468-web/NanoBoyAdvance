@@ -10,7 +10,7 @@ on:
 
 jobs:
   build-ios-device-app:
-    runs-on: macos-26
+    runs-on: macos-latest
 
     steps:
       - name: Checkout
