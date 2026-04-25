@@ -144,6 +144,7 @@ void GPU::drawArrays() {
 	// Configures the type of primitive and the number of vertex shader outputs
 	const u32 primConfig = regs[PICA::InternalRegs::PrimitiveConfig];
 	const PICA::PrimType primType = static_cast<PICA::PrimType>(Helpers::getBits<8, 2>(primConfig));
+	const bool useGeometryShaderPath = primType == PICA::PrimType::GeometryPrimitive;
 	if (vertexCount > Renderer::vertexBufferSize) [[unlikely]] {
 		Helpers::warn("[PICA] vertexCount > vertexBufferSize");
 		return;
@@ -173,6 +174,9 @@ void GPU::drawArrays() {
 	// Total number of input attributes to shader. Differs between GS and VS. Currently stubbed to the VS one, as we don't have geometry shaders.
 	const u32 inputAttrCount = (regs[PICA::InternalRegs::VertexShaderInputBufferCfg] & 0xf) + 1;
 	const u64 inputAttrCfg = getVertexShaderInputConfig();
+	if (useGeometryShaderPath) {
+		shaderUnit.gs.clearEmittedVertices();
+	}
 
 	// When doing indexed rendering, we have a cache of vertices to avoid processing attributes and shaders for a single vertex many times
 	constexpr bool vertexCacheEnabled = true;
@@ -318,7 +322,7 @@ void GPU::drawArrays() {
 			std::memcpy(&shaderUnit.vs.inputs[mapping], &currentAttributes[j], sizeof(vec4f));
 		}
 
-			shaderUnit.vs.run();
+		shaderUnit.vs.run();
 
 		PICA::Vertex& out = vertices[i];
 		// Map shader outputs to fixed function properties
@@ -331,6 +335,36 @@ void GPU::drawArrays() {
 				out.raw[mapping] = vsOutputRegisters[i][j];
 			}
 		}
+
+		if (useGeometryShaderPath) {
+			for (int outputIndex = 0; outputIndex < 16; outputIndex++) {
+				std::memcpy(&shaderUnit.gs.inputs[outputIndex], &shaderUnit.vs.outputs[outputIndex], sizeof(vec4f));
+			}
+			shaderUnit.gs.run();
+		}
+	}
+
+	if (useGeometryShaderPath && shaderUnit.gs.getEmittedVertexCount() != 0) {
+		const u32 totalShaderOutputs = regs[PICA::InternalRegs::ShaderOutputCount] & 7;
+		const u32 emittedCount = std::min<u32>(shaderUnit.gs.getEmittedVertexCount(), Renderer::vertexBufferSize);
+		const auto& emittedVertices = shaderUnit.gs.getEmittedVertices();
+
+		for (u32 emittedIndex = 0; emittedIndex < emittedCount; emittedIndex++) {
+			PICA::Vertex& out = vertices[emittedIndex];
+			const auto& gsOut = emittedVertices[emittedIndex];
+
+			for (u32 outputReg = 0; outputReg < totalShaderOutputs; outputReg++) {
+				const u32 config = regs[PICA::InternalRegs::ShaderOutmap0 + outputReg];
+
+				for (u32 component = 0; component < 4; component++) {
+					const u32 mapping = (config >> (component * 8)) & 0x1F;
+					out.raw[mapping] = gsOut[outputReg][component];
+				}
+			}
+		}
+
+		renderer->drawVertices(PICA::PrimType::TriangleList, std::span(vertices).first(emittedCount));
+		return;
 	}
 
 	renderer->drawVertices(primType, std::span(vertices).first(vertexCount));

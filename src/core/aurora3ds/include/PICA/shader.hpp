@@ -335,6 +335,10 @@ class PICAShader {
 	void run();
 	void reset();
 
+	void clearEmittedVertices() { emittedVertexCount = 0; }
+	u32 getEmittedVertexCount() const { return emittedVertexCount; }
+	const std::array<std::array<vec4f, 16>, 16>& getEmittedVertices() const { return emittedVertices; }
+
 	Hash getCodeHash();
 	Hash getOpdescHash();
 
