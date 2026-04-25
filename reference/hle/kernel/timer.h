@@ -35,7 +35,7 @@ private:
     friend class Timer;
     friend class KernelSystem;
 
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
 };
@@ -113,12 +113,12 @@ private:
 
     friend class KernelSystem;
 
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
 };
 
 } // namespace Kernel
 
-BOOST_CLASS_EXPORT_KEY(Kernel::Timer)
+HLE_CLASS_EXPORT_KEY(Kernel::Timer)
 CONSTRUCT_KERNEL_OBJECT(Kernel::Timer)

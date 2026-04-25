@@ -134,7 +134,7 @@ private:
         ar & object;
         ar & buffer;
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 enum class AppletPos : u32 {
@@ -176,7 +176,7 @@ private:
         ar & hmac;
         ar & source_program_id;
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 using SysMenuArg = std::array<u8, SysMenuArgSize>;
@@ -207,7 +207,7 @@ private:
         ar & current_title_id;
         ar & current_media_type;
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 struct ApplicationStartParameters {
@@ -220,7 +220,7 @@ private:
         ar & next_title_id;
         ar & next_media_type;
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 enum class DisplayBufferMode : u32_le {
@@ -256,7 +256,7 @@ private:
         ar & bottom_screen_right_offset;
         ar & bottom_screen_format;
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 static_assert(sizeof(CaptureBufferInfo) == 0x20, "CaptureBufferInfo struct has incorrect size");
 
@@ -490,7 +490,7 @@ private:
             ar & notification_event;
             ar & parameter_event;
         }
-        friend class HLE::BoostCompat::Serialization::access;
+        friend class aurora::serialization::access;
     };
 
     // Holds data about the concurrently running applets in the system.
@@ -584,12 +584,12 @@ private:
             LoadInputDevices();
         }
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 } // namespace Service::APT
 
-BOOST_CLASS_VERSION(Service::APT::ApplicationJumpParameters, 1)
-BOOST_CLASS_VERSION(Service::APT::AppletManager, 1)
+HLE_CLASS_VERSION(Service::APT::ApplicationJumpParameters, 1)
+HLE_CLASS_VERSION(Service::APT::AppletManager, 1)
 
 SERVICE_CONSTRUCT(Service::APT::AppletManager)

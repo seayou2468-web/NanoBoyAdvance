@@ -74,7 +74,7 @@ public:
     private:
         template <class Archive>
         void serialize(Archive& ar, const unsigned int);
-        friend class HLE::BoostCompat::Serialization::access;
+        friend class aurora::serialization::access;
     };
 
     struct SessionInfo {
@@ -87,7 +87,7 @@ public:
         SessionInfo() = default;
         template <class Archive>
         void serialize(Archive& ar, const unsigned int);
-        friend class HLE::BoostCompat::Serialization::access;
+        friend class aurora::serialization::access;
     };
 
 protected:
@@ -112,7 +112,7 @@ protected:
 private:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 // NOTE: The below classes are ephemeral and don't need serialization
@@ -157,7 +157,7 @@ private:
         ar & size;
         ar & perms;
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 /**
@@ -237,7 +237,7 @@ public:
     private:
         template <class Archive>
         void serialize(Archive& ar, const unsigned int) {}
-        friend class HLE::BoostCompat::Serialization::access;
+        friend class aurora::serialization::access;
     };
 
     /**
@@ -389,13 +389,13 @@ private:
     HLERequestContext();
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 } // namespace Kernel
 
-BOOST_CLASS_EXPORT_KEY(Kernel::SessionRequestHandler)
-BOOST_CLASS_EXPORT_KEY(Kernel::SessionRequestHandler::SessionDataBase)
-BOOST_CLASS_EXPORT_KEY(Kernel::SessionRequestHandler::SessionInfo)
-BOOST_CLASS_EXPORT_KEY(Kernel::HLERequestContext)
-BOOST_CLASS_EXPORT_KEY(Kernel::HLERequestContext::ThreadCallback)
+HLE_CLASS_EXPORT_KEY(Kernel::SessionRequestHandler)
+HLE_CLASS_EXPORT_KEY(Kernel::SessionRequestHandler::SessionDataBase)
+HLE_CLASS_EXPORT_KEY(Kernel::SessionRequestHandler::SessionInfo)
+HLE_CLASS_EXPORT_KEY(Kernel::HLERequestContext)
+HLE_CLASS_EXPORT_KEY(Kernel::HLERequestContext::ThreadCallback)

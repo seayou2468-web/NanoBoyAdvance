@@ -76,13 +76,13 @@ private:
     void WakeUp(ThreadWakeupReason reason, std::shared_ptr<Thread> thread,
                 std::shared_ptr<WaitObject> object) override;
 
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
 };
 
 } // namespace Kernel
 
-BOOST_CLASS_EXPORT_KEY(Kernel::AddressArbiter)
-BOOST_CLASS_EXPORT_KEY(Kernel::AddressArbiter::Callback)
+HLE_CLASS_EXPORT_KEY(Kernel::AddressArbiter)
+HLE_CLASS_EXPORT_KEY(Kernel::AddressArbiter::Callback)
 CONSTRUCT_KERNEL_OBJECT(Kernel::AddressArbiter)

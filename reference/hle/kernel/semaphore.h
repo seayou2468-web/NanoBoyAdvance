@@ -48,12 +48,12 @@ public:
     Result Release(s32* out_count, s32 release_count);
 
 private:
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
 };
 
 } // namespace Kernel
 
-BOOST_CLASS_EXPORT_KEY(Kernel::Semaphore)
+HLE_CLASS_EXPORT_KEY(Kernel::Semaphore)
 CONSTRUCT_KERNEL_OBJECT(Kernel::Semaphore)

@@ -1076,7 +1076,7 @@ public:
         void serialize(Archive& ar, const unsigned int) {
             ar & application_reset_prepared;
         }
-        friend class HLE::BoostCompat::Serialization::access;
+        friend class aurora::serialization::access;
     };
 
 private:
@@ -1099,7 +1099,7 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 std::shared_ptr<Module> GetModule(Core::System& system);
@@ -1109,4 +1109,4 @@ void InstallInterfaces(Core::System& system);
 } // namespace Service::APT
 
 SERVICE_CONSTRUCT(Service::APT::Module)
-BOOST_CLASS_VERSION(Service::APT::Module, 1)
+HLE_CLASS_VERSION(Service::APT::Module, 1)

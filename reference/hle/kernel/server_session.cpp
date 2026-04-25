@@ -18,7 +18,7 @@ namespace Kernel {
 
 template <class Archive>
 void ServerSession::serialize(Archive& ar, const unsigned int) {
-    ar& HLE::BoostCompat::Serialization::base_object<WaitObject>(*this);
+    ar& aurora::serialization::base_object<WaitObject>(*this);
     ar & name;
     ar & parent;
     ar & hle_handler;

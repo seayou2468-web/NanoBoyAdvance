@@ -1901,7 +1901,7 @@ FS_USER::FS_USER(Core::System& system)
 template <class Archive>
 void Service::FS::FS_USER::serialize(Archive& ar, const unsigned int) {
     DEBUG_SERIALIZATION_POINT;
-    ar& HLE::BoostCompat::Serialization::base_object<Kernel::SessionRequestHandler>(*this);
+    ar& aurora::serialization::base_object<Kernel::SessionRequestHandler>(*this);
     ar & priority;
     ar & secure_value_backend;
 }

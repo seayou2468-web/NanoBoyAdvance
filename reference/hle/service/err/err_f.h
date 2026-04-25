@@ -42,9 +42,9 @@ void InstallInterfaces(Core::System& system);
 
 } // namespace Service::ERR
 
-BOOST_CLASS_EXPORT_KEY(Service::ERR::ERR_F)
+HLE_CLASS_EXPORT_KEY(Service::ERR::ERR_F)
 
-HLE_BOOST_SERIALIZATION_BEGIN
+HLE_SERIALIZATION_NAMESPACE_BEGIN
 template <class Archive>
 void load_construct_data(Archive& ar, Service::ERR::ERR_F* t, const unsigned int);
 }

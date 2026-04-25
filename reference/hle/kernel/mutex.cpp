@@ -130,7 +130,7 @@ void Mutex::UpdatePriority() {
 
 template <class Archive>
 void Mutex::serialize(Archive& ar, const unsigned int) {
-    ar& HLE::BoostCompat::Serialization::base_object<WaitObject>(*this);
+    ar& aurora::serialization::base_object<WaitObject>(*this);
     ar & lock_count;
     ar & priority;
     ar & name;

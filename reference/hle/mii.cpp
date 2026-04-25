@@ -12,18 +12,18 @@ SERIALIZE_EXPORT_IMPL(Mii::ChecksummedMiiData)
 namespace Mii {
 template <class Archive>
 void MiiData::serialize(Archive& ar, const unsigned int) {
-    ar& HLE::BoostCompat::Serialization::make_binary_object(this, sizeof(MiiData));
+    ar& aurora::serialization::make_binary_object(this, sizeof(MiiData));
 }
 SERIALIZE_IMPL(MiiData)
 
 template <class Archive>
 void ChecksummedMiiData::serialize(Archive& ar, const unsigned int) {
-    ar& HLE::BoostCompat::Serialization::make_binary_object(this, sizeof(ChecksummedMiiData));
+    ar& aurora::serialization::make_binary_object(this, sizeof(ChecksummedMiiData));
 }
 SERIALIZE_IMPL(ChecksummedMiiData)
 
 u16 ChecksummedMiiData::CalculateChecksum() {
     // Calculate the checksum of the selected Mii, see https://www.3dbrew.org/wiki/Mii#Checksum
-    return HLE::BoostCompat::Crc16CcittFalse(this, offsetof(ChecksummedMiiData, crc16));
+    return aurora::Crc16CcittFalse(this, offsetof(ChecksummedMiiData, crc16));
 }
 } // namespace Mii

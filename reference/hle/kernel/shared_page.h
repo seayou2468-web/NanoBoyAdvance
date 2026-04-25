@@ -137,16 +137,16 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 } // namespace SharedPage
 
-HLE_BOOST_SERIALIZATION_BEGIN
+HLE_SERIALIZATION_NAMESPACE_BEGIN
 
 template <class Archive>
 void load_construct_data(Archive& ar, SharedPage::Handler* t, const unsigned int);
 
-HLE_BOOST_SERIALIZATION_END
+HLE_SERIALIZATION_NAMESPACE_END
 
-BOOST_CLASS_EXPORT_KEY(SharedPage::Handler)
+HLE_CLASS_EXPORT_KEY(SharedPage::Handler)

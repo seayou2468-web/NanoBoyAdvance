@@ -25,14 +25,14 @@ struct FileSessionSlot : public Kernel::SessionRequestHandler::SessionDataBase {
 private:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& HLE::BoostCompat::Serialization::base_object<Kernel::SessionRequestHandler::SessionDataBase>(
+        ar& aurora::serialization::base_object<Kernel::SessionRequestHandler::SessionDataBase>(
             *this);
         ar & priority;
         ar & offset;
         ar & size;
         ar & subfile;
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 // TODO: File is not a real service, but it can still utilize ServiceFramework::RegisterHandlers.
@@ -80,10 +80,10 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 } // namespace Service::FS
 
-BOOST_CLASS_EXPORT_KEY(Service::FS::FileSessionSlot)
-BOOST_CLASS_EXPORT_KEY(Service::FS::File)
+HLE_CLASS_EXPORT_KEY(Service::FS::FileSessionSlot)
+HLE_CLASS_EXPORT_KEY(Service::FS::File)

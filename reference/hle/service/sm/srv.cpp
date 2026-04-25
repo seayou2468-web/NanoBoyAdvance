@@ -30,7 +30,7 @@ namespace Service::SM {
 template <class Archive>
 void SRV::serialize(Archive& ar, const unsigned int) {
     DEBUG_SERIALIZATION_POINT;
-    ar& HLE::BoostCompat::Serialization::base_object<Kernel::SessionRequestHandler>(*this);
+    ar& aurora::serialization::base_object<Kernel::SessionRequestHandler>(*this);
     ar & notification_semaphore;
     ar & get_service_handle_delayed_map;
 }
@@ -121,10 +121,10 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& HLE::BoostCompat::Serialization::base_object<Kernel::HLERequestContext::WakeupCallback>(*this);
+        ar& aurora::serialization::base_object<Kernel::HLERequestContext::WakeupCallback>(*this);
         ar & name;
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 /**

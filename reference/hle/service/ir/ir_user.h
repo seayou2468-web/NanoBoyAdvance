@@ -179,10 +179,10 @@ private:
 private:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 } // namespace Service::IR
 
-BOOST_CLASS_EXPORT_KEY(Service::IR::IR_USER)
+HLE_CLASS_EXPORT_KEY(Service::IR::IR_USER)
 SERVICE_CONSTRUCT(Service::IR::IR_USER)

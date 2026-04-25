@@ -3,7 +3,7 @@
 
 #include "boost_compat.h"
 
-namespace HLE::BoostCompat {
+namespace aurora {
 
 void ReplaceAllInPlace(std::string& input, std::string_view from, std::string_view to) {
     if (from.empty()) {
@@ -17,4 +17,4 @@ void ReplaceAllInPlace(std::string& input, std::string_view from, std::string_vi
     }
 }
 
-} // namespace HLE::BoostCompat
+} // namespace aurora

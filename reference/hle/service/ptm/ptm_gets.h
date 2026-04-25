@@ -19,5 +19,5 @@ private:
 
 } // namespace Service::PTM
 
-BOOST_CLASS_EXPORT_KEY(Service::PTM::PTM_Gets)
-BOOST_SERIALIZATION_CONSTRUCT(Service::PTM::PTM_Gets)
+HLE_CLASS_EXPORT_KEY(Service::PTM::PTM_Gets)
+HLE_SERIALIZATION_CONSTRUCT(Service::PTM::PTM_Gets)

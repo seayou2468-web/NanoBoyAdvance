@@ -87,7 +87,7 @@ private:
             return current == target;
         }
 
-        friend class HLE::BoostCompat::Serialization::access;
+        friend class aurora::serialization::access;
         template <class Archive>
         void serialize(Archive& ar, const unsigned int) {
             ar & target;
@@ -188,7 +188,7 @@ private:
 
     s64 arm_time_ns = 0;
 
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
         ar & current_pattern;
@@ -286,7 +286,7 @@ void RTC::GetInfoLEDStatus(Kernel::HLERequestContext& ctx) {
 template <class Archive>
 void RTC::serialize(Archive& ar, const unsigned int) {
     DEBUG_SERIALIZATION_POINT;
-    ar& HLE::BoostCompat::Serialization::base_object<Kernel::SessionRequestHandler>(*this);
+    ar& aurora::serialization::base_object<Kernel::SessionRequestHandler>(*this);
     ar & info_led;
     ar & info_led_ticking;
 }

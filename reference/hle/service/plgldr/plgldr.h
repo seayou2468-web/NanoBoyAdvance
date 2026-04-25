@@ -57,7 +57,7 @@ public:
                 ar & path;
                 ar & config;
             }
-            friend class HLE::BoostCompat::Serialization::access;
+            friend class aurora::serialization::access;
         };
         bool is_enabled = true;
         bool allow_game_change = true;
@@ -83,7 +83,7 @@ public:
 
         template <class Archive>
         void serialize(Archive& ar, const unsigned int);
-        friend class HLE::BoostCompat::Serialization::access;
+        friend class aurora::serialization::access;
     };
 
     PLG_LDR(Core::System& system_);
@@ -128,7 +128,7 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 std::shared_ptr<PLG_LDR> GetService(Core::System& system);
@@ -137,5 +137,5 @@ void InstallInterfaces(Core::System& system);
 
 } // namespace Service::PLGLDR
 
-BOOST_CLASS_EXPORT_KEY(Service::PLGLDR::PLG_LDR)
+HLE_CLASS_EXPORT_KEY(Service::PLGLDR::PLG_LDR)
 SERVICE_CONSTRUCT(Service::PLGLDR::PLG_LDR)

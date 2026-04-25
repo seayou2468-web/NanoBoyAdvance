@@ -26,7 +26,7 @@ namespace Service::MIC {
 template <class Archive>
 void MIC_U::serialize(Archive& ar, const unsigned int) {
     DEBUG_SERIALIZATION_POINT;
-    ar& HLE::BoostCompat::Serialization::base_object<Kernel::SessionRequestHandler>(*this);
+    ar& aurora::serialization::base_object<Kernel::SessionRequestHandler>(*this);
     ar&* impl.get();
 }
 
@@ -132,7 +132,7 @@ private:
         ar & sample_rate;
         sharedmem_buffer = _memory_ref ? _memory_ref->GetPointer() : nullptr;
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 struct MIC_U::Impl {
@@ -423,7 +423,7 @@ private:
             }
         }
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 void MIC_U::MapSharedMem(Kernel::HLERequestContext& ctx) {

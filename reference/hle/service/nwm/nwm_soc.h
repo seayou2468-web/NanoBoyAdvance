@@ -23,4 +23,4 @@ private:
 } // namespace Service::NWM
 
 SERVICE_CONSTRUCT(Service::NWM::NWM_SOC)
-BOOST_CLASS_EXPORT_KEY(Service::NWM::NWM_SOC)
+HLE_CLASS_EXPORT_KEY(Service::NWM::NWM_SOC)

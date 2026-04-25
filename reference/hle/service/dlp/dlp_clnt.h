@@ -40,4 +40,4 @@ private:
 
 } // namespace Service::DLP
 
-BOOST_CLASS_EXPORT_KEY(Service::DLP::DLP_CLNT)
+HLE_CLASS_EXPORT_KEY(Service::DLP::DLP_CLNT)

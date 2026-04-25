@@ -3,7 +3,7 @@
 
 #include "boost_compat.h"
 
-namespace HLE::BoostCompat {
+namespace aurora {
 
 namespace {
 
@@ -60,4 +60,4 @@ std::uint32_t Crc32IsoHdlc(const void* data, std::size_t size) {
     return Crc32Reflect(bytes, size, 0xEDB88320u, 0xFFFFFFFFu, 0xFFFFFFFFu);
 }
 
-} // namespace HLE::BoostCompat
+} // namespace aurora

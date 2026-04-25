@@ -27,10 +27,10 @@ public:
     std::shared_ptr<ClientPort> port; ///< The port that this session is associated with (optional).
 
 private:
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
 };
 } // namespace Kernel
 
-BOOST_CLASS_EXPORT_KEY(Kernel::Session)
+HLE_CLASS_EXPORT_KEY(Kernel::Session)

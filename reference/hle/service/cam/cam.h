@@ -80,7 +80,7 @@ private:
         ar & crop_x1;
         ar & crop_y1;
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 struct PackageParameterWithoutContext {
@@ -665,7 +665,7 @@ private:
             ar & format;
             ar & resolution;
         }
-        friend class HLE::BoostCompat::Serialization::access;
+        friend class aurora::serialization::access;
     };
 
     struct CameraConfig {
@@ -681,7 +681,7 @@ private:
             ar & current_context;
             ar & frame_rate;
         }
-        friend class HLE::BoostCompat::Serialization::access;
+        friend class aurora::serialization::access;
     };
 
     struct PortConfig {
@@ -742,7 +742,7 @@ private:
             ar & dest;
             ar & dest_size;
         }
-        friend class HLE::BoostCompat::Serialization::access;
+        friend class aurora::serialization::access;
     };
 
     void LoadCameraImplementation(CameraConfig& camera, int camera_id);
@@ -757,7 +757,7 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int file_version);
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 std::shared_ptr<Module> GetModule(Core::System& system);
@@ -767,5 +767,5 @@ void InstallInterfaces(Core::System& system);
 } // namespace Service::CAM
 
 SERVICE_CONSTRUCT(Service::CAM::Module)
-BOOST_CLASS_VERSION(Service::CAM::Module, 1)
-BOOST_CLASS_VERSION(Service::CAM::Module::CameraConfig, 1)
+HLE_CLASS_VERSION(Service::CAM::Module, 1)
+HLE_CLASS_VERSION(Service::CAM::Module::CameraConfig, 1)

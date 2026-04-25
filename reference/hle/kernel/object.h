@@ -68,7 +68,7 @@ public:
 private:
     std::atomic<u32> object_id;
 
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
 };
@@ -95,10 +95,10 @@ inline std::shared_ptr<T> DynamicObjectCast(std::shared_ptr<Object> object) {
 
 } // namespace Kernel
 
-BOOST_CLASS_EXPORT_KEY(Kernel::Object)
+HLE_CLASS_EXPORT_KEY(Kernel::Object)
 
 #define CONSTRUCT_KERNEL_OBJECT(T)                                                                 \
-    HLE_BOOST_SERIALIZATION_BEGIN                                                               \
+    HLE_SERIALIZATION_NAMESPACE_BEGIN                                                               \
     template <class Archive>                                                                       \
     void load_construct_data(Archive& ar, T* t, const unsigned int file_version) {                 \
         ::new (t) T(Core::Global<Kernel::KernelSystem>());                                         \

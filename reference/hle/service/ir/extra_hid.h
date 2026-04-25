@@ -88,9 +88,9 @@ private:
             LoadInputDevices(); // zl, zr, c_stick are loaded here
         }
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 } // namespace Service::IR
 
-BOOST_CLASS_EXPORT_KEY(Service::IR::ExtraHID)
+HLE_CLASS_EXPORT_KEY(Service::IR::ExtraHID)

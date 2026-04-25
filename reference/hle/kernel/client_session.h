@@ -49,12 +49,12 @@ public:
     std::shared_ptr<Session> parent;
 
 private:
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
 };
 
 } // namespace Kernel
 
-BOOST_CLASS_EXPORT_KEY(Kernel::ClientSession)
+HLE_CLASS_EXPORT_KEY(Kernel::ClientSession)
 CONSTRUCT_KERNEL_OBJECT(Kernel::ClientSession)

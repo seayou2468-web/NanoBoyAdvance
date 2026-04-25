@@ -101,7 +101,7 @@ private:
         ar & transfer_unit;
         ar & gap;
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 struct ConversionConfiguration {
@@ -142,7 +142,7 @@ private:
         ar & src_YUYV;
         ar & dst;
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 struct DitheringWeightParams {
@@ -183,7 +183,7 @@ private:
         ar & w3_xEven_yOdd;
         ar & w3_xOdd_yOdd;
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 struct ConversionParameters {
@@ -359,7 +359,7 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 void InstallInterfaces(Core::System& system);
@@ -367,4 +367,4 @@ void InstallInterfaces(Core::System& system);
 } // namespace Service::Y2R
 
 SERVICE_CONSTRUCT(Service::Y2R::Y2R_U)
-BOOST_CLASS_EXPORT_KEY(Service::Y2R::Y2R_U)
+HLE_CLASS_EXPORT_KEY(Service::Y2R::Y2R_U)

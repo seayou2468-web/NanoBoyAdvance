@@ -1049,7 +1049,7 @@ void NfcDevice::UpdateSettingsCrc() {
 
     // TODO: this reads data from a global, find what it is
     std::array<u8, 8> unknown_input{};
-    settings.crc = HLE::BoostCompat::Crc32IsoHdlc(&unknown_input, sizeof(unknown_input));
+    settings.crc = aurora::Crc32IsoHdlc(&unknown_input, sizeof(unknown_input));
 }
 
 void NfcDevice::UpdateRegisterInfoCrc() {
@@ -1072,7 +1072,7 @@ void NfcDevice::UpdateRegisterInfoCrc() {
         .unknown2 = tag.file.unknown2,
     };
 
-    tag.file.register_info_crc = HLE::BoostCompat::Crc32IsoHdlc(&crc_data, sizeof(CrcData));
+    tag.file.register_info_crc = aurora::Crc32IsoHdlc(&crc_data, sizeof(CrcData));
 }
 
 void NfcDevice::BuildAmiiboWithoutKeys() {

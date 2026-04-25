@@ -64,11 +64,11 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& HLE::BoostCompat::Serialization::base_object<Kernel::WakeupCallback>(*this);
+        ar& aurora::serialization::base_object<Kernel::WakeupCallback>(*this);
         ar & callback;
         ar & context;
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 SessionRequestHandler::SessionInfo::SessionInfo(std::shared_ptr<ServerSession> session,

@@ -23,7 +23,7 @@ namespace Service::IR {
 template <class Archive>
 void IR_USER::serialize(Archive& ar, const unsigned int) {
     DEBUG_SERIALIZATION_POINT;
-    ar& HLE::BoostCompat::Serialization::base_object<Kernel::SessionRequestHandler>(*this);
+    ar& aurora::serialization::base_object<Kernel::SessionRequestHandler>(*this);
     ar & conn_status_event;
     ar & send_event;
     ar & receive_event;
@@ -167,7 +167,7 @@ private:
             ar & packet_count;
             ar & unknown;
         }
-        friend class HLE::BoostCompat::Serialization::access;
+        friend class aurora::serialization::access;
     };
     static_assert(sizeof(BufferInfo) == 16, "BufferInfo has wrong size!");
 
@@ -221,7 +221,7 @@ private:
         ar & max_packet_count;
         ar & max_data_size;
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 /// Wraps the payload into packet and puts it to the receive buffer
@@ -262,7 +262,7 @@ void IR_USER::PutToReceive(std::span<const u8> payload) {
     packet.insert(packet.end(), payload.begin(), payload.end());
 
     // calculates CRC and puts to the end
-    packet.push_back(HLE::BoostCompat::Crc8_07(packet.data(), packet.size()));
+    packet.push_back(aurora::Crc8_07(packet.data(), packet.size()));
 
     if (receive_buffer->Put(packet)) {
         receive_event->Signal();

@@ -31,7 +31,7 @@ SERIALIZE_IMPL(Module)
 
 template <class Archive>
 void Module::SessionData::serialize(Archive& ar, const unsigned int) {
-    ar& HLE::BoostCompat::Serialization::base_object<Kernel::SessionRequestHandler::SessionDataBase>(*this);
+    ar& aurora::serialization::base_object<Kernel::SessionRequestHandler::SessionDataBase>(*this);
     ar & online_service;
 }
 SERIALIZE_IMPL(Module::SessionData)

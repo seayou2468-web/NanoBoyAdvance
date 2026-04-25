@@ -69,11 +69,11 @@ public:
 private:
     ConfigMemDef config_mem;
 
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
 };
 
 } // namespace ConfigMem
 
-BOOST_CLASS_EXPORT_KEY(ConfigMem::Handler)
+HLE_CLASS_EXPORT_KEY(ConfigMem::Handler)

@@ -65,7 +65,7 @@ private:
     std::function<void()> hle_notifier;
 
 private:
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
 };
@@ -81,4 +81,4 @@ inline std::shared_ptr<WaitObject> DynamicObjectCast<WaitObject>(std::shared_ptr
 
 } // namespace Kernel
 
-BOOST_CLASS_EXPORT_KEY(Kernel::WaitObject)
+HLE_CLASS_EXPORT_KEY(Kernel::WaitObject)

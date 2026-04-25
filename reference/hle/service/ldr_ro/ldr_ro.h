@@ -19,11 +19,11 @@ struct ClientSlot : public Kernel::SessionRequestHandler::SessionDataBase {
 private:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& HLE::BoostCompat::Serialization::base_object<Kernel::SessionRequestHandler::SessionDataBase>(
+        ar& aurora::serialization::base_object<Kernel::SessionRequestHandler::SessionDataBase>(
             *this);
         ar & loaded_crs;
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 class RO final : public ServiceFramework<RO, ClientSlot> {
@@ -166,9 +166,9 @@ private:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
         DEBUG_SERIALIZATION_POINT;
-        ar& HLE::BoostCompat::Serialization::base_object<Kernel::SessionRequestHandler>(*this);
+        ar& aurora::serialization::base_object<Kernel::SessionRequestHandler>(*this);
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 void InstallInterfaces(Core::System& system);
@@ -176,5 +176,5 @@ void InstallInterfaces(Core::System& system);
 } // namespace Service::LDR
 
 SERVICE_CONSTRUCT(Service::LDR::RO)
-BOOST_CLASS_EXPORT_KEY(Service::LDR::RO)
-BOOST_CLASS_EXPORT_KEY(Service::LDR::ClientSlot)
+HLE_CLASS_EXPORT_KEY(Service::LDR::RO)
+HLE_CLASS_EXPORT_KEY(Service::LDR::ClientSlot)

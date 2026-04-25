@@ -342,7 +342,7 @@ private:
         ar & next_handle;
         ar & sd_savedata_source;
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 } // namespace Service::FS

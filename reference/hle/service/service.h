@@ -216,27 +216,27 @@ extern const std::array<ServiceModuleInfo, 41> service_module_map;
                                                                                                    \
     template <class Archive>                                                                       \
     void serialize(Archive& ar, const unsigned int) {                                              \
-        ar& HLE::BoostCompat::Serialization::base_object<Kernel::SessionRequestHandler>(*this);               \
+        ar& aurora::serialization::base_object<Kernel::SessionRequestHandler>(*this);               \
     }                                                                                              \
-    friend class HLE::BoostCompat::Serialization::access;                                                     \
+    friend class aurora::serialization::access;                                                     \
     friend class ::construct_access;
 
 #define SERVICE_SERIALIZATION_SIMPLE                                                               \
     template <class Archive>                                                                       \
     void serialize(Archive& ar, const unsigned int) {                                              \
         DEBUG_SERIALIZATION_POINT;                                                                 \
-        ar& HLE::BoostCompat::Serialization::base_object<Kernel::SessionRequestHandler>(*this);               \
+        ar& aurora::serialization::base_object<Kernel::SessionRequestHandler>(*this);               \
     }                                                                                              \
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 
 #define SERVICE_CONSTRUCT(T)                                                                       \
-    HLE_BOOST_SERIALIZATION_BEGIN                                                               \
+    HLE_SERIALIZATION_NAMESPACE_BEGIN                                                               \
     template <class Archive>                                                                       \
     void load_construct_data(Archive& ar, T* t, const unsigned int);                               \
     }
 
 #define SERVICE_CONSTRUCT_IMPL(T)                                                                  \
-    HLE_BOOST_SERIALIZATION_BEGIN                                                               \
+    HLE_SERIALIZATION_NAMESPACE_BEGIN                                                               \
     template <class Archive>                                                                       \
     void load_construct_data(Archive& ar, T* t, const unsigned int) {                              \
         ::new (t) T(Core::Global<Core::System>());                                                 \

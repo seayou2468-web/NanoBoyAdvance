@@ -20,7 +20,7 @@
 
 SERIALIZE_EXPORT_IMPL(Service::ERR::ERR_F)
 
-HLE_BOOST_SERIALIZATION_BEGIN
+HLE_SERIALIZATION_NAMESPACE_BEGIN
 template <class Archive>
 void load_construct_data(Archive& ar, Service::ERR::ERR_F* t, const unsigned int) {
     ::new (t) Service::ERR::ERR_F(Core::Global<Core::System>());
@@ -28,7 +28,7 @@ void load_construct_data(Archive& ar, Service::ERR::ERR_F* t, const unsigned int
 
 template void load_construct_data<iarchive>(iarchive& ar, Service::ERR::ERR_F* t,
                                             const unsigned int);
-HLE_BOOST_SERIALIZATION_END
+HLE_SERIALIZATION_NAMESPACE_END
 
 namespace Service::ERR {
 

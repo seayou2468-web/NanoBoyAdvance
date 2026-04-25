@@ -178,7 +178,7 @@ struct MiiData {
 private:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 static_assert(sizeof(MiiData) == 0x5C, "MiiData structure has incorrect size");
@@ -228,7 +228,7 @@ public:
 private:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 #pragma pack(pop)
 static_assert(sizeof(ChecksummedMiiData) == 0x60,
@@ -238,5 +238,5 @@ static_assert(std::is_trivially_copyable_v<ChecksummedMiiData>,
               "ChecksummedMiiData must be trivially copyable.");
 } // namespace Mii
 
-BOOST_CLASS_EXPORT_KEY(Mii::MiiData)
-BOOST_CLASS_EXPORT_KEY(Mii::ChecksummedMiiData)
+HLE_CLASS_EXPORT_KEY(Mii::MiiData)
+HLE_CLASS_EXPORT_KEY(Mii::ChecksummedMiiData)

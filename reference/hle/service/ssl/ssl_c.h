@@ -30,4 +30,4 @@ void GenerateRandomData(std::vector<u8>& out);
 
 } // namespace Service::SSL
 
-BOOST_CLASS_EXPORT_KEY(Service::SSL::SSL_C)
+HLE_CLASS_EXPORT_KEY(Service::SSL::SSL_C)

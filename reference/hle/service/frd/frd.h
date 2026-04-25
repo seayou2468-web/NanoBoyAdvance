@@ -31,7 +31,7 @@ private:
         ar & unknown;
         ar & friend_code;
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 struct MyPresence {
@@ -42,7 +42,7 @@ private:
     void serialize(Archive& ar, const unsigned int) {
         ar & unknown;
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 struct Profile {
@@ -277,7 +277,7 @@ private:
         ar & my_presence;
         ar & logged_in;
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 void InstallInterfaces(Core::System& system);

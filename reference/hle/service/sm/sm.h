@@ -100,9 +100,9 @@ private:
         }
     }
 
-    BOOST_SERIALIZATION_SPLIT_MEMBER()
+    HLE_SERIALIZATION_SPLIT_MEMBER()
 
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 } // namespace Service::SM

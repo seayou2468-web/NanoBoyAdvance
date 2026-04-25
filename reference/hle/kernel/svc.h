@@ -31,5 +31,5 @@ class SVC_IPCCallback;
 
 } // namespace Kernel
 
-BOOST_CLASS_EXPORT_KEY(Kernel::SVC_SyncCallback)
-BOOST_CLASS_EXPORT_KEY(Kernel::SVC_IPCCallback)
+HLE_CLASS_EXPORT_KEY(Kernel::SVC_SyncCallback)
+HLE_CLASS_EXPORT_KEY(Kernel::SVC_IPCCallback)

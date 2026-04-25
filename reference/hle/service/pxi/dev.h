@@ -20,4 +20,4 @@ private:
 
 } // namespace Service::PXI
 
-BOOST_CLASS_EXPORT_KEY(Service::PXI::DEV)
+HLE_CLASS_EXPORT_KEY(Service::PXI::DEV)

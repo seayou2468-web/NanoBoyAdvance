@@ -110,7 +110,7 @@ private:
         ar & certificate;
         ar & private_key;
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 /// Represents a root certificate chain, it contains a list of DER-encoded certificates for
@@ -130,7 +130,7 @@ struct RootCertChain {
             ar & session_id;
             ar & certificate;
         }
-        friend class HLE::BoostCompat::Serialization::access;
+        friend class aurora::serialization::access;
     };
 
     using Handle = u32;
@@ -145,7 +145,7 @@ private:
         ar & session_id;
         ar & certificates;
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 struct ClCertAData {
@@ -177,7 +177,7 @@ public:
             ar & password;
             ar & port;
         }
-        friend class HLE::BoostCompat::Serialization::access;
+        friend class aurora::serialization::access;
     };
 
     struct BasicAuth {
@@ -190,7 +190,7 @@ public:
             ar & username;
             ar & password;
         }
-        friend class HLE::BoostCompat::Serialization::access;
+        friend class aurora::serialization::access;
     };
 
     struct RequestHeader {
@@ -204,7 +204,7 @@ public:
             ar & name;
             ar & value;
         }
-        friend class HLE::BoostCompat::Serialization::access;
+        friend class aurora::serialization::access;
     };
 
     struct SSLConfig {
@@ -219,7 +219,7 @@ public:
             ar & client_cert_ctx;
             ar & root_ca_chain;
         }
-        friend class HLE::BoostCompat::Serialization::access;
+        friend class aurora::serialization::access;
     };
 
     struct Param {
@@ -252,7 +252,7 @@ public:
             ar & value;
             ar & is_binary;
         }
-        friend class HLE::BoostCompat::Serialization::access;
+        friend class aurora::serialization::access;
     };
 
     using Params = std::multimap<std::string, Param>;
@@ -319,7 +319,7 @@ struct SessionData : public Kernel::SessionRequestHandler::SessionDataBase {
 private:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& HLE::BoostCompat::Serialization::base_object<Kernel::SessionRequestHandler::SessionDataBase>(
+        ar& aurora::serialization::base_object<Kernel::SessionRequestHandler::SessionDataBase>(
             *this);
         bool has_current_http_context = current_http_context.has_value();
         ar & has_current_http_context;
@@ -340,7 +340,7 @@ private:
         ar & num_client_certs;
         ar & initialized;
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 class HTTP_C final : public ServiceFramework<HTTP_C, SessionData> {
@@ -912,7 +912,7 @@ private:
         // There is a very good chance that saving/loading during a network connection will break,
         // regardless!
         DEBUG_SERIALIZATION_POINT;
-        ar& HLE::BoostCompat::Serialization::base_object<Kernel::SessionRequestHandler>(*this);
+        ar& aurora::serialization::base_object<Kernel::SessionRequestHandler>(*this);
         ar & ClCertA.certificate;
         ar & ClCertA.private_key;
         ar & ClCertA.init;
@@ -922,7 +922,7 @@ private:
         // NOTE: `contexts` is not serialized because it contains non-serializable data. (i.e.
         // handles to ongoing HTTP requests.) Serializing across HTTP contexts will break.
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 std::shared_ptr<HTTP_C> GetService(Core::System& system);
@@ -931,5 +931,5 @@ void InstallInterfaces(Core::System& system);
 
 } // namespace Service::HTTP
 
-BOOST_CLASS_EXPORT_KEY(Service::HTTP::HTTP_C)
-BOOST_CLASS_EXPORT_KEY(Service::HTTP::SessionData)
+HLE_CLASS_EXPORT_KEY(Service::HTTP::HTTP_C)
+HLE_CLASS_EXPORT_KEY(Service::HTTP::SessionData)

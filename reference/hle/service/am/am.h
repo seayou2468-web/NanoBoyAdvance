@@ -1136,7 +1136,7 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 std::shared_ptr<Module> GetModule(Core::System& system);
@@ -1145,5 +1145,5 @@ void InstallInterfaces(Core::System& system);
 
 } // namespace Service::AM
 
-BOOST_CLASS_EXPORT_KEY(Service::AM::Module)
+HLE_CLASS_EXPORT_KEY(Service::AM::Module)
 SERVICE_CONSTRUCT(Service::AM::Module)

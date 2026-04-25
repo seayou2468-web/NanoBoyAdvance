@@ -254,7 +254,7 @@ public:
     private:
         template <class Archive>
         void serialize(Archive& ar, const unsigned int) {
-            ar& HLE::BoostCompat::Serialization::base_object<Kernel::SessionRequestHandler::SessionDataBase>(
+            ar& aurora::serialization::base_object<Kernel::SessionRequestHandler::SessionDataBase>(
                 *this);
             ar & ncch_program_id;
             ar & data_path_type;
@@ -262,7 +262,7 @@ public:
             ar & path;
             ar & file;
         }
-        friend class HLE::BoostCompat::Serialization::access;
+        friend class aurora::serialization::access;
     };
 
     class Interface : public ServiceFramework<Interface, SessionData> {
@@ -633,7 +633,7 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 /// Initialize CECD service(s)
@@ -642,5 +642,5 @@ void InstallInterfaces(Core::System& system);
 } // namespace Service::CECD
 
 SERVICE_CONSTRUCT(Service::CECD::Module)
-BOOST_CLASS_EXPORT_KEY(Service::CECD::Module)
-BOOST_CLASS_EXPORT_KEY(Service::CECD::Module::SessionData)
+HLE_CLASS_EXPORT_KEY(Service::CECD::Module)
+HLE_CLASS_EXPORT_KEY(Service::CECD::Module::SessionData)

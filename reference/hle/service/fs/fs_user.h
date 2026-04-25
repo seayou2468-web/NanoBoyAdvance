@@ -39,11 +39,11 @@ struct ClientSlot : public Kernel::SessionRequestHandler::SessionDataBase {
 private:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
-        ar& HLE::BoostCompat::Serialization::base_object<Kernel::SessionRequestHandler::SessionDataBase>(
+        ar& aurora::serialization::base_object<Kernel::SessionRequestHandler::SessionDataBase>(
             *this);
         ar & program_id;
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 class FS_USER final : public ServiceFramework<FS_USER, ClientSlot> {
@@ -758,7 +758,7 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 void InstallInterfaces(Core::System& system);
@@ -766,5 +766,5 @@ void InstallInterfaces(Core::System& system);
 } // namespace Service::FS
 
 SERVICE_CONSTRUCT(Service::FS::FS_USER)
-BOOST_CLASS_EXPORT_KEY(Service::FS::FS_USER)
-BOOST_CLASS_EXPORT_KEY(Service::FS::ClientSlot)
+HLE_CLASS_EXPORT_KEY(Service::FS::FS_USER)
+HLE_CLASS_EXPORT_KEY(Service::FS::ClientSlot)

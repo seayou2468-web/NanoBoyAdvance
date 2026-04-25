@@ -43,11 +43,11 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 } // namespace Service::SM
 
 SERVICE_CONSTRUCT(Service::SM::SRV)
-BOOST_CLASS_EXPORT_KEY(Service::SM::SRV)
-BOOST_CLASS_EXPORT_KEY(Service::SM::SRV::ThreadCallback)
+HLE_CLASS_EXPORT_KEY(Service::SM::SRV)
+HLE_CLASS_EXPORT_KEY(Service::SM::SRV::ThreadCallback)

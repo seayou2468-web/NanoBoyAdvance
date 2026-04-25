@@ -619,7 +619,7 @@ private:
             ar & connected;
             ar & node_id;
         }
-        friend class HLE::BoostCompat::Serialization::access;
+        friend class aurora::serialization::access;
     };
 
     std::map<MacAddress, Node> node_map;
@@ -645,7 +645,7 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
     friend class Service::DLP::DLP_Base;
     friend class Service::DLP::DLP_Clt_Base;
     friend class Service::DLP::DLP_SRVR;
@@ -654,5 +654,5 @@ private:
 } // namespace Service::NWM
 
 SERVICE_CONSTRUCT(Service::NWM::NWM_UDS)
-BOOST_CLASS_EXPORT_KEY(Service::NWM::NWM_UDS)
-BOOST_CLASS_EXPORT_KEY(Service::NWM::NWM_UDS::ThreadCallback)
+HLE_CLASS_EXPORT_KEY(Service::NWM::NWM_UDS)
+HLE_CLASS_EXPORT_KEY(Service::NWM::NWM_UDS::ThreadCallback)

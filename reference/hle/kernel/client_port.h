@@ -62,12 +62,12 @@ private:
     friend class KernelSystem;
 
 private:
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
 };
 
 } // namespace Kernel
 
-BOOST_CLASS_EXPORT_KEY(Kernel::ClientPort)
+HLE_CLASS_EXPORT_KEY(Kernel::ClientPort)
 CONSTRUCT_KERNEL_OBJECT(Kernel::ClientPort)

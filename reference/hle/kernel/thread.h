@@ -80,7 +80,7 @@ public:
 private:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 class CpuLimiter {
@@ -133,7 +133,7 @@ private:
     SchedState curr_state{};
     std::queue<u32> sleeping_thread_ids;
 
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
 };
@@ -242,7 +242,7 @@ private:
     friend class Thread;
     friend class KernelSystem;
 
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
 };
@@ -411,7 +411,7 @@ public:
 private:
     ThreadManager& thread_manager;
 
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
 };
@@ -429,10 +429,10 @@ std::shared_ptr<Thread> SetupMainThread(KernelSystem& kernel, u32 entry_point, u
 
 } // namespace Kernel
 
-BOOST_CLASS_EXPORT_KEY(Kernel::Thread)
-BOOST_CLASS_EXPORT_KEY(Kernel::WakeupCallback)
+HLE_CLASS_EXPORT_KEY(Kernel::Thread)
+HLE_CLASS_EXPORT_KEY(Kernel::WakeupCallback)
 
-HLE_BOOST_SERIALIZATION_BEGIN
+HLE_SERIALIZATION_NAMESPACE_BEGIN
 
 template <class Archive>
 void save_construct_data(Archive& ar, const Kernel::Thread* t, const unsigned int) {
@@ -446,4 +446,4 @@ void load_construct_data(Archive& ar, Kernel::Thread* t, const unsigned int) {
     ::new (t) Kernel::Thread(Core::Global<Kernel::KernelSystem>(), core_id);
 }
 
-HLE_BOOST_SERIALIZATION_END
+HLE_SERIALIZATION_NAMESPACE_END

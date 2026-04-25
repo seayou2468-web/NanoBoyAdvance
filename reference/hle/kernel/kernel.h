@@ -133,7 +133,7 @@ struct New3dsHwCapabilities {
 private:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 enum class Core1ScheduleMode : u32 {
@@ -167,7 +167,7 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 inline constexpr Core1CpuTime Core1CpuTime::PREEMPTION_DISABLED{0};
 inline constexpr Core1CpuTime Core1CpuTime::PREEMPTION_SYSMODULE{1000};
@@ -480,12 +480,12 @@ private:
      */
     bool main_thread_extended_sleep = false;
 
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
 };
 
 } // namespace Kernel
 
-BOOST_CLASS_EXPORT_KEY(Kernel::New3dsHwCapabilities)
-BOOST_CLASS_EXPORT_KEY(Kernel::Core1CpuTime)
+HLE_CLASS_EXPORT_KEY(Kernel::New3dsHwCapabilities)
+HLE_CLASS_EXPORT_KEY(Kernel::Core1CpuTime)

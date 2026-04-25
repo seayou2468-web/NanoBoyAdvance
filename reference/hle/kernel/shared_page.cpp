@@ -16,7 +16,7 @@
 
 SERIALIZE_EXPORT_IMPL(SharedPage::Handler)
 
-HLE_BOOST_SERIALIZATION_BEGIN
+HLE_SERIALIZATION_NAMESPACE_BEGIN
 
 template <class Archive>
 void load_construct_data(Archive& ar, SharedPage::Handler* t, const unsigned int) {
@@ -26,7 +26,7 @@ void load_construct_data(Archive& ar, SharedPage::Handler* t, const unsigned int
 template void load_construct_data<iarchive>(iarchive& ar, SharedPage::Handler* t,
                                             const unsigned int);
 
-HLE_BOOST_SERIALIZATION_END
+HLE_SERIALIZATION_NAMESPACE_END
 
 namespace SharedPage {
 
@@ -175,8 +175,8 @@ SharedPageDef& Handler::GetSharedPage() {
 
 template <class Archive>
 void Handler::serialize(Archive& ar, const unsigned int) {
-    ar& HLE::BoostCompat::Serialization::base_object<BackingMem>(*this);
-    ar& HLE::BoostCompat::Serialization::make_binary_object(&shared_page, sizeof(shared_page));
+    ar& aurora::serialization::base_object<BackingMem>(*this);
+    ar& aurora::serialization::make_binary_object(&shared_page, sizeof(shared_page));
 }
 SERIALIZE_IMPL(Handler)
 

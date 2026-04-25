@@ -193,7 +193,7 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 void ReloadMic(Core::System& system);
@@ -203,5 +203,5 @@ void InstallInterfaces(Core::System& system);
 } // namespace Service::MIC
 
 SERVICE_CONSTRUCT(Service::MIC::MIC_U)
-BOOST_CLASS_EXPORT_KEY(Service::MIC::MIC_U)
-BOOST_CLASS_VERSION(Service::MIC::MIC_U::Impl, 1)
+HLE_CLASS_EXPORT_KEY(Service::MIC::MIC_U)
+HLE_CLASS_VERSION(Service::MIC::MIC_U::Impl, 1)

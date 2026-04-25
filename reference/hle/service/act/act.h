@@ -71,12 +71,12 @@ private:
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 void InstallInterfaces(Core::System& system);
 
 } // namespace Service::ACT
 
-BOOST_CLASS_EXPORT_KEY(Service::ACT::Module)
+HLE_CLASS_EXPORT_KEY(Service::ACT::Module)
 SERVICE_CONSTRUCT(Service::ACT::Module)

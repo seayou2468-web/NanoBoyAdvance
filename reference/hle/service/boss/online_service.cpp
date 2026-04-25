@@ -4,7 +4,6 @@
 
 #include "common/archives.h"
 #include "common/file_util.h"
-#include "common/serialization/boost_std_variant.hpp"
 #include "common/string_util.h"
 #include "core/core.h"
 #include "core/file_sys/archive_backend.h"

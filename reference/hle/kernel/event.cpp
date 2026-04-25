@@ -61,7 +61,7 @@ void Event::WakeupAllWaitingThreads() {
 
 template <class Archive>
 void Event::serialize(Archive& ar, const unsigned int) {
-    ar& HLE::BoostCompat::Serialization::base_object<WaitObject>(*this);
+    ar& aurora::serialization::base_object<WaitObject>(*this);
     ar & reset_type;
     ar & signaled;
     ar & name;

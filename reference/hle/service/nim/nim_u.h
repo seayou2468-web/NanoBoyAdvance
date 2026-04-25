@@ -534,15 +534,15 @@ private:
     template <class Archive>
     void serialize(Archive& ar, const unsigned int) {
         DEBUG_SERIALIZATION_POINT;
-        ar& HLE::BoostCompat::Serialization::base_object<Kernel::SessionRequestHandler>(*this);
+        ar& aurora::serialization::base_object<Kernel::SessionRequestHandler>(*this);
         ar & nim_system_update_event_for_menu;
         ar & nim_system_update_event_for_news;
         ar & nim_async_completion_event;
     }
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
 };
 
 } // namespace Service::NIM
 
 SERVICE_CONSTRUCT(Service::NIM::NIM_U)
-BOOST_CLASS_EXPORT_KEY(Service::NIM::NIM_U)
+HLE_CLASS_EXPORT_KEY(Service::NIM::NIM_U)

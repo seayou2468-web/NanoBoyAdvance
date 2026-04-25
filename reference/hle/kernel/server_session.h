@@ -106,12 +106,12 @@ private:
     friend class KernelSystem;
     KernelSystem& kernel;
 
-    friend class HLE::BoostCompat::Serialization::access;
+    friend class aurora::serialization::access;
     template <class Archive>
     void serialize(Archive& ar, const unsigned int);
 };
 
 } // namespace Kernel
 
-BOOST_CLASS_EXPORT_KEY(Kernel::ServerSession)
+HLE_CLASS_EXPORT_KEY(Kernel::ServerSession)
 CONSTRUCT_KERNEL_OBJECT(Kernel::ServerSession)
