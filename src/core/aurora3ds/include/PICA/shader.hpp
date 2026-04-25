@@ -164,7 +164,10 @@ class PICAShader {
 	void cmp(u32 instruction);
 	void dp3(u32 instruction);
 	void dp4(u32 instruction);
+	void dph(u32 instruction);
 	void dphi(u32 instruction);
+	void dst(u32 instruction);
+	void dsti(u32 instruction);
 	void ex2(u32 instruction);
 	void flr(u32 instruction);
 	void ifc(u32 instruction);
