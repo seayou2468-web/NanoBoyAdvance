@@ -52,11 +52,25 @@ set(BEARSSL_SOURCES
 # Exclude reference interpreter files which have external dependencies not present in build env
 list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/mikage/src/core/CPU/reference/.*")
 list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/mikage/src/core/CPU/dyncom/arm_dyncom\.cpp")
+# Exclude the legacy ARM_DynCom wrapper (expects old Memory::MemorySystem/PageTable APIs).
+# CPU integration uses cpu_dyncom.cpp + interpreter path instead.
+list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/CPU/dyncom/arm_dyncom\.cpp$")
 if(NOT NBA_ENABLE_AURORA3DS_CORE_INTEGRATION)
   # The legacy aurora3ds src/core tree is currently incomplete in this repository snapshot and
   # pulls transitive includes that are not present (e.g. common/settings.h, applet headers).
   # Keep the adapter layer, but exclude that legacy implementation tree by default.
   list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/.*")
+else()
+  # Integration mode: keep CPU/HLE-kernel connection work focused and trim subsystems that still
+  # require unavailable legacy config/service stacks.
+  list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/video_core/.*")
+  list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/file_sys/.*")
+  list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/loader/.*")
+  list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/hle/.*")
+  list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/hw/.*")
+  list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/memory\\.cpp$")
+  list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/core_timing\\.cpp$")
+  list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/system_titles\\.cpp$")
 endif()
 
 if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
@@ -162,7 +176,7 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 
   target_compile_options(AuroraSDL PRIVATE ${SDL2_CFLAGS_OTHER})
   target_compile_definitions(AuroraSDL PRIVATE
-    NBA_BUILD_AURORA3DS_ADAPTER=$<BOOL:${NBA_ENABLE_AURORA3DS_CORE_INTEGRATION}>
+    NBA_BUILD_AURORA3DS_ADAPTER=0
   )
   target_include_directories(AuroraSDL PRIVATE ${SDL2_INCLUDE_DIRS})
   target_link_directories(AuroraSDL PRIVATE ${SDL2_LIBRARY_DIRS})
