@@ -48,7 +48,10 @@ set(BEARSSL_SOURCES
 # Exclude reference interpreter files which have external dependencies not present in build env
 list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/mikage/src/core/CPU/reference/.*")
 list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/mikage/src/core/CPU/dyncom/arm_dyncom\.cpp")
-list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/CPU/dyncom/arm_dyncom\.cpp$")
+# The legacy aurora3ds src/core tree is currently incomplete in this repository snapshot and
+# pulls transitive includes that are not present (e.g. common/settings.h, applet headers).
+# Keep the adapter layer, but exclude that legacy implementation tree from this unified build.
+list(FILTER CORE_SOURCES EXCLUDE REGEX "src/core/aurora3ds/src/core/.*")
 
 if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
   file(GLOB_RECURSE AURORAIOS_SOURCES CONFIGURE_DEPENDS
@@ -82,6 +85,9 @@ if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
     ${CMAKE_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/src/core
     ${CMAKE_SOURCE_DIR}/src/core/api
+    ${CMAKE_SOURCE_DIR}/src/core/aurora3ds/include
+    ${CMAKE_SOURCE_DIR}/src/core/aurora3ds/src
+    ${CMAKE_SOURCE_DIR}/src/core/third_party/bearssl/src
     ${CMAKE_SOURCE_DIR}/src/core/mikage/include
     ${CMAKE_SOURCE_DIR}/src/core/third_party/bearssl/inc
   )
@@ -93,10 +99,12 @@ if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
   find_library(AVFOUNDATION_FRAMEWORK AVFoundation REQUIRED)
   find_library(AUDIOTOOLBOX_FRAMEWORK AudioToolbox REQUIRED)
   find_library(COMPRESSION_FRAMEWORK Compression)
+  find_library(SECURITY_FRAMEWORK Security REQUIRED)
 
   target_link_libraries(AuroraIOS PRIVATE
     ${AVFOUNDATION_FRAMEWORK}
     ${AUDIOTOOLBOX_FRAMEWORK}
+    ${SECURITY_FRAMEWORK}
     "-framework Foundation"
     "-framework UIKit"
     "-framework CoreGraphics"
@@ -133,6 +141,9 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     ${CMAKE_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/src/core
     ${CMAKE_SOURCE_DIR}/src/core/api
+    ${CMAKE_SOURCE_DIR}/src/core/aurora3ds/include
+    ${CMAKE_SOURCE_DIR}/src/core/aurora3ds/src
+    ${CMAKE_SOURCE_DIR}/src/core/third_party/bearssl/src
     ${CMAKE_SOURCE_DIR}/src/core/mikage/include
     ${CMAKE_SOURCE_DIR}/src/core/third_party/bearssl/inc
   )
