@@ -310,6 +310,9 @@ Emulator::Emulator()
 	kernel.getServiceManager().setFallbackBridge(referenceFallbackBridge.get());
 	kernel.getServiceManager().setReferenceOnlyHLE(true);
 	if (!NBAReferenceFallbackHasHandlers()) {
+		NBAReferenceFallbackRegisterBuiltinHandlers();
+	}
+	if (!NBAReferenceFallbackHasHandlers()) {
 		Helpers::panic("Reference HLE handlers are not registered. Aurora3DS now requires registered reference handlers.");
 	}
 	audioDevice.init(dsp->getSamples());

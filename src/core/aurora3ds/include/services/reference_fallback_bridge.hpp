@@ -17,6 +17,7 @@ extern "C" void NBAReferenceFallbackRegisterHandlers(
 );
 extern "C" void NBAReferenceFallbackClearHandlers();
 bool NBAReferenceFallbackHasHandlers();
+void NBAReferenceFallbackRegisterBuiltinHandlers();
 
 // Creates a bridge that forwards Aurora IPC requests to registered reference HLE handlers.
 std::unique_ptr<HLEFallbackBridge> CreateReferenceFallbackBridge(Memory& mem);
