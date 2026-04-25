@@ -98,9 +98,7 @@ void GPUService::reset() {
 	gspThreadCount = 0;
 	firstInitialization = true;
 	sharedMem = mem.getSharedMemoryPointer(KernelHandles::GSPSharedMemHandle);
-	if (sharedMem != nullptr) {
-		std::memset(sharedMem, 0, 0x1000);
-	}
+	sharedMemInitialized = false;
 	savedVram.reset();
 }
 
@@ -174,6 +172,10 @@ void GPUService::registerInterruptRelayQueue(u32 messagePointer) {
 	log("GSP::GPU::RegisterInterruptRelayQueue (flags = %X, event handle = %X)\n", flags, eventHandle);
 	if (sharedMem == nullptr) {
 		sharedMem = mem.getSharedMemoryPointer(KernelHandles::GSPSharedMemHandle);
+	}
+	if (sharedMem != nullptr && !sharedMemInitialized) {
+		std::memset(sharedMem, 0, 0x1000);
+		sharedMemInitialized = true;
 	}
 
 	const auto event = kernel.getObject(eventHandle, KernelObjectType::Event);
@@ -468,7 +470,10 @@ void GPUService::setLCDForceBlack(u32 messagePointer) {
 
 void GPUService::triggerCmdReqQueue(u32 messagePointer) {
 	if (sharedMem == nullptr) {
-		Helpers::warn("GSP::GPU::TriggerCmdReqQueue called before shared memory was mapped; GX command queue is unavailable");
+		sharedMem = mem.getSharedMemoryPointer(KernelHandles::GSPSharedMemHandle);
+		if (sharedMem == nullptr) {
+			Helpers::warn("GSP::GPU::TriggerCmdReqQueue called before shared memory was mapped; GX command queue is unavailable");
+		}
 	}
 	processCommandBuffer();
 	// Many titles rely on shared-memory framebuffer updates becoming visible quickly.
@@ -524,8 +529,11 @@ void GPUService::setInternalPriorities(u32 messagePointer) {
 
 void GPUService::processCommandBuffer() {
 	if (sharedMem == nullptr) [[unlikely]] {  // Shared memory hasn't been set up yet
-		Helpers::warn("GSP::GPU::processCommandBuffer skipped because shared memory is null (RegisterInterruptRelayQueue/MapMemoryBlock flow incomplete)");
-		return;
+		sharedMem = mem.getSharedMemoryPointer(KernelHandles::GSPSharedMemHandle);
+		if (sharedMem == nullptr) {
+			Helpers::warn("GSP::GPU::processCommandBuffer skipped because shared memory is null (RegisterInterruptRelayQueue/MapMemoryBlock flow incomplete)");
+			return;
+		}
 	}
 
 	constexpr int threadCount = 4;

@@ -33,6 +33,7 @@ class GPUService {
 	Kernel& kernel;
 	u32& currentPID;  // Process ID of the current process
 	u8* sharedMem;    // Pointer to GSP shared memory
+	bool sharedMemInitialized = false;
 
 	// At any point in time only 1 process has privileges to use rendering functions
 	// This is the PID of that process
@@ -123,5 +124,6 @@ class GPUService {
 	void requestInterrupt(GPUInterrupt type);
 	void setSharedMem(u8* ptr) {
 		sharedMem = ptr;
+		sharedMemInitialized = false;
 	}
 };

@@ -799,10 +799,10 @@ u8* Memory::mapSharedMemory(Handle handle, u32 vaddr, u32 myPerms, u32 otherPerm
 			const u32 paddr = e.paddr;
 			const u32 size = e.size;
 
-			if (myPerms == 0x10000000) {
-				myPerms = 3;
-				Helpers::panic("Memory::mapSharedMemory with DONTCARE perms");
-			}
+				if (myPerms == 0x10000000) {
+					myPerms = 3;
+					Helpers::warn("Memory::mapSharedMemory received DONTCARE perms; defaulting to RW");
+				}
 
 			bool r = myPerms & 0b001;
 			bool w = myPerms & 0b010;
