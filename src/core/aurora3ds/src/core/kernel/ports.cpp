@@ -209,8 +209,10 @@ void Kernel::sendSyncRequest() {
 	// If we're actually communicating with a port
 	const auto session = getObject(handle, KernelObjectType::Session);
 	if (session == nullptr) [[unlikely]] {
-		Helpers::warn("SendSyncRequest: Invalid handle %X (stubbed response)", handle);
 		const u32 command = mem.read32(messagePointer);
+		Helpers::warn(
+			"SendSyncRequest: Invalid handle %X (cmd=%08X id=%04X, stubbed response)", handle, command, command >> 16
+		);
 		mem.write32(messagePointer, IPC::responseHeader(command >> 16, 1, 0));
 		mem.write32(messagePointer + 4, Result::Success);
 		regs[0] = Result::Success;

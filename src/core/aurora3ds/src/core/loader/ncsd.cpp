@@ -64,6 +64,30 @@ bool Memory::mapCXI(NCSD& ncsd, NCCH& cxi) {
 	allocMemory(dataAddr, cxi.data.pageCount, region, true, true, false, MemoryState::Private);
 	allocMemory(bssAddr, bssSize >> 12, region, true, true, false, MemoryState::Private);
 
+	// Many retail CXI titles expect default normal/linear heaps to exist very early in boot.
+	// Without this, some apps immediately write near 0x08000000 and stall on unmapped accesses
+	// before service/GSP initialization has a chance to run.
+	auto bytesToPages = [](u32 size) -> u32 {
+		return (size + Memory::pageSize - 1) / Memory::pageSize;
+	};
+	constexpr u32 defaultHeapSize = u32(24_MB);
+	constexpr u32 defaultLinearHeapSize = u32(32_MB);
+
+	const u32 heapPages = bytesToPages(defaultHeapSize);
+	if (heapPages != 0 && testMemoryState(VirtualAddrs::NormalHeapStart, static_cast<s32>(heapPages), MemoryState::Free).isSuccess()) {
+		if (!allocMemory(VirtualAddrs::NormalHeapStart, static_cast<s32>(heapPages), FcramRegion::App, true, true, false, MemoryState::Private)) {
+			Helpers::warn("CXI loader: failed to pre-allocate normal heap (%u pages)", heapPages);
+		}
+	}
+
+	const u32 linearPages = bytesToPages(defaultLinearHeapSize);
+	if (linearPages != 0) {
+		u32 linearOut = 0;
+		if (!allocMemoryLinear(linearOut, 0, static_cast<s32>(linearPages), FcramRegion::App, true, true, false)) {
+			Helpers::warn("CXI loader: failed to pre-allocate linear heap (%u pages)", linearPages);
+		}
+	}
+
 	// Copy .code file to FCRAM
 	copyToVaddr(textAddr, code.data(), textSize);
 	copyToVaddr(rodataAddr, code.data() + textSize, rodataSize);
