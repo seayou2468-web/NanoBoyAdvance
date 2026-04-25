@@ -18,6 +18,7 @@
 #include "./kernel/kernel.hpp"
 #include "./memory.hpp"
 #include "./scheduler.hpp"
+#include "./services/hle_fallback_bridge.hpp"
 
 enum class ROMType {
 	None,
@@ -42,6 +43,7 @@ class Emulator {
 	Crypto::AESEngine aesEngine;
 	AudioDevice audioDevice;
 	Cheats cheats;
+	std::unique_ptr<HLEFallbackBridge> referenceFallbackBridge;
 
   public:
 	static constexpr u32 width = 400;

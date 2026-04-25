@@ -9,6 +9,8 @@
 #include <fstream>
 #include <vector>
 
+#include "../include/services/reference_fallback_bridge.hpp"
+
 #if defined(__APPLE__)
 #include <TargetConditionals.h>
 #endif
@@ -285,6 +287,9 @@ Emulator::Emulator()
 
 	dsp = Audio::makeDSPCore(config, memory, scheduler, dspService);
 	dspService.setDSPCore(dsp.get());
+
+	referenceFallbackBridge = CreateReferenceFallbackBridge(memory);
+	kernel.getServiceManager().setFallbackBridge(referenceFallbackBridge.get());
 
 	audioDevice.init(dsp->getSamples());
 
